@@ -18,6 +18,8 @@ document.querySelectorAll(".tab").forEach((t) => {
     document.getElementById(t.dataset.tab).classList.add("active");
     if (t.dataset.tab === "play") refreshPlay();
     if (t.dataset.tab === "ml") initMl();
+    if (t.dataset.tab === "rdd") initRdd();
+    if (t.dataset.tab === "rddassume") initRddAssume();
   });
 });
 
@@ -397,6 +399,158 @@ function renderForbidden(d) {
 }
 
 // ======================================================================
+// 6. Regression Discontinuity — teaching + interactive (bandwidth slider)
+// ======================================================================
+const PURPLE = "#7c3aed", SLATE = "#64748b";
+let rddReady = false, rddAssumeReady = false, rddBwTimer = null;
+const rddBwSlider = document.getElementById("rddBwSlider");
+
+function initRdd() {
+  if (rddReady) return;
+  rddReady = true;
+  refreshRdd();
+  runRddSurvival();
+}
+function scheduleRdd() {
+  document.getElementById("rddBwVal").textContent = Number(rddBwSlider.value).toFixed(1);
+  clearTimeout(rddBwTimer);
+  rddBwTimer = setTimeout(refreshRdd, 130);
+}
+rddBwSlider.addEventListener("input", scheduleRdd);
+
+async function refreshRdd() {
+  const bw = Number(rddBwSlider.value);
+  let i, a;
+  try {
+    i = await getJSON(`${API}/api/rdd_interactive?bandwidth=${bw}&lang=${lang()}`);
+    a = await postJSON(`${API}/api/rdd_analyze`, { source: "example_rdd", bandwidth: bw, lang: lang() });
+  } catch (e) { return; }
+
+  document.getElementById("rddTakeup").textContent = fmt(i.takeup_jump * 100, 0) + "%";
+  document.getElementById("rddSharp").textContent = fmt(i.sharp, 2);
+  document.getElementById("rddSharpCi").textContent =
+    `${fmt(i.sharp_ci[0], 2)} ~ ${fmt(i.sharp_ci[1], 2)}`;
+  const fuzzyEl = document.getElementById("rddFuzzy");
+  fuzzyEl.textContent = fmt(i.fuzzy, 2);
+  fuzzyEl.style.color = Math.abs(i.fuzzy - 1.8) < 0.4 ? TEAL : AMBER;
+
+  renderRddPlot(a.plot);
+  renderRddBwCurve(a.bandwidth_curve);
+}
+
+function renderRddPlot(plot) {
+  const c = plot.cutoff;
+  const traces = [
+    { x: plot.left.bx, y: plot.left.by, type: "scatter", mode: "markers",
+      name: tr("斷點下方", "below cutoff"), marker: { color: SLATE, size: 7 } },
+    { x: plot.right.bx, y: plot.right.by, type: "scatter", mode: "markers",
+      name: tr("斷點上方", "above cutoff"), marker: { color: PURPLE, size: 7 } },
+  ];
+  if (plot.fit.left) traces.push({ x: plot.fit.left.x, y: plot.fit.left.y, type: "scatter",
+    mode: "lines", name: tr("左側配適", "left fit"), line: { color: SLATE, width: 3 }, showlegend: false });
+  if (plot.fit.right) traces.push({ x: plot.fit.right.x, y: plot.fit.right.y, type: "scatter",
+    mode: "lines", name: tr("右側配適", "right fit"), line: { color: PURPLE, width: 3 }, showlegend: false });
+
+  Plotly.react("rddPlot", traces, {
+    margin: { t: 24, r: 20, b: 45, l: 55 },
+    xaxis: { title: tr("年齡（跑分變數）", "Age (running variable)") },
+    yaxis: { title: tr("健康分數變化", "Health-score change") },
+    legend: { orientation: "h", y: 1.14 },
+    shapes: [{ type: "line", x0: c, x1: c, yref: "paper", y0: 0, y1: 1,
+               line: { color: RED, dash: "dash", width: 1.5 } }],
+    annotations: [{ x: c, yref: "paper", y: 1, text: tr("斷點 65 歲", "cutoff age 65"),
+               showarrow: false, font: { color: RED, size: 11 }, yshift: 10 }],
+  }, { displayModeBar: false, responsive: true });
+}
+
+function renderRddBwCurve(bw) {
+  Plotly.react("rddBwChart", [
+    { x: bw.h.concat(bw.h.slice().reverse()),
+      y: bw.hi.concat(bw.lo.slice().reverse()),
+      fill: "toself", fillcolor: "rgba(124,58,237,0.12)", line: { color: "transparent" },
+      type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip" },
+    { x: bw.h, y: bw.estimate, type: "scatter", mode: "lines+markers",
+      line: { color: PURPLE, width: 3 }, marker: { size: 6 }, name: tr("模糊 RD 估計", "fuzzy RD estimate") },
+  ], {
+    margin: { t: 24, r: 20, b: 45, l: 55 },
+    xaxis: { title: tr("觀察視窗（頻寬，年）", "Observation window (bandwidth, years)") },
+    yaxis: { title: tr("模糊 RD 估計", "Fuzzy RD estimate") },
+    showlegend: false,
+    shapes: [{ type: "line", x0: bw.h[0], x1: bw.h[bw.h.length - 1], y0: 1.8, y1: 1.8,
+               line: { color: GREEN, dash: "dash", width: 2 } }],
+    annotations: [{ x: bw.h[bw.h.length - 1], y: 1.8, text: tr("真值 1.80", "truth 1.80"),
+               showarrow: false, font: { color: GREEN }, yshift: 12, xanchor: "right" }],
+  }, { displayModeBar: false, responsive: true });
+}
+
+async function runRddSurvival() {
+  let s;
+  try { s = await postJSON(`${API}/api/rdd_survival`, { source: "example_rdd", lang: lang() }); }
+  catch (e) { return; }
+  state.rddSurv = s;
+  renderRddSurvival(s);
+}
+function renderRddSurvival(s) {
+  const cards = [
+    [tr("未處理設限（有偏）", "No censoring fix (biased)"), s.naive.estimate, s.naive.interpretation, false],
+    [tr("銳利（IPCW／DR）", "Sharp (IPCW/DR)"), s.sharp.estimate, s.sharp.interpretation, false],
+    [tr("模糊（IPCW／DR）", "Fuzzy (IPCW/DR)"), s.fuzzy.estimate, s.fuzzy.interpretation, true],
+  ];
+  document.getElementById("rddSurvCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3>` +
+    `<div class="big">${fmt(v, 2)} ${tr("年", "yr")}</div><p>${desc}</p></div>`
+  ).join("");
+}
+
+// ======================================================================
+// 7. RDD assumptions dashboard (R1–R5)
+// ======================================================================
+function initRddAssume() {
+  if (rddAssumeReady) return;
+  rddAssumeReady = true;
+  runRddAssumptions();
+}
+async function runRddAssumptions() {
+  let out;
+  try { out = await postJSON(`${API}/api/rdd_assumptions`, { source: "example_rdd", lang: lang() }); }
+  catch (e) { return; }
+  state.rddDash = out;
+  renderRddAssumptions(out);
+}
+function worstStatus(checks) {
+  const rank = { red: 3, amber: 2, info: 1, green: 0 };
+  return checks.reduce((w, c) => (rank[c.status] > rank[w] ? c.status : w), "green");
+}
+function renderRddAssumptions(out) {
+  document.getElementById("rddAssumeHint").classList.add("hidden");
+  const ov = document.getElementById("rddOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("各項佐證都通過，這個 RDD 設計看起來可信。", "All supporting checks pass — this RDD design looks credible."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards to see."),
+    red: tr("有項目不符，RDD 結果要保守看待。", "Some items fail — interpret the RDD with caution."),
+    info: tr("關鍵假設需靠領域知識判斷，請看各卡片說明。", "The key assumption needs domain judgement — see each card."),
+  }[worst];
+  ov.classList.remove("hidden");
+  ov.className = `overall st-${worst}`;
+  ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+
+  document.getElementById("rddAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) =>
+      `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}">
+      <h3><span class="dot bg-${c.status}"></span>${c.title}
+        <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p>
+      <p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details>
+    </div>`;
+  }).join("");
+}
+
+// ======================================================================
 // Citation — JAMA text + BibTeX + downloadable RIS
 // ======================================================================
 const CITE = {
@@ -516,6 +670,8 @@ window.addEventListener("iv-lang", async () => {
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
+  if (rddReady) { refreshRdd(); runRddSurvival(); } // RDD teaching (backend text)
+  if (rddAssumeReady) runRddAssumptions();         // RDD assumptions (backend text)
 });
 
 // initial render of interactive tab data

@@ -19,6 +19,8 @@
     <button class="tab" data-tab="analyze" data-en="③ Analyse data">③ 資料分析</button>
     <button class="tab" data-tab="assume" data-en="④ Assumptions">④ 假設檢驗</button>
     <button class="tab" data-tab="ml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
+    <button class="tab" data-tab="rdd" data-en="⑥ RDD teaching">⑥ RDD 教學</button>
+    <button class="tab" data-tab="rddassume" data-en="⑦ RDD assumptions">⑦ RDD 假設</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -363,6 +365,106 @@
         AI 的兩帖藥方則把估計拉回真相附近、且誤差範圍可用。
       </p>
     </div>
+  </section>
+
+  <!-- ===================== 6. RDD 教學／互動 ===================== -->
+  <section id="rdd" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Same vaccine story, a different trick: the age-65 threshold (RDD)">同一個疫苗故事，換個招式：用「滿 65 歲」這條線（RDD）</h1>
+    <p class="lead" data-en="In tabs ①–⑤ we used a <b>random reminder</b> as the instrument. Here we change the design: suppose a free vaccination programme is offered <b>only to people aged 65 and over</b>. Crossing that birthday line suddenly changes your eligibility — and this jump lets us read off the vaccine's effect <b>without needing any random instrument</b>.">
+      在 ①–⑤ 我們用「<b>隨機接種提醒</b>」當工具。這裡換一種設計：假設有一個免費接種計畫，
+      <b>只開放給滿 65 歲的人</b>。一跨過這條生日線，資格就突然改變——這個「跳一下」，
+      讓我們可以<b>不需要任何隨機工具</b>，就讀出疫苗的效果。
+    </p>
+
+    <div class="card info">
+      <h3 data-en="The plain-language idea">先用白話想一遍</h3>
+      <p data-en="Picture everyone lined up by age. People at 64.9 and people at 65.1 are <b>almost identical</b> — same habits, same health consciousness (the unseen confounder that fooled us before). The ONLY thing that suddenly differs at 65 is <b>programme eligibility</b>. So if health outcomes <b>jump</b> right at 65, that jump must come from the programme, not from confounders — because the confounders don't jump at a birthday.">
+        想像大家按年齡排成一排。64.9 歲和 65.1 歲的人<b>幾乎一模一樣</b>——習慣一樣、
+        健康意識也一樣（就是之前騙過我們的那個看不見的干擾因子）。在 65 歲唯一突然改變的，
+        只有<b>計畫資格</b>。所以如果健康結果剛好在 65 歲<b>跳一下</b>，那一跳一定來自計畫，
+        而不是干擾因子——因為干擾因子不會在某個生日突然跳。
+      </p>
+    </div>
+
+    <div class="rdd-twocol">
+      <div class="card">
+        <h3 data-en="Sharp RDD = the jump in the outcome">銳利 RDD ＝ 結果的「跳幅」</h3>
+        <p data-en="Fit a line to the outcome just below 65 and just above 65; the <b>gap between the two lines at the cutoff</b> is the Sharp RD. It measures the effect of <b>being eligible</b> (ITT-like), whether or not people actually take up the vaccine.">
+          在 65 歲下方與上方各配一條線；兩條線在斷點的<b>落差</b>就是銳利 RD。
+          它衡量的是「<b>有沒有資格</b>」的效果（類似 ITT），不管人實際有沒有去接種。
+        </p>
+      </div>
+      <div class="card">
+        <h3 data-en="Fuzzy RDD = scale by the take-up jump">模糊 RDD ＝ 除以「接種率跳幅」</h3>
+        <p data-en="Not everyone eligible actually gets vaccinated. The take-up rate only <b>jumps part-way</b> at 65. Fuzzy RD = (jump in outcome) ÷ (jump in take-up) — the effect for those who took the vaccine <b>because</b> they crossed the line (the compliers, near the cutoff). This is IV applied at the threshold.">
+          不是每個有資格的人都真的去打。接種率在 65 歲只<b>跳了一部分</b>。
+          模糊 RD ＝（結果跳幅）÷（接種率跳幅）——代表那些「<b>因為</b>跨過線才去打」的人
+          （斷點附近的順從者 complier）身上的效果。這其實就是把 IV 用在門檻上。
+        </p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <label>
+        <span data-en="Observation window (bandwidth, years):">觀察視窗（頻寬，年）：</span><b id="rddBwVal">6.0</b>
+        <input type="range" id="rddBwSlider" min="2" max="14" value="6" step="0.5" />
+        <small data-en="RDD only uses people near 65. Narrow = fewer people, noisier; wide = more people but pulls in less-similar ages. Watch the estimates move.">RDD 只用 65 歲附近的人。視窗窄＝人少、雜訊大；視窗寬＝人多但會混入較不相似的年齡。看估計怎麼變。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Take-up jump at 65">接種率在 65 歲的跳幅</div><div class="stat-num" id="rddTakeup">–</div><div class="stat-foot" data-en="the fuzzy first stage">模糊版的第一階段</div></div>
+      <div class="stat"><div class="stat-label" data-en="Sharp RD (eligibility, ITT-like)">銳利 RD（資格效果，類 ITT）</div><div class="stat-num" id="rddSharp">–</div><div class="stat-foot" id="rddSharpCi"></div></div>
+      <div class="stat"><div class="stat-label" data-en="Fuzzy RD (compliers at cutoff)">模糊 RD（斷點順從者）</div><div class="stat-num" id="rddFuzzy">–</div><div class="stat-foot" data-en="true answer hides at 1.80">真正答案藏在 1.80</div></div>
+    </div>
+
+    <div id="rddPlot" class="chart"></div>
+    <p class="caption" data-en="The dots are binned averages of the health-score change by age; the two fitted lines are the local-linear fits on each side. The vertical dashed line is the age-65 cutoff. The <b>vertical gap</b> at the line is the Sharp RD.">
+      點是各年齡層「健康分數變化」的分組平均；兩條線是斷點兩側的局部線性配適；
+      垂直虛線是 65 歲斷點。線上的<b>垂直落差</b>就是銳利 RD。
+    </p>
+    <div id="rddBwChart" class="chart"></div>
+    <p class="caption" data-en="Sensitivity curve: the fuzzy estimate (with its confidence band) as the window widens. A flat curve near 1.80 means the conclusion is robust to the window choice.">
+      敏感度曲線：模糊估計（含信賴帶）隨視窗放寬的變化。曲線若在 1.80 附近平坦，代表結論不挑視窗、很穩健。
+    </p>
+
+    <div class="card warn">
+      <h3 data-en="Bonus: survival outcome with censoring (IPCW / doubly-robust)">進階：帶設限的存活結果（IPCW／雙重穩健）</h3>
+      <p data-en="If the outcome is <b>time to a major health event</b> (some people are still event-free when follow-up ends — &quot;censored&quot;), a plain RD on the observed time is biased downward. We correct it with <b>IPCW</b> (re-weight by the chance of not being censored) plus a <b>doubly-robust</b> adjustment, then run the same RD on a restricted-mean-survival-time pseudo-outcome (horizon τ = 10 years).">
+        如果結果是「<b>到重大健康事件的時間</b>」（有些人追蹤結束時還沒發生事件——稱為「設限」），
+        直接對觀察到的時間做 RD 會低估。我們用 <b>IPCW</b>（依「沒被設限的機率」重新加權）
+        加上<b>雙重穩健</b>校正，再對「受限平均存活時間」的虛擬結果做同樣的 RD（觀察範圍 τ＝10 年）。
+      </p>
+      <div class="result-cards" id="rddSurvCards"></div>
+      <p class="caption" data-en="Note: this is an honest, simplified numpy/scipy version (KM for the censoring curve + IPCW/DR pseudo-outcomes), not the full semiparametric estimator.">
+        說明：這是誠實的簡化版（用 Kaplan–Meier 估設限曲線＋IPCW／DR 虛擬結果），並非完整的半參數估計式。
+      </p>
+    </div>
+
+    <details class="term">
+      <summary data-en="How does RDD differ from the IV in tabs ①–⑤?">RDD 和 ①–⑤ 的 IV 有什麼不同？</summary>
+      <p data-en="Both recover a LATE for compliers, but the <b>source of the &quot;as-good-as-random&quot; variation differs</b>. IV needs a <b>genuinely random instrument</b> (the reminder). RDD instead leans on a <b>sharp rule at a cutoff</b>: people just on either side are comparable, so it handles the same unseen confounder <b>without</b> any random instrument. The trade-off: RDD only speaks about people <b>near the cutoff</b> (here, near age 65), and depends on the <b>bandwidth</b> choice.">
+        兩者都估出「順從者的 LATE」，但「<b>近似隨機」的來源不同</b>。IV 需要一個
+        <b>真正隨機的工具</b>（提醒）。RDD 則靠<b>斷點上的明確規則</b>：剛好落在線兩側的人可比，
+        所以<b>不需要</b>任何隨機工具就能處理同一個看不見的干擾因子。代價是：RDD 只能談
+        <b>斷點附近</b>的人（這裡是 65 歲附近），而且結論會受<b>視窗（頻寬）</b>選擇影響。
+      </p>
+    </details>
+  </section>
+
+  <!-- ===================== 7. RDD 假設檢驗 ===================== -->
+  <section id="rddassume" class="panel">
+    <h1 data-en="Can we trust this RDD? Five checks (different from IV's)">這個 RDD 可不可信？五道體檢（和 IV 的不一樣）</h1>
+    <p class="lead" data-en="RDD rests on <b>different assumptions</b> from IV. The key one — that people just below and just above the cutoff are alike — <b>cannot be proven from data</b>, so we are honest about it and run the supporting checks that <b>can</b> be tested: no manipulation of the running variable, balanced background characteristics, a real first-stage jump (for fuzzy), and stability across bandwidths. Green = fine, amber = watch out, red = problem.">
+      RDD 依賴的假設和 IV <b>不一樣</b>。最關鍵的那一條——斷點下方與上方的人很像——
+      <b>沒辦法用資料直接證明</b>，所以我們誠實說明，並改跑<b>可以檢驗</b>的佐證項目：
+      跑分變數沒有被操弄、背景條件平衡、（模糊版）真的有第一階段跳躍、以及結論在不同視窗下穩不穩。
+      綠燈沒問題、黃燈要留意、紅燈有狀況。
+    </p>
+    <div id="rddOverall" class="overall hidden"></div>
+    <div id="rddAssumeCards" class="assume-cards"></div>
+    <p id="rddAssumeHint" class="muted" data-en="Loading…">載入中…</p>
   </section>
 
   <!-- ===================== 參考文獻 / References ===================== -->

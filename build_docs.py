@@ -21,7 +21,8 @@ WEB = os.path.join(HERE, "web")
 DOCS = os.path.join(HERE, "docs")
 
 PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"
-BACKEND_PY = ["i18n.py", "iv_core.py", "assumptions.py", "ml_iv.py", "gen_data.py"]
+BACKEND_PY = ["i18n.py", "iv_core.py", "assumptions.py", "ml_iv.py", "gen_data.py",
+              "rdd_core.py", "rdd_survival.py", "rdd_assumptions.py", "rdd_gen.py"]
 
 
 def _clean_docs():

@@ -17,6 +17,10 @@ import assumptions
 import iv_core
 import ml_iv
 import gen_data
+import rdd_core
+import rdd_survival
+import rdd_assumptions
+import rdd_gen
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -25,10 +29,21 @@ EXAMPLE_DEFAULTS = {
     "covariates": ["age", "female", "bmi", "chronic_conditions", "income_band"],
 }
 
+RDD_DEFAULTS = {
+    "running": "age",
+    "outcome": "health_score_change",
+    "treatment": "vaccinated",
+    "cutoff": 65.0,
+    "time": "event_time",
+    "event": "event",
+    "covariates": ["female", "bmi", "chronic_conditions", "income_band"],
+}
+
 DISCLAIMER = "⚠ 純屬虛構的合成示範資料,非真實病人/個資,僅供教學展示。"
 
 _UPLOADS: dict[str, pd.DataFrame] = {}
 _DEMO: pd.DataFrame | None = None
+_DEMO_RDD: pd.DataFrame | None = None
 
 
 def _demo() -> pd.DataFrame:
@@ -36,6 +51,13 @@ def _demo() -> pd.DataFrame:
     if _DEMO is None:
         _DEMO = gen_data.generate()
     return _DEMO
+
+
+def _demo_rdd() -> pd.DataFrame:
+    global _DEMO_RDD
+    if _DEMO_RDD is None:
+        _DEMO_RDD = rdd_gen.generate()
+    return _DEMO_RDD
 
 
 def _clean(obj):
@@ -179,6 +201,93 @@ def _ml_compare(q: dict) -> dict:
     return ml_iv.compare(seed=int(q.get("seed", 7)), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# Regression Discontinuity endpoints (tabs 6 & 7)
+# ---------------------------------------------------------------------------
+def _load_rdd(source: str) -> pd.DataFrame:
+    if source in ("example_rdd", "example"):
+        return _demo_rdd()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _rdd_example() -> dict:
+    df = _demo_rdd()
+    return {
+        "columns": list(df.columns),
+        "defaults": RDD_DEFAULTS,
+        "n": len(df),
+        "synthetic": True,
+        "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "running": "age（年齡，跑分變數）",
+            "cutoff": "65（滿 65 歲才有免費接種計畫資格）",
+            "treatment": "vaccinated（實際是否接種）",
+            "outcome": "health_score_change（一年後健康分數變化）",
+        },
+    }
+
+
+def _rdd_analyze(req: dict) -> dict:
+    df = _load_rdd(req.get("source", "example_rdd"))
+    return rdd_core.full_rdd(
+        df, req.get("running", "age"), req.get("outcome", "health_score_change"),
+        req.get("treatment", "vaccinated"), float(req.get("cutoff", 65.0)),
+        h=req.get("bandwidth"), lang=req.get("lang", "zh"),
+    )
+
+
+def _rdd_assumptions(req: dict) -> dict:
+    df = _load_rdd(req.get("source", "example_rdd"))
+    running = req.get("running", "age")
+    cutoff = float(req.get("cutoff", 65.0))
+    h = req.get("bandwidth") or rdd_core.default_bandwidth(
+        np.asarray(df[running], dtype=float), cutoff
+    )
+    return rdd_assumptions.run_dashboard(
+        df, running, req.get("outcome", "health_score_change"),
+        req.get("treatment", "vaccinated"), cutoff, h,
+        req.get("covariates", RDD_DEFAULTS["covariates"]),
+        fuzzy=True, lang=req.get("lang", "zh"),
+    )
+
+
+def _rdd_survival(req: dict) -> dict:
+    df = _load_rdd(req.get("source", "example_rdd"))
+    running = req.get("running", "age")
+    cutoff = float(req.get("cutoff", 65.0))
+    time = req.get("time", "event_time")
+    event = req.get("event", "event")
+    tau = float(req.get("tau", 10.0))
+    h = req.get("bandwidth")
+    lang = req.get("lang", "zh")
+    return {
+        "naive": rdd_survival.naive_survival_rd(df, running, time, cutoff, h=h, tau=tau, lang=lang),
+        "sharp": rdd_survival.survival_rd(df, running, time, event, cutoff, h=h, tau=tau, lang=lang),
+        "fuzzy": rdd_survival.survival_rd(df, running, time, event, cutoff, h=h, tau=tau,
+                                          d_name=req.get("treatment", "vaccinated"), fuzzy=True, lang=lang),
+        "tau": tau,
+    }
+
+
+def _rdd_interactive(q: dict) -> dict:
+    df = _demo_rdd()
+    bw = float(np.clip(float(q.get("bandwidth", 6.0)), 2.0, 14.0))
+    out = rdd_core.full_rdd(df, "age", "health_score_change", "vaccinated", 65.0,
+                            h=bw, lang=q.get("lang", "zh"))
+    return {
+        "bandwidth": bw,
+        "sharp": out["sharp"]["estimate"], "sharp_ci": out["sharp"]["ci"],
+        "fuzzy": out["fuzzy"]["estimate"], "fuzzy_ci": out["fuzzy"]["ci"],
+        "takeup_jump": out["takeup"]["estimate"],
+        "n_left": out["sharp"]["n_left"], "n_right": out["sharp"]["n_right"],
+        "true_late": 1.80,
+    }
+
+
 _ROUTES = {
     ("GET", "/api/example"): lambda q, b: _example(),
     ("POST", "/api/upload"): lambda q, b: _upload(b.get("_csv_text", "")),
@@ -189,6 +298,11 @@ _ROUTES = {
     ("GET", "/api/ml_nonlinear"): lambda q, b: _ml_nonlinear(q),
     ("GET", "/api/ml_forbidden"): lambda q, b: _ml_forbidden(q),
     ("GET", "/api/ml_compare"): lambda q, b: _ml_compare(q),
+    ("GET", "/api/rdd_example"): lambda q, b: _rdd_example(),
+    ("POST", "/api/rdd_analyze"): lambda q, b: _rdd_analyze(b),
+    ("POST", "/api/rdd_assumptions"): lambda q, b: _rdd_assumptions(b),
+    ("POST", "/api/rdd_survival"): lambda q, b: _rdd_survival(b),
+    ("GET", "/api/rdd_interactive"): lambda q, b: _rdd_interactive(q),
 }
 
 

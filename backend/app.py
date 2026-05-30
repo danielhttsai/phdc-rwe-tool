@@ -20,10 +20,24 @@ from pydantic import BaseModel
 import assumptions
 import iv_core
 import ml_iv
+import rdd_core
+import rdd_survival
+import rdd_assumptions
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data", "demo_vaccine.csv")
+DATA_RDD = os.path.join(HERE, "data", "demo_rdd.csv")
 FRONTEND = os.path.abspath(os.path.join(HERE, "..", "frontend"))
+
+RDD_DEFAULTS = {
+    "running": "age",
+    "outcome": "health_score_change",
+    "treatment": "vaccinated",
+    "cutoff": 65.0,
+    "time": "event_time",
+    "event": "event",
+    "covariates": ["female", "bmi", "chronic_conditions", "income_band"],
+}
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -205,6 +219,109 @@ def ml_forbidden(seed: int = 7):
 def ml_compare(seed: int = 7, lang: str = "zh"):
     """把各種做法放在一起比較。"""
     return _clean(ml_iv.compare(seed=seed, lang=lang))
+
+
+# ---------------------------------------------------------------------------
+# Regression Discontinuity (tabs 6 & 7) — same vaccine scenario, age-65 cutoff
+# ---------------------------------------------------------------------------
+class RddRequest(BaseModel):
+    source: str = "example_rdd"
+    running: str = "age"
+    outcome: str = "health_score_change"
+    treatment: str = "vaccinated"
+    cutoff: float = 65.0
+    bandwidth: float | None = None
+    covariates: list[str] = ["female", "bmi", "chronic_conditions", "income_band"]
+    time: str = "event_time"
+    event: str = "event"
+    tau: float = 10.0
+    lang: str = "zh"
+
+
+def _load_rdd(source: str) -> pd.DataFrame:
+    if source in ("example_rdd", "example"):
+        return pd.read_csv(DATA_RDD)
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/rdd_example")
+def rdd_example():
+    df = pd.read_csv(DATA_RDD)
+    return _clean({
+        "columns": list(df.columns),
+        "defaults": RDD_DEFAULTS,
+        "n": len(df),
+        "synthetic": True,
+        "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "running": "age（年齡，跑分變數）",
+            "cutoff": "65（滿 65 歲才有免費接種計畫資格）",
+            "treatment": "vaccinated（實際是否接種）",
+            "outcome": "health_score_change（一年後健康分數變化）",
+        },
+    })
+
+
+@app.post("/api/rdd_analyze")
+def rdd_analyze(req: RddRequest):
+    df = _load_rdd(req.source)
+    out = rdd_core.full_rdd(
+        df, req.running, req.outcome, req.treatment, req.cutoff,
+        h=req.bandwidth, lang=req.lang,
+    )
+    return _clean(out)
+
+
+@app.post("/api/rdd_assumptions")
+def rdd_assumptions_check(req: RddRequest):
+    df = _load_rdd(req.source)
+    h = req.bandwidth or rdd_core.default_bandwidth(
+        np.asarray(df[req.running], dtype=float), req.cutoff
+    )
+    out = rdd_assumptions.run_dashboard(
+        df, req.running, req.outcome, req.treatment, req.cutoff, h,
+        req.covariates, fuzzy=True, lang=req.lang,
+    )
+    return _clean(out)
+
+
+@app.post("/api/rdd_survival")
+def rdd_survival_check(req: RddRequest):
+    df = _load_rdd(req.source)
+    naive = rdd_survival.naive_survival_rd(
+        df, req.running, req.time, req.cutoff, h=req.bandwidth, tau=req.tau, lang=req.lang
+    )
+    sharp = rdd_survival.survival_rd(
+        df, req.running, req.time, req.event, req.cutoff,
+        h=req.bandwidth, tau=req.tau, lang=req.lang,
+    )
+    fuzzy = rdd_survival.survival_rd(
+        df, req.running, req.time, req.event, req.cutoff,
+        h=req.bandwidth, tau=req.tau, d_name=req.treatment, fuzzy=True, lang=req.lang,
+    )
+    return _clean({"naive": naive, "sharp": sharp, "fuzzy": fuzzy, "tau": req.tau})
+
+
+@app.get("/api/rdd_interactive")
+def rdd_interactive(bandwidth: float = 6.0, lang: str = "zh"):
+    """Teaching slider: re-estimate sharp & fuzzy RD at the chosen bandwidth."""
+    df = pd.read_csv(DATA_RDD)
+    bandwidth = float(np.clip(bandwidth, 2.0, 14.0))
+    out = rdd_core.full_rdd(
+        df, "age", "health_score_change", "vaccinated", 65.0, h=bandwidth, lang=lang
+    )
+    return _clean({
+        "bandwidth": bandwidth,
+        "sharp": out["sharp"]["estimate"], "sharp_ci": out["sharp"]["ci"],
+        "fuzzy": out["fuzzy"]["estimate"], "fuzzy_ci": out["fuzzy"]["ci"],
+        "takeup_jump": out["takeup"]["estimate"],
+        "n_left": out["sharp"]["n_left"], "n_right": out["sharp"]["n_right"],
+        "true_late": 1.80,
+    })
 
 
 # ---------------------------------------------------------------------------
