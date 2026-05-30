@@ -103,7 +103,7 @@ document.getElementById("useExample").addEventListener("click", async () => {
   try {
     const d = await getJSON(`${API}/api/example`);
     state.source = "example"; state.columns = d.columns;
-    dataStatus.textContent = `已載入內建疫苗券示範資料（${d.n} 筆，合成虛構）`;
+    dataStatus.textContent = `已載入內建接種提醒示範資料（${d.n} 筆，合成虛構）`;
     fillSelects(); applyDefaults(d.defaults);
   } catch (e) { dataStatus.textContent = "載入失敗：" + e.message; }
 });

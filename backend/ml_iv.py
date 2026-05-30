@@ -114,8 +114,8 @@ def _poly_basis(x, degree=6):
 def _gen_weak_candidates(n, k_candidates, per_strength, seed):
     """Many candidate nudges, each individually weak; combined can be strong.
 
-    Story: voucher mailed, clinic flyer, employer reminder, community
-    announcement ... each only weakly moves vaccination, all quasi-random.
+    Story: vaccination reminder mailed, clinic flyer, employer reminder,
+    community announcement ... each only weakly moves vaccination, all quasi-random.
     p is centred at 0.5 so it stays safely inside (0,1) (no clipping artefacts).
     """
     rng = np.random.default_rng(seed)

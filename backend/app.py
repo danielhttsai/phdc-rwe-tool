@@ -28,7 +28,7 @@ FRONTEND = os.path.abspath(os.path.join(HERE, "..", "frontend"))
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
     "treatment": "vaccinated",
-    "instrument": "vaccine_voucher",
+    "instrument": "vaccine_reminder",
     "covariates": ["age", "female", "bmi", "chronic_conditions", "income_band"],
 }
 
@@ -88,7 +88,7 @@ def example_preview():
         "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
         "story": {
-            "instrument": "vaccine_voucher（住在被隨機抽中、收到免費疫苗券的地區）",
+            "instrument": "vaccine_reminder（住在被隨機抽中、收到免費接種提醒的社區）",
             "treatment": "vaccinated（是否接種疫苗）",
             "outcome": "health_score_change（一年後健康分數的變化）",
         },

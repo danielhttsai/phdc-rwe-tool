@@ -70,25 +70,12 @@ main { max-width: 920px; margin: 0 auto; padding: 1.5rem; }
 
 /* DAG diagram */
 .dag {
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  flex-wrap: wrap; position: relative; margin: 1.5rem 0 .5rem; padding: 1.5rem 1rem 2.5rem;
+  margin: 1.5rem 0 .5rem; padding: 1.2rem 1rem;
   background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
 }
-.node {
-  display: flex; flex-direction: column; align-items: center;
-  padding: .7rem 1rem; border-radius: 12px; font-weight: 700; color: #fff; min-width: 110px;
-}
-.node small { font-weight: 500; opacity: .9; font-size: .72rem; margin-top: 2px; }
-.node.z { background: var(--z); }
-.node.a { background: var(--a); }
-.node.y { background: var(--y); }
-.node.u { background: var(--u); }
-.arrow { font-size: 1.6rem; color: var(--muted); }
-.confounder {
-  position: absolute; bottom: .5rem; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center;
-}
-.u-arrows { color: var(--u); font-size: 1.1rem; letter-spacing: 2.2rem; margin-top: -2px; }
+.dag-svg { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; }
+.dag-svg .dn { fill: #fff; font-weight: 700; font-size: 15px; text-anchor: middle; }
+.dag-svg .ds { fill: #fff; opacity: .92; font-weight: 500; font-size: 11px; text-anchor: middle; }
 
 /* interactive */
 .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1rem 0 1.5rem; }

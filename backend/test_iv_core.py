@@ -6,7 +6,7 @@ confounding-inflated naive ~2.60) is what these tests pin down.
 import iv_core
 from gen_data import generate, COVARIATES
 
-Y, A, Z = "health_score_change", "vaccinated", "vaccine_voucher"
+Y, A, Z = "health_score_change", "vaccinated", "vaccine_reminder"
 
 
 def _df():

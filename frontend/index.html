@@ -23,7 +23,7 @@
   <!-- ===================== 1. 教學 ===================== -->
   <section id="learn" class="panel active">
     <div class="banner">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1>用「政府疫苗券」的故事看懂工具變數</h1>
+    <h1>用「隨機接種提醒」的故事看懂工具變數</h1>
     <p class="lead">
       我們想知道一個因果問題：<b>去接種疫苗，真的能改善健康嗎？</b>
       最直覺的做法是「把有打疫苗的人和沒打的人直接比較」——但這會被誤導。
@@ -40,39 +40,68 @@
 
     <h2>工具變數的聰明之處</h2>
     <p>
-      我們改用一個「外力」當作切入點：<b>政府隨機抽中一些地區，免費寄送疫苗券（還提供到府接送）</b>。
-      抽中哪些地區是隨機的，跟個人有沒有健康意識無關，但它會推一部分人去接種疫苗。
+      我們改用一個「外力」當作切入點：<b>衛生單位隨機抽中一些社區，主動寄出免費接種提醒、並安排到府接種服務</b>。
+      抽中哪些社區是隨機的，跟個人有沒有健康意識無關，但它會推一部分人去接種疫苗。
       這個外力就是<b>工具變數（Instrument）</b>。
     </p>
 
     <div class="dag">
-      <div class="node z">疫苗券 Z<small>工具變數</small></div>
-      <div class="arrow">→</div>
-      <div class="node a">接種疫苗 A<small>處置</small></div>
-      <div class="arrow">→</div>
-      <div class="node y">健康變化 Y<small>結果</small></div>
-      <div class="confounder">
-        <div class="node u">健康意識 U<small>看不見的干擾因子</small></div>
-        <div class="u-arrows">↘ &nbsp;&nbsp;&nbsp; ↙</div>
-      </div>
+      <svg class="dag-svg" viewBox="0 0 640 250" role="img"
+           aria-label="因果圖：接種提醒 Z 推動 接種疫苗 A，A 影響 健康變化 Y；看不見的健康意識 U 同時影響 A 與 Y，但不影響 Z">
+        <defs>
+          <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5f6b7a" />
+          </marker>
+          <marker id="ahr" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#ef4444" />
+          </marker>
+        </defs>
+        <!-- 主路徑：Z → A → Y -->
+        <line x1="152" y1="66" x2="251" y2="66" stroke="#5f6b7a" stroke-width="2.5" marker-end="url(#ah)" />
+        <line x1="385" y1="66" x2="484" y2="66" stroke="#5f6b7a" stroke-width="2.5" marker-end="url(#ah)" />
+        <!-- 干擾因子 U → A、U → Y（紅色虛線） -->
+        <line x1="404" y1="166" x2="332" y2="98" stroke="#ef4444" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ahr)" />
+        <line x1="472" y1="166" x2="545" y2="98" stroke="#ef4444" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ahr)" />
+        <!-- 節點 -->
+        <g>
+          <rect x="22" y="38" width="130" height="56" rx="12" fill="#0d9488" />
+          <text x="87" y="63" class="dn">接種提醒 Z</text>
+          <text x="87" y="81" class="ds">工具變數</text>
+        </g>
+        <g>
+          <rect x="255" y="38" width="130" height="56" rx="12" fill="#0ea5e9" />
+          <text x="320" y="63" class="dn">接種疫苗 A</text>
+          <text x="320" y="81" class="ds">處置</text>
+        </g>
+        <g>
+          <rect x="488" y="38" width="130" height="56" rx="12" fill="#16a34a" />
+          <text x="553" y="63" class="dn">健康變化 Y</text>
+          <text x="553" y="81" class="ds">結果</text>
+        </g>
+        <g>
+          <rect x="345" y="166" width="170" height="58" rx="12" fill="#ef4444" />
+          <text x="430" y="192" class="dn">健康意識 U</text>
+          <text x="430" y="210" class="ds">看不見的干擾因子</text>
+        </g>
+      </svg>
     </div>
     <p class="caption">
-      重點：疫苗券(Z) <b>只透過</b> 讓人去接種(A) 來影響健康(Y)，而且 <b>不</b> 受「健康意識(U)」影響。
+      重點：接種提醒(Z) <b>只透過</b> 讓人去接種(A) 來影響健康(Y)，而且 <b>不</b> 受「健康意識(U)」影響。
       因此用它當切入點，就能把 U 造成的污染繞過去。
     </p>
 
     <h2>三種人</h2>
     <div class="cards">
-      <div class="card"><h3>Complier（順從者）</h3><p>收到疫苗券就會去接種、沒收到就不會。<b>IV 估計的就是這群人的效果。</b></p></div>
-      <div class="card"><h3>Always/Never-taker</h3><p>不管有沒有收到疫苗券，行為都一樣（本來就會打 / 怎樣都不打）。他們不提供因果資訊。</p></div>
-      <div class="card"><h3>Defier（反抗者）</h3><p>收到疫苗券反而更不去打——我們<b>假設這種人不存在</b>（單調性）。</p></div>
+      <div class="card"><h3>Complier（順從者）</h3><p>收到提醒就會去接種、沒收到就不會。<b>IV 估計的就是這群人的效果。</b></p></div>
+      <div class="card"><h3>Always/Never-taker</h3><p>不管有沒有收到提醒，行為都一樣（本來就會打 / 怎樣都不打）。他們不提供因果資訊。</p></div>
+      <div class="card"><h3>Defier（反抗者）</h3><p>收到提醒反而更不去打——我們<b>假設這種人不存在</b>（單調性）。</p></div>
     </div>
 
     <div class="card info">
       <h3>一句話總結</h3>
       <p>
-        工具變數法 = 先看「疫苗券推動了多少人去接種」（第一階段），
-        再看「疫苗券讓健康改變多少」（簡化式），兩者相除就得到
+        工具變數法 = 先看「接種提醒推動了多少人去接種」（第一階段），
+        再看「接種提醒讓健康改變多少」（簡化式），兩者相除就得到
         <b>順從者身上的真正因果效應（稱為 LATE）</b>。
         想看實際數字，請到 <b>② 互動講解</b> 與 <b>③ 資料分析</b>。
       </p>
@@ -86,11 +115,11 @@
     <div class="card info">
       <h3>先用白話想一遍</h3>
       <p>
-        政府寄出疫苗券，我們想用「收到券的人後來有沒有比較健康」去<b>回推疫苗到底有沒有效</b>。
+        衛生單位寄出接種提醒，我們想用「收到提醒的人後來有沒有比較健康」去<b>回推疫苗到底有沒有效</b>。
         但這招好不好用，取決於兩件事：
       </p>
       <p>
-        ① <b>這張券有多少「說服力」</b>——能真的說動多少人去打針？<br />
+        ① <b>這個提醒有多少「說服力」</b>——能真的說動多少人去打針？<br />
         ② <b>我們調查了多少人</b>——問越多人，答案就越穩、越不會亂跳。
       </p>
       <p>
@@ -101,9 +130,9 @@
 
     <div class="controls">
       <label>
-        這張券的「說服力」：<b id="csVal">9.0%</b>
+        這個提醒的「說服力」：<b id="csVal">9.0%</b>
         <input type="range" id="csSlider" min="1" max="40" value="9.0" step="0.1" />
-        <small>收到券的人裡，有多少人因此真的去打針。說動越多人，後面越好估。</small>
+        <small>收到提醒的人裡，有多少人因此真的去打針。說動越多人，後面越好估。</small>
       </label>
       <label>
         我們調查了多少人：<b id="stVal">1.0×</b>
@@ -113,13 +142,13 @@
     </div>
 
     <div class="play-grid">
-      <div class="stat"><div class="stat-label">這張券夠不夠力</div><div class="stat-num" id="fStat">–</div><div class="stat-foot" id="fNote"></div></div>
+      <div class="stat"><div class="stat-label">這個提醒夠不夠力</div><div class="stat-num" id="fStat">–</div><div class="stat-foot" id="fNote"></div></div>
       <div class="stat"><div class="stat-label">估出來的疫苗效果</div><div class="stat-num" id="ivEst">–</div><div class="stat-foot">真正答案藏在 1.80</div></div>
       <div class="stat"><div class="stat-label">答案的誤差範圍</div><div class="stat-num small" id="ivCi">–</div><div class="stat-foot" id="ciNote"></div></div>
     </div>
     <div id="playChart" class="chart"></div>
     <p class="caption">
-      觀察：當「券的說服力」很低（沒說動幾個人），就算真正效果固定是 1.80，
+      觀察：當「提醒的說服力」很低（沒說動幾個人），就算真正效果固定是 1.80，
       你的估計也會劇烈亂跳、誤差範圍超寬——這就是 IV 分析最大的陷阱。
     </p>
 
@@ -127,9 +156,9 @@
       <summary>看專有名詞解釋</summary>
       <p>
         上面那些白話，對應到統計課本的術語是這樣：<br />
-        • 「券的說服力」＝<b>complier（順從者）比例</b>＝第一階段係數：被這個外力推動而改變行為的人佔多少。<br />
-        • 「這張券夠不夠力」的分數＝<b>第一階段 F 統計量</b>：大於 10 才算夠力，低於 10 稱為「<b>弱工具（weak instrument）</b>」。<br />
-        • 「估出來的疫苗效果」＝<b>IV 估計（LATE，局部平均處置效果）</b>：只代表被券推動的那群順從者身上的效果。<br />
+        • 「提醒的說服力」＝<b>complier（順從者）比例</b>＝第一階段係數：被這個外力推動而改變行為的人佔多少。<br />
+        • 「這個提醒夠不夠力」的分數＝<b>第一階段 F 統計量</b>：大於 10 才算夠力，低於 10 稱為「<b>弱工具（weak instrument）</b>」。<br />
+        • 「估出來的疫苗效果」＝<b>IV 估計（LATE，局部平均處置效果）</b>：只代表被提醒推動的那群順從者身上的效果。<br />
         • 「答案的誤差範圍」＝<b>95% 信賴區間</b>：區間越寬，代表估計越不確定。
       </p>
     </details>
@@ -140,7 +169,7 @@
     <h1>資料分析：跑一次完整的 IV</h1>
 
     <div class="datasource">
-      <button id="useExample" class="btn primary">載入內建疫苗券範例</button>
+      <button id="useExample" class="btn primary">載入內建接種提醒範例</button>
       <span class="or">或</span>
       <label class="btn">上傳 CSV<input type="file" id="fileInput" accept=".csv" hidden /></label>
       <span id="dataStatus" class="muted">尚未載入資料</span>
@@ -180,13 +209,13 @@
     <div class="banner">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
     <h1>AI 怎麼幫「工具變數」一把</h1>
     <p class="lead">
-      還記得 ② 互動講解裡那個最大的陷阱嗎？——<b>外力（券）太弱，答案就會亂跳</b>。
+      還記得 ② 互動講解裡那個最大的陷阱嗎？——<b>外力（提醒）太弱，答案就會亂跳</b>。
       AI／機器學習能在這裡幫上兩個忙，下面我們用<b>同一個疫苗的故事</b>，一步一步看懂。
     </p>
 
     <div class="cards">
       <div class="card"><h3>藥方一：把很多弱外力揉成一個強外力</h3>
-        <p>一張券推不動幾個人，但如果手上有<b>很多種小外力</b>（券、診所傳單、公司提醒、社區廣播…），
+        <p>一通提醒推不動幾個人，但如果手上有<b>很多種小外力</b>（接種提醒、診所傳單、公司提醒、社區廣播…），
         每個都弱，AI 能把它們<b>聰明地加起來</b>，合成一個夠力的大外力。</p></div>
       <div class="card"><h3>藥方二：讓「外力→打針」這條關係可以彎</h3>
         <p>有些外力的影響<b>不是一條直線</b>。用直線去抓會抓不到、以為它沒用；
@@ -202,7 +231,7 @@
       <h3>先用白話想一遍</h3>
       <p>
         想像你手上有<b>好幾種</b>推人去打針的小外力，每一種單獨看都<b>太弱</b>
-        （像 ② 裡那種會讓答案亂跳的弱券）。
+        （像 ② 裡那種會讓答案亂跳的弱提醒）。
         AI 的做法是：把這些小外力<b>各取一點、聰明地組合</b>成一個全新的「合成外力」。
         合成後它變得<b>夠力</b>，答案就穩了。下面拉拉看：
       </p>
