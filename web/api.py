@@ -21,6 +21,7 @@ import rdd_core
 import rdd_survival
 import rdd_assumptions
 import rdd_gen
+import rdd_ml
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -271,6 +272,18 @@ def _rdd_survival(req: dict) -> dict:
     }
 
 
+def _rdd_ml_bandwidth(q: dict) -> dict:
+    return rdd_ml.dml_bandwidth_demo(
+        window=float(q.get("window", 8.0)), seed=int(q.get("seed", 7))
+    )
+
+
+def _rdd_ml_survival(q: dict) -> dict:
+    return rdd_ml.survival_robust_demo(
+        seed=int(q.get("seed", 11)), lang=q.get("lang", "zh")
+    )
+
+
 def _rdd_interactive(q: dict) -> dict:
     df = _demo_rdd()
     bw = float(np.clip(float(q.get("bandwidth", 6.0)), 2.0, 14.0))
@@ -301,6 +314,8 @@ _ROUTES = {
     ("POST", "/api/rdd_assumptions"): lambda q, b: _rdd_assumptions(b),
     ("POST", "/api/rdd_survival"): lambda q, b: _rdd_survival(b),
     ("GET", "/api/rdd_interactive"): lambda q, b: _rdd_interactive(q),
+    ("GET", "/api/rdd_ml_bandwidth"): lambda q, b: _rdd_ml_bandwidth(q),
+    ("GET", "/api/rdd_ml_survival"): lambda q, b: _rdd_ml_survival(q),
 }
 
 

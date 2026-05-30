@@ -21,6 +21,7 @@ document.querySelectorAll(".tab").forEach((t) => {
     if (t.dataset.tab === "rddplay") initRdd();
     if (t.dataset.tab === "rddanalyze") initRddAnalyze();
     if (t.dataset.tab === "rddassume") initRddAssume();
+    if (t.dataset.tab === "rddml") initRddMl();
     if (t.dataset.tab === "choose") initChoose();
   });
 });
@@ -706,6 +707,104 @@ function renderRddAssumptions(out) {
 }
 
 // ======================================================================
+// RDD ⑤ Boost with AI — DML window-robustness + flexible-ML DR survival
+// ======================================================================
+let rddMlReady = false, rddDmlTimer = null;
+const rddDmlWindow = document.getElementById("rddDmlWindow");
+
+function initRddMl() {
+  if (rddMlReady) return;
+  rddMlReady = true;
+  refreshRddDml();
+}
+function scheduleRddDml() {
+  document.getElementById("rddDmlWinVal").textContent = Number(rddDmlWindow.value).toFixed(1);
+  clearTimeout(rddDmlTimer);
+  rddDmlTimer = setTimeout(refreshRddDml, 140);
+}
+rddDmlWindow.addEventListener("input", scheduleRddDml);
+
+async function refreshRddDml() {
+  const w = Number(rddDmlWindow.value);
+  let d;
+  try { d = await getJSON(`${API}/api/rdd_ml_bandwidth?window=${w}`); }
+  catch (e) { return; }
+  state.rddDml = d;
+
+  const conv = d.conventional.estimate, dml = d.dml.estimate;
+  const convEl = document.getElementById("rddDmlConv");
+  convEl.textContent = fmt(conv, 2);
+  convEl.style.color = AMBER;
+  document.getElementById("rddDmlConvFoot").textContent =
+    tr(`誤差 ${fmt(d.conventional.ci[0], 1)} ~ ${fmt(d.conventional.ci[1], 1)}`,
+       `CI ${fmt(d.conventional.ci[0], 1)} ~ ${fmt(d.conventional.ci[1], 1)}`);
+  const dmlEl = document.getElementById("rddDmlEst");
+  dmlEl.textContent = fmt(dml, 2);
+  dmlEl.style.color = Math.abs(dml - 1.8) < 0.4 ? TEAL : AMBER;
+  document.getElementById("rddDmlGap").textContent = (conv >= 1.8 ? "+" : "") + fmt(conv - 1.8, 2);
+
+  const c = d.curve;
+  Plotly.react("rddDmlChart", [
+    { x: c.window.concat(c.window.slice().reverse()),
+      y: c.conv_hi.concat(c.conv_lo.slice().reverse()),
+      fill: "toself", fillcolor: "rgba(245,158,11,0.10)", line: { color: "transparent" },
+      type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip" },
+    { x: c.window, y: c.conv, type: "scatter", mode: "lines+markers",
+      name: tr("視窗內直接比較", "plain comparison"), line: { color: AMBER, width: 3 }, marker: { size: 6 } },
+    { x: c.window.concat(c.window.slice().reverse()),
+      y: c.dml_hi.concat(c.dml_lo.slice().reverse()),
+      fill: "toself", fillcolor: "rgba(13,148,136,0.12)", line: { color: "transparent" },
+      type: "scatter", mode: "lines", showlegend: false, hoverinfo: "skip" },
+    { x: c.window, y: c.dml, type: "scatter", mode: "lines+markers",
+      name: tr("DML（調整＋交叉擬合）", "DML (adjusted + cross-fit)"), line: { color: TEAL, width: 3 }, marker: { size: 6 } },
+  ], {
+    margin: { t: 24, r: 20, b: 45, l: 55 },
+    xaxis: { title: tr("觀察視窗（半寬，年）", "Observation window (half-width, years)") },
+    yaxis: { title: tr("估出的疫苗效果", "Estimated vaccine effect") },
+    legend: { orientation: "h", y: 1.14 },
+    shapes: [{ type: "line", x0: c.window[0], x1: c.window[c.window.length - 1], y0: 1.8, y1: 1.8,
+               line: { color: GREEN, dash: "dash", width: 2 } }],
+    annotations: [{ x: c.window[c.window.length - 1], y: 1.8, text: tr("真值 1.80", "truth 1.80"),
+               showarrow: false, font: { color: GREEN }, yshift: 12, xanchor: "right" }],
+  }, { displayModeBar: false, responsive: true });
+}
+
+document.getElementById("runRddSurvMl").addEventListener("click", async (ev) => {
+  const btn = ev.target;
+  const old = btn.dataset.zh !== undefined ? (lang() === "en" ? btn.dataset.en : btn.dataset.zh) : btn.textContent;
+  btn.disabled = true; btn.textContent = tr("擬合模型中…（約幾秒）", "Fitting models… (a few seconds)");
+  let d;
+  try { d = await getJSON(`${API}/api/rdd_ml_survival?lang=${lang()}`); }
+  catch (e) { alert(tr("執行失敗：", "Run failed: ") + e.message); return; }
+  finally { btn.disabled = false; btn.textContent = old; }
+  state.rddSurvMl = d;
+  renderRddSurvMl(d);
+});
+
+function renderRddSurvMl(d) {
+  document.getElementById("rddSurvMlOut").classList.remove("hidden");
+  const labels = d.bars.map((b) => b.label);
+  const vals = d.bars.map((b) => b.estimate);
+  const colors = d.bars.map((b) => STATUS_COLOR[b.status] || INK);
+  const errPlus = d.bars.map((b) => (b.ci ? b.ci[1] - b.estimate : 0));
+  const errMinus = d.bars.map((b) => (b.ci ? b.estimate - b.ci[0] : 0));
+  Plotly.react("rddSurvMlChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: colors },
+    error_y: { type: "data", symmetric: false, array: errPlus, arrayminus: errMinus, color: INK, thickness: 1.5, width: 8 },
+    text: vals.map((v) => fmt(v, 2)), textposition: "outside",
+  }], {
+    margin: { t: 30, r: 20, b: 70, l: 50 },
+    yaxis: { title: tr("斷點處 Δlog（事件時間）", "Δlog(event time) at the cutoff") },
+  }, { displayModeBar: false, responsive: true });
+
+  document.getElementById("rddSurvMlCards").innerHTML = d.bars.map((b) =>
+    `<div class="rc ${b.status === "good" ? "highlight" : ""}"><h3>${b.label}</h3>` +
+    `<div class="big">${fmt(b.estimate, 2)}</div>` +
+    `<p>${b.note}</p></div>`
+  ).join("");
+}
+
+// ======================================================================
 // 8. IV vs RDD — when to use which (comparison chart)
 // ======================================================================
 let chooseReady = false;
@@ -874,6 +973,13 @@ window.addEventListener("iv-lang", async () => {
   if (rddReady) { refreshRdd(); runRddSurvival(); }     // RDD ② interactive (backend text)
   if (rddAnalyzeReady) runRddAnalyze();                 // RDD ③ data analysis
   if (rddAssumeReady) runRddAssumptions(rddState.req);  // RDD ④ assumptions (backend text)
+  if (rddMlReady) refreshRddDml();                      // RDD ⑤ DML window-robustness
+  if (state.rddSurvMl) {                                // RDD ⑤ survival (backend text)
+    try {
+      const d = await getJSON(`${API}/api/rdd_ml_survival?lang=${lang()}`);
+      state.rddSurvMl = d; renderRddSurvMl(d);
+    } catch (e) { /* ignore */ }
+  }
   if (state.chooseDone) refreshChoose();                // IV vs RDD comparison
 });
 

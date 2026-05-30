@@ -23,6 +23,7 @@ import ml_iv
 import rdd_core
 import rdd_survival
 import rdd_assumptions
+import rdd_ml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data", "demo_vaccine.csv")
@@ -321,6 +322,21 @@ def rdd_interactive(bandwidth: float = 6.0, lang: str = "zh"):
         "n_left": out["sharp"]["n_left"], "n_right": out["sharp"]["n_right"],
         "true_late": 1.80,
     })
+
+
+# ---------------------------------------------------------------------------
+# Machine-learning + RDD demos (RDD tab ⑤) — DML + flexible-ML survival
+# ---------------------------------------------------------------------------
+@app.get("/api/rdd_ml_bandwidth")
+def rdd_ml_bandwidth(window: float = 8.0, seed: int = 7):
+    """藥方一：視窗內直接比較 vs 交叉擬合的雙重穩健 DML（不挑視窗）。"""
+    return _clean(rdd_ml.dml_bandwidth_demo(window=window, seed=seed))
+
+
+@app.get("/api/rdd_ml_survival")
+def rdd_ml_survival(seed: int = 11, lang: str = "zh"):
+    """藥方二：帶設限的存活結果——未處理 vs IPCW vs 彈性 ML 雙重穩健。"""
+    return _clean(rdd_ml.survival_robust_demo(seed=seed, lang=lang))
 
 
 # ---------------------------------------------------------------------------

@@ -25,6 +25,7 @@
     <button class="tab" data-tab="rddplay" data-en="② Interactive">② 互動講解</button>
     <button class="tab" data-tab="rddanalyze" data-en="③ Analyse data">③ 資料分析</button>
     <button class="tab" data-tab="rddassume" data-en="④ Assumptions">④ 假設檢驗</button>
+    <button class="tab" data-tab="rddml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
     <button class="tab tab-sep" data-tab="choose" data-en="IV vs RDD">怎麼選</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
@@ -530,6 +531,101 @@
     <p id="rddAssumeHint" class="muted" data-en="Loading…">載入中…</p>
   </section>
 
+  <!-- ===================== RDD ⑤ 用 AI 強化 ===================== -->
+  <section id="rddml" class="panel">
+    <div class="banner" data-en="⚠ Every number on this page is simulated in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
+    <h1 data-en="How AI lends regression discontinuity a hand">AI 怎麼幫「斷點回歸」一把</h1>
+    <p class="lead" data-en="Remember RDD's two soft spots? — ② Interactive showed the estimate <b>depends on the window (bandwidth)</b> you pick, and the survival card showed that <b>censoring</b> needs careful correction. AI / machine learning helps with exactly these two, using <b>the same age-65 vaccine story</b>.">
+      還記得 RDD 的兩個痛處嗎？—— ② 互動講解裡，估計會<b>隨你挑的視窗（頻寬）而變</b>；
+      存活卡片裡，<b>設限</b>需要小心校正。AI／機器學習正好能幫上這兩個忙，
+      下面用<b>同一個「滿 65 歲」的疫苗故事</b>來看。
+    </p>
+
+    <div class="cards">
+      <div class="card"><h3 data-en="Remedy 1: a window-robust estimate (DML)">藥方一：一個「不挑視窗」的估計（DML）</h3>
+        <p data-en="A plain comparison inside a window gets <b>more and more wrong as the window widens</b>. Let AI <b>adjust for age and background</b> with cross-fitting, and the estimate <b>stays accurate at any window</b>.">視窗內的直接比較，<b>視窗開越寬就錯越多</b>。讓 AI 用交叉擬合<b>把年齡和背景條件調整掉</b>，
+        估計就能<b>在任何視窗下都準</b>。</p></div>
+      <div class="card"><h3 data-en="Remedy 2: flexible ML for censored survival">藥方二：用彈性 ML 處理「設限的存活結果」</h3>
+        <p data-en="When the outcome is <b>time to an event</b> with censoring, pair the censoring fix with a <b>flexible outcome model</b>. It is right <b>if either model is right</b> (doubly robust), and gives a <b>tighter, steadier</b> answer.">當結果是「<b>到事件的時間</b>」又有設限，把設限校正再配一個<b>彈性的結果模型</b>。
+        只要<b>兩個模型其中一個對</b>就準（雙重穩健），答案也<b>更窄、更穩</b>。</p></div>
+      <div class="card warn"><h3 data-en="Safety belt: cross-fitting (always buckle up)">安全帶：交叉擬合（一定要繫）</h3>
+        <p data-en="Both remedies let AI learn nuisance pieces. The same iron rule as the IV tab applies: <b>always learn from other people and apply to unseen people</b> (cross-fitting), or the answer looks pretty but deceives. It is built into Remedy 1 here.">兩帖藥方都讓 AI 去學一些輔助模型。和 IV 分頁同一條鐵則：<b>永遠用別人的資料學、套到沒看過的人身上</b>
+        （交叉擬合），否則答案看似漂亮其實騙人。它已經內建在藥方一裡。</p></div>
+    </div>
+
+    <!-- 藥方一 -->
+    <h2 data-en="Remedy 1: a window-robust estimate with double machine learning">藥方一：用雙重機器學習做「不挑視窗」的估計</h2>
+    <div class="card info">
+      <h3 data-en="First, the plain-language idea">先用白話想一遍</h3>
+      <p data-en="RDD compares people just below and just above age 65. The honest way is a <b>narrow window</b> — but narrow means few people and a jumpy answer, so people are tempted to <b>widen</b> it. The catch: widen it and the two sides stop being alike (older people on the right, younger on the left), so a <b>plain comparison drifts away from the truth</b>. AI's fix: <b>adjust for age and background characteristics</b> (with cross-fitting so it can't cheat), which keeps the estimate accurate <b>even with a wide window</b>. Drag the window below and watch the two lines:">
+        RDD 比較剛好低於與高於 65 歲的人。誠實的做法是用<b>很窄的視窗</b>——
+        但窄就代表人少、答案會亂跳，於是大家會想<b>把視窗開寬</b>。問題來了：
+        視窗一寬，兩側的人就不再相像（右邊偏老、左邊偏年輕），<b>直接比較就會偏離真相</b>。
+        AI 的解法：<b>把年齡與背景條件調整掉</b>（並用交叉擬合，讓它不能作弊），
+        這樣<b>就算視窗很寬，估計仍然準</b>。拉動下面的視窗，看兩條線：
+      </p>
+    </div>
+    <div class="controls">
+      <label>
+        <span data-en="Observation window (half-width, years):">觀察視窗（半寬，年）：</span><b id="rddDmlWinVal">8.0</b>
+        <input type="range" id="rddDmlWindow" min="2" max="20" value="8" step="1" />
+        <small data-en="How far above/below 65 to include. Wide = more people but less comparable — exactly where a plain comparison breaks and DML still holds.">納入 65 歲上下多少年。寬＝人多但越不可比——正是直接比較會壞、而 DML 仍站得住的地方。</small>
+      </label>
+    </div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Plain comparison in the window">視窗內直接比較</div><div class="stat-num" id="rddDmlConv">–</div><div class="stat-foot" id="rddDmlConvFoot"></div></div>
+      <div class="stat"><div class="stat-label" data-en="DML (adjusted + cross-fitted)">DML（調整＋交叉擬合）</div><div class="stat-num" id="rddDmlEst">–</div><div class="stat-foot" data-en="The true answer hides at 1.80">真正答案藏在 1.80</div></div>
+      <div class="stat"><div class="stat-label" data-en="How far the plain one drifted">直接比較偏了多少</div><div class="stat-num small" id="rddDmlGap">–</div><div class="stat-foot" data-en="vs the true 1.80">相對真值 1.80</div></div>
+    </div>
+    <div id="rddDmlChart" class="chart"></div>
+    <p class="caption" data-en="The grey line is the <b>plain within-window comparison</b>: it sits near 1.80 only for a very narrow window and <b>climbs away as the window widens</b>. The teal line is <b>DML</b>: it hugs the true 1.80 (green dashed) across every window. Same data — the only difference is whether AI adjusted for age and background.">
+      灰線是<b>視窗內直接比較</b>：只有在很窄的視窗才靠近 1.80，<b>視窗一寬就一路爬高、偏離真相</b>。
+      青色線是 <b>DML</b>：在每一個視窗下都緊貼真值 1.80（綠虛線）。同一筆資料，差別只在 AI 有沒有把年齡和背景調整掉。
+    </p>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <p data-en="• &quot;plain within-window comparison&quot; = the <b>local-randomization difference in means</b>, valid only in a small window.<br />• &quot;adjust for age and background + cross-fitting&quot; = <b>double / debiased machine learning (DML)</b> with a <b>doubly-robust (AIPW) score</b>; nuisances are predicted <b>out-of-fold</b>. Its key property is <b>robustness to the bandwidth / window choice</b>.<br />• &quot;margin of error&quot; = the <b>95% confidence interval</b>.">
+        • 「視窗內直接比較」＝<b>局部隨機化的差異比較（difference in means）</b>，只有在小視窗才成立。<br />
+        • 「調整年齡與背景＋交叉擬合」＝<b>雙重／去偏機器學習（DML）</b>搭配<b>雙重穩健（AIPW）分數</b>；
+        輔助模型都用<b>離折預測（out-of-fold）</b>。它最關鍵的特性就是<b>對頻寬／視窗選擇穩健</b>。<br />
+        • 「誤差範圍」＝<b>95% 信賴區間</b>。
+      </p>
+    </details>
+
+    <!-- 藥方二 -->
+    <h2 data-en="Remedy 2: flexible ML for a censored survival outcome">藥方二：用彈性 ML 處理帶設限的存活結果</h2>
+    <div class="card info">
+      <h3 data-en="First, the plain-language idea">先用白話想一遍</h3>
+      <p data-en="Now the outcome is <b>time to a major health event</b>, and some people are still event-free when follow-up ends (&quot;censored&quot;) — worse, <b>who gets censored depends on age and frailty</b>. If you just ignore censoring you get a biased answer. Re-weighting by the chance of not being censored (<b>IPCW</b>) helps but is shaky. The strong move: also fit a <b>flexible outcome model</b> and combine the two — it is right <b>if either piece is right</b> (doubly robust) and lands a <b>tighter, steadier</b> estimate. Click to run (fitting the models takes a few seconds):">
+        現在結果改成「<b>到重大健康事件的時間</b>」，有些人追蹤結束時還沒發生事件（「設限」）——
+        更麻煩的是，<b>誰被設限跟年齡、體弱程度有關</b>。如果直接忽略設限，答案會有偏。
+        用「沒被設限的機率」重新加權（<b>IPCW</b>）有幫助、但不太穩。真正厲害的一步：
+        再配一個<b>彈性的結果模型</b>把兩者結合——只要<b>其中一塊對</b>就準（雙重穩健），
+        而且估計<b>更窄、更穩</b>。按下面跑跑看（要擬合模型，約需幾秒）：
+      </p>
+    </div>
+    <button id="runRddSurvMl" class="btn primary" data-en="Run the censoring-correction comparison">跑「設限校正」的比較</button>
+    <div id="rddSurvMlOut" class="hidden">
+      <div id="rddSurvMlChart" class="chart"></div>
+      <div class="result-cards" id="rddSurvMlCards"></div>
+      <p class="caption" data-en="Reading: &quot;<b>no censoring fix</b>&quot; is clearly off; &quot;<b>IPCW</b>&quot; corrects the direction but with a wide, shaky margin; the two &quot;<b>doubly-robust</b>&quot; versions (Cox / AFT outcome models) land close together with the <b>tightest</b> margin — that agreement-and-tightness IS the robustness. The outcome (Δlog event-time) is a different scale from the earlier 1.80, so there is no single truth line here; the point is how the methods compare.">
+        解讀：「<b>未處理設限</b>」明顯偏掉；「<b>IPCW</b>」把方向修對了、但誤差範圍寬又不穩；
+        兩個「<b>雙重穩健</b>」版本（Cox／AFT 結果模型）落點接近、誤差範圍<b>最窄</b>——
+        這種「彼此一致又收窄」正是穩健的展現。這裡的結果（Δlog 事件時間）和先前的 1.80 不同尺度，
+        所以沒有單一真值線；重點是各方法之間的比較。
+      </p>
+    </div>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <p data-en="• &quot;re-weight by the chance of not being censored&quot; = <b>IPCW (inverse-probability-of-censoring weighting)</b>.<br />• &quot;also fit a flexible outcome model and combine&quot; = a <b>doubly-robust</b> estimator pairing a censoring model with an outcome learner (here Cox / AFT as stand-ins for general ML); consistent if <b>either</b> model is correct, and more efficient and robust to misspecification than one parametric working model.">
+        • 「用沒被設限的機率重新加權」＝<b>IPCW（反設限機率加權）</b>。<br />
+        • 「再配一個彈性結果模型並結合」＝<b>雙重穩健（doubly robust）</b>估計，把設限模型與結果模型配對
+        （這裡用 Cox／AFT 當一般機器學習的替身）；只要<b>其中一個</b>模型對就一致，
+        且比單一參數工作模型更有效率、對設定錯誤更穩健。
+      </p>
+    </details>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="IV vs RDD: two designs for the same question — which to use?">IV 與 RDD：回答同一問題的兩種設計，該用哪個？</h1>
@@ -651,6 +747,8 @@
       <li>Bruns-Smith, D. (2025). <i>Two-Stage Machine Learning for Nonparametric Instrumental Variable Regression.</i> Stanford University. <span data-en="〔bendable first stage〕">〔可彎的第一階段〕</span></li>
       <li>Peng, J. (2024). <i>Machine Learning for Instrumental Variable Regression: From Bias to Resilience.</i> University of Connecticut. SSRN 5008641. <span data-en="〔forbidden-regression bias〕">〔禁止迴歸偏誤〕</span></li>
       <li>Wu, A., Kuang, K., Xiong, R., &amp; Wu, F. (2022). Instrumental Variables in Causal Inference and Machine Learning: A Survey. <i>arXiv:2212.05778.</i></li>
+      <li>Wang, Q. <i>The Difference Between Conventional Double Machine Learning and Sharp Regression Discontinuity Design.</i> <span data-en="〔DML for RDD; robustness to bandwidth / window choice — RDD tab ⑤ Remedy 1〕">〔RDD 的雙重機器學習；對頻寬／視窗選擇的穩健性 —— RDD 分頁⑤ 藥方一〕</span></li>
+      <li>Schuessler, M., Sverdrup, E., Tibshirani, J., &amp; Wager, S. (2026). <i>Nonparametric Regression Discontinuity Designs with Survival Outcomes.</i> Stanford University. arXiv:2604.03502. <span data-en="〔doubly-robust censoring correction with flexible ML — RDD tab ⑤ Remedy 2〕">〔以彈性機器學習做雙重穩健的設限校正 —— RDD 分頁⑤ 藥方二〕</span></li>
     </ul>
   </footer>
 </main>
