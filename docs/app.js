@@ -18,8 +18,10 @@ document.querySelectorAll(".tab").forEach((t) => {
     document.getElementById(t.dataset.tab).classList.add("active");
     if (t.dataset.tab === "play") refreshPlay();
     if (t.dataset.tab === "ml") initMl();
-    if (t.dataset.tab === "rdd") initRdd();
+    if (t.dataset.tab === "rddplay") initRdd();
+    if (t.dataset.tab === "rddanalyze") initRddAnalyze();
     if (t.dataset.tab === "rddassume") initRddAssume();
+    if (t.dataset.tab === "choose") initChoose();
   });
 });
 
@@ -434,11 +436,11 @@ async function refreshRdd() {
   fuzzyEl.textContent = fmt(i.fuzzy, 2);
   fuzzyEl.style.color = Math.abs(i.fuzzy - 1.8) < 0.4 ? TEAL : AMBER;
 
-  renderRddPlot(a.plot);
-  renderRddBwCurve(a.bandwidth_curve);
+  renderRddPlotInto("rddPlot", a.plot);
+  renderRddBwInto("rddBwChart", a.bandwidth_curve);
 }
 
-function renderRddPlot(plot) {
+function renderRddPlotInto(elId, plot) {
   const c = plot.cutoff;
   const traces = [
     { x: plot.left.bx, y: plot.left.by, type: "scatter", mode: "markers",
@@ -451,20 +453,20 @@ function renderRddPlot(plot) {
   if (plot.fit.right) traces.push({ x: plot.fit.right.x, y: plot.fit.right.y, type: "scatter",
     mode: "lines", name: tr("右側配適", "right fit"), line: { color: PURPLE, width: 3 }, showlegend: false });
 
-  Plotly.react("rddPlot", traces, {
+  Plotly.react(elId, traces, {
     margin: { t: 24, r: 20, b: 45, l: 55 },
-    xaxis: { title: tr("年齡（跑分變數）", "Age (running variable)") },
-    yaxis: { title: tr("健康分數變化", "Health-score change") },
+    xaxis: { title: tr("跑分變數", "Running variable") },
+    yaxis: { title: tr("結果", "Outcome") },
     legend: { orientation: "h", y: 1.14 },
     shapes: [{ type: "line", x0: c, x1: c, yref: "paper", y0: 0, y1: 1,
                line: { color: RED, dash: "dash", width: 1.5 } }],
-    annotations: [{ x: c, yref: "paper", y: 1, text: tr("斷點 65 歲", "cutoff age 65"),
+    annotations: [{ x: c, yref: "paper", y: 1, text: tr(`斷點 ${c}`, `cutoff ${c}`),
                showarrow: false, font: { color: RED, size: 11 }, yshift: 10 }],
   }, { displayModeBar: false, responsive: true });
 }
 
-function renderRddBwCurve(bw) {
-  Plotly.react("rddBwChart", [
+function renderRddBwInto(elId, bw) {
+  Plotly.react(elId, [
     { x: bw.h.concat(bw.h.slice().reverse()),
       y: bw.hi.concat(bw.lo.slice().reverse()),
       fill: "toself", fillcolor: "rgba(124,58,237,0.12)", line: { color: "transparent" },
@@ -491,28 +493,181 @@ async function runRddSurvival() {
   renderRddSurvival(s);
 }
 function renderRddSurvival(s) {
-  const cards = [
-    [tr("未處理設限（有偏）", "No censoring fix (biased)"), s.naive.estimate, s.naive.interpretation, false],
-    [tr("銳利（IPCW／DR）", "Sharp (IPCW/DR)"), s.sharp.estimate, s.sharp.interpretation, false],
-    [tr("模糊（IPCW／DR）", "Fuzzy (IPCW/DR)"), s.fuzzy.estimate, s.fuzzy.interpretation, true],
-  ];
-  document.getElementById("rddSurvCards").innerHTML = cards.map(([t, v, desc, hl]) =>
-    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3>` +
-    `<div class="big">${fmt(v, 2)} ${tr("年", "yr")}</div><p>${desc}</p></div>`
+  const U = tr("Δlog（事件時間）", "Δlog(event time)");
+  const cards = [];
+  // baseline: ignoring censoring (biased)
+  cards.push({
+    t: tr("未處理設限（有偏）", "No censoring fix (biased)"),
+    v: s.naive.estimate,
+    p: tr("直接對 log（觀察時間）做 RD，被提早設限者往下拉。",
+          "Plain RD on log(observed time); dragged down by early-censored subjects."),
+    hl: false,
+  });
+  // sharp design, one card per outcome-regression method
+  (s.sharp.methods || []).forEach((m, i) => {
+    cards.push({
+      t: tr("銳利 · ", "Sharp · ") + m.label,
+      v: m.estimate,
+      p: i === 0
+        ? tr("跨越資格門檻對「log 事件時間」的跳躍（類似 ITT）。",
+              "Jump in log event-time from crossing eligibility (ITT-like).")
+        : tr("雙重穩健版：多帶結果模型校正設限。",
+              "Doubly-robust: adds an outcome model on top of IPCW."),
+      hl: false,
+    });
+  });
+  // fuzzy design, primary (IPCW) — the LATE for compliers at the cutoff
+  const fz = (s.fuzzy.methods && s.fuzzy.methods[0]) || { label: "IPCW", estimate: s.fuzzy.estimate };
+  cards.push({
+    t: tr("模糊 · ", "Fuzzy · ") + fz.label,
+    v: fz.estimate,
+    p: tr("斷點附近實際接種者的效果（complier 的 LATE）。",
+          "Effect for those actually vaccinated near the cutoff (complier LATE)."),
+    hl: true,
+  });
+  document.getElementById("rddSurvCards").innerHTML = cards.map(c =>
+    `<div class="rc ${c.hl ? "highlight" : ""}"><h3>${c.t}</h3>` +
+    `<div class="big">${fmt(c.v, 2)}</div>` +
+    `<p class="caption">${U}</p><p>${c.p}</p></div>`
   ).join("");
 }
 
 // ======================================================================
-// 7. RDD assumptions dashboard (R1–R5)
+// RDD ③ data analysis (load example / upload, map columns, run RDD)
+// ======================================================================
+const rddState = { source: null, columns: [], req: null };
+let rddAnalyzeReady = false;
+
+function initRddAnalyze() {
+  if (rddAnalyzeReady) return;
+  rddAnalyzeReady = true;
+  document.getElementById("useRddExample").click();   // auto-load the demo
+}
+
+function rddFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  const none = `<option value="">—</option>`;
+  ["rddSelX", "rddSelY", "rddSelD", "rddSelCov"].forEach((id) => {
+    document.getElementById(id).innerHTML = opts;
+  });
+  ["rddSelT", "rddSelE"].forEach((id) => {   // optional survival columns
+    document.getElementById(id).innerHTML = none + opts;
+  });
+  document.getElementById("rddColMap").classList.remove("hidden");
+}
+function rddApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null) el.value = v; };
+  set("rddSelX", d.running); set("rddSelY", d.outcome); set("rddSelD", d.treatment);
+  set("rddSelC", d.cutoff); set("rddSelT", d.time); set("rddSelE", d.event);
+  const cov = document.getElementById("rddSelCov");
+  if (d.covariates) [...cov.options].forEach((o) => { o.selected = d.covariates.includes(o.value); });
+}
+
+document.getElementById("useRddExample").addEventListener("click", async () => {
+  const st = document.getElementById("rddDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/rdd_example`);
+    rddState.source = "example_rdd"; rddState.columns = d.columns;
+    st.textContent = tr(`已載入內建 65 歲範例（${d.n} 筆，合成虛構）`,
+                        `Loaded built-in age-65 example (${d.n} rows, synthetic & fictional)`);
+    rddFillSelects(d.columns); rddApplyDefaults(d.defaults);
+    runRddAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+
+document.getElementById("rddFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("rddDataStatus");
+  st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    rddState.source = d.token; rddState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 筆）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    rddFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+
+function rddCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return {
+    source: rddState.source,
+    running: v("rddSelX"), outcome: v("rddSelY"), treatment: v("rddSelD"),
+    cutoff: Number(v("rddSelC")),
+    time: v("rddSelT"), event: v("rddSelE"),
+    covariates: [...document.getElementById("rddSelCov").selectedOptions].map((o) => o.value),
+    lang: lang(),
+  };
+}
+
+document.getElementById("runRddAnalyze").addEventListener("click", runRddAnalyze);
+
+async function runRddAnalyze() {
+  const req = rddCurrentMapping();
+  if (!req.source) return;
+  rddState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/rdd_analyze`, req);
+    renderRddAnalyze(a);
+    runRddAssumptions(req);   // keep the ④ dashboard in sync
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); return; }
+
+  // optional survival RDD when both time + event columns are chosen
+  const block = document.getElementById("rddSurvBlock");
+  if (req.time && req.event) {
+    block.classList.remove("hidden");
+    try {
+      const s = await postJSON(`${API}/api/rdd_survival`, req);
+      renderRddAnalyzeSurv(s);
+    } catch (e) { block.classList.add("hidden"); }
+  } else {
+    block.classList.add("hidden");
+  }
+}
+
+function renderRddAnalyze(a) {
+  document.getElementById("rddAnalyzeOut").classList.remove("hidden");
+  const cards = [
+    [tr("接種率跳幅（第一階段）", "Take-up jump (first stage)"), a.takeup.estimate, a.takeup.interpretation, false],
+    [tr("天真差異（有偏）", "Naive difference (biased)"), a.naive_difference, tr("直接比較有／無處置者，被干擾因子汙染。", "Direct treated-vs-untreated comparison, confounded."), false],
+    [tr("銳利 RD（資格效果）", "Sharp RD (eligibility)"), a.sharp.estimate, a.sharp.interpretation, false],
+    [tr("模糊 RD（斷點順從者）", "Fuzzy RD (compliers)"), a.fuzzy ? a.fuzzy.estimate : null, a.fuzzy ? a.fuzzy.interpretation : "", true],
+  ];
+  document.getElementById("rddAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, hl ? 3 : 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  if (a.plot) renderRddPlotInto("rddAnalyzePlot", a.plot);
+  if (a.bandwidth_curve) renderRddBwInto("rddAnalyzeBw", a.bandwidth_curve);
+}
+
+function renderRddAnalyzeSurv(s) {
+  const U = tr("Δlog（事件時間）", "Δlog(event time)");
+  const rows = [];
+  rows.push({ t: tr("未處理設限（有偏）", "No censoring fix (biased)"), v: s.naive.estimate, hl: false });
+  (s.sharp.methods || []).forEach((m) => rows.push({ t: tr("銳利 · ", "Sharp · ") + m.label, v: m.estimate, hl: false }));
+  const fz = (s.fuzzy.methods && s.fuzzy.methods[0]) || { label: "IPCW", estimate: s.fuzzy.estimate };
+  rows.push({ t: tr("模糊 · ", "Fuzzy · ") + fz.label, v: fz.estimate, hl: true });
+  document.getElementById("rddAnalyzeSurv").innerHTML = rows.map((c) =>
+    `<div class="rc ${c.hl ? "highlight" : ""}"><h3>${c.t}</h3><div class="big">${fmt(c.v, 2)}</div><p class="caption">${U}</p></div>`
+  ).join("");
+}
+
+// ======================================================================
+// RDD ④ assumptions dashboard (R1–R5)
 // ======================================================================
 function initRddAssume() {
   if (rddAssumeReady) return;
   rddAssumeReady = true;
-  runRddAssumptions();
+  runRddAssumptions(rddState.req || { source: "example_rdd", lang: lang() });
 }
-async function runRddAssumptions() {
+async function runRddAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_rdd", lang: lang() };
   let out;
-  try { out = await postJSON(`${API}/api/rdd_assumptions`, { source: "example_rdd", lang: lang() }); }
+  try { out = await postJSON(`${API}/api/rdd_assumptions`, body); }
   catch (e) { return; }
   state.rddDash = out;
   renderRddAssumptions(out);
@@ -551,13 +706,59 @@ function renderRddAssumptions(out) {
 }
 
 // ======================================================================
+// 8. IV vs RDD — when to use which (comparison chart)
+// ======================================================================
+let chooseReady = false;
+
+function initChoose() {
+  if (chooseReady) return;
+  chooseReady = true;
+  refreshChoose();
+}
+async function refreshChoose() {
+  let iv, rd;
+  try {
+    iv = await postJSON(`${API}/api/analyze`, {
+      source: "example", outcome: "health_score_change", treatment: "vaccinated",
+      instrument: "vaccine_reminder", covariates: [], lang: lang(),
+    });
+    rd = await postJSON(`${API}/api/rdd_analyze`, { source: "example_rdd", lang: lang() });
+  } catch (e) { return; }
+  state.chooseDone = true;
+  renderChoose(iv, rd);
+}
+function renderChoose(iv, rd) {
+  const labels = [
+    tr("IV：天真", "IV: naive"), tr("IV：2SLS", "IV: 2SLS"),
+    tr("RDD：天真", "RDD: naive"), tr("RDD：模糊", "RDD: fuzzy"),
+  ];
+  const vals = [iv.naive.estimate, iv.iv.estimate, rd.naive_difference, rd.fuzzy.estimate];
+  const colors = [RED, "#6366f1", RED, PURPLE];
+  Plotly.react("chooseChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: colors },
+    text: vals.map((v) => fmt(v, 2)), textposition: "outside",
+  }], {
+    margin: { t: 30, r: 20, b: 60, l: 50 },
+    yaxis: { title: tr("估出的疫苗效果", "Estimated vaccine effect"), range: [0, 3] },
+    shapes: [
+      { type: "line", x0: -0.5, x1: 3.5, y0: 1.8, y1: 1.8,
+        line: { color: GREEN, dash: "dash", width: 2 } },
+      { type: "line", x0: 1.5, x1: 1.5, yref: "paper", y0: 0, y1: 1,
+        line: { color: "#cbd5e1", width: 1 } },
+    ],
+    annotations: [{ x: 3, y: 1.8, text: tr("真值 1.80", "truth 1.80"),
+      showarrow: false, font: { color: GREEN }, yshift: 12 }],
+  }, { displayModeBar: false, responsive: true });
+}
+
+// ======================================================================
 // Citation — JAMA text + BibTeX + downloadable RIS
 // ======================================================================
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "工具變數 IV 線上工具",
-  titleEn: "Instrumental Variables — Online Teaching Tool",
+  titleZh: "工具變數 IV － 斷點回歸 RDD 線上工具",
+  titleEn: "Instrumental Variables (IV) & Regression Discontinuity (RDD) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/iv-tool/",
 };
@@ -670,8 +871,10 @@ window.addEventListener("iv-lang", async () => {
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
-  if (rddReady) { refreshRdd(); runRddSurvival(); } // RDD teaching (backend text)
-  if (rddAssumeReady) runRddAssumptions();         // RDD assumptions (backend text)
+  if (rddReady) { refreshRdd(); runRddSurvival(); }     // RDD ② interactive (backend text)
+  if (rddAnalyzeReady) runRddAnalyze();                 // RDD ③ data analysis
+  if (rddAssumeReady) runRddAssumptions(rddState.req);  // RDD ④ assumptions (backend text)
+  if (state.chooseDone) refreshChoose();                // IV vs RDD comparison
 });
 
 // initial render of interactive tab data

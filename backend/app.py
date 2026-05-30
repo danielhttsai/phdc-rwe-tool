@@ -234,7 +234,6 @@ class RddRequest(BaseModel):
     covariates: list[str] = ["female", "bmi", "chronic_conditions", "income_band"]
     time: str = "event_time"
     event: str = "event"
-    tau: float = 10.0
     lang: str = "zh"
 
 
@@ -293,17 +292,17 @@ def rdd_assumptions_check(req: RddRequest):
 def rdd_survival_check(req: RddRequest):
     df = _load_rdd(req.source)
     naive = rdd_survival.naive_survival_rd(
-        df, req.running, req.time, req.cutoff, h=req.bandwidth, tau=req.tau, lang=req.lang
+        df, req.running, req.time, req.cutoff, h=req.bandwidth, lang=req.lang
     )
     sharp = rdd_survival.survival_rd(
         df, req.running, req.time, req.event, req.cutoff,
-        h=req.bandwidth, tau=req.tau, lang=req.lang,
+        h=req.bandwidth, lang=req.lang,
     )
     fuzzy = rdd_survival.survival_rd(
         df, req.running, req.time, req.event, req.cutoff,
-        h=req.bandwidth, tau=req.tau, d_name=req.treatment, fuzzy=True, lang=req.lang,
+        h=req.bandwidth, d_name=req.treatment, fuzzy=True, lang=req.lang,
     )
-    return _clean({"naive": naive, "sharp": sharp, "fuzzy": fuzzy, "tau": req.tau})
+    return _clean({"naive": naive, "sharp": sharp, "fuzzy": fuzzy})
 
 
 @app.get("/api/rdd_interactive")

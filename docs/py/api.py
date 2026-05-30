@@ -261,15 +261,13 @@ def _rdd_survival(req: dict) -> dict:
     cutoff = float(req.get("cutoff", 65.0))
     time = req.get("time", "event_time")
     event = req.get("event", "event")
-    tau = float(req.get("tau", 10.0))
     h = req.get("bandwidth")
     lang = req.get("lang", "zh")
     return {
-        "naive": rdd_survival.naive_survival_rd(df, running, time, cutoff, h=h, tau=tau, lang=lang),
-        "sharp": rdd_survival.survival_rd(df, running, time, event, cutoff, h=h, tau=tau, lang=lang),
-        "fuzzy": rdd_survival.survival_rd(df, running, time, event, cutoff, h=h, tau=tau,
+        "naive": rdd_survival.naive_survival_rd(df, running, time, cutoff, h=h, lang=lang),
+        "sharp": rdd_survival.survival_rd(df, running, time, event, cutoff, h=h, lang=lang),
+        "fuzzy": rdd_survival.survival_rd(df, running, time, event, cutoff, h=h,
                                           d_name=req.get("treatment", "vaccinated"), fuzzy=True, lang=lang),
-        "tau": tau,
     }
 
 

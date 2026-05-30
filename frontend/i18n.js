@@ -24,7 +24,8 @@
   window.IV = IV;
 
   // --- the document-level bits that aren't covered by [data-en] ---
-  const TITLE = { zh: "工具變數 IV 線上工具", en: "Instrumental Variables — Online Tool" };
+  const TITLE = { zh: "工具變數 IV － 斷點回歸 RDD 線上工具",
+                  en: "Instrumental Variables (IV) & Regression Discontinuity (RDD) — Online Tool" };
   const HTMLLANG = { zh: "zh-Hant", en: "en" };
   const BTN = { zh: "EN", en: "中文" };          // button shows the OTHER language
   const BTNTITLE = { zh: "切換到英文", en: "切換到中文" };

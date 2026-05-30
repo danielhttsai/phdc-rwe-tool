@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>工具變數 IV 線上工具</title>
+<title>工具變數 IV － 斷點回歸 RDD 線上工具</title>
 <link rel="stylesheet" href="styles.css" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
@@ -12,15 +12,20 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand">工具變數 <span>IV</span> <span data-en="Online Tool">線上工具</span></div>
+  <div class="brand">工具變數 <span>IV</span> － 斷點回歸 <span>RDD</span> <span data-en="Online Tool">線上工具</span></div>
   <nav class="tabs">
+    <span class="tab-group">IV</span>
     <button class="tab active" data-tab="learn" data-en="① What is IV">① IV 是什麼</button>
     <button class="tab" data-tab="play" data-en="② Interactive">② 互動講解</button>
     <button class="tab" data-tab="analyze" data-en="③ Analyse data">③ 資料分析</button>
     <button class="tab" data-tab="assume" data-en="④ Assumptions">④ 假設檢驗</button>
     <button class="tab" data-tab="ml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
-    <button class="tab" data-tab="rdd" data-en="⑥ RDD teaching">⑥ RDD 教學</button>
-    <button class="tab" data-tab="rddassume" data-en="⑦ RDD assumptions">⑦ RDD 假設</button>
+    <span class="tab-group">RDD</span>
+    <button class="tab" data-tab="rddlearn" data-en="① What is RDD">① RDD 是什麼</button>
+    <button class="tab" data-tab="rddplay" data-en="② Interactive">② 互動講解</button>
+    <button class="tab" data-tab="rddanalyze" data-en="③ Analyse data">③ 資料分析</button>
+    <button class="tab" data-tab="rddassume" data-en="④ Assumptions">④ 假設檢驗</button>
+    <button class="tab tab-sep" data-tab="choose" data-en="IV vs RDD">怎麼選</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -367,8 +372,8 @@
     </div>
   </section>
 
-  <!-- ===================== 6. RDD 教學／互動 ===================== -->
-  <section id="rdd" class="panel">
+  <!-- ===================== RDD ① 是什麼 ===================== -->
+  <section id="rddlearn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Same vaccine story, a different trick: the age-65 threshold (RDD)">同一個疫苗故事，換個招式：用「滿 65 歲」這條線（RDD）</h1>
     <p class="lead" data-en="In tabs ①–⑤ we used a <b>random reminder</b> as the instrument. Here we change the design: suppose a free vaccination programme is offered <b>only to people aged 65 and over</b>. Crossing that birthday line suddenly changes your eligibility — and this jump lets us read off the vaccine's effect <b>without needing any random instrument</b>.">
@@ -405,6 +410,27 @@
       </div>
     </div>
 
+    <details class="term">
+      <summary data-en="How does RDD differ from the IV in tabs IV ①–⑤?">RDD 和 IV ①–⑤ 有什麼不同？</summary>
+      <p data-en="Both recover a LATE for compliers, but the <b>source of the &quot;as-good-as-random&quot; variation differs</b>. IV needs a <b>genuinely random instrument</b> (the reminder). RDD instead leans on a <b>sharp rule at a cutoff</b>: people just on either side are comparable, so it handles the same unseen confounder <b>without</b> any random instrument. The trade-off: RDD only speaks about people <b>near the cutoff</b> (here, near age 65), and depends on the <b>bandwidth</b> choice. The dedicated <b>&quot;IV vs RDD&quot;</b> tab works through this in detail.">
+        兩者都估出「順從者的 LATE」，但「<b>近似隨機」的來源不同</b>。IV 需要一個
+        <b>真正隨機的工具</b>（提醒）。RDD 則靠<b>斷點上的明確規則</b>：剛好落在線兩側的人可比，
+        所以<b>不需要</b>任何隨機工具就能處理同一個看不見的干擾因子。代價是：RDD 只能談
+        <b>斷點附近</b>的人（這裡是 65 歲附近），而且結論會受<b>視窗（頻寬）</b>選擇影響。
+        最後的 <b>「怎麼選」</b> 分頁有詳細的並排比較。
+      </p>
+    </details>
+  </section>
+
+  <!-- ===================== RDD ② 互動講解 ===================== -->
+  <section id="rddplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive RDD: watch the jump as you change the window">互動式 RDD：拉動視窗，看「跳一下」怎麼變</h1>
+    <p class="lead" data-en="Drag the bandwidth slider to change how many people near age 65 enter the local-linear fit, and watch the take-up jump, the Sharp RD and the Fuzzy RD update live. The sensitivity curve below shows whether the conclusion is robust to the window choice.">
+      拉動下面的頻寬滑桿，改變有多少 65 歲附近的人進入局部線性配適，
+      即時看「接種率跳幅」「銳利 RD」「模糊 RD」怎麼變。下方的敏感度曲線會顯示結論挑不挑視窗。
+    </p>
+
     <div class="controls">
       <label>
         <span data-en="Observation window (bandwidth, years):">觀察視窗（頻寬，年）：</span><b id="rddBwVal">6.0</b>
@@ -431,29 +457,66 @@
 
     <div class="card warn">
       <h3 data-en="Bonus: survival outcome with censoring (IPCW / doubly-robust)">進階：帶設限的存活結果（IPCW／雙重穩健）</h3>
-      <p data-en="If the outcome is <b>time to a major health event</b> (some people are still event-free when follow-up ends — &quot;censored&quot;), a plain RD on the observed time is biased downward. We correct it with <b>IPCW</b> (re-weight by the chance of not being censored) plus a <b>doubly-robust</b> adjustment, then run the same RD on a restricted-mean-survival-time pseudo-outcome (horizon τ = 10 years).">
+      <p data-en="If the outcome is <b>time to a major health event</b> (some people are still event-free when follow-up ends — &quot;censored&quot;), a plain RD on the observed time is biased downward. The outcome is <b>log(event time)</b>; we correct censoring with <b>IPCW</b> (re-weight by the chance of not being censored) plus a <b>doubly-robust</b> augmentation that adds an outcome model (Cox or AFT) for E[log T | T &gt; T_j, covariates] — consistent if <i>either</i> model is right. The resulting pseudo-outcomes go through the same local-linear RD.">
         如果結果是「<b>到重大健康事件的時間</b>」（有些人追蹤結束時還沒發生事件——稱為「設限」），
-        直接對觀察到的時間做 RD 會低估。我們用 <b>IPCW</b>（依「沒被設限的機率」重新加權）
-        加上<b>雙重穩健</b>校正，再對「受限平均存活時間」的虛擬結果做同樣的 RD（觀察範圍 τ＝10 年）。
+        直接對觀察到的時間做 RD 會低估。這裡的結果取 <b>log（事件時間）</b>；我們用 <b>IPCW</b>
+        （依「沒被設限的機率」重新加權）處理設限，再加上 <b>雙重穩健</b>校正——多帶一個結果模型
+        （Cox 或 AFT）估 E[log T｜T &gt; T_j、共變項]，只要「設限模型」或「結果模型」其中一個對就一致。
+        最後把校正後的虛擬結果丟進同一套局部線性 RD。
       </p>
       <div class="result-cards" id="rddSurvCards"></div>
-      <p class="caption" data-en="Note: this is an honest, simplified numpy/scipy version (KM for the censoring curve + IPCW/DR pseudo-outcomes), not the full semiparametric estimator.">
-        說明：這是誠實的簡化版（用 Kaplan–Meier 估設限曲線＋IPCW／DR 虛擬結果），並非完整的半參數估計式。
+      <p class="caption" data-en="Method faithful to the JSR sharp/fuzzy survival-RD scripts: Kaplan–Meier censoring with 5% upper-tail truncation, Cox / log-normal-AFT / log-logistic-AFT outcome regressions, IPCW = a1 and DR = a1 + b1 − c1. The age-65 demo runs on a fixed, seeded teaching sub-sample (the outcome regression needs an N×N matrix).">
+        方法忠實對應 JSR 銳利／模糊存活型 RD 的做法：Kaplan–Meier 設限（上尾 5% 截斷）、Cox／對數常態 AFT／
+        對數羅吉斯 AFT 結果回歸、IPCW＝a1、DR＝a1＋b1－c1。年齡 65 範例在固定種子的教學子樣本上計算
+        （結果回歸需要 N×N 矩陣）。
       </p>
     </div>
 
-    <details class="term">
-      <summary data-en="How does RDD differ from the IV in tabs ①–⑤?">RDD 和 ①–⑤ 的 IV 有什麼不同？</summary>
-      <p data-en="Both recover a LATE for compliers, but the <b>source of the &quot;as-good-as-random&quot; variation differs</b>. IV needs a <b>genuinely random instrument</b> (the reminder). RDD instead leans on a <b>sharp rule at a cutoff</b>: people just on either side are comparable, so it handles the same unseen confounder <b>without</b> any random instrument. The trade-off: RDD only speaks about people <b>near the cutoff</b> (here, near age 65), and depends on the <b>bandwidth</b> choice.">
-        兩者都估出「順從者的 LATE」，但「<b>近似隨機」的來源不同</b>。IV 需要一個
-        <b>真正隨機的工具</b>（提醒）。RDD 則靠<b>斷點上的明確規則</b>：剛好落在線兩側的人可比，
-        所以<b>不需要</b>任何隨機工具就能處理同一個看不見的干擾因子。代價是：RDD 只能談
-        <b>斷點附近</b>的人（這裡是 65 歲附近），而且結論會受<b>視窗（頻寬）</b>選擇影響。
-      </p>
-    </details>
   </section>
 
-  <!-- ===================== 7. RDD 假設檢驗 ===================== -->
+  <!-- ===================== RDD ③ 資料分析 ===================== -->
+  <section id="rddanalyze" class="panel">
+    <h1 data-en="Data analysis: run a full RDD">資料分析：跑一次完整的 RDD</h1>
+    <p class="lead" data-en="Load the built-in age-65 example or upload your own CSV, map the columns, and run the full local-linear RDD — Sharp, Fuzzy, the take-up jump, the fitted plot and the bandwidth-sensitivity curve. If you also map a time-to-event and an event indicator, the censoring-aware IPCW / doubly-robust survival RDD runs too.">
+      載入內建的 65 歲範例，或上傳你自己的 CSV，對應好欄位，跑一次完整的局部線性 RDD——
+      銳利、模糊、接種率跳幅、配適圖與頻寬敏感度曲線。若你同時對應「事件時間」與「事件指標」，
+      也會一併跑帶設限的 IPCW／雙重穩健存活型 RDD。
+    </p>
+
+    <div class="datasource">
+      <button id="useRddExample" class="btn primary" data-en="Load built-in age-65 example">載入內建 65 歲範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="rddFileInput" accept=".csv" hidden /></label>
+      <span id="rddDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="rddColMap" class="colmap hidden">
+      <div class="field"><label data-en="Running variable X">跑分變數 X（running）</label><select id="rddSelX"></select></div>
+      <div class="field"><label data-en="Cutoff c">斷點 c（cutoff）</label><input id="rddSelC" type="number" step="0.5" value="65" /></div>
+      <div class="field"><label data-en="Outcome Y">結果 Y（outcome）</label><select id="rddSelY"></select></div>
+      <div class="field"><label data-en="Treatment D (for fuzzy)">處置 D（treatment，模糊用）</label><select id="rddSelD"></select></div>
+      <div class="field"><label data-en="Event time (optional, survival)">事件時間（可選，存活型）</label><select id="rddSelT"></select></div>
+      <div class="field"><label data-en="Event indicator (optional)">事件指標（可選）</label><select id="rddSelE"></select></div>
+      <div class="field wide"><label data-en="Covariates (multi-select, for balance check)">共變項（covariates，可多選，平衡檢驗用）</label><select id="rddSelCov" multiple size="5"></select></div>
+      <button id="runRddAnalyze" class="btn primary" data-en="Run RDD analysis">執行 RDD 分析</button>
+    </div>
+
+    <div id="rddAnalyzeOut" class="hidden">
+      <h2 data-en="Sharp / Fuzzy estimates">銳利／模糊估計</h2>
+      <div class="result-cards" id="rddAnalyzeCards"></div>
+      <div id="rddAnalyzePlot" class="chart"></div>
+      <p class="caption" data-en="Dots: binned outcome averages by the running variable; lines: local-linear fits on each side; dashed line: the cutoff. The vertical gap is the Sharp RD.">點：依跑分變數分組的結果平均；線：兩側局部線性配適；虛線：斷點。垂直落差即銳利 RD。</p>
+      <div id="rddAnalyzeBw" class="chart"></div>
+      <p class="caption" data-en="Bandwidth-sensitivity curve for the fuzzy estimate (with confidence band).">模糊估計的頻寬敏感度曲線（含信賴帶）。</p>
+      <div id="rddSurvBlock" class="card warn hidden">
+        <h3 data-en="Survival outcome with censoring (IPCW / doubly-robust)">帶設限的存活結果（IPCW／雙重穩健）</h3>
+        <p class="caption" data-en="Outcome = log(event time); censoring handled by IPCW + a doubly-robust outcome model (Cox / AFT), then the same local-linear RD. Runs on a fixed teaching sub-sample.">結果＝log（事件時間）；用 IPCW＋雙重穩健結果模型（Cox／AFT）處理設限，再做同一套局部線性 RD。於固定教學子樣本上計算。</p>
+        <div class="result-cards" id="rddAnalyzeSurv"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RDD ④ 假設檢驗 ===================== -->
   <section id="rddassume" class="panel">
     <h1 data-en="Can we trust this RDD? Five checks (different from IV's)">這個 RDD 可不可信？五道體檢（和 IV 的不一樣）</h1>
     <p class="lead" data-en="RDD rests on <b>different assumptions</b> from IV. The key one — that people just below and just above the cutoff are alike — <b>cannot be proven from data</b>, so we are honest about it and run the supporting checks that <b>can</b> be tested: no manipulation of the running variable, balanced background characteristics, a real first-stage jump (for fuzzy), and stability across bandwidths. Green = fine, amber = watch out, red = problem.">
@@ -465,6 +528,107 @@
     <div id="rddOverall" class="overall hidden"></div>
     <div id="rddAssumeCards" class="assume-cards"></div>
     <p id="rddAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
+  <section id="choose" class="panel">
+    <h1 data-en="IV vs RDD: two designs for the same question — which to use?">IV 與 RDD：回答同一問題的兩種設計，該用哪個？</h1>
+    <p class="lead" data-en="Throughout this tool we asked one causal question — <b>does the vaccine really improve health?</b> — and answered it two ways. Both recover the <b>same hidden truth (1.80)</b> for compliers, but they borrow their &quot;as-good-as-random&quot; variation from <b>completely different places</b>. Understanding that difference tells you which design fits your problem.">
+      整個工具我們只問一個因果問題——<b>疫苗真的能改善健康嗎？</b>——並用兩種方法回答。
+      兩者都抓到<b>同一個藏起來的真值（1.80）</b>，但「近似隨機」的來源<b>完全不同</b>。
+      看懂這個差別，就知道自己的問題該用哪一種。
+    </p>
+
+    <div class="card warn">
+      <h3 data-en="First: why we did NOT make the IV use the age-65 cutoff">先講：為什麼 IV 不改用「滿 65 歲」當工具</h3>
+      <p data-en="An instrument must be <b>excludable</b> — it may affect the outcome <b>only through</b> the treatment. The random reminder qualifies. But <b>age itself directly affects health</b> (older = higher risk), so &quot;age ≥ 65&quot; is <b>not a valid instrument</b>. Age works for RDD only because RDD compares people <b>right next to the cutoff</b>, who are alike in age — that local comparison cancels age's direct effect. So the two tabs deliberately use <b>different identification sources for the same question</b>; swapping one for the other would break it.">
+        工具變數必須<b>可排除</b>——只能<b>透過處置</b>影響結果。隨機提醒符合；
+        但<b>年齡本身會直接影響健康</b>（越老風險越高），所以「年齡 ≥ 65」<b>不是合格的工具</b>。
+        年齡能用在 RDD，只因為 RDD <b>比較斷點旁邊</b>、年齡幾乎一樣的人，這個局部比較把年齡的直接影響抵消掉了。
+        因此兩個分頁是<b>對同一問題刻意採用不同的識別來源</b>；互換會破壞識別。
+      </p>
+    </div>
+
+    <h2 data-en="Both correct their naive bias to the same truth">兩種設計都把各自的「天真偏誤」修正到同一個真值</h2>
+    <div id="chooseChart" class="chart"></div>
+    <p class="caption" data-en="Each design starts from a biased naive comparison (red) and recovers the true 1.80 (green dashed line) — IV via a random instrument, RDD via the age cutoff. Same destination, different road.">
+      每種設計都從有偏的天真比較（紅）出發，最後抓回真值 1.80（綠虛線）——IV 靠隨機工具、RDD 靠年齡斷點。
+      終點相同，路徑不同。
+    </p>
+
+    <h2 data-en="Side-by-side comparison">並排比較</h2>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th data-en="Aspect">面向</th>
+            <th data-en="IV (instrumental variable)">IV（工具變數）</th>
+            <th data-en="RDD (regression discontinuity)">RDD（斷點回歸）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-en="Where the &quot;randomness&quot; comes from">「隨機」從哪來</td>
+            <td data-en="A genuinely exogenous instrument (here: the random reminder)">一個真正外生的工具（這裡：隨機提醒）</td>
+            <td data-en="A sharp rule at a cutoff (here: eligible at age 65)">斷點上的明確規則（這裡：滿 65 歲才有資格）</td>
+          </tr>
+          <tr>
+            <td data-en="The one untestable core assumption">最關鍵、不可檢驗的假設</td>
+            <td data-en="Exclusion: the instrument affects the outcome only through treatment">排除限制：工具只能透過處置影響結果</td>
+            <td data-en="Continuity: people just below vs. above the cutoff are otherwise alike">連續性：斷點上下方的人其他條件相同</td>
+          </tr>
+          <tr>
+            <td data-en="Testable supporting checks">可檢驗的佐證</td>
+            <td data-en="Instrument strength (F), balance, monotonicity, falsification">工具強度（F）、平衡、單調性、否證檢定</td>
+            <td data-en="No manipulation (density), covariate balance, first-stage jump, bandwidth">無操弄（密度）、共變項平衡、第一階段跳躍、頻寬敏感度</td>
+          </tr>
+          <tr>
+            <td data-en="Who the answer is about (estimand)">答案是關於誰（估計對象）</td>
+            <td data-en="LATE for compliers — those moved by the instrument">順從者的 LATE——被工具推動的那群人</td>
+            <td data-en="LATE for compliers right at the cutoff — local to age 65">斷點處順從者的 LATE——侷限在 65 歲附近</td>
+          </tr>
+          <tr>
+            <td data-en="External validity (who it generalises to)">外推性（能推論到誰）</td>
+            <td data-en="Depends on who the instrument moves; can be broader">看工具推動了誰；可能比較廣</td>
+            <td data-en="Only people near the cutoff; narrow but very credible there">只限斷點附近的人；範圍窄但在那裡很可信</td>
+          </tr>
+          <tr>
+            <td data-en="What you need in the data">資料裡需要有什麼</td>
+            <td data-en="A valid instrument variable (often the hard part)">一個合格的工具變數（通常最難找）</td>
+            <td data-en="A running variable with a sharp eligibility rule">一個帶明確資格規則的跑分變數</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 data-en="A simple rule of thumb: when to use which">簡單的判斷原則：什麼時候用哪個</h2>
+    <div class="rdd-twocol">
+      <div class="card info">
+        <h3 data-en="Reach for IV when…">這些情況用 IV</h3>
+        <p data-en="• You have an <b>external, as-good-as-random push</b> — a randomised policy, a lottery, a natural random event, or a genetic variant (Mendelian randomisation).<br />• You believe that push affects the outcome <b>only through</b> the treatment.<br />• There is <b>no sharp threshold rule</b> assigning treatment.">
+          • 你手上有一個<b>外部、近似隨機的推力</b>——隨機分派的政策、抽籤、自然隨機事件，或基因變異（孟德爾隨機化）。<br />
+          • 你相信這個推力<b>只透過</b>處置影響結果。<br />
+          • 處置的分派<b>沒有明確的門檻規則</b>。
+        </p>
+      </div>
+      <div class="card info">
+        <h3 data-en="Reach for RDD when…">這些情況用 RDD</h3>
+        <p data-en="• Treatment or eligibility is decided by a <b>sharp cutoff</b> on a continuous score — age, test score, a date, an index, a clinical threshold.<br />• People <b>cannot precisely manipulate</b> which side they land on.<br />• You only need a credible answer <b>near that cutoff</b>, and you have enough data around it.">
+          • 處置或資格是由連續分數上的<b>明確門檻</b>決定的——年齡、考試分數、日期、指標、臨床閾值。<br />
+          • 人們<b>無法精準操弄</b>自己落在門檻哪一側。<br />
+          • 你只需要<b>門檻附近</b>的可信答案，而且那附近資料夠多。
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 data-en="The one-line summary">一句話總結</h3>
+      <p data-en="<b>IV needs a valid instrument; RDD needs a sharp rule.</b> Both hand you a LATE for compliers and both lean on one assumption you can't fully test — so always run the supporting checks (tabs ④ and ⑦) and, where possible, see whether two different designs <b>agree</b>. When they both point to ~1.80, you can be a lot more confident.">
+        <b>IV 要有合格的工具；RDD 要有明確的規則。</b>兩者都給你「順從者的 LATE」，
+        也都依賴一條無法完全檢驗的假設——所以一定要跑佐證檢查（分頁 ④ 與 ⑦），
+        並盡量看<b>兩種不同設計是否一致</b>。當它們都指向約 1.80，你就能更有信心。
+      </p>
+    </div>
   </section>
 
   <!-- ===================== 參考文獻 / References ===================== -->

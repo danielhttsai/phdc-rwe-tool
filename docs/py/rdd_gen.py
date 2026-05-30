@@ -84,11 +84,12 @@ def generate(n=N, seed=SEED):
 
     # Survival outcome: time to a major adverse health event. Vaccination lowers the
     # hazard; age raises it; U raises it. Continuous in age except through `vaccinated`.
-    log_rate = (-2.9 + 0.45 * a - 0.55 * vaccinated + 0.25 * U)
+    log_rate = (-1.8 + 0.45 * a - 0.80 * vaccinated + 0.25 * U)
     rate = np.exp(log_rate)
     t_event = rng.exponential(1.0 / rate)
     # Random (administrative + dropout) censoring, independent of the event time.
-    t_cens = np.minimum(rng.exponential(14.0, n), 12.0)
+    # Calibrated to ~38% censoring so the IPCW/DR correction is visible but stable.
+    t_cens = np.minimum(rng.exponential(18.0, n), 14.0)
     event_time = np.minimum(t_event, t_cens).round(3)
     event = (t_event <= t_cens).astype(int)
 

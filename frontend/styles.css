@@ -56,6 +56,12 @@ b { color: #0b1020; }
 }
 .tab:hover { border-color: var(--z); color: var(--z); }
 .tab.active { background: var(--z); color: #fff; border-color: var(--z); }
+.tabs .tab-group {
+  align-self: center; font-weight: 800; font-size: .82rem; letter-spacing: .5px;
+  color: var(--z); padding: 0 .15rem 0 .5rem; user-select: none;
+}
+.tabs .tab-group:first-child { padding-left: 0; }
+.tab.tab-sep { margin-left: .5rem; border-style: dashed; }
 
 main { max-width: 920px; margin: 0 auto; padding: 1.5rem; }
 .panel { display: none; animation: fade .25s; }
@@ -96,6 +102,15 @@ main { max-width: 920px; margin: 0 auto; padding: 1.5rem; }
 .controls small { display: block; color: var(--muted); font-weight: 400; }
 .play-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
 .rdd-twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
+table.cmp { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+table.cmp th, table.cmp td { padding: .7rem .9rem; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--line); font-size: .92rem; }
+table.cmp thead th { background: var(--ink, #14283c); color: #fff; font-weight: 600; }
+table.cmp tbody td:first-child { font-weight: 600; color: var(--muted); white-space: nowrap; }
+table.cmp tbody tr:last-child td { border-bottom: none; }
+table.cmp tbody tr:nth-child(even) { background: #f8fafc; }
 .stat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1rem; text-align: center; box-shadow: var(--shadow); }
 .stat-label { color: var(--muted); font-size: .85rem; }
 .stat-num { font-size: 2rem; font-weight: 800; margin: .2rem 0; }
@@ -176,4 +191,5 @@ select { padding: .45rem; border: 1px solid var(--line); border-radius: 8px; fon
 
 @media (max-width: 720px) {
   .controls, .colmap, .play-grid, .rdd-twocol { grid-template-columns: 1fr; }
+  table.cmp th, table.cmp td { font-size: .82rem; padding: .5rem .55rem; }
 }
