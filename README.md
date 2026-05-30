@@ -28,6 +28,28 @@ python -m uvicorn app:app --port 8000
 
 開啟瀏覽器：<http://127.0.0.1:8000>
 
+## 純靜態版（瀏覽器直跑，可放 GitHub Pages）
+
+不想開伺服器、想給別人一個網址點開就能用,可以打包成**完全在瀏覽器跑**的靜態網站:
+計算改用 [Pyodide](https://pyodide.org)(在瀏覽器裡跑 Python 的 WASM 版),
+重用同一份 `backend/*.py`,不需要任何後端。
+
+```powershell
+cd "D:\Drive\IV detection\webtool"
+python build_docs.py        # 產生 docs/(GitHub Pages 來源)
+```
+
+- `web/api.py`：把 `app.py` 的端點改寫成可被瀏覽器呼叫的 `route()`。
+- `web/pyodide-bridge.js`：載入 Pyodide + numpy/scipy/pandas(sklearn 延後),
+  攔截 `/api/*` 的 `fetch` 改走 Pyodide,讓 `app.js` 一行都不用改。
+- `build_docs.py`：把 `frontend/*` 與 `backend/*.py` 組裝進 `docs/`(產生物,改來源後重跑即可)。
+
+部署:GitHub 設定 → Pages → Source 選 `main` 分支的 `/docs`。
+首次開啟需下載運算核心(約 20–40 MB,之後瀏覽器會快取)。
+> 注意:私有 repo 的 GitHub Pages 需付費方案;免費帳號需 repo 設為公開才能發佈。
+
+本機預覽靜態版:`cd docs; python -m http.server 8001` → <http://127.0.0.1:8001>
+
 ## 內建範例資料（純屬虛構的合成資料）
 
 `data/demo_vaccine.csv` 是一個**完全虛構、為本工具自行設計**的合成情境，

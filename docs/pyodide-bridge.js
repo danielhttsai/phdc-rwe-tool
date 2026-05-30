@@ -1,0 +1,148 @@
+/*
+ * Pyodide 橋接：讓這個工具的 Python 後端完全在瀏覽器裡跑,不需要伺服器。
+ *
+ * 作法:載入 Pyodide 與數學套件,把 backend 的 .py 寫進 Pyodide 檔案系統,
+ * 然後攔截所有對 /api/* 的 fetch,改交給 py/api.py 的 route() 處理。
+ * 這樣原本的 app.js 一行都不用改 —— 它以為自己還在呼叫真的後端。
+ *
+ * 此檔由 build_docs.py 複製到 docs/。Python 來源仍是 backend/*.py(單一來源)。
+ */
+(function () {
+  "use strict";
+
+  // Pyodide 套件版本需與 index.html 載入的 pyodide.js 相符
+  var PYODIDE_INDEX = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
+  var PY_MODULES = ["iv_core", "assumptions", "ml_iv", "gen_data", "api"];
+
+  var pyodide = null;
+  var routeFn = null;
+  var readyPromise = null;
+  var sklearnLoaded = false;
+
+  // ---- 載入進度遮罩 -------------------------------------------------------
+  function buildOverlay() {
+    var o = document.createElement("div");
+    o.id = "pyloader";
+    o.innerHTML =
+      '<div class="pyloader-box">' +
+      '<div class="pyloader-title">工具變數 <span>IV</span> 線上工具</div>' +
+      '<div class="pyloader-msg" id="pyloader-msg">啟動中…</div>' +
+      '<div class="pyloader-track"><div class="pyloader-bar" id="pyloader-bar"></div></div>' +
+      '<div class="pyloader-note">第一次開啟需下載運算核心(約 20–40 MB),請稍候;之後會被瀏覽器快取。</div>' +
+      "</div>";
+    var css = document.createElement("style");
+    css.textContent =
+      "#pyloader{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;" +
+      "background:#0f172a;color:#e2e8f0;transition:opacity .5s ease;font-family:system-ui,'Noto Sans TC',sans-serif}" +
+      ".pyloader-box{max-width:460px;width:86%;text-align:center;padding:2rem}" +
+      ".pyloader-title{font-size:1.5rem;font-weight:800;margin-bottom:1.2rem;letter-spacing:.5px}" +
+      ".pyloader-title span{color:#2dd4bf}" +
+      ".pyloader-msg{font-size:1rem;margin-bottom:1rem;min-height:1.4em}" +
+      ".pyloader-track{height:8px;border-radius:99px;background:#1e293b;overflow:hidden}" +
+      ".pyloader-bar{height:100%;width:5%;border-radius:99px;background:linear-gradient(90deg,#0d9488,#2dd4bf);transition:width .4s ease}" +
+      ".pyloader-note{margin-top:1.2rem;font-size:.8rem;color:#94a3b8;line-height:1.6}";
+    document.head.appendChild(css);
+    (document.body || document.documentElement).appendChild(o);
+  }
+  function setStatus(msg, pct) {
+    var m = document.getElementById("pyloader-msg");
+    if (m && msg != null) m.textContent = msg;
+    var b = document.getElementById("pyloader-bar");
+    if (b && pct != null) b.style.width = pct + "%";
+  }
+  function hideOverlay() {
+    var o = document.getElementById("pyloader");
+    if (!o) return;
+    o.style.opacity = "0";
+    setTimeout(function () { if (o.parentNode) o.parentNode.removeChild(o); }, 600);
+  }
+
+  // ---- 初始化 Pyodide -----------------------------------------------------
+  async function init() {
+    if (document.readyState === "loading") {
+      await new Promise(function (r) { document.addEventListener("DOMContentLoaded", r); });
+    }
+    buildOverlay();
+    try {
+      setStatus("正在載入運算核心(Pyodide)…", 12);
+      pyodide = await loadPyodide({ indexURL: PYODIDE_INDEX });
+
+      setStatus("正在載入數學套件(numpy / scipy / pandas)…", 38);
+      await pyodide.loadPackage(["numpy", "scipy", "pandas"]);
+
+      setStatus("正在載入分析程式…", 72);
+      for (var i = 0; i < PY_MODULES.length; i++) {
+        var name = PY_MODULES[i];
+        var resp = await fetch("py/" + name + ".py");
+        if (!resp.ok) throw new Error("載入 " + name + ".py 失敗(" + resp.status + ")");
+        var src = await resp.text();
+        pyodide.FS.writeFile(name + ".py", src);
+      }
+      await pyodide.runPythonAsync("import api");
+      routeFn = pyodide.runPython("api.route");
+
+      setStatus("準備就緒 ✓", 100);
+      hideOverlay();
+    } catch (err) {
+      setStatus("載入失敗：" + (err && err.message ? err.message : err), null);
+      console.error("[pyodide-bridge] init failed", err);
+      throw err;
+    }
+  }
+  function ready() {
+    if (!readyPromise) readyPromise = init();
+    return readyPromise;
+  }
+
+  async function ensureSklearn() {
+    if (sklearnLoaded) return;
+    await pyodide.loadPackage("scikit-learn");
+    sklearnLoaded = true;
+  }
+
+  // ---- 處理一個 /api/* 請求 ----------------------------------------------
+  async function handleApi(method, url, init) {
+    await ready();
+    var u = new URL(url, location.href);
+    var path = u.pathname;
+    var query = {};
+    u.searchParams.forEach(function (v, k) { query[k] = v; });
+
+    var bodyObj = {};
+    if (init && init.body) {
+      if (typeof FormData !== "undefined" && init.body instanceof FormData) {
+        var file = init.body.get("file");
+        bodyObj = { _csv_text: file ? await file.text() : "" };
+      } else if (typeof init.body === "string") {
+        try { bodyObj = JSON.parse(init.body); } catch (e) { bodyObj = {}; }
+      }
+    }
+
+    if (path === "/api/ml_forbidden") {
+      setStatus && null; // sklearn 首次載入(無遮罩,由按鈕顯示「訓練中」)
+      await ensureSklearn();
+    }
+
+    var out = routeFn(method, path, JSON.stringify(query), JSON.stringify(bodyObj));
+    var env = JSON.parse(out);
+    return new Response(JSON.stringify(env.body), {
+      status: env.status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // ---- 攔截 fetch ---------------------------------------------------------
+  var realFetch = window.fetch ? window.fetch.bind(window) : null;
+  window.fetch = function (input, init) {
+    var url = typeof input === "string" ? input : (input && input.url) || "";
+    if (url && url.indexOf("/api/") !== -1) {
+      var method = (init && init.method) ||
+        (typeof input !== "string" && input && input.method) || "GET";
+      return handleApi(method, url, init || {});
+    }
+    return realFetch(input, init);
+  };
+
+  // 立刻開始載入(背景),這樣 app.js 載入時遮罩已在跑
+  ready();
+})();
