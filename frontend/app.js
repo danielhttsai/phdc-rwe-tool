@@ -234,6 +234,153 @@ function statusText(s) {
 // ======================================================================
 const TEAL = "#0d9488", AMBER = "#f59e0b", RED = "#ef4444", GREEN = "#10b981", INK = "#14283c";
 const STATUS_COLOR = { good: TEAL, weak: AMBER, bad: RED, trap: AMBER };
+
+// ---- deterministic seeded RNG for the "what does the data look like" mini charts ----
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function randn(rng) {
+  let u = 0, v = 0;
+  while (u === 0) u = rng();
+  while (v === 0) v = rng();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+const SCENE_CFG = { displayModeBar: false, responsive: true };
+const sceneLayout = (extra) => Object.assign({
+  margin: { t: 28, r: 16, b: 42, l: 48 }, height: 240, showlegend: false,
+  font: { size: 11 }, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+}, extra || {});
+
+// scene 1 (IV remedy 1): one weak instrument — two barely-separated clouds
+function drawSceneWeak() {
+  if (!document.getElementById("sceneWeak")) return;
+  const rng = mulberry32(101);
+  const x0 = [], y0 = [], x1 = [], y1 = [];
+  for (let i = 0; i < 120; i++) {
+    const nudged = rng() < 0.5 ? 1 : 0;
+    // weak: nudged only nudges shot probability a little
+    const p = nudged ? 0.55 : 0.45;
+    const shot = rng() < p ? 1 : 0;
+    const xv = nudged + randn(rng) * 0.06;
+    const yv = shot + randn(rng) * 0.06;
+    if (nudged) { x1.push(xv); y1.push(yv); } else { x0.push(xv); y0.push(yv); }
+  }
+  const mk = (x, y, c) => ({ x, y, mode: "markers", type: "scatter",
+    marker: { color: c, size: 6, opacity: 0.55 } });
+  Plotly.react("sceneWeak", [mk(x0, y0, INK), mk(x1, y1, TEAL)], sceneLayout({
+    xaxis: { tickvals: [0, 1], ticktext: [tr("沒被推", "not nudged"), tr("有被推", "nudged")], range: [-0.4, 1.4] },
+    yaxis: { tickvals: [0, 1], ticktext: [tr("沒打針", "no shot"), tr("有打針", "got shot")], range: [-0.4, 1.4] },
+  }), SCENE_CFG);
+}
+
+// scene 2 (IV remedy 2): hill-shaped first stage — distance vs uptake
+function drawSceneBend() {
+  if (!document.getElementById("sceneBend")) return;
+  const rng = mulberry32(202);
+  const xs = [], ys = [];
+  for (let i = 0; i < 90; i++) {
+    const d = rng() * 10;                 // distance 0..10 km
+    const hill = Math.exp(-Math.pow((d - 5) / 2.4, 2)); // peak at 5
+    const yv = 0.12 + 0.7 * hill + randn(rng) * 0.06;
+    xs.push(d); ys.push(yv);
+  }
+  const cx = [], cy = [];
+  for (let d = 0; d <= 10; d += 0.2) { cx.push(d); cy.push(0.12 + 0.7 * Math.exp(-Math.pow((d - 5) / 2.4, 2))); }
+  const meanY = ys.reduce((a, b) => a + b, 0) / ys.length;
+  const dots = { x: xs, y: ys, mode: "markers", type: "scatter", marker: { color: "#9aa6b2", size: 6, opacity: 0.7 } };
+  const curve = { x: cx, y: cy, mode: "lines", type: "scatter", line: { color: TEAL, width: 3 } };
+  const flat = { x: [0, 10], y: [meanY, meanY], mode: "lines", type: "scatter", line: { color: AMBER, width: 2, dash: "dash" } };
+  Plotly.react("sceneBend", [dots, flat, curve], sceneLayout({
+    xaxis: { title: tr("離快打車距離 (km)", "distance to van (km)"), range: [-0.3, 10.3] },
+    yaxis: { title: tr("打針率", "uptake"), range: [0, 1] },
+  }), SCENE_CFG);
+}
+
+// scene 3 (IV remedy 3): overfitting — red wiggle threads every point vs green truth
+function drawSceneOverfit() {
+  if (!document.getElementById("sceneOverfit")) return;
+  const rng = mulberry32(303);
+  const xs = [], ys = [];
+  const truth = (x) => 0.5 + 0.35 * Math.sin(x * 0.9);
+  for (let i = 0; i < 22; i++) {
+    const x = (i / 21) * 10;
+    xs.push(x); ys.push(truth(x) + randn(rng) * 0.16);
+  }
+  // green dashed truth
+  const tx = [], ty = [];
+  for (let x = 0; x <= 10; x += 0.1) { tx.push(x); ty.push(truth(x)); }
+  // red wiggle: piecewise through every point (Catmull-Rom-ish via plotly spline)
+  const dots = { x: xs, y: ys, mode: "markers", type: "scatter", marker: { color: INK, size: 7 } };
+  const truthLine = { x: tx, y: ty, mode: "lines", type: "scatter", line: { color: GREEN, width: 3, dash: "dash" } };
+  const wiggle = { x: xs, y: ys, mode: "lines", type: "scatter", line: { color: RED, width: 2, shape: "spline", smoothing: 1.3 } };
+  Plotly.react("sceneOverfit", [truthLine, wiggle, dots], sceneLayout({
+    xaxis: { title: tr("外力強度", "nudge strength"), range: [-0.3, 10.3] },
+    yaxis: { title: tr("反應", "response"), range: [-0.2, 1.3] },
+  }), SCENE_CFG);
+}
+
+// scene 4 (RDD remedy 1): sloped trend + jump at 65, wide window band
+function drawSceneTrend() {
+  if (!document.getElementById("sceneTrend")) return;
+  const rng = mulberry32(404);
+  const xl = [], yl = [], xr = [], yr = [];
+  for (let i = 0; i < 120; i++) {
+    const age = 45 + rng() * 40;          // 45..85
+    const elig = age >= 65 ? 1 : 0;
+    const yv = 0.42 * (age - 65) / 5 + 1.8 * elig + randn(rng) * 1.4 + 6;
+    if (elig) { xr.push(age); yr.push(yv); } else { xl.push(age); yl.push(yv); }
+  }
+  const left = { x: xl, y: yl, mode: "markers", type: "scatter", marker: { color: "#9aa6b2", size: 5, opacity: 0.7 } };
+  const right = { x: xr, y: yr, mode: "markers", type: "scatter", marker: { color: TEAL, size: 5, opacity: 0.7 } };
+  Plotly.react("sceneTrend", [left, right], sceneLayout({
+    xaxis: { title: tr("年齡", "age"), range: [44, 86] },
+    yaxis: { title: tr("結果", "outcome") },
+    shapes: [
+      { type: "rect", x0: 53, x1: 77, y0: 0, y1: 1, yref: "paper", fillcolor: AMBER, opacity: 0.1, line: { width: 0 } },
+      { type: "line", x0: 65, x1: 65, y0: 0, y1: 1, yref: "paper", line: { color: INK, width: 1.5, dash: "dot" } },
+    ],
+    annotations: [{ x: 65, y: 1, yref: "paper", text: tr("65 歲斷點", "cutoff 65"), showarrow: false, font: { size: 10, color: INK }, yshift: 6 }],
+  }), SCENE_CFG);
+}
+
+// scene 5 (RDD remedy 2): swimmer plot — events vs censoring, frail censored earlier
+function drawSceneCensor() {
+  if (!document.getElementById("sceneCensor")) return;
+  const rng = mulberry32(505);
+  const lines = [], eventX = [], eventY = [], censX = [], censY = [], eventC = [], censC = [];
+  const n = 14;
+  for (let i = 0; i < n; i++) {
+    const frail = rng() < 0.5;
+    const col = frail ? AMBER : "#9aa6b2";
+    const eventTime = (frail ? 2 + rng() * 5 : 4 + rng() * 6);
+    const censTime = (frail ? 2 + rng() * 3 : 5 + rng() * 5); // frail censored earlier
+    const observed = Math.min(eventTime, censTime);
+    const isEvent = eventTime <= censTime;
+    lines.push({ x: [0, observed], y: [i, i], mode: "lines", type: "scatter", line: { color: col, width: 3 }, hoverinfo: "skip" });
+    if (isEvent) { eventX.push(observed); eventY.push(i); eventC.push(col); }
+    else { censX.push(observed); censY.push(i); censC.push(col); }
+  }
+  const events = { x: eventX, y: eventY, mode: "markers", type: "scatter", marker: { color: RED, size: 9, symbol: "circle" }, name: "event" };
+  const cens = { x: censX, y: censY, mode: "markers", type: "scatter", marker: { color: censC, size: 11, symbol: "line-ns-open", line: { width: 2 } }, name: "censored" };
+  Plotly.react("sceneCensor", lines.concat([events, cens]), sceneLayout({
+    xaxis: { title: tr("追蹤時間", "follow-up time"), range: [0, 11], zeroline: false },
+    yaxis: { showticklabels: false, range: [-1, n], title: tr("每條線＝一個人", "each line = a person") },
+    annotations: [
+      { x: 10.6, y: n - 1, text: "● " + tr("事件", "event"), showarrow: false, font: { size: 10, color: RED }, xanchor: "right" },
+      { x: 10.6, y: n - 2.4, text: "| " + tr("設限", "censored"), showarrow: false, font: { size: 10, color: INK }, xanchor: "right" },
+    ],
+  }), SCENE_CFG);
+}
+
+function drawIvScenes() { drawSceneWeak(); drawSceneBend(); drawSceneOverfit(); }
+function drawRddScenes() { drawSceneTrend(); drawSceneCensor(); }
+
 let mlReady = false;
 const kSlider = document.getElementById("kSlider");
 const psSlider = document.getElementById("psSlider");
@@ -242,6 +389,7 @@ let synTimer = null;
 function initMl() {
   if (mlReady) return;
   mlReady = true;
+  drawIvScenes();
   refreshSynthesis();
 }
 
@@ -715,6 +863,7 @@ const rddDmlWindow = document.getElementById("rddDmlWindow");
 function initRddMl() {
   if (rddMlReady) return;
   rddMlReady = true;
+  drawRddScenes();
   refreshRddDml();
 }
 function scheduleRddDml() {
@@ -966,14 +1115,14 @@ window.addEventListener("iv-lang", async () => {
       runAssumptions(req);
     } catch (e) { /* ignore */ }
   }
-  if (mlReady) refreshSynthesis();                 // ML synthesis
+  if (mlReady) { drawIvScenes(); refreshSynthesis(); } // ML scenes + synthesis
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
   if (rddReady) { refreshRdd(); runRddSurvival(); }     // RDD ② interactive (backend text)
   if (rddAnalyzeReady) runRddAnalyze();                 // RDD ③ data analysis
   if (rddAssumeReady) runRddAssumptions(rddState.req);  // RDD ④ assumptions (backend text)
-  if (rddMlReady) refreshRddDml();                      // RDD ⑤ DML window-robustness
+  if (rddMlReady) { drawRddScenes(); refreshRddDml(); } // RDD ⑤ scenes + DML window-robustness
   if (state.rddSurvMl) {                                // RDD ⑤ survival (backend text)
     try {
       const d = await getJSON(`${API}/api/rdd_ml_survival?lang=${lang()}`);
