@@ -744,7 +744,32 @@
       終點相同，路徑不同。
     </p>
 
-    <h2 data-en="Side-by-side comparison">並排比較</h2>
+    <h2 data-en="First, three things they actually share">先看三個其實一樣的地方</h2>
+    <div class="card scene">
+      <h3 data-en="Same family, same logic">同一家族、同一套邏輯</h3>
+      <p data-en="Before the differences, notice how alike they are — both are <b>quasi-experiments</b> that can't get a real randomised trial, so each borrows &quot;as-good-as-random&quot; variation from somewhere and leans on it.">
+        在看差別之前，先注意它們有多像——兩者都是<b>準實驗</b>：拿不到真正的隨機試驗，
+        於是各自從某處「借」一點近似隨機的變異，再靠它撐起因果推論。
+      </p>
+      <ul>
+        <li data-en="<b>Both fake a randomised trial.</b> Neither truly randomises treatment; each finds a source of variation that is <b>as good as random</b> and uses it as a stand-in.">
+          <b>都在「假裝」做隨機試驗。</b>兩者都沒有真的隨機分派處置，而是找到一段<b>近似隨機</b>的變異來頂替。
+        </li>
+        <li data-en="<b>Both answer the same kind of question — a LATE for compliers.</b> Not the whole-population average (ATE), only the effect on the people actually moved (by the instrument / by crossing the cutoff).">
+          <b>都回答同一種問題——順從者的 LATE。</b>不是全體平均效果（ATE），只是<b>真正被推動的那群人</b>
+          （被工具推動／剛好跨過門檻）的局部效果。
+        </li>
+        <li data-en="<b>Both hinge on one untestable assumption plus testable supporting checks.</b> So both come with a dashboard (tabs ④ and ⑦) you must run.">
+          <b>都押在一條不可檢驗的核心假設＋一堆可檢驗的佐證上。</b>所以兩者都配一個假設檢驗儀表板
+          （分頁 ④ 與 ⑦），一定要跑。
+        </li>
+        <li data-en="<b>Both can be boosted by the same ML ideas (tab ⑤).</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt.">
+          <b>都能用同一套 ML 想法強化（分頁 ⑤）。</b>用彈性模型處理輔助部分、用交叉擬合當安全帶。
+        </li>
+      </ul>
+    </div>
+
+    <h2 data-en="Side-by-side: where they differ">並排比較：不同處</h2>
     <div class="table-wrap">
       <table class="cmp">
         <thead>
@@ -787,6 +812,26 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="card info">
+      <h3 data-en="A sharp question: isn't &quot;local-randomization&quot; RDD just IV?">一個尖銳的問題：RDD 的「局部隨機化」會不會其實就是 IV？</h3>
+      <p data-en="Great instinct — and largely <b>yes</b>, especially for <b>fuzzy RDD</b>. In the local-randomization view, &quot;landing just above vs. just below the cutoff&quot; is treated as <b>as good as randomly assigned</b> inside a narrow window — which is exactly the job the random instrument Z plays in IV.">
+        很好的直覺——而且<b>大致上是的</b>，尤其是<b>模糊 RDD（fuzzy RDD）</b>。在局部隨機化的講法裡，
+        「剛好落在門檻上方還是下方」在一個很窄的窗內被當成<b>近似隨機分派</b>——
+        這正是 IV 裡那個隨機工具 Z 扮演的角色。
+      </p>
+      <p data-en="In a <b>fuzzy</b> RDD, crossing the cutoff doesn't fully decide treatment — it only <b>shifts the probability</b> of getting it. That makes &quot;crossed the cutoff&quot; a genuine <b>instrument</b>: locally relevant and locally excludable, and the estimate is exactly a 2SLS / IV that only holds near the threshold. So a fuzzy RDD literally <b>is a local IV, with the cutoff as the instrument</b>.">
+        在<b>模糊</b> RDD 中，跨過門檻並不百分百決定處置，只是<b>改變了拿到處置的機率</b>。
+        這讓「是否跨過門檻」成為一個真正的<b>工具變數</b>：在局部滿足相關性與排除限制，
+        估計式就是一個<b>只在門檻附近成立的 2SLS／IV</b>。所以模糊 RDD 其實<b>就是「把門檻當工具」的局部 IV</b>。
+      </p>
+      <p data-en="The real difference is <b>where the randomness is borrowed from</b>. IV's instrument can come from anywhere and may move a broad population; RDD's &quot;instrument&quot; is a <b>single point — the cutoff</b> — only as-good-as-random in a thin window, so its answer is inherently local. And <b>sharp</b> RDD is the less IV-like cousin: there, crossing the cutoff decides treatment with certainty (no compliers-vs-defiers first stage), so it behaves more like a <b>mini randomised trial right at the cutoff</b> than an IV.">
+        真正的差別在於<b>「隨機」是從哪裡借來的</b>。IV 的工具可以來自任何地方、可能推動廣大的母體；
+        RDD 的「工具」只有<b>門檻這一個點</b>，只在很薄的窗內近似隨機，所以答案天生是局部的。
+        而<b>銳利 RDD（sharp RDD）</b>比較不像 IV：那裡跨過門檻會百分百決定處置（沒有「順從者 vs 反向者」的第一階段），
+        所以更像<b>門檻旁的一場小型隨機試驗</b>，而不是 IV。
+      </p>
     </div>
 
     <h2 data-en="A simple rule of thumb: when to use which">簡單的判斷原則：什麼時候用哪個</h2>
