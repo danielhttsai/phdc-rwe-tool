@@ -584,6 +584,29 @@
         這樣<b>就算視窗很寬，估計仍然準</b>。拉動下面的視窗，看兩條線：
       </p>
     </div>
+    <details class="term">
+      <summary data-en="What exactly is &quot;DML&quot; (double machine learning)?">「DML（雙重機器學習）」到底是什麼？</summary>
+      <p data-en="We only want <b>one number</b> — the causal effect (here, the true 1.80). But to get it right we must first &quot;subtract out&quot; a pile of background nuisance (the age trend, other covariates). If we let plain <b>machine learning</b> do that subtraction, two traps appear: (1) the ML model's small regularization error <b>leaks into</b> the effect; (2) using the same rows to both <b>train</b> the model and <b>score</b> the effect lets it &quot;peek&quot;, so it looks too good.">
+        我們要的其實只有<b>一個數字</b>——因果效果（這裡是真值 1.80）。但要算準它，得先「扣掉」一堆背景干擾（年齡趨勢、其他共變項）。
+        如果直接拿<b>機器學習</b>去扣，會踩到兩個坑：(1) ML 模型為了不過度配適的小偏差會<b>漏進</b>效果估計；
+        (2) 用同一批資料「又<b>訓練</b>模型、又拿來<b>算</b>效果」，等於讓它偷看，答案看似漂亮其實騙人。
+      </p>
+      <p data-en="<b>DML = double / debiased machine learning</b> fixes both with two tricks:">
+        <b>DML ＝ 雙重／去偏機器學習</b>，用兩招把這兩個坑補起來：
+      </p>
+      <ul>
+        <li data-en="<b>Orthogonalization</b> — use a score that is <b>insensitive to small nuisance errors</b> (a doubly-robust / AIPW score): even if the background models are imperfect, the effect barely moves.">
+          <b>正交化</b>——用一條對「<b>背景模型的小錯不敏感</b>」的算法（雙重穩健／AIPW 分數）：就算背景模型估得不夠完美，效果數字也幾乎不動。
+        </li>
+        <li data-en="<b>Cross-fitting</b> — train the nuisance models on one fold of the data and score the effect on a <b>held-out</b> fold, so the model never grades its own homework.">
+          <b>交叉擬合</b>——用一折資料訓練背景模型、到<b>另一折沒看過的資料</b>上算效果，模型絕不替自己評分。
+        </li>
+      </ul>
+      <p data-en="&quot;<b>Double</b>&quot; means two things: (a) you fit <b>two</b> nuisance models — an outcome model and a treatment (propensity) model; (b) the estimate is right <b>if either one is right</b> (doubly robust). In one line: <b>let AI fit the messy background, but never let it touch the final causal number</b> — that number is protected by the orthogonal score plus cross-fitting.">
+        「<b>Double（雙重）</b>」有兩層意思：(a) 要配<b>兩個</b>背景模型——結果模型 + 處置（傾向）模型；(b) 只要<b>其中一個對</b>，估計就準（雙重穩健）。
+        一句話：<b>讓 AI 去擬合複雜的背景，但絕不讓它碰最後那個因果數字</b>——那個數字由正交分數 + 交叉擬合來保護。
+      </p>
+    </details>
     <div class="controls">
       <label>
         <span data-en="Observation window (half-width, years):">觀察視窗（半寬，年）：</span><b id="rddDmlWinVal">8.0</b>
