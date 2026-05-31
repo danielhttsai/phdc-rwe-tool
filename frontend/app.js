@@ -560,7 +560,9 @@ function initRdd() {
   if (rddReady) return;
   rddReady = true;
   refreshRdd();
-  runRddSurvival();
+  // NOTE: the survival fit (IPCW/Cox/AFT) is heavy (~3s) and, on the
+  // browser-only Pyodide build, runs synchronously and freezes the UI.
+  // So it is gated behind an explicit button instead of auto-running.
 }
 function scheduleRdd() {
   document.getElementById("rddBwVal").textContent = Number(rddBwSlider.value).toFixed(1);
@@ -632,6 +634,20 @@ function renderRddBwInto(elId, bw) {
     annotations: [{ x: bw.h[bw.h.length - 1], y: 1.8, text: tr("真值 1.80", "truth 1.80"),
                showarrow: false, font: { color: GREEN }, yshift: 12, xanchor: "right" }],
   }, { displayModeBar: false, responsive: true });
+}
+
+const runRddSurvBtn = document.getElementById("runRddSurv");
+if (runRddSurvBtn) {
+  runRddSurvBtn.addEventListener("click", async () => {
+    runRddSurvBtn.disabled = true;
+    const label = runRddSurvBtn.textContent;
+    runRddSurvBtn.textContent = tr("計算中…（約 3 秒）", "Computing… (~3 sec)");
+    // let the button repaint before the synchronous Pyodide work blocks the thread
+    await new Promise((r) => setTimeout(r, 30));
+    await runRddSurvival();
+    runRddSurvBtn.textContent = tr("重新計算設限校正", "Re-run censoring correction");
+    runRddSurvBtn.disabled = false;
+  });
 }
 
 async function runRddSurvival() {
@@ -1119,7 +1135,8 @@ window.addEventListener("iv-lang", async () => {
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
-  if (rddReady) { refreshRdd(); runRddSurvival(); }     // RDD ② interactive (backend text)
+  if (rddReady) refreshRdd();                          // RDD ② interactive
+  if (state.rddSurv) renderRddSurvival(state.rddSurv);  // re-render cached survival (no recompute → no freeze)
   if (rddAnalyzeReady) runRddAnalyze();                 // RDD ③ data analysis
   if (rddAssumeReady) runRddAssumptions(rddState.req);  // RDD ④ assumptions (backend text)
   if (rddMlReady) { drawRddScenes(); refreshRddDml(); } // RDD ⑤ scenes + DML window-robustness

@@ -514,6 +514,7 @@
         （Cox 或 AFT）估 E[log T｜T &gt; T_j、共變項]，只要「設限模型」或「結果模型」其中一個對就一致。
         最後把校正後的虛擬結果丟進同一套局部線性 RD。
       </p>
+      <button id="runRddSurv" class="btn primary" data-en="Run the censoring-corrected estimate (~3 sec)">跑設限校正估計（約 3 秒）</button>
       <div class="result-cards" id="rddSurvCards"></div>
       <p class="caption" data-en="Method faithful to the JSR sharp/fuzzy survival-RD scripts: Kaplan–Meier censoring with 5% upper-tail truncation, Cox / log-normal-AFT / log-logistic-AFT outcome regressions, IPCW = a1 and DR = a1 + b1 − c1. The age-65 demo runs on a fixed, seeded teaching sub-sample (the outcome regression needs an N×N matrix).">
         方法忠實對應 JSR 銳利／模糊存活型 RD 的做法：Kaplan–Meier 設限（上尾 5% 截斷）、Cox／對數常態 AFT／
@@ -894,7 +895,7 @@
   </footer>
 </main>
 
-<script src="/i18n.js?v=5"></script>
-<script src="/app.js?v=5"></script>
+<script src="/i18n.js?v=6"></script>
+<script src="/app.js?v=6"></script>
 </body>
 </html>

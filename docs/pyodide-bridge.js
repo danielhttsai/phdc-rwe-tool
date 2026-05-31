@@ -81,6 +81,11 @@
       await pyodide.runPythonAsync("import api");
       routeFn = pyodide.runPython("api.route");
 
+      // 預熱：在遮罩還在時先跑一次常用分析,觸發 numpy/scipy 的 JIT 編譯,
+      // 這樣使用者第一次點分頁時不會卡住幾秒(設限存活除外,它在按鈕後才算)。
+      setStatus("正在預熱分析核心…", 90);
+      warmup();
+
       setStatus("準備就緒 ✓", 100);
       hideOverlay();
     } catch (err) {
@@ -92,6 +97,25 @@
   function ready() {
     if (!readyPromise) readyPromise = init();
     return readyPromise;
+  }
+
+  // 跑幾個常用端點一次,讓 Pyodide 先把熱路徑編譯好(結果丟棄)。
+  function warmup() {
+    var calls = [
+      ["GET", "/api/example", "{}", "{}"],
+      ["GET", "/api/rdd_example", "{}", "{}"],
+      ["POST", "/api/analyze", "{}", JSON.stringify({ source: "example", lang: "zh" })],
+      ["POST", "/api/rdd_analyze", "{}", JSON.stringify({
+        source: "example_rdd", running: "age", outcome: "health_score_change",
+        treatment: "vaccinated", cutoff: 65, time: "event_time", event: "event",
+        covariates: ["female", "bmi", "chronic_conditions", "income_band"], lang: "zh",
+      })],
+      ["POST", "/api/rdd_assumptions", "{}", JSON.stringify({ source: "example_rdd", lang: "zh" })],
+    ];
+    for (var i = 0; i < calls.length; i++) {
+      try { routeFn(calls[i][0], calls[i][1], calls[i][2], calls[i][3]); }
+      catch (e) { /* 預熱失敗不影響功能,忽略 */ }
+    }
   }
 
   async function ensureSklearn() {
