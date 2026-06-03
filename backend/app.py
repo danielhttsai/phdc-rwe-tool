@@ -31,15 +31,21 @@ import did_ml
 import tit_core
 import tit_gen
 import tit_assumptions
+import its_core
+import its_gen
+import its_assumptions
+import its_ml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data", "demo_vaccine.csv")
 DATA_RDD = os.path.join(HERE, "data", "demo_rdd.csv")
 DATA_DID = os.path.join(HERE, "data", "demo_did.csv")
 DATA_TIT = os.path.join(HERE, "data", "demo_tit.csv")
+DATA_ITS = os.path.join(HERE, "data", "demo_its.csv")
 FRONTEND = os.path.abspath(os.path.join(HERE, "..", "frontend"))
 
 TIT_DEFAULTS = {"covariates": ["x1", "x2"], "K": 5}
+ITS_DEFAULTS = {"outcome": "outcome", "time": "time", "post": "post", "t_since": "t_since"}
 
 DID_DEFAULTS = {
     "unit": "unit",
@@ -496,6 +502,69 @@ def tit_analyze(req: TitRequest):
 def tit_assumptions_check(req: TitRequest):
     df = _load_tit(req.source)
     return _clean(tit_assumptions.run_dashboard(df, covariates=tuple(req.covariates), K=req.K, lang=req.lang))
+
+
+@app.get("/api/its_example")
+def its_example():
+    df = pd.read_csv(DATA_ITS)
+    return _clean({
+        "columns": list(df.columns), "defaults": ITS_DEFAULTS, "n": len(df),
+        "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "time": "time（期序，等間隔的月）",
+            "post": "post（1＝介入後）",
+            "t_since": "t_since（介入後經過幾期）",
+            "outcome": "outcome（每月健康負擔指數）",
+        },
+    })
+
+
+class ItsRequest(BaseModel):
+    source: str = "example_its"
+    outcome: str = "outcome"
+    time: str = "time"
+    post: str = "post"
+    t_since: str = "t_since"
+    lang: str = "zh"
+
+
+def _load_its(source: str) -> pd.DataFrame:
+    if source in ("example_its", "example"):
+        return pd.read_csv(DATA_ITS)
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.post("/api/its_analyze")
+def its_analyze(req: ItsRequest):
+    df = _load_its(req.source)
+    return _clean(its_core.full_its(df, req.outcome, req.time, req.post, req.t_since, lang=req.lang))
+
+
+@app.post("/api/its_assumptions")
+def its_assumptions_check(req: ItsRequest):
+    df = _load_its(req.source)
+    return _clean(its_assumptions.run_dashboard(df, req.outcome, req.time, req.post, req.t_since, lang=req.lang))
+
+
+@app.get("/api/its_interactive")
+def its_interactive(level: float = -12.0, lang: str = "zh"):
+    """Teaching slider: re-generate with a chosen intervention LEVEL change and show
+    the segmented fit, the extrapolated counterfactual, and the estimated effects."""
+    level = float(np.clip(level, -30.0, 30.0))
+    df = its_gen.generate(level=level)
+    out = its_core.full_its(df, lang=lang)
+    return _clean({"level_set": level, "level": out["level"], "slope": out["slope"],
+                   "plot": out["plot"], "effect_end": out["effect_end"]})
+
+
+@app.get("/api/its_ml")
+def its_ml_demos(seed: int = 7, lang: str = "zh"):
+    """ITS ⑤: four upgrades (HAC SE, controlled/triple-diff, flexible ML counterfactual, BSTS)."""
+    return _clean(its_ml.boost_demos(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")

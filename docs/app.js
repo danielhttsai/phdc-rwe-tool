@@ -31,6 +31,11 @@ document.querySelectorAll(".tab").forEach((t) => {
     if (t.dataset.tab === "titplay") initTitPlay();
     if (t.dataset.tab === "titanalyze") initTitAnalyze();
     if (t.dataset.tab === "titassume") initTitAssume();
+    if (t.dataset.tab === "itslearn") initItsLearn();
+    if (t.dataset.tab === "itsplay") initItsPlay();
+    if (t.dataset.tab === "itsanalyze") initItsAnalyze();
+    if (t.dataset.tab === "itsassume") initItsAssume();
+    if (t.dataset.tab === "itsml") initItsMl();
     if (t.dataset.tab === "choose") initChoose();
   });
 });
@@ -1703,6 +1708,272 @@ function renderTitAssumptions(out) {
 }
 
 // ======================================================================
+// Interrupted Time Series (ITS method) — tabs ①–⑤
+// ======================================================================
+const itsState = { source: null, columns: [], req: null };
+let itsLearnReady = false, itsPlayReady = false, itsAnalyzeReady = false,
+    itsAssumeReady = false, itsMlReady = false;
+
+// shared: observed points + fitted pre/post segments + dashed counterfactual + cutoff
+function itsSeriesInto(elId, plot) {
+  if (!document.getElementById(elId)) return;
+  const pts = { x: plot.points.x, y: plot.points.y, mode: "markers", type: "scatter",
+    name: tr("觀察", "observed"), marker: { color: "#9aa6b2", size: 5, opacity: 0.85 } };
+  const cf = { x: plot.counterfactual.x, y: plot.counterfactual.y, mode: "lines", type: "scatter",
+    name: tr("反事實", "counterfactual"), line: { color: AMBER, width: 2.5, dash: "dash" } };
+  const pre = { x: plot.pre.x, y: plot.pre.y, mode: "lines", type: "scatter",
+    name: tr("前趨勢", "pre-trend"), line: { color: TEAL, width: 3 } };
+  const post = { x: plot.post.x, y: plot.post.y, mode: "lines", type: "scatter",
+    name: tr("介入後", "post"), line: { color: TEAL, width: 3 }, showlegend: false };
+  Plotly.react(elId, [pts, cf, pre, post], sceneLayout({
+    height: 340, showlegend: true, legend: { orientation: "h", y: 1.1, font: { size: 9 } },
+    xaxis: { title: tr("期序", "period") }, yaxis: { title: tr("結果", "outcome") },
+    shapes: [{ type: "line", x0: plot.t0 - 0.5, x1: plot.t0 - 0.5, y0: 0, y1: 1, yref: "paper",
+      line: { color: INK, width: 1.5, dash: "dot" } }],
+    annotations: [{ x: plot.t0 - 0.5, y: 1, yref: "paper", yshift: 6,
+      text: tr("介入", "intervention"), showarrow: false, font: { size: 10, color: INK } }],
+  }), SCENE_CFG);
+}
+
+// ---- ① learn ----
+function initItsLearn() {
+  if (itsLearnReady) return;
+  itsLearnReady = true;
+  drawSceneItsExplain();
+}
+function drawSceneItsExplain() {
+  if (!document.getElementById("sceneItsExplain")) return;
+  const rng = mulberry32(818);
+  const n = 48, t0 = 24, b0 = 100, b1 = 0.4, lev = -12, slo = -0.6;
+  const x = [], y = [];
+  for (let t = 0; t < n; t++) {
+    const post = t >= t0 ? 1 : 0, ts = post ? t - t0 : 0;
+    x.push(t); y.push(b0 + b1 * t + lev * post + slo * ts + randn(rng) * 2.2);
+  }
+  itsSeriesInto("sceneItsExplain", {
+    points: { x, y },
+    pre: { x: [0, t0 - 1], y: [b0, b0 + b1 * (t0 - 1)] },
+    post: { x: [t0, n - 1], y: [b0 + b1 * t0 + lev, b0 + b1 * (n - 1) + lev + slo * (n - 1 - t0)] },
+    counterfactual: { x: [t0 - 1, n - 1], y: [b0 + b1 * (t0 - 1), b0 + b1 * (n - 1)] },
+    t0,
+  });
+}
+
+// ---- ② interactive ----
+const itsLevelSlider = document.getElementById("itsLevelSlider");
+let itsPlayTimer = null;
+function initItsPlay() {
+  if (itsPlayReady) return;
+  itsPlayReady = true;
+  refreshItsPlay();
+}
+function scheduleItsPlay() {
+  document.getElementById("itsLevelVal").textContent = Number(itsLevelSlider.value).toFixed(0);
+  clearTimeout(itsPlayTimer);
+  itsPlayTimer = setTimeout(refreshItsPlay, 140);
+}
+if (itsLevelSlider) itsLevelSlider.addEventListener("input", scheduleItsPlay);
+async function refreshItsPlay() {
+  const lv = itsLevelSlider ? Number(itsLevelSlider.value) : -12;
+  let d;
+  try { d = await getJSON(`${API}/api/its_interactive?level=${lv}&lang=${lang()}`); }
+  catch (e) { return; }
+  state.itsPlay = d;
+  document.getElementById("itsLevel").textContent = fmt(d.level.estimate, 1);
+  document.getElementById("itsLevelFoot").textContent = tr(`你設定的真值 ${lv}`, `you set ${lv}`);
+  document.getElementById("itsSlope").textContent = fmt(d.slope.estimate, 2);
+  document.getElementById("itsEffEnd").textContent = fmt(d.effect_end, 1);
+  itsSeriesInto("itsPlayChart", d.plot);
+}
+
+// ---- ③ analyze ----
+function initItsAnalyze() {
+  if (itsAnalyzeReady) return;
+  itsAnalyzeReady = true;
+  document.getElementById("useItsExample").click();
+}
+function itsFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["itsSelTime", "itsSelY", "itsSelPost", "itsSelTs"].forEach((id) =>
+    document.getElementById(id).innerHTML = opts);
+  document.getElementById("itsColMap").classList.remove("hidden");
+}
+function itsApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null) el.value = v; };
+  set("itsSelTime", d.time); set("itsSelY", d.outcome); set("itsSelPost", d.post); set("itsSelTs", d.t_since);
+}
+document.getElementById("useItsExample").addEventListener("click", async () => {
+  const st = document.getElementById("itsDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/its_example`);
+    itsState.source = "example_its"; itsState.columns = d.columns;
+    st.textContent = tr(`已載入內建每月範例（${d.n} 期，合成虛構）`,
+                        `Loaded built-in monthly example (${d.n} months, synthetic)`);
+    itsFillSelects(d.columns); itsApplyDefaults(d.defaults);
+    runItsAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("itsFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("itsDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    itsState.source = d.token; itsState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    itsFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function itsCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return { source: itsState.source, time: v("itsSelTime"), outcome: v("itsSelY"),
+    post: v("itsSelPost"), t_since: v("itsSelTs"), lang: lang() };
+}
+document.getElementById("runItsAnalyze").addEventListener("click", runItsAnalyze);
+async function runItsAnalyze() {
+  const req = itsCurrentMapping();
+  if (!req.source) return;
+  itsState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/its_analyze`, req);
+    renderItsAnalyze(a);
+    runItsAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderItsAnalyze(a) {
+  document.getElementById("itsAnalyzeOut").classList.remove("hidden");
+  const cards = [
+    [tr("水準變化 β₂", "Level change β₂"), a.level.estimate, a.interpretation, true],
+    [tr("斜率變化 β₃", "Slope change β₃"), a.slope.estimate,
+      tr(`HAC 95% 區間 ${fmt(a.slope.ci[0], 2)}～${fmt(a.slope.ci[1], 2)}。`,
+         `HAC 95% CI ${fmt(a.slope.ci[0], 2)}–${fmt(a.slope.ci[1], 2)}.`), false],
+    [tr("追蹤結束時效果", "Effect at end"), a.effect_end,
+      tr(`殘差自相關 lag-1≈${fmt(a.acf1, 2)}（已用 HAC 校正）。`,
+         `residual lag-1 acf≈${fmt(a.acf1, 2)} (HAC-corrected).`), false],
+  ];
+  document.getElementById("itsAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, hl ? 1 : 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  itsSeriesInto("itsAnalyzeChart", a.plot);
+}
+
+// ---- ④ assumptions ----
+function initItsAssume() {
+  if (itsAssumeReady) return;
+  itsAssumeReady = true;
+  runItsAssumptions(itsState.req || { source: "example_its", lang: lang() });
+}
+async function runItsAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_its", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/its_assumptions`, body); } catch (e) { return; }
+  state.itsDash = out;
+  renderItsAssumptions(out);
+}
+function renderItsAssumptions(out) {
+  document.getElementById("itsAssumeHint").classList.add("hidden");
+  const ov = document.getElementById("itsOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("各項佐證都通過，這個 ITS 看起來可信。", "All checks pass — this ITS looks credible."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，ITS 結果要保守看待。", "Some items fail — interpret the ITS with caution."),
+    info: tr("關鍵假設需靠領域知識判斷，請看各卡片說明。", "The key assumption needs domain judgement — see each card."),
+  }[worst];
+  ov.classList.remove("hidden");
+  ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("itsAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) =>
+      `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}">
+      <h3><span class="dot bg-${c.status}"></span>${c.title}
+        <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p>
+      <p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details>
+    </div>`;
+  }).join("");
+}
+
+// ---- ⑤ boost ----
+function initItsMl() {
+  if (itsMlReady) return;
+  itsMlReady = true;
+  refreshItsMl();
+}
+async function refreshItsMl() {
+  let d;
+  try { d = await getJSON(`${API}/api/its_ml?lang=${lang()}`); } catch (e) { return; }
+  state.itsMl = d;
+  drawItsHac(d.hac); document.getElementById("itsHacReading").textContent = d.hac.reading;
+  drawItsCtrl(d.controlled); document.getElementById("itsCtrlReading").textContent = d.controlled.reading;
+  drawItsFlex(d.flexible); document.getElementById("itsFlexReading").textContent = d.flexible.reading;
+  drawItsBsts(d.bsts); document.getElementById("itsBstsReading").textContent = d.bsts.reading;
+}
+function _itsCutoff(t0) {
+  return { type: "line", x0: t0 - 0.5, x1: t0 - 0.5, y0: 0, y1: 1, yref: "paper",
+    line: { color: INK, width: 1.3, dash: "dot" } };
+}
+function drawItsHac(h) {
+  if (!document.getElementById("itsHacChart")) return;
+  const s = h.series;
+  const pts = { x: s.time, y: s.y, mode: "lines+markers", type: "scatter",
+    line: { color: "#9aa6b2", width: 1 }, marker: { color: INK, size: 4 }, name: tr("觀察", "observed") };
+  Plotly.react("itsHacChart", [pts], sceneLayout({
+    height: 300, xaxis: { title: tr("期序", "period") }, yaxis: { title: tr("結果", "outcome") },
+    shapes: [_itsCutoff(s.t0)],
+  }), SCENE_CFG);
+}
+function drawItsCtrl(c) {
+  if (!document.getElementById("itsCtrlChart")) return;
+  const s = c.series;
+  const tr1 = { x: s.time, y: s.treated, mode: "lines+markers", type: "scatter",
+    name: tr("介入序列", "treated"), line: { color: TEAL, width: 2 }, marker: { size: 4 } };
+  const cr = { x: s.time, y: s.control, mode: "lines+markers", type: "scatter",
+    name: tr("控制序列", "control"), line: { color: "#9aa6b2", width: 2 }, marker: { size: 4 } };
+  Plotly.react("itsCtrlChart", [cr, tr1], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.12, font: { size: 9 } },
+    xaxis: { title: tr("期序", "period") }, yaxis: { title: tr("結果", "outcome") },
+    shapes: [_itsCutoff(s.t0)],
+  }), SCENE_CFG);
+}
+function drawItsFlex(f) {
+  if (!document.getElementById("itsFlexChart")) return;
+  const s = f.series;
+  const pts = { x: s.time, y: s.y, mode: "markers", type: "scatter",
+    name: tr("觀察", "observed"), marker: { color: "#9aa6b2", size: 5 } };
+  const cf = { x: s.time, y: s.cf, mode: "lines", type: "scatter",
+    name: tr("彈性反事實", "flexible counterfactual"), line: { color: AMBER, width: 2.5, dash: "dash" } };
+  Plotly.react("itsFlexChart", [pts, cf], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.12, font: { size: 9 } },
+    xaxis: { title: tr("期序", "period") }, yaxis: { title: tr("結果", "outcome") },
+    shapes: [_itsCutoff(s.t0)],
+  }), SCENE_CFG);
+}
+function drawItsBsts(b) {
+  if (!document.getElementById("itsBstsChart")) return;
+  const s = b.series;
+  const lo = { x: s.time, y: s.lo, mode: "lines", type: "scatter", line: { width: 0 },
+    showlegend: false, hoverinfo: "skip" };
+  const hi = { x: s.time, y: s.hi, mode: "lines", type: "scatter", line: { width: 0 },
+    fill: "tonexty", fillcolor: "rgba(245,158,11,0.18)", name: tr("反事實不確定帶", "counterfactual band") };
+  const cf = { x: s.time, y: s.cf, mode: "lines", type: "scatter",
+    name: tr("反事實", "counterfactual"), line: { color: AMBER, width: 2, dash: "dash" } };
+  const pts = { x: s.time, y: s.y, mode: "markers", type: "scatter",
+    name: tr("觀察", "observed"), marker: { color: INK, size: 4 } };
+  Plotly.react("itsBstsChart", [lo, hi, cf, pts], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.12, font: { size: 9 } },
+    xaxis: { title: tr("期序", "period") }, yaxis: { title: tr("結果", "outcome") },
+    shapes: [_itsCutoff(s.t0)],
+  }), SCENE_CFG);
+}
+
+// ======================================================================
 // Language switch — re-render any dynamic content already on screen
 // ======================================================================
 window.addEventListener("iv-lang", async () => {
@@ -1750,6 +2021,11 @@ window.addEventListener("iv-lang", async () => {
   if (titPlayReady) refreshTitPlay();                  // TiT ② interactive
   if (titAnalyzeReady) runTitAnalyze();                // TiT ③ analysis + dashboard
   else if (titAssumeReady) runTitAssumptions(titState.req);
+  if (itsLearnReady) drawSceneItsExplain();            // ITS ① learn scene
+  if (itsPlayReady) refreshItsPlay();                  // ITS ② interactive
+  if (itsAnalyzeReady) runItsAnalyze();                // ITS ③ analysis + dashboard
+  else if (itsAssumeReady) runItsAssumptions(itsState.req);
+  if (itsMlReady) refreshItsMl();                      // ITS ⑤ four upgrades
   if (state.chooseDone) refreshChoose();                // IV vs RDD comparison
 });
 

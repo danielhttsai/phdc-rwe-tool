@@ -29,6 +29,10 @@ import did_ml
 import tit_core
 import tit_gen
 import tit_assumptions
+import its_core
+import its_gen
+import its_assumptions
+import its_ml
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -57,6 +61,7 @@ DID_DEFAULTS = {
 }
 
 TIT_DEFAULTS = {"covariates": ["x1", "x2"], "K": 5}
+ITS_DEFAULTS = {"outcome": "outcome", "time": "time", "post": "post", "t_since": "t_since"}
 
 DISCLAIMER = "⚠ 純屬虛構的合成示範資料,非真實病人/個資,僅供教學展示。"
 
@@ -65,6 +70,7 @@ _DEMO: pd.DataFrame | None = None
 _DEMO_RDD: pd.DataFrame | None = None
 _DEMO_DID: pd.DataFrame | None = None
 _DEMO_TIT: pd.DataFrame | None = None
+_DEMO_ITS: pd.DataFrame | None = None
 
 
 def _demo() -> pd.DataFrame:
@@ -93,6 +99,13 @@ def _demo_tit() -> pd.DataFrame:
     if _DEMO_TIT is None:
         _DEMO_TIT = tit_gen.generate()
     return _DEMO_TIT
+
+
+def _demo_its() -> pd.DataFrame:
+    global _DEMO_ITS
+    if _DEMO_ITS is None:
+        _DEMO_ITS = its_gen.generate()
+    return _DEMO_ITS
 
 
 def _clean(obj):
@@ -447,6 +460,59 @@ def _tit_assumptions(req: dict) -> dict:
                                          K=int(req.get("K", 5)), lang=req.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# Interrupted Time Series endpoints (ITS method)
+# ---------------------------------------------------------------------------
+def _load_its(source: str) -> pd.DataFrame:
+    if source in ("example_its", "example"):
+        return _demo_its()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _its_example() -> dict:
+    df = _demo_its()
+    return {
+        "columns": list(df.columns), "defaults": ITS_DEFAULTS, "n": len(df),
+        "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "time": "time（期序，等間隔的月）",
+            "post": "post（1＝介入後）",
+            "t_since": "t_since（介入後經過幾期）",
+            "outcome": "outcome（每月健康負擔指數）",
+        },
+    }
+
+
+def _its_analyze(req: dict) -> dict:
+    df = _load_its(req.get("source", "example_its"))
+    return its_core.full_its(df, req.get("outcome", "outcome"), req.get("time", "time"),
+                             req.get("post", "post"), req.get("t_since", "t_since"),
+                             lang=req.get("lang", "zh"))
+
+
+def _its_assumptions(req: dict) -> dict:
+    df = _load_its(req.get("source", "example_its"))
+    return its_assumptions.run_dashboard(df, req.get("outcome", "outcome"), req.get("time", "time"),
+                                         req.get("post", "post"), req.get("t_since", "t_since"),
+                                         lang=req.get("lang", "zh"))
+
+
+def _its_interactive(q: dict) -> dict:
+    level = float(np.clip(float(q.get("level", -12.0)), -30.0, 30.0))
+    df = its_gen.generate(level=level)
+    out = its_core.full_its(df, lang=q.get("lang", "zh"))
+    return {"level_set": level, "level": out["level"], "slope": out["slope"],
+            "plot": out["plot"], "effect_end": out["effect_end"]}
+
+
+def _its_ml(q: dict) -> dict:
+    return its_ml.boost_demos(seed=int(q.get("seed", 7)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -486,6 +552,11 @@ _ROUTES = {
     ("POST", "/api/tit_analyze"): lambda q, b: _tit_analyze(b),
     ("POST", "/api/tit_assumptions"): lambda q, b: _tit_assumptions(b),
     ("GET", "/api/tit_interactive"): lambda q, b: _tit_interactive(q),
+    ("GET", "/api/its_example"): lambda q, b: _its_example(),
+    ("POST", "/api/its_analyze"): lambda q, b: _its_analyze(b),
+    ("POST", "/api/its_assumptions"): lambda q, b: _its_assumptions(b),
+    ("GET", "/api/its_interactive"): lambda q, b: _its_interactive(q),
+    ("GET", "/api/its_ml"): lambda q, b: _its_ml(q),
 }
 
 

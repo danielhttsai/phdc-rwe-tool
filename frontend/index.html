@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>因果推論線上工具：IV · RDD · DiD · TiT</title>
+<title>準實驗工具箱 Quasi-experimental Toolbox：IV · RDD · DiD · TiT · ITS</title>
 <link rel="stylesheet" href="/styles.css" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span data-en="Causal inference">因果推論</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>TiT</span> <span data-en="Online Tool">線上工具</span></div>
+  <div class="brand"><span data-en="Quasi-experimental toolbox">準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>TiT</span> · <span>ITS</span></div>
   <nav class="tabs">
     <span class="tab-group">IV</span>
     <button class="tab active" data-tab="learn" data-en="① What is IV">① IV 是什麼</button>
@@ -35,6 +35,12 @@
     <button class="tab" data-tab="titanalyze" data-en="③ Analyse data">③ 資料分析</button>
     <button class="tab" data-tab="titassume" data-en="④ Assumptions">④ 假設檢驗</button>
     <button class="tab" data-tab="titml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
+    <span class="tab-group">ITS</span>
+    <button class="tab" data-tab="itslearn" data-en="① What is ITS">① ITS 是什麼</button>
+    <button class="tab" data-tab="itsplay" data-en="② Interactive">② 互動講解</button>
+    <button class="tab" data-tab="itsanalyze" data-en="③ Analyse data">③ 資料分析</button>
+    <button class="tab" data-tab="itsassume" data-en="④ Assumptions">④ 假設檢驗</button>
+    <button class="tab" data-tab="itsml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
     <button class="tab tab-sep" data-tab="choose" data-en="IV vs RDD">怎麼選</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
@@ -1161,6 +1167,204 @@
     </div>
   </section>
 
+  <!-- ===================== ITS ① 是什麼 ===================== -->
+  <section id="itslearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="A fifth trick: watch a trend get interrupted (Interrupted Time Series)">第五種招式：看一條趨勢「被打斷」（中斷時間序列）</h1>
+    <p class="lead" data-en="No control group, no instrument — just <b>one outcome tracked over many time points</b>, before and after an intervention that happened at a known time. Fit the pre-intervention trend, extrapolate it as the counterfactual ('what would have happened anyway'), and read the effect as the <b>immediate level jump</b> and the <b>change in trend</b> afterwards.">
+      沒有控制組、沒有工具——只有<b>一個結果在許多時間點上的追蹤</b>，橫跨一個發生在已知時點的介入前後。
+      配出介入前的趨勢、外推當作反事實（沒介入本來會怎樣），再把效果讀成介入當下的<b>水準跳變</b>
+      與其後的<b>趨勢改變</b>。
+    </p>
+
+    <div class="card info">
+      <h3 data-en="The plain-language idea">先用白話想一遍</h3>
+      <p data-en="Imagine a county's monthly health-burden index climbing gently for two years. Then a programme switches on. If the index suddenly <b>drops</b> at that month and then <b>falls faster</b> than before, that break is the intervention's footprint — provided the line would otherwise have just kept on its old path. The whole method hinges on that extrapolated dashed line being a fair guess of the no-intervention future.">
+        想像某縣市的每月健康負擔指數，兩年來緩緩上升。然後一個計畫上路。如果指數在那個月突然<b>下降</b>、
+        之後又<b>下降得比以前快</b>，這個「斷裂」就是介入留下的足跡——前提是：要不是有介入，這條線本來會
+        繼續沿著舊路走。整個方法的成敗，就押在那條外推的虛線，是不是『沒介入的未來』的公正猜測。
+      </p>
+    </div>
+
+    <div class="card scene">
+      <h3 data-en="What does the data look like? A line, a break, and a dashed what-if">資料長什麼樣子？一條線、一個斷裂、一條虛線「假如」</h3>
+      <p data-en="Grey dots are the outcome each period. The teal line is the fitted trend — one segment before the intervention (dotted vertical line), one after. The dashed line continues the <b>pre-intervention</b> trend as the counterfactual. The gap that opens between the solid post line (or the points) and the dashed counterfactual is the ITS effect: an immediate <b>level</b> drop plus a steeper <b>slope</b>.">
+        灰點是每一期的結果。青色線是配適的趨勢——介入前（虛線豎線）一段、介入後一段。虛線把<b>介入前</b>
+        的趨勢延伸下去當反事實。介入後那條實線（或那些點）與虛線反事實之間拉開的落差，就是 ITS 效果：
+        一個立即的<b>水準</b>下降，加上更陡的<b>斜率</b>。
+      </p>
+      <div id="sceneItsExplain" class="chart"></div>
+    </div>
+
+    <div class="rdd-twocol">
+      <div class="card">
+        <h3 data-en="Level change (β₂)">水準變化（β₂）</h3>
+        <p data-en="The <b>immediate jump</b> in the outcome at the intervention — a one-off shift up or down right at the break. Good for effects that kick in at once.">
+          結果在介入當下的<b>立即跳變</b>——就在斷裂處一次性地往上或往下移。適合一上路就立刻發生的效果。
+        </p>
+      </div>
+      <div class="card">
+        <h3 data-en="Slope change (β₃)">斜率變化（β₃）</h3>
+        <p data-en="The <b>change in trend</b> after the intervention — does the line now climb or fall faster than before? Good for effects that accumulate over time.">
+          介入後的<b>趨勢改變</b>——這條線現在是不是比以前升得/降得更快？適合隨時間累積的效果。
+        </p>
+      </div>
+    </div>
+
+    <details class="term">
+      <summary data-en="How does ITS differ from IV, RDD, DiD and TiT?">ITS 和 IV、RDD、DiD、TiT 有什麼不同？</summary>
+      <p data-en="The others all compare groups (treated vs control, above vs below a cutoff, high- vs low-uptake strata). ITS compares <b>a unit to its own past</b>: the counterfactual is the extrapolated pre-trend, not another group. That makes it cheap and widely usable — but its single big risk is that <b>something else happened at the same time</b> as the intervention. A controlled ITS (⑤) borrows DiD's logic by adding a comparison series to guard against exactly that.">
+        其他方法都在比較『組』（處置 vs 對照、門檻上 vs 下、高採用 vs 低採用層）。ITS 比的是<b>一個單位和它自己的過去</b>：
+        反事實是外推的前趨勢，而不是另一組。這讓它便宜又通用——但它最大的單一風險是：<b>介入的同時還發生了別的事</b>。
+        控制組 ITS（⑤）借用 DiD 的邏輯，加一條對照序列，正是為了防這一手。
+      </p>
+    </details>
+  </section>
+
+  <!-- ===================== ITS ② 互動講解 ===================== -->
+  <section id="itsplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive ITS: set the true effect, watch the fit read it back">互動式 ITS：設定真實效果，看配適把它讀回來</h1>
+    <p class="lead" data-en="Drag the slider to set the true <b>level change</b> the intervention causes. Watch the segmented regression fit the two trend lines, extrapolate the dashed counterfactual from the pre-trend, and recover your level (β₂) and slope (β₃) — with confidence intervals from autocorrelation-robust (HAC) standard errors.">
+      拉動滑桿設定介入造成的真實<b>水準變化</b>。看分段迴歸配出兩段趨勢線、從前趨勢外推那條虛線反事實，
+      並把你設的水準（β₂）與斜率（β₃）讀回來——信賴區間來自對自相關穩健的（HAC）標準誤。
+    </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="True level change at the intervention:">介入當下的真實水準變化：</span><b id="itsLevelVal">-12</b>
+        <input type="range" id="itsLevelSlider" min="-30" max="30" value="-12" step="1" />
+        <small data-en="The immediate jump the intervention causes. Negative = a drop, positive = a rise, 0 = no level effect. The fit below should track whatever you set.">介入造成的立即跳變。負＝下降、正＝上升、0＝沒有水準效果。下方的配適會跟著你設的值走。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Estimated level change (β₂)">估計水準變化（β₂）</div><div class="stat-num" id="itsLevel">–</div><div class="stat-foot" id="itsLevelFoot"></div></div>
+      <div class="stat"><div class="stat-label" data-en="Estimated slope change (β₃)">估計斜率變化（β₃）</div><div class="stat-num small" id="itsSlope">–</div><div class="stat-foot" data-en="true slope change is −0.6/period">真實斜率變化是 −0.6/期</div></div>
+      <div class="stat"><div class="stat-label" data-en="Effect at end of follow-up">追蹤結束時的效果</div><div class="stat-num small" id="itsEffEnd">–</div><div class="stat-foot" data-en="vs the dashed counterfactual">相對虛線反事實</div></div>
+    </div>
+
+    <div id="itsPlayChart" class="chart"></div>
+    <p class="caption" data-en="Dots = observed outcome; solid teal = fitted pre/post segments; dashed = the pre-trend extrapolated as the counterfactual; dotted vertical = the intervention. The vertical gap between the post segment and the dashed line is the effect.">
+      點＝觀察結果；實心青色＝配適的前/後段；虛線＝外推當反事實的前趨勢；豎點線＝介入時點。
+      後段與虛線之間的垂直落差就是效果。
+    </p>
+  </section>
+
+  <!-- ===================== ITS ③ 資料分析 ===================== -->
+  <section id="itsanalyze" class="panel">
+    <h1 data-en="Data analysis: run a full ITS">資料分析：跑一次完整的 ITS</h1>
+    <p class="lead" data-en="Load the built-in monthly example (or upload a CSV with a time index, the outcome, a post-intervention indicator, and time-since-intervention). The tool fits the segmented regression with HAC standard errors, draws the counterfactual, and reports the level and slope effects with a residual-autocorrelation check.">
+      載入內建的每月範例（或上傳含「期序、結果、介入後指標、介入後經過期數」的 CSV）。工具會用 HAC
+      標準誤配分段迴歸、畫反事實，並報告水準與斜率效果，附殘差自相關檢查。
+    </p>
+
+    <div class="datasource">
+      <button id="useItsExample" class="btn primary" data-en="Load built-in monthly example">載入內建每月範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="itsFileInput" accept=".csv" hidden /></label>
+      <span id="itsDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="itsColMap" class="colmap hidden">
+      <div class="field"><label data-en="Time index">期序（time）</label><select id="itsSelTime"></select></div>
+      <div class="field"><label data-en="Outcome">結果（outcome）</label><select id="itsSelY"></select></div>
+      <div class="field"><label data-en="Post-intervention (0/1)">介入後指標（post，0/1）</label><select id="itsSelPost"></select></div>
+      <div class="field"><label data-en="Time since intervention">介入後經過期數（t_since）</label><select id="itsSelTs"></select></div>
+      <button id="runItsAnalyze" class="btn primary" data-en="Run ITS analysis">執行 ITS 分析</button>
+    </div>
+
+    <div id="itsAnalyzeOut" class="hidden">
+      <h2 data-en="Segmented-regression estimate">分段迴歸估計</h2>
+      <div class="result-cards" id="itsAnalyzeCards"></div>
+      <div id="itsAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="Observed series with the fitted pre/post segments and the extrapolated counterfactual (dashed). Confidence intervals on the effects use Newey–West (HAC) standard errors to account for autocorrelation.">觀察序列、配適的前/後段與外推反事實（虛線）。效果的信賴區間用 Newey–West（HAC）標準誤處理自相關。</p>
+    </div>
+  </section>
+
+  <!-- ===================== ITS ④ 假設檢驗 ===================== -->
+  <section id="itsassume" class="panel">
+    <h1 data-en="Can we trust this ITS? Five checks">這個 ITS 可不可信？五道體檢</h1>
+    <p class="lead" data-en="ITS rests on the extrapolated pre-trend being a fair counterfactual — which fails if something else happened at the same time (the key, untestable risk). The testable supports: a linear-enough pre-trend, enough points before and after, residual autocorrelation handled, and a sharp known intervention time. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      ITS 押在「外推的前趨勢是公正反事實」上——若介入同時還發生別的事就會失效（關鍵、不可檢驗）。
+      可檢驗的佐證：前趨勢夠線性、前後期數足夠、自相關已處理、介入時點明確。
+      綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="itsOverall" class="overall hidden"></div>
+    <div id="itsAssumeCards" class="assume-cards"></div>
+    <p id="itsAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== ITS ⑤ 用 AI 強化 ===================== -->
+  <section id="itsml" class="panel">
+    <div class="banner" data-en="⚠ Every number on this page is simulated in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
+    <h1 data-en="How modern methods lend ITS a hand">進階方法怎麼幫「中斷時間序列」一把</h1>
+    <p class="lead" data-en="Plain ITS has soft spots: time-series data are <b>autocorrelated</b> (so naive CIs lie), <b>something else may coincide</b> with the intervention, and a <b>curved pre-trend</b> breaks straight-line extrapolation. Here are four well-established upgrades — each with the same monthly story, each showing where plain ITS breaks and how the upgrade fixes it.">
+      樸素 ITS 有幾個痛處：時間序列資料會<b>自相關</b>（天真信賴區間會騙人）、介入<b>可能同時</b>還有別的事、
+      <b>彎曲的前趨勢</b>會讓直線外推失準。下面是四個成熟的進階做法——都用同一個每月故事，各自指出樸素 ITS 在哪裡會壞、進階版怎麼救。
+    </p>
+
+    <div class="cards">
+      <div class="card"><h3 data-en="① Autocorrelation &amp; HAC SE">① 自相關與 HAC 穩健 SE</h3>
+        <p data-en="Adjacent months are correlated, so naive OLS confidence intervals are too narrow. Newey–West (HAC) standard errors fold that in for honest intervals; ARIMA goes further.">相鄰月份彼此相關，天真 OLS 信賴區間太窄。Newey–West（HAC）標準誤把它納入，給誠實的區間；ARIMA 更進一步。</p></div>
+      <div class="card"><h3 data-en="② Controlled ITS / triple difference">② 控制組 ITS／三重差分</h3>
+        <p data-en="If a contemporaneous event also hits at the intervention, add a control series unaffected by the intervention and difference it out (Linden's triple-difference).">若介入同時還有時代事件，加一條不受介入影響的控制序列、把它差分掉（Linden 三重差分）。</p></div>
+      <div class="card"><h3 data-en="③ ML two-stage counterfactual">③ ML 兩階段反事實</h3>
+        <p data-en="When the pre-trend is curved, a straight line mis-extrapolates. Train a flexible model on the pre-period only and forecast the counterfactual forward (Dey 2025).">當前趨勢是彎的，直線會外推歪掉。只用介入前資料訓練彈性模型、外推反事實（Dey 2025）。</p></div>
+      <div class="card"><h3 data-en="④ Bayesian structural time series">④ 貝氏結構時間序列</h3>
+        <p data-en="CausalImpact-style state-space models learn the whole posterior of the counterfactual, with an uncertainty band that widens over time — more honest than one straight line.">CausalImpact 式的狀態空間模型學出反事實的整條後驗，不確定帶隨時間變寬——比單一直線更誠實。</p></div>
+    </div>
+
+    <!-- ① HAC -->
+    <h2 data-en="① Autocorrelation &amp; HAC robust standard errors">① 自相關與 HAC 穩健標準誤</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? A jagged, self-correlated series">資料長什麼樣子？一條鋸齒、自我相關的序列</h3>
+      <p data-en="Months don't bounce independently — a high month tends to be followed by another high month (autocorrelation). The level estimate is fine, but a naive OLS confidence interval pretends the months are independent and comes out too narrow. HAC standard errors widen it to be honest.">
+        月份不會各自獨立跳動——高的月份後面常常又是高的（自相關）。水準估計沒問題，但天真 OLS 信賴區間
+        假裝月份互相獨立，於是算得太窄。HAC 標準誤把它放寬到誠實的程度。
+      </p>
+      <div id="itsHacChart" class="chart"></div>
+    </div>
+    <p class="caption" id="itsHacReading"></p>
+
+    <!-- ② Controlled -->
+    <h2 data-en="② Controlled ITS / triple difference">② 控制組 ITS／三重差分</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? Two series that jump together">資料長什麼樣子？兩條一起跳的序列</h3>
+      <p data-en="In the very month of the intervention, another big event also shifts both the treated series (teal) and a control series (grey) that the intervention does NOT touch. An uncontrolled ITS blames the whole shared jump on the intervention. Differencing treated − control cancels the shared event and leaves the true effect.">
+        就在介入的同一個月，另一件大事也讓介入序列（青色）與一條<b>介入碰不到</b>的控制序列（灰色）一起跳。
+        未控制的 ITS 會把整個共同跳變算到介入頭上。做『介入減控制』的差分，共同事件就消掉，剩下真效果。
+      </p>
+      <div id="itsCtrlChart" class="chart"></div>
+    </div>
+    <p class="caption" id="itsCtrlReading"></p>
+
+    <!-- ③ Flexible ML -->
+    <h2 data-en="③ ML two-stage flexible counterfactual">③ ML 兩階段彈性反事實</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? A curved pre-trend a straight line can't follow">資料長什麼樣子？一條直線追不上的彎曲前趨勢</h3>
+      <p data-en="The pre-intervention trend is curved (decelerating). A straight-line extrapolation overshoots the counterfactual and mistakes the natural curving for an effect. Train a flexible model (here a cubic, standing in for splines / Prophet-XGBoost) on the pre-period ONLY, then forecast it forward — the dashed counterfactual now bends correctly.">
+        介入前趨勢是彎的（逐漸趨緩）。直線外推會把反事實畫過頭，把本來就會發生的彎曲誤當成效果。
+        只用<b>介入前</b>資料訓練一個彈性模型（這裡用三次式當樣條／Prophet-XGBoost 的替身）再外推——
+        虛線反事實就正確地彎了。
+      </p>
+      <div id="itsFlexChart" class="chart"></div>
+    </div>
+    <p class="caption" id="itsFlexReading"></p>
+
+    <!-- ④ BSTS -->
+    <h2 data-en="④ Bayesian structural time series (CausalImpact)">④ 貝氏結構時間序列（CausalImpact）</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? A counterfactual with a widening band">資料長什麼樣子？一條帶著漸寬不確定帶的反事實</h3>
+      <p data-en="Instead of one rigid dashed line, a Bayesian structural time-series model (CausalImpact) gives the counterfactual a whole posterior — shown here as a shaded band that widens the further you forecast past the intervention. The effect and its credible interval are read off the gap between the observed series and this band.">
+        不再是一條僵硬的虛線，貝氏結構時間序列模型（CausalImpact）給反事實一整條後驗——這裡畫成一條
+        隨著離介入越遠而<b>越寬</b>的陰影帶。效果與其可信區間，就從觀察序列與這條帶之間的落差讀出。
+      </p>
+      <div id="itsBstsChart" class="chart"></div>
+    </div>
+    <p class="caption" id="itsBstsReading"></p>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="IV vs RDD: two designs for the same question — which to use?">IV 與 RDD：回答同一問題的兩種設計，該用哪個？</h1>
@@ -1341,11 +1545,17 @@
       <li>Ertefaie, A., Small, D. S., Flory, J. H., &amp; Hennessy, S. (2018). Statistical Power for Trend-in-trend Design. <i>Epidemiology, 29</i>(3), e21–e23. <span data-en="〔drivers of statistical power — TiT tab ② / A1〕">〔統計檢定力的驅動因素 —— TiT 分頁② / A1〕</span></li>
       <li>Dasgupta, N., et al. (2019). Causal inference for evaluating prescription opioid abuse using trend-in-trend design. <i>Pharmacoepidemiology and Drug Safety, 28</i>(5), 716–725. https://doi.org/10.1002/pds.4736. <span data-en="〔applied example〕">〔應用範例〕</span></li>
       <li>Collin, L. J., et al. (2024). The population-level effect of adjuvant therapies on breast-cancer recurrence: application of the trend-in-trend design. <i>Epidemiology, 35</i>(5), 660–666. https://doi.org/10.1097/EDE.0000000000001753. <span data-en="〔applied example〕">〔應用範例〕</span></li>
+      <li>Bernal, J. L., Cummins, S., &amp; Gasparrini, A. (2017). Interrupted time series regression for the evaluation of public health interventions: a tutorial. <i>International Journal of Epidemiology, 46</i>(1), 348–355. https://doi.org/10.1093/ije/dyw098. <span data-en="〔segmented regression, HAC SE — ITS tabs ①–④〕">〔分段迴歸、HAC 標準誤 —— ITS 分頁 ①–④〕</span></li>
+      <li>Schaffer, A. L., Dobbins, T. A., &amp; Pearson, S-A. (2021). Interrupted time series analysis using ARIMA models. <i>BMC Medical Research Methodology, 21</i>, 58. https://doi.org/10.1186/s12874-021-01235-8. <span data-en="〔ARIMA / autocorrelation — ITS tab ⑤ ①〕">〔ARIMA／自相關 —— ITS 分頁⑤ ①〕</span></li>
+      <li>Linden, A. (2026). Improving causal inference in interrupted time series analysis: the triple difference design. <i>arXiv</i>:2603.17281. <span data-en="〔controlled ITS / triple difference — ITS tab ⑤ ②〕">〔控制組 ITS／三重差分 —— ITS 分頁⑤ ②〕</span></li>
+      <li>Dey, A. K., et al. (2025). Two-stage interrupted time series analysis with machine learning. <i>American Journal of Epidemiology, 194</i>(10), 2936–2944. https://doi.org/10.1093/aje/kwaf147. <span data-en="〔ML two-stage counterfactual — ITS tab ⑤ ③〕">〔ML 兩階段反事實 —— ITS 分頁⑤ ③〕</span></li>
+      <li>Romanowski, K., et al. (2023). Healthcare Utilization After Respiratory Tuberculosis: A Controlled Interrupted Time Series Analysis. <i>Clinical Infectious Diseases, 77</i>(6), 883–891. <span data-en="〔applied controlled ITS〕">〔控制組 ITS 應用範例〕</span></li>
+      <li>Brodersen, K. H., et al. (2015). Inferring causal impact using Bayesian structural time-series models. <i>Annals of Applied Statistics, 9</i>(1), 247–274. <span data-en="〔CausalImpact / BSTS — ITS tab ⑤ ④〕">〔CausalImpact／貝氏結構時間序列 —— ITS 分頁⑤ ④〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=11"></script>
-<script src="app.js?v=11"></script>
+<script src="i18n.js?v=12"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>
