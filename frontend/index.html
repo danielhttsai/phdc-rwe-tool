@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>準實驗工具箱 Quasi-experimental Toolbox：IV · RDD · DiD · TiT · ITS · PERR</title>
-<link rel="stylesheet" href="/styles.css?v=18" />
+<link rel="stylesheet" href="/styles.css?v=19" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -1685,47 +1685,20 @@
       <div class="card info"><h3>PERR</h3><p data-en="You have <b>event rates before and after</b> treatment for both groups, and you believe the confounding is <b>stable over time</b>.">你有兩組<b>處置前後的事件率</b>，且相信混淆<b>隨時間穩定</b>。</p></div>
     </div>
 
-    <h2 data-en="Decision tree: pick a design by your study's anchor">決策樹：依研究的「錨點」挑設計</h2>
-    <p class="caption" data-en="Following the pharmacoepidemiology &quot;anchor&quot; approach. First decide the study anchor: exposure-anchored or outcome-anchored. This puts the six toolbox methods in the wider design landscape.">參考藥物流行病學的「錨點（anchor）」取向。先決定研究的錨點：以暴露錨定、還是以結果錨定。這把本工具箱六法放進更完整的設計地圖裡。</p>
+    <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the external research designs and this toolbox's six methods in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>外部研究設計</b>與<b>本工具箱六法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
     <div class="flow-legend">
-      <span data-en="<b>✓</b> implemented in this toolbox"><b>✓</b> 本工具箱已實作（六法）</span>
-      <span data-en="<b>↗</b> related design, not implemented here (for reference)"><b>↗</b> 延伸設計，本工具未實作（供參考）</span>
-      <span class="flow-yes tte" data-en="blue ring = can combine with target trial emulation">藍框＝可結合 target trial emulation</span>
+      <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
+      <span data-en="<b>↗</b> related external design, for reference"><b>↗</b> 外部延伸設計，供參考</span>
     </div>
 
-    <div class="flow">
-      <div class="flow-q"><span data-en="<b>Q1.</b> What is your study anchor?"><b>Q1.</b> 你的研究錨點（anchor）為何？</span></div>
-
-      <div class="flow-head" data-en="A · Exposure-anchored (one exposure, can look at multiple events)">A · 暴露錨定（一個暴露，可看多個事件）</div>
-      <div class="flow-branch">
-        <div class="flow-q"><span data-en="<b>Q2.</b> Is there a suitable active comparator drug?"><b>Q2.</b> 是否具備合適的對照藥物？</span><span class="flow-yes ext tte" data-en="yes → active comparator cohort ↗">是 → 對照藥物世代研究 ↗</span></div>
-        <div class="flow-no" data-en="no (watch for immortal time bias) ↓">否（可能有 immortal time bias）↓</div>
-        <div class="flow-q"><span data-en="<b>Q3.</b> Is there hard-to-handle but <b>time-invariant</b> confounding?"><b>Q3.</b> 是否存在難處理但<b>不隨時間變動</b>的干擾因子？</span></div>
-        <div class="flow-branch">
-          <div class="flow-q"><span data-en="<b>yes →</b> <b>Q4.</b> Is there a sharp external cutoff / policy start date?"><b>是 →</b> <b>Q4.</b> 是否有明確外部切點／政策生效日？</span><span class="flow-yes tte" data-en="yes → RDD ✓">是 → 斷點回歸 RDD ✓</span></div>
-          <div class="flow-no" data-en="　　no → self-controlled case series (SCCS) ↗">　　否 → 自我控制案例系列 SCCS ↗</div>
-          <div class="flow-q"><span data-en="<b>no →</b> <b>Q5.</b> Is the treatment strategy dynamic / time-varying?"><b>否 →</b> <b>Q5.</b> 治療策略是否動態／隨時間變化？</span><span class="flow-yes ext tte" data-en="yes → clone-censor-weight (CCW) ↗">是 → 複製人 CCW ↗</span></div>
-          <div class="flow-no" data-en="　　no (eligible at multiple time points) → sequential trial ↗">　　否（病患在多個時間點符合收案）→ 序列試驗 sequential trial ↗</div>
-        </div>
+    <div id="dtree" class="dtree">
+      <div id="dtreePath" class="dtree-path"></div>
+      <div id="dtreeStage" class="dtree-stage"></div>
+      <div class="dtree-controls">
+        <button id="dtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
+        <button id="dtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
       </div>
-
-      <div class="flow-head" data-en="B · Outcome-anchored (one outcome, can look at multiple exposures)">B · 結果錨定（一個結果，可看多個暴露）</div>
-      <div class="flow-branch">
-        <div class="flow-q"><span data-en="<b>Q6.</b> Is there hard-to-handle but time-invariant confounding?"><b>Q6.</b> 是否存在難處理但不隨時間變動的干擾因子？</span><span class="flow-yes ext" data-en="no → nested case-control ↗">否 → 巢式對照研究 ↗</span></div>
-        <div class="flow-q"><span data-en="<b>Q7.</b> Is there a time trend of exposure?"><b>Q7.</b> 是否存在 exposure 的 time trend？</span><span class="flow-yes ext" data-en="no → case-crossover ↗">否 → 案例交叉 ↗</span></div>
-        <div class="flow-no" data-en="　yes → case-time-control (CTC) / case-case-time-control (CCTC) ↗">　是 → 案例時間對照 CTC／案例-案例時間對照 CCTC ↗</div>
-      </div>
-    </div>
-
-    <h3 data-en="Where this toolbox's six methods attach (same vaccine question)">本工具箱六法掛在哪裡（同一個疫苗問題）</h3>
-    <div class="flow">
-      <div class="flow-q"><span data-en="An <b>external, as-good-as-random push</b> (random reminder / lottery / genetic variant) acting only through vaccination">有<b>外生、近似隨機的推力</b>（隨機提醒／抽籤／基因），且只透過接種影響結果</span><span class="flow-yes">→ IV ✓</span></div>
-      <div class="flow-q"><span data-en="A <b>sharp cutoff</b> on a score (= Q4 &quot;yes&quot; above: age 65 / a date)">分數上的<b>明確門檻</b>（＝上面 Q4「是」：年齡 65／日期）</span><span class="flow-yes">→ RDD ✓</span></div>
-      <div class="flow-q"><span data-en="A policy <b>switched on for some units at a known time</b> + a control group">政策<b>在某時點對部分單位開啟</b>＋有對照組</span><span class="flow-yes">→ DiD ✓</span></div>
-      <div class="flow-q"><span data-en="A <b>single population</b> + a known intervention time + many time points">一個<b>單一群體</b>＋已知介入時點＋多個時間點</span><span class="flow-yes">→ ITS ✓</span></div>
-      <div class="flow-q"><span data-en="Exposure <b>spreads over calendar time</b> at different rates across strata (a cohort cousin of Q7 / CTC-CCTC)">暴露<b>隨日曆時間逐漸普及</b>、跨層速度不同（＝ Q7 / CTC-CCTC 的世代版）</span><span class="flow-yes">→ TiT ✓</span></div>
-      <div class="flow-q"><span data-en="<b>Event rates before &amp; after</b> treatment, with time-invariant confounding"><b>處置前後的事件率</b>＋混淆時間不變</span><span class="flow-yes">→ PERR ✓</span></div>
-      <div class="flow-end" data-en="Match none, with no usable design above? You probably need a randomised trial — or target trial emulation to make the observational analysis emulate one.">上面都不符合？那你可能需要一場隨機試驗——或用 target trial emulation 讓觀察性分析去「模擬」一場試驗。</div>
     </div>
 
     <div class="card info">
@@ -1810,7 +1783,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=18"></script>
-<script src="app.js?v=18"></script>
+<script src="i18n.js?v=19"></script>
+<script src="app.js?v=19"></script>
 </body>
 </html>
