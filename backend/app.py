@@ -24,11 +24,25 @@ import rdd_core
 import rdd_survival
 import rdd_assumptions
 import rdd_ml
+import did_core
+import did_gen
+import did_assumptions
+import did_ml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data", "demo_vaccine.csv")
 DATA_RDD = os.path.join(HERE, "data", "demo_rdd.csv")
+DATA_DID = os.path.join(HERE, "data", "demo_did.csv")
 FRONTEND = os.path.abspath(os.path.join(HERE, "..", "frontend"))
+
+DID_DEFAULTS = {
+    "unit": "unit",
+    "period": "period",
+    "group": "treated",
+    "outcome": "health_score",
+    "t0": 3,
+    "covariates": ["urban", "baseline_burden"],
+}
 
 RDD_DEFAULTS = {
     "running": "age",
@@ -337,6 +351,93 @@ def rdd_ml_bandwidth(window: float = 8.0, seed: int = 7):
 def rdd_ml_survival(seed: int = 11, lang: str = "zh"):
     """藥方二：帶設限的存活結果——未處理 vs IPCW vs 彈性 ML 雙重穩健。"""
     return _clean(rdd_ml.survival_robust_demo(seed=seed, lang=lang))
+
+
+# ---------------------------------------------------------------------------
+# Difference-in-differences (DiD method) — policy switched on for some units at t0
+# ---------------------------------------------------------------------------
+class DidRequest(BaseModel):
+    source: str = "example_did"
+    unit: str = "unit"
+    period: str = "period"
+    group: str = "treated"
+    outcome: str = "health_score"
+    t0: float = 3.0
+    covariates: list[str] = ["urban", "baseline_burden"]
+    lang: str = "zh"
+
+
+def _load_did(source: str) -> pd.DataFrame:
+    if source in ("example_did", "example"):
+        return pd.read_csv(DATA_DID)
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/did_example")
+def did_example():
+    df = pd.read_csv(DATA_DID)
+    return _clean({
+        "columns": list(df.columns),
+        "defaults": DID_DEFAULTS,
+        "n": len(df),
+        "synthetic": True,
+        "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "unit": "unit（社區／診區，固定追蹤的面板單位）",
+            "period": "period（0–5 期，第 3 期起為政策後）",
+            "group": "treated（1＝介入組社區，0＝對照組）",
+            "outcome": "health_score（該社區當期平均健康分數）",
+        },
+    })
+
+
+@app.post("/api/did_analyze")
+def did_analyze(req: DidRequest):
+    df = _load_did(req.source)
+    out = did_core.full_did(
+        df, req.unit, req.period, req.group, req.outcome,
+        t0=req.t0, covariates=req.covariates, lang=req.lang,
+    )
+    return _clean(out)
+
+
+@app.post("/api/did_assumptions")
+def did_assumptions_check(req: DidRequest):
+    df = _load_did(req.source)
+    out = did_assumptions.run_dashboard(
+        df, req.unit, req.period, req.group, req.outcome,
+        t0=req.t0, covariates=req.covariates, lang=req.lang,
+    )
+    return _clean(out)
+
+
+@app.get("/api/did_interactive")
+def did_interactive(violation: float = 0.0, lang: str = "zh"):
+    """Teaching slider: re-generate the panel with a pre-trend `violation` and show
+    how the DiD estimate drifts and the event-study pre-period dots lift off zero."""
+    violation = float(np.clip(violation, 0.0, 1.5))
+    df = did_gen.generate(violation=violation)
+    out = did_core.full_did(df, "unit", "period", "treated", "health_score",
+                            t0=did_gen.T0, lang=lang)
+    return _clean({
+        "violation": violation,
+        "true_att": did_gen.TRUE_ATT,
+        "estimate": out["did"]["estimate"], "ci": out["did"]["ci"],
+        "naive": out["naive_difference"],
+        "event_study": out["event_study"],
+        "trend": out["trend"],
+        "t0": did_gen.T0,
+    })
+
+
+@app.get("/api/did_ml")
+def did_ml_demos(seed: int = 7, lang: str = "zh"):
+    """DiD ⑤: four advanced remedies (DR/DML, staggered, universal, synthetic control)."""
+    return _clean(did_ml.boost_demos(seed=seed, lang=lang))
 
 
 # ---------------------------------------------------------------------------

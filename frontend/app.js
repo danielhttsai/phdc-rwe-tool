@@ -22,6 +22,11 @@ document.querySelectorAll(".tab").forEach((t) => {
     if (t.dataset.tab === "rddanalyze") initRddAnalyze();
     if (t.dataset.tab === "rddassume") initRddAssume();
     if (t.dataset.tab === "rddml") initRddMl();
+    if (t.dataset.tab === "didlearn") initDidLearn();
+    if (t.dataset.tab === "didplay") initDidPlay();
+    if (t.dataset.tab === "didanalyze") initDidAnalyze();
+    if (t.dataset.tab === "didassume") initDidAssume();
+    if (t.dataset.tab === "didml") initDidMl();
     if (t.dataset.tab === "choose") initChoose();
   });
 });
@@ -1180,6 +1185,329 @@ document.getElementById("dlRis").addEventListener("click", () => {
 renderCitation();
 
 // ======================================================================
+// Difference-in-differences (DiD method) — tabs ①–⑤
+// ======================================================================
+const didState = { source: null, columns: [], req: null };
+let didLearnReady = false, didPlayReady = false, didAnalyzeReady = false,
+    didAssumeReady = false, didMlReady = false;
+
+// ---- shared DiD chart helpers ----
+function didTrendInto(elId, trend, t0) {
+  if (!document.getElementById(elId)) return;
+  const P = trend.periods;
+  const treated = { x: P, y: trend.treated, mode: "lines+markers", type: "scatter",
+    name: tr("介入組", "treated"), line: { color: TEAL, width: 3 }, marker: { size: 7 } };
+  const control = { x: P, y: trend.control, mode: "lines+markers", type: "scatter",
+    name: tr("對照組", "control"), line: { color: "#9aa6b2", width: 3 }, marker: { size: 7 } };
+  Plotly.react(elId, [control, treated], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.15 },
+    xaxis: { title: tr("期別", "period"), dtick: 1 },
+    yaxis: { title: tr("平均結果", "mean outcome") },
+    shapes: [{ type: "line", x0: t0 - 0.5, x1: t0 - 0.5, y0: 0, y1: 1, yref: "paper",
+      line: { color: INK, width: 1.5, dash: "dot" } }],
+    annotations: [{ x: t0 - 0.5, y: 1, yref: "paper", yshift: 6,
+      text: tr("政策上路", "policy on"), showarrow: false, font: { size: 10, color: INK } }],
+  }), SCENE_CFG);
+}
+
+function didEventInto(elId, ev) {
+  if (!document.getElementById(elId)) return;
+  const err = ev.coef.map((c, i) => (ev.hi[i] - ev.lo[i]) / 2);
+  const colors = ev.periods.map((q) => (q < ev.t0 ? "#9aa6b2" : TEAL));
+  const dots = { x: ev.periods, y: ev.coef, mode: "markers", type: "scatter",
+    marker: { color: colors, size: 9 },
+    error_y: { type: "data", array: err, visible: true, color: "#c2cad4", thickness: 1.2 } };
+  Plotly.react(elId, [dots], sceneLayout({
+    height: 300,
+    xaxis: { title: tr("期別（相對基期）", "period (vs base)"), dtick: 1 },
+    yaxis: { title: tr("介入−對照 係數", "treated−control coef") },
+    shapes: [
+      { type: "line", x0: Math.min(...ev.periods), x1: Math.max(...ev.periods), y0: 0, y1: 0,
+        line: { color: GREEN, width: 1.5, dash: "dash" } },
+      { type: "line", x0: ev.t0 - 0.5, x1: ev.t0 - 0.5, y0: 0, y1: 1, yref: "paper",
+        line: { color: INK, width: 1.2, dash: "dot" } },
+    ],
+  }), SCENE_CFG);
+}
+
+function didBarsInto(elId, bars) {
+  if (!document.getElementById(elId)) return;
+  const n = bars.values.length;
+  const colors = bars.values.map((v, i) => (i === 0 ? GREEN : (i === n - 1 ? TEAL : AMBER)));
+  Plotly.react(elId, [{
+    x: bars.labels, y: bars.values, type: "bar", marker: { color: colors },
+    text: bars.values.map((v) => v.toFixed(2)), textposition: "auto",
+  }], sceneLayout({ height: 260, margin: { t: 20, r: 16, b: 40, l: 40 }, yaxis: { title: "" } }), SCENE_CFG);
+}
+
+// ---- ① learn ----
+function initDidLearn() {
+  if (didLearnReady) return;
+  didLearnReady = true;
+  drawSceneDidParallel();
+}
+function drawSceneDidParallel() {
+  if (!document.getElementById("sceneDidParallel")) return;
+  const P = [0, 1, 2, 3, 4, 5], t0 = 3, att = 3.0;
+  const control = P.map((p) => 60 + 2 * p);
+  const treatedCf = P.map((p) => 64 + 2 * p);                  // parallel counterfactual (+4 gap)
+  const treated = P.map((p) => 64 + 2 * p + (p >= t0 ? att : 0));
+  const cline = { x: P, y: control, mode: "lines+markers", type: "scatter",
+    name: tr("對照組", "control"), line: { color: "#9aa6b2", width: 3 }, marker: { size: 7 } };
+  const cf = { x: P, y: treatedCf, mode: "lines", type: "scatter",
+    name: tr("介入組（假如沒政策）", "treated (no policy)"), line: { color: TEAL, width: 2, dash: "dash" } };
+  const tline = { x: P, y: treated, mode: "lines+markers", type: "scatter",
+    name: tr("介入組", "treated"), line: { color: TEAL, width: 3 }, marker: { size: 7 } };
+  Plotly.react("sceneDidParallel", [cline, cf, tline], sceneLayout({
+    height: 300, showlegend: true, legend: { orientation: "h", y: 1.18 },
+    xaxis: { title: tr("期別", "period"), dtick: 1 },
+    yaxis: { title: tr("平均結果", "mean outcome") },
+    shapes: [{ type: "line", x0: t0 - 0.5, x1: t0 - 0.5, y0: 0, y1: 1, yref: "paper",
+      line: { color: INK, width: 1.5, dash: "dot" } }],
+    annotations: [{ x: t0 - 0.5, y: 1, yref: "paper", yshift: 6,
+      text: tr("政策上路", "policy on"), showarrow: false, font: { size: 10, color: INK } }],
+  }), SCENE_CFG);
+}
+
+// ---- ② interactive ----
+const didViolSlider = document.getElementById("didViolSlider");
+let didPlayTimer = null;
+function initDidPlay() {
+  if (didPlayReady) return;
+  didPlayReady = true;
+  refreshDidPlay();
+}
+function scheduleDidPlay() {
+  document.getElementById("didViolVal").textContent = Number(didViolSlider.value).toFixed(1);
+  clearTimeout(didPlayTimer);
+  didPlayTimer = setTimeout(refreshDidPlay, 120);
+}
+if (didViolSlider) didViolSlider.addEventListener("input", scheduleDidPlay);
+
+async function refreshDidPlay() {
+  const v = didViolSlider ? Number(didViolSlider.value) : 0;
+  let d;
+  try { d = await getJSON(`${API}/api/did_interactive?violation=${v}&lang=${lang()}`); }
+  catch (e) { return; }
+  state.didPlay = d;
+  document.getElementById("didEst").textContent = fmt(d.estimate, 2);
+  document.getElementById("didNaive").textContent = fmt(d.naive, 2);
+  const p = d.event_study.pre_max_p;
+  const ok = p >= 0.05;
+  const pre = document.getElementById("didPre");
+  pre.textContent = ok ? tr("平行 ✓", "parallel ✓") : tr("分岔 ⚠", "diverging ⚠");
+  pre.style.color = ok ? "var(--green)" : "var(--red)";
+  document.getElementById("didPreFoot").textContent = tr(`前期檢定 p=${fmt(p, 3)}`, `pre-trend p=${fmt(p, 3)}`);
+  didTrendInto("didTrendChart", d.trend, d.t0);
+  didEventInto("didEventChart", d.event_study);
+}
+
+// ---- ③ analyze ----
+function initDidAnalyze() {
+  if (didAnalyzeReady) return;
+  didAnalyzeReady = true;
+  document.getElementById("useDidExample").click();
+}
+function didFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["didSelUnit", "didSelPeriod", "didSelGroup", "didSelY", "didSelCov"].forEach((id) => {
+    document.getElementById(id).innerHTML = opts;
+  });
+  document.getElementById("didColMap").classList.remove("hidden");
+}
+function didApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null) el.value = v; };
+  set("didSelUnit", d.unit); set("didSelPeriod", d.period); set("didSelGroup", d.group);
+  set("didSelY", d.outcome); set("didSelT0", d.t0);
+  const cov = document.getElementById("didSelCov");
+  if (d.covariates) [...cov.options].forEach((o) => { o.selected = d.covariates.includes(o.value); });
+}
+document.getElementById("useDidExample").addEventListener("click", async () => {
+  const st = document.getElementById("didDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/did_example`);
+    didState.source = "example_did"; didState.columns = d.columns;
+    st.textContent = tr(`已載入內建政策範例（${d.n} 列＝單位×期，合成虛構）`,
+                        `Loaded built-in policy example (${d.n} rows = unit×period, synthetic)`);
+    didFillSelects(d.columns); didApplyDefaults(d.defaults);
+    runDidAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("didFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("didDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    didState.source = d.token; didState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    didFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function didCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return {
+    source: didState.source, unit: v("didSelUnit"), period: v("didSelPeriod"),
+    group: v("didSelGroup"), outcome: v("didSelY"), t0: Number(v("didSelT0")),
+    covariates: [...document.getElementById("didSelCov").selectedOptions].map((o) => o.value),
+    lang: lang(),
+  };
+}
+document.getElementById("runDidAnalyze").addEventListener("click", runDidAnalyze);
+async function runDidAnalyze() {
+  const req = didCurrentMapping();
+  if (!req.source) return;
+  didState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/did_analyze`, req);
+    renderDidAnalyze(a);
+    runDidAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderDidAnalyze(a) {
+  document.getElementById("didAnalyzeOut").classList.remove("hidden");
+  const cards = [
+    [tr("DiD（政策效果，ATT）", "DiD (policy effect, ATT)"), a.did.estimate, a.did.interpretation, true],
+    [tr("2×2 點估計", "2×2 point estimate"), a.two_by_two.did,
+      tr("四格平均的（後−前）−（後−前）。", "(after−before)−(after−before) of the four cell means."), false],
+    [tr("天真：只看後期差（有偏）", "Naive: post-only gap (biased)"), a.naive_difference,
+      tr("被各組固定落差汙染。", "contaminated by fixed group differences."), false],
+  ];
+  document.getElementById("didAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, hl ? 3 : 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  didTrendInto("didAnalyzePlot", a.trend, a.t0);
+  didEventInto("didAnalyzeEvent", a.event_study);
+}
+
+// ---- ④ assumptions ----
+function initDidAssume() {
+  if (didAssumeReady) return;
+  didAssumeReady = true;
+  runDidAssumptions(didState.req || { source: "example_did", lang: lang() });
+}
+async function runDidAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_did", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/did_assumptions`, body); } catch (e) { return; }
+  state.didDash = out;
+  renderDidAssumptions(out);
+}
+function renderDidAssumptions(out) {
+  document.getElementById("didAssumeHint").classList.add("hidden");
+  const ov = document.getElementById("didOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("各項佐證都通過，這個 DiD 看起來可信。", "All checks pass — this DiD looks credible."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，DiD 結果要保守看待。", "Some items fail — interpret the DiD with caution."),
+    info: tr("關鍵假設需靠領域知識判斷，請看各卡片說明。", "The key assumption needs domain judgement — see each card."),
+  }[worst];
+  ov.classList.remove("hidden");
+  ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("didAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) =>
+      `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}">
+      <h3><span class="dot bg-${c.status}"></span>${c.title}
+        <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p>
+      <p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details>
+    </div>`;
+  }).join("");
+}
+
+// ---- ⑤ boost ----
+function initDidMl() {
+  if (didMlReady) return;
+  didMlReady = true;
+  refreshDidMl();
+}
+async function refreshDidMl() {
+  let d;
+  try { d = await getJSON(`${API}/api/did_ml?lang=${lang()}`); } catch (e) { return; }
+  state.didMl = d;
+  drawDidDrScene(d.dr); didBarsInto("didDrChart", d.dr.bars);
+  document.getElementById("didDrReading").textContent = d.dr.reading;
+  drawDidStagScene(); didBarsInto("didStagChart", d.staggered.bars);
+  document.getElementById("didStagReading").textContent = d.staggered.reading;
+  drawDidUnivScene(d.universal); didBarsInto("didUnivChart", d.universal.bars);
+  document.getElementById("didUnivReading").textContent = d.universal.reading;
+  drawDidSynth(d.synth);
+  document.getElementById("didSynthReading").textContent = d.synth.reading;
+}
+function drawDidDrScene(dr) {
+  if (!document.getElementById("sceneDidDr")) return;
+  const rng = mulberry32(909);
+  const strip = (xs, y0, color, name) => ({ x: xs, y: xs.map(() => y0 + (rng() - 0.5) * 0.55),
+    mode: "markers", type: "scatter", name, marker: { size: 6, opacity: 0.55, color } });
+  const ctrl = strip(dr.scene.x_control, 0, "#9aa6b2", tr("對照", "control"));
+  const treat = strip(dr.scene.x_treated, 1, TEAL, tr("介入", "treated"));
+  Plotly.react("sceneDidDr", [ctrl, treat], sceneLayout({
+    xaxis: { title: tr("共變項 X（兩組分布不同）", "covariate X (differs by group)") },
+    yaxis: { tickvals: [0, 1], ticktext: [tr("對照", "control"), tr("介入", "treated")], range: [-0.6, 1.6] },
+  }), SCENE_CFG);
+}
+function drawDidStagScene() {
+  if (!document.getElementById("sceneDidStag")) return;
+  const cohorts = [
+    { g: 2, label: tr("早採用（第2期起）", "early (from t=2)"), y: 2 },
+    { g: 4, label: tr("晚採用（第4期起）", "late (from t=4)"), y: 1 },
+    { g: -1, label: tr("從不採用（對照）", "never (control)"), y: 0 },
+  ];
+  const rows = [], ann = [];
+  cohorts.forEach((c) => {
+    rows.push({ x: [0, 5], y: [c.y, c.y], mode: "lines", type: "scatter",
+      line: { color: "#dce2e8", width: 12 }, hoverinfo: "skip" });
+    if (c.g >= 0) rows.push({ x: [c.g, 5], y: [c.y, c.y], mode: "lines", type: "scatter",
+      line: { color: TEAL, width: 12 }, hoverinfo: "skip" });
+    ann.push({ x: 5.2, y: c.y, text: c.label, showarrow: false, xanchor: "left",
+      font: { size: 10, color: INK } });
+  });
+  Plotly.react("sceneDidStag", rows, sceneLayout({
+    height: 220, margin: { t: 18, r: 150, b: 38, l: 16 },
+    xaxis: { title: tr("期別（青色＝已受處置）", "period (teal = treated)"), range: [-0.3, 8.5], dtick: 1 },
+    yaxis: { showticklabels: false, range: [-0.6, 2.6] },
+    annotations: ann,
+  }), SCENE_CFG);
+}
+function drawDidUnivScene(u) {
+  if (!document.getElementById("sceneDidUniv")) return;
+  const pr = u.scene.probs;
+  const xs = [tr("政策前", "pre"), tr("政策後", "post")];
+  const treat = { x: xs, y: pr.treated, mode: "lines+markers", type: "scatter",
+    name: tr("介入", "treated"), line: { color: TEAL, width: 3 }, marker: { size: 9 } };
+  const ctrl = { x: xs, y: pr.control, mode: "lines+markers", type: "scatter",
+    name: tr("對照", "control"), line: { color: "#9aa6b2", width: 3 }, marker: { size: 9 } };
+  Plotly.react("sceneDidUniv", [ctrl, treat], sceneLayout({
+    showlegend: true, legend: { orientation: "h", y: 1.18 },
+    yaxis: { title: tr("事件發生率", "event rate"), range: [0, 1], tickformat: ".0%" },
+  }), SCENE_CFG);
+}
+function drawDidSynth(s) {
+  if (!document.getElementById("didSynthChart")) return;
+  const P = s.series.periods;
+  const treated = { x: P, y: s.series.treated, mode: "lines+markers", type: "scatter",
+    name: tr("受處置單位", "treated unit"), line: { color: TEAL, width: 3 }, marker: { size: 6 } };
+  const synth = { x: P, y: s.series.synth, mode: "lines", type: "scatter",
+    name: tr("合成反事實", "synthetic"), line: { color: AMBER, width: 3, dash: "dash" } };
+  Plotly.react("didSynthChart", [synth, treated], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.15 },
+    xaxis: { title: tr("期別", "period"), dtick: 1 }, yaxis: { title: tr("結果", "outcome") },
+    shapes: [{ type: "line", x0: s.t0 - 0.5, x1: s.t0 - 0.5, y0: 0, y1: 1, yref: "paper",
+      line: { color: INK, width: 1.5, dash: "dot" } }],
+    annotations: [{ x: s.t0 - 0.5, y: 1, yref: "paper", yshift: 6,
+      text: tr("政策上路", "policy on"), showarrow: false, font: { size: 10, color: INK } }],
+  }), SCENE_CFG);
+}
+
+// ======================================================================
 // Language switch — re-render any dynamic content already on screen
 // ======================================================================
 window.addEventListener("iv-lang", async () => {
@@ -1218,6 +1546,11 @@ window.addEventListener("iv-lang", async () => {
       state.rddSurvMl = d; renderRddSurvMl(d);
     } catch (e) { /* ignore */ }
   }
+  if (didLearnReady) drawSceneDidParallel();           // DiD ① learn scene
+  if (didPlayReady) refreshDidPlay();                  // DiD ② interactive
+  if (didAnalyzeReady) runDidAnalyze();                // DiD ③ analysis + dashboard
+  else if (didAssumeReady) runDidAssumptions(didState.req);
+  if (didMlReady) refreshDidMl();                      // DiD ⑤ four remedies
   if (state.chooseDone) refreshChoose();                // IV vs RDD comparison
 });
 

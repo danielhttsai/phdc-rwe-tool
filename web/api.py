@@ -22,6 +22,10 @@ import rdd_survival
 import rdd_assumptions
 import rdd_gen
 import rdd_ml
+import did_core
+import did_gen
+import did_assumptions
+import did_ml
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -40,11 +44,21 @@ RDD_DEFAULTS = {
     "covariates": ["female", "bmi", "chronic_conditions", "income_band"],
 }
 
+DID_DEFAULTS = {
+    "unit": "unit",
+    "period": "period",
+    "group": "treated",
+    "outcome": "health_score",
+    "t0": 3,
+    "covariates": ["urban", "baseline_burden"],
+}
+
 DISCLAIMER = "⚠ 純屬虛構的合成示範資料,非真實病人/個資,僅供教學展示。"
 
 _UPLOADS: dict[str, pd.DataFrame] = {}
 _DEMO: pd.DataFrame | None = None
 _DEMO_RDD: pd.DataFrame | None = None
+_DEMO_DID: pd.DataFrame | None = None
 
 
 def _demo() -> pd.DataFrame:
@@ -59,6 +73,13 @@ def _demo_rdd() -> pd.DataFrame:
     if _DEMO_RDD is None:
         _DEMO_RDD = rdd_gen.generate()
     return _DEMO_RDD
+
+
+def _demo_did() -> pd.DataFrame:
+    global _DEMO_DID
+    if _DEMO_DID is None:
+        _DEMO_DID = did_gen.generate()
+    return _DEMO_DID
 
 
 def _clean(obj):
@@ -299,6 +320,76 @@ def _rdd_interactive(q: dict) -> dict:
     }
 
 
+# ---------------------------------------------------------------------------
+# Difference-in-differences endpoints (DiD method)
+# ---------------------------------------------------------------------------
+def _load_did(source: str) -> pd.DataFrame:
+    if source in ("example_did", "example"):
+        return _demo_did()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _did_example() -> dict:
+    df = _demo_did()
+    return {
+        "columns": list(df.columns),
+        "defaults": DID_DEFAULTS,
+        "n": len(df),
+        "synthetic": True,
+        "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "unit": "unit（社區／診區，固定追蹤的面板單位）",
+            "period": "period（0–5 期，第 3 期起為政策後）",
+            "group": "treated（1＝介入組社區，0＝對照組）",
+            "outcome": "health_score（該社區當期平均健康分數）",
+        },
+    }
+
+
+def _did_analyze(req: dict) -> dict:
+    df = _load_did(req.get("source", "example_did"))
+    return did_core.full_did(
+        df, req.get("unit", "unit"), req.get("period", "period"),
+        req.get("group", "treated"), req.get("outcome", "health_score"),
+        t0=float(req.get("t0", 3.0)), covariates=req.get("covariates", DID_DEFAULTS["covariates"]),
+        lang=req.get("lang", "zh"),
+    )
+
+
+def _did_assumptions(req: dict) -> dict:
+    df = _load_did(req.get("source", "example_did"))
+    return did_assumptions.run_dashboard(
+        df, req.get("unit", "unit"), req.get("period", "period"),
+        req.get("group", "treated"), req.get("outcome", "health_score"),
+        t0=float(req.get("t0", 3.0)), covariates=req.get("covariates", DID_DEFAULTS["covariates"]),
+        lang=req.get("lang", "zh"),
+    )
+
+
+def _did_interactive(q: dict) -> dict:
+    violation = float(np.clip(float(q.get("violation", 0.0)), 0.0, 1.5))
+    df = did_gen.generate(violation=violation)
+    out = did_core.full_did(df, "unit", "period", "treated", "health_score",
+                            t0=did_gen.T0, lang=q.get("lang", "zh"))
+    return {
+        "violation": violation,
+        "true_att": did_gen.TRUE_ATT,
+        "estimate": out["did"]["estimate"], "ci": out["did"]["ci"],
+        "naive": out["naive_difference"],
+        "event_study": out["event_study"],
+        "trend": out["trend"],
+        "t0": did_gen.T0,
+    }
+
+
+def _did_ml(q: dict) -> dict:
+    return did_ml.boost_demos(seed=int(q.get("seed", 7)), lang=q.get("lang", "zh"))
+
+
 _ROUTES = {
     ("GET", "/api/example"): lambda q, b: _example(),
     ("POST", "/api/upload"): lambda q, b: _upload(b.get("_csv_text", "")),
@@ -316,6 +407,11 @@ _ROUTES = {
     ("GET", "/api/rdd_interactive"): lambda q, b: _rdd_interactive(q),
     ("GET", "/api/rdd_ml_bandwidth"): lambda q, b: _rdd_ml_bandwidth(q),
     ("GET", "/api/rdd_ml_survival"): lambda q, b: _rdd_ml_survival(q),
+    ("GET", "/api/did_example"): lambda q, b: _did_example(),
+    ("POST", "/api/did_analyze"): lambda q, b: _did_analyze(b),
+    ("POST", "/api/did_assumptions"): lambda q, b: _did_assumptions(b),
+    ("GET", "/api/did_interactive"): lambda q, b: _did_interactive(q),
+    ("GET", "/api/did_ml"): lambda q, b: _did_ml(q),
 }
 
 

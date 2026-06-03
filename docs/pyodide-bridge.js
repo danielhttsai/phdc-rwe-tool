@@ -12,7 +12,7 @@
 
   // Pyodide 套件版本需與 index.html 載入的 pyodide.js 相符
   var PYODIDE_INDEX = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
-  var PY_MODULES = ["i18n", "iv_core", "assumptions", "ml_iv", "gen_data", "rdd_core", "rdd_survival", "rdd_assumptions", "rdd_gen", "rdd_ml", "api"];
+  var PY_MODULES = ["i18n", "iv_core", "assumptions", "ml_iv", "gen_data", "rdd_core", "rdd_survival", "rdd_assumptions", "rdd_gen", "rdd_ml", "did_core", "did_gen", "did_assumptions", "did_ml", "api"];
 
   var pyodide = null;
   var routeFn = null;
@@ -111,6 +111,9 @@
         covariates: ["female", "bmi", "chronic_conditions", "income_band"], lang: "zh",
       })],
       ["POST", "/api/rdd_assumptions", "{}", JSON.stringify({ source: "example_rdd", lang: "zh" })],
+      ["GET", "/api/did_example", "{}", "{}"],
+      ["POST", "/api/did_analyze", "{}", JSON.stringify({ source: "example_did", lang: "zh" })],
+      ["POST", "/api/did_assumptions", "{}", JSON.stringify({ source: "example_did", lang: "zh" })],
     ];
     for (var i = 0; i < calls.length; i++) {
       try { routeFn(calls[i][0], calls[i][1], calls[i][2], calls[i][3]); }

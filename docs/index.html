@@ -26,6 +26,12 @@
     <button class="tab" data-tab="rddanalyze" data-en="③ Analyse data">③ 資料分析</button>
     <button class="tab" data-tab="rddassume" data-en="④ Assumptions">④ 假設檢驗</button>
     <button class="tab" data-tab="rddml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
+    <span class="tab-group">DiD</span>
+    <button class="tab" data-tab="didlearn" data-en="① What is DiD">① DiD 是什麼</button>
+    <button class="tab" data-tab="didplay" data-en="② Interactive">② 互動講解</button>
+    <button class="tab" data-tab="didanalyze" data-en="③ Analyse data">③ 資料分析</button>
+    <button class="tab" data-tab="didassume" data-en="④ Assumptions">④ 假設檢驗</button>
+    <button class="tab" data-tab="didml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
     <button class="tab tab-sep" data-tab="choose" data-en="IV vs RDD">怎麼選</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
@@ -754,6 +760,225 @@
     </details>
   </section>
 
+  <!-- ===================== DiD ① 是什麼 ===================== -->
+  <section id="didlearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="A third trick: compare the before→after change between two groups (DiD)">第三種招式：比較兩組各自的「前→後變化」（DiD）</h1>
+    <p class="lead" data-en="Same vaccine story, yet another design. Suppose a county health bureau switches on a &quot;mobile vaccination + door-to-door reminder&quot; <b>policy</b> in some communities at a fixed time, while other communities get nothing. We track each community's average health score over several periods. Difference-in-differences reads off the policy effect by comparing the <b>treated group's before→after change</b> with the <b>control group's before→after change</b>.">
+      同一個疫苗故事，再換一種設計。假設某縣市衛生局在某個時間點，對部分社區開啟一個
+      「<b>疫苗快打車＋到府提醒</b>」的<b>政策</b>，其他社區則沒有。我們每一期量一次各社區的平均健康分數。
+      差異中的差異（DiD）就是比較「<b>介入組的前→後變化</b>」與「<b>對照組的前→後變化</b>」，
+      來讀出政策的效果。
+    </p>
+
+    <div class="card info">
+      <h3 data-en="The plain-language idea">先用白話想一遍</h3>
+      <p data-en="Two communities are never identical — one may simply be healthier to begin with (a fixed gap). And everyone tends to drift over time (a common trend — a good year, a better economy). If we just compared the treated community before vs. after, the common trend would contaminate it; if we compared treated vs. control only after, the fixed gap would contaminate it. DiD removes BOTH: take the treated change (after − before), subtract the control change (after − before). The fixed gap cancels (it is in both befores and afters); the common trend cancels (it hits both groups). What's left is the policy effect.">
+        兩個社區永遠不會一模一樣——其中一個可能本來就比較健康（一個固定落差）。而且每個社區都會隨時間漂移
+        （一個共同趨勢——景氣好、整體變好）。如果只比介入社區的前 vs 後，會被共同趨勢汙染；
+        只比後期的介入 vs 對照，會被固定落差汙染。DiD 把<b>兩者都消掉</b>：拿介入組的變化（後−前），
+        再減掉對照組的變化（後−前）。固定落差消掉（它同時在前期與後期）；共同趨勢也消掉（它同時打到兩組）。
+        剩下的，就是政策效果。
+      </p>
+    </div>
+
+    <div class="card scene">
+      <h3 data-en="What does the data look like? Two lines that move in parallel — until the policy">資料長什麼樣子？兩條原本平行的線——直到政策上路</h3>
+      <p data-en="Each line is a group's average outcome over time. Before the policy (left of the dotted line) the two lines climb in <b>parallel</b> — same slope, just a fixed gap apart. At the cutoff the policy switches on for the teal (treated) group, and its line <b>jumps above</b> where the parallel path would have taken it. That extra gap — the teal line minus its own dashed &quot;what-if-no-policy&quot; continuation — is the DiD effect.">
+        每條線是一組隨時間的平均結果。政策上路前（虛線左側），兩條線<b>平行</b>上升——斜率相同、只差一個固定落差。
+        在斷點處，政策對青色（介入）組開啟，它的線就<b>跳到</b>原本平行路徑的上方。多出來的那一段
+        ——青色線減掉它自己那條虛線「假如沒政策會怎樣」的延伸——就是 DiD 效果。
+      </p>
+      <div id="sceneDidParallel" class="chart"></div>
+    </div>
+
+    <div class="rdd-twocol">
+      <div class="card">
+        <h3 data-en="The 2×2 recipe">2×2 食譜</h3>
+        <p data-en="At its simplest you need just four averages: treated-before, treated-after, control-before, control-after. <b>DiD = (treated-after − treated-before) − (control-after − control-before)</b>. That single subtraction is the whole idea.">
+          最簡單只需要四個平均：介入-前、介入-後、對照-前、對照-後。
+          <b>DiD ＝（介入-後 − 介入-前）−（對照-後 − 對照-前）</b>。這一個減法就是全部精髓。
+        </p>
+      </div>
+      <div class="card">
+        <h3 data-en="What it estimates (estimand)">它估的是什麼（估計對象）</h3>
+        <p data-en="DiD gives the <b>average effect on the treated group</b> (the ATT) over the post period — provided the two groups would have moved in parallel without the policy. It is a group-and-time average, not a single person's effect.">
+          DiD 給的是政策後<b>介入組的平均處置效果</b>（ATT）——前提是沒有政策時兩組會平行移動。
+          它是「組別×時間」的平均，不是某一個人的效果。
+        </p>
+      </div>
+    </div>
+
+    <details class="term">
+      <summary data-en="How does DiD differ from IV and RDD?">DiD 和 IV、RDD 有什麼不同？</summary>
+      <p data-en="IV borrows randomness from a <b>random instrument</b>; RDD borrows it from a <b>sharp cutoff on a score</b>; DiD borrows it from <b>timing</b> — a policy that switches on at a known time for some groups but not others. Its key assumption is <b>parallel trends</b>: absent the policy, treated and control would have changed at the same pace. Like the others, that core assumption can't be fully proven, but the pre-policy periods give a strong check (tab ④).">
+        IV 從<b>隨機工具</b>借隨機；RDD 從<b>分數上的明確門檻</b>借；DiD 則從<b>時間</b>借——一個在已知時間點
+        對部分組別開啟、其他組別沒有的政策。它的關鍵假設是<b>平行趨勢</b>：沒有政策時，介入與對照會以相同步調變化。
+        和前兩者一樣，這條核心假設無法完全證明，但政策前的期數能提供有力的檢查（分頁 ④）。
+      </p>
+    </details>
+  </section>
+
+  <!-- ===================== DiD ② 互動講解 ===================== -->
+  <section id="didplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive DiD: break parallel trends and watch the estimate bend">互動式 DiD：弄壞平行趨勢，看估計怎麼歪掉</h1>
+    <p class="lead" data-en="DiD lives or dies on <b>parallel trends</b>. Drag the slider to make the treated group <b>secretly drift upward before the policy even starts</b>. Watch three things move together: the two trend lines pull apart in the pre period, the event-study dots lift off zero before the cutoff, and the DiD estimate <b>drifts away from the true 3.0</b>.">
+      DiD 成敗全看<b>平行趨勢</b>。拉動滑桿，讓介入組<b>在政策還沒上路前就偷偷往上漂</b>。
+      看三件事一起變：前期兩條趨勢線拉開、事件研究的點在斷點前就離開 0、DiD 估計<b>偏離真值 3.0</b>。
+    </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="Hidden pre-trend drift in the treated group:">介入組偷偷的前期漂移：</span><b id="didViolVal">0.0</b>
+        <input type="range" id="didViolSlider" min="0" max="1.5" value="0" step="0.1" />
+        <small data-en="0 = parallel trends hold (DiD ≈ the true 3.0). Larger = the treated group was already rising faster before the policy, so DiD mistakes that head-start for a policy effect.">0＝平行趨勢成立（DiD ≈ 真值 3.0）。越大＝介入組在政策前就漲得比較快，DiD 會把這個「先跑」誤當成政策效果。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="DiD estimate">DiD 估計</div><div class="stat-num" id="didEst">–</div><div class="stat-foot" data-en="the true answer is 3.00">真正答案是 3.00</div></div>
+      <div class="stat"><div class="stat-label" data-en="Naive post-only gap (biased)">天真：只看後期差（有偏）</div><div class="stat-num" id="didNaive">–</div><div class="stat-foot" data-en="contaminated by the fixed group gap">被各組固定落差汙染</div></div>
+      <div class="stat"><div class="stat-label" data-en="Pre-trend check">前期趨勢檢查</div><div class="stat-num small" id="didPre">–</div><div class="stat-foot" id="didPreFoot"></div></div>
+    </div>
+
+    <div id="didTrendChart" class="chart"></div>
+    <p class="caption" data-en="Two group-average lines over time; the dashed vertical line is when the policy switches on. With the slider at 0 the pre-policy parts are parallel; push it up and the teal (treated) line tilts up early — that early divergence is exactly what biases DiD.">
+      兩條隨時間的組平均線；垂直虛線是政策上路的時點。滑桿在 0 時，政策前的兩段是平行的；
+      往上推，青色（介入）線就提早翹起來——這個提早分岔正是讓 DiD 出錯的元兇。
+    </p>
+    <div id="didEventChart" class="chart"></div>
+    <p class="caption" data-en="Event study: each dot is the treated-minus-control gap at one period, relative to the last pre-policy period (set to 0). Pre-policy dots near 0 support parallel trends; if they lift off before the cutoff, the assumption is failing.">
+      事件研究：每個點是某一期「介入減對照」的落差，以政策前最後一期為基準（設為 0）。
+      政策前的點貼近 0 就支持平行趨勢；若它們在斷點前就離開 0，假設正在崩壞。
+    </p>
+  </section>
+
+  <!-- ===================== DiD ③ 資料分析 ===================== -->
+  <section id="didanalyze" class="panel">
+    <h1 data-en="Data analysis: run a full DiD">資料分析：跑一次完整的 DiD</h1>
+    <p class="lead" data-en="Load the built-in policy example or upload your own panel CSV (one row per unit × period), map the columns, and run the full DiD — the 2×2 estimate, the cluster-robust regression, the two trend lines and the event-study pre-trend check.">
+      載入內建的政策範例，或上傳你自己的面板 CSV（每列＝一個單位×一期），對應好欄位，
+      跑一次完整的 DiD——2×2 估計、群集穩健迴歸、兩條趨勢線與事件研究前期檢查。
+    </p>
+
+    <div class="datasource">
+      <button id="useDidExample" class="btn primary" data-en="Load built-in policy example">載入內建政策範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="didFileInput" accept=".csv" hidden /></label>
+      <span id="didDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="didColMap" class="colmap hidden">
+      <div class="field"><label data-en="Unit (panel id, used as cluster)">單位（面板 id，做群集）</label><select id="didSelUnit"></select></div>
+      <div class="field"><label data-en="Period (time)">期別（time）</label><select id="didSelPeriod"></select></div>
+      <div class="field"><label data-en="Group (treated = 1)">分組（treated＝1）</label><select id="didSelGroup"></select></div>
+      <div class="field"><label data-en="Outcome Y">結果 Y（outcome）</label><select id="didSelY"></select></div>
+      <div class="field"><label data-en="Policy starts at period (t0)">政策起始期（t0）</label><input id="didSelT0" type="number" step="1" value="3" /></div>
+      <div class="field wide"><label data-en="Covariates (optional, multi-select)">共變項（可選，可多選）</label><select id="didSelCov" multiple size="4"></select></div>
+      <button id="runDidAnalyze" class="btn primary" data-en="Run DiD analysis">執行 DiD 分析</button>
+    </div>
+
+    <div id="didAnalyzeOut" class="hidden">
+      <h2 data-en="DiD estimate">DiD 估計</h2>
+      <div class="result-cards" id="didAnalyzeCards"></div>
+      <div id="didAnalyzePlot" class="chart"></div>
+      <p class="caption" data-en="The two group-average lines over time, with the policy start marked. The vertical gap that opens up after the cutoff (beyond the parallel continuation) is the DiD effect.">兩條組平均線隨時間變化，標出政策起點。斷點後拉開（超出平行延伸）的落差，就是 DiD 效果。</p>
+      <div id="didAnalyzeEvent" class="chart"></div>
+      <p class="caption" data-en="Event-study coefficients with 95% confidence bars: pre-policy near 0 supports parallel trends; post-policy traces the dynamic effect.">事件研究係數（含 95% 信賴棒）：政策前貼近 0 支持平行趨勢；政策後描出動態效果。</p>
+    </div>
+  </section>
+
+  <!-- ===================== DiD ④ 假設檢驗 ===================== -->
+  <section id="didassume" class="panel">
+    <h1 data-en="Can we trust this DiD? Five checks">這個 DiD 可不可信？五道體檢</h1>
+    <p class="lead" data-en="DiD rests on <b>parallel trends</b>: absent the policy, the two groups would have moved together. That cannot be proven in the post period, so we are honest about it and run the checks that <b>can</b> be tested — a pre-trend (event-study) check, no anticipation, enough pre-periods and a balanced panel, no spillover, and enough clusters for valid inference. Green = fine, amber = watch out, red = problem.">
+      DiD 依賴<b>平行趨勢</b>：沒有政策時，兩組會一起變。這在政策後本質上無法證明，所以我們誠實說明，
+      並改跑<b>可以檢驗</b>的項目——前期趨勢（事件研究）檢查、無預期、足夠前期與完整面板、無外溢、
+      以及足夠的群集數讓推論可信。綠燈沒問題、黃燈要留意、紅燈有狀況。
+    </p>
+    <div id="didOverall" class="overall hidden"></div>
+    <div id="didAssumeCards" class="assume-cards"></div>
+    <p id="didAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== DiD ⑤ 用 AI 強化 ===================== -->
+  <section id="didml" class="panel">
+    <div class="banner" data-en="⚠ Every number on this page is simulated in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
+    <h1 data-en="How modern methods lend DiD a hand">進階方法怎麼幫「差異中的差異」一把</h1>
+    <p class="lead" data-en="Plain DiD has soft spots: the groups may differ in ways that matter, the policy may roll out at <b>different times</b>, the outcome may be <b>binary/count</b> (so additive parallel trends fail), or there may be only <b>one treated unit</b>. Here are four well-established upgrades — each with the same policy story, each showing where plain DiD breaks and how the upgrade fixes it.">
+      樸素的 DiD 有幾個痛處：兩組可能在要緊的地方就不一樣、政策可能<b>在不同時間</b>陸續上路、結果可能是
+      <b>二元／計數</b>（加法平行趨勢會失效）、或者受處置單位<b>只有一個</b>。下面是四個成熟的進階做法——
+      都用同一個政策故事，各自指出樸素 DiD 在哪裡會壞、進階版怎麼救。
+    </p>
+
+    <div class="cards">
+      <div class="card"><h3 data-en="① Doubly-robust / DML DiD">① 雙重穩健／DML DiD</h3>
+        <p data-en="When the groups differ on covariates that also drive the trend, adjust with <b>two</b> models (propensity + outcome) and stay unbiased if <b>either</b> is right; machine learning estimates them and cross-fitting de-biases.">當兩組在「也影響趨勢」的共變項上不同，用<b>兩個</b>模型（傾向＋結果）調整，<b>其一對</b>就不偏；機器學習估這兩塊、交叉擬合去偏。</p></div>
+      <div class="card"><h3 data-en="② Staggered adoption">② 交錯採用</h3>
+        <p data-en="When units adopt the policy at <b>different times</b>, the classic two-way fixed-effects regression can be biased. Cohort-by-time methods use only not-yet-treated units as clean controls.">當各單位在<b>不同時間</b>採用政策，傳統雙向固定效果迴歸會偏。群組-時間方法只用「還沒受處置」的單位當乾淨對照。</p></div>
+      <div class="card"><h3 data-en="③ Universal DiD (binary / count)">③ Universal DiD（二元／計數）</h3>
+        <p data-en="When the outcome is yes/no or a count, additive parallel trends can fail near 0 or 1. Identify the effect on the <b>odds-ratio</b> scale instead.">當結果是是非或次數，加法平行趨勢在 0 或 1 附近會失效。改在<b>勝算比</b>尺度上辨識效果。</p></div>
+      <div class="card"><h3 data-en="④ Synthetic control / synthetic DiD">④ 合成控制／合成 DiD</h3>
+        <p data-en="When only one (or few) unit is treated, build a <b>weighted blend</b> of control units that matches its pre-policy path, and use that as the counterfactual.">當只有一個（或很少）單位受處置，用控制單位的<b>加權組合</b>擬合它政策前的走勢，當作反事實。</p></div>
+    </div>
+
+    <!-- ① DR / DML -->
+    <h2 data-en="① Doubly-robust / double-machine-learning DiD">① 雙重穩健／雙重機器學習 DiD</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? The two groups don't even start alike">資料長什麼樣子？兩組連起跑點都不一樣</h3>
+      <p data-en="Each dot is a unit's covariate X. The treated (teal) units sit at systematically higher X than the controls (grey) — and the natural over-time change depends on X. So overall the groups were never on parallel paths; a plain DiD blames the policy for a gap that X created. Adjusting for X (with two models, cross-fitted) restores the truth.">
+        每個點是一個單位的共變項 X。介入（青色）單位的 X 系統性地比對照（灰色）高——而隨時間的自然變化又跟 X 有關。
+        所以整體上兩組本來就不在平行的路上；樸素 DiD 會把 X 造成的落差怪到政策頭上。
+        把 X 調整掉（用兩個模型、交叉擬合）就能還原真相。
+      </p>
+      <div id="sceneDidDr" class="chart"></div>
+    </div>
+    <div id="didDrChart" class="chart"></div>
+    <p class="caption" id="didDrReading"></p>
+
+    <!-- ② Staggered -->
+    <h2 data-en="② Staggered adoption (different start times)">② 交錯採用（不同時間上路）</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? Cohorts switch on at different times">資料長什麼樣子？不同世代在不同時間上路</h3>
+      <p data-en="Communities don't all start the policy together: one cohort starts early, another later, some never. The classic two-way fixed-effects regression quietly uses <b>already-treated</b> units as controls for the later ones — and when the effect grows over time, that contaminates the estimate, even flipping its sign. The cohort-by-time fix uses only <b>not-yet-treated</b> units as clean controls.">
+        社區不會同時開始政策：一個世代早開、一個晚開、有些從不開。傳統雙向固定效果迴歸會偷偷拿
+        <b>已經受處置</b>的單位當後來者的對照——當效果隨時間變大，就會被汙染、甚至估出相反方向。
+        群組-時間的修法只用<b>還沒受處置</b>的單位當乾淨對照。
+      </p>
+      <div id="sceneDidStag" class="chart"></div>
+    </div>
+    <div id="didStagChart" class="chart"></div>
+    <p class="caption" id="didStagReading"></p>
+
+    <!-- ③ Universal -->
+    <h2 data-en="③ Universal DiD for binary / count outcomes">③ 二元／計數結果的 Universal DiD</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? A yes/no rate near its ceiling">資料長什麼樣子？逼近天花板的是非比率</h3>
+      <p data-en="Now the outcome is a yes/no event, and the two groups start at very different baseline rates (say 17% vs 55%). Even if time brings the SAME change in odds to both, converting to a risk DIFFERENCE squashes the group near the ceiling — so the lines look non-parallel and additive DiD is biased. Universal DiD works on the odds-ratio scale, which suits binary / count / ordinal outcomes.">
+        現在結果是是非事件，兩組的基準比率差很多（例如 17% vs 55%）。就算時間帶給兩組<b>相同的勝算變化</b>，
+        換算成<b>風險差</b>時，靠近天花板的那組被壓縮——線看起來就不平行，加法 DiD 會偏。
+        Universal DiD 在勝算比尺度上運作，適合二元／計數／順序結果。
+      </p>
+      <div id="sceneDidUniv" class="chart"></div>
+    </div>
+    <div id="didUnivChart" class="chart"></div>
+    <p class="caption" id="didUnivReading"></p>
+
+    <!-- ④ Synthetic control -->
+    <h2 data-en="④ Synthetic control / synthetic DiD">④ 合成控制／合成 DiD</h2>
+    <div class="card scene">
+      <h3 data-en="What does the data look like? One treated unit, many possible controls">資料長什麼樣子？一個受處置單位、許多可能的對照</h3>
+      <p data-en="Sometimes only one unit is treated and no single control matches it. Synthetic control builds a weighted blend of control units that tracks the treated unit's pre-policy path; apply the same weights afterwards and you get the counterfactual &quot;what would have happened&quot;. The gap after the policy is the effect.">
+        有時只有一個單位受處置，而且找不到單一條件相符的對照。合成控制用一堆控制單位的加權組合，
+        去擬合受處置單位在政策前的走勢；政策後套用同一組權重，就得到「假如沒政策會怎樣」的反事實。
+        政策後拉開的落差就是效果。
+      </p>
+      <div id="didSynthChart" class="chart"></div>
+    </div>
+    <p class="caption" id="didSynthReading"></p>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="IV vs RDD: two designs for the same question — which to use?">IV 與 RDD：回答同一問題的兩種設計，該用哪個？</h1>
@@ -923,11 +1148,18 @@
       <li>Wang, Q. (n.d.). <i>The Difference Between Conventional Double Machine Learning and Sharp Regression Discontinuity Design.</i> <span data-en="〔DML for RDD; robustness to bandwidth / window choice — RDD tab ⑤ Remedy 1〕">〔RDD 的雙重機器學習；對頻寬／視窗選擇的穩健性 —— RDD 分頁⑤ 藥方一〕</span></li>
       <li>Schuessler, M., Sverdrup, E., Tibshirani, J., &amp; Wager, S. (2026). <i>Nonparametric Regression Discontinuity Designs with Survival Outcomes.</i> Stanford University. arXiv:2604.03502. <span data-en="〔doubly-robust censoring correction with flexible ML — RDD tab ⑤ Remedy 2〕">〔以彈性機器學習做雙重穩健的設限校正 —— RDD 分頁⑤ 藥方二〕</span></li>
       <li>Adeleke, M. O., Baio, G., &amp; O&#39;Keeffe, A. G. (2022). Regression discontinuity designs for time-to-event outcomes: An approach using accelerated failure time models. <i>Journal of the Royal Statistical Society: Series A, 185</i>(3), 1216. https://doi.org/10.1111/rssa.12812. <span data-en="〔purely parametric AFT approach for RDD survival — RDD tab ⑤ Remedy 2〕">〔RDD 存活的純參數 AFT 取徑 —— RDD 分頁⑤ 藥方二〕</span></li>
+      <li>Rothbard, S., Etheridge, J. C., &amp; Murray, E. J. (2024). A Tutorial on Applying the Difference-in-Differences Method to Health Data. <i>Current Epidemiology Reports, 11</i>, 85–95. https://doi.org/10.1007/s40471-023-00327-x. <span data-en="〔DiD basics, assumptions &amp; synthetic data — DiD tabs ①–④〕">〔DiD 基礎、假設與合成資料 —— DiD 分頁 ①–④〕</span></li>
+      <li>Chang, N.-C. (2020). Double/debiased machine learning for difference-in-differences models. <i>The Econometrics Journal, 23</i>(2), 177–191. https://doi.org/10.1093/ectj/utaa001. <span data-en="〔doubly-robust / DML DiD — DiD tab ⑤ remedy ①〕">〔雙重穩健／DML DiD —— DiD 分頁⑤ 進階①〕</span></li>
+      <li>Callaway, B., &amp; Sant&#39;Anna, P. H. C. (2021). Difference-in-Differences with multiple time periods. <i>Journal of Econometrics, 225</i>(2), 200–230. <span data-en="〔staggered adoption, cohort-time ATT — DiD tab ⑤ remedy ②〕">〔交錯採用、群組-時間 ATT —— DiD 分頁⑤ 進階②〕</span></li>
+      <li>Goodman-Bacon, A. (2021). Difference-in-Differences with variation in treatment timing. <i>Journal of Econometrics, 225</i>(2), 254–277. <span data-en="〔why two-way fixed effects can be biased under staggered timing — DiD tab ⑤ remedy ②〕">〔交錯時點下雙向固定效果為何會偏 —— DiD 分頁⑤ 進階②〕</span></li>
+      <li>Tchetgen Tchetgen, E. J., Park, C., &amp; Richardson, D. B. (2024). Universal Difference-in-Differences for Causal Inference in Epidemiology. <i>Epidemiology, 35</i>(1), 16–22. https://doi.org/10.1097/EDE.0000000000001676. <span data-en="〔odds-ratio-scale DiD for binary/count outcomes — DiD tab ⑤ remedy ③〕">〔二元/計數結果的勝算比尺度 DiD —— DiD 分頁⑤ 進階③〕</span></li>
+      <li>Haddad, M. F. C., Huber, M., Medina-Reyes, J. E., &amp; Zhang, L. Z. (2025). Difference-in-Differences with Time-varying Continuous Treatments Using Double/Debiased Machine Learning. <i>arXiv</i>:2410.21105. <span data-en="〔DML DiD for continuous, time-varying treatments — DiD tab ⑤〕">〔連續、時變處置的 DML DiD —— DiD 分頁⑤〕</span></li>
+      <li>Abadie, A., Diamond, A., &amp; Hainmueller, J. (2010). Synthetic Control Methods for Comparative Case Studies. <i>Journal of the American Statistical Association, 105</i>(490), 493–505. <span data-en="〔synthetic control / synthetic DiD — DiD tab ⑤ remedy ④〕">〔合成控制／合成 DiD —— DiD 分頁⑤ 進階④〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="i18n.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
