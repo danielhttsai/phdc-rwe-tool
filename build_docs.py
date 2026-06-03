@@ -63,6 +63,11 @@ def _copy_assets():
     shutil.copyfile(os.path.join(FRONTEND, "styles.css"), os.path.join(DOCS, "styles.css"))
     shutil.copyfile(os.path.join(WEB, "pyodide-bridge.js"), os.path.join(DOCS, "pyodide-bridge.js"))
 
+    # 靜態資產(logo 等):整個 frontend/assets 目錄原樣複製到 docs/assets
+    assets_src = os.path.join(FRONTEND, "assets")
+    if os.path.isdir(assets_src):
+        shutil.copytree(assets_src, os.path.join(DOCS, "assets"))
+
     for name in BACKEND_PY:
         shutil.copyfile(os.path.join(BACKEND, name), os.path.join(DOCS, "py", name))
     shutil.copyfile(os.path.join(WEB, "api.py"), os.path.join(DOCS, "py", "api.py"))

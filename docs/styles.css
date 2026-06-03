@@ -46,8 +46,10 @@ b { color: #0b1020; }
 .lang-toggle::before { content: "🌐 "; }
 .lang-toggle:hover { filter: brightness(1.08); }
 .topbar .tabs { order: 3; flex-basis: 100%; }
-.brand { font-weight: 800; font-size: 1.15rem; letter-spacing: .5px; }
+.brand { font-weight: 800; font-size: 1.15rem; letter-spacing: .5px; display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
 .brand span { color: var(--z); }
+.brand-logo { height: 40px; width: auto; display: block; flex: 0 0 auto; }
+@media (max-width: 520px) { .brand-logo { height: 32px; } }
 .tabs { display: flex; gap: .4rem; margin-top: .6rem; flex-wrap: wrap; }
 .tab {
   border: 1px solid var(--line); background: #fff; color: var(--muted);

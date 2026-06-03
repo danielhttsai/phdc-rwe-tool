@@ -25,6 +25,7 @@
     o.id = "pyloader";
     o.innerHTML =
       '<div class="pyloader-box">' +
+      '<div class="pyloader-logo"><img src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" /></div>' +
       '<div class="pyloader-title">準實驗<span>工具箱</span></div>' +
       '<div class="pyloader-msg" id="pyloader-msg">啟動中…</div>' +
       '<div class="pyloader-track"><div class="pyloader-bar" id="pyloader-bar"></div></div>' +
@@ -35,6 +36,8 @@
       "#pyloader{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;" +
       "background:#0f172a;color:#e2e8f0;transition:opacity .5s ease;font-family:system-ui,'Noto Sans TC',sans-serif}" +
       ".pyloader-box{max-width:460px;width:86%;text-align:center;padding:2rem}" +
+      ".pyloader-logo{margin:0 auto 1.4rem;display:inline-block;background:#fff;border-radius:14px;padding:.8rem 1rem;box-shadow:0 6px 20px rgba(0,0,0,.35)}" +
+      ".pyloader-logo img{height:72px;width:auto;display:block}" +
       ".pyloader-title{font-size:1.5rem;font-weight:800;margin-bottom:1.2rem;letter-spacing:.5px}" +
       ".pyloader-title span{color:#2dd4bf}" +
       ".pyloader-msg{font-size:1rem;margin-bottom:1rem;min-height:1.4em}" +
