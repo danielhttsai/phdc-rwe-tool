@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>準實驗工具箱 Quasi-experimental Toolbox：IV · RDD · DiD · TiT · ITS · PERR</title>
-<link rel="stylesheet" href="styles.css?v=22" />
+<link rel="stylesheet" href="styles.css?v=23" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js"></script>
@@ -370,6 +370,11 @@
       </p>
     </div>
 
+    <div class="card scene">
+      <h3 data-en="How it works — the cross-fitting rotation">怎麼做 —— 交叉擬合的輪替</h3>
+      <div id="ivCfDiagram" class="chart"></div>
+    </div>
+
     <div class="card info">
       <h3 data-en="Live demo: the same AI model, two ways of using it">現場示範：同一個 AI 模型，兩種用法</h3>
       <p data-en="Below we use a model that really does &quot;memorise answers&quot; — a <b>random forest</b> — as the first stage, and run it twice on the <b>same data</b>, the only difference being whether the safety belt is on. Click to run (training the model takes a few seconds):">
@@ -663,6 +668,10 @@
     <!-- 藥方一 -->
     <h2 data-en="Remedy 1: a window-robust estimate with double machine learning">藥方一：用雙重機器學習做「不挑視窗」的估計</h2>
     <div class="card scene">
+      <h3 data-en="How it works — cross-fitting (out-of-fold prediction)">怎麼做 —— 交叉擬合（離折預測）</h3>
+      <div id="rddCfDiagram" class="chart"></div>
+    </div>
+    <div class="card scene">
       <h3 data-en="What does the data look like? A sloped trend with a small jump at 65">資料長什麼樣子？一條有斜率的趨勢、在 65 歲處有一個小跳階</h3>
       <p data-en="x is age, y is the outcome. There is a clear <b>upward trend with age</b> on both sides, plus a small <b>jump</b> right at 65 (the dotted line) — that jump is the real effect we want. The trouble: outcome already rises with age, so if you open a <b>wide window</b> (amber band) and just compare left-grey vs right-teal averages, the age trend <b>inflates</b> the jump. DML subtracts the trend first, so the estimate stays honest even with a wide window.">
         橫軸是年齡、縱軸是結果。兩側都有明顯的<b>隨年齡上升的趨勢</b>，再加上 65 歲（虛線）處一個小<b>跳階</b>
@@ -733,6 +742,10 @@
 
     <!-- 藥方二 -->
     <h2 data-en="Remedy 2: flexible ML for a censored survival outcome">藥方二：用彈性 ML 處理帶設限的存活結果</h2>
+    <div class="card scene">
+      <h3 data-en="How it works — the doubly-robust pairing (two safety nets)">怎麼做 —— 雙重穩健的搭配（兩道保險）</h3>
+      <div id="rddDrDiagram" class="chart"></div>
+    </div>
     <div class="card scene">
       <h3 data-en="What does the data look like? Each person is a timeline that may be cut short">資料長什麼樣子？每個人是一條可能被中途切斷的時間線</h3>
       <p data-en="Each horizontal line is one person, followed from left to right. A <b>red dot</b> = the event happened (we see the true time). An <b>open tick</b> = follow-up ended first, so we only know &quot;no event yet&quot; (<b>censored</b>). The catch: the <b>amber (frail)</b> people tend to be censored <b>earlier</b> than the grey ones — censoring is <b>not random</b>, it depends on who you are. Ignore that and the answer is biased; IPCW and the doubly-robust model are how AI corrects for it.">
@@ -990,6 +1003,16 @@
       </p>
     </div>
 
+    <h2 data-en="The AI remedy: double / debiased machine learning (DML)">AI 藥方：雙重／去偏機器學習（DML）</h2>
+    <div class="card scene">
+      <h3 data-en="How it works ① — the doubly-robust score (two safety nets)">怎麼做 ① —— 雙重穩健分數（兩道保險）</h3>
+      <div id="didDrDiagram" class="chart"></div>
+    </div>
+    <div class="card scene">
+      <h3 data-en="How it works ② — cross-fitting (so ML can't grade its own homework)">怎麼做 ② —— 交叉擬合（讓 ML 不能替自己評分）</h3>
+      <div id="didCfDiagram" class="chart"></div>
+    </div>
+
     <button id="runDidDml" class="btn primary" data-en="Run the real ML estimator (first run loads the ML package, ~5–10 sec)">跑真正的 ML 估計（首次需載入 ML 套件，約 5–10 秒）</button>
     <div id="didDmlOut" class="hidden">
       <div id="didDmlChart" class="chart"></div>
@@ -1162,9 +1185,9 @@
     </div>
 
     <div class="card info">
-      <h3 data-en="So could AI help here? Honestly: we don't know — but plausibly…">那 AI 在這裡幫得上忙嗎？老實說：不知道——但有可能…</h3>
-      <p data-en="The following are <b>our cautious speculation</b>, not results from any paper. Treat them as research directions, not recommendations:">
-        以下是<b>我們謹慎的推測</b>，不是任何論文的結果。請當成研究方向，而非建議：
+      <h3 data-en="Are there any possible AI remedies here? Honestly: we don't know — but plausibly…">有沒有可能的「AI 藥方」？老實說：不知道——但有可能…</h3>
+      <p data-en="The following are <b>our cautious speculation</b> (possible remedies, not established ones), not results from any paper. Treat them as research directions, not recommendations:">
+        以下是<b>我們謹慎的推測</b>（可能的藥方，不是成熟的藥方），不是任何論文的結果。請當成研究方向，而非建議：
       </p>
     </div>
 
@@ -1381,6 +1404,12 @@
       </p>
     </div>
 
+    <h2 data-en="The AI remedy: the ML two-stage counterfactual (Dey 2025)">AI 藥方：ML 兩階段反事實（Dey 2025）</h2>
+    <div class="card scene">
+      <h3 data-en="How it works — train on the past, forecast the counterfactual">怎麼做 —— 用過去訓練、預測反事實</h3>
+      <div id="itsTwoStageDiagram" class="chart"></div>
+    </div>
+
     <button id="runItsMlcf" class="btn primary" data-en="Run the real ML estimator (first run loads the ML package, ~5–10 sec)">跑真正的 ML 估計（首次需載入 ML 套件，約 5–10 秒）</button>
     <div id="itsMlcfOut" class="hidden">
       <div id="itsMlcfChart" class="chart"></div>
@@ -1574,7 +1603,7 @@
     <p class="caption" id="perrScaleReading"></p>
 
     <div class="card info">
-      <h3 data-en="Could AI help here? Honestly: we don't know — but plausibly…">那 AI 幫得上忙嗎？老實說：不知道——但有可能…</h3>
+      <h3 data-en="Are there any possible AI remedies here? Honestly: we don't know — but plausibly…">有沒有可能的「AI 藥方」？老實說：不知道——但有可能…</h3>
       <p data-en="The following are <b>our cautious speculation</b>, not results from any paper: ① an ML model for the prior-period rate could sharpen the confounding fingerprint; ② a doubly-robust score pairing a treatment model with an outcome model <i>might</i> reduce reliance on the time-invariance assumption, if a valid orthogonal score can be derived for this design; ③ an E-value-style sensitivity analysis could quantify how much time-variation in confounding would explain the result away. All unvalidated for PERR. Until then, the honest move is the classical estimator in tabs ②–④, reported transparently with the scale sensitivity above.">
         以下是<b>我們謹慎的推測</b>，不是任何論文的結果：① 用 ML 估事前期率，<b>或許</b>能讓混淆指紋更鋭利；
         ② 把處置模型與結果模型配成一條雙重穩健分數，<i>或許</i>能減少對時間不變假設的依賴——前提是能為此設計
@@ -1616,7 +1645,7 @@
         </li>
         <li data-en="<b>Most can be boosted by the same ML ideas (tab ⑤).</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt — though for TiT and PERR the literature has no AI version yet, and we say so honestly.">
           <b>多數都能用同一套 ML 想法強化（⑤）。</b>用彈性模型處理輔助部分、用交叉擬合當安全帶——
-          不過 TiT 與 PERR 的文獻目前沒有 AI 版本，我們也誠實說明。
+          不過 TiT 與 PERR 的文獻目前沒有現成的 AI 藥方，我們也誠實說明。
         </li>
       </ul>
     </div>
@@ -1787,7 +1816,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=22"></script>
-<script src="app.js?v=22"></script>
+<script src="i18n.js?v=23"></script>
+<script src="app.js?v=23"></script>
 </body>
 </html>

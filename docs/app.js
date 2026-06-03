@@ -318,6 +318,91 @@ function sceneLayout(extra) {
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// Mechanism schematics for the ⑤ "AI remedies": small box-and-arrow diagrams
+// that show HOW each advanced method actually works — cross-fitting, the
+// doubly-robust (AIPW) score, and the two-stage counterfactual. Drawn with
+// Plotly so they share the unified fonts and re-render bilingually on language
+// flip. Reused across IV ⑤, RDD ⑤, DiD ⑤ and ITS ⑤.
+// ---------------------------------------------------------------------------
+const SCHEMA_PURPLE = "#7c3aed", SCHEMA_SLATE = "#64748b";
+const SCHEMA_DUMMY = [{ x: [0], y: [0], mode: "markers", marker: { opacity: 0 }, hoverinfo: "skip" }];
+const _box = (x0, y0, x1, y1, fill, line) =>
+  ({ type: "rect", x0, y0, x1, y1, fillcolor: fill, line: { color: line, width: 1.5 }, layer: "below" });
+const _lbl = (x, y, text, color, size) =>
+  ({ x, y, text, showarrow: false, align: "center", font: { size: size || 11, color: color || INK } });
+const _arrow = (x0, y0, x1, y1) =>
+  ({ x: x1, y: y1, ax: x0, ay: y0, xref: "x", yref: "y", axref: "x", ayref: "y",
+     text: "", showarrow: true, arrowhead: 3, arrowsize: 1.1, arrowwidth: 2, arrowcolor: SCHEMA_SLATE });
+const schemaLayout = (extra) => sceneLayout(Object.assign({
+  height: 240, margin: { t: 26, r: 12, b: 10, l: 12 },
+  xaxis: { visible: false, range: [0, 10], fixedrange: true },
+  yaxis: { visible: false, range: [0, 10], fixedrange: true },
+}, extra || {}));
+
+// cross-fitting: K folds, each predicted by a model trained on the OTHER folds
+function drawCrossfit(elId) {
+  if (!document.getElementById(elId)) return;
+  const segX = [[1.0, 4.0], [4.1, 6.8], [6.9, 9.7]];
+  const rows = [{ y: [6.7, 8.3], hold: 2 }, { y: [3.9, 5.5], hold: 1 }, { y: [1.1, 2.7], hold: 0 }];
+  const shapes = [], anns = [];
+  rows.forEach((r, ri) => {
+    segX.forEach((sx, si) => {
+      const held = si === r.hold;
+      shapes.push(_box(sx[0], r.y[0], sx[1], r.y[1], held ? "#fde9c8" : "#d7f0ec", held ? "#f59e0b" : TEAL));
+      anns.push(_lbl((sx[0] + sx[1]) / 2, (r.y[0] + r.y[1]) / 2,
+        held ? tr("預測這折", "predict") : tr("學模型", "train"), held ? "#9a3412" : "#0f766e", 11));
+    });
+    anns.push(Object.assign(_lbl(0.85, (r.y[0] + r.y[1]) / 2, tr("第 " + (ri + 1) + " 輪", "round " + (ri + 1)), SCHEMA_SLATE, 10), { xanchor: "right" }));
+  });
+  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({
+    height: 232, margin: { t: 30, r: 12, b: 8, l: 52 }, shapes, annotations: anns,
+    title: { text: tr("交叉擬合：每折的預測，都來自「沒看過它」的模型 → 不自我膨脹（去偏）",
+                      "Cross-fitting: each fold is predicted by a model that never saw it → no self-flattery (debiased)"),
+             font: { size: 12 }, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
+}
+
+// doubly-robust / AIPW: two nuisance models, unbiased if EITHER is right
+function drawDoublyRobust(elId) {
+  if (!document.getElementById(elId)) return;
+  const shapes = [
+    _box(0.2, 6.3, 4.5, 9.4, "#d7f0ec", TEAL),
+    _box(0.2, 1.7, 4.5, 4.8, "#ece5fc", SCHEMA_PURPLE),
+    _box(5.5, 4.2, 7.8, 7.0, "#fff4d6", "#f59e0b"),
+    _box(8.5, 4.6, 9.9, 6.6, "#dcfce7", "#16a34a"),
+  ];
+  const anns = [
+    _lbl(2.35, 7.85, tr("① 傾向分數模型<br>誰比較會受處置", "① Propensity model<br>who tends to be treated"), "#0f766e", 11),
+    _lbl(2.35, 3.25, tr("② 結果模型<br>對照組會怎麼自然變", "② Outcome model<br>how controls would drift"), "#6d28d9", 11),
+    _lbl(6.65, 5.6, tr("雙重穩健分數<br>（AIPW）", "Doubly-robust<br>score (AIPW)"), "#9a3412", 11),
+    _lbl(9.2, 5.6, tr("效果<br>估計", "Effect<br>estimate"), "#15803d", 11),
+    _arrow(4.5, 7.8, 5.5, 6.2), _arrow(4.5, 3.3, 5.5, 5.0), _arrow(7.8, 5.6, 8.5, 5.6),
+    _lbl(5.0, 0.7, tr("只要 ① 或 ② 其中一個對 → 估計就不偏（兩道保險）；兩個都用彈性 ML ＋交叉擬合會更穩。",
+                      "If EITHER ① or ② is right → unbiased (two safety nets); flexible ML + cross-fitting makes both sturdier."), INK, 10.5),
+  ];
+  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({ height: 252, shapes, annotations: anns }), SCENE_CFG);
+}
+
+// two-stage counterfactual: train on the pre period, forecast the no-intervention line
+function drawTwoStage(elId) {
+  if (!document.getElementById(elId)) return;
+  const shapes = [
+    _box(0.2, 5.4, 3.2, 9.2, "#d7f0ec", TEAL),
+    _box(3.9, 5.4, 6.9, 9.2, "#ece5fc", SCHEMA_PURPLE),
+    _box(7.5, 5.4, 9.9, 9.2, "#dcfce7", "#16a34a"),
+  ];
+  const anns = [
+    _lbl(1.7, 7.3, tr("第一階段<br>用「介入前」資料<br>訓練 ML 預測結果", "Stage 1<br>train ML on the<br>pre-intervention data"), "#0f766e", 11),
+    _lbl(5.4, 7.3, tr("第二階段<br>丟入介入後的共變項<br>→ 預測「沒介入會怎樣」", "Stage 2<br>feed the post covariates<br>→ predict the counterfactual"), "#6d28d9", 11),
+    _lbl(8.7, 7.3, tr("效果 =<br>實際觀測<br>− 預測反事實", "Effect =<br>observed<br>− predicted CF"), "#15803d", 11),
+    _arrow(3.2, 7.3, 3.9, 7.3), _arrow(6.9, 7.3, 7.5, 7.3),
+    _lbl(5.0, 3.0, tr("模型只看得到「介入前」，所以介入後的跳變不會被模型自己吃掉。",
+                      "The model only ever sees the pre period, so the post-intervention jump isn't absorbed by the model itself."), INK, 10.5),
+  ];
+  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({ height: 242, shapes, annotations: anns }), SCENE_CFG);
+}
+
 // scene 1 (IV remedy 1): one weak instrument — two barely-separated clouds
 function drawSceneWeak() {
   if (!document.getElementById("sceneWeak")) return;
@@ -487,6 +572,7 @@ function initMl() {
   mlReady = true;
   drawIvScenes();
   refreshSynthesis();
+  drawCrossfit("ivCfDiagram");
 }
 
 function scheduleSynthesis() {
@@ -1005,6 +1091,8 @@ function initRddMl() {
   rddMlReady = true;
   drawRddScenes();
   refreshRddDml();
+  drawCrossfit("rddCfDiagram");
+  drawDoublyRobust("rddDrDiagram");
 }
 function scheduleRddDml() {
   document.getElementById("rddDmlWinVal").textContent = Number(rddDmlWindow.value).toFixed(1);
@@ -1820,7 +1908,12 @@ function renderDidAssumptions(out) {
 }
 
 // ---- ⑤ boost: the ONE real-ML estimator (DML), button-gated (loads sklearn) ----
-function initDidMl() { didMlReady = true; if (state.didDml) renderDidDml(state.didDml); }
+function initDidMl() {
+  didMlReady = true;
+  drawDoublyRobust("didDrDiagram");
+  drawCrossfit("didCfDiagram");
+  if (state.didDml) renderDidDml(state.didDml);
+}
 function renderDidDml(d) {
   document.getElementById("didDmlOut").classList.remove("hidden");
   didBarsInto("didDmlChart", d.bars);
@@ -2288,7 +2381,11 @@ function renderItsAssumptions(out) {
 }
 
 // ---- ⑤ boost: the ONE real-ML estimator (ML two-stage counterfactual), button-gated ----
-function initItsMl() { itsMlReady = true; if (state.itsMlcf) renderItsMlcf(state.itsMlcf); }
+function initItsMl() {
+  itsMlReady = true;
+  drawTwoStage("itsTwoStageDiagram");
+  if (state.itsMlcf) renderItsMlcf(state.itsMlcf);
+}
 function renderItsMlcf(d) {
   document.getElementById("itsMlcfOut").classList.remove("hidden");
   didBarsInto("itsMlcfChart", d.bars);
@@ -2607,7 +2704,7 @@ window.addEventListener("iv-lang", async () => {
       runAssumptions(req);
     } catch (e) { /* ignore */ }
   }
-  if (mlReady) { drawIvScenes(); refreshSynthesis(); } // ML scenes + synthesis
+  if (mlReady) { drawIvScenes(); refreshSynthesis(); drawCrossfit("ivCfDiagram"); } // ML scenes + synthesis + schematic
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
@@ -2624,7 +2721,7 @@ window.addEventListener("iv-lang", async () => {
     }
   }
   if (rddAssumeReady) runRddAssumptions(rddState.req);  // RDD ④ assumptions (backend text)
-  if (rddMlReady) { drawRddScenes(); refreshRddDml(); } // RDD ⑤ scenes + DML window-robustness
+  if (rddMlReady) { drawRddScenes(); refreshRddDml(); drawCrossfit("rddCfDiagram"); drawDoublyRobust("rddDrDiagram"); } // RDD ⑤ scenes + DML + schematics
   if (state.rddSurvMl) {                                // RDD ⑤ survival (backend text)
     try {
       const d = await getJSON(`${API}/api/rdd_ml_survival?lang=${lang()}`);
@@ -2635,6 +2732,7 @@ window.addEventListener("iv-lang", async () => {
   if (didPlayReady) refreshDidPlay();                  // DiD ② interactive
   if (didAnalyzeReady) runDidAnalyze();                // DiD ③ analysis + dashboard
   else if (didAssumeReady) runDidAssumptions(didState.req);
+  if (didMlReady) { drawDoublyRobust("didDrDiagram"); drawCrossfit("didCfDiagram"); } // DiD ⑤ schematics
   if (state.didDml) renderDidDml(state.didDml);        // DiD ⑤ real DML (re-render cached)
   if (titLearnReady) drawSceneTitFan();                // TiT ① learn scene
   if (titPlayReady) refreshTitPlay();                  // TiT ② interactive
@@ -2644,6 +2742,7 @@ window.addEventListener("iv-lang", async () => {
   if (itsPlayReady) refreshItsPlay();                  // ITS ② interactive
   if (itsAnalyzeReady) runItsAnalyze();                // ITS ③ analysis + dashboard
   else if (itsAssumeReady) runItsAssumptions(itsState.req);
+  if (itsMlReady) drawTwoStage("itsTwoStageDiagram");  // ITS ⑤ schematic
   if (state.itsMlcf) renderItsMlcf(state.itsMlcf);     // ITS ⑤ real ML counterfactual (re-render cached)
   if (perrLearnReady) drawScenePerr();                 // PERR ① learn scene
   if (perrPlayReady) refreshPerrPlay();                // PERR ② interactive
