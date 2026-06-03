@@ -25,10 +25,10 @@
     o.id = "pyloader";
     o.innerHTML =
       '<div class="pyloader-box">' +
-      '<div class="pyloader-title">工具變數 <span>IV</span> 線上工具</div>' +
+      '<div class="pyloader-title">準實驗<span>工具箱</span></div>' +
       '<div class="pyloader-msg" id="pyloader-msg">啟動中…</div>' +
       '<div class="pyloader-track"><div class="pyloader-bar" id="pyloader-bar"></div></div>' +
-      '<div class="pyloader-note">第一次開啟需下載運算核心(約 20–40 MB),請稍候;之後會被瀏覽器快取。</div>' +
+      '<div class="pyloader-note">第一次開啟需下載運算核心,請稍候;之後會被瀏覽器快取。</div>' +
       "</div>";
     var css = document.createElement("style");
     css.textContent =
