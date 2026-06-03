@@ -43,6 +43,16 @@
       最直覺的做法是「把有打疫苗的人和沒打的人直接比較」——但這會被誤導。
     </p>
 
+    <div class="card info">
+      <h3 data-en="Break the name apart: &quot;instrumental variable&quot;">把名字拆開來看：「工具變數」</h3>
+      <p data-en="<b>Variable</b> just means a measured column in your data — here, &quot;did this person receive a random reminder?&quot;. <b>Instrument</b> is a metaphor: think of a <b>lever (or crowbar)</b> you can push from the outside. Pushing the lever moves <b>whether someone gets vaccinated</b>, but the lever itself <b>never touches health directly</b> — its only path to health is through vaccination. Because it nudges the treatment but is otherwise unrelated to the outcome, you can use it to <b>pry the causal effect of vaccination out</b> from under all the confounders. A variable that works like that lever is an &quot;instrumental variable&quot;.">
+        <b>變數</b>就是資料裡一欄會變動的量——這裡是「這個人有沒有收到隨機提醒」。<b>工具（instrument）</b>是個比喻：
+        把它想成一支你能從外面推的<b>槓桿（或撬棒）</b>。推這支槓桿會去動「<b>這個人要不要接種</b>」，但槓桿本身
+        <b>不會直接碰到健康</b>——它唯一通往健康的路，是<b>透過接種</b>。正因為它只推得動處置、又跟結果沒有別的牽連，
+        你才能用它把「接種→健康」的因果，從一堆干擾因子底下<b>撬</b>出來。像這支槓桿一樣運作的變數，就叫工具變數。
+      </p>
+    </div>
+
     <div class="card warn">
       <h3 data-en="Why can't we just compare them?">為什麼不能直接比較？</h3>
       <p data-en="People who go and get vaccinated on their own may already be more health-conscious, more willing to exercise, and more likely to see a doctor regularly. So if they end up healthier, it is <b>not necessarily thanks to the vaccine</b> — an unseen <b>confounder</b>, &quot;health consciousness&quot;, affects both sides at once. A direct comparison <b>overstates</b> the true effect.">
@@ -413,6 +423,16 @@
     </p>
 
     <div class="card info">
+      <h3 data-en="Break the name apart: &quot;regression discontinuity&quot;">把名字拆開來看：「斷點回歸」</h3>
+      <p data-en="<b>Regression</b> means fitting a line (or curve) that best describes how the outcome changes with some score — here, how the health score changes with <b>age</b>. <b>Discontinuity</b> (the &quot;cutoff / break point&quot;) is the rule line on that score (age 65) where eligibility suddenly switches. The trick: fit <b>one regression line just below 65 and another just above</b>, and look at whether the two lines <b>break apart — jump — at the cutoff</b>. That vertical gap (the discontinuity) is the effect. So &quot;regression discontinuity&quot; = fit regressions on each side of a cutoff and read the jump at the break.">
+        <b>回歸（regression）</b>＝用資料配出一條最能描述「結果如何隨某個分數變化」的<b>線</b>（或曲線）——
+        這裡是健康分數如何隨<b>年齡</b>變化。<b>斷點（discontinuity，不連續／切點）</b>＝那條分數上的規則線（65 歲），
+        一跨過去資格就突然改變。做法：在 65 歲<b>下方配一條回歸線、上方再配一條</b>，看這兩條線在切點處
+        <b>會不會斷開、跳一下</b>。那個垂直落差（不連續）就是效果。所以「斷點回歸」＝在斷點兩側各做回歸、量斷點處的跳幅。
+      </p>
+    </div>
+
+    <div class="card info">
       <h3 data-en="The plain-language idea">先用白話想一遍</h3>
       <p data-en="Picture everyone lined up by age. People at 64.9 and people at 65.1 are <b>almost identical</b> — same habits, same health consciousness (the unseen confounder that fooled us before). The ONLY thing that suddenly differs at 65 is <b>programme eligibility</b>. So if health outcomes <b>jump</b> right at 65, that jump must come from the programme, not from confounders — because the confounders don't jump at a birthday.">
         想像大家按年齡排成一排。64.9 歲和 65.1 歲的人<b>幾乎一模一樣</b>——習慣一樣、
@@ -778,6 +798,18 @@
       </p>
     </div>
 
+    <div class="card info">
+      <h3 data-en="Break the name apart: which two &quot;differences&quot;?">把名字拆開來看：到底是哪兩個「差異」？</h3>
+      <p data-en="The name is &quot;difference <b>in</b> differences&quot; — there are two differences, then we difference them once more:">
+        名字是「差異<b>中</b>的差異」——先有兩個差異，再把這兩個差異<b>相減</b>一次：
+      </p>
+      <ul>
+        <li data-en="<b>Difference ①</b> = the treated group's own <b>after − before</b> change (a before/after difference)."><b>差異①</b>＝介入組<b>自己的</b>「後 − 前」變化（一個前後差異）。</li>
+        <li data-en="<b>Difference ②</b> = the control group's own <b>after − before</b> change (another before/after difference)."><b>差異②</b>＝對照組<b>自己的</b>「後 − 前」變化（另一個前後差異）。</li>
+        <li data-en="<b>The difference-in-differences</b> = Difference ① − Difference ②. Subtracting cancels the common over-time trend (in both) and the fixed gap between groups, leaving the policy effect."><b>差異中的差異</b>＝差異① − 差異②。一相減，就把「共同的時代趨勢」（兩組都有）和「組間固定落差」一起消掉，剩政策效果。</li>
+      </ul>
+    </div>
+
     <div class="card scene">
       <h3 data-en="What does the data look like? Two lines that move in parallel — until the policy">資料長什麼樣子？兩條原本平行的線——直到政策上路</h3>
       <p data-en="Each line is a group's average outcome over time. Before the policy (left of the dotted line) the two lines climb in <b>parallel</b> — same slope, just a fixed gap apart. At the cutoff the policy switches on for the teal (treated) group, and its line <b>jumps above</b> where the parallel path would have taken it. That extra gap — the teal line minus its own dashed &quot;what-if-no-policy&quot; continuation — is the DiD effect.">
@@ -984,6 +1016,18 @@
       </p>
     </div>
 
+    <div class="card info">
+      <h3 data-en="Break the name apart: which two &quot;trends&quot;?">把名字拆開來看：到底是哪兩個「趨勢」？</h3>
+      <p data-en="The name is &quot;trend <b>in</b> trend&quot; — it watches whether one trend follows another:">
+        名字是「趨勢<b>中</b>的趨勢」——它看的是「一個趨勢會不會跟著另一個趨勢走」：
+      </p>
+      <ul>
+        <li data-en="<b>Trend ①: the exposure trend.</b> Vaccine uptake rises over calendar time — and rises <b>faster in some groups (CPE strata) than others</b>."><b>趨勢①：暴露的趨勢。</b>接種率隨日曆時間上升——而且在<b>某些族群（CPE 層）漲得比別層快</b>。</li>
+        <li data-en="<b>Trend ②: the outcome trend.</b> The adverse-event rate also changes over time in each group."><b>趨勢②：結果的趨勢。</b>不良事件率在每一層也隨時間變化。</li>
+        <li data-en="<b>Trend-in-trend</b> asks: does the outcome trend <b>track</b> the exposure trend? If the event rate climbs faster exactly where uptake climbs faster, that lock-step between the two trends is the causal signal — and it's hard for a fixed confounder to fake, because fixed things don't suddenly start trending."><b>趨勢中的趨勢</b>問：結果的趨勢會不會<b>跟著</b>暴露的趨勢走？如果在接種率漲得快的層、事件率也漲得快，這兩個趨勢的「同步」就是因果訊號——而且固定的混淆很難假裝，因為固定的東西不會突然開始有趨勢。</li>
+      </ul>
+    </div>
+
     <div class="card scene">
       <h3 data-en="What does the data look like? Uptake fans out across strata over time">資料長什麼樣子？各層的接種率隨時間「扇形」散開</h3>
       <p data-en="Each line is one CPE stratum's vaccine-uptake rate over calendar time. They all start low, then fan out — the high-propensity strata (teal) climb steeply, the low ones (grey) stay flat. Trend-in-trend reads the causal effect from whether the outcome rate fans out in the SAME pattern. The whole method needs this fanning-out to be strong; a flat, non-trending vaccine gives it nothing to work with.">
@@ -1158,6 +1202,16 @@
         想像某縣市的每月健康負擔指數，兩年來緩緩上升。然後一個計畫上路。如果指數在那個月突然<b>下降</b>、
         之後又<b>下降得比以前快</b>，這個「斷裂」就是介入留下的足跡——前提是：要不是有介入，這條線本來會
         繼續沿著舊路走。整個方法的成敗，就押在那條外推的虛線，是不是『沒介入的未來』的公正猜測。
+      </p>
+    </div>
+
+    <div class="card info">
+      <h3 data-en="Break the name apart: what gets &quot;interrupted&quot;?">把名字拆開來看：「中斷」是中斷了什麼？</h3>
+      <p data-en="<b>Time series</b> = one outcome recorded at many equally-spaced time points (a monthly health-burden index), forming a line over time. <b>Interrupted</b> = at a known moment the intervention <b>cuts into that ongoing line like a pair of scissors</b> — it interrupts the trend that was already running. The whole method is just: look at the series right at that interruption and ask whether it <b>jumps (a level change)</b> or <b>bends (a slope change)</b>. So &quot;interrupted time series&quot; = a running time series that an intervention interrupts, read off at the break.">
+        <b>時間序列（time series）</b>＝一個結果在許多<b>等間隔時間點</b>上的連續紀錄（每月健康負擔指數），連起來就是一條隨時間的線。
+        <b>中斷（interrupted）</b>＝在一個已知時點，介入像<b>剪刀</b>一樣<b>切進這條原本順順的線</b>——它把本來在跑的趨勢「打斷」。
+        整個方法就是：看序列在這個中斷點是不是<b>跳一下（水準變化）</b>、或<b>轉個彎（斜率變化）</b>。所以「中斷時間序列」＝
+        一條被介入中斷的時間序列，在斷裂處讀出變化。
       </p>
     </div>
 
@@ -1350,6 +1404,16 @@
         <b>純粹是混淆</b>（處置組比較病重）。接種後，率比可能看起來約 1.0——好像沒效。但那其實是有保護力的疫苗
         在<b>對抗</b>那個 1.4 的混淆。一除：1.0 ÷ 1.4 ≈ 0.72——疫苗其實把事件率降了約 28%。PERR 找出了天真比較
         藏起來的好處。前提是：這個混淆在兩段期間要<b>一樣</b>。
+      </p>
+    </div>
+
+    <div class="card info">
+      <h3 data-en="Break the name apart: &quot;prior event rate ratio&quot;">把名字拆開來看：「事前事件率比」</h3>
+      <p data-en="Read it right to left. <b>Rate ratio</b> = the treated group's event rate ÷ the control group's event rate. <b>Event rate</b> = how many events per person-time. <b>Prior</b> is the key word: it means the <b>&quot;prior period&quot; — the time window BEFORE anyone is vaccinated</b>. Because nobody is treated yet there, the ratio in that prior period is <b>pure confounding</b> (just how the two groups differ to begin with) — a clean &quot;fingerprint&quot;. PERR measures that prior ratio and the after ratio, then divides them so the confounding cancels. So &quot;prior&quot; = before treatment starts, used as the confounding benchmark.">
+        從後往前讀。<b>率比（rate ratio）</b>＝處置組事件率 ÷ 對照組事件率。<b>事件率</b>＝每人時發生幾次事件。
+        關鍵字是<b>事前（prior）</b>：指「<b>事前期</b>——還<b>沒有人接種之前</b>的那段時間窗」。因為那時兩組都還沒接種，
+        事前期的率比就是<b>純粹的混淆</b>（兩組本來的差異）＝一個乾淨的「指紋」。PERR 量這個事前率比、也量事後率比，
+        兩者相除把混淆消掉。所以「事前」＝接種開始之前，拿來當混淆的基準線。
       </p>
     </div>
 
@@ -1746,7 +1810,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=16"></script>
-<script src="app.js?v=16"></script>
+<script src="i18n.js?v=17"></script>
+<script src="app.js?v=17"></script>
 </body>
 </html>
