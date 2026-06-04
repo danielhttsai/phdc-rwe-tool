@@ -41,6 +41,7 @@ function showMethodSub() {
   chooseTab.classList.remove("active");
   subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
   showPanel(METHOD_PREFIX[curMethod] + curSub);
+  if (typeof filterRefs === "function") filterRefs(curMethod);
 }
 methodSelect.addEventListener("change", () => { curMethod = methodSelect.value; showMethodSub(); });
 subtabBtns.forEach((b) => b.addEventListener("click", () => { curSub = b.dataset.sub; showMethodSub(); }));
@@ -48,6 +49,7 @@ chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   chooseTab.classList.add("active");
   showPanel("choose");
+  if (typeof filterRefs === "function") filterRefs("choose");
 });
 
 async function getJSON(url) {
@@ -376,32 +378,49 @@ function drawCrossfit(elId) {
   }), SCENE_CFG);
 }
 
-// DOUBLY-ROBUST — illustrated as TWO SAFETY NETS. The estimate (ball) falls;
-// net ① (propensity) is torn, but net ② (outcome) catches it. Unbiased as long
-// as EITHER net holds.
+// DOUBLY-ROBUST — a real statistical illustration. We plot the actual estimate
+// (with its CI) under five scenarios; the truth is the green line. The point: as
+// long as EITHER the propensity OR the outcome model is right, the estimate lands
+// ON the truth (unbiased). Only when BOTH are wrong does it miss.
 function drawDoublyRobust(elId) {
   if (!document.getElementById(elId)) return;
+  const truth = 2.0;
+  const rows = [
+    { y: 5, label: tr("天真：兩個都沒校正", "naive: neither adjusted"), est: 3.15, ci: 0.30, ok: false },
+    { y: 4, label: tr("只有 ① 傾向模型對", "only ① propensity right"), est: 2.05, ci: 0.34, ok: true },
+    { y: 3, label: tr("只有 ② 結果模型對", "only ② outcome right"), est: 1.94, ci: 0.33, ok: true },
+    { y: 2, label: tr("兩個都對", "both right"), est: 2.0, ci: 0.26, ok: true },
+    { y: 1, label: tr("兩個都錯", "both wrong"), est: 1.42, ci: 0.31, ok: false },
+  ];
+  const pack = (sel, color, sym, name) => {
+    const r = rows.filter(sel);
+    return {
+      x: r.map((d) => d.est), y: r.map((d) => d.y), mode: "markers", type: "scatter",
+      marker: { color, size: 13, symbol: sym, line: { color: "#fff", width: 1 } },
+      error_x: { type: "data", array: r.map((d) => d.ci), color, thickness: 1.6, width: 6 },
+      name, hoverinfo: "skip",
+    };
+  };
+  const traces = [
+    pack((d) => d.ok, "#0d9488", "circle", tr("命中真值（不偏）", "on the truth (unbiased)")),
+    pack((d) => !d.ok, "#f59e0b", "diamond", tr("偏掉", "biased")),
+  ];
   const shapes = [
-    { type: "line", x0: 1.4, y0: 9.1, x1: 8.6, y1: 9.1, line: { color: "#94a3b8", width: 3 } }, // platform
-    _curve("M 1.4,6.4 Q 5,4.7 8.6,6.4", "#3b82f6", 3, "dash"),   // net ① — torn (dashed)
-    _curve("M 1.4,3.2 Q 5,1.6 8.6,3.2", "#7c3aed", 3),           // net ② — intact
-    _circle(5, 8.4, 0.34, "#0d9488", "#0f766e"),                 // estimate (start)
-    _circle(5, 1.78, 0.36, "#0d9488", "#0f766e"),                // estimate (caught)
+    { type: "rect", x0: truth - 0.18, x1: truth + 0.18, y0: 0.4, y1: 5.6, fillcolor: "rgba(16,185,129,0.10)", line: { width: 0 }, layer: "below" },
+    { type: "line", x0: truth, x1: truth, y0: 0.4, y1: 5.6, line: { color: GREEN, width: 2, dash: "dash" } },
   ];
-  const anns = [
-    _lbl(5, 8.4, tr("估計", "est."), "#ffffff", 10),
-    Object.assign(_arrow(5, 7.9, 5, 6.9), { arrowcolor: "#64748b" }),
-    Object.assign(_arrow(5, 5.6, 5, 4.4), { arrowcolor: "#cbd5e1" }),  // passes through torn net
-    Object.assign(_lbl(1.5, 6.9, tr("① 傾向分數模型", "① propensity model"), "#1d4ed8", 11), { xanchor: "left" }),
-    _lbl(5, 5.45, tr("✗ 這張破了也沒關係", "✗ even if this one tears"), "#dc2626", 10.5),
-    Object.assign(_lbl(1.5, 3.6, tr("② 結果模型", "② outcome model"), "#6d28d9", 11), { xanchor: "left" }),
-    Object.assign(_lbl(6.1, 1.78, tr("✓ 另一張接住了", "✓ the other catches it"), "#15803d", 11), { xanchor: "left" }),
-    _lbl(5, 0.35, tr("兩張安全網：只要其中一張是對的，估計就不會墜地（＝不偏）",
-                     "Two safety nets: if EITHER one holds, the estimate never hits the ground (= unbiased)"), INK, 10.5),
-  ];
-  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({
-    height: 290, shapes, annotations: anns,
-    title: { text: tr("雙重穩健 ＝ 兩張安全網", "Doubly-robust = two safety nets"), font: { size: 12 }, x: 0.5, xanchor: "center" },
+  const anns = rows.map((d) =>
+    Object.assign(_lbl(0.45, d.y, d.label, d.ok ? "#0f766e" : "#9a3412", 10.5), { xanchor: "left" }));
+  anns.push(Object.assign(_lbl(truth, 5.75, tr("真值", "truth"), GREEN, 10.5), { xanchor: "center" }));
+  anns.push(_lbl(truth, 0.05, tr("①傾向模型 或 ②結果模型，只要一個對 → 命中真值（雙重穩健）",
+                                 "① propensity OR ② outcome — if EITHER is right → on the truth (doubly robust)"), INK, 10));
+  Plotly.react(elId, traces, schemaLayout({
+    height: 290, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
+    xaxis: { visible: true, title: tr("估出的效果", "estimated effect"), range: [0.6, 3.8], fixedrange: true },
+    yaxis: { visible: false, range: [-0.3, 6.2] },
+    margin: { t: 40, r: 16, b: 38, l: 16 },
+    title: { text: tr("雙重穩健：兩個模型，有一個對就命中真值", "Doubly-robust: two models — either one right hits the truth"),
+             font: { size: 11.5 }, x: 0.5, xanchor: "center" },
   }), SCENE_CFG);
 }
 
@@ -1385,7 +1404,7 @@ const DNODES = {
       { l: { zh: "政策在已知時點開啟，且有沒被開啟的對照組（面板資料）", en: "Policy switched on at a known time, with an untreated control group (panel data)" }, to: "rDiD" },
       { l: { zh: "介入在已知時點，但只有單一群體、前後有許多時間點", en: "Intervention at a known time, but a single population with many time points" }, to: "rITS" },
       { l: { zh: "你有兩組「暴露前 vs 暴露後」的事件率，混淆乘法穩定", en: "Both groups' before-vs-after event rates, with stable multiplicative confounding" }, to: "rPERR" },
-      { l: { zh: "沒有明確切點，但結果急性短暫、可用個人自身當對照", en: "No sharp cutoff, but an acute transient outcome — person as own control" }, to: "rSCCS" },
+      { l: { zh: "沒有明確切點，但結果急性短暫、可復發、不致命（看不了死亡），可用個人自身當對照", en: "No sharp cutoff, but an acute, recurrent, non-fatal outcome (not death) — person as own control" }, to: "rSCCS" },
     ],
   },
   aEx5: {
@@ -1395,7 +1414,7 @@ const DNODES = {
     opts: [
       { l: { zh: "治療是「診斷後一段時間的動態／持續策略」：早 vs 晚開始、是否持續或密集用藥（隨時間調整）", en: "A sustained / dynamic strategy over a window after diagnosis: early vs late initiation, sustained or intensive use (adjusted over time)" }, to: "rCCW" },
       { l: { zh: "治療比較像「某時點的單次（點）決定」，但病人在不同時間點陸續符合資格", en: "More of a one-shot (point) treatment decision, but patients become eligible at different time points" }, to: "rSEQ" },
-      { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見", en: "Exposure spreads over calendar time at different rates across groups; rare outcome" }, to: "rTiT" },
+      { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同；結果罕見、會反覆／會痊癒（看不了死亡）", en: "Exposure spreads over calendar time at different rates; outcome rare, recurrent/resolving (not death)" }, to: "rTiT" },
       { l: { zh: "以上皆非——但其實已有一場（別族群的）RCT 可以借", en: "None of the above — but I already have an RCT (in another population) to borrow" }, to: "rctSplit" },
     ],
   },
@@ -1451,8 +1470,8 @@ const DNODES = {
            en: "Exposure spreads over calendar time at different rates across strata and the outcome is rare — check whether the outcome-rate trend tracks the exposure-rate trend. It is the cohort cousin of case-time-control (CTC/CCTC)." },
     scenario: { zh: "疫苗情境：一支新疫苗的接種率隨季逐漸上升、不同縣市快慢不同。看「事件率的趨勢」是否跟著「接種率的趨勢」一起走。",
                 en: "Vaccine scenario: a new vaccine's uptake climbs over quarters, faster in some counties. Check whether the event-rate trend moves in step with the uptake trend." },
-    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與接種趨勢同步的未測混淆趨勢</b>。",
-             en: "The key untestable assumption is <b>no unmeasured confounder trend that moves in step with uptake</b>." } } },
+    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與接種趨勢同步的未測混淆趨勢</b>。另一個重要限制：它建模「每期盛行率」，<b>只適合會反覆發生／也會痊癒的（急性）結果，看不了死亡</b>——死掉的人在這個框架下仍留在分母（見 TiT ④）。",
+             en: "The key untestable assumption is <b>no unmeasured confounder trend that moves in step with uptake</b>. Another important limit: it models per-period prevalence, so it <b>fits recurrent / resolving (acute) outcomes and CANNOT handle death</b> — the deceased still sit in the denominator here (see TiT ④)." } } },
   rPERR: { rec: { kind: "toolbox", method: "perr", badge: "PERR ✓",
     title: { zh: "最適合：事前事件率比 PERR", en: "Best fit: Prior Event Rate Ratio (PERR)" },
     why: { zh: "你有兩組在「暴露前」與「暴露後」的事件率，且相信混淆隨時間穩定——用同一群人「暴露前」的率比當混淆基準除掉。",
@@ -1476,8 +1495,8 @@ const DNODES = {
            en: "For acute, transient outcomes with well-defined exposure windows, SCCS uses each person as their own control, cancelling all time-invariant confounding." },
     scenario: { zh: "疫苗情境：只取「接種後曾發生不良事件」的人，比較他們在「接種後風險期 vs 自己其他時間」的事件率——每個人當自己的對照。",
                 en: "Vaccine scenario: take only people who had an adverse event, and compare their event rate in the post-vaccination risk window vs their own other time — each person is their own control." },
-    watch: { zh: "↗ 常見研究設計，本工具箱未實作。需假設事件不影響後續暴露機率、且事件不致命／可復發。",
-             en: "↗ A common design, not implemented here. Assumes events don't alter later exposure probability and aren't censoring/fatal." } } },
+    watch: { zh: "↗ 常見研究設計，本工具箱未實作。<b>同樣看不了死亡</b>——SCCS 用個人自身當對照，需假設事件<b>不致命、可復發</b>，且事件不影響後續暴露機率。",
+             en: "↗ A common design, not implemented here. <b>It also cannot handle death</b> — SCCS uses each person as their own control, so events must be <b>non-fatal and recurrent</b>, and must not alter later exposure probability." } } },
   rCCW: { rec: { kind: "external", badge: "↗",
     title: { zh: "建議：複製-設限-加權 clone-censor-weight ↗", en: "Suggested: clone-censor-weight (CCW) ↗" },
     why: { zh: "CCW 適合「<b>診斷後一段時間的動態／持續策略</b>」——例如早 vs 晚開始、是否持續或密集用藥。這種隨時間調整的策略若直接分組會有 immortal time bias；CCW 在時間零點把每個人複製到各策略、依偏離設限、再加權校正。<b>好處</b>：若比較「<b>早用 vs 晚用</b>」，兩組<b>最終都會用藥（適應症相同）</b>，因此能大幅減輕「<b>因適應症而生的混淆（confounding by indication）</b>」。",
@@ -1571,13 +1590,13 @@ const FULLMAP = {
                 { key: "rDiD", cond: { zh: "政策某時間點才上路，而且有沒受影響的對照組", en: "the policy only starts at some date, and there's an unaffected control group" }, tag: "DiD ✓", kind: "tb" },
                 { key: "rITS", cond: { zh: "只有一群人，但介入前後都追蹤了很多時間點", en: "just one group, but tracked at many time points before & after" }, tag: "ITS ✓", kind: "tb" },
                 { key: "rPERR", cond: { zh: "前後事件率＋乘法穩定", en: "before/after rates, stable" }, tag: "PERR ✓", kind: "tb" },
-                { key: "rSCCS", cond: { zh: "急性短暫＋自身對照", en: "acute, own control" }, tag: "SCCS ↗", kind: "ex" },
+                { key: "rSCCS", cond: { zh: "急性短暫、可復發、不致命（看不了死亡）＋自身對照", en: "acute, recurrent, non-fatal (no death) + own control" }, tag: "SCCS ↗", kind: "ex" },
               ] },
             { edge: { zh: "否 · 隨時間變／動態策略", en: "no · time-varying / dynamic" },
               leaves: [
                 { key: "rCCW", cond: { zh: "診斷後動態／持續策略（早 vs 晚、密集用藥）", en: "sustained/dynamic strategy after dx (early vs late, intensive)" }, tag: "CCW ↗", kind: "ex" },
                 { key: "rSEQ", cond: { zh: "一次性的用藥決定，大家在不同時間才陸續符合資格", en: "a one-off treatment decision; people qualify at different times" }, tag: "序列試驗 ↗", kind: "ex" },
-                { key: "rTiT", cond: { zh: "日曆趨勢＋結果罕見", en: "calendar trend, rare" }, tag: "TiT ✓", kind: "tb" },
+                { key: "rTiT", cond: { zh: "日曆趨勢＋結果罕見、會反覆／會痊癒（看不了死亡）", en: "calendar trend, rare, recurrent/resolving (no death)" }, tag: "TiT ✓", kind: "tb" },
               ] },
           ] },
       ],
@@ -1753,11 +1772,40 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "工具變數 IV － 斷點回歸 RDD 線上工具",
-  titleEn: "Instrumental Variables (IV) & Regression Discontinuity (RDD) — Online Teaching Tool",
+  titleZh: "準實驗工具箱（IV · RDD · DiD · TiT · ITS · PERR）線上教學工具",
+  titleEn: "Quasi-experimental Toolbox (IV · RDD · DiD · TiT · ITS · PERR) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/iv-rdd-tool/",
 };
+// per-method label + the primary methodological source(s) for that page, so both the
+// reference list and the citation can be scoped to the page you are actually on.
+const METHOD_REF = {
+  iv:   { zh: "工具變數 IV", en: "Instrumental Variables (IV)", src: "Homayra et al. (2024), Epidemiology" },
+  rdd:  { zh: "斷點回歸 RDD", en: "Regression Discontinuity (RDD)", src: "Cattaneo, Keele & Titiunik (2023); Schuessler et al. (2026)" },
+  did:  { zh: "差異中的差異 DiD", en: "Difference-in-Differences (DiD)", src: "Rothbard et al. (2024); Chang (2020)" },
+  tit:  { zh: "趨勢中的趨勢 TiT", en: "Trend-in-Trend (TiT)", src: "Ji, Small, Leonard & Hennessy (2017), Epidemiology" },
+  its:  { zh: "中斷時間序列 ITS", en: "Interrupted Time Series (ITS)", src: "Bernal, Cummins & Gasparrini (2017), IJE; Dey et al. (2025)" },
+  perr: { zh: "事前事件率比 PERR", en: "Prior Event Rate Ratio (PERR)", src: "Yu et al. (2012); van Aalst et al. (2021)" },
+};
+let refsContext = "iv";   // which page's references/citation to show
+
+function filterRefs(method) {
+  refsContext = method || "iv";
+  const list = document.getElementById("refsList");
+  const intro = document.getElementById("refsIntro");
+  if (!list) return;
+  const showAll = refsContext === "choose";
+  list.querySelectorAll("li").forEach((li) => {
+    li.style.display = (showAll || li.dataset.ref === refsContext) ? "" : "none";
+  });
+  if (intro) {
+    const m = METHOD_REF[refsContext];
+    intro.innerHTML = showAll
+      ? tr("六法的完整參考文獻：", "Full reference list for all six methods:")
+      : tr(`本頁（${m.zh}）的參考文獻：`, `References for this page (${m.en}):`);
+  }
+  renderCitation();
+}
 const MONTHS = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"];
 
@@ -1774,9 +1822,13 @@ function accessDates() {
 function citationText() {
   const a = accessDates();
   const title = lang() === "en" ? CITE.titleEn : CITE.titleZh;
-  return lang() === "en"
+  const m = refsContext !== "choose" ? METHOD_REF[refsContext] : null;
+  const tail = !m ? "" : (lang() === "en"
+    ? ` [This page: ${m.en}; key methodological source(s): ${m.src}.]`
+    : `〔本頁主題：${m.zh}；主要方法依據：${m.src}。〕`);
+  return (lang() === "en"
     ? `${CITE.authors} ${title}. ${CITE.publisher}. Published ${CITE.year}. Accessed ${a.en}. ${CITE.url}`
-    : `${CITE.authors} ${title}. ${CITE.publisher}. 發表於 ${CITE.year} 年。取用於 ${a.zh}。${CITE.url}`;
+    : `${CITE.authors} ${title}. ${CITE.publisher}. 發表於 ${CITE.year} 年。取用於 ${a.zh}。${CITE.url}`) + tail;
 }
 
 function bibtex() {
@@ -1846,7 +1898,7 @@ document.getElementById("dlRis").addEventListener("click", () => {
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
-renderCitation();
+filterRefs("iv");   // initial: show only the IV page's references + scoped citation
 
 // ======================================================================
 // Difference-in-differences (DiD method) — tabs ①–⑤
@@ -2886,7 +2938,7 @@ function drawPerrScale(s) {
 // Language switch — re-render any dynamic content already on screen
 // ======================================================================
 window.addEventListener("iv-lang", async () => {
-  renderCitation();
+  filterRefs(refsContext);                         // re-scope refs + citation in new language
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };
