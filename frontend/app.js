@@ -340,67 +340,110 @@ const schemaLayout = (extra) => sceneLayout(Object.assign({
   yaxis: { visible: false, range: [0, 10], fixedrange: true },
 }, extra || {}));
 
-// cross-fitting: K folds, each predicted by a model trained on the OTHER folds
+const _circle = (cx, cy, r, fill, line) =>
+  ({ type: "circle", x0: cx - r, y0: cy - r, x1: cx + r, y1: cy + r, fillcolor: fill, line: { color: line || fill, width: 1.5 } });
+const _curve = (d, color, width, dash) =>
+  ({ type: "path", path: d, line: { color: color, width: width || 3, dash: dash || "solid" } });
+
+// CROSS-FITTING — illustrated as the danger it prevents: a model that "memorises
+// the noise". The red wiggle threads every dot (looks perfect on what it saw) but
+// strays from the true green curve. Cross-fitting always scores on unseen people,
+// so it can't cheat like that.
 function drawCrossfit(elId) {
   if (!document.getElementById(elId)) return;
-  const segX = [[1.0, 4.0], [4.1, 6.8], [6.9, 9.7]];
-  const rows = [{ y: [6.7, 8.3], hold: 2 }, { y: [3.9, 5.5], hold: 1 }, { y: [1.1, 2.7], hold: 0 }];
-  const shapes = [], anns = [];
-  rows.forEach((r, ri) => {
-    segX.forEach((sx, si) => {
-      const held = si === r.hold;
-      shapes.push(_box(sx[0], r.y[0], sx[1], r.y[1], held ? "#fde9c8" : "#d7f0ec", held ? "#f59e0b" : TEAL));
-      anns.push(_lbl((sx[0] + sx[1]) / 2, (r.y[0] + r.y[1]) / 2,
-        held ? tr("預測這折", "predict") : tr("學模型", "train"), held ? "#9a3412" : "#0f766e", 11));
-    });
-    anns.push(Object.assign(_lbl(0.85, (r.y[0] + r.y[1]) / 2, tr("第 " + (ri + 1) + " 輪", "round " + (ri + 1)), SCHEMA_SLATE, 10), { xanchor: "right" }));
-  });
-  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({
-    height: 232, margin: { t: 30, r: 12, b: 8, l: 52 }, shapes, annotations: anns,
-    title: { text: tr("交叉擬合：每折的預測，都來自「沒看過它」的模型 → 不自我膨脹（去偏）",
-                      "Cross-fitting: each fold is predicted by a model that never saw it → no self-flattery (debiased)"),
+  const rng = mulberry32(11);
+  const trueF = (x) => 3.6 + 2.5 * Math.sin(x * 0.62);
+  const dx = [], dy = [];
+  for (let x = 0.7; x <= 9.3; x += 0.92) { dx.push(x); dy.push(trueF(x) + randn(rng) * 1.0); }
+  const tx = [], ty = [];
+  for (let x = 0; x <= 10; x += 0.2) { tx.push(x); ty.push(trueF(x)); }
+  const traces = [
+    { x: tx, y: ty, mode: "lines", type: "scatter", name: tr("真實關係（平滑）", "true relationship (smooth)"),
+      line: { color: GREEN, width: 3, dash: "dash" } },
+    { x: dx, y: dy, mode: "lines+markers", type: "scatter", name: tr("偷看：把每個點的雜訊也背起來", "peeking: memorises every dot's noise"),
+      line: { color: RED, width: 2, shape: "spline" }, marker: { color: RED, size: 8 } },
+  ];
+  const anns = [
+    _lbl(5, -0.2, tr("交叉擬合 ＝ 永遠用「沒看過的人」評分 → 學不出紅線那種「背答案」（去偏）",
+                     "Cross-fitting = always score on people it never saw → can't memorise like the red line (debiased)"), INK, 10.5),
+  ];
+  Plotly.react(elId, traces, schemaLayout({
+    height: 280, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
+    xaxis: { visible: false, range: [0, 10] }, yaxis: { visible: false, range: [-1, 8] },
+    margin: { t: 44, r: 14, b: 28, l: 14 },
+    title: { text: tr("為什麼要交叉擬合：別讓 AI「背答案」", "Why cross-fit: don't let the AI memorise the answers"),
              font: { size: 12 }, x: 0.5, xanchor: "center" },
   }), SCENE_CFG);
 }
 
-// doubly-robust / AIPW: two nuisance models, unbiased if EITHER is right
+// DOUBLY-ROBUST — illustrated as TWO SAFETY NETS. The estimate (ball) falls;
+// net ① (propensity) is torn, but net ② (outcome) catches it. Unbiased as long
+// as EITHER net holds.
 function drawDoublyRobust(elId) {
   if (!document.getElementById(elId)) return;
   const shapes = [
-    _box(0.2, 6.3, 4.5, 9.4, "#d7f0ec", TEAL),
-    _box(0.2, 1.7, 4.5, 4.8, "#ece5fc", SCHEMA_PURPLE),
-    _box(5.5, 4.2, 7.8, 7.0, "#fff4d6", "#f59e0b"),
-    _box(8.5, 4.6, 9.9, 6.6, "#dcfce7", "#16a34a"),
+    { type: "line", x0: 1.4, y0: 9.1, x1: 8.6, y1: 9.1, line: { color: "#94a3b8", width: 3 } }, // platform
+    _curve("M 1.4,6.4 Q 5,4.7 8.6,6.4", "#3b82f6", 3, "dash"),   // net ① — torn (dashed)
+    _curve("M 1.4,3.2 Q 5,1.6 8.6,3.2", "#7c3aed", 3),           // net ② — intact
+    _circle(5, 8.4, 0.34, "#0d9488", "#0f766e"),                 // estimate (start)
+    _circle(5, 1.78, 0.36, "#0d9488", "#0f766e"),                // estimate (caught)
   ];
   const anns = [
-    _lbl(2.35, 7.85, tr("① 傾向分數模型<br>誰比較會受處置", "① Propensity model<br>who tends to be treated"), "#0f766e", 11),
-    _lbl(2.35, 3.25, tr("② 結果模型<br>對照組會怎麼自然變", "② Outcome model<br>how controls would drift"), "#6d28d9", 11),
-    _lbl(6.65, 5.6, tr("雙重穩健分數<br>（AIPW）", "Doubly-robust<br>score (AIPW)"), "#9a3412", 11),
-    _lbl(9.2, 5.6, tr("效果<br>估計", "Effect<br>estimate"), "#15803d", 11),
-    _arrow(4.5, 7.8, 5.5, 6.2), _arrow(4.5, 3.3, 5.5, 5.0), _arrow(7.8, 5.6, 8.5, 5.6),
-    _lbl(5.0, 0.7, tr("只要 ① 或 ② 其中一個對 → 估計就不偏（兩道保險）；兩個都用彈性 ML ＋交叉擬合會更穩。",
-                      "If EITHER ① or ② is right → unbiased (two safety nets); flexible ML + cross-fitting makes both sturdier."), INK, 10.5),
+    _lbl(5, 8.4, tr("估計", "est."), "#ffffff", 10),
+    Object.assign(_arrow(5, 7.9, 5, 6.9), { arrowcolor: "#64748b" }),
+    Object.assign(_arrow(5, 5.6, 5, 4.4), { arrowcolor: "#cbd5e1" }),  // passes through torn net
+    Object.assign(_lbl(1.5, 6.9, tr("① 傾向分數模型", "① propensity model"), "#1d4ed8", 11), { xanchor: "left" }),
+    _lbl(5, 5.45, tr("✗ 這張破了也沒關係", "✗ even if this one tears"), "#dc2626", 10.5),
+    Object.assign(_lbl(1.5, 3.6, tr("② 結果模型", "② outcome model"), "#6d28d9", 11), { xanchor: "left" }),
+    Object.assign(_lbl(6.1, 1.78, tr("✓ 另一張接住了", "✓ the other catches it"), "#15803d", 11), { xanchor: "left" }),
+    _lbl(5, 0.35, tr("兩張安全網：只要其中一張是對的，估計就不會墜地（＝不偏）",
+                     "Two safety nets: if EITHER one holds, the estimate never hits the ground (= unbiased)"), INK, 10.5),
   ];
-  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({ height: 252, shapes, annotations: anns }), SCENE_CFG);
+  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({
+    height: 290, shapes, annotations: anns,
+    title: { text: tr("雙重穩健 ＝ 兩張安全網", "Doubly-robust = two safety nets"), font: { size: 12 }, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
 }
 
-// two-stage counterfactual: train on the pre period, forecast the no-intervention line
+// TWO-STAGE COUNTERFACTUAL — illustrated as a real time series: learn the pre-trend,
+// extrapolate the dashed "no-intervention" line, and the gap to the observed post
+// points IS the effect.
 function drawTwoStage(elId) {
   if (!document.getElementById(elId)) return;
-  const shapes = [
-    _box(0.2, 5.4, 3.2, 9.2, "#d7f0ec", TEAL),
-    _box(3.9, 5.4, 6.9, 9.2, "#ece5fc", SCHEMA_PURPLE),
-    _box(7.5, 5.4, 9.9, 9.2, "#dcfce7", "#16a34a"),
+  const rng = mulberry32(5);
+  const f = (x) => 1.8 + 0.62 * x;          // underlying pre-trend (the counterfactual)
+  const drop = 2.2;                          // the intervention's effect (a drop)
+  const preX = [], preY = [], cfX = [], cfY = [], postX = [], postY = [];
+  for (let x = 0; x <= 10; x += 0.5) {
+    if (x < 6) { preX.push(x); preY.push(f(x) + randn(rng) * 0.28); }
+    else { cfX.push(x); cfY.push(f(x)); postX.push(x); postY.push(f(x) - drop + randn(rng) * 0.28); }
+  }
+  const traces = [
+    { x: preX, y: preY, mode: "markers", type: "scatter", name: tr("介入前（觀測）", "pre (observed)"), marker: { color: TEAL, size: 7 } },
+    { x: [0, 6], y: [f(0), f(6)], mode: "lines", type: "scatter", showlegend: false, line: { color: TEAL, width: 3 } },
+    { x: [6].concat(cfX), y: [f(6)].concat(cfY), mode: "lines", type: "scatter",
+      name: tr("反事實：沒介入會怎樣", "counterfactual: if no intervention"), line: { color: SCHEMA_PURPLE, width: 3, dash: "dash" } },
+    { x: postX, y: postY, mode: "markers", type: "scatter", name: tr("介入後（觀測）", "post (observed)"),
+      marker: { color: "#0f766e", size: 8, symbol: "diamond" } },
   ];
+  const shapes = [{ type: "line", x0: 6, y0: 0, x1: 6, y1: 10, line: { color: "#94a3b8", width: 1.5, dash: "dot" } }];
+  const cf9 = f(9), ob9 = f(9) - drop;
   const anns = [
-    _lbl(1.7, 7.3, tr("第一階段<br>用「介入前」資料<br>訓練 ML 預測結果", "Stage 1<br>train ML on the<br>pre-intervention data"), "#0f766e", 11),
-    _lbl(5.4, 7.3, tr("第二階段<br>丟入介入後的共變項<br>→ 預測「沒介入會怎樣」", "Stage 2<br>feed the post covariates<br>→ predict the counterfactual"), "#6d28d9", 11),
-    _lbl(8.7, 7.3, tr("效果 =<br>實際觀測<br>− 預測反事實", "Effect =<br>observed<br>− predicted CF"), "#15803d", 11),
-    _arrow(3.2, 7.3, 3.9, 7.3), _arrow(6.9, 7.3, 7.5, 7.3),
-    _lbl(5.0, 3.0, tr("模型只看得到「介入前」，所以介入後的跳變不會被模型自己吃掉。",
-                      "The model only ever sees the pre period, so the post-intervention jump isn't absorbed by the model itself."), INK, 10.5),
+    _lbl(6, 9.5, tr("介入", "intervention"), INK, 10),
+    Object.assign(_arrow(9, cf9, 9, ob9), { arrowcolor: "#dc2626", arrowwidth: 2.2 }),
+    Object.assign(_lbl(9.15, (cf9 + ob9) / 2, tr("效果", "effect"), "#dc2626", 11), { xanchor: "left" }),
+    _lbl(2.7, 1.0, tr("① 用介入前學趨勢", "① learn the pre-trend"), "#0f766e", 10.5),
+    _lbl(7.7, 9.0, tr("② 外推反事實（虛線）", "② extrapolate it (dashed)"), "#6d28d9", 10.5),
   ];
-  Plotly.react(elId, SCHEMA_DUMMY, schemaLayout({ height: 242, shapes, annotations: anns }), SCENE_CFG);
+  Plotly.react(elId, traces, schemaLayout({
+    height: 300, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.2 },
+    xaxis: { visible: true, title: tr("時間", "time"), range: [-0.3, 10.6], fixedrange: true },
+    yaxis: { visible: true, title: tr("結果", "outcome"), range: [0, 10], fixedrange: true },
+    margin: { t: 50, r: 16, b: 40, l: 44 },
+    title: { text: tr("兩階段反事實：學過去 → 畫出「沒介入會怎樣」→ 量差距",
+                      "Two-stage: learn the past → draw the no-intervention line → read the gap"),
+             font: { size: 11.5 }, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
 }
 
 // scene 1 (IV remedy 1): one weak instrument — two barely-separated clouds
