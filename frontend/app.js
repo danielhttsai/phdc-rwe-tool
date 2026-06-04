@@ -351,30 +351,44 @@ const _curve = (d, color, width, dash) =>
 // the noise". The red wiggle threads every dot (looks perfect on what it saw) but
 // strays from the true green curve. Cross-fitting always scores on unseen people,
 // so it can't cheat like that.
+// Cross-fitting illustrated as the K-fold ROTATION it actually is: split people
+// into K folds; each round, TRAIN on the other folds (green) and SCORE the one
+// held-out fold (amber, never seen). After K rounds every person was scored by a
+// model that never trained on them — so it can't "memorise the answers".
 function drawCrossfit(elId) {
   if (!document.getElementById(elId)) return;
-  const rng = mulberry32(11);
-  const trueF = (x) => 3.6 + 2.5 * Math.sin(x * 0.62);
-  const dx = [], dy = [];
-  for (let x = 0.7; x <= 9.3; x += 0.92) { dx.push(x); dy.push(trueF(x) + randn(rng) * 1.0); }
-  const tx = [], ty = [];
-  for (let x = 0; x <= 10; x += 0.2) { tx.push(x); ty.push(trueF(x)); }
-  const traces = [
-    { x: tx, y: ty, mode: "lines", type: "scatter", name: tr("真實關係（平滑）", "true relationship (smooth)"),
-      line: { color: GREEN, width: 3, dash: "dash" } },
-    { x: dx, y: dy, mode: "lines+markers", type: "scatter", name: tr("偷看：把每個點的雜訊也背起來", "peeking: memorises every dot's noise"),
-      line: { color: RED, width: 2, shape: "spline" }, marker: { color: RED, size: 8 } },
-  ];
-  const anns = [
-    _lbl(5, -0.2, tr("交叉擬合 ＝ 永遠用「沒看過的人」評分 → 學不出紅線那種「背答案」（去偏）",
-                     "Cross-fitting = always score on people it never saw → can't memorise like the red line (debiased)"), INK, 10.5),
-  ];
-  Plotly.react(elId, traces, schemaLayout({
-    height: 280, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
-    xaxis: { visible: false, range: [0, 10] }, yaxis: { visible: false, range: [-1, 8] },
-    margin: { t: 44, r: 14, b: 28, l: 14 },
-    title: { text: tr("為什麼要交叉擬合：別讓 AI「背答案」", "Why cross-fit: don't let the AI memorise the answers"),
-             font: { size: 12 }, x: 0.5, xanchor: "center" },
+  const K = 5;
+  const TRAIN = "#d7ece3", TRAINB = "#3f8268", TRAINTX = "#2f6149";
+  const SCORE = "#fde6c2", SCOREB = "#e08e10", SCORETX = "#b45309";
+  const shapes = [], anns = [];
+  for (let r = 0; r < K; r++) {
+    const yc = K - r;                       // round 0 at top
+    for (let c = 0; c < K; c++) {
+      const xc = c + 1;                      // folds 1..K left→right
+      const held = (c === r);                // diagonal = held-out (scored) fold
+      shapes.push({ type: "rect", x0: xc - 0.46, x1: xc + 0.46, y0: yc - 0.4, y1: yc + 0.4,
+        fillcolor: held ? SCORE : TRAIN, line: { color: held ? SCOREB : TRAINB, width: held ? 2 : 1.2 } });
+      anns.push(_lbl(xc, yc, held ? tr("評分", "score") : tr("訓練", "train"),
+        held ? SCORETX : TRAINTX, 9.5));
+    }
+    anns.push(Object.assign(_lbl(0.05, yc, tr("第 " + (r + 1) + " 回", "round " + (r + 1)), INK, 9.5),
+      { xanchor: "left" }));
+  }
+  for (let c = 0; c < K; c++) anns.push(_lbl(c + 1, K + 0.78, tr("組 " + (c + 1), "fold " + (c + 1)), "#64748b", 9.5));
+  // bottom plain-language takeaway
+  anns.push(_lbl((K + 1) / 2, -0.05, tr(
+    "每回合：用「其他組（綠）」訓練 → 對「留下這組（琥珀，沒看過的人）」評分。",
+    "Each round: train on the OTHER folds (green) → score the held-out fold (amber, never seen)."), INK, 10));
+  anns.push(_lbl((K + 1) / 2, -0.65, tr(
+    "輪完 5 回，每個人都只被「沒看過他的模型」評分 → 不會背答案、去偏。",
+    "After all 5 rounds, every person was scored by a model that never saw them → no memorising, debiased."), INK, 10));
+  Plotly.react(elId, [{ x: [null], y: [null], mode: "markers", type: "scatter", showlegend: false }], schemaLayout({
+    height: 300, shapes, annotations: anns, showlegend: false,
+    xaxis: { visible: false, range: [-0.2, K + 0.6], fixedrange: true },
+    yaxis: { visible: false, range: [-1.1, K + 1.1], fixedrange: true },
+    margin: { t: 40, r: 14, b: 14, l: 14 },
+    title: { text: tr("交叉擬合：把人分成 5 組，輪流訓練與評分", "Cross-fitting: split people into 5 folds, rotate train ↔ score"),
+             font: { size: 12.5 }, x: 0.5, xanchor: "center" },
   }), SCENE_CFG);
 }
 
