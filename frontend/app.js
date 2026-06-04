@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -25,6 +25,8 @@ const PANEL_INIT = {
   perrassume: () => initPerrAssume(), perrml: () => initPerrMl(),
   ccwlearn: () => initCcwLearn(), ccwplay: () => initCcwPlay(), ccwanalyze: () => initCcwAnalyze(),
   ccwassume: () => initCcwAssume(), ccwml: () => initCcwMl(),
+  cctclearn: () => initCctcLearn(), cctcplay: () => initCctcPlay(), cctcanalyze: () => initCctcAnalyze(),
+  cctcassume: () => initCctcAssume(), cctcml: () => initCctcMl(),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -1458,8 +1460,8 @@ const DNODES = {
     q: { zh: "你從「已發生結果的個案」回看暴露——怎麼取對照？（多用於急性、可復發的結果）", en: "Looking back from cases — how do you take controls? (usually for acute, recurrent outcomes)" },
     opts: [
       { l: { zh: "在大世代裡用配對對照、巢式抽樣（想細看劑量–反應）", en: "Matched controls nested in a large cohort (to examine dose-response)" }, to: "rNCC" },
-      { l: { zh: "用個人自身近期當對照、暴露沒有明顯時間趨勢", en: "The person's own recent past as control, no clear exposure trend" }, to: "rCCO" },
-      { l: { zh: "用個人自身對照，但暴露本身有日曆時間趨勢", en: "Person-as-own-control, but the exposure has a calendar trend" }, to: "rCTC" },
+      { l: { zh: "用個人自身近期當對照（急性、短暫暴露；案例交叉 CCO）", en: "The person's own recent past as control (acute, transient exposure; case-crossover CCO)" }, to: "rCCTC" },
+      { l: { zh: "個人自身對照，但暴露有日曆時間趨勢（用 CCTC 扣趨勢）", en: "Person-as-own-control, but the exposure has a calendar trend (CCTC nets it out)" }, to: "rCCTC" },
       { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
     ],
   },
@@ -1546,22 +1548,14 @@ const DNODES = {
                 en: "Vaccine scenario: each month, open a mini-trial among people who just became eligible (<b>vaccinate now vs not</b> — a one-shot decision), then pool across months." },
     watch: { zh: "↗ 常見研究設計，本工具箱未實作。也屬 <b>target trial emulation</b> 家族。",
              en: "↗ A common design, not implemented here. Also part of the <b>target trial emulation</b> family." } } },
-  rCCO: { rec: { kind: "external", badge: "↗",
-    title: { zh: "建議：案例交叉 case-crossover ↗", en: "Suggested: case-crossover ↗" },
-    why: { zh: "暴露短暫、會波動，想用個人自身近期當對照——比較發病前 vs 較早時段的暴露，自我控制掉穩定特徵。",
-           en: "For transient, fluctuating exposures, compare exposure just before the event vs an earlier reference window in the same person." },
-    scenario: { zh: "疫苗情境：對「接種後當天就醫」這種急性事件，比較事件前幾天 vs 更早一段時間的接種暴露（個人自身近期當對照）。",
-                en: "Vaccine scenario: for an acute event like an ER visit on the day of vaccination, compare exposure in the days before vs an earlier reference window in the same person." },
-    watch: { zh: "↗ 常見研究設計，本工具箱未實作。若暴露本身有時間趨勢，需改用 CTC/CCTC 扣掉趨勢。",
-             en: "↗ A common design, not implemented here. If the exposure itself trends over time, switch to CTC/CCTC." } } },
-  rCTC: { rec: { kind: "external", badge: "↗",
-    title: { zh: "建議：案例-時間對照 CTC／案例-案例-時間對照 CCTC ↗", en: "Suggested: case-time-control (CTC) / case-case-time-control (CCTC) ↗" },
-    why: { zh: "案例交叉但暴露有時間趨勢會造成偏誤——CTC/CCTC 用對照族群的時間變化把趨勢扣掉。其「世代版」正是本工具箱的 TiT。",
-           en: "Case-crossover is biased when exposure trends over time — CTC/CCTC use a control group's time change to net out the trend. Its cohort version is this toolbox's TiT." },
-    scenario: { zh: "疫苗情境：同案例交叉，但全國接種率本身逐年上升。用未發病的對照族群把這個時間趨勢扣掉。",
-                en: "Vaccine scenario: like case-crossover, but national uptake itself rises year on year. Use a non-case control group to net out that time trend." },
-    watch: { zh: "↗ 常見研究設計（外部）；若你有世代資料，可直接用本工具箱的 <b>TiT ✓</b>。",
-             en: "↗ A common (external) design; with cohort data you can use this toolbox's <b>TiT ✓</b> directly." },
+  rCCTC: { rec: { kind: "toolbox", method: "cctc", badge: "CCO/CCTC ✓",
+    title: { zh: "建議：案例交叉／案例-時間對照 CCO/CCTC ✓（本工具）", en: "Suggested: case-crossover / case-(case-)time-control (CCO/CCTC) ✓ (this tool)" },
+    why: { zh: "暴露<b>短暫、會波動</b>，想用個人自身近期當對照——比較發病前的危險窗 vs 較早的參考窗（案例交叉，CCO），自我控制掉所有穩定特徵。若暴露的<b>盛行率隨日曆時間上升</b>，純 CCO 會被高估；用對照族群（或較晚發病的未來 case）把趨勢扣掉，就是 <b>CCTC</b>。其「世代版」正是本工具箱的 TiT。",
+           en: "For a <b>transient, fluctuating</b> exposure, use each case's own recent past as control — compare the pre-event hazard window vs an earlier reference window (case-crossover, CCO), cancelling every time-stable trait. If the exposure's <b>prevalence trends up over calendar time</b>, plain CCO is inflated; net out that trend with controls (or future-onset cases) → <b>CCTC</b>. Its cohort version is this toolbox's TiT." },
+    scenario: { zh: "疫苗情境：對「接種後當天就醫」這種急性事件，比較事件前幾天 vs 更早一段時間的接種暴露；若全國接種率逐年上升，再用對照族群把趨勢扣掉。",
+                en: "Vaccine scenario: for an acute event like an ER visit on the day of vaccination, compare exposure in the days before vs an earlier reference window; if national uptake rises year on year, net out the trend with a control group." },
+    watch: { zh: "✓ 本工具箱已實作（見 CCO/CCTC 分頁 ①–⑤）。若你有世代資料，也可改用世代版 <b>TiT ✓</b>。",
+             en: "✓ Implemented in this toolbox (see the CCO/CCTC tabs ①–⑤). With cohort data you can also use the cohort version <b>TiT ✓</b>." },
     altMethod: "tit", altLabel: { zh: "改用世代版 TiT →", en: "Use the cohort version: TiT →" } } },
   rNCC: { rec: { kind: "external", badge: "↗",
     title: { zh: "建議：巢式對照研究 nested case-control ↗", en: "Suggested: nested case-control ↗" },
@@ -1649,9 +1643,9 @@ const FULLMAP = {
             { edge: { zh: "配對、巢式抽樣", en: "matched, nested" },
               leaves: [{ key: "rNCC", cond: { zh: "想看「劑量–反應」，只量個案＋抽樣對照的暴露量", en: "want a dose-response; measure exposure only for cases + sampled controls" }, tag: "巢式對照 ↗", kind: "ex" }] },
             { edge: { zh: "自身對照 · 暴露無趨勢", en: "own control · no trend" },
-              leaves: [{ key: "rCCO", cond: { zh: "急性、會波動的暴露", en: "acute, fluctuating exposure" }, tag: "案例交叉 ↗", kind: "ex" }] },
+              leaves: [{ key: "rCCTC", cond: { zh: "急性、會波動的暴露（案例交叉 CCO）", en: "acute, fluctuating exposure (case-crossover CCO)" }, tag: "CCO/CCTC ✓", kind: "tb" }] },
             { edge: { zh: "自身對照 · 暴露有趨勢", en: "own control · has a trend" },
-              leaves: [{ key: "rCTC", cond: { zh: "扣掉日曆趨勢（世代版＝TiT ✓）", en: "net out the trend (cohort = TiT ✓)" }, tag: "CTC／CCTC ↗", kind: "ex" }] },
+              leaves: [{ key: "rCCTC", cond: { zh: "扣掉日曆趨勢（CCTC；世代版＝TiT ✓）", en: "net out the trend (CCTC; cohort = TiT ✓)" }, tag: "CCO/CCTC ✓", kind: "tb" }] },
           ] },
       ],
     },
@@ -1824,6 +1818,7 @@ const METHOD_REF = {
   its:  { zh: "中斷時間序列 ITS", en: "Interrupted Time Series (ITS)", src: "Bernal, Cummins & Gasparrini (2017), IJE; Dey et al. (2025)" },
   perr: { zh: "事前事件率比 PERR", en: "Prior Event Rate Ratio (PERR)", src: "Yu et al. (2012); van Aalst et al. (2021)" },
   ccw:  { zh: "複製-設限-加權 CCW", en: "Clone-Censor-Weight (CCW)", src: "Hernán (2018), BMJ; Gaber et al. (2024)" },
+  cctc: { zh: "案例交叉與時間對照 CCO/CCTC", en: "Case-crossover & (case-)time-control (CCO/CCTC)", src: "Maclure (1991); Suissa (1995); Jeong et al. (2023)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -3246,6 +3241,207 @@ function drawCcwGrace(s) {
 }
 
 // ======================================================================
+// CCO / CCTC (case-crossover & case-(case-)time-control) — tabs ①–⑤
+// ======================================================================
+const cctcState = { source: null, columns: [], req: null };
+let cctcLearnReady = false, cctcPlayReady = false, cctcAnalyzeReady = false,
+    cctcAssumeReady = false, cctcMlReady = false;
+
+// exposure-prevalence trend curve
+function cctcCurveInto(elId, curve) {
+  if (!document.getElementById(elId) || !curve) return;
+  Plotly.react(elId, [{
+    x: curve.months, y: curve.prev, mode: "lines+markers", type: "scatter",
+    line: { color: AMBER, width: 3 }, marker: { size: 5 }, name: tr("暴露盛行率", "exposure prevalence"),
+  }], sceneLayout({
+    height: 280, showlegend: false, margin: { t: 24, r: 18, b: 42, l: 54 },
+    xaxis: { title: tr("日曆月", "calendar month"), dtick: 4 },
+    yaxis: { title: tr("暴露盛行率", "exposure prevalence"), tickformat: ".0%", range: [0, 1] },
+  }), SCENE_CFG);
+}
+
+// ① learn: the exposure trend makes the recent (hazard) window sit higher than the
+// earlier (reference) window → plain case-crossover is inflated.
+function drawSceneCctc() {
+  if (!document.getElementById("cctcScene")) return;
+  const xs = [], ys = []; for (let s = 0; s <= 24; s += 1) { xs.push(s); ys.push(0.10 + 0.30 * (s / 24)); }
+  const W0 = 12, W1 = 20;
+  const shapes = [
+    { type: "rect", x0: W0 - 1.2, x1: W0 + 1.2, y0: 0, y1: 1, fillcolor: "rgba(100,116,139,.12)", line: { width: 0 } },
+    { type: "rect", x0: W1 - 1.2, x1: W1 + 1.2, y0: 0, y1: 1, fillcolor: "rgba(245,158,11,.16)", line: { width: 0 } },
+  ];
+  const yv = (x) => 0.10 + 0.30 * (x / 24);
+  const traces = [
+    { x: xs, y: ys, mode: "lines", type: "scatter", line: { color: AMBER, width: 3 }, name: tr("暴露盛行率（隨時間上升）", "exposure prevalence (rising)") },
+    { x: [W0, W1], y: [yv(W0), yv(W1)], mode: "markers", type: "scatter", marker: { color: [SLATE, "#b45309"], size: 13 }, showlegend: false },
+  ];
+  const anns = [
+    Object.assign(_lbl(W0, yv(W0) + 0.12, tr("參考窗 W0（較早）", "reference W0 (earlier)"), SLATE, 10.5), { xanchor: "center" }),
+    Object.assign(_lbl(W1, yv(W1) + 0.12, tr("危險窗 W1（事件前）", "hazard W1 (pre-event)"), "#b45309", 10.5), { xanchor: "center" }),
+    _lbl(12, 0.92, tr("趨勢讓 W1 本就比 W0 常暴露 → 純案例交叉被高估；CCTC 用對照的趨勢把它除掉",
+                      "the trend makes W1 more exposed than W0 → plain case-crossover is inflated; CCTC divides out the trend using controls"), INK, 10),
+  ];
+  Plotly.react("cctcScene", traces, schemaLayout({
+    height: 300, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
+    xaxis: { visible: true, title: tr("日曆月", "calendar month"), range: [0, 24], fixedrange: true },
+    yaxis: { visible: true, title: tr("暴露盛行率", "exposure prevalence"), range: [0, 1.05], tickformat: ".0%", fixedrange: true },
+    margin: { t: 30, r: 16, b: 38, l: 50 },
+  }), SCENE_CFG);
+}
+function initCctcLearn() { if (cctcLearnReady) return; cctcLearnReady = true; drawSceneCctc(); }
+
+// ② interactive — exposure-trend slider
+const cctcTrendSlider = document.getElementById("cctcTrendSlider");
+let cctcPlayTimer = null;
+function initCctcPlay() { if (cctcPlayReady) return; cctcPlayReady = true; refreshCctcPlay(); }
+function scheduleCctcPlay() {
+  document.getElementById("cctcTrendVal").textContent = Number(cctcTrendSlider.value).toFixed(1);
+  clearTimeout(cctcPlayTimer); cctcPlayTimer = setTimeout(refreshCctcPlay, 300);
+}
+if (cctcTrendSlider) cctcTrendSlider.addEventListener("input", scheduleCctcPlay);
+async function refreshCctcPlay() {
+  const trd = cctcTrendSlider ? Number(cctcTrendSlider.value) : 1.0;
+  let d;
+  try { d = await getJSON(`${API}/api/cctc_interactive?trend=${trd}&lang=${lang()}`); } catch (e) { return; }
+  state.cctcPlay = d;
+  const set = (id, v, col) => { const el = document.getElementById(id); if (el) { el.textContent = fmt(v, 2); if (col) el.style.color = col; } };
+  set("cctcCco", d.or_cco, Math.abs(d.or_cco - d.true_or) < 0.7 ? TEAL : RED);
+  set("cctcCctc", d.or_cctc, Math.abs(d.or_cctc - d.true_or) < 0.7 ? TEAL : AMBER);
+  set("cctcTrendOr", d.or_trend, INK);
+  cctcCurveInto("cctcPlayChart", d.exposure_curve);
+}
+
+// ③ analyze
+function initCctcAnalyze() { if (cctcAnalyzeReady) return; cctcAnalyzeReady = true; document.getElementById("useCctcExample").click(); }
+function cctcFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["cctcSelGroup", "cctcSelXh", "cctcSelXr", "cctcSelCal"].forEach((id) => document.getElementById(id).innerHTML = opts);
+  document.getElementById("cctcColMap").classList.remove("hidden");
+}
+function cctcApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null && el) el.value = v; };
+  set("cctcSelGroup", d.group); set("cctcSelXh", d.x_hazard); set("cctcSelXr", d.x_ref); set("cctcSelCal", d.cal_time);
+}
+document.getElementById("useCctcExample").addEventListener("click", async () => {
+  const st = document.getElementById("cctcDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/cctc_example`);
+    cctcState.source = "example_cctc"; cctcState.columns = d.columns;
+    st.textContent = tr(`已載入內建急性事件範例（${d.n} 列，合成虛構）`, `Loaded built-in acute-event example (${d.n} rows, synthetic)`);
+    cctcFillSelects(d.columns); cctcApplyDefaults(d.defaults);
+    runCctcAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("cctcFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("cctcDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    cctcState.source = d.token; cctcState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    cctcFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function cctcCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return { source: cctcState.source, group: v("cctcSelGroup"), x_hazard: v("cctcSelXh"),
+    x_ref: v("cctcSelXr"), cal_time: v("cctcSelCal"), lang: lang() };
+}
+const runCctcBtn = document.getElementById("runCctcAnalyze");
+if (runCctcBtn) runCctcBtn.addEventListener("click", runCctcAnalyze);
+async function runCctcAnalyze() {
+  const req = cctcCurrentMapping();
+  if (!req.source) return;
+  cctcState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/cctc_analyze`, req);
+    renderCctcAnalyze(a);
+    runCctcAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderCctcAnalyze(a) {
+  document.getElementById("cctcAnalyzeOut").classList.remove("hidden");
+  const cards = [
+    [tr("CCTC（扣趨勢，因果 OR）", "CCTC (trend-adjusted, causal OR)"), a.or_cctc, a.interpretation, true],
+    [tr("案例交叉 CCO（被趨勢吹大）", "Case-crossover CCO (trend-inflated)"), a.or_cco,
+      tr(`95% CI ${fmt(a.ci_cco[0], 2)}～${fmt(a.ci_cco[1], 2)}`, `95% CI ${fmt(a.ci_cco[0], 2)}–${fmt(a.ci_cco[1], 2)}`), false],
+    [tr("純趨勢 OR（對照）", "Pure-trend OR (controls)"), a.or_trend,
+      tr("偏離 1＝時間趨勢的強度＝CCO 的偏誤來源。", "distance from 1 = trend strength = source of CCO's bias."), false],
+  ];
+  document.getElementById("cctcAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  cctcCurveInto("cctcAnalyzeChart", a.exposure_curve);
+}
+
+// ④ assumptions
+function initCctcAssume() {
+  if (cctcAssumeReady) return;
+  cctcAssumeReady = true;
+  runCctcAssumptions(cctcState.req || { source: "example_cctc", lang: lang() });
+}
+async function runCctcAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_cctc", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/cctc_assumptions`, body); } catch (e) { return; }
+  state.cctcDash = out;
+  renderCctcAssumptions(out);
+}
+function renderCctcAssumptions(out) {
+  const hint = document.getElementById("cctcAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("cctcOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；關鍵假設仍需領域判斷。", "Testable checks pass; key assumptions need domain judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設不可檢驗，需靠領域知識與設計。", "Most core assumptions are untestable — rely on domain knowledge and design."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("cctcAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ⑤ refinement demo
+function initCctcMl() { /* concept cards static; demo button-triggered */ }
+const runCctcDemoBtn = document.getElementById("runCctcDemo");
+if (runCctcDemoBtn) runCctcDemoBtn.addEventListener("click", refreshCctcDemo);
+async function refreshCctcDemo() {
+  let s;
+  try { s = await getJSON(`${API}/api/cctc_demo?lang=${lang()}`); } catch (e) { return; }
+  state.cctcDemo = s;
+  document.getElementById("cctcDemoOut").classList.remove("hidden");
+  drawCctcDemo(s);
+  document.getElementById("cctcDemoReading").innerHTML = s.reading;
+}
+function drawCctcDemo(s) {
+  if (!document.getElementById("cctcDemoChart")) return;
+  const labels = [tr("CCO（純案例交叉）", "CCO (plain)"), tr("CTC（對照扣趨勢）", "CTC (control-adjusted)"),
+                  tr("CCTC（未來 case 扣趨勢）", "CCTC (future-case)")];
+  const vals = [s.cco, s.ctc, s.casecase];
+  Plotly.react("cctcDemoChart", [{
+    x: labels, y: vals, type: "bar",
+    marker: { color: [RED, TEAL, TEAL] }, text: vals.map((v) => v.toFixed(2) + "×"), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 28, r: 18, b: 56, l: 50 },
+    yaxis: { title: tr("勝算比", "odds ratio"), range: [0, Math.max(...vals) * 1.2] },
+    shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: s.true_or, y1: s.true_or, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: 2.5, y: s.true_or, text: tr("真值 " + s.true_or, "truth " + s.true_or), showarrow: false, yshift: 11, xanchor: "right", font: { color: GREEN, size: 11 } }],
+  }), SCENE_CFG);
+}
+
+// ======================================================================
 // Language switch — re-render any dynamic content already on screen
 // ======================================================================
 window.addEventListener("iv-lang", async () => {
@@ -3310,6 +3506,11 @@ window.addEventListener("iv-lang", async () => {
   if (ccwAnalyzeReady) runCcwAnalyze();                // CCW ③ analysis + dashboard
   else if (ccwAssumeReady) runCcwAssumptions(ccwState.req);
   if (state.ccwGrace) refreshCcwGrace();               // CCW ⑤ grace sensitivity (re-render)
+  if (cctcLearnReady) drawSceneCctc();                 // CCO/CCTC ① learn scene
+  if (cctcPlayReady) refreshCctcPlay();                // CCO/CCTC ② interactive
+  if (cctcAnalyzeReady) runCctcAnalyze();              // CCO/CCTC ③ analysis + dashboard
+  else if (cctcAssumeReady) runCctcAssumptions(cctcState.req);
+  if (state.cctcDemo) refreshCctcDemo();               // CCO/CCTC ⑤ demo (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
 });
 

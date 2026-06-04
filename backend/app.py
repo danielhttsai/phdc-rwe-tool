@@ -41,6 +41,9 @@ import perr_assumptions
 import ccw_core
 import ccw_gen
 import ccw_assumptions
+import cctc_core
+import cctc_gen
+import cctc_assumptions
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data", "demo_vaccine.csv")
@@ -744,6 +747,72 @@ def ccw_interactive(timing_effect: float = 1.0, scenario: str = "grace", lang: s
 def ccw_grace(seed: int = 0, scenario: str = "grace", lang: str = "zh"):
     """CCW ⑤: grace-period sensitivity per scenario."""
     return _clean(ccw_core.grace_demo(seed=seed, scenario=scenario, lang=lang))
+
+
+# ---------------------------------------------------------------------------
+# CCO/CCTC endpoints (case-crossover & case-(case-)time-control)
+# ---------------------------------------------------------------------------
+class CctcRequest(BaseModel):
+    source: str = "example_cctc"
+    group: str = "group"
+    x_hazard: str = "x_hazard"
+    x_ref: str = "x_ref"
+    cal_time: str = "cal_time"
+    lang: str = "zh"
+
+
+def _load_cctc(source: str) -> pd.DataFrame:
+    if source in ("example_cctc", "example"):
+        return cctc_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/cctc_example")
+def cctc_example():
+    df = cctc_gen.generate()
+    return _clean({
+        "columns": list(df.columns),
+        "defaults": {"group": "group", "x_hazard": "x_hazard", "x_ref": "x_ref", "cal_time": "cal_time"},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "group": "group（1＝case 有急性事件，0＝對照族群）",
+            "x_hazard": "x_hazard（危險窗 W1 是否暴露）／x_ref（參考窗 W0 是否暴露）",
+            "cal_time": "cal_time（日曆月；暴露盛行率隨它上升）",
+        },
+    })
+
+
+@app.post("/api/cctc_analyze")
+def cctc_analyze(req: CctcRequest):
+    df = _load_cctc(req.source)
+    return _clean(cctc_core.full_cctc(df, req.group, req.x_hazard, req.x_ref, req.cal_time, lang=req.lang))
+
+
+@app.post("/api/cctc_assumptions")
+def cctc_assumptions_check(req: CctcRequest):
+    df = _load_cctc(req.source)
+    return _clean(cctc_assumptions.run_dashboard(df, req.group, req.x_hazard, req.x_ref, req.cal_time, lang=req.lang))
+
+
+@app.get("/api/cctc_interactive")
+def cctc_interactive(trend: float = 1.0, lang: str = "zh"):
+    """Slider on the exposure calendar-trend: 0 → CCO unbiased; larger → CCO biased, CCTC ok."""
+    tr = float(np.clip(trend, 0.0, 1.5))
+    df = cctc_gen.generate(trend=tr, n_cases=2500, n_controls=2500)
+    out = cctc_core.full_cctc(df, lang=lang)
+    return _clean({"trend": tr, "true_or": out["true_or"], "or_cco": out["or_cco"],
+                   "or_cctc": out["or_cctc"], "or_trend": out["or_trend"],
+                   "exposure_curve": out["exposure_curve"]})
+
+
+@app.get("/api/cctc_demo")
+def cctc_demo(lang: str = "zh"):
+    """CCTC ⑤: case-time-control vs case-case-time-control refinement."""
+    return _clean(cctc_core.cctc_demo(lang=lang))
 
 
 @app.get("/api/tit_interactive")

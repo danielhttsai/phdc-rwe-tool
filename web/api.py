@@ -39,6 +39,9 @@ import perr_assumptions
 import ccw_core
 import ccw_gen
 import ccw_assumptions
+import cctc_core
+import cctc_gen
+import cctc_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -676,6 +679,62 @@ def _ccw_grace(q: dict) -> dict:
                                scenario=q.get("scenario", "grace"), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# CCO/CCTC endpoints (case-crossover & case-(case-)time-control)
+# ---------------------------------------------------------------------------
+CCTC_DEFAULTS = {"group": "group", "x_hazard": "x_hazard", "x_ref": "x_ref", "cal_time": "cal_time"}
+
+
+def _load_cctc(source: str) -> pd.DataFrame:
+    if source in ("example_cctc", "example"):
+        return cctc_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _cctc_example() -> dict:
+    df = cctc_gen.generate()
+    return {
+        "columns": list(df.columns), "defaults": CCTC_DEFAULTS, "n": len(df),
+        "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "group": "group（1＝case 有急性事件，0＝對照族群）",
+            "x_hazard": "x_hazard（事件前危險窗 W1 是否暴露）／x_ref（更早參考窗 W0 是否暴露）",
+            "cal_time": "cal_time（指標的日曆月；暴露盛行率隨它上升）",
+        },
+    }
+
+
+def _cctc_analyze(req: dict) -> dict:
+    df = _load_cctc(req.get("source", "example_cctc"))
+    return cctc_core.full_cctc(df, req.get("group", "group"), req.get("x_hazard", "x_hazard"),
+                               req.get("x_ref", "x_ref"), req.get("cal_time", "cal_time"),
+                               lang=req.get("lang", "zh"))
+
+
+def _cctc_assumptions(req: dict) -> dict:
+    df = _load_cctc(req.get("source", "example_cctc"))
+    return cctc_assumptions.run_dashboard(df, req.get("group", "group"), req.get("x_hazard", "x_hazard"),
+                                          req.get("x_ref", "x_ref"), req.get("cal_time", "cal_time"),
+                                          lang=req.get("lang", "zh"))
+
+
+def _cctc_interactive(q: dict) -> dict:
+    trend = float(np.clip(float(q.get("trend", 1.0)), 0.0, 1.5))
+    df = cctc_gen.generate(trend=trend, n_cases=2500, n_controls=2500)
+    out = cctc_core.full_cctc(df, lang=q.get("lang", "zh"))
+    return {"trend": trend, "true_or": out["true_or"], "or_cco": out["or_cco"],
+            "or_cctc": out["or_cctc"], "or_trend": out["or_trend"],
+            "exposure_curve": out["exposure_curve"]}
+
+
+def _cctc_demo(q: dict) -> dict:
+    return cctc_core.cctc_demo(lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -732,6 +791,11 @@ _ROUTES = {
     ("POST", "/api/ccw_assumptions"): lambda q, b: _ccw_assumptions(b),
     ("GET", "/api/ccw_interactive"): lambda q, b: _ccw_interactive(q),
     ("GET", "/api/ccw_grace"): lambda q, b: _ccw_grace(q),
+    ("GET", "/api/cctc_example"): lambda q, b: _cctc_example(),
+    ("POST", "/api/cctc_analyze"): lambda q, b: _cctc_analyze(b),
+    ("POST", "/api/cctc_assumptions"): lambda q, b: _cctc_assumptions(b),
+    ("GET", "/api/cctc_interactive"): lambda q, b: _cctc_interactive(q),
+    ("GET", "/api/cctc_demo"): lambda q, b: _cctc_demo(q),
 }
 
 
