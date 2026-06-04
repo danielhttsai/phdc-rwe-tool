@@ -446,6 +446,71 @@ function drawTwoStage(elId) {
   }), SCENE_CFG);
 }
 
+// AFT illustration — the treatment "stretches" the WHOLE event-time distribution
+// (two survival curves; the treated one is the control curve scaled later in time).
+function drawAFT(elId) {
+  if (!document.getElementById(elId)) return;
+  const FACTOR = 1.7;
+  const S = (t, sc) => Math.exp(-Math.pow(t / (3.0 * sc), 1.6));
+  const tx = [], cy = [], ty = [];
+  for (let t = 0; t <= 10; t += 0.15) { tx.push(t); cy.push(S(t, 1)); ty.push(S(t, FACTOR)); }
+  const med = (sc) => 3.0 * sc * Math.pow(Math.log(2), 1 / 1.6);
+  const mC = med(1), mT = med(FACTOR);
+  const traces = [
+    { x: tx, y: cy, mode: "lines", type: "scatter", name: tr("沒處置（對照）", "control"), line: { color: "#94a3b8", width: 3 } },
+    { x: tx, y: ty, mode: "lines", type: "scatter", name: tr("有處置：時間被拉長", "treated: time stretched"), line: { color: TEAL, width: 3 } },
+  ];
+  const shapes = [{ type: "line", x0: 0, y0: 0.5, x1: 10, y1: 0.5, line: { color: "#cbd5e1", width: 1, dash: "dot" } }];
+  const anns = [
+    Object.assign(_arrow(mC, 0.5, mT, 0.5), { arrowcolor: "#dc2626", arrowwidth: 2.2 }),
+    _lbl((mC + mT) / 2, 0.59, tr("×1.7：中位事件時間延後", "×1.7 later median event time"), "#dc2626", 10.5),
+    _lbl(5, 0.95, tr("AFT：把「整段事件時間」往後拉長（不只比一個平均）", "AFT: stretch the WHOLE event-time distribution later (not just a mean)"), INK, 10.5),
+  ];
+  Plotly.react(elId, traces, schemaLayout({
+    height: 280, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.18 },
+    xaxis: { visible: true, title: tr("時間（追蹤多久）", "time"), range: [0, 10], fixedrange: true },
+    yaxis: { visible: true, title: tr("還沒發生事件的比例", "still event-free"), range: [0, 1.08], fixedrange: true },
+    margin: { t: 30, r: 16, b: 38, l: 50 },
+  }), SCENE_CFG);
+}
+
+// IPCW illustration — when someone is censored early, up-weight a still-followed,
+// similar person to "stand in" for them, rebuilding the full picture.
+function drawIPCW(elId) {
+  if (!document.getElementById(elId)) return;
+  const rows = [
+    { y: 5.4, end: 9.2, kind: "event" },
+    { y: 4.3, end: 3.0, kind: "cens" },
+    { y: 3.2, end: 6.2, kind: "event" },
+    { y: 2.1, end: 4.2, kind: "cens" },
+    { y: 1.0, end: 8.7, kind: "weight" },
+  ];
+  const shapes = [], evX = [], evY = [], csX = [], csY = [];
+  rows.forEach((r) => {
+    shapes.push({ type: "line", x0: 0.7, y0: r.y, x1: r.end, y1: r.y,
+      line: { color: r.kind === "cens" ? "#f59e0b" : (r.kind === "weight" ? TEAL : "#94a3b8"), width: r.kind === "weight" ? 6 : 2.5 } });
+    if (r.kind === "event") { evX.push(r.end); evY.push(r.y); }
+    if (r.kind === "cens") { csX.push(r.end); csY.push(r.y); }
+  });
+  const traces = [
+    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件發生", "● event"), marker: { color: RED, size: 11 } },
+    { x: csX, y: csY, mode: "markers", type: "scatter", name: tr("✂ 中途設限（退出）", "✂ censored"), marker: { color: "#f59e0b", size: 13, symbol: "line-ns-open", line: { width: 3 } } },
+  ];
+  const anns = [
+    Object.assign(_lbl(9.0, 1.0, tr("×加重（當替身）", "×weight (stands in)"), "#0f766e", 10.5), { xanchor: "left" }),
+    Object.assign(_arrow(3.0, 4.3, 7.9, 1.2), { arrowcolor: "#0f766e" }),
+    Object.assign(_arrow(4.2, 2.1, 8.2, 1.1), { arrowcolor: "#0f766e" }),
+    _lbl(5, 6.5, tr("IPCW：有人被中途設限（✂），就把「還在追蹤、條件相似」的人加重，替他發聲 → 補回完整樣子",
+                    "IPCW: when someone is censored (✂), up-weight a still-followed, similar person to speak for them → rebuild the full picture"), INK, 10),
+  ];
+  Plotly.react(elId, traces, schemaLayout({
+    height: 280, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.18 },
+    xaxis: { visible: true, title: tr("追蹤時間", "follow-up time"), range: [0, 10], fixedrange: true },
+    yaxis: { visible: false, range: [0, 7.2] },
+    margin: { t: 30, r: 16, b: 36, l: 26 },
+  }), SCENE_CFG);
+}
+
 // scene 1 (IV remedy 1): illustrate the STACKING — one weak force = two
 // overlapping humps (can't tell apart); stack a dozen and the two groups
 // (nudged vs not) separate into a clear strong signal.
@@ -803,6 +868,7 @@ function initRdd() {
   if (rddReady) return;
   rddReady = true;
   drawSceneSurvIntro();   // "what does censored time-to-event data look like"
+  drawAFT("aftDiagram"); drawIPCW("ipcwDiagram");  // AFT / IPCW concept illustrations
   refreshRdd();
   // NOTE: the survival fit (IPCW/Cox/AFT) is heavy (~3s) and, on the
   // browser-only Pyodide build, runs synchronously and freezes the UI.
@@ -2835,7 +2901,7 @@ window.addEventListener("iv-lang", async () => {
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
-  if (rddReady) { drawSceneSurvIntro(); refreshRdd(); }  // RDD ② interactive
+  if (rddReady) { drawSceneSurvIntro(); drawAFT("aftDiagram"); drawIPCW("ipcwDiagram"); refreshRdd(); }  // RDD ② interactive
   if (state.rddSurv) renderRddSurvival(state.rddSurv);  // re-render cached survival (no recompute → no freeze)
   if (rddAnalyzeReady) {                                // RDD ③ data analysis
     const keepSurv = state.rddAnalyzeSurv;             // runRddAnalyze resets this

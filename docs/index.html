@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>準實驗工具箱 Quasi-experimental Toolbox：IV · RDD · DiD · TiT · ITS · PERR</title>
-<link rel="stylesheet" href="styles.css?v=33" />
+<link rel="stylesheet" href="styles.css?v=34" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -555,6 +555,7 @@
             例如對數常態、對數羅吉斯）——它描述「<b>整段事件時間的分布</b>」，能直接講「處置讓事件時間延後幾倍」，
             比單一平均資訊更豐富。這是把同一份 time-to-event 分析往上升一階。
           </p>
+          <div id="aftDiagram" class="chart"></div>
         </div>
         <div class="card">
           <h3 data-en="② Repair the &quot;downgraded&quot; data: IPCW / doubly-robust">② 把「降階」的資料補回來：IPCW／雙重穩健</h3>
@@ -563,6 +564,7 @@
             還原本來完整的樣子；<b>雙重穩健</b>再多加一道保險——一個結果模型（Cox 或 AFT）——
             只要「設限模型」或「結果模型」其中一個是對的，答案就不偏。
           </p>
+          <div id="ipcwDiagram" class="chart"></div>
         </div>
       </div>
 
@@ -986,10 +988,10 @@
   <section id="didml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is computed in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時計算出來的，僅供教學展示。</div>
     <h1 data-en="The one place DiD genuinely uses machine learning">DiD 真正用到機器學習的那一個地方</h1>
-    <p class="lead" data-en="To be honest: most &quot;advanced DiD&quot; methods are estimator/design <b>variants</b> (staggered adoption, Universal DiD, synthetic control) — they are not AI, and they now live in tab ③. The genuinely machine-learning method is <b>double/debiased machine-learning DiD (DML)</b>: when who-gets-treated and the time trend depend <b>non-linearly</b> on many covariates, fit those nuisance pieces with gradient boosting and de-bias with cross-fitting. Below it really runs scikit-learn in your browser.">
-      老實說：大多數「進階 DiD」其實是估計／設計上的<b>變形</b>（交錯採用、Universal DiD、合成控制）——它們不是 AI，
-      已經移到分頁 ③。真正用到機器學習的，是<b>雙重／去偏機器學習 DiD（DML）</b>：當「誰受處置」與時間趨勢都
-      <b>非線性</b>地取決於許多共變項時，用梯度提升去估那些輔助模型、再用交叉擬合去偏。下面會<b>真的在你的瀏覽器裡跑 scikit-learn</b>。
+    <p class="lead" data-en="<b>Double / debiased machine-learning DiD (DML)</b>: when who-gets-treated and the time trend both depend <b>non-linearly</b> on many covariates, fit those nuisance pieces with gradient boosting and de-bias with cross-fitting. Below it really runs <b>scikit-learn</b> (the most widely used open-source machine-learning library for Python) right in your browser.">
+      <b>雙重／去偏機器學習 DiD（DML）</b>：當「誰受處置」與時間趨勢都<b>非線性</b>地取決於許多共變項時，
+      用梯度提升去估那些輔助模型、再用交叉擬合去偏。下面會<b>真的在你的瀏覽器裡跑 scikit-learn</b>
+      （scikit-learn 是 Python 最常用的開源機器學習套件）。
     </p>
 
     <div class="card info">
@@ -1387,10 +1389,10 @@
   <section id="itsml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is computed in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時計算出來的，僅供教學展示。</div>
     <h1 data-en="The one place ITS genuinely uses machine learning">ITS 真正用到機器學習的那一個地方</h1>
-    <p class="lead" data-en="To be honest: most &quot;advanced ITS&quot; methods are estimator/design <b>variants</b> (autocorrelation-robust SE, controlled ITS, Bayesian structural time series) — they are not AI, and they now live in tab ③. The genuinely machine-learning method is the <b>ML two-stage counterfactual</b> (Dey 2025): when the no-intervention outcome depends <b>non-linearly</b> on observed covariates, train a model on the pre-period to predict it, then forecast the counterfactual. Below it really runs scikit-learn in your browser.">
-      老實說：大多數「進階 ITS」其實是估計／設計上的<b>變形</b>（自相關穩健 SE、控制組 ITS、貝氏結構時間序列）——
-      它們不是 AI，已經移到分頁 ③。真正用到機器學習的，是 <b>ML 兩階段反事實</b>（Dey 2025）：當「沒介入會怎樣」
-      非線性地取決於可觀測的共變項時，用介入前資料訓練模型去預測它、再外推反事實。下面會<b>真的在你的瀏覽器裡跑 scikit-learn</b>。
+    <p class="lead" data-en="<b>ML two-stage counterfactual</b> (Dey 2025): when the no-intervention outcome depends <b>non-linearly</b> on observed covariates, train a model on the pre-period to predict it, then forecast the counterfactual. Below it really runs <b>scikit-learn</b> (the most widely used open-source machine-learning library for Python) right in your browser.">
+      <b>ML 兩階段反事實</b>（Dey 2025）：當「沒介入會怎樣」<b>非線性</b>地取決於可觀測的共變項時，
+      用介入前資料訓練模型去預測它、再外推反事實。下面會<b>真的在你的瀏覽器裡跑 scikit-learn</b>
+      （scikit-learn 是 Python 最常用的開源機器學習套件）。
     </p>
 
     <div class="card info">
@@ -1814,7 +1816,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=33"></script>
-<script src="app.js?v=33"></script>
+<script src="i18n.js?v=34"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>
