@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>準實驗工具箱 Quasi-experimental Toolbox：IV · RDD · DiD · TiT · ITS · PERR</title>
-<link rel="stylesheet" href="/styles.css?v=43" />
+<title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
+<link rel="stylesheet" href="/styles.css?v=44" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="Quasi-experimental toolbox">準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>TiT</span> · <span>ITS</span> · <span>PERR</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>TiT</span> · <span>ITS</span> · <span>PERR</span> · <span>CCW</span> · <span>CCO/CCTC</span> · <span>Seq</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -29,7 +29,7 @@
       <button class="tab subtab" data-sub="assume" data-en="④ Assumptions">④ 假設檢驗</button>
       <button class="tab subtab" data-sub="ml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
     </div>
-    <button class="tab tab-sep" id="chooseTab" data-en="Compare all six">六法怎麼選</button>
+    <button class="tab tab-sep" id="chooseTab" data-en="Which design?">各設計怎麼選</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -2094,11 +2094,22 @@
   <section id="ccwplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive CCW: watch CCW track the truth while the naive contrast drifts">互動式 CCW：看 CCW 緊貼真值，天真比較卻飄走</h1>
-    <p class="lead" data-en="Drag the slider to change how protective the vaccine really is. <b>CCW</b> (clone-censor-weight) tracks the true risk difference at every setting; the <b>naive</b> early-vs-late comparison stays biased by immortal time and confounding. Watch the cumulative-incidence curves and the three numbers move together.">
-      拉動滑桿，改變疫苗「真正」的保護力。<b>CCW</b>（複製-設限-加權）在每個設定下都緊貼真實風險差；
-      <b>天真</b>的早 vs 晚比較則持續被 immortal-time 與混淆帶偏。看累積發生率曲線與三個數字一起變化。
+    <p class="lead" data-en="Pick a <b>strategy scenario</b> — each has its own data distribution and estimand. Then drag the slider to change how protective the vaccine really is. <b>CCW</b> (clone-censor-weight) tracks the true risk difference at every setting; the <b>naive</b> comparison stays biased by immortal time / selection. Watch the cumulative-incidence curves and the three numbers move together.">
+      先選一個<b>策略情境</b>——每種都有自己的資料分布與估計目標。再拉動滑桿改變疫苗「真正」的保護力。
+      <b>CCW</b>（複製-設限-加權）在每個設定下都緊貼真實風險差；<b>天真</b>比較則持續被 immortal-time／選擇偏誤帶偏。
+      看累積發生率曲線與三個數字一起變化。
     </p>
 
+    <div class="controls">
+      <label class="ccw-scen">
+        <span data-en="Strategy scenario:">策略情境：</span>
+        <select id="ccwScenario" class="scen-select">
+          <option value="grace" data-en="Grace period: initiate within a window vs defer">寬限期：在窗內接種 vs 延後</option>
+          <option value="earlylate" data-en="Early vs late use (both eventually treat)">早 vs 晚啟動（兩組最終都用藥）</option>
+          <option value="sustained" data-en="Sustained vs discontinue (time-varying)">持續用藥 vs 停藥（時變）</option>
+        </select>
+      </label>
+    </div>
     <div class="controls">
       <label>
         <span data-en="True protective effect of vaccination:">疫苗真正的保護效果：</span><b id="ccwTimingVal">1.00</b>
@@ -2129,8 +2140,19 @@
       的天真比較並列。
     </p>
 
+    <div class="controls">
+      <label class="ccw-scen">
+        <span data-en="Strategy scenario:">策略情境：</span>
+        <select id="ccwScenario3" class="scen-select">
+          <option value="grace" data-en="Grace period: initiate within a window vs defer">寬限期：在窗內接種 vs 延後</option>
+          <option value="earlylate" data-en="Early vs late use (both eventually treat)">早 vs 晚啟動（兩組最終都用藥）</option>
+          <option value="sustained" data-en="Sustained vs discontinue (time-varying)">持續用藥 vs 停藥（時變）</option>
+        </select>
+      </label>
+    </div>
+
     <div class="datasource">
-      <button id="useCcwExample" class="btn primary" data-en="Load built-in early-vs-late example">載入內建早 vs 晚範例</button>
+      <button id="useCcwExample" class="btn primary" data-en="Load built-in example">載入內建範例</button>
       <span class="or" data-en="or">或</span>
       <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="ccwFileInput" accept=".csv" hidden /></label>
       <span id="ccwDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
@@ -2215,11 +2237,11 @@
 
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
-    <h1 data-en="Six designs, one vaccine question — which to use?">六法怎麼選：同一個疫苗問題，六種攻法</h1>
-    <p class="lead" data-en="Throughout this whole toolbox we asked <b>one</b> causal question — <b>does the vaccine actually improve health / prevent the event?</b> The honest way would be a randomised trial, but often we can't run one. So six <b>quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
+    <h1 data-en="Many designs, one vaccine question — which to use?">各設計怎麼選：同一個疫苗問題，多種攻法</h1>
+    <p class="lead" data-en="Throughout this whole toolbox we asked <b>one</b> causal question — <b>does the vaccine actually improve health / prevent the event?</b> The honest way would be a randomised trial, but often we can't run one. So a range of <b>real-world-evidence &amp; quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
       整個工具箱我們只問<b>一個</b>因果問題——<b>疫苗真的能改善健康／預防那個事件嗎？</b>
-      最誠實的做法是隨機試驗，但我們常常做不到。於是六種<b>準實驗</b>設計，各自從<b>不同的地方</b>「借」一點
-      近似隨機的變異來回答。這裡把六個並排，幫你挑出你的資料撐得起的那一個。
+      最誠實的做法是隨機試驗，但我們常常做不到。於是多種<b>真實世界證據／準實驗</b>設計，各自從<b>不同的地方</b>「借」一點
+      近似隨機的變異來回答。這裡把它們並排，幫你挑出你的資料撐得起的那一個。
     </p>
 
     <div class="card scene">
@@ -2429,7 +2451,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=43"></script>
-<script src="app.js?v=43"></script>
+<script src="i18n.js?v=44"></script>
+<script src="app.js?v=44"></script>
 </body>
 </html>

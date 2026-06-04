@@ -605,58 +605,75 @@ def _perr_scale(q: dict) -> dict:
 # ---------------------------------------------------------------------------
 # Clone-Censor-Weight endpoints (CCW method)
 # ---------------------------------------------------------------------------
-def _load_ccw(source: str) -> pd.DataFrame:
+_CCW_STORY = {
+    "grace": {"vacc_month": "vacc_month（診斷後第幾個月接種；空白＝追蹤期內未接種）",
+              "event": "event（追蹤期內是否發生重大健康事件）／futime（事件或追蹤結束月份）",
+              "age": "age、frailty（共變項；體弱者傾向更早接種＝適應症混淆）"},
+    "earlylate": {"vacc_month": "vacc_month（接種月份；兩組最終都會接種，只差早或晚）",
+                  "event": "event／futime（事件或追蹤結束月份）",
+                  "age": "age、frailty（共變項；體弱者傾向更早接種）"},
+    "sustained": {"disc_month": "disc_month（第幾個月停藥；空白＝從未停藥＝持續用藥）",
+                  "event": "event／futime（事件或追蹤結束月份）",
+                  "age": "age、frailty（共變項；體弱者較易停藥＝混淆）"},
+}
+
+
+def _load_ccw(source: str, scenario: str = "grace") -> pd.DataFrame:
     if source in ("example_ccw", "example"):
-        return _demo_ccw()
+        return ccw_gen.generate(scenario=scenario)
     df = _UPLOADS.get(source)
     if df is None:
         raise ValueError("找不到資料，請重新上傳。")
     return df
 
 
-def _ccw_example() -> dict:
-    df = _demo_ccw()
+def _ccw_example(q: dict) -> dict:
+    sc = q.get("scenario", "grace")
+    df = ccw_gen.generate(scenario=sc)
+    defaults = dict(CCW_DEFAULTS); defaults["vacc_time"] = ccw_gen.DRIVE_COL.get(sc, "vacc_month")
+    defaults["scenario"] = sc
     return {
-        "columns": list(df.columns), "defaults": CCW_DEFAULTS, "n": len(df),
+        "columns": list(df.columns), "defaults": defaults, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
-        "story": {
-            "vacc_month": "vacc_month（診斷後第幾個月接種；空白＝追蹤期內未接種）",
-            "event": "event（追蹤期內是否發生重大健康事件）／futime（事件或追蹤結束月份）",
-            "age": "age、frailty（共變項；體弱者傾向更早接種＝適應症混淆）",
-        },
+        "story": _CCW_STORY.get(sc, _CCW_STORY["grace"]),
     }
 
 
 def _ccw_analyze(req: dict) -> dict:
-    df = _load_ccw(req.get("source", "example_ccw"))
-    return ccw_core.full_ccw(df, req.get("vacc_time", "vacc_month"),
+    sc = req.get("scenario", "grace")
+    df = _load_ccw(req.get("source", "example_ccw"), sc)
+    return ccw_core.full_ccw(df, req.get("vacc_time"),
                              req.get("event", "event"), req.get("futime", "futime"),
                              tuple(req.get("covariates", ["age", "frailty"])),
                              int(req.get("grace", 3)), int(req.get("horizon", 12)),
-                             n_boot=int(req.get("n_boot", 0)), lang=req.get("lang", "zh"))
+                             n_boot=int(req.get("n_boot", 0)), scenario=sc, lang=req.get("lang", "zh"))
 
 
 def _ccw_assumptions(req: dict) -> dict:
-    df = _load_ccw(req.get("source", "example_ccw"))
-    return ccw_assumptions.run_dashboard(df, req.get("vacc_time", "vacc_month"),
+    sc = req.get("scenario", "grace")
+    df = _load_ccw(req.get("source", "example_ccw"), sc)
+    return ccw_assumptions.run_dashboard(df, req.get("vacc_time"),
                                          req.get("event", "event"), req.get("futime", "futime"),
                                          tuple(req.get("covariates", ["age", "frailty"])),
                                          int(req.get("grace", 3)), int(req.get("horizon", 12)),
-                                         lang=req.get("lang", "zh"))
+                                         scenario=sc, lang=req.get("lang", "zh"))
 
 
 def _ccw_interactive(q: dict) -> dict:
+    sc = q.get("scenario", "grace")
     te = float(np.clip(float(q.get("timing_effect", 1.0)), 0.0, 1.0))
-    df = ccw_gen.generate(n=3200, timing_effect=te)   # smaller sample → snappier slider under Pyodide
-    out = ccw_core.full_ccw(df, true_rd=ccw_core.estimand_truth(te), lang=q.get("lang", "zh"))
-    return {"timing_effect": te, "true_rd": out["true_rd"], "ccw": out["ccw"],
+    df = ccw_gen.generate(n=3200, timing_effect=te, scenario=sc)
+    out = ccw_core.full_ccw(df, true_rd=ccw_core.estimand_truth(te, scenario=sc),
+                            scenario=sc, lang=q.get("lang", "zh"))
+    return {"timing_effect": te, "scenario": sc, "true_rd": out["true_rd"], "ccw": out["ccw"],
             "naive": out["naive"], "curve": out["curve"],
             "risk_early_ccw": out["risk_early_ccw"], "risk_late_ccw": out["risk_late_ccw"]}
 
 
 def _ccw_grace(q: dict) -> dict:
-    return ccw_core.grace_demo(seed=int(q.get("seed", 0)), lang=q.get("lang", "zh"))
+    return ccw_core.grace_demo(seed=int(q.get("seed", 0)),
+                               scenario=q.get("scenario", "grace"), lang=q.get("lang", "zh"))
 
 
 def _tit_interactive(q: dict) -> dict:
@@ -710,7 +727,7 @@ _ROUTES = {
     ("POST", "/api/perr_assumptions"): lambda q, b: _perr_assumptions(b),
     ("GET", "/api/perr_interactive"): lambda q, b: _perr_interactive(q),
     ("GET", "/api/perr_scale"): lambda q, b: _perr_scale(q),
-    ("GET", "/api/ccw_example"): lambda q, b: _ccw_example(),
+    ("GET", "/api/ccw_example"): lambda q, b: _ccw_example(q),
     ("POST", "/api/ccw_analyze"): lambda q, b: _ccw_analyze(b),
     ("POST", "/api/ccw_assumptions"): lambda q, b: _ccw_assumptions(b),
     ("GET", "/api/ccw_interactive"): lambda q, b: _ccw_interactive(q),

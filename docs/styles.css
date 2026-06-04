@@ -252,6 +252,9 @@ main { max-width: 920px; margin: 0 auto; padding: 1.5rem; }
 .controls label { display: block; font-weight: 600; }
 .controls input[type=range] { width: 100%; margin: .5rem 0 0; accent-color: var(--z); }
 .controls small { display: block; color: var(--muted); font-weight: 400; }
+.ccw-scen { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.scen-select { font: inherit; font-weight: 600; padding: .4rem .6rem; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink, #14283c); cursor: pointer; }
+.scen-select:focus { outline: 2px solid var(--z); }
 .play-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
 .rdd-twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
 .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }

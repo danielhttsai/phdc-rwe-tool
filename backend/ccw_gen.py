@@ -43,78 +43,112 @@ A0 = -1.15        # baseline monthly initiation log-odds
 A_FRAIL = 1.00    # frail people initiate SOONER → confounding by indication
 A_AGE = 0.30
 
+# discontinuation monthly-hazard logit coefficients (scenario "sustained")
+D0 = -1.6         # baseline monthly discontinuation log-odds
+D_FRAIL = 0.9     # frail people discontinue MORE (side-effects/burden) → confounding
+D_AGE = 0.2
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "data", "demo_ccw.csv")
 COLUMNS = ["pid", "age", "frailty", "vacc_month", "event", "futime"]
+SCENARIOS = ("grace", "earlylate", "sustained")
+# which person-level "driving" column each scenario writes
+DRIVE_COL = {"grace": "vacc_month", "earlylate": "vacc_month", "sustained": "disc_month"}
 
 
 def _sig(x):
     return 1.0 / (1.0 + np.exp(-x))
 
 
-def _simulate(rng, age_std, frail, timing_effect=1.0, force=None, init_confound=True):
-    """One monthly simulation over N people. Returns vacc_month, event, futime arrays.
+def _simulate(rng, age_std, frail, timing_effect=1.0, force=None, init_confound=True,
+              scenario="grace"):
+    """One monthly simulation over N people. Returns (drive, event, futime) where
+    `drive` is the scenario's driving month (vaccination month for grace/earlylate,
+    discontinuation month for sustained; NaN = the action never happened).
 
-    force = None        → observational (people initiate per their own hazard)
-    force = "early"     → everyone initiates at month 0
-    force = "late"      → nobody initiates during follow-up (the deferral/control arm)
-    timing_effect scales the protective effect's dependence on being treated, used by
-    the ② slider (0 → vaccination does nothing; 1 → full protective effect).
-    init_confound = False → initiation timing is INDEPENDENT of frailty/age (no
-    confounding by indication). Used to compute the estimand's ground truth: there
-    the clone-censor estimate is unbiased because the weights are ≈ 1.
+    timing_effect scales the protective effect (② slider). init_confound=False makes
+    the treatment process INDEPENDENT of frailty/age (used to compute the estimand's
+    ground truth, where the clone-censor weights are ≈ 1).
+    scenario: "grace" (initiate-within-grace vs defer), "earlylate" (early vs late
+    initiation — BOTH eventually treat), "sustained" (stay-on vs discontinue).
     """
     n = age_std.size
-    vacc = np.full(n, -1, dtype=int)       # -1 = not yet vaccinated
-    if force == "early":
-        vacc[:] = 0
-    evt_month = np.full(n, -1, dtype=int)  # -1 = no event yet
-    alive = np.ones(n, dtype=bool)         # event-free & in follow-up
+    evt_month = np.full(n, -1, dtype=int)
+    alive = np.ones(n, dtype=bool)
     prot = B_PROT * float(timing_effect)
-    a_frail = A_FRAIL if init_confound else 0.0
-    a_age = A_AGE if init_confound else 0.0
-    # keep the marginal initiation rate similar when confounding is off
-    a0 = A0 if init_confound else (A0 + 0.5 * A_FRAIL * 0.4)
 
-    for t in range(T):
-        treated_now = (vacc >= 0) & (vacc < t)          # immunity from the month AFTER initiation
-        # event hazard this month
-        h_evt = _sig(B0 + B_FRAIL * frail + B_AGE * age_std - prot * treated_now)
-        draw_e = rng.random(n) < h_evt
-        new_evt = alive & draw_e
-        evt_month[new_evt] = t
-        alive = alive & ~new_evt
-        # initiation this month (only observational / not-yet-vaccinated / still alive)
-        if force is None:
-            elig = alive & (vacc < 0)
-            h_init = _sig(a0 + a_frail * frail + a_age * age_std)
-            draw_i = rng.random(n) < h_init
-            new_i = elig & draw_i
-            vacc[new_i] = t
-        # force=="late": never initiate (vacc stays -1)
-        # force=="early": already set vacc=0
+    if scenario == "sustained":
+        # everyone ON treatment from month 0; may discontinue once (monotone off)
+        disc = np.full(n, -1, dtype=int)        # -1 = never discontinued
+        d_frail = D_FRAIL if init_confound else 0.0
+        d_age = D_AGE if init_confound else 0.0
+        d0 = D0 if init_confound else (D0 + 0.5 * D_FRAIL * 0.4)
+        for t in range(T):
+            on = (disc < 0) | (t < disc)        # on-treatment this month
+            h_evt = _sig(B0 + B_FRAIL * frail + B_AGE * age_std - prot * on)
+            new_evt = alive & (rng.random(n) < h_evt)
+            evt_month[new_evt] = t; alive = alive & ~new_evt
+            elig = alive & (disc < 0)
+            h_disc = _sig(d0 + d_frail * frail + d_age * age_std)
+            new_d = elig & (rng.random(n) < h_disc)
+            disc[new_d] = t
+        drive = np.where(disc >= 0, disc, np.nan)
+    elif scenario == "earlylate":
+        # everyone EVENTUALLY initiates (no "never" mass): draw a target initiation
+        # month from a frailty-shifted geometric; frail → initiate sooner.
+        a_frail = A_FRAIL if init_confound else 0.0
+        a_age = A_AGE if init_confound else 0.0
+        a0 = A0 if init_confound else (A0 + 0.5 * A_FRAIL * 0.4)
+        p = np.clip(_sig(a0 + a_frail * frail + a_age * age_std), 0.02, 0.95)
+        m_star = np.minimum(rng.geometric(p) - 1, T - 1)
+        vacc = np.full(n, -1, dtype=int)
+        for t in range(T):
+            treated_now = (vacc >= 0) & (vacc < t)
+            h_evt = _sig(B0 + B_FRAIL * frail + B_AGE * age_std - prot * treated_now)
+            new_evt = alive & (rng.random(n) < h_evt)
+            evt_month[new_evt] = t; alive = alive & ~new_evt
+            do_init = alive & (vacc < 0) & (m_star == t)
+            vacc[do_init] = t
+        drive = np.where(vacc >= 0, vacc, np.nan)
+    else:  # "grace" — initiate-within-grace vs defer; force= early/late for truth ref
+        vacc = np.full(n, -1, dtype=int)
+        if force == "early":
+            vacc[:] = 0
+        a_frail = A_FRAIL if init_confound else 0.0
+        a_age = A_AGE if init_confound else 0.0
+        a0 = A0 if init_confound else (A0 + 0.5 * A_FRAIL * 0.4)
+        for t in range(T):
+            treated_now = (vacc >= 0) & (vacc < t)
+            h_evt = _sig(B0 + B_FRAIL * frail + B_AGE * age_std - prot * treated_now)
+            new_evt = alive & (rng.random(n) < h_evt)
+            evt_month[new_evt] = t; alive = alive & ~new_evt
+            if force is None:
+                elig = alive & (vacc < 0)
+                h_init = _sig(a0 + a_frail * frail + a_age * age_std)
+                vacc[elig & (rng.random(n) < h_init)] = t
+        drive = np.where(vacc >= 0, vacc, np.nan)
 
     event = (evt_month >= 0).astype(int)
     futime = np.where(evt_month >= 0, evt_month + 1, T)
-    vacc_month = np.where(vacc >= 0, vacc, np.nan)
-    return vacc_month, event, futime
+    return drive, event, futime
 
 
-def generate(n=N, seed=SEED, timing_effect=1.0, init_confound=True):
+def generate(n=N, seed=SEED, timing_effect=1.0, init_confound=True, scenario="grace"):
     rng = np.random.default_rng(seed)
     age = rng.normal(70, 8, n)
     age_std = (age - 70.0) / 10.0
     frail = rng.binomial(1, 0.4, n).astype(float)
-    vacc_month, event, futime = _simulate(rng, age_std, frail, timing_effect=timing_effect,
-                                           force=None, init_confound=init_confound)
+    drive, event, futime = _simulate(rng, age_std, frail, timing_effect=timing_effect,
+                                      force=None, init_confound=init_confound, scenario=scenario)
+    drive_col = DRIVE_COL[scenario]
     return pd.DataFrame({
         "pid": np.arange(n),
         "age": age.round(1),
         "frailty": frail.astype(int),
-        "vacc_month": vacc_month,
+        drive_col: drive,
         "event": event,
         "futime": futime,
-    }, columns=COLUMNS)
+    }, columns=["pid", "age", "frailty", drive_col, "event", "futime"])
 
 
 def true_rd(timing_effect=1.0, n=200000, seed=99):

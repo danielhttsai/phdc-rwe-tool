@@ -666,72 +666,84 @@ def perr_scale(seed: int = 7, lang: str = "zh"):
 # ---------------------------------------------------------------------------
 class CcwRequest(BaseModel):
     source: str = "example_ccw"
-    vacc_time: str = "vacc_month"
+    vacc_time: str | None = None
     event: str = "event"
     futime: str = "futime"
     covariates: list[str] = ["age", "frailty"]
     grace: int = 3
     horizon: int = 12
     n_boot: int = 0
+    scenario: str = "grace"
     lang: str = "zh"
 
 
-def _load_ccw(source: str) -> pd.DataFrame:
+def _load_ccw(source: str, scenario: str = "grace") -> pd.DataFrame:
     if source in ("example_ccw", "example"):
-        return ccw_gen.generate()
+        return ccw_gen.generate(scenario=scenario)
     df = _UPLOADS.get(source)
     if df is None:
         raise HTTPException(404, "找不到資料，請重新上傳。")
     return df
 
 
+_CCW_STORY = {
+    "grace": {"vacc_month": "vacc_month（診斷後第幾個月接種；空白＝追蹤期內未接種）",
+              "event": "event／futime（事件或追蹤結束月份）",
+              "age": "age、frailty（共變項；體弱者傾向更早接種＝適應症混淆）"},
+    "earlylate": {"vacc_month": "vacc_month（接種月份；兩組最終都會接種，只差早或晚）",
+                  "event": "event／futime", "age": "age、frailty（共變項）"},
+    "sustained": {"disc_month": "disc_month（第幾個月停藥；空白＝從未停藥＝持續用藥）",
+                  "event": "event／futime", "age": "age、frailty（體弱者較易停藥＝混淆）"},
+}
+
+
 @app.get("/api/ccw_example")
-def ccw_example():
-    df = ccw_gen.generate()
+def ccw_example(scenario: str = "grace"):
+    df = ccw_gen.generate(scenario=scenario)
+    defaults = dict(CCW_DEFAULTS)
+    defaults["vacc_time"] = ccw_gen.DRIVE_COL.get(scenario, "vacc_month")
+    defaults["scenario"] = scenario
     return _clean({
-        "columns": list(df.columns), "defaults": CCW_DEFAULTS, "n": len(df),
+        "columns": list(df.columns), "defaults": defaults, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
-        "story": {
-            "vacc_month": "vacc_month（診斷後第幾個月接種；空白＝追蹤期內未接種）",
-            "event": "event（追蹤期內是否發生重大健康事件）／futime（事件或追蹤結束月份）",
-            "age": "age、frailty（共變項；體弱者傾向更早接種＝適應症混淆）",
-        },
+        "story": _CCW_STORY.get(scenario, _CCW_STORY["grace"]),
     })
 
 
 @app.post("/api/ccw_analyze")
 def ccw_analyze(req: CcwRequest):
-    df = _load_ccw(req.source)
+    df = _load_ccw(req.source, req.scenario)
     return _clean(ccw_core.full_ccw(df, req.vacc_time, req.event, req.futime,
                                     tuple(req.covariates), req.grace, req.horizon,
-                                    n_boot=req.n_boot, lang=req.lang))
+                                    n_boot=req.n_boot, scenario=req.scenario, lang=req.lang))
 
 
 @app.post("/api/ccw_assumptions")
 def ccw_assumptions_check(req: CcwRequest):
-    df = _load_ccw(req.source)
+    df = _load_ccw(req.source, req.scenario)
     return _clean(ccw_assumptions.run_dashboard(df, req.vacc_time, req.event, req.futime,
                                                 tuple(req.covariates), req.grace, req.horizon,
-                                                lang=req.lang))
+                                                scenario=req.scenario, lang=req.lang))
 
 
 @app.get("/api/ccw_interactive")
-def ccw_interactive(timing_effect: float = 1.0, lang: str = "zh"):
-    """Teaching slider: vary the protective effect of vaccination. CCW tracks the
-    (changing) truth; the naive immortal-time contrast stays biased."""
+def ccw_interactive(timing_effect: float = 1.0, scenario: str = "grace", lang: str = "zh"):
+    """Teaching slider: vary the protective effect. CCW tracks the (changing) truth;
+    the naive contrast stays biased."""
     te = float(np.clip(timing_effect, 0.0, 1.0))
-    df = ccw_gen.generate(n=3200, timing_effect=te)
-    out = ccw_core.full_ccw(df, true_rd=ccw_core.estimand_truth(te), lang=lang)
-    return _clean({"timing_effect": te, "true_rd": out["true_rd"], "ccw": out["ccw"],
-                   "naive": out["naive"], "curve": out["curve"],
+    df = ccw_gen.generate(n=3200, timing_effect=te, scenario=scenario)
+    out = ccw_core.full_ccw(df, true_rd=ccw_core.estimand_truth(te, scenario=scenario),
+                            scenario=scenario, lang=lang)
+    return _clean({"timing_effect": te, "scenario": scenario, "true_rd": out["true_rd"],
+                   "ccw": out["ccw"], "naive": out["naive"], "curve": out["curve"],
                    "risk_early_ccw": out["risk_early_ccw"], "risk_late_ccw": out["risk_late_ccw"]})
 
 
 @app.get("/api/ccw_grace")
-def ccw_grace(seed: int = 0, lang: str = "zh"):
-    """CCW ⑤: grace-period sensitivity — how the estimand/estimate move with g."""
-    return _clean(ccw_core.grace_demo(seed=seed, lang=lang))
+def ccw_grace(seed: int = 0, scenario: str = "grace", lang: str = "zh"):
+    """CCW ⑤: grace-period sensitivity per scenario."""
+    return _clean(ccw_core.grace_demo(seed=seed, scenario=scenario, lang=lang))
 
 
 @app.get("/api/tit_interactive")

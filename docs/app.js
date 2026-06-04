@@ -1809,8 +1809,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "準實驗工具箱（IV · RDD · DiD · TiT · ITS · PERR）線上教學工具",
-  titleEn: "Quasi-experimental Toolbox (IV · RDD · DiD · TiT · ITS · PERR) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · TiT · ITS · PERR · CCW · CCO/CCTC · 序列試驗）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · TiT · ITS · PERR · CCW · CCO/CCTC · Sequential trials) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/iv-rdd-tool/",
 };
@@ -2973,19 +2973,27 @@ function drawPerrScale(s) {
 // ======================================================================
 // Clone-Censor-Weight (CCW method) — tabs ①–⑤
 // ======================================================================
-const ccwState = { source: null, columns: [], req: null };
+const ccwState = { source: null, columns: [], req: null, scenario: "grace" };
 let ccwLearnReady = false, ccwPlayReady = false, ccwAnalyzeReady = false,
     ccwAssumeReady = false, ccwMlReady = false;
 
-// cumulative-incidence curves: early (teal) vs late (slate), over months
+// per-scenario arm labels for charts/cards
+function ccwArmLabels(sc) {
+  if (sc === "earlylate") return [tr("早啟動", "early initiation"), tr("晚啟動", "late initiation")];
+  if (sc === "sustained") return [tr("持續用藥", "stay on treatment"), tr("停藥", "discontinue")];
+  return [tr("早接種策略", "early strategy"), tr("晚接種策略", "late strategy")];
+}
+
+// cumulative-incidence curves: arm 1 (teal) vs arm 2 (slate), over months
 function ccwCurveInto(elId, curve) {
   if (!document.getElementById(elId) || !curve) return;
   const m = curve.months;
+  const [la, lb] = ccwArmLabels(ccwState.scenario);
   Plotly.react(elId, [
     { x: m, y: curve.early, mode: "lines+markers", type: "scatter", line: { color: TEAL, width: 3, shape: "hv" },
-      marker: { size: 5 }, name: tr("早接種策略", "early strategy") },
+      marker: { size: 5 }, name: la },
     { x: m, y: curve.late, mode: "lines+markers", type: "scatter", line: { color: SLATE, width: 3, shape: "hv" },
-      marker: { size: 5 }, name: tr("晚接種策略", "late strategy") },
+      marker: { size: 5 }, name: lb },
   ], sceneLayout({
     height: 300, legend: { orientation: "h", y: 1.16 },
     margin: { t: 28, r: 18, b: 42, l: 54 },
@@ -3055,10 +3063,21 @@ function scheduleCcwPlay() {
   ccwPlayTimer = setTimeout(refreshCcwPlay, 350);
 }
 if (ccwTimingSlider) ccwTimingSlider.addEventListener("input", scheduleCcwPlay);
+// scenario selectors (② and ③ kept in sync via ccwState.scenario)
+function ccwSyncScenario(val, from) {
+  ccwState.scenario = val;
+  const s2 = document.getElementById("ccwScenario"), s3 = document.getElementById("ccwScenario3");
+  if (s2 && s2.value !== val) s2.value = val;
+  if (s3 && s3.value !== val) s3.value = val;
+}
+const ccwScen2 = document.getElementById("ccwScenario");
+if (ccwScen2) ccwScen2.addEventListener("change", () => { ccwSyncScenario(ccwScen2.value); refreshCcwPlay(); });
+const ccwScen3 = document.getElementById("ccwScenario3");
+if (ccwScen3) ccwScen3.addEventListener("change", () => { ccwSyncScenario(ccwScen3.value); document.getElementById("useCcwExample").click(); });
 async function refreshCcwPlay() {
   const te = ccwTimingSlider ? Number(ccwTimingSlider.value) : 1.0;
   let d;
-  try { d = await getJSON(`${API}/api/ccw_interactive?timing_effect=${te}&lang=${lang()}`); }
+  try { d = await getJSON(`${API}/api/ccw_interactive?timing_effect=${te}&scenario=${ccwState.scenario}&lang=${lang()}`); }
   catch (e) { return; }
   state.ccwPlay = d;
   const set = (id, v, col) => { const el = document.getElementById(id); if (el) { el.textContent = fmt(v, 2); if (col) el.style.color = col; } };
@@ -3092,10 +3111,10 @@ function ccwApplyDefaults(d) {
 document.getElementById("useCcwExample").addEventListener("click", async () => {
   const st = document.getElementById("ccwDataStatus");
   try {
-    const d = await getJSON(`${API}/api/ccw_example`);
+    const d = await getJSON(`${API}/api/ccw_example?scenario=${ccwState.scenario}`);
     ccwState.source = "example_ccw"; ccwState.columns = d.columns;
-    st.textContent = tr(`已載入內建「早 vs 晚接種」範例（${d.n} 人，合成虛構）`,
-                        `Loaded built-in early-vs-late vaccination example (${d.n} people, synthetic)`);
+    st.textContent = tr(`已載入內建範例（${d.n} 人，合成虛構）`,
+                        `Loaded built-in example (${d.n} people, synthetic)`);
     ccwFillSelects(d.columns); ccwApplyDefaults(d.defaults);
     runCcwAnalyze();
   } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
@@ -3117,7 +3136,8 @@ function ccwCurrentMapping() {
   const v = (id) => document.getElementById(id).value;
   const cov = [...document.getElementById("ccwSelCov").selectedOptions].map((o) => o.value);
   return { source: ccwState.source, vacc_time: v("ccwSelVacc"), event: v("ccwSelEvent"),
-    futime: v("ccwSelFu"), covariates: cov.length ? cov : ["age", "frailty"], lang: lang() };
+    futime: v("ccwSelFu"), covariates: cov.length ? cov : ["age", "frailty"],
+    scenario: ccwState.scenario, lang: lang() };
 }
 const runCcwBtn = document.getElementById("runCcwAnalyze");
 if (runCcwBtn) runCcwBtn.addEventListener("click", runCcwAnalyze);
@@ -3201,7 +3221,7 @@ if (runCcwGraceBtn) {
 }
 async function refreshCcwGrace() {
   let s;
-  try { s = await getJSON(`${API}/api/ccw_grace?lang=${lang()}`); } catch (e) { return; }
+  try { s = await getJSON(`${API}/api/ccw_grace?scenario=${ccwState.scenario}&lang=${lang()}`); } catch (e) { return; }
   state.ccwGrace = s;
   document.getElementById("ccwGraceOut").classList.remove("hidden");
   drawCcwGrace(s);

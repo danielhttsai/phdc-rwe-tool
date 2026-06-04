@@ -15,11 +15,20 @@ import ccw_core
 from i18n import t
 
 
-def run_dashboard(df, vacc_time="vacc_month", event="event", futime="futime",
-                  covariates=("age", "frailty"), grace=3, horizon=12, lang="zh"):
-    res = ccw_core.full_ccw(df, vacc_time, event, futime, covariates, grace, horizon, lang=lang)
-    vacc = np.asarray(df[vacc_time], dtype=float)
-    early = (~np.isnan(vacc)) & (vacc <= grace)
+def run_dashboard(df, vacc_time=None, event="event", futime="futime",
+                  covariates=("age", "frailty"), grace=3, horizon=12, scenario="grace", lang="zh"):
+    import ccw_gen
+    if vacc_time is None:
+        vacc_time = ccw_gen.DRIVE_COL.get(scenario, "vacc_month")
+    res = ccw_core.full_ccw(df, vacc_time, event, futime, covariates, grace, horizon,
+                            scenario=scenario, lang=lang)
+    drive = np.asarray(df[vacc_time], dtype=float)
+    # the "positivity group" = whoever followed strategy arm 1 (acted-by-grace, or
+    # — for sustained — never discontinued)
+    if scenario == "sustained":
+        early = np.isnan(drive)
+    else:
+        early = (~np.isnan(drive)) & (drive <= grace)
     checks = [
         _c1_exchangeability(res, lang),
         _c2_positivity(df, early, covariates, lang),

@@ -53,21 +53,27 @@ def _predict(X, beta):
 def _build_arm(arm, vacc, evtm, fut, grace, T):
     """Return long person-month rows for a strategy arm (fully vectorized).
 
-    arm = "early": adhere iff initiate within [0, grace]; else artificially censored
-                   at month `grace`.
-    arm = "late" : adhere while untreated; artificially censored at the month of
-                   initiation (whenever it happens).
-    vacc = vaccination month (np.nan = never), evtm = event month (-1 = no event).
+    `vacc` is the scenario's driving month (initiation month for grace/earlylate,
+    discontinuation month for sustained; np.nan = the action never happened).
+    Artificial-censoring month `c` per arm:
+      early / discontinue : censor at `grace` if the action did NOT happen by grace
+                            (failed to initiate / failed to discontinue in time).
+      late / sustain      : censor at the month the action happened (deviated by
+                            initiating / by discontinuing).
+      latetreat           : censor at the action month only if it happened within
+                            [0,grace] (deviated by acting too early); late actors stay.
     Returns (pid_index, month, event_here, acens_here).
     """
     n = vacc.size
     has_vacc = ~np.isnan(vacc)
     vm = np.where(has_vacc, vacc, np.inf)
     INF = 10 ** 9
-    if arm == "early":
-        c = np.where(vm > grace, float(grace), np.inf)      # failed to initiate by grace
-    else:  # late
-        c = np.where(has_vacc, vm, np.inf)                  # deviated by initiating
+    if arm in ("early", "discontinue"):
+        c = np.where(vm > grace, float(grace), np.inf)      # failed to act by grace
+    elif arm == "latetreat":
+        c = np.where(vm <= grace, vm, np.inf)               # deviated by acting within grace
+    else:  # "late" / "sustain"
+        c = np.where(has_vacc, vm, np.inf)                  # deviated by acting at all
     c_int = np.where(np.isfinite(c), c, INF).astype(np.intp)
     end_event = np.where(evtm >= 0, evtm + 1, T)
     end_cens = np.where(c_int < INF, c_int + 1, T)
@@ -151,108 +157,147 @@ def _ipcw_km(arm, vacc, evtm, fut, X, grace, T):
 # Grid recomputable via _estimand_truth_sim() below.
 # ---------------------------------------------------------------------------
 _TRUTH_GRID_X = [0.0, 0.25, 0.5, 0.75, 1.0]
-_TRUTH_GRID_Y = [0.0226, -0.0480, -0.1130, -0.1729, -0.2242]
+# per-scenario truth grids over timing_effect (offline-precomputed via _estimand_truth_sim)
+_TRUTH_GRID = {
+    "grace":     [0.0226, -0.0480, -0.1130, -0.1729, -0.2242],
+    "earlylate": [0.0076, -0.0260, -0.0642, -0.0998, -0.1321],
+    "sustained": [-0.0138, -0.0868, -0.1606, -0.2365, -0.3088],
+}
+# the two clone arms per scenario
+ARMS = {"grace": ("early", "late"), "earlylate": ("early", "latetreat"),
+        "sustained": ("sustain", "discontinue")}
 
 
-def estimand_truth(timing_effect=1.0, grace=3, horizon=12, n=None):
+def estimand_truth(timing_effect=1.0, scenario="grace", grace=3, horizon=12, n=None):
     te = float(np.clip(timing_effect, 0.0, 1.0))
-    return float(np.interp(te, _TRUTH_GRID_X, _TRUTH_GRID_Y))
+    return float(np.interp(te, _TRUTH_GRID_X, _TRUTH_GRID.get(scenario, _TRUTH_GRID["grace"])))
 
 
-def _estimand_truth_sim(timing_effect=1.0, grace=3, horizon=12, n=150000):
-    """Offline recompute of one truth-grid point (not called at runtime)."""
+def _estimand_truth_sim(timing_effect=1.0, scenario="grace", grace=3, horizon=12, n=150000):
+    """Offline recompute of one truth-grid point (not called at runtime). Truth = the
+    SAME clone-censor estimator on UNCONFOUNDED data (weights ≈ 1 → unbiased)."""
     import ccw_gen
-    df = ccw_gen.generate(n=n, seed=99, timing_effect=timing_effect, init_confound=False)
-    vacc = np.asarray(df["vacc_month"], dtype=float)
+    df = ccw_gen.generate(n=n, seed=99, timing_effect=timing_effect, init_confound=False,
+                          scenario=scenario)
+    dcol = ccw_gen.DRIVE_COL[scenario]
+    drive = np.asarray(df[dcol], dtype=float)
     ev = np.asarray(df["event"], dtype=float)
     fut = np.asarray(df["futime"], dtype=float)
     evtm = np.where(ev > 0, fut - 1, -1).astype(int)
     age = np.asarray(df["age"], dtype=float); fr = np.asarray(df["frailty"], dtype=float)
     X = np.column_stack([(age - age.mean()) / (age.std() + 1e-9),
                          (fr - fr.mean()) / (fr.std() + 1e-9)])
-    ci_e, _, _ = _ipcw_km("early", vacc, evtm, fut, X, grace, horizon)
-    ci_l, _, _ = _ipcw_km("late", vacc, evtm, fut, X, grace, horizon)
-    return float(ci_e[horizon - 1] - ci_l[horizon - 1])
+    a1, a2 = ARMS[scenario]
+    ci1, _, _ = _ipcw_km(a1, drive, evtm, fut, X, grace, horizon)
+    ci2, _, _ = _ipcw_km(a2, drive, evtm, fut, X, grace, horizon)
+    return float(ci1[horizon - 1] - ci2[horizon - 1])
 
 
 # ---------------------------------------------------------------------------
 # High-level CCW analysis
 # ---------------------------------------------------------------------------
-def full_ccw(df, vacc_time="vacc_month", event="event", futime="futime",
+def full_ccw(df, vacc_time=None, event="event", futime="futime",
              covariates=("age", "frailty"), grace=3, horizon=12, true_rd=None,
-             n_boot=0, lang="zh"):
+             n_boot=0, scenario="grace", lang="zh"):
+    import ccw_gen
+    if vacc_time is None:
+        vacc_time = ccw_gen.DRIVE_COL.get(scenario, "vacc_month")
     if true_rd is None:
-        true_rd = estimand_truth(1.0, grace=grace, horizon=horizon)
+        true_rd = estimand_truth(1.0, scenario=scenario, grace=grace, horizon=horizon)
+    a1, a2 = ARMS.get(scenario, ("early", "late"))
     T = int(horizon)
-    vacc = np.asarray(df[vacc_time], dtype=float)
+    drive = np.asarray(df[vacc_time], dtype=float)
     ev = np.asarray(df[event], dtype=float)
     fut = np.asarray(df[futime], dtype=float)
     evtm = np.where(ev > 0, fut - 1, -1).astype(int)
-    # covariate matrix (standardized)
     cov = []
     for c in covariates:
         v = np.asarray(df[c], dtype=float)
-        sd = v.std() + 1e-9
-        cov.append((v - v.mean()) / sd)
+        cov.append((v - v.mean()) / (v.std() + 1e-9))
     X = np.column_stack(cov) if cov else np.zeros((len(df), 1))
 
-    ci_e, n_e, ws_e = _ipcw_km("early", vacc, evtm, fut, X, grace, T)
-    ci_l, n_l, ws_l = _ipcw_km("late", vacc, evtm, fut, X, grace, T)
+    ci_e, n_e, ws_e = _ipcw_km(a1, drive, evtm, fut, X, grace, T)
+    ci_l, n_l, ws_l = _ipcw_km(a2, drive, evtm, fut, X, grace, T)
     ccw_rd = float(ci_e[T - 1] - ci_l[T - 1])
 
-    # naive (immortal-time biased): classify by realized timing, compare raw risk
-    early_real = (~np.isnan(vacc)) & (vacc <= grace)
-    late_real = ~early_real
-    risk_e_naive = float(ev[early_real].mean()) if early_real.any() else float("nan")
-    risk_l_naive = float(ev[late_real].mean()) if late_real.any() else float("nan")
+    # naive (immortal-time / selection biased): classify by realized behaviour
+    if scenario == "sustained":
+        gA = np.isnan(drive)            # never discontinued = "sustain completer"
+        gB = ~gA                        # discontinued
+    else:                               # grace / earlylate: by-grace timing
+        gA = (~np.isnan(drive)) & (drive <= grace)   # acted within grace ("early")
+        gB = ~gA
+    risk_e_naive = float(ev[gA].mean()) if gA.any() else float("nan")
+    risk_l_naive = float(ev[gB].mean()) if gB.any() else float("nan")
     naive_rd = risk_e_naive - risk_l_naive
 
-    # light bootstrap CI on the CCW contrast (people-level resample)
     lo = hi = None
     if n_boot and n_boot > 0:
-        rng = np.random.default_rng(20240607)
-        reps = []
-        nN = len(df)
+        rng = np.random.default_rng(20240607); reps = []; nN = len(df)
         for _ in range(int(n_boot)):
             idx = rng.integers(0, nN, nN)
-            cE, _, _ = _ipcw_km("early", vacc[idx], evtm[idx], fut[idx], X[idx], grace, T)
-            cL, _, _ = _ipcw_km("late", vacc[idx], evtm[idx], fut[idx], X[idx], grace, T)
+            cE, _, _ = _ipcw_km(a1, drive[idx], evtm[idx], fut[idx], X[idx], grace, T)
+            cL, _, _ = _ipcw_km(a2, drive[idx], evtm[idx], fut[idx], X[idx], grace, T)
             reps.append(cE[T - 1] - cL[T - 1])
         lo = float(np.percentile(reps, 2.5)); hi = float(np.percentile(reps, 97.5))
 
-    interp = t(
-        lang,
-        f"複製-設限-加權（CCW）估計『早接種 vs 晚接種』的因果風險差 ≈ {ccw_rd:+.2f}"
-        + (f"（95% 自助信賴區間 {lo:+.2f} ～ {hi:+.2f}）" if lo is not None else "")
-        + f"，貼近真值 {true_rd:+.2f}（負值＝早接種讓 {horizon} 個月內發生事件的機率更低）。"
-        f"對照：天真地照『實際早／晚接種』直接比，風險差約 {naive_rd:+.2f}——被 immortal-time bias "
-        f"與適應症混淆扭曲（早接種者必須先活著沒事件、且體質本就不同）。CCW 用複製＋偏離設限＋反設限"
-        f"加權，把這個偏誤去掉。",
-        f"Clone-censor-weight (CCW) estimates the causal risk difference of 'early vs late' vaccination "
-        f"≈ {ccw_rd:+.2f}"
-        + (f" (95% bootstrap CI {lo:+.2f} to {hi:+.2f})" if lo is not None else "")
-        + f", close to the truth {true_rd:+.2f} (negative = starting early lowers the chance of an event within "
-        f"{horizon} months). Contrast: naively comparing people by their realized early/late timing gives a risk "
-        f"difference of about {naive_rd:+.2f} — distorted by immortal-time bias and confounding by indication "
-        f"(early initiators had to survive event-free first, and differ in frailty). CCW removes this with cloning, "
-        f"censoring on deviation, and inverse-probability-of-censoring weights.",
-    )
-
+    interp = _ccw_interp(scenario, ccw_rd, naive_rd, true_rd, horizon, lo, hi, lang)
     months = list(range(1, T + 1))
     return {
-        "ccw": ccw_rd, "ci": [lo, hi],
-        "naive": float(naive_rd),
+        "ccw": ccw_rd, "ci": [lo, hi], "naive": float(naive_rd), "scenario": scenario,
         "risk_early_ccw": float(ci_e[T - 1]), "risk_late_ccw": float(ci_l[T - 1]),
         "risk_early_naive": risk_e_naive, "risk_late_naive": risk_l_naive,
-        "early_rate": float(early_real.mean()), "late_rate": float(late_real.mean()),
+        "early_rate": float(gA.mean()), "late_rate": float(gB.mean()),
         "n_early": n_e, "n_late": n_l,
-        "curve": {"months": months,
-                  "early": [float(v) for v in ci_e],
+        "curve": {"months": months, "early": [float(v) for v in ci_e],
                   "late": [float(v) for v in ci_l]},
         "true_rd": float(true_rd), "grace": grace, "horizon": T,
         "weights": {"early": ws_e, "late": ws_l},
         "interpretation": interp,
     }
+
+
+# scenario labels (arm names) and interpretation text
+SCEN_LABELS = {
+    "grace": {"a1": ("早接種策略", "early strategy"), "a2": ("晚接種策略", "late strategy")},
+    "earlylate": {"a1": ("早啟動", "early initiation"), "a2": ("晚啟動", "late initiation")},
+    "sustained": {"a1": ("持續用藥", "stay on treatment"), "a2": ("停藥", "discontinue")},
+}
+
+
+def _ccw_interp(scenario, ccw, naive, truth, horizon, lo, hi, lang):
+    ci_zh = f"（95% 自助信賴區間 {lo:+.2f} ～ {hi:+.2f}）" if lo is not None else ""
+    ci_en = f" (95% bootstrap CI {lo:+.2f} to {hi:+.2f})" if lo is not None else ""
+    if scenario == "earlylate":
+        return t(lang,
+            f"複製-設限-加權（CCW）估計『早啟動 vs 晚啟動』的因果風險差 ≈ {ccw:+.2f}{ci_zh}，貼近真值 {truth:+.2f}。"
+            f"因為兩組<b>最終都會用藥（適應症相同）</b>，confounding by indication 大幅相消，效果只剩『提早幾個月』"
+            f"帶來的<b>較小</b>但真實的好處。對照：天真照『實際早／晚』分組比約 {naive:+.2f}，仍被 immortal-time bias "
+            f"放大（早啟動者必須先活著、沒事件才被看到）。",
+            f"Clone-censor-weight estimates the 'early vs late initiation' risk difference ≈ {ccw:+.2f}{ci_en}, close to "
+            f"the truth {truth:+.2f}. Because <b>both groups end up treated</b> (same indication), confounding by "
+            f"indication largely cancels and only the <b>smaller</b> benefit of starting a few months sooner remains. "
+            f"Naively grouping by realized early/late gives ≈ {naive:+.2f}, still inflated by immortal-time bias.")
+    if scenario == "sustained":
+        return t(lang,
+            f"複製-設限-加權（CCW）估計『持續用藥 vs 停藥』的因果風險差 ≈ {ccw:+.2f}{ci_zh}，貼近真值 {truth:+.2f}"
+            f"（負值＝持續用藥讓 {horizon} 個月內發生事件的機率更低）。治療是<b>時變的</b>（可中途停），CCW 把每個人複製"
+            f"到『持續』與『停藥』兩策略、偏離就設限、再用反設限機率加權處理時變遵循。對照：天真只比『完成者（從不停藥）"
+            f"vs 停藥者』約 {naive:+.2f}，被<b>選擇偏誤</b>扭曲（體弱者較易停藥也較易發病）。",
+            f"Clone-censor-weight estimates the 'stay-on vs discontinue' risk difference ≈ {ccw:+.2f}{ci_en}, close to "
+            f"the truth {truth:+.2f} (negative = staying on lowers the {horizon}-month event risk). Treatment is "
+            f"<b>time-varying</b> (it can stop); CCW clones each person into the sustain and discontinue strategies, "
+            f"censors on deviation, and IPC-weights the time-varying adherence. Naively comparing 'completers (never "
+            f"stopped) vs discontinuers' gives ≈ {naive:+.2f}, distorted by selection bias (frail people both "
+            f"discontinue more and have the event more).")
+    return t(lang,   # grace
+        f"複製-設限-加權（CCW）估計『早接種 vs 晚接種』的因果風險差 ≈ {ccw:+.2f}{ci_zh}，貼近真值 {truth:+.2f}"
+        f"（負值＝早接種讓 {horizon} 個月內發生事件的機率更低）。對照：天真照『實際早／晚接種』直接比約 {naive:+.2f}"
+        f"——被 immortal-time bias 與適應症混淆扭曲。CCW 用複製＋偏離設限＋反設限加權去掉這個偏誤。",
+        f"Clone-censor-weight estimates the 'early vs late vaccination' risk difference ≈ {ccw:+.2f}{ci_en}, close to "
+        f"the truth {truth:+.2f} (negative = starting early lowers the {horizon}-month event risk). Naively comparing "
+        f"realized early/late timing gives ≈ {naive:+.2f} — distorted by immortal-time bias and confounding by "
+        f"indication. CCW removes it with cloning, censoring on deviation, and inverse-probability-of-censoring weights.")
 
 
 # ---------------------------------------------------------------------------
@@ -266,16 +311,21 @@ def full_ccw(df, vacc_time="vacc_month", event="event", futime="futime",
 # Precomputed offline (deterministic: built-in demo data, seed=7, n=2500) so the ⑤
 # tab is instant — running 5 full clone-censor-weight fits live is ~14s under Pyodide.
 # Recompute via _grace_demo_sim().
-_GRACE_GRID = {"graces": [1, 2, 3, 4, 5],
-               "ccw": [-0.283, -0.254, -0.238, -0.232, -0.224],
-               "naive": [-0.252, -0.326, -0.413, -0.491, -0.548]}
+# per-scenario grace-period grids (offline-precomputed via _grace_demo_sim)
+_GRACE_GRID = {
+    "grace":     {"graces": [1, 2, 3, 4, 5], "ccw": [-0.283, -0.254, -0.238, -0.232, -0.224],
+                  "naive": [-0.252, -0.326, -0.413, -0.491, -0.548]},
+    "earlylate": {"graces": [1, 2, 3, 4, 5], "ccw": [-0.118, -0.121, -0.114, -0.118, -0.138],
+                  "naive": [-0.228, -0.314, -0.383, -0.461, -0.536]},
+    "sustained": {"graces": [1, 2, 3, 4, 5], "ccw": [-0.312, -0.294, -0.292, -0.285, -0.278],
+                  "naive": [0.098, 0.098, 0.098, 0.098, 0.098]},
+}
 
 
-def grace_demo(seed=0, lang="zh"):
-    graces = _GRACE_GRID["graces"]
-    ccw_vals = _GRACE_GRID["ccw"]
-    naive_vals = _GRACE_GRID["naive"]
-    truth = estimand_truth(1.0)
+def grace_demo(seed=0, scenario="grace", lang="zh"):
+    g = _GRACE_GRID.get(scenario, _GRACE_GRID["grace"])
+    graces = g["graces"]; ccw_vals = g["ccw"]; naive_vals = g["naive"]
+    truth = estimand_truth(1.0, scenario=scenario)
     spread = max(ccw_vals) - min(ccw_vals)
     reading = t(
         lang,
@@ -293,12 +343,12 @@ def grace_demo(seed=0, lang="zh"):
             "truth_ref": float(truth), "reading": reading}
 
 
-def _grace_demo_sim():
+def _grace_demo_sim(scenario="grace"):
     """Offline recompute of the grace-period grid (not called at runtime)."""
     import ccw_gen
-    df = ccw_gen.generate(n=2500, seed=7)
+    df = ccw_gen.generate(n=2500, seed=7, scenario=scenario)
     out = {"graces": [1, 2, 3, 4, 5], "ccw": [], "naive": []}
     for g in out["graces"]:
-        o = full_ccw(df, grace=g, true_rd=estimand_truth(1.0))
+        o = full_ccw(df, grace=g, true_rd=estimand_truth(1.0, scenario=scenario), scenario=scenario)
         out["ccw"].append(round(o["ccw"], 3)); out["naive"].append(round(o["naive"], 3))
     return out
