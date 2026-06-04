@@ -1269,7 +1269,7 @@ const DNODES = {
       { l: { zh: "治療是「診斷後一段時間的動態／持續策略」：早 vs 晚開始、是否持續或密集用藥（隨時間調整）", en: "A sustained / dynamic strategy over a window after diagnosis: early vs late initiation, sustained or intensive use (adjusted over time)" }, to: "rCCW" },
       { l: { zh: "治療比較像「某時點的單次（點）決定」，但病人在不同時間點陸續符合資格", en: "More of a one-shot (point) treatment decision, but patients become eligible at different time points" }, to: "rSEQ" },
       { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見", en: "Exposure spreads over calendar time at different rates across groups; rare outcome" }, to: "rTiT" },
-      { l: { zh: "以上皆非——想直接把分析設計成模擬一場試驗", en: "None of the above — design the analysis to emulate a trial" }, to: "rTTE" },
+      { l: { zh: "以上皆非——但其實已有一場（別族群的）RCT，想把結果轉到我的族群", en: "None of the above — but I have an RCT (in another population) to transport to mine" }, to: "rTRANS" },
     ],
   },
 
@@ -1392,14 +1392,14 @@ const DNODES = {
                 en: "Vaccine scenario: in a cohort of a million, check vaccination history only for disease cases and a random sample of controls, saving the cost of measuring everyone." },
     watch: { zh: "↗ 常見研究設計，本工具箱未實作。仍需處理測量到的混淆（配對／調整）。",
              en: "↗ A common design, not implemented here. Still needs to handle measured confounding (matching/adjustment)." } } },
-  rTTE: { rec: { kind: "fallback", badge: "★",
-    title: { zh: "建議：target trial emulation（或直接做隨機試驗）", en: "Suggested: target trial emulation (or run a randomised trial)" },
-    why: { zh: "上面的設計都不完全符合——那就明確地把觀察性分析「設計成在模擬一場理想的隨機試驗」：先寫清楚收案、時間零點、暴露策略、結果與分析，再照著做。能隨機時，隨機試驗仍是黃金標準。",
-           en: "If none of the designs fits, explicitly design your observational analysis to emulate an ideal randomised trial: specify eligibility, time zero, exposure strategies, outcome and analysis, then follow it. When you can randomise, a trial is still the gold standard." },
-    scenario: { zh: "疫苗情境：先寫下一場理想試驗——「誰能納入、何時算時間零點、打 vs 不打、追蹤什麼結果、怎麼分析」，再用健保資料照這張藍圖去模擬。",
-                en: "Vaccine scenario: first write down an ideal trial — who's eligible, when time zero is, vaccinate vs not, what to follow, how to analyse — then emulate that blueprint with claims data." },
-    watch: { zh: "這是把上面所有設計綁在一起的<b>總框架</b>。前述多個常見設計（CCW、序列試驗、對照藥物世代）都是它的具體實作。",
-             en: "This is the <b>umbrella framework</b> tying the others together; several common designs above (CCW, sequential trials, active-comparator cohorts) are concrete ways to implement it." } } },
+  rTRANS: { rec: { kind: "fallback", badge: "⇄",
+    title: { zh: "建議：可移轉性／類推（transportability）—— 把 RCT 的結果轉到你的目標族群", en: "Suggested: transportability / generalizability — carry an RCT's result to your target population" },
+    why: { zh: "先釐清：上面的<b>對照藥物世代、CCW、序列試驗，本身就是 target trial emulation（TTE）的實作</b>，所以 TTE 不該再當「以上皆非」的出口。真正不同的一招是：如果其實<b>已經有一場 RCT，只是做在『別的族群』</b>上——與其再湊一個觀察性設計，不如用<b>可移轉性／類推（transportability / generalizability）</b>，用兩邊都測得到的<b>效果修飾因子</b>重新加權，把「在試驗族群成立的因果效果」<b>搬到你關心的目標族群</b>，藉此更了解這個疾病在你族群裡的真實效果。",
+           en: "First, a correction: the active-comparator cohort, CCW and sequential trials above <b>are themselves target trial emulation (TTE)</b>, so TTE shouldn't be the 'none of the above' exit. The genuinely different move is this: if you already have an <b>RCT — just in a different population</b> — rather than build yet another observational design, use <b>transportability / generalizability</b>. Reweight by <b>effect modifiers</b> measured in both samples to <b>carry the trial's causal effect to your target population</b>, so you understand the true effect in the people you care about." },
+    scenario: { zh: "疫苗情境：疫苗保護力來自一場在某國成人做的 RCT，但你關心的是<b>本地長者</b>。用兩邊共同的風險因子分布重新加權，把試驗估到的效果「轉」到本地長者族群。",
+                en: "Vaccine scenario: a vaccine's efficacy comes from an RCT in adults in another country, but you care about <b>local older adults</b>. Reweight by the shared distribution of risk factors to transport the trial's effect to your local elderly population." },
+    watch: { zh: "↗ 本工具箱未實作，供參考。<b>關鍵假設</b>：所有會改變效果的<b>修飾因子都測得到</b>，且兩族群在這些因子上有<b>重疊（共同支持）</b>。",
+             en: "↗ Not implemented here; for reference. <b>Key assumptions</b>: all effect modifiers are <b>measured</b>, and the two populations <b>overlap</b> on them (common support)." } } },
 };
 
 // the whole tree as a static map — shown at a leaf, with the reached design lit
@@ -1456,9 +1456,9 @@ const FULLMAP = {
       ],
     },
   ],
-  end: { key: "rTTE",
-         zh: "以上都不完全符合 → target trial emulation（明確模擬一場理想隨機試驗；上面多個常見設計都是它的實作）",
-         en: "Nothing fits cleanly → target trial emulation (emulate an ideal randomised trial; many common designs above implement it)" },
+  end: { key: "rTRANS",
+         zh: "註：上面的對照藥物世代／CCW／序列試驗本身就是 target trial emulation。若其實已有一場（別族群的）RCT → 用 transportability 把結果轉到你的目標族群",
+         en: "Note: the active-comparator cohort / CCW / sequential trials above are themselves target trial emulation. If you already have an RCT (in another population) → use transportability to carry it to your target population" },
 };
 
 let dtreeStack = [{ id: "n1", ans: null }];
