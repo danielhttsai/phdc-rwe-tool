@@ -1269,7 +1269,7 @@ const DNODES = {
       { l: { zh: "治療是「診斷後一段時間的動態／持續策略」：早 vs 晚開始、是否持續或密集用藥（隨時間調整）", en: "A sustained / dynamic strategy over a window after diagnosis: early vs late initiation, sustained or intensive use (adjusted over time)" }, to: "rCCW" },
       { l: { zh: "治療比較像「某時點的單次（點）決定」，但病人在不同時間點陸續符合資格", en: "More of a one-shot (point) treatment decision, but patients become eligible at different time points" }, to: "rSEQ" },
       { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見", en: "Exposure spreads over calendar time at different rates across groups; rare outcome" }, to: "rTiT" },
-      { l: { zh: "以上皆非——但其實已有一場（別族群的）RCT，想把結果轉到我的族群", en: "None of the above — but I have an RCT (in another population) to transport to mine" }, to: "rTRANS" },
+      { l: { zh: "以上皆非——但其實已有一場（別族群的）RCT 可以借", en: "None of the above — but I already have an RCT (in another population) to borrow" }, to: "rctSplit" },
     ],
   },
 
@@ -1392,10 +1392,27 @@ const DNODES = {
                 en: "Vaccine scenario: in a cohort of a million, carefully measure <b>number of doses / antibody level</b> only for disease cases and sampled controls, to map how risk changes with dose." },
     watch: { zh: "↗ 常見研究設計，本工具箱未實作。仍需處理測量到的混淆（配對／調整）。",
              en: "↗ A common design, not implemented here. Still needs to handle measured confounding (matching/adjustment)." } } },
-  rTRANS: { rec: { kind: "fallback", badge: "⇄",
-    title: { zh: "建議：可移轉性／類推（transportability）—— 把 RCT 的結果轉到你的目標族群", en: "Suggested: transportability / generalizability — carry an RCT's result to your target population" },
-    why: { zh: "先釐清：上面的<b>對照藥物世代、CCW、序列試驗，本身就是 target trial emulation（TTE）的實作</b>，所以 TTE 不該再當「以上皆非」的出口。真正不同的一招是：如果其實<b>已經有一場 RCT，只是做在『別的族群』</b>上——與其再湊一個觀察性設計，不如用<b>可移轉性／類推（transportability / generalizability）</b>，用兩邊都測得到的<b>效果修飾因子</b>重新加權，把「在試驗族群成立的因果效果」<b>搬到你關心的目標族群</b>，藉此更了解這個疾病在你族群裡的真實效果。",
-           en: "First, a correction: the active-comparator cohort, CCW and sequential trials above <b>are themselves target trial emulation (TTE)</b>, so TTE shouldn't be the 'none of the above' exit. The genuinely different move is this: if you already have an <b>RCT — just in a different population</b> — rather than build yet another observational design, use <b>transportability / generalizability</b>. Reweight by <b>effect modifiers</b> measured in both samples to <b>carry the trial's causal effect to your target population</b>, so you understand the true effect in the people you care about." },
+  rctSplit: {
+    step: { zh: "已有別族群 RCT", en: "Have an RCT elsewhere" },
+    q: { zh: "你已經有一場（做在別族群的）RCT。先釐清：上面的對照藥物世代／CCW／序列試驗本身就是 target trial emulation，所以不必再回到 TTE。真正的關鍵在——你拿得到那場 RCT 的「<b>個體層級資料（individual-level data）</b>」嗎？",
+         en: "You already have an RCT (in a different population). Note: the active-comparator cohort / CCW / sequential trials above are themselves target trial emulation, so no need to loop back to TTE. The real fork is — do you have its <b>individual-level data</b>?" },
+    opts: [
+      { l: { zh: "拿不到——只有發表的彙總結果（效果量、亞組表）", en: "No — only published summary results (effect sizes, subgroup tables)" }, to: "rEXTCTRL" },
+      { l: { zh: "拿得到——有每位受試者的個體資料", en: "Yes — I have per-participant individual data" }, to: "rTRANS" },
+    ],
+  },
+  rEXTCTRL: { rec: { kind: "external", badge: "↗",
+    title: { zh: "建議：外部對照（external control）—— 把那場 RCT／外部資料當對照組 ↗", en: "Suggested: external control — borrow the RCT / external data as a control arm ↗" },
+    why: { zh: "如果你<b>拿不到個體資料、只有彙總結果</b>，可把那場 RCT（或外部世代／登錄資料）當成<b>外部對照組</b>，補上你這邊缺的對照——常見於單臂試驗或罕病。代價是兩邊的收案、時代、測量方式可能不同，需要謹慎校準。",
+           en: "If you <b>only have summary results, not individual data</b>, you can borrow that RCT (or an external cohort/registry) as an <b>external control arm</b> to supply the control you lack — common for single-arm trials or rare diseases. The cost: the two sources can differ in eligibility, era and measurement, so calibrate carefully." },
+    scenario: { zh: "疫苗情境：你只追蹤了一個「接種組」、沒有同期未接種對照；借一場外部 RCT／登錄資料的未接種者，當外部對照組來比較。",
+                en: "Vaccine scenario: you only followed a vaccinated arm with no concurrent unvaccinated controls; borrow the unvaccinated arm of an external RCT/registry as an external control to compare against." },
+    watch: { zh: "↗ 本工具箱未實作，供參考。<b>關鍵</b>：兩來源的可比性（收案、時代、結果定義）；常用傾向分數／校準權重調整。",
+             en: "↗ Not implemented here; for reference. <b>Key</b>: comparability of the two sources (eligibility, era, outcome definitions); usually adjusted with propensity-score / calibration weights." } } },
+  rTRANS: { rec: { kind: "external", badge: "↗",
+    title: { zh: "建議：可移轉性／類推（transportability）—— 用個體資料把 RCT 結果轉到你的族群 ↗", en: "Suggested: transportability / generalizability — use individual data to carry an RCT's result to your population ↗" },
+    why: { zh: "如果你<b>拿得到那場 RCT 的個體層級資料</b>，就能做<b>可移轉性／類推（transportability / generalizability）</b>：用兩邊都測得到的<b>效果修飾因子</b>重新加權，把「在試驗族群成立的因果效果」<b>搬到你關心的目標族群</b>，藉此更了解這個疾病在你族群裡的真實效果。（沒有個體資料、只有彙總結果時，改走上一格的「外部對照」。）",
+           en: "If you <b>have the RCT's individual-level data</b>, you can do <b>transportability / generalizability</b>: reweight by <b>effect modifiers</b> measured in both samples to <b>carry the trial's causal effect to your target population</b>, to understand the true effect in the people you care about. (With only summary results, use the 'external control' option instead.)" },
     scenario: { zh: "疫苗情境：疫苗保護力來自一場在某國成人做的 RCT，但你關心的是<b>本地長者</b>。用兩邊共同的風險因子分布重新加權，把試驗估到的效果「轉」到本地長者族群。",
                 en: "Vaccine scenario: a vaccine's efficacy comes from an RCT in adults in another country, but you care about <b>local older adults</b>. Reweight by the shared distribution of risk factors to transport the trial's effect to your local elderly population." },
     watch: { zh: "↗ 本工具箱未實作，供參考。<b>關鍵假設</b>：所有會改變效果的<b>修飾因子都測得到</b>，且兩族群在這些因子上有<b>重疊（共同支持）</b>。",
@@ -1456,9 +1473,18 @@ const FULLMAP = {
       ],
     },
   ],
-  end: { key: "rTRANS",
-         zh: "註：上面的對照藥物世代／CCW／序列試驗本身就是 target trial emulation。若其實已有一場（別族群的）RCT → 用 transportability 把結果轉到你的目標族群",
-         en: "Note: the active-comparator cohort / CCW / sequential trials above are themselves target trial emulation. If you already have an RCT (in another population) → use transportability to carry it to your target population" },
+  rct: {
+    note: { zh: "註：上面的對照藥物世代／CCW／序列試驗本身就是 target trial emulation。",
+            en: "Note: the active-comparator cohort / CCW / sequential trials above are themselves target trial emulation." },
+    q: { zh: "若其實已有一場（別族群的）RCT —— 你拿得到它的「個體層級資料」嗎？",
+         en: "If you already have an RCT (in another population) — do you have its individual-level data?" },
+    forks: [
+      { edge: { zh: "沒有（只有彙總結果）", en: "no (only summary results)" },
+        leaves: [{ key: "rEXTCTRL", cond: { zh: "把那場 RCT／外部資料當對照組", en: "borrow the RCT / external data as a control arm" }, tag: "external control ↗", kind: "ex" }] },
+      { edge: { zh: "有（個體資料）", en: "yes (individual data)" },
+        leaves: [{ key: "rTRANS", cond: { zh: "用效果修飾因子把結果轉到你的族群", en: "reweight by effect modifiers to your population" }, tag: "transportability ↗", kind: "ex" }] },
+    ],
+  },
 };
 
 let dtreeStack = [{ id: "n1", ans: null }];
@@ -1556,13 +1582,19 @@ function renderFullMap(hitKey) {
       return h;
     }).join("") +
     `</div>`;
+  const rct = FULLMAP.rct;
+  const rctHtml =
+    `<div class="fc-note">${L(rct.note)}</div>` +
+    link("") +
+    `<div class="fc-q">${L(rct.q)}</div>` +
+    rct.forks.map(outGroup).join("");
   box.innerHTML =
     `<h3 class="fc-title">${L(FULLMAP.title)}</h3>` +
     `<div class="fc">` +
     `<div class="fc-start">${L(FULLMAP.start)}</div>` +
     `<div class="fc-lanes">${FULLMAP.lanes.map(laneHtml).join("")}</div>` +
     link("") +
-    `<div class="fc-end${FULLMAP.end.key === hitKey ? " fc-hit" : ""}">${L(FULLMAP.end)}</div>` +
+    `<div class="fc-rct">${rctHtml}</div>` +
     `</div>`;
   box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "start" });

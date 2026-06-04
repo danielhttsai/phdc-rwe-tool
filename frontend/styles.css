@@ -205,6 +205,10 @@ b { color: #0b1020; }
 .fc-end { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: .7rem 1rem;
   text-align: center; color: #1e3a8a; font-size: .9rem; max-width: 680px; line-height: 1.6; }
 .fc-end.fc-hit { box-shadow: 0 0 0 3px #93c5fd; }
+/* the "already have an RCT" branch at the bottom of the flowchart */
+.fc-rct { width: 100%; max-width: 560px; display: flex; flex-direction: column; align-items: stretch; }
+.fc-note { background: #eff6ff; border: 1px dashed #93c5fd; border-radius: 10px; padding: .5rem .8rem;
+  font-size: .82rem; color: #1e3a8a; text-align: center; line-height: 1.6; }
 
 main { max-width: 920px; margin: 0 auto; padding: 1.5rem; }
 .panel { display: none; animation: fade .25s; }
