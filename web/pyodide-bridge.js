@@ -34,16 +34,17 @@
     var css = document.createElement("style");
     css.textContent =
       "#pyloader{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;" +
-      "background:#0f172a;color:#e2e8f0;transition:opacity .5s ease;font-family:system-ui,'Noto Sans TC',sans-serif}" +
+      "background:radial-gradient(120% 120% at 50% 0%,#ffffff 0%,#f1f7f6 60%,#e6f1ef 100%);color:#14283c;" +
+      "transition:opacity .5s ease;font-family:system-ui,'Noto Sans TC',sans-serif}" +
       ".pyloader-box{max-width:460px;width:86%;text-align:center;padding:2rem}" +
-      ".pyloader-logo{margin:0 auto 1.4rem;display:inline-block;background:#fff;border-radius:14px;padding:.8rem 1rem;box-shadow:0 6px 20px rgba(0,0,0,.35)}" +
-      ".pyloader-logo img{height:72px;width:auto;display:block}" +
-      ".pyloader-title{font-size:1.5rem;font-weight:800;margin-bottom:1.2rem;letter-spacing:.5px}" +
-      ".pyloader-title span{color:#2dd4bf}" +
-      ".pyloader-msg{font-size:1rem;margin-bottom:1rem;min-height:1.4em}" +
-      ".pyloader-track{height:8px;border-radius:99px;background:#1e293b;overflow:hidden}" +
+      ".pyloader-logo{margin:0 auto 1.5rem;display:block}" +
+      ".pyloader-logo img{height:96px;width:auto;display:block;margin:0 auto}" +
+      ".pyloader-title{font-size:1.5rem;font-weight:800;margin-bottom:1.2rem;letter-spacing:.5px;color:#14283c}" +
+      ".pyloader-title span{color:#0d9488}" +
+      ".pyloader-msg{font-size:1rem;margin-bottom:1rem;min-height:1.4em;color:#334155}" +
+      ".pyloader-track{height:8px;border-radius:99px;background:#dbe7e4;overflow:hidden}" +
       ".pyloader-bar{height:100%;width:5%;border-radius:99px;background:linear-gradient(90deg,#0d9488,#2dd4bf);transition:width .4s ease}" +
-      ".pyloader-note{margin-top:1.2rem;font-size:.8rem;color:#94a3b8;line-height:1.6}";
+      ".pyloader-note{margin-top:1.2rem;font-size:.8rem;color:#64748b;line-height:1.6}";
     document.head.appendChild(css);
     (document.body || document.documentElement).appendChild(o);
   }
