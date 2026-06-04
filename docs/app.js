@@ -446,26 +446,44 @@ function drawTwoStage(elId) {
   }), SCENE_CFG);
 }
 
-// scene 1 (IV remedy 1): one weak instrument — two barely-separated clouds
+// scene 1 (IV remedy 1): illustrate the STACKING — one weak force = two
+// overlapping humps (can't tell apart); stack a dozen and the two groups
+// (nudged vs not) separate into a clear strong signal.
 function drawSceneWeak() {
   if (!document.getElementById("sceneWeak")) return;
-  const rng = mulberry32(101);
-  const x0 = [], y0 = [], x1 = [], y1 = [];
-  for (let i = 0; i < 150; i++) {
-    const nudged = rng() < 0.5 ? 1 : 0;
-    // weak: nudged only nudges shot probability a little
-    const p = nudged ? 0.55 : 0.45;
-    const shot = rng() < p ? 1 : 0;
-    // spread each cloud out so the two bands read as fat clouds, not thin lines
-    const xv = nudged + randn(rng) * 0.11;
-    const yv = shot + randn(rng) * 0.12;
-    if (nudged) { x1.push(xv); y1.push(yv); } else { x0.push(xv); y0.push(yv); }
-  }
-  const mk = (x, y, c) => ({ x, y, mode: "markers", type: "scatter",
-    marker: { color: c, size: 7, opacity: 0.6 } });
-  Plotly.react("sceneWeak", [mk(x0, y0, INK), mk(x1, y1, TEAL)], sceneLayout({
-    xaxis: { tickvals: [0, 1], ticktext: [tr("沒被推", "not nudged"), tr("有被推", "nudged")], range: [-0.55, 1.55] },
-    yaxis: { tickvals: [0, 1], ticktext: [tr("沒打針", "no shot"), tr("有打針", "got shot")], range: [-0.55, 1.55] },
+  const hump = (mu, base, color) => {
+    const xs = [], ys = [], sd = 1.0, amp = 1.9;
+    for (let x = 0; x <= 10; x += 0.2) { xs.push(x); ys.push(base + amp * Math.exp(-Math.pow(x - mu, 2) / (2 * sd * sd))); }
+    xs.push(10, 0); ys.push(base, base);
+    return { x: xs, y: ys, fill: "toself", fillcolor: color, line: { color: "rgba(0,0,0,0)" },
+      mode: "lines", type: "scatter", hoverinfo: "skip", showlegend: false };
+  };
+  const GREY = "rgba(100,116,139,0.45)", TL = "rgba(13,148,136,0.55)";
+  const rows = [
+    { base: 7.0, sep: 0.35, label: tr("① 單一弱外力", "① one weak force") },
+    { base: 3.8, sep: 1.4, label: tr("② 疊加幾個", "② stack a few") },
+    { base: 0.6, sep: 2.9, label: tr("③ AI 合成十幾個", "③ AI fuses a dozen") },
+  ];
+  const traces = [];
+  rows.forEach((r) => { traces.push(hump(5 - r.sep, r.base, GREY)); traces.push(hump(5 + r.sep, r.base, TL)); });
+  const anns = [
+    Object.assign(_lbl(0.1, 9.4, tr("● 有被推", "● nudged"), "#0d9488", 10.5), { xanchor: "left" }),
+    Object.assign(_lbl(2.6, 9.4, tr("● 沒被推", "● not nudged"), "#64748b", 10.5), { xanchor: "left" }),
+  ];
+  rows.forEach((r) => anns.push(Object.assign(_lbl(0.1, r.base + 2.45, r.label, INK, 11), { xanchor: "left" })));
+  anns.push(_lbl(5, rows[0].base - 0.05, tr("兩團幾乎重疊 → 分不出誰會打針", "almost fully overlapping → can't tell who gets the shot"), "#dc2626", 10));
+  anns.push(_lbl(5, rows[2].base - 0.05, tr("兩團清楚分開 → 看得出誰會打針（＝強外力）", "clearly separated → you can tell who gets the shot (strong)"), "#15803d", 10));
+  anns.push(Object.assign(_arrow(0.7, 6.95, 0.7, 5.95), { arrowcolor: "#94a3b8" }));
+  anns.push(Object.assign(_lbl(0.95, 6.45, tr("疊加", "stack"), "#64748b", 9.5), { xanchor: "left" }));
+  anns.push(Object.assign(_arrow(0.7, 3.75, 0.7, 2.75), { arrowcolor: "#94a3b8" }));
+  anns.push(Object.assign(_lbl(0.95, 3.25, tr("再疊加", "stack more"), "#64748b", 9.5), { xanchor: "left" }));
+  Plotly.react("sceneWeak", traces, schemaLayout({
+    height: 330, annotations: anns,
+    xaxis: { visible: false, range: [0, 10] }, yaxis: { visible: false, range: [0, 10] },
+    margin: { t: 38, r: 12, b: 10, l: 12 },
+    title: { text: tr("疊加：很多「分不開」的弱外力 → 合成一個「分得開」的強外力",
+                      "Stacking: many indistinguishable weak forces → one separable strong force"),
+             font: { size: 11.5 }, x: 0.5, xanchor: "center" },
   }), SCENE_CFG);
 }
 
