@@ -3000,51 +3000,67 @@ function ccwCurveInto(elId, curve) {
   }), SCENE_CFG);
 }
 
-// ① learn: a clone-censor swimmer illustration (each person cloned into both arms,
-// censored ✂ on deviation from the assigned strategy)
+// ① learn: the clone-censor-weight design as drawn in the source paper's supplement
+// (Tsai et al, Br J Psychiatry 2024). A panel-by-panel flow across the grace period:
+// ① clone every person into BOTH treatment arms at the index date; ② censor a clone
+// the moment it deviates from its assigned strategy (icons drop out across the panels);
+// ③ in the final panel, up-weight the still-uncensored clones (IPCW) so they resemble
+// the full uncensored population. Two stacked bands = the two treatment arms.
 function drawSceneCcw() {
   if (!document.getElementById("ccwScene")) return;
-  const GREY = "#9aa6b2", g = 3, XMAX = 12;
-  // two example people × two arms (early row above, late row below for each)
-  const rows = [
-    { y: 7, arm: "early", solid: 12, mark: null, who: "A" },          // A: vaccinated at 1 → adheres early
-    { y: 6, arm: "late",  solid: 1,  mark: "cens", who: "A" },        // A: late clone censored at vaccination (m=1)
-    { y: 4, arm: "early", solid: 3,  mark: "cens", who: "B" },        // B: never vaccinated by grace → early censored at g=3
-    { y: 3, arm: "late",  solid: 9,  mark: "event", who: "B" },       // B: late clone, event at 9
-  ];
-  const shapes = [{ type: "line", x0: g, x1: g, y0: 2.3, y1: 7.7, line: { color: AMBER, width: 1.2, dash: "dot" } }];
-  const evX = [], evY = [], csX = [], csY = [];
-  rows.forEach((r) => {
-    shapes.push({ type: "line", x0: 0.4, y0: r.y, x1: r.solid, y1: r.y, line: { color: r.arm === "early" ? TEAL : SLATE, width: 4 } });
-    if (r.mark === "event") { evX.push(r.solid); evY.push(r.y); }
-    if (r.mark === "cens") { csX.push(r.solid); csY.push(r.y); }
+  const ARM0 = TEAL, ARM1 = "#5b7aa8", CENS = "#cbd5e1", WT = GREEN;
+  const panelX = [0, 1.55, 3.1, 4.65, 6.2];                 // five panels across the grace period
+  const active = [9, 8, 6, 5, 5];                            // clones still uncensored in each panel
+  const armY = [2.45, 1.05];                                 // top arm / bottom arm row centres
+  const dx = 0.20, dy = 0.20;                                // 3×3 person-dot grid spacing
+  // panel background cards (last one = green weighting panel)
+  const shapes = panelX.map((cx, p) => ({
+    type: "rect", x0: cx - 0.5, x1: cx + 0.5, y0: 0.45, y1: 3.05,
+    fillcolor: p === 4 ? "rgba(63,130,104,.12)" : "rgba(148,163,184,.10)",
+    line: { color: p === 4 ? "rgba(63,130,104,.5)" : "rgba(148,163,184,.4)", width: 1 },
+  }));
+  // dotted grace-period timeline along the bottom
+  shapes.push({ type: "line", x0: -0.2, x1: 6.9, y0: 0.28, y1: 0.28, line: { color: "#94a3b8", width: 1.4, dash: "dot" } });
+  panelX.forEach((cx) => shapes.push({ type: "line", x0: cx, x1: cx, y0: 0.22, y1: 0.34, line: { color: "#94a3b8", width: 1.4 } }));
+  // build the person dots: active (per arm colour or green in weight panel) vs censored
+  const a0 = { x: [], y: [] }, a1 = { x: [], y: [] }, cen = { x: [], y: [] }, wt = { x: [], y: [] };
+  panelX.forEach((cx, p) => {
+    armY.forEach((yc, a) => {
+      for (let k = 0; k < 9; k++) {
+        const col = k % 3, row = Math.floor(k / 3);
+        const x = cx + (col - 1) * dx, y = yc + (1 - row) * dy;
+        if (k >= active[p]) { cen.x.push(x); cen.y.push(y); }
+        else if (p === 4) { wt.x.push(x); wt.y.push(y); }
+        else { (a === 0 ? a0 : a1).x.push(x); (a === 0 ? a0 : a1).y.push(y); }
+      }
+    });
   });
-  // step ③ IPCW: surviving (uncensored) clones get up-weighted to stand in for the
-  // ones artificially censored — a ×w is annotated on segments that continue past grace
   const traces = [
-    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件", "● event"), marker: { color: RED, size: 13 } },
-    { x: csX, y: csY, mode: "markers", type: "scatter", name: tr("✂ 偏離策略 → 設限", "✂ deviation → censored"),
-      marker: { color: "#64748b", size: 14, symbol: "x-thin-open", line: { width: 3 } } },
+    { x: a0.x, y: a0.y, mode: "markers", type: "scatter", name: tr("早起始臂（未設限）", "early-start arm (uncensored)"), marker: { color: ARM0, size: 9 } },
+    { x: a1.x, y: a1.y, mode: "markers", type: "scatter", name: tr("晚起始臂（未設限）", "late-start arm (uncensored)"), marker: { color: ARM1, size: 9 } },
+    { x: cen.x, y: cen.y, mode: "markers", type: "scatter", name: tr("偏離策略 → 設限", "deviated → censored"), marker: { color: CENS, size: 9 } },
+    { x: wt.x, y: wt.y, mode: "markers", type: "scatter", name: tr("加權後存活者（IPCW）", "up-weighted survivors (IPCW)"), marker: { color: WT, size: 11, line: { color: "#1f6b4a", width: 1.5 } } },
   ];
   const anns = [
-    Object.assign(_lbl(0.2, 7, tr("甲 · 早臂", "A · early"), TEAL, 9.5), { xanchor: "left" }),
-    Object.assign(_lbl(0.2, 6, tr("甲 · 晚臂", "A · late"), SLATE, 9.5), { xanchor: "left" }),
-    Object.assign(_lbl(0.2, 4, tr("乙 · 早臂", "B · early"), TEAL, 9.5), { xanchor: "left" }),
-    Object.assign(_lbl(0.2, 3, tr("乙 · 晚臂", "B · late"), SLATE, 9.5), { xanchor: "left" }),
-    Object.assign(_lbl(g, 7.95, tr("寬限期 g", "grace g"), "#b45309", 10), { xanchor: "center" }),
-    // step badges (Hernán 2018 three steps)
-    Object.assign(_lbl(0.4, 8.15, tr("① 複製", "① clone"), TEAL, 9.5), { xanchor: "left" }),
-    Object.assign(_lbl(g + 0.2, 8.15, tr("② 偏離即設限 ✂", "② censor on deviation ✂"), "#64748b", 9.5), { xanchor: "left" }),
-    Object.assign(_lbl(7.5, 8.15, tr("③ 反設限加權 ×w", "③ IPCW up-weight ×w"), PURPLE, 9.5), { xanchor: "left" }),
-    _lbl(6, 1.4, tr("三步驟：在時間零點把每個人①複製到兩臂；一旦行為偏離被指派的策略，就在那一刻②設限(✂)；再用③反設限機率(×w)把存活的分身加權，補回被人為設限流失的資訊。",
-                    "Three steps: at time zero ① clone each person into both arms; the moment behaviour deviates from the assigned strategy ② censor (✂); then ③ inverse-probability-of-censoring weight (×w) the survivors to recover the information lost to artificial censoring."), INK, 10),
+    // step labels over the panels
+    Object.assign(_lbl(panelX[0], 3.32, tr("① 複製到兩臂", "① clone into both arms"), ARM0, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(panelX[2], 3.32, tr("② 偏離指派策略即設限", "② censor on deviation"), SLATE, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(panelX[4], 3.32, tr("③ 對未設限者加權", "③ weight the uncensored"), WT, 9.5), { xanchor: "center" }),
+    // arm row labels
+    Object.assign(_lbl(-0.95, armY[0], tr("早起始臂", "early arm"), ARM0, 9), { xanchor: "left" }),
+    Object.assign(_lbl(-0.95, armY[1], tr("晚起始臂", "late arm"), ARM1, 9), { xanchor: "left" }),
+    // timeline endpoints
+    Object.assign(_lbl(panelX[0], 0.08, tr("指標日", "index date"), INK, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(panelX[4], 0.08, tr("指標日＋寬限期", "index date + grace period"), INK, 9.5), { xanchor: "center" }),
+    _lbl(3.1, -0.42, tr(
+      "在指標日把每個人①複製到兩臂；一旦偏離被指派的策略就②設限（灰點）；最後③依設限因子對未設限者加權（IPCW），讓存活者重新代表完整族群。",
+      "At the index date ① clone each person into both arms; ② censor (grey) a clone once it deviates from its assigned strategy; finally ③ up-weight the uncensored clones by their censoring factors (IPCW) so survivors again represent the full population."), INK, 9.5),
   ];
-  rows.forEach((r) => { if (r.mark !== "cens" && r.solid > g) anns.push(Object.assign(_lbl(g + 0.6, r.y + 0.36, "×w", PURPLE, 9), { xanchor: "left" })); });
   Plotly.react("ccwScene", traces, schemaLayout({
-    height: 300, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.14 },
-    xaxis: { visible: true, title: tr("診斷後月份", "months since diagnosis"), range: [0, XMAX], fixedrange: true },
-    yaxis: { visible: false, range: [0.6, 8.3] },
-    margin: { t: 32, r: 16, b: 36, l: 16 },
+    height: 310, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.18 },
+    xaxis: { visible: false, range: [-1.0, 7.0], fixedrange: true },
+    yaxis: { visible: false, range: [-0.55, 3.6] },
+    margin: { t: 30, r: 14, b: 28, l: 14 },
   }), SCENE_CFG);
 }
 
@@ -3270,45 +3286,63 @@ function cctcCurveInto(elId, curve) {
   }), SCENE_CFG);
 }
 
-// ① learn: the standard case-crossover design figure — a per-person timeline with a
-// reference window and a hazard window before the event; a control (or future case)
-// row carries the calendar trend that CCTC divides out (Maclure 1991; Jeong 2023).
+// ① learn: the case-case-time-control design figure as drawn in the source paper
+// (Tsai et al, BMJ 2023, anticholinergics & cardiovascular events): a Current-cases
+// row and a Future-cases row, each spanning 180 days before the index date and split
+// into four reference windows (one randomly selected), a washout window, and the
+// hazard window just before the index date. Future cases carry the calendar trend in
+// drug use that the control-crossover analysis removes.
 function drawSceneCctc() {
   if (!document.getElementById("cctcScene")) return;
-  const REF0 = 2.0, REF1 = 3.7, HAZ0 = 7.6, HAZ1 = 9.3, EVT = 9.9;
-  const yCase = 3.0, yCtrl = 1.3;
-  const shapes = [
-    // window bands spanning both rows
-    { type: "rect", x0: REF0, x1: REF1, y0: 0.7, y1: 3.6, fillcolor: "rgba(100,116,139,.13)", line: { color: SLATE, width: 1 } },
-    { type: "rect", x0: HAZ0, x1: HAZ1, y0: 0.7, y1: 3.6, fillcolor: "rgba(245,158,11,.16)", line: { color: "#e08e10", width: 1 } },
-    // timelines
-    { type: "line", x0: 0.5, x1: EVT, y0: yCase, y1: yCase, line: { color: SLATE, width: 3 } },
-    { type: "line", x0: 0.5, x1: 10.6, y0: yCtrl, y1: yCtrl, line: { color: SLATE, width: 3 } },
-  ];
+  const LAV = "#cdc7ec", LAVF = "rgba(205,199,236,.6)", HAZF = "#5b4ea0", IDX = "#5b4ea0";
+  const yCur = 2.55, yFut = 1.05, h = 0.30;     // row centres, half-height
+  // helper: build the window blocks for one row (days are negative, index at 0)
+  function rowShapes(yc) {
+    const s = [];
+    // four 30-day reference windows: −180…−60 (lavender, with internal dividers)
+    s.push({ type: "rect", x0: -180, x1: -60, y0: yc - h, y1: yc + h, fillcolor: LAVF, line: { color: LAV, width: 1 } });
+    [-150, -120, -90].forEach((d) => s.push({ type: "line", x0: d, x1: d, y0: yc - h, y1: yc + h, line: { color: "#fff", width: 1.5 } }));
+    // washout window: −60…−30 (white / unshaded)
+    s.push({ type: "rect", x0: -60, x1: -30, y0: yc - h, y1: yc + h, fillcolor: "#ffffff", line: { color: "#b9c2cf", width: 1 } });
+    // hazard window: −30…−1 (dark purple)
+    s.push({ type: "rect", x0: -30, x1: -1, y0: yc - h, y1: yc + h, fillcolor: HAZF, line: { color: HAZF, width: 1 } });
+    return s;
+  }
+  const shapes = rowShapes(yCur).concat(rowShapes(yFut));
+  // index-date line (current case event date) + future-case continuation with a break
+  shapes.push({ type: "line", x0: 0, x1: 0, y0: 0.55, y1: 3.15, line: { color: IDX, width: 1.5, dash: "dot" } });
+  shapes.push({ type: "line", x0: 0, x1: 26, y0: yFut, y1: yFut, line: { color: "#b9c2cf", width: 1.5, dash: "dot" } });
   const traces = [
-    { x: [EVT], y: [yCase], mode: "markers", type: "scatter", name: tr("● 事件（指標日）", "● event (index date)"), marker: { color: RED, size: 14 } },
-    // exposure marks (pills): both case & control exposed in the hazard window (= the
-    // calendar trend); the case ALSO carries the causal effect
-    { x: [(HAZ0 + HAZ1) / 2, (HAZ0 + HAZ1) / 2], y: [yCase, yCtrl], mode: "markers", type: "scatter",
-      name: tr("暴露", "exposed"), marker: { color: "#b45309", size: 12, symbol: "square" } },
+    { x: [0], y: [yCur], mode: "markers", type: "scatter", name: tr("↓ 當前案例事件日（指標日）", "↓ current case event date (index)"),
+      marker: { color: IDX, size: 12, symbol: "triangle-down" } },
+    { x: [40], y: [yFut], mode: "markers", type: "scatter", name: tr("↓ 未來案例事件日", "↓ future case event date"),
+      marker: { color: "#8b8bbf", size: 12, symbol: "triangle-down" } },
   ];
   const anns = [
-    Object.assign(_lbl((REF0 + REF1) / 2, 3.85, tr("參考窗 W0", "reference W0"), SLATE, 10.5), { xanchor: "center" }),
-    Object.assign(_lbl((HAZ0 + HAZ1) / 2, 3.85, tr("危險窗 W1", "hazard W1"), "#b45309", 10.5), { xanchor: "center" }),
-    Object.assign(_lbl(0.2, yCase, tr("案例（有事件）", "case (has event)"), INK, 10), { xanchor: "left" }),
-    Object.assign(_lbl(0.2, yCtrl, tr("對照／未來 case（無事件）", "control / future case (no event)"), SLATE, 10), { xanchor: "left" }),
-    _lbl(5.5, 0.25, tr(
-      "案例交叉：比同一人「危險窗 vs 參考窗」的暴露。趨勢讓 W1 本就比 W0 常暴露 → CCO 高估；",
-      "Case-crossover: compare a person's exposure in the hazard vs reference window. The trend makes W1 more exposed → CCO inflated;"), INK, 10),
-    _lbl(5.5, -0.3, tr(
-      "對照（或未來 case）用同樣的窗量出日曆趨勢，CCTC 把它從案例交叉中除掉。",
-      "controls (or future cases) measure the calendar trend in the same windows; CCTC divides it out."), INK, 10),
+    // window labels above the current-cases row
+    Object.assign(_lbl(-120, 3.18, tr("參考窗 ×4（隨機選一）", "reference windows ×4 (1 randomly selected)"), "#6a5fae", 10), { xanchor: "center" }),
+    Object.assign(_lbl(-45, 3.18, tr("清除窗", "washout"), SLATE, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(-15.5, 3.18, tr("危險窗", "hazard"), HAZF, 10), { xanchor: "center" }),
+    Object.assign(_lbl(2, 3.0, tr("指標日", "index date"), IDX, 9.5), { xanchor: "left" }),
+    // row labels
+    Object.assign(_lbl(-192, yCur, tr("當前案例", "current cases"), INK, 10), { xanchor: "left" }),
+    Object.assign(_lbl(-192, yFut, tr("未來案例", "future cases"), SLATE, 10), { xanchor: "left" }),
+    Object.assign(_lbl(40, yFut + 0.42, tr("事件較晚", "event later"), "#8b8bbf", 9), { xanchor: "center" }),
+    Object.assign(_lbl(13, yFut + 0.18, "//", "#b9c2cf", 11), { xanchor: "center" }),
+    // captions
+    _lbl(-70, 0.28, tr(
+      "案例交叉：在「當前案例」內比危險窗 vs 參考窗的暴露；藥物使用隨日曆時間有趨勢 → 案例交叉被高估。",
+      "Case-crossover: within current cases, compare exposure in the hazard vs reference window; drug use trends over calendar time → case-crossover is inflated."), INK, 9.5),
+    _lbl(-70, -0.12, tr(
+      "控制交叉：用「未來案例」（事件較晚、配對年齡性別）量出同樣的時間趨勢；CCTC＝案例交叉 OR ÷ 控制交叉 OR，把趨勢除掉。",
+      "Control-crossover: future cases (event later, matched on age/sex) measure the same time trend; CCTC = case-crossover OR ÷ control-crossover OR, dividing out the trend."), INK, 9.5),
   ];
   Plotly.react("cctcScene", traces, schemaLayout({
-    height: 300, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
-    xaxis: { visible: true, title: tr("時間 →（事件在右）", "time → (event at right)"), range: [0, 10.8], fixedrange: true, showticklabels: false },
-    yaxis: { visible: false, range: [-0.6, 4.2] },
-    margin: { t: 30, r: 16, b: 30, l: 16 },
+    height: 310, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.17 },
+    xaxis: { visible: true, title: tr("指標日前天數", "days before index date"), range: [-200, 52], fixedrange: true,
+      tickmode: "array", tickvals: [-180, -150, -120, -90, -60, -30, 0], ticktext: ["−180", "−150", "−120", "−90", "−60", "−30", "0"] },
+    yaxis: { visible: false, range: [-0.35, 3.45] },
+    margin: { t: 30, r: 16, b: 38, l: 16 },
   }), SCENE_CFG);
 }
 function initCctcLearn() { if (cctcLearnReady) return; cctcLearnReady = true; drawSceneCctc(); }
