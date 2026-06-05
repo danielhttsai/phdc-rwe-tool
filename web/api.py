@@ -48,6 +48,9 @@ import seq_assumptions
 import cc_core
 import cc_gen
 import cc_assumptions
+import sccs_core
+import sccs_gen
+import sccs_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -858,6 +861,55 @@ def _cc_forest(q: dict) -> dict:
     return cc_ml.matched_forest_demo(seed=int(q.get("seed", 23)), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# SCCS (self-controlled case series, 自身對照病例系列)
+# ---------------------------------------------------------------------------
+def _load_sccs(source: str) -> pd.DataFrame:
+    if source in ("example_sccs", "example"):
+        return sccs_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _sccs_example() -> dict:
+    df = sccs_gen.generate()
+    return {
+        "columns": list(df.columns),
+        "defaults": {"obs_start": "obs_start", "obs_end": "obs_end", "vacc_day": "vacc_day",
+                     "event_day": "event_day", "risk_days": sccs_gen.RISK_DAYS},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "vacc_day": "vacc_day（接種日；危險窗＝其後 1–%d 天）" % sccs_gen.RISK_DAYS,
+            "event_day": "event_day（急性事件發生日；只收有事件的 case）",
+            "obs_start": "obs_start／obs_end（觀察期起訖天）",
+        },
+    }
+
+
+def _sccs_analyze(req: dict) -> dict:
+    df = _load_sccs(req.get("source", "example_sccs"))
+    rd = req.get("risk_days")
+    return sccs_core.full_sccs(df, risk_days=int(rd) if rd else None, lang=req.get("lang", "zh"))
+
+
+def _sccs_assumptions(req: dict) -> dict:
+    df = _load_sccs(req.get("source", "example_sccs"))
+    return sccs_assumptions.run_dashboard(df, lang=req.get("lang", "zh"))
+
+
+def _sccs_interactive(q: dict) -> dict:
+    hv = float(np.clip(float(q.get("hv", 1.0)), 0.0, 1.5))
+    return sccs_core.sccs_interactive(hv, lang=q.get("lang", "zh"))
+
+
+def _sccs_selfmatch(q: dict) -> dict:
+    import sccs_ml
+    return sccs_ml.self_matched_demo(seed=int(q.get("seed", 31)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -931,6 +983,11 @@ _ROUTES = {
     ("GET", "/api/cc_targettrial"): lambda q, b: _cc_targettrial(q),
     ("GET", "/api/cc_external"): lambda q, b: _cc_external(q),
     ("GET", "/api/cc_forest"): lambda q, b: _cc_forest(q),
+    ("GET", "/api/sccs_example"): lambda q, b: _sccs_example(),
+    ("POST", "/api/sccs_analyze"): lambda q, b: _sccs_analyze(b),
+    ("POST", "/api/sccs_assumptions"): lambda q, b: _sccs_assumptions(b),
+    ("GET", "/api/sccs_interactive"): lambda q, b: _sccs_interactive(q),
+    ("GET", "/api/sccs_selfmatch"): lambda q, b: _sccs_selfmatch(q),
 }
 
 

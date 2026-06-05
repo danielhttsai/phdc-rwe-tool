@@ -48,6 +48,10 @@ import cc_core
 import cc_gen
 import cc_assumptions
 import cc_ml
+import sccs_core
+import sccs_gen
+import sccs_assumptions
+import sccs_ml
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -957,6 +961,64 @@ def cc_external(lang: str = "zh"):
 def cc_forest(seed: int = 23, lang: str = "zh"):
     """Case-control ⑤: real sklearn random forest for matched case-control."""
     return _clean(cc_ml.matched_forest_demo(seed=seed, lang=lang))
+
+
+# ---------------------------------------------------------------------------
+# SCCS (self-controlled case series)
+# ---------------------------------------------------------------------------
+class SccsRequest(BaseModel):
+    source: str = "example_sccs"
+    risk_days: int | None = None
+    lang: str = "zh"
+
+
+def _load_sccs(source: str) -> pd.DataFrame:
+    if source in ("example_sccs", "example"):
+        return sccs_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/sccs_example")
+def sccs_example():
+    df = sccs_gen.generate()
+    return _clean({
+        "columns": list(df.columns),
+        "defaults": {"obs_start": "obs_start", "obs_end": "obs_end", "vacc_day": "vacc_day",
+                     "event_day": "event_day", "risk_days": sccs_gen.RISK_DAYS},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "vacc_day": "vacc_day（接種日；危險窗＝其後 1–%d 天）" % sccs_gen.RISK_DAYS,
+            "event_day": "event_day（急性事件發生日；只收有事件的 case）",
+            "obs_start": "obs_start／obs_end（觀察期起訖天）",
+        },
+    })
+
+
+@app.post("/api/sccs_analyze")
+def sccs_analyze(req: SccsRequest):
+    df = _load_sccs(req.source)
+    return _clean(sccs_core.full_sccs(df, risk_days=req.risk_days, lang=req.lang))
+
+
+@app.post("/api/sccs_assumptions")
+def sccs_assumptions_check(req: SccsRequest):
+    df = _load_sccs(req.source)
+    return _clean(sccs_assumptions.run_dashboard(df, lang=req.lang))
+
+
+@app.get("/api/sccs_interactive")
+def sccs_interactive(hv: float = 1.0, lang: str = "zh"):
+    return _clean(sccs_core.sccs_interactive(float(np.clip(hv, 0.0, 1.5)), lang=lang))
+
+
+@app.get("/api/sccs_selfmatch")
+def sccs_selfmatch(seed: int = 31, lang: str = "zh"):
+    """SCCS ⑤: real sklearn self-matched learning (effect heterogeneity)."""
+    return _clean(sccs_ml.self_matched_demo(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")

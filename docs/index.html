@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=57" />
+<link rel="stylesheet" href="styles.css?v=58" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -26,6 +26,7 @@
         <option value="seq" data-en="Seq · Sequential target trials">Seq · 序列試驗</option>
         <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
         <option value="cc" data-en="CC · Case-control">CC · 病例對照</option>
+        <option value="sccs" data-en="SCCS · Self-controlled case series">SCCS · 自身對照病例系列</option>
       </select>
     </label>
     <div class="subtabs">
@@ -2723,6 +2724,156 @@
     </div>
   </section>
 
+  <!-- ===================== SCCS ① 是什麼 ===================== -->
+  <section id="sccslearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="SCCS: each person is their own control — only cases needed">自身對照病例系列（SCCS）：每個人當自己的對照，只要 case</h1>
+    <p class="lead" data-en="Does a vaccine <b>transiently</b> raise the risk of an acute event (say myocarditis)? SCCS uses <b>only people who had the event (cases)</b> and makes <b>each person their own control</b>: split their observation into a post-vaccination <b>risk window</b> (here days 1–28) and the rest as <b>baseline</b>, and compare the event rate in the two — the <b>incidence rate ratio (IRR)</b> via conditional Poisson. Because it's a within-person before/after comparison, <b>every time-fixed factor (genetics, constitution, socioeconomics) cancels automatically</b>.">
+      一支疫苗會不會在接種後<b>短暫</b>提高某個急性事件（如心肌炎）的風險？SCCS<b>只用發生過事件的人（cases）</b>，
+      讓<b>每個人當自己的對照</b>：把他的觀察期切成接種後的<b>危險窗</b>（這裡 1–28 天）與其餘的<b>基線期</b>，比較兩段的
+      事件速率——用條件 Poisson 算<b>相對速率（IRR）</b>。因為是同一個人前後比，<b>所有不隨時間變的因子（基因、體質、
+      社經）都自動被消掉</b>。
+    </p>
+
+    <div class="card scene">
+      <h3 data-en="How it works — risk window vs baseline, within each case">怎麼做 —— 同一個 case 內：危險窗 vs 基線期</h3>
+      <div id="sccsScene" class="chart"></div>
+    </div>
+
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef">
+        <h4>自身對照病例系列 <span class="en">self-controlled case series (SCCS)</span></h4>
+        <p data-en="<b>Plain:</b> use only people who had the event, and compare each person's own exposed vs unexposed time.<br /><b>Definition:</b> a within-person design; the event rate in the risk window relative to baseline, estimated by conditional Poisson.<br /><b>Why it matters:</b> all time-fixed confounders cancel — no separate control group needed.<br /><b>Example:</b> myocarditis after an mRNA vaccine dose (Lai et al. 2024).<br /><b>Origin:</b> Farrington 1995; tutorial Whitaker, Farrington &amp; Musonda 2006.">
+          <b>白話：</b>只用發生過事件的人，比較同一個人「暴露時段 vs 非暴露時段」。<br />
+          <b>定義：</b>個人內設計；危險窗相對基線的事件速率，用條件 Poisson 估。<br />
+          <b>為什麼重要：</b>所有時間不變的混淆都相消——不需要另找對照組。<br />
+          <b>例子：</b>mRNA 疫苗一劑後的心肌炎（Lai 等 2024）。<br />
+          <b>源頭：</b>Farrington 1995；教學 Whitaker, Farrington &amp; Musonda 2006。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>危險窗與相對速率 <span class="en">risk window &amp; incidence rate ratio (IRR)</span></h4>
+        <p data-en="<b>Plain:</b> the short period after exposure when risk may be raised, vs all the other (baseline) time.<br /><b>Definition:</b> IRR = event rate in the risk window ÷ event rate in baseline, within person.<br /><b>Why it matters:</b> it isolates the transient effect of the exposure.<br /><b>Example:</b> days 1–28 after vaccination as the risk window.<br /><b>Formula:</b> <code>P(event in risk) = e_risk·IRR / (e_base + e_risk·IRR)</code>.">
+          <b>白話：</b>暴露後可能升高風險的那一小段，對比其餘所有（基線）時間。<br />
+          <b>定義：</b>IRR＝危險窗事件速率 ÷ 基線事件速率（同一人內）。<br />
+          <b>為什麼重要：</b>它把暴露的「短暫」效果分離出來。<br />
+          <b>例子：</b>接種後 1–28 天當危險窗。<br />
+          <b>公式：</b><code>P(事件落危險窗) = e_risk·IRR / (e_base + e_risk·IRR)</code>。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>條件 Poisson <span class="en">conditional Poisson</span></h4>
+        <p data-en="<b>Plain:</b> condition on each person having their event, so their personal baseline rate drops out.<br /><b>Definition:</b> a fixed-effects Poisson conditioned per person; the conditional likelihood depends only on where the event falls.<br /><b>Why it matters:</b> conditioning on the person removes all time-fixed confounding by construction.<br /><b>Adjust for time-varying factors</b> (age, season) by further splitting time into bands.<br /><b>Formula:</b> <code>log L = Σ [xᵣβ + log eᵣ − log Σⱼ eⱼ exp(xⱼβ)]</code>.">
+          <b>白話：</b>條件在「每個人都有一次事件」，個人的基線速率就被消掉。<br />
+          <b>定義：</b>以人為固定效果的 Poisson；條件式概似只取決於事件落在哪一段。<br />
+          <b>為什麼重要：</b>條件在「人」上，所有時間不變混淆依設計被移除。<br />
+          <b>調整時變因子</b>（年齡、季節）：把時間再切成分段一起估。<br />
+          <b>公式：</b><code>log L = Σ [xᵣβ + log eᵣ − log Σⱼ eⱼ exp(xⱼβ)]</code>。
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== SCCS ② 互動講解 ===================== -->
+  <section id="sccsplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: SCCS is immune to time-fixed confounding">互動：SCCS 對「時間不變的混淆」免疫</h1>
+    <p class="lead" data-en="Drag the slider for the strength of <b>healthy-vaccinee</b> selection (people who get vaccinated are healthier to begin with — a time-fixed, between-person confounder). A <b>naive between-person rate ratio</b> gets dragged off the truth; the <b>within-person SCCS IRR doesn't budge</b>, because each person is their own control.">
+      拉動滑桿改變<b>健康接種者</b>選擇的強度（會去接種的人本來就比較健康——一個時間不變、人與人之間的混淆）。
+      「人與人之間」比較的<b>天真速率比</b>會被拉偏；而<b>同一個人前後比的 SCCS IRR 不動如山</b>，因為每個人都是自己的對照。
+    </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="Healthy-vaccinee selection strength:">健康接種者選擇強度：</span><b id="sccsHvVal">1.0</b>
+        <input type="range" id="sccsHvSlider" min="0" max="1.5" value="1" step="0.05" />
+        <small data-en="0 = no selection (both agree). Larger = vaccinees are healthier, so the naive between-person rate ratio is dragged down — while SCCS stays on the truth.">0＝無選擇（兩者一致）。越大＝接種者越健康，天真的人際速率比被往下拉——而 SCCS 停在真值。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Naive between-person RR">天真人際速率比</div><div class="stat-num" id="sccsNaive">–</div><div class="stat-foot" data-en="confounded by selection">被選擇混淆</div></div>
+      <div class="stat"><div class="stat-label" data-en="SCCS IRR (within-person)">SCCS IRR（個人內）</div><div class="stat-num" id="sccsSccs">–</div><div class="stat-foot" data-en="should hug the truth 3.0">應緊貼真值 3.0</div></div>
+      <div class="stat"><div class="stat-label" data-en="Truth">真值</div><div class="stat-num small" id="sccsTrue">3.0</div><div class="stat-foot" data-en="the causal IRR">真實因果 IRR</div></div>
+    </div>
+
+    <div id="sccsPlayChart" class="chart"></div>
+    <p class="caption" data-en="The naive rate ratio (amber) slides away as healthy-vaccinee selection grows; the SCCS IRR (teal) stays flat on the dashed truth line — because the within-person design cancels the time-fixed confounder.">
+      健康接種者選擇越強，天真速率比（琥珀）越滑離；SCCS IRR（青）平貼在虛線真值上——因為個人內設計把時間不變的混淆消掉了。
+    </p>
+  </section>
+
+  <!-- ===================== SCCS ③ 資料分析 ===================== -->
+  <section id="sccsanalyze" class="panel">
+    <h1 data-en="Data analysis: run an SCCS (conditional Poisson IRR)">資料分析：跑一次 SCCS（條件 Poisson 的 IRR）</h1>
+    <p class="lead" data-en="Load the built-in cases (one row per case who had the event: observation start/end, vaccination day, event day). The tool splits each person into the risk window (days 1–N after vaccination) vs baseline and fits a conditional-Poisson IRR with a 95% interval.">
+      載入內建的 case（每列一個發生過事件的人：觀察期起訖、接種日、事件日）。工具會把每個人切成危險窗
+      （接種後 1–N 天）與基線期，配條件 Poisson 的 IRR 與 95% 區間。
+    </p>
+
+    <div class="datasource">
+      <button id="useSccsExample" class="btn primary" data-en="Load built-in cases">載入內建 case 範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="sccsFileInput" accept=".csv" hidden /></label>
+      <span id="sccsDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="sccsColMap" class="colmap hidden">
+      <div class="field"><label data-en="Vaccination day">接種日</label><select id="sccsSelVacc"></select></div>
+      <div class="field"><label data-en="Event day">事件日</label><select id="sccsSelEvent"></select></div>
+      <div class="field"><label data-en="Risk window (days)">危險窗（天）</label><input type="number" id="sccsRiskDays" value="28" min="1" max="180" /></div>
+      <button id="runSccsAnalyze" class="btn primary" data-en="Run SCCS analysis">執行 SCCS 分析</button>
+    </div>
+
+    <div id="sccsAnalyzeOut" class="hidden">
+      <h2 data-en="Within-person incidence rate ratio">個人內的相對速率（IRR）</h2>
+      <div class="result-cards" id="sccsAnalyzeCards"></div>
+      <div id="sccsAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="Most events that fall in the short risk window relative to the long baseline drive the IRR up; the conditional Poisson recovers the within-person rate ratio.">
+        事件相對集中落在「短短的危險窗」而非「長長的基線」，把 IRR 推高；條件 Poisson 還原個人內的相對速率。
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== SCCS ④ 假設檢驗 ===================== -->
+  <section id="sccsassume" class="panel">
+    <h1 data-en="Can we trust this SCCS? Five checks">這個 SCCS 可不可信？五道體檢</h1>
+    <p class="lead" data-en="The core assumptions are mostly about study <b>design</b> (blue cards): the event must not change future exposure, must not curtail observation (rare/recurrent events), the risk window must be right, and time-varying factors handled by splitting. The testable one is having enough events in the risk window. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      核心假設大多關於研究<b>設計</b>（藍卡）：事件不可改變日後暴露、不可中斷觀察（事件要罕見／可復發）、危險窗要選對、
+      時變因子要靠切分處理。可檢的是危險窗裡的事件夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="sccsOverall" class="overall hidden"></div>
+    <div id="sccsAssumeCards" class="assume-cards"></div>
+    <p id="sccsAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== SCCS ⑤ 用 AI 強化 ===================== -->
+  <section id="sccsml" class="panel">
+    <h1 data-en="Boost with AI: self-matched learning for heterogeneous risk">用 AI 強化：自我對照 × 機器學習，找出高風險亞群</h1>
+    <p class="lead" data-en="This is the <b>only</b> tab here that genuinely runs machine learning. Standard SCCS returns a single pooled IRR; but if the risk-window effect is <b>heterogeneous</b> (large only in some subgroup), the average hides it. Feeding each case's self-matched label (did the event fall in the risk window?) to a <b>random forest</b> (the spirit of Xu et al. 2022's self-matched learning) recovers <b>who</b> is high-risk — the start of a personalized decision rule.">
+      這是本頁<b>唯一</b>真正會跑機器學習的分頁。標準 SCCS 只回一個平均 IRR；但若危險窗的風險其實<b>因人而異</b>
+      （只在某亞群很高），平均值就把它藏起來。把每個人的自我對照標籤（事件有沒有落在危險窗）交給<b>隨機森林</b>
+      （Xu 等 2022 的 self-matched learning 精神），就能找出<b>誰</b>是高風險——個人化決策規則的起點。
+    </p>
+    <button id="runSccsSelf" class="btn primary" data-en="Run the real ML (first run loads the ML package, ~5–10s)">跑真正的 ML（首次需載入 ML 套件，約 5–10 秒）</button>
+    <div id="sccsSelfOut" class="hidden">
+      <div id="sccsSelfChart" class="chart"></div>
+      <p class="caption" id="sccsSelfReading"></p>
+      <div id="sccsSelfImp" class="muted"></div>
+    </div>
+
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="① The core SCCS is not an ML method">① 核心 SCCS 不是 ML 方法</h3>
+        <p data-en="The standard SCCS is a conditional-Poisson model — no machine learning. The ML angle is recent and specific: self-matched learning for heterogeneous effects / decision rules (Xu et al. 2022), and high-dimensional regularized SCCS for vaccine-safety signal detection.">標準 SCCS 是條件 Poisson 模型，沒有機器學習。ML 角度是近期且特定的：針對效應異質性／決策規則的 self-matched learning（Xu 等 2022），以及疫苗安全訊號偵測的高維正則化 SCCS。</p></div>
+      <div class="card"><h3 data-en="② Heterogeneity ≠ a free subgroup hunt">② 異質性 ≠ 隨意挖亞群</h3>
+        <p data-en="ML-found subgroups must be pre-specified or validated (held-out / cross-fit), or you'll find noise. Report the discovery honestly and confirm the subgroup IRR on fresh data before acting on it.">ML 找到的亞群要事先指定或交叉驗證，否則會挖到雜訊。誠實報告這是探索，並在新資料上確認亞群 IRR 再據以行動。</p></div>
+      <div class="card"><h3 data-en="③ The SCCS assumptions still bind">③ SCCS 的假設仍然要顧</h3>
+        <p data-en="Self-matched ML still inherits the SCCS assumptions (event doesn't change future exposure, transient exposure, time-varying factors split out). ML refines the question 'for whom?'; it doesn't relax the design assumptions.">自我對照的 ML 仍承襲 SCCS 的假設（事件不改變日後暴露、暴露短暫、時變因子切分）。ML 精修「對誰有效」，但不會放鬆設計假設。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -2949,11 +3100,16 @@
       <li data-ref="cc">Shi, H., Liu, X., Zheng, M., &amp; Yu, W. (2024). Statistical inference for case-control logistic regression via integrating external summary data. <i>arXiv:2405.20655.</i> <span data-en="〔external-summary integration improves efficiency — CC tab ③〕">〔整合外部彙總資料提升效率 —— CC 分頁 ③〕</span></li>
       <li data-ref="cc"><b data-en="AI / machine learning">AI／機器學習</b> · Shomal Zadeh, N., Lin, S., &amp; Runger, G. C. (2020). Matched Forest: supervised learning for high-dimensional matched case-control studies. <i>Bioinformatics, 36</i>(5), 1570–1576. <span data-en="〔random forest with counterfactuals for matched data — CC tab ⑤〕">〔配對資料的反事實隨機森林 —— CC 分頁 ⑤〕</span></li>
       <li data-ref="cc">Schauberger, G., Klug, S. J., &amp; Berger, M. (2024). Random forests for the analysis of matched case-control studies. <i>BMC Bioinformatics, 25</i>, 253. <span data-en="〔CLogitForest: random forests for matched case-control — CC tab ⑤〕">〔CLogitForest：配對病例對照的隨機森林 —— CC 分頁 ⑤〕</span></li>
+      <li data-ref="sccs"><b data-en="Method &amp; tutorial">方法／教學</b> · Whitaker, H. J., Farrington, C. P., Spiessens, B., &amp; Musonda, P. (2006). Tutorial in biostatistics: the self-controlled case series method. <i>Statistics in Medicine, 25</i>(10), 1768–1797. <span data-en="〔the canonical SCCS tutorial — SCCS tabs ①–④〕">〔SCCS 經典教學 —— SCCS 分頁 ①–④〕</span></li>
+      <li data-ref="sccs">Petersen, I., Douglas, I., &amp; Whitaker, H. (2016). Self controlled case series methods: an alternative to standard epidemiological study designs. <i>BMJ, 354</i>, i4515. <span data-en="〔BMJ overview〕">〔BMJ 綜論〕</span></li>
+      <li data-ref="sccs">Farrington, C. P., Whitaker, H. J., &amp; Ghebremichael-Weldeselassie, Y. <i>Self-Controlled Case Series Studies: A Modelling Guide with R.</i> &amp; the SCCS resource site <a href="https://sccs-studies.info" target="_blank" rel="noopener">sccs-studies.info</a> (R / STATA / SAS). <span data-en="〔book &amp; software resource〕">〔專書與程式資源〕</span></li>
+      <li data-ref="sccs"><b data-en="AI / machine learning">AI／機器學習</b> · Xu, T., Chen, Y., Zeng, D., &amp; Wang, Y. (2022). Self-matched learning to construct treatment decision rules from electronic health records. <i>Statistics in Medicine, 41</i>(15), 2843–2860. <span data-en="〔self-matched ML for heterogeneous effects — SCCS tab ⑤〕">〔自我對照 × 機器學習找效應異質性 —— SCCS 分頁 ⑤〕</span></li>
+      <li data-ref="sccs"><b data-en="Clinical application">臨床應用</b> · Lai, D., Lim, D., Lu, J., et al. (2024). Risk of myocarditis after three doses of COVID-19 mRNA vaccines: a self-controlled case series study. <i>Journal of Evidence-Based Medicine.</i> <span data-en="〔SCCS for vaccine safety〕">〔SCCS 用於疫苗安全〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=57"></script>
-<script src="app.js?v=57"></script>
+<script src="i18n.js?v=58"></script>
+<script src="app.js?v=58"></script>
 </body>
 </html>

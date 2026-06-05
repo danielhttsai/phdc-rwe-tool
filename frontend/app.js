@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -31,6 +31,8 @@ const PANEL_INIT = {
   seqassume: () => initSeqAssume(), seqml: () => initSeqMl(),
   cclearn: () => initCcLearn(), ccplay: () => initCcPlay(), ccanalyze: () => initCcAnalyze(),
   ccassume: () => initCcAssume(), ccml: () => initCcMl(),
+  sccslearn: () => initSccsLearn(), sccsplay: () => initSccsPlay(), sccsanalyze: () => initSccsAnalyze(),
+  sccsassume: () => initSccsAssume(), sccsml: () => initSccsMl(),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -1529,14 +1531,14 @@ const DNODES = {
                 en: "Vaccine scenario: instead of 'vaccinated vs not', compare new recipients of brand A vs brand B — both groups chose to vaccinate, so they're more alike." },
     watch: { zh: "↗ 常見研究設計，本工具箱未實作。常可結合 <b>target trial emulation</b> 把分析設計成模擬一場試驗。",
              en: "↗ A common design, not implemented here. Often combined with <b>target trial emulation</b>." } } },
-  rSCCS: { rec: { kind: "external", badge: "↗",
-    title: { zh: "建議：自我控制案例系列 SCCS ↗", en: "Suggested: self-controlled case series (SCCS) ↗" },
-    why: { zh: "結果是急性、短暫事件、暴露有明確時窗——SCCS 用「個人自身」當對照，自動消掉所有不隨時間變的混淆。",
-           en: "For acute, transient outcomes with well-defined exposure windows, SCCS uses each person as their own control, cancelling all time-invariant confounding." },
-    scenario: { zh: "疫苗情境：只取「接種後曾發生不良事件」的人，比較他們在「接種後風險期 vs 自己其他時間」的事件率——每個人當自己的對照。",
-                en: "Vaccine scenario: take only people who had an adverse event, and compare their event rate in the post-vaccination risk window vs their own other time — each person is their own control." },
-    watch: { zh: "↗ 常見研究設計，本工具箱未實作。<b>同樣看不了死亡</b>——SCCS 用個人自身當對照，需假設事件<b>不致命、可復發</b>，且事件不影響後續暴露機率。",
-             en: "↗ A common design, not implemented here. <b>It also cannot handle death</b> — SCCS uses each person as their own control, so events must be <b>non-fatal and recurrent</b>, and must not alter later exposure probability." } } },
+  rSCCS: { rec: { kind: "toolbox", method: "sccs", badge: "SCCS ✓",
+    title: { zh: "建議：自身對照病例系列 SCCS ✓（本工具）", en: "Suggested: self-controlled case series (SCCS) ✓ (this tool)" },
+    why: { zh: "結果是急性、短暫事件、暴露有明確時窗——SCCS <b>只用 case</b>、用「<b>個人自身</b>」當對照，把每個人切成接種後的危險窗與基線期比較，<b>自動消掉所有不隨時間變的混淆</b>（基因、體質、社經）。時變因子（年齡、季節）用切分處理。",
+           en: "For acute, transient outcomes with a well-defined exposure window, SCCS uses <b>only cases</b> and makes <b>each person their own control</b> — splitting each into a post-exposure risk window vs baseline, which <b>cancels all time-fixed confounding</b> (genetics, constitution, socioeconomics). Time-varying factors (age, season) are handled by splitting." },
+    scenario: { zh: "疫苗情境：只取「接種後曾發生不良事件」的人，比較他們在「接種後危險窗 vs 自己其他時間」的事件率——每個人當自己的對照（見「自身對照病例系列」分頁 ①–⑤）。",
+                en: "Vaccine scenario: take only people who had an adverse event, and compare their event rate in the post-vaccination risk window vs their own other time — each person is their own control (see the SCCS tabs ①–⑤)." },
+    watch: { zh: "✓ 本工具箱已實作。需假設事件<b>不致命、可復發</b>（致死事件用修正版）、且事件<b>不影響後續暴露</b>機率。",
+             en: "✓ Implemented in this toolbox. Assumes events are <b>non-fatal / recurrent</b> (fatal events need a modified version) and that the event <b>does not alter later exposure</b> probability." } } },
   rCCW: { rec: { kind: "toolbox", method: "ccw", badge: "CCW ✓",
     title: { zh: "建議：複製-設限-加權 CCW ✓（本工具）", en: "Suggested: clone-censor-weight (CCW) ✓ (this tool)" },
     why: { zh: "CCW 適合「<b>診斷後一段時間的動態／持續策略</b>」——例如早 vs 晚開始、是否持續或密集用藥。這種隨時間調整的策略若直接分組會有 immortal time bias；CCW 在時間零點把每個人複製到各策略、依偏離設限、再加權校正。<b>好處</b>：若比較「<b>早用 vs 晚用</b>」，兩組<b>最終都會用藥（適應症相同）</b>，因此能大幅減輕「<b>因適應症而生的混淆（confounding by indication）</b>」。",
@@ -1639,7 +1641,7 @@ const FULLMAP = {
               ] },
             { edge: { zh: "急性、會反覆又會好、非致命 → 自身對照／趨勢", en: "acute, recurrent/resolving, non-fatal → self-control / trend" },
               leaves: [
-                { key: "rSCCS", cond: { zh: "個人自身當對照＋暴露有明確時窗", en: "person as own control + clear exposure window" }, tag: "SCCS ↗", kind: "ex" },
+                { key: "rSCCS", cond: { zh: "個人自身當對照＋暴露有明確時窗", en: "person as own control + clear exposure window" }, tag: "SCCS ✓", kind: "tb" },
                 { key: "rTiT", cond: { zh: "暴露隨日曆趨勢、跨族群速度不同、結果罕見", en: "exposure has a calendar trend, rare outcome" }, tag: "TiT ✓", kind: "tb" },
               ] },
           ] },
@@ -1818,8 +1820,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC）線上教學工具",
-  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/iv-rdd-tool/",
 };
@@ -1836,6 +1838,7 @@ const METHOD_REF = {
   cctc: { zh: "案例交叉與時間對照 CCTC", en: "Case-crossover & (case-)time-control (CCTC)", src: "Maclure (1991); Suissa (1995); Jeong et al. (2023)" },
   seq:  { zh: "序列試驗", en: "Sequential trials", src: "Hernán & Robins (target trial); Danaei et al.; Gran et al." },
   cc:   { zh: "病例對照", en: "Case-control", src: "Dickerman et al. (2020), IJE; Shomal Zadeh et al. (2020); Schauberger et al. (2024)" },
+  sccs: { zh: "自身對照病例系列 SCCS", en: "Self-controlled case series (SCCS)", src: "Whitaker, Farrington & Musonda (2006); Petersen, Douglas & Whitaker (2016); sccs-studies.info" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -3899,6 +3902,236 @@ function drawCcForest(s) {
 }
 
 // ======================================================================
+// SCCS (self-controlled case series, 自身對照病例系列) — tabs ①–⑤
+// ======================================================================
+const sccsState = { source: null, columns: [], req: null };
+let sccsLearnReady = false, sccsPlayReady = false, sccsAnalyzeReady = false,
+    sccsAssumeReady = false, sccsMlReady = false, sccsSelfCache = null;
+
+// ① learn: a swimmer of CASES. Each case's observation is a lane; a vaccination pill
+// marks exposure; a shaded RISK WINDOW follows it; the event ● lands in the risk window
+// (for most) or baseline. Each person is their own control; time-fixed factors cancel.
+function drawSceneSccs() {
+  if (!document.getElementById("sccsScene")) return;
+  const RISK = "#f59e0b", OBS = 365;
+  // four example cases: [vacc day, event day]; events cluster in the (short) risk window
+  const cases = [
+    { v: 60, e: 75, lbl: tr("病人甲", "case A") },
+    { v: 140, e: 152, lbl: tr("病人乙", "case B") },
+    { v: 210, e: 300, lbl: tr("病人丙（事件落基線）", "case C (event in baseline)") },
+    { v: 90, e: 110, lbl: tr("病人丁", "case D") },
+  ];
+  const shapes = [], evX = [], evY = [], pillX = [], pillY = [];
+  cases.forEach((c, i) => {
+    const y = 4 - i;
+    shapes.push({ type: "line", x0: 0, x1: OBS, y0: y, y1: y, line: { color: "#cbd5e1", width: 4 } });          // observation
+    shapes.push({ type: "rect", x0: c.v + 1, x1: c.v + 28, y0: y - 0.16, y1: y + 0.16, fillcolor: "rgba(245,158,11,.35)", line: { color: RISK, width: 1 } }); // risk window
+    pillX.push(c.v); pillY.push(y); evX.push(c.e); evY.push(y);
+  });
+  const traces = [
+    { x: pillX, y: pillY, mode: "markers", type: "scatter", name: tr("接種日", "vaccination"), marker: { color: "#b45309", size: 12, symbol: "triangle-up" } },
+    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件", "● event"), marker: { color: RED, size: 13 } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("危險窗（接種後 1–28 天）", "risk window (days 1–28)"), marker: { color: RISK, size: 12, symbol: "square" } },
+  ];
+  const anns = [];
+  cases.forEach((c, i) => anns.push(Object.assign(_lbl(-6, 4 - i, c.lbl, INK, 8.5), { xanchor: "right" })));
+  anns.push(_lbl(182, 4.7, tr("每個 case 一條觀察期；其餘灰色＝基線期", "each case = one observation period; grey = baseline"), SLATE, 9));
+  anns.push(_lbl(182, -0.4, tr(
+    "SCCS 只用<b>發生過事件的人</b>，每個人當自己的對照：看事件比較容易落在<b>危險窗</b>（接種後那一小段）還是<b>基線期</b>。事件相對集中在短短的危險窗 → IRR 升高。同一個人前後比，<b>所有不隨時間變的因子都自動相消</b>。",
+    "SCCS uses <b>only people who had the event</b>, each as their own control: do events fall more in the <b>risk window</b> (the short post-vaccination slice) or in <b>baseline</b>? Events clustering in the short risk window → IRR up. As a within-person comparison, <b>all time-fixed factors cancel automatically</b>."), INK, 9.5));
+  Plotly.react("sccsScene", traces, schemaLayout({
+    height: 300, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
+    xaxis: { visible: true, title: tr("觀察期天數", "days of observation"), range: [-30, OBS], fixedrange: true, dtick: 90 },
+    yaxis: { visible: false, range: [-0.9, 5.0] },
+    margin: { t: 30, r: 14, b: 36, l: 60 },
+  }), SCENE_CFG);
+}
+function initSccsLearn() { if (sccsLearnReady) return; sccsLearnReady = true; drawSceneSccs(); }
+
+// ② interactive — healthy-vaccinee slider (SCCS immune to time-fixed confounding)
+const sccsHvSlider = document.getElementById("sccsHvSlider");
+let sccsPlayTimer = null;
+function initSccsPlay() { if (sccsPlayReady) return; sccsPlayReady = true; refreshSccsPlay(); }
+function scheduleSccsPlay() {
+  document.getElementById("sccsHvVal").textContent = Number(sccsHvSlider.value).toFixed(2);
+  clearTimeout(sccsPlayTimer); sccsPlayTimer = setTimeout(refreshSccsPlay, 250);
+}
+if (sccsHvSlider) sccsHvSlider.addEventListener("input", scheduleSccsPlay);
+async function refreshSccsPlay() {
+  const hv = sccsHvSlider ? Number(sccsHvSlider.value) : 1.0;
+  let d;
+  try { d = await getJSON(`${API}/api/sccs_interactive?hv=${hv}&lang=${lang()}`); } catch (e) { return; }
+  state.sccsPlay = d;
+  const set = (id, v, col) => { const el = document.getElementById(id); if (el) { el.textContent = fmt(v, 2); if (col) el.style.color = col; } };
+  set("sccsNaive", d.naive, Math.abs(d.naive - d.true_irr) < 0.4 ? TEAL : RED);
+  set("sccsSccs", d.sccs, Math.abs(d.sccs - d.true_irr) < 0.3 ? TEAL : AMBER);
+  drawSccsPlay(d);
+}
+function drawSccsPlay(d) {
+  if (!document.getElementById("sccsPlayChart")) return;
+  const g = d.grid;
+  Plotly.react("sccsPlayChart", [
+    { x: g.hv, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("天真人際速率比", "naive between-person RR"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.hv, y: g.sccs, mode: "lines+markers", type: "scatter", name: tr("SCCS IRR（個人內）", "SCCS IRR (within-person)"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
+    { x: [d.hv], y: [d.naive], mode: "markers", type: "scatter", name: tr("目前", "current"), marker: { color: RED, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 300, legend: { orientation: "h", y: 1.16 }, margin: { t: 26, r: 18, b: 44, l: 50 },
+    xaxis: { title: tr("健康接種者選擇強度", "healthy-vaccinee selection strength") },
+    yaxis: { title: tr("相對速率", "rate ratio"), range: [0, Math.max(...g.naive, ...g.sccs) * 1.15] },
+    shapes: [{ type: "line", x0: g.hv[0], x1: g.hv[g.hv.length - 1], y0: g.true_irr, y1: g.true_irr, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: g.hv[g.hv.length - 1], y: g.true_irr, text: tr("真值 " + g.true_irr, "truth " + g.true_irr), showarrow: false, yshift: 11, xanchor: "right", font: { color: GREEN, size: 11 } }],
+  }), SCENE_CFG);
+}
+
+// ③ analyze
+function initSccsAnalyze() { if (sccsAnalyzeReady) return; sccsAnalyzeReady = true; document.getElementById("useSccsExample").click(); }
+function sccsFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["sccsSelVacc", "sccsSelEvent"].forEach((id) => document.getElementById(id).innerHTML = opts);
+  document.getElementById("sccsColMap").classList.remove("hidden");
+}
+function sccsApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null && el) el.value = v; };
+  set("sccsSelVacc", d.vacc_day); set("sccsSelEvent", d.event_day);
+  if (d.risk_days) document.getElementById("sccsRiskDays").value = d.risk_days;
+}
+document.getElementById("useSccsExample").addEventListener("click", async () => {
+  const st = document.getElementById("sccsDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/sccs_example`);
+    sccsState.source = "example_sccs"; sccsState.columns = d.columns;
+    st.textContent = tr(`已載入內建 case 範例（${d.n} 位 case，合成虛構）`, `Loaded built-in cases (${d.n} cases, synthetic)`);
+    sccsFillSelects(d.columns); sccsApplyDefaults(d.defaults);
+    runSccsAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("sccsFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("sccsDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    sccsState.source = d.token; sccsState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    sccsFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function sccsCurrentMapping() {
+  const rd = parseInt(document.getElementById("sccsRiskDays").value, 10);
+  return { source: sccsState.source, risk_days: rd || 28, lang: lang() };
+}
+const runSccsBtn = document.getElementById("runSccsAnalyze");
+if (runSccsBtn) runSccsBtn.addEventListener("click", runSccsAnalyze);
+async function runSccsAnalyze() {
+  const req = sccsCurrentMapping();
+  if (!req.source) return;
+  sccsState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/sccs_analyze`, req);
+    renderSccsAnalyze(a);
+    runSccsAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderSccsAnalyze(a) {
+  document.getElementById("sccsAnalyzeOut").classList.remove("hidden");
+  const cards = [
+    [tr("SCCS IRR（個人內，因果）", "SCCS IRR (within-person, causal)"), a.irr, a.interpretation, true],
+    [tr("95% 信賴區間", "95% confidence interval"), null,
+      tr(`${fmt(a.ci[0], 2)} ～ ${fmt(a.ci[1], 2)}（${a.n_risk} 個事件落在危險窗、${a.n_base} 個落在基線）`,
+         `${fmt(a.ci[0], 2)} – ${fmt(a.ci[1], 2)} (${a.n_risk} events in the risk window, ${a.n_base} in baseline)`), false, fmt(a.irr, 2) + "×"],
+    [tr("真值（危險窗 IRR）", "Truth (risk-window IRR)"), a.true_irr,
+      tr("條件 Poisson 還原它，且自動消掉所有時間不變的混淆。", "Conditional Poisson recovers it, cancelling all time-fixed confounding."), false],
+  ];
+  document.getElementById("sccsAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl, override]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${override || (v == null ? "" : fmt(v, 2))}</div><p>${desc}</p></div>`
+  ).join("");
+  drawSccsAnalyze(a);
+}
+function drawSccsAnalyze(a) {
+  if (!document.getElementById("sccsAnalyzeChart")) return;
+  // events: share landing in the short risk window vs the long baseline
+  const labels = [tr("危險窗事件", "risk-window events"), tr("基線事件", "baseline events")];
+  const vals = [a.n_risk, a.n_base];
+  Plotly.react("sccsAnalyzeChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: ["#f59e0b", "#9aa6b2"] },
+    text: vals.map((v) => "" + v), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 26, r: 18, b: 40, l: 54 },
+    yaxis: { title: tr("事件數", "event count") },
+    annotations: [{ x: 0.5, y: Math.max(...vals) * 1.05, xref: "x", yref: "y", showarrow: false,
+      text: tr(`危險窗只佔每人觀察期一小塊，卻收了 ${a.n_risk} 個事件 → IRR ≈ ${fmt(a.irr, 2)}`,
+               `the risk window is a small slice yet holds ${a.n_risk} events → IRR ≈ ${fmt(a.irr, 2)}`),
+      font: { size: 10, color: INK } }],
+  }), SCENE_CFG);
+}
+
+// ④ assumptions
+function initSccsAssume() {
+  if (sccsAssumeReady) return;
+  sccsAssumeReady = true;
+  runSccsAssumptions(sccsState.req || { source: "example_sccs", lang: lang() });
+}
+async function runSccsAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_sccs", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/sccs_assumptions`, body); } catch (e) { return; }
+  state.sccsDash = out;
+  renderSccsAssumptions(out);
+}
+function renderSccsAssumptions(out) {
+  const hint = document.getElementById("sccsAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("sccsOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；關鍵設計假設仍需領域判斷。", "Testable checks pass; key design assumptions need domain judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("sccsAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ⑤ real ML (self-matched learning) — button-triggered (loads sklearn)
+function initSccsMl() { if (sccsSelfCache) drawSccsSelf(sccsSelfCache); }
+const runSccsSelfBtn = document.getElementById("runSccsSelf");
+if (runSccsSelfBtn) runSccsSelfBtn.addEventListener("click", async () => {
+  const btn = runSccsSelfBtn; const old = btn.textContent;
+  btn.disabled = true; btn.textContent = tr("計算中（載入 ML 套件）…", "Computing (loading ML package)…");
+  try {
+    const s = await getJSON(`${API}/api/sccs_selfmatch?lang=${lang()}`);
+    sccsSelfCache = s; drawSccsSelf(s);
+  } catch (e) { alert(tr("計算失敗：", "Failed: ") + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
+});
+function drawSccsSelf(s) {
+  document.getElementById("sccsSelfOut").classList.remove("hidden");
+  if (document.getElementById("sccsSelfChart")) {
+    Plotly.react("sccsSelfChart", [{
+      x: s.bars.labels, y: s.bars.values, type: "bar", marker: { color: [SLATE, RED, TEAL] },
+      text: s.bars.values.map((v) => v.toFixed(2) + "×"), textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 26, r: 18, b: 50, l: 50 },
+      yaxis: { title: tr("相對速率 IRR", "incidence rate ratio") },
+    }), SCENE_CFG);
+  }
+  document.getElementById("sccsSelfReading").innerHTML = s.reading;
+  const imp = (s.importance || []).map((i) => `${i.name} <b>${i.value}</b>`).join("　·　");
+  document.getElementById("sccsSelfImp").innerHTML = imp ? tr("變數重要度：", "Variable importance: ") + imp : "";
+}
+
+// ======================================================================
 // Sequential trials — tabs ①–⑤
 // ======================================================================
 const seqState = { source: null, columns: [], req: null };
@@ -4224,6 +4457,11 @@ window.addEventListener("iv-lang", async () => {
   if (ccAnalyzeReady) runCcAnalyze();                  // Case-control ③ analysis + dashboard
   else if (ccAssumeReady) runCcAssumptions(ccState.req);
   if (ccForestCache) drawCcForest(ccForestCache);      // Case-control ⑤ ML (re-render cache)
+  if (sccsLearnReady) drawSceneSccs();                 // SCCS ① learn scene
+  if (sccsPlayReady) refreshSccsPlay();                // SCCS ② interactive
+  if (sccsAnalyzeReady) runSccsAnalyze();              // SCCS ③ analysis + dashboard
+  else if (sccsAssumeReady) runSccsAssumptions(sccsState.req);
+  if (sccsSelfCache) drawSccsSelf(sccsSelfCache);      // SCCS ⑤ ML (re-render cache)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
 });
 
