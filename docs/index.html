@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=56" />
+<link rel="stylesheet" href="styles.css?v=57" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -2388,7 +2388,7 @@
       <p class="caption" id="cctcDemoReading"></p>
     </div>
 
-    <h2 data-en="Honest notes from the literature">文獻中誠實的注意事項</h2>
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① Case-time-control (CTC) needs good controls">① 案例-時間對照（CTC）需要好的對照</h3>
         <p data-en="CTC uses a separate non-case control series to estimate the trend. If those controls don't share the cases' exposure trend — or are selected on the outcome — the correction is wrong. Choosing controls is the hard part.">CTC 用另一條非 case 對照序列估趨勢。若這些對照沒和 case 共享暴露趨勢、或被結果選擇，校正就錯。對照怎麼選是難點。</p></div>
@@ -2539,7 +2539,7 @@
       <p class="caption" id="seqDemoReading"></p>
     </div>
 
-    <h2 data-en="Honest notes from the literature">文獻中誠實的注意事項</h2>
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① Robust (person-clustered) standard errors">① 個人叢集穩健標準誤</h3>
         <p data-en="Because a person re-enters several trials, the rows are correlated. Use person-clustered robust SEs (or bootstrap by person); naive SEs are too narrow. This tool offers a person-cluster bootstrap interval.">同一人在多場重複出現，列彼此相關。用個人叢集穩健 SE（或對人自助）；天真 SE 太窄。本工具提供個人叢集自助區間。</p></div>
@@ -2712,7 +2712,7 @@
       <div id="ccForestImp" class="muted"></div>
     </div>
 
-    <h2 data-en="Honest notes from the literature">文獻中誠實的注意事項</h2>
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① ML for matched data needs the matched structure">① 配對資料的 ML 要顧到配對結構</h3>
         <p data-en="Ordinary ML can't handle the matched (conditional) structure of matched case-control data. Matched Forest adds counterfactuals; CLogitForest builds trees/forests on conditional logistic — that's what makes them valid here (Shomal Zadeh 2020; Schauberger 2024).">一般 ML 無法處理配對病例對照的條件式結構。Matched Forest 加入反事實、CLogitForest 在條件 logistic 上長樹／森林——這才讓它們在這裡有效（Shomal Zadeh 2020；Schauberger 2024）。</p></div>
@@ -2845,7 +2845,7 @@
     <div id="dtreeMap" class="dtree-map" hidden></div>
 
     <div class="card info">
-      <h3 data-en="A sharp question: isn't &quot;local-randomization&quot; RDD just IV?">一個尖銳的問題：RDD 的「局部隨機化」會不會其實就是 IV？</h3>
+      <h3 data-en="Isn't &quot;local-randomization&quot; RDD just IV?">RDD 的「局部隨機化」會不會其實就是 IV？</h3>
       <p data-en="Great instinct — and largely <b>yes</b>, especially for <b>fuzzy RDD</b>. In the local-randomization view, &quot;landing just above vs. just below the cutoff&quot; is treated as <b>as good as randomly assigned</b> inside a narrow window — which is exactly the job the random instrument Z plays in IV.">
         很好的直覺——而且<b>大致上是的</b>，尤其是<b>模糊 RDD（fuzzy RDD）</b>。在局部隨機化的講法裡，
         「剛好落在門檻上方還是下方」在一個很窄的窗內被當成<b>近似隨機分派</b>——
@@ -2953,7 +2953,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=56"></script>
-<script src="app.js?v=56"></script>
+<script src="i18n.js?v=57"></script>
+<script src="app.js?v=57"></script>
 </body>
 </html>
