@@ -30,7 +30,8 @@ BACKEND_PY = ["i18n.py", "iv_core.py", "assumptions.py", "ml_iv.py", "gen_data.p
               "perr_core.py", "perr_gen.py", "perr_assumptions.py",
               "ccw_core.py", "ccw_gen.py", "ccw_assumptions.py",
               "cctc_core.py", "cctc_gen.py", "cctc_assumptions.py",
-              "seq_core.py", "seq_gen.py", "seq_assumptions.py"]
+              "seq_core.py", "seq_gen.py", "seq_assumptions.py",
+              "cc_core.py", "cc_gen.py", "cc_assumptions.py", "cc_ml.py"]
 
 
 def _clean_docs():

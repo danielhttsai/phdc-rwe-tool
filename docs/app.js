@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -29,6 +29,8 @@ const PANEL_INIT = {
   cctcassume: () => initCctcAssume(), cctcml: () => initCctcMl(),
   seqlearn: () => initSeqLearn(), seqplay: () => initSeqPlay(), seqanalyze: () => initSeqAnalyze(),
   seqassume: () => initSeqAssume(), seqml: () => initSeqMl(),
+  cclearn: () => initCcLearn(), ccplay: () => initCcPlay(), ccanalyze: () => initCcAnalyze(),
+  ccassume: () => initCcAssume(), ccml: () => initCcMl(),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -1461,6 +1463,7 @@ const DNODES = {
     step: { zh: "B 結果錨定 · 取對照", en: "B Outcome-anchored · controls" },
     q: { zh: "你從「已發生結果的個案」回看暴露——怎麼取對照？（多用於急性、可復發的結果）", en: "Looking back from cases — how do you take controls? (usually for acute, recurrent outcomes)" },
     opts: [
+      { l: { zh: "從一般來源族群取對照、用校正／配對處理混淆（基本病例對照）", en: "Controls from the source population; handle confounding by adjustment/matching (basic case-control)" }, to: "rCC" },
       { l: { zh: "在大世代裡用配對對照、巢式抽樣（想細看劑量–反應）", en: "Matched controls nested in a large cohort (to examine dose-response)" }, to: "rNCC" },
       { l: { zh: "用個人自身近期當對照（急性、短暫暴露；案例交叉 CCO）", en: "The person's own recent past as control (acute, transient exposure; case-crossover CCO)" }, to: "rCCTC" },
       { l: { zh: "個人自身對照，但暴露有日曆時間趨勢（用 CCTC 扣趨勢）", en: "Person-as-own-control, but the exposure has a calendar trend (CCTC nets it out)" }, to: "rCCTC" },
@@ -1543,7 +1546,7 @@ const DNODES = {
     watch: { zh: "✓ 本工具箱已實作（見 CCW 分頁 ①–⑤）。是 <b>target trial emulation</b> 的常見實作之一。",
              en: "✓ Implemented in this toolbox (see the CCW tabs ①–⑤). A common way to implement <b>target trial emulation</b>." } } },
   rSEQ: { rec: { kind: "toolbox", method: "seq", badge: "序列試驗 ✓",
-    title: { zh: "建議：序列（巢式）試驗 sequential trial ✓（本工具）", en: "Suggested: sequential (nested) trials ✓ (this tool)" },
+    title: { zh: "建議：序列試驗 sequential trial ✓（本工具）", en: "Suggested: sequential trials ✓ (this tool)" },
     why: { zh: "序列試驗適合「<b>某時點的單次（點）治療決定</b>」（不是診斷後持續調整的策略）——病人在不同時間點陸續符合資格時，在每個符合點各開一場「迷你試驗」（當下打 vs 不打）、對齊時間零點再合併。和 CCW 的差別：這裡是<b>點治療</b>，CCW 處理的是<b>診斷後一段時間的動態／持續策略</b>。<b>好處</b>：同一個人可在多個符合點被重複納入，<b>潛在能放大有效樣本數</b>。",
            en: "Sequential trials fit a <b>one-shot (point) treatment decision</b> (not a strategy adjusted over time): when patients become eligible at different times, open a 'mini-trial' at each point (treat now vs not), align time zero, then pool. Versus CCW: here the treatment is a <b>point decision</b>, whereas CCW handles a <b>sustained / dynamic strategy over a window after diagnosis</b>. <b>Bonus</b>: the same person can re-enter at several eligibility points, so it can <b>boost the effective sample size</b>." },
     scenario: { zh: "疫苗情境：每個月把「當月剛符合接種資格的人」開一場迷你試驗（<b>當下打 vs 暫不打</b>，一次決定），再把多場合併估計。",
@@ -1559,6 +1562,14 @@ const DNODES = {
     watch: { zh: "✓ 本工具箱已實作（見 CCTC 分頁 ①–⑤）。若你有世代資料，也可改用世代版 <b>TiT ✓</b>。",
              en: "✓ Implemented in this toolbox (see the CCTC tabs ①–⑤). With cohort data you can also use the cohort version <b>TiT ✓</b>." },
     altMethod: "tit", altLabel: { zh: "改用世代版 TiT →", en: "Use the cohort version: TiT →" } } },
+  rCC: { rec: { kind: "toolbox", method: "cc", badge: "病例對照 ✓",
+    title: { zh: "建議：病例對照 case-control ✓（本工具）", en: "Suggested: case-control ✓ (this tool)" },
+    why: { zh: "<b>結果罕見</b>時最有效率的設計：先找個案與對照，再回看暴露，用<b>勝算比</b>衡量。關鍵是<b>對照取自產生個案的同一來源族群</b>、暴露兩組量得一樣準；混淆用 logistic <b>校正</b>、Mantel–Haenszel <b>分層</b>、或<b>配對</b>＋條件式分析處理。現代視角：把它當成對「模擬目標試驗的世代」做病例對照抽樣。",
+           en: "The most efficient design when the <b>outcome is rare</b>: find cases and controls, look back at exposure, summarise with an <b>odds ratio</b>. The keys are <b>controls from the same source population that produced the cases</b> and equally-measured exposure; handle confounding by logistic <b>adjustment</b>, Mantel–Haenszel <b>stratification</b>, or <b>matching</b> + conditional analysis. Modern view: it's case-control sampling of a target-trial-emulating cohort." },
+    scenario: { zh: "疫苗情境：要研究一個罕見的不良事件，找到「發生該事件的個案」與「沒發生的對照」，回頭比兩組過去的接種暴露，並校正年齡等混淆。",
+                en: "Vaccine scenario: to study a rare adverse event, find cases who had it and controls who didn't, compare their past vaccination exposure, and adjust for age and other confounders." },
+    watch: { zh: "✓ 本工具箱已實作（見「病例對照」分頁 ①–⑤）。配對時務必用條件式分析；別配在中介／對撞因子。",
+             en: "✓ Implemented in this toolbox (see the Case-control tabs ①–⑤). With matching, use conditional analysis; never match on mediators/colliders." } } },
   rNCC: { rec: { kind: "external", badge: "↗",
     title: { zh: "建議：巢式對照研究 nested case-control ↗", en: "Suggested: nested case-control ↗" },
     why: { zh: "巢式對照只對「個案＋抽樣對照」量暴露，所以特別適合<b>需要費工測量「暴露量／劑量」</b>的研究——量得起就能畫出<b>劑量–反應（dose-response）</b>關係，而結果≈完整世代分析。（純粹「省成本」其實案例交叉也做得到，所以這裡的關鍵是<b>劑量–反應</b>。）",
@@ -1642,6 +1653,8 @@ const FULLMAP = {
       steps: [
         { q: { zh: "從個案回看，怎麼取對照？", en: "From cases, how to take controls?" },
           forks: [
+            { edge: { zh: "來源族群對照 · 校正／配對", en: "source-population controls · adjust/match" },
+              leaves: [{ key: "rCC", cond: { zh: "結果罕見、用勝算比＋校正/分層/配對處理混淆", en: "rare outcome; odds ratio + adjust/stratify/match for confounding" }, tag: "病例對照 ✓", kind: "tb" }] },
             { edge: { zh: "配對、巢式抽樣", en: "matched, nested" },
               leaves: [{ key: "rNCC", cond: { zh: "想看「劑量–反應」，只量個案＋抽樣對照的暴露量", en: "want a dose-response; measure exposure only for cases + sampled controls" }, tag: "巢式對照 ↗", kind: "ex" }] },
             { edge: { zh: "自身對照 · 暴露無趨勢", en: "own control · no trend" },
@@ -1805,8 +1818,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · 序列試驗 · CCTC）線上教學工具",
-  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Sequential trials · CCTC) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · 序列試驗 · CCTC · 病例對照）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Sequential trials · CCTC · Case-control) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/iv-rdd-tool/",
 };
@@ -1821,7 +1834,8 @@ const METHOD_REF = {
   perr: { zh: "事前事件率比 PERR", en: "Prior Event Rate Ratio (PERR)", src: "Yu et al. (2012); van Aalst et al. (2021)" },
   ccw:  { zh: "複製-設限-加權 CCW", en: "Clone-Censor-Weight (CCW)", src: "Hernán (2018), BMJ; Gaber et al. (2024)" },
   cctc: { zh: "案例交叉與時間對照 CCTC", en: "Case-crossover & (case-)time-control (CCTC)", src: "Maclure (1991); Suissa (1995); Jeong et al. (2023)" },
-  seq:  { zh: "序列（巢式）試驗", en: "Sequential (nested) trials", src: "Hernán & Robins (target trial); Danaei et al.; Gran et al." },
+  seq:  { zh: "序列試驗", en: "Sequential trials", src: "Hernán & Robins (target trial); Danaei et al.; Gran et al." },
+  cc:   { zh: "病例對照", en: "Case-control", src: "Dickerman et al. (2020), IJE; Shomal Zadeh et al. (2020); Schauberger et al. (2024)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -3639,7 +3653,262 @@ function drawCctcDemo(s) {
 }
 
 // ======================================================================
-// Sequential (nested) trials — tabs ①–⑤
+// Case-control (病例對照) — tabs ①–⑤
+// ======================================================================
+const ccState = { source: null, columns: [], req: null };
+let ccLearnReady = false, ccPlayReady = false, ccAnalyzeReady = false,
+    ccAssumeReady = false, ccMlReady = false, ccForestCache = null;
+
+// ① learn: a schematic — start from the outcome (cases vs controls at "now"), then
+// look BACK at past exposure. Cases (red) carry the outcome; the odds ratio compares
+// past-exposure odds. Age (a confounder) drives both exposure and outcome.
+function drawSceneCc() {
+  if (!document.getElementById("ccScene")) return;
+  const yCa = 2.35, yCo = 1.0, NOW = 9.6;
+  const shapes = [
+    { type: "line", x0: NOW, x1: NOW, y0: 0.4, y1: 3.0, line: { color: INK, width: 1.5, dash: "dot" } },
+    // look-back arrows
+    { type: "line", x0: 8.8, x1: 3.4, y0: yCa, y1: yCa, line: { color: "#b9c2cf", width: 1.4, dash: "dot" } },
+    { type: "line", x0: 8.8, x1: 3.4, y0: yCo, y1: yCo, line: { color: "#b9c2cf", width: 1.4, dash: "dot" } },
+  ];
+  // outcome groups at "now"
+  const caO = { x: [], y: [] }, coO = { x: [], y: [] }, exP = { x: [], y: [] };
+  for (let k = 0; k < 6; k++) { caO.x.push(NOW + (k % 3) * 0.22 - 0.22); caO.y.push(yCa + (k < 3 ? 0.16 : -0.16)); }
+  for (let k = 0; k < 6; k++) { coO.x.push(NOW + (k % 3) * 0.22 - 0.22); coO.y.push(yCo + (k < 3 ? 0.16 : -0.16)); }
+  // past exposure pills: more exposed among cases (4) than controls (2)
+  [[4.3, yCa], [4.9, yCa], [5.5, yCa], [4.6, yCa + 0.28]].forEach(([x, y]) => { exP.x.push(x); exP.y.push(y); });
+  [[4.3, yCo], [4.9, yCo]].forEach(([x, y]) => { exP.x.push(x); exP.y.push(y); });
+  const traces = [
+    { x: caO.x, y: caO.y, mode: "markers", type: "scatter", name: tr("● 病例（有結果）", "● cases (with outcome)"), marker: { color: RED, size: 12 } },
+    { x: coO.x, y: coO.y, mode: "markers", type: "scatter", name: tr("○ 對照（無結果）", "○ controls (no outcome)"), marker: { color: TEAL, size: 12, symbol: "circle-open", line: { width: 2.5 } } },
+    { x: exP.x, y: exP.y, mode: "markers", type: "scatter", name: tr("過去的暴露", "past exposure"), marker: { color: "#b45309", size: 11, symbol: "square" } },
+  ];
+  const anns = [
+    Object.assign(_lbl(3.0, 2.95, tr("過去（暴露）", "past (exposure)"), SLATE, 10), { xanchor: "left" }),
+    Object.assign(_lbl(NOW, 2.95, tr("現在（結果）", "now (outcome)"), INK, 10), { xanchor: "center" }),
+    Object.assign(_lbl(0.2, yCa, tr("病例", "cases"), RED, 10), { xanchor: "left" }),
+    Object.assign(_lbl(0.2, yCo, tr("對照", "controls"), TEAL, 10), { xanchor: "left" }),
+    Object.assign(_lbl(6.2, yCa + 0.45, tr("← 回頭比較過去的暴露", "← look back at past exposure"), "#64748b", 9.5), { xanchor: "center" }),
+    _lbl(5.0, 0.18, tr(
+      "勝算比 OR＝病例暴露勝算 ÷ 對照暴露勝算＝(a·d)/(b·c)。年齡同時影響暴露與結果（混淆）→ 粗 OR 會偏，需校正／配對。",
+      "Odds ratio OR = exposure odds in cases ÷ in controls = (a·d)/(b·c). Age drives both exposure and outcome (confounding) → the crude OR is biased; adjust / match."), INK, 9.5),
+  ];
+  Plotly.react("ccScene", traces, schemaLayout({
+    height: 300, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
+    xaxis: { visible: false, range: [0, 10.4], fixedrange: true },
+    yaxis: { visible: false, range: [-0.1, 3.2] },
+    margin: { t: 28, r: 14, b: 22, l: 14 },
+  }), SCENE_CFG);
+}
+function initCcLearn() { if (ccLearnReady) return; ccLearnReady = true; drawSceneCc(); }
+
+// ② interactive — confounding-strength slider
+const ccConfSlider = document.getElementById("ccConfSlider");
+let ccPlayTimer = null;
+function initCcPlay() { if (ccPlayReady) return; ccPlayReady = true; refreshCcPlay(); }
+function scheduleCcPlay() {
+  document.getElementById("ccConfVal").textContent = Number(ccConfSlider.value).toFixed(2);
+  clearTimeout(ccPlayTimer); ccPlayTimer = setTimeout(refreshCcPlay, 250);
+}
+if (ccConfSlider) ccConfSlider.addEventListener("input", scheduleCcPlay);
+async function refreshCcPlay() {
+  const cf = ccConfSlider ? Number(ccConfSlider.value) : 1.0;
+  let d;
+  try { d = await getJSON(`${API}/api/cc_interactive?conf=${cf}&lang=${lang()}`); } catch (e) { return; }
+  state.ccPlay = d;
+  const set = (id, v, col) => { const el = document.getElementById(id); if (el) { el.textContent = fmt(v, 2); if (col) el.style.color = col; } };
+  set("ccCrude", d.crude_or, Math.abs(d.crude_or - d.true_or) < 0.5 ? TEAL : RED);
+  set("ccAdj", d.adj_or, Math.abs(d.adj_or - d.true_or) < 0.4 ? TEAL : AMBER);
+  drawCcPlay(d);
+}
+function drawCcPlay(d) {
+  if (!document.getElementById("ccPlayChart")) return;
+  const g = d.grid;
+  Plotly.react("ccPlayChart", [
+    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("粗 OR", "crude OR"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.adj, mode: "lines+markers", type: "scatter", name: tr("校正 OR", "adjusted OR"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
+    { x: [d.conf], y: [d.crude_or], mode: "markers", type: "scatter", name: tr("目前", "current"), marker: { color: RED, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 300, legend: { orientation: "h", y: 1.16 }, margin: { t: 26, r: 18, b: 44, l: 50 },
+    xaxis: { title: tr("混淆強度（年齡→暴露）", "confounding strength (age→exposure)") },
+    yaxis: { title: tr("勝算比", "odds ratio"), range: [0, Math.max(...g.crude) * 1.12] },
+    shapes: [{ type: "line", x0: g.conf[0], x1: g.conf[g.conf.length - 1], y0: g.true_or, y1: g.true_or, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: g.conf[g.conf.length - 1], y: g.true_or, text: tr("真值 " + g.true_or, "truth " + g.true_or), showarrow: false, yshift: 11, xanchor: "right", font: { color: GREEN, size: 11 } }],
+  }), SCENE_CFG);
+}
+
+// ③ analyze
+function initCcAnalyze() { if (ccAnalyzeReady) return; ccAnalyzeReady = true; document.getElementById("useCcExample").click(); }
+function ccFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["ccSelCase", "ccSelExposed"].forEach((id) => document.getElementById(id).innerHTML = opts);
+  document.getElementById("ccColMap").classList.remove("hidden");
+}
+function ccApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null && el) el.value = v; };
+  set("ccSelCase", d.case); set("ccSelExposed", d.exposed);
+}
+document.getElementById("useCcExample").addEventListener("click", async () => {
+  const st = document.getElementById("ccDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/cc_example`);
+    ccState.source = "example_cc"; ccState.columns = d.columns;
+    st.textContent = tr(`已載入內建病例對照範例（${d.n} 列，合成虛構）`, `Loaded built-in case-control example (${d.n} rows, synthetic)`);
+    ccFillSelects(d.columns); ccApplyDefaults(d.defaults);
+    runCcAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("ccFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("ccDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    ccState.source = d.token; ccState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    ccFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function ccCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return { source: ccState.source, case: v("ccSelCase"), exposed: v("ccSelExposed"), lang: lang() };
+}
+const runCcBtn = document.getElementById("runCcAnalyze");
+if (runCcBtn) runCcBtn.addEventListener("click", runCcAnalyze);
+async function runCcAnalyze() {
+  const req = ccCurrentMapping();
+  if (!req.source) return;
+  ccState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/cc_analyze`, req);
+    renderCcAnalyze(a);
+    runCcAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderCcAnalyze(a) {
+  document.getElementById("ccAnalyzeOut").classList.remove("hidden");
+  const bal = a.age_balance ? tr(`病例平均 ${fmt(bal_v(a, "case"), 0)} 歲、對照 ${fmt(bal_v(a, "control"), 0)} 歲。`,
+    `Cases avg ${fmt(bal_v(a, "case"), 0)} yrs, controls ${fmt(bal_v(a, "control"), 0)} yrs.`) : "";
+  const cards = [
+    [tr("校正年齡 OR（≈ 因果）", "Age-adjusted OR (≈ causal)"), a.adj_or, a.interpretation, true],
+    [tr("粗 OR（被年齡混淆）", "Crude OR (age-confounded)"), a.crude_or,
+      tr(`95% CI ${fmt(a.ci_crude[0], 2)}～${fmt(a.ci_crude[1], 2)}。${bal}`, `95% CI ${fmt(a.ci_crude[0], 2)}–${fmt(a.ci_crude[1], 2)}. ${bal}`), false],
+    [tr("Mantel–Haenszel OR（分層）", "Mantel–Haenszel OR (stratified)"), a.mh_or,
+      tr("按年齡層×性別分層合併，應與校正 OR 一致。", "Stratified by age band × sex; should agree with the adjusted OR."), false],
+  ];
+  document.getElementById("ccAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  drawCcAnalyze(a);
+}
+function bal_v(a, k) { return a.age_balance ? a.age_balance[k] : 0; }
+function drawCcAnalyze(a) {
+  if (!document.getElementById("ccAnalyzeChart")) return;
+  const labels = [tr("粗 OR", "crude"), tr("校正 OR", "adjusted"), tr("M–H OR", "M–H")];
+  const vals = [a.crude_or, a.adj_or, a.mh_or];
+  Plotly.react("ccAnalyzeChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: [AMBER, TEAL, TEAL] },
+    text: vals.map((v) => v.toFixed(2) + "×"), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 26, r: 18, b: 40, l: 50 },
+    yaxis: { title: tr("勝算比", "odds ratio"), range: [0, Math.max(...vals) * 1.2] },
+    shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: a.true_or, y1: a.true_or, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: 2.5, y: a.true_or, text: tr("真值 " + a.true_or, "truth " + a.true_or), showarrow: false, yshift: 11, xanchor: "right", font: { color: GREEN, size: 11 } }],
+  }), SCENE_CFG);
+}
+// ③ advanced variants (not AI)
+const runCcTtBtn = document.getElementById("runCcTargetTrial");
+if (runCcTtBtn) runCcTtBtn.addEventListener("click", async () => {
+  let s; try { s = await getJSON(`${API}/api/cc_targettrial?lang=${lang()}`); } catch (e) { return; }
+  state.ccTt = s;
+  document.getElementById("ccTtOut").classList.remove("hidden");
+  const labels = [tr("傳統病例對照", "naive case-control"), tr("模擬目標試驗", "emulated target trial"), tr("完整世代", "full cohort")];
+  const vals = [s.naive_or, s.emulated_or, s.cohort_or];
+  Plotly.react("ccTtChart", [{ x: labels, y: vals, type: "bar", marker: { color: [RED, TEAL, SLATE] }, text: vals.map((v) => v.toFixed(2) + "×"), textposition: "outside" }],
+    sceneLayout({ height: 280, margin: { t: 22, r: 14, b: 46, l: 48 }, yaxis: { title: tr("勝算比", "odds ratio"), range: [0, 1.4] },
+      shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: 1.0, y1: 1.0, line: { color: GREEN, width: 2, dash: "dash" } }] }), SCENE_CFG);
+  document.getElementById("ccTtReading").innerHTML = s.reading;
+});
+const runCcExtBtn = document.getElementById("runCcExternal");
+if (runCcExtBtn) runCcExtBtn.addEventListener("click", async () => {
+  let s; try { s = await getJSON(`${API}/api/cc_external?lang=${lang()}`); } catch (e) { return; }
+  state.ccExt = s;
+  document.getElementById("ccExtOut").classList.remove("hidden");
+  const labels = [tr("僅手上資料", "data only"), tr("＋外部彙總", "+ external summary")];
+  const vals = [s.ci_width_base, s.ci_width_ext];
+  Plotly.react("ccExtChart", [{ x: labels, y: vals, type: "bar", marker: { color: [SLATE, TEAL] }, text: vals.map((v) => v.toFixed(2)), textposition: "outside" }],
+    sceneLayout({ height: 280, margin: { t: 22, r: 14, b: 40, l: 52 }, yaxis: { title: tr("95% CI 寬度（log-OR）", "95% CI width (log-OR)"), range: [0, Math.max(...vals) * 1.25] } }), SCENE_CFG);
+  document.getElementById("ccExtReading").innerHTML = s.reading;
+});
+
+// ④ assumptions
+function initCcAssume() {
+  if (ccAssumeReady) return;
+  ccAssumeReady = true;
+  runCcAssumptions(ccState.req || { source: "example_cc", lang: lang() });
+}
+async function runCcAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_cc", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/cc_assumptions`, body); } catch (e) { return; }
+  state.ccDash = out;
+  renderCcAssumptions(out);
+}
+function renderCcAssumptions(out) {
+  const hint = document.getElementById("ccAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("ccOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；關鍵設計假設仍需領域判斷。", "Testable checks pass; key design assumptions need domain judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("ccAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ⑤ real ML (random forest for matched case-control) — button-triggered (loads sklearn)
+function initCcMl() { if (ccForestCache) drawCcForest(ccForestCache); }
+const runCcForestBtn = document.getElementById("runCcForest");
+if (runCcForestBtn) runCcForestBtn.addEventListener("click", async () => {
+  const btn = runCcForestBtn; const old = btn.textContent;
+  btn.disabled = true; btn.textContent = tr("計算中（載入 ML 套件）…", "Computing (loading ML package)…");
+  try {
+    const s = await getJSON(`${API}/api/cc_forest?lang=${lang()}`);
+    ccForestCache = s; drawCcForest(s);
+  } catch (e) { alert(tr("計算失敗：", "Failed: ") + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
+});
+function drawCcForest(s) {
+  document.getElementById("ccForestOut").classList.remove("hidden");
+  if (document.getElementById("ccForestChart")) {
+    Plotly.react("ccForestChart", [{
+      x: s.bars.labels, y: s.bars.values, type: "bar", marker: { color: [SLATE, GREEN] },
+      text: s.bars.values.map((v) => v.toFixed(3)), textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 26, r: 18, b: 50, l: 50 },
+      yaxis: { title: tr("留出 AUC（越高越好）", "held-out AUC (higher better)"), range: [0.5, 1.0] },
+    }), SCENE_CFG);
+  }
+  document.getElementById("ccForestReading").innerHTML = s.reading;
+  const imp = (s.importance || []).map((i) => `${i.name} <b>${i.value}</b>`).join("　·　");
+  document.getElementById("ccForestImp").innerHTML = imp ? tr("變數重要度：", "Variable importance: ") + imp : "";
+}
+
+// ======================================================================
+// Sequential trials — tabs ①–⑤
 // ======================================================================
 const seqState = { source: null, columns: [], req: null };
 let seqLearnReady = false, seqPlayReady = false, seqAnalyzeReady = false,
@@ -3659,7 +3928,7 @@ function seqPerTrialInto(elId, d) {
   ];
   Plotly.react(elId, traces, sceneLayout({
     height: 300, legend: { orientation: "h", y: 1.16 }, margin: { t: 28, r: 18, b: 42, l: 54 },
-    xaxis: { title: tr("巢式試驗（資格月 k）", "nested trial (eligibility month k)"), dtick: 1 },
+    xaxis: { title: tr("序列試驗（資格月 k）", "sequential trial (eligibility month k)"), dtick: 1 },
     yaxis: { title: tr("風險差", "risk difference") },
     shapes: [{ type: "line", x0: xr[0], x1: xr[1], y0: d.true_rd, y1: d.true_rd, line: { color: GREEN, width: 2, dash: "dash" } }],
     annotations: [{ x: xr[1], y: d.true_rd, text: tr("真值", "truth"), showarrow: false, yshift: 11, xanchor: "right", font: { color: GREEN, size: 11 } }],
@@ -3774,8 +4043,8 @@ function renderSeqAnalyze(a) {
     [tr("天真（曾 vs 從未治療）", "Naive (ever vs never treated)"), a.naive,
       tr("被 immortal-time bias 與混淆扭曲。", "Distorted by immortal-time bias and confounding."), false],
     [tr("真值（點治療效應）", "Truth (point-treatment effect)"), a.true_rd,
-      tr(`合併了 ${a.n_trials} 場巢式試驗；95% 區間 ${fmt(a.ci[0], 2)}～${fmt(a.ci[1], 2)}。`,
-         `Pooled over ${a.n_trials} nested trials; 95% interval ${fmt(a.ci[0], 2)}–${fmt(a.ci[1], 2)}.`), false],
+      tr(`合併了 ${a.n_trials} 場序列試驗；95% 區間 ${fmt(a.ci[0], 2)}～${fmt(a.ci[1], 2)}。`,
+         `Pooled over ${a.n_trials} sequential trials; 95% interval ${fmt(a.ci[0], 2)}–${fmt(a.ci[1], 2)}.`), false],
   ];
   document.getElementById("seqAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
     `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${v >= 0 ? "+" : ""}${fmt(v, 2)}</div><p>${desc}</p></div>`
@@ -3832,7 +4101,7 @@ async function refreshSeqDemo() {
 }
 function drawSeqDemo(s) {
   if (!document.getElementById("seqDemoChart")) return;
-  const labels = [tr("天真（曾 vs 從未）", "naive (ever vs never)"), tr("只用第 0 月那場", "month-0 trial only"), tr("合併所有巢式試驗", "pooled (all trials)")];
+  const labels = [tr("天真（曾 vs 從未）", "naive (ever vs never)"), tr("只用第 0 月那場", "month-0 trial only"), tr("合併所有序列試驗", "pooled (all trials)")];
   const vals = [s.naive, s.single, s.pooled];
   Plotly.react("seqDemoChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [RED, SLATE, TEAL] },
@@ -3920,6 +4189,11 @@ window.addEventListener("iv-lang", async () => {
   if (seqAnalyzeReady) runSeqAnalyze();                // Sequential ③ analysis + dashboard
   else if (seqAssumeReady) runSeqAssumptions(seqState.req);
   if (state.seqDemo) refreshSeqDemo();                 // Sequential ⑤ demo (re-render)
+  if (ccLearnReady) drawSceneCc();                     // Case-control ① learn scene
+  if (ccPlayReady) refreshCcPlay();                    // Case-control ② interactive
+  if (ccAnalyzeReady) runCcAnalyze();                  // Case-control ③ analysis + dashboard
+  else if (ccAssumeReady) runCcAssumptions(ccState.req);
+  if (ccForestCache) drawCcForest(ccForestCache);      // Case-control ⑤ ML (re-render cache)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
 });
 

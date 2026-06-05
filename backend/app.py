@@ -44,6 +44,10 @@ import ccw_assumptions
 import cctc_core
 import cctc_gen
 import cctc_assumptions
+import cc_core
+import cc_gen
+import cc_assumptions
+import cc_ml
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -884,6 +888,75 @@ def seq_interactive(conf: float = 1.0, lang: str = "zh"):
 def seq_demo(lang: str = "zh"):
     """Sequential ⑤: single baseline trial vs full nested pooling."""
     return _clean(seq_core.seq_demo(lang=lang))
+
+
+# ---------------------------------------------------------------------------
+# Case-control (病例對照)
+# ---------------------------------------------------------------------------
+class CcRequest(BaseModel):
+    source: str = "example_cc"
+    case: str = "case"
+    exposed: str = "exposed"
+    covariates: list[str] = ["age", "sex", "comorbidity"]
+    lang: str = "zh"
+
+
+def _load_cc(source: str) -> pd.DataFrame:
+    if source in ("example_cc", "example"):
+        return cc_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/cc_example")
+def cc_example():
+    df = cc_gen.generate()
+    return _clean({
+        "columns": list(df.columns),
+        "defaults": {"case": "case", "exposed": "exposed", "covariates": ["age", "sex", "comorbidity"]},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "case": "case（1＝病例 有結果，0＝對照 無結果）",
+            "exposed": "exposed（過去是否有暴露）",
+            "age": "age、sex、comorbidity（共變項；年齡是混淆因子）",
+        },
+    })
+
+
+@app.post("/api/cc_analyze")
+def cc_analyze(req: CcRequest):
+    df = _load_cc(req.source)
+    return _clean(cc_core.full_cc(df, req.case, req.exposed, tuple(req.covariates), lang=req.lang))
+
+
+@app.post("/api/cc_assumptions")
+def cc_assumptions_check(req: CcRequest):
+    df = _load_cc(req.source)
+    return _clean(cc_assumptions.run_dashboard(df, req.case, req.exposed, lang=req.lang))
+
+
+@app.get("/api/cc_interactive")
+def cc_interactive(conf: float = 1.0, lang: str = "zh"):
+    return _clean(cc_core.cc_interactive(float(np.clip(conf, 0.0, 1.5)), lang=lang))
+
+
+@app.get("/api/cc_targettrial")
+def cc_targettrial(lang: str = "zh"):
+    return _clean(cc_core.cc_targettrial_demo(lang=lang))
+
+
+@app.get("/api/cc_external")
+def cc_external(lang: str = "zh"):
+    return _clean(cc_core.cc_external_demo(lang=lang))
+
+
+@app.get("/api/cc_forest")
+def cc_forest(seed: int = 23, lang: str = "zh"):
+    """Case-control ⑤: real sklearn random forest for matched case-control."""
+    return _clean(cc_ml.matched_forest_demo(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")

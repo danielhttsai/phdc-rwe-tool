@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=53" />
+<link rel="stylesheet" href="styles.css?v=54" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -23,8 +23,9 @@
         <option value="its" data-en="ITS · Interrupted time series">ITS · 中斷時間序列</option>
         <option value="tit" data-en="TiT · Trend-in-trend">TiT · 趨勢中的趨勢</option>
         <option value="ccw" data-en="CCW · Clone-censor-weight">CCW · 複製-設限-加權</option>
-        <option value="seq" data-en="Seq · Sequential (nested) target trials">Seq · 序列（巢式）試驗</option>
+        <option value="seq" data-en="Seq · Sequential target trials">Seq · 序列試驗</option>
         <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
+        <option value="cc" data-en="CC · Case-control">CC · 病例對照</option>
       </select>
     </label>
     <div class="subtabs">
@@ -2401,11 +2402,11 @@
   <!-- ===================== Sequential ① 是什麼 ===================== -->
   <section id="seqlearn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Sequential (nested) trials: one emulated trial per eligibility time, then pool">序列（巢式）試驗：每個資格時點開一場模擬試驗，再合併</h1>
-    <p class="lead" data-en="When a <b>point treatment</b> (treat now vs not) could be started at many different times, you can't just compare 'ever-treated vs never' — that has <b>immortal-time bias</b> (the ever-treated had to survive long enough to start). Instead, emulate a small <b>target trial at each eligibility month</b>: at that moment, compare those who initiate vs those who don't, align time-zero, adjust for baseline covariates, then <b>pool</b> across all the nested trials. A person can re-enter several trials, boosting the effective sample.">
+    <h1 data-en="Sequential trials: one emulated trial per eligibility time, then pool">序列試驗：每個資格時點開一場模擬試驗，再合併</h1>
+    <p class="lead" data-en="When a <b>point treatment</b> (treat now vs not) could be started at many different times, you can't just compare 'ever-treated vs never' — that has <b>immortal-time bias</b> (the ever-treated had to survive long enough to start). Instead, emulate a small <b>target trial at each eligibility month</b>: at that moment, compare those who initiate vs those who don't, align time-zero, adjust for baseline covariates, then <b>pool</b> across all the sequential trials. A person can re-enter several trials, boosting the effective sample.">
       當一個<b>點治療</b>（當下治療 vs 不治療）可以在很多不同時間點啟動時，你不能只比「曾治療 vs 從未治療」
       ——那會有 <b>immortal-time bias</b>（曾治療者必須先活得夠久才能開始）。做法：在<b>每個資格月</b>各模擬一場
-      小型目標試驗：在那一刻，比較啟動 vs 不啟動的人、對齊時間零點、調整基線共變項，再把所有巢式試驗<b>合併</b>。
+      小型目標試驗：在那一刻，比較啟動 vs 不啟動的人、對齊時間零點、調整基線共變項，再把所有序列試驗<b>合併</b>。
       同一個人可在多場重複收案，放大有效樣本。
     </p>
 
@@ -2417,7 +2418,7 @@
     <details class="term">
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef">
-        <h4>巢式（序列）試驗 <span class="en">nested / sequential trials</span></h4>
+        <h4>序列試驗 <span class="en">sequential trials</span></h4>
         <p data-en="<b>Plain:</b> open a fresh emulated trial at each time someone becomes eligible, then combine them.<br /><b>Definition:</b> a sequence of target-trial emulations indexed by start time; within each, compare initiators vs non-initiators with time-zero aligned at that start.<br /><b>Why it matters:</b> it uses every eligibility time (a person can re-enter), and aligning time-zero removes immortal time.<br /><b>Example:</b> a mini-trial each month, k = 0…5, pooled.<br /><b>Pooling:</b> inverse-variance across trials.">
           <b>白話：</b>每當有人符合資格，就開一場新的模擬試驗，最後合併起來。<br />
           <b>定義：</b>以「開始時間」索引的一連串目標試驗模擬；每場內比較啟動 vs 不啟動，時間零點對齊在該開始點。<br />
@@ -2473,18 +2474,18 @@
     </div>
 
     <div id="seqPlayChart" class="chart"></div>
-    <p class="caption" data-en="Each dot is one nested trial's IPTW risk difference (treat-now vs not) at its eligibility month; the teal line is their inverse-variance pooled estimate; the green dashed line is the truth. The amber line is the naive ever-vs-never contrast — far below, inflated by immortal time.">
-      每個點是一場巢式試驗在其資格月的 IPTW 風險差（當下治療 vs 不治療）；青線是它們的反變異合併估計；綠虛線是真值。
+    <p class="caption" data-en="Each dot is one sequential trial's IPTW risk difference (treat-now vs not) at its eligibility month; the teal line is their inverse-variance pooled estimate; the green dashed line is the truth. The amber line is the naive ever-vs-never contrast — far below, inflated by immortal time.">
+      每個點是一場序列試驗在其資格月的 IPTW 風險差（當下治療 vs 不治療）；青線是它們的反變異合併估計；綠虛線是真值。
       琥珀線是天真的曾 vs 從未比較——遠在下方，被 immortal time 吹大。
     </p>
   </section>
 
   <!-- ===================== Sequential ③ 資料分析 ===================== -->
   <section id="seqanalyze" class="panel">
-    <h1 data-en="Data analysis: run full sequential nested trials">資料分析：跑一次完整的序列巢式試驗</h1>
-    <p class="lead" data-en="Load the built-in point-treatment example (or upload a CSV with one row per person: when they initiated treatment, whether/when the event happened, and baseline covariates). The tool opens a nested trial at each eligibility month, applies IPTW, inverse-variance pools the per-trial effects, and contrasts the result with the immortal-time-biased naive comparison.">
+    <h1 data-en="Data analysis: run full sequential trials">資料分析：跑一次完整的序列試驗</h1>
+    <p class="lead" data-en="Load the built-in point-treatment example (or upload a CSV with one row per person: when they initiated treatment, whether/when the event happened, and baseline covariates). The tool opens a sequential trial at each eligibility month, applies IPTW, inverse-variance pools the per-trial effects, and contrasts the result with the immortal-time-biased naive comparison.">
       載入內建的點治療範例（或上傳每列一個人的 CSV：何時啟動治療、是否／何時發生事件、基線共變項）。
-      工具會在每個資格月開一場巢式試驗、做 IPTW、把各場效果反變異合併，並與「中 immortal-time 偏誤」的
+      工具會在每個資格月開一場序列試驗、做 IPTW、把各場效果反變異合併，並與「中 immortal-time 偏誤」的
       天真比較並列。
     </p>
 
@@ -2516,8 +2517,8 @@
   <!-- ===================== Sequential ④ 假設檢驗 ===================== -->
   <section id="seqassume" class="panel">
     <h1 data-en="Can we trust this sequential estimate? Five checks">這個序列估計可不可信？五道體檢</h1>
-    <p class="lead" data-en="The core assumptions are mostly <b>not testable from data alone</b> (blue cards): no unmeasured confounding at each eligibility time, correct time-zero alignment, and no carry-over between nested trials. Positivity and having enough trials/events are checkable. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      核心假設大多<b>無法只用資料檢驗</b>（藍卡）：各資格時點無未測混淆、時間零點對齊正確、巢式試驗間無 carry-over。
+    <p class="lead" data-en="The core assumptions are mostly <b>not testable from data alone</b> (blue cards): no unmeasured confounding at each eligibility time, correct time-zero alignment, and no carry-over between sequential trials. Positivity and having enough trials/events are checkable. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      核心假設大多<b>無法只用資料檢驗</b>（藍卡）：各資格時點無未測混淆、時間零點對齊正確、序列試驗間無 carry-over。
       正性與試驗／事件數則可檢。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="seqOverall" class="overall hidden"></div>
@@ -2527,9 +2528,9 @@
 
   <!-- ===================== Sequential ⑤ 進階 ===================== -->
   <section id="seqml" class="panel">
-    <h1 data-en="Refinement: one baseline trial vs pooling all nested trials">進階：只用一場基線試驗 vs 合併所有巢式試驗</h1>
+    <h1 data-en="Refinement: one baseline trial vs pooling all sequential trials">進階：只用一場基線試驗 vs 合併所有序列試驗</h1>
     <p class="lead" data-en="Both the single month-0 trial and the full pooling are unbiased — the difference is <b>efficiency</b>. Pooling uses people at every eligibility time (a person can re-enter), shrinking the interval. Click to compare, and read the honest notes.">
-      只用第 0 月那一場、以及合併所有巢式試驗，<b>兩者都無偏</b>——差別在<b>效率</b>。合併用到每個資格時點的人
+      只用第 0 月那一場、以及合併所有序列試驗，<b>兩者都無偏</b>——差別在<b>效率</b>。合併用到每個資格時點的人
       （同一人可重複收案），讓區間更窄。按下面比較，再看誠實的說明。
     </p>
     <button id="runSeqDemo" class="btn primary" data-en="Compare single-trial vs pooled">比較單場 vs 合併</button>
@@ -2543,7 +2544,7 @@
       <div class="card"><h3 data-en="① Robust (person-clustered) standard errors">① 個人叢集穩健標準誤</h3>
         <p data-en="Because a person re-enters several trials, the rows are correlated. Use person-clustered robust SEs (or bootstrap by person); naive SEs are too narrow. This tool offers a person-cluster bootstrap interval.">同一人在多場重複出現，列彼此相關。用個人叢集穩健 SE（或對人自助）；天真 SE 太窄。本工具提供個人叢集自助區間。</p></div>
       <div class="card"><h3 data-en="② Per-protocol vs intention-to-treat">② 依計畫 vs 意向治療</h3>
-        <p data-en="Within each nested trial you can analyse intention-to-treat (by baseline choice) or per-protocol (censor on deviation + IPCW, like CCW). They answer different questions; pre-specify which.">每場巢式試驗內可做意向治療（照基線選擇）或依計畫（偏離設限＋IPCW，像 CCW）。兩者回答不同問題；要事先講清楚。</p></div>
+        <p data-en="Within each sequential trial you can analyse intention-to-treat (by baseline choice) or per-protocol (censor on deviation + IPCW, like CCW). They answer different questions; pre-specify which.">每場序列試驗內可做意向治療（照基線選擇）或依計畫（偏離設限＋IPCW，像 CCW）。兩者回答不同問題；要事先講清楚。</p></div>
       <div class="card"><h3 data-en="③ ML / doubly-robust nuisance models">③ ML／雙重穩健的雜務模型</h3>
         <p data-en="The within-trial propensity (and outcome) models are nuisances — they can be estimated with flexible/ML learners under cross-fitting, and combined doubly-robustly, exactly as in IV ⑤ / DiD ⑤. The pooling stays the same.">場內的傾向（與結果）模型是雜務——可用彈性／ML 學習器搭配交叉擬合來估、再雙重穩健地結合，就像 IV ⑤／DiD ⑤。合併方式不變。</p></div>
     </div>
@@ -2551,9 +2552,174 @@
     <h2 data-en="Where this method comes from">這個方法的出處</h2>
     <div class="cards">
       <div class="card"><h3 data-en="Method &amp; application">方法與應用</h3>
-        <p data-en="Hernán &amp; Robins — the target-trial framework. Danaei et al. and Gran et al. — nested/sequential trial emulation with pooled estimation. An applied example: emulating target trials to avoid immortal time in pregnancy medication-safety studies (Epidemiology 2023;34(3):430-438). When the question is 'treat now vs not' at many eligibility times, sequential trials are the natural design.">
-          Hernán &amp; Robins——目標試驗框架。Danaei 等人與 Gran 等人——巢式／序列試驗模擬與合併估計。應用例：在懷孕用藥安全研究中，用目標試驗模擬避免 immortal time（Epidemiology 2023;34(3):430-438）。當問題是多個資格時點的「當下治療 vs 不治療」時，序列試驗就是最自然的設計。
+        <p data-en="Hernán &amp; Robins — the target-trial framework. Danaei et al. and Gran et al. — sequential trial emulation with pooled estimation. An applied example: emulating target trials to avoid immortal time in pregnancy medication-safety studies (Epidemiology 2023;34(3):430-438). When the question is 'treat now vs not' at many eligibility times, sequential trials are the natural design.">
+          Hernán &amp; Robins——目標試驗框架。Danaei 等人與 Gran 等人——序列試驗模擬與合併估計。應用例：在懷孕用藥安全研究中，用目標試驗模擬避免 immortal time（Epidemiology 2023;34(3):430-438）。當問題是多個資格時點的「當下治療 vs 不治療」時，序列試驗就是最自然的設計。
         </p></div>
+    </div>
+  </section>
+
+  <!-- ===================== Case-control ① 是什麼 ===================== -->
+  <section id="cclearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Case-control: start from the outcome, look back at exposure">病例對照：從結果出發，回頭看暴露</h1>
+    <p class="lead" data-en="A cohort follows a big group forward for years. A <b>case-control</b> study works backwards: find people <b>with</b> the outcome (cases) and people <b>without</b> it (controls), then compare their past exposure — measured by the <b>odds ratio</b>. It is very efficient for a <b>rare</b> outcome. The danger is confounding: here <b>age</b> drives both exposure and outcome, so the crude OR is biased; adjusting (or matching on) age recovers the truth. Modern view (Dickerman &amp; Hernán): a valid case-control = <b>case-control sampling of a cohort that emulates a target trial</b>.">
+      世代研究要往前追蹤一大群人很多年。<b>病例對照</b>反過來做：找到<b>有</b>結果的人（病例）與<b>沒有</b>結果的人（對照），
+      再比較兩組過去的暴露——用<b>勝算比（OR）</b>衡量。對<b>罕見</b>結果特別有效率。危險在於混淆：這裡<b>年齡</b>同時推動
+      暴露與結果，所以粗 OR 會偏；<b>校正</b>（或<b>配對</b>）年齡就能還原真相。現代視角（Dickerman &amp; Hernán）：一個有效的
+      病例對照，等於對「<b>模擬目標試驗的世代</b>」做病例對照抽樣。
+    </p>
+
+    <div class="card scene">
+      <h3 data-en="How it works — cases vs controls, looking back at exposure">怎麼做 —— 病例 vs 對照，回頭比暴露</h3>
+      <div id="ccScene" class="chart"></div>
+    </div>
+
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef">
+        <h4>勝算比 <span class="en">odds ratio (OR)</span></h4>
+        <p data-en="<b>Plain:</b> how many times higher the odds of past exposure are among cases vs controls.<br /><b>Definition:</b> from the 2×2 table, OR = (a·d)/(b·c). For a rare outcome the OR ≈ the risk ratio.<br /><b>Why it matters:</b> it's the natural effect measure a case-control can estimate without knowing the whole cohort.<br /><b>Example:</b> exposed/unexposed = a/b in cases and c/d in controls → OR = ad/bc.<br /><b>Formula:</b> <code>OR = (a·d)/(b·c)</code>.">
+          <b>白話：</b>病例組「過去有暴露」的勝算，是對照組的幾倍。<br />
+          <b>定義：</b>由 2×2 表，OR＝(a·d)/(b·c)。結果罕見時 OR ≈ 風險比。<br />
+          <b>為什麼重要：</b>它是病例對照在「不知道整個世代」下也能估的自然效應量。<br />
+          <b>例子：</b>病例的暴露/未暴露＝a/b、對照＝c/d → OR＝ad/bc。<br />
+          <b>公式：</b><code>OR = (a·d)/(b·c)</code>。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>混淆 <span class="en">confounding</span></h4>
+        <p data-en="<b>Plain:</b> a third factor that drives both who gets exposed and who gets the outcome, faking an association.<br /><b>Definition:</b> a common cause of exposure and outcome (here age); it biases the crude OR.<br /><b>Why it matters:</b> the crude OR isn't the causal effect until you remove it (adjust / stratify / match).<br /><b>Example:</b> older people are both more exposed and higher-risk → crude OR inflated.<br /><b>Fix:</b> logistic adjustment, Mantel–Haenszel stratification, or matching.">
+          <b>白話：</b>第三個因子同時決定誰會暴露、誰會得病，憑空製造出關聯。<br />
+          <b>定義：</b>暴露與結果的共同原因（這裡是年齡）；它讓粗 OR 偏掉。<br />
+          <b>為什麼重要：</b>沒把它移掉之前，粗 OR 不是因果效應。<br />
+          <b>例子：</b>年長者既較常暴露、又較高風險 → 粗 OR 被吹大。<br />
+          <b>修法：</b>logistic 校正、Mantel–Haenszel 分層、或配對。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>配對與條件式分析 <span class="en">matching &amp; conditional analysis</span></h4>
+        <p data-en="<b>Plain:</b> pick controls who look like the cases on confounders, then compare within those matched sets.<br /><b>Definition:</b> match on confounders (age, sex); analyse with conditional logistic / discordant pairs (OR = b/c).<br /><b>Why it matters:</b> ignoring the matching biases the OR toward 1; match on confounders only, never on mediators/colliders.<br /><b>Example:</b> 1:1 match on age band; the matched OR is the discordant-pair ratio.<br /><b>Formula:</b> <code>OR_matched = b/c</code> (discordant pairs).">
+          <b>白話：</b>挑「在混淆因子上和病例很像」的對照，再在這些配對組內比較。<br />
+          <b>定義：</b>配對在混淆因子（年齡、性別）；用條件 logistic／一致對分析（OR＝b/c）。<br />
+          <b>為什麼重要：</b>忽略配對會把 OR 拉向 1；只配在混淆因子，別配在中介／對撞。<br />
+          <b>例子：</b>1:1 配年齡層；配對 OR＝一致對比值。<br />
+          <b>公式：</b><code>OR_matched = b/c</code>（一致對）。
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== Case-control ② 互動講解 ===================== -->
+  <section id="ccplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: watch confounding push the crude OR around">互動：看混淆怎麼把粗 OR 推來推去</h1>
+    <p class="lead" data-en="Drag the slider to change how strongly <b>age</b> drives exposure (the confounding strength). At <b>0</b> there is no confounding and the crude OR already equals the truth. Turn it up and the <b>crude OR climbs away</b> from the truth, while the <b>age-adjusted OR stays put</b>. Adjustment fixes a <b>measured</b> confounder.">
+      拉動滑桿，改變<b>年齡</b>對暴露的影響有多強（混淆強度）。在 <b>0</b> 時沒有混淆，粗 OR 本身就等於真值；
+      往上調，<b>粗 OR 一路爬離</b>真值，而<b>校正年齡後的 OR 穩住不動</b>。校正能修掉<b>量得到</b>的混淆。
+    </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="Confounding strength (age → exposure):">混淆強度（年齡 → 暴露）：</span><b id="ccConfVal">1.0</b>
+        <input type="range" id="ccConfSlider" min="0" max="1.5" value="1" step="0.05" />
+        <small data-en="0 = no confounding (crude OR unbiased). Larger = age drives exposure more, so cases (older) look more exposed — the crude OR inflates, adjustment corrects.">0＝無混淆（粗 OR 無偏）。越大＝年齡越能推動暴露，病例（較年長）看起來更常暴露——粗 OR 變大、校正修回。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Crude OR">粗 OR</div><div class="stat-num" id="ccCrude">–</div><div class="stat-foot" data-en="confounded by age">被年齡混淆</div></div>
+      <div class="stat"><div class="stat-label" data-en="Age-adjusted OR">校正年齡 OR</div><div class="stat-num" id="ccAdj">–</div><div class="stat-foot" data-en="should hug the truth 2.0">應緊貼真值 2.0</div></div>
+      <div class="stat"><div class="stat-label" data-en="Truth">真值</div><div class="stat-num small" id="ccTrue">2.0</div><div class="stat-foot" data-en="the causal OR">真實因果 OR</div></div>
+    </div>
+
+    <div id="ccPlayChart" class="chart"></div>
+    <p class="caption" data-en="Crude vs adjusted OR across confounding strength. As you raise it, the crude OR (amber) slopes up and away from the truth, while the adjusted OR (teal) stays on the dashed truth line.">
+      粗 OR 與校正 OR 隨混淆強度的變化。調越大，粗 OR（琥珀）越爬離真值，校正 OR（青）穩停在虛線真值上。
+    </p>
+  </section>
+
+  <!-- ===================== Case-control ③ 資料分析 ===================== -->
+  <section id="ccanalyze" class="panel">
+    <h1 data-en="Data analysis: crude vs adjusted vs stratified OR">資料分析：粗 vs 校正 vs 分層 OR</h1>
+    <p class="lead" data-en="Load the built-in case-control example (one row per person: a case/control flag, exposure, and covariates incl. age). The tool computes the crude OR, the age/sex/comorbidity-adjusted logistic OR, and the Mantel–Haenszel OR stratified by age band × sex — and shows the age imbalance that makes the crude OR wrong.">
+      載入內建病例對照範例（每列一個人：case/對照旗標、暴露、共變項含年齡）。工具會算粗 OR、校正
+      年齡/性別/共病的 logistic OR，以及按年齡層×性別分層的 Mantel–Haenszel OR——並顯示讓粗 OR 出錯的年齡不平衡。
+    </p>
+
+    <div class="datasource">
+      <button id="useCcExample" class="btn primary" data-en="Load built-in case-control example">載入內建病例對照範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="ccFileInput" accept=".csv" hidden /></label>
+      <span id="ccDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="ccColMap" class="colmap hidden">
+      <div class="field"><label data-en="Case (1 = case, 0 = control)">病例（1＝病例，0＝對照）</label><select id="ccSelCase"></select></div>
+      <div class="field"><label data-en="Exposure">暴露</label><select id="ccSelExposed"></select></div>
+      <button id="runCcAnalyze" class="btn primary" data-en="Run case-control analysis">執行病例對照分析</button>
+    </div>
+
+    <div id="ccAnalyzeOut" class="hidden">
+      <h2 data-en="Crude vs adjusted vs Mantel–Haenszel">粗 vs 校正 vs Mantel–Haenszel</h2>
+      <div class="result-cards" id="ccAnalyzeCards"></div>
+      <div id="ccAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="The crude OR is confounded upward because cases are older; adjustment and stratification both bring it back to the truth.">
+        粗 OR 因為病例較年長而被往上推；校正與分層都把它拉回真值。
+      </p>
+
+      <h2 data-en="Advanced variants (not AI) — extensions of the design">進階變形（非 AI 的延伸設計）</h2>
+      <div class="cards">
+        <div class="card">
+          <h3 data-en="① Target-trial emulation in case-control (Dickerman &amp; Hernán 2020)">① 病例對照的目標試驗模擬（Dickerman &amp; Hernán 2020）</h3>
+          <p data-en="A conventional 'ever vs never use' case-control can give a spuriously protective OR (prevalent users, no time zero = immortal time). Re-cast it as an emulated target trial — new users, explicit time zero, case-control sampling of the cohort — and the artefact disappears.">傳統「曾用 vs 從未」病例對照可能估出假性保護 OR（既有使用者、沒對齊時間零點＝immortal time）。改寫成模擬目標試驗（新使用者、明確時間零點、對世代做病例對照抽樣），假象就消失。</p>
+          <button id="runCcTargetTrial" class="btn" data-en="Show the artefact vs the fix">看假象 vs 修正</button>
+          <div id="ccTtOut" class="hidden"><div id="ccTtChart" class="chart"></div><p class="caption" id="ccTtReading"></p></div>
+        </div>
+        <div class="card">
+          <h3 data-en="② Integrating external summary data (Shi et al. 2024)">② 整合外部彙總資料（Shi 等 2024）</h3>
+          <p data-en="Incorporating a known exposure-marginal from a large external study as a constraint shrinks the standard error — the same point estimate with a narrower interval. An efficiency gain, not AI.">把外部大型研究已知的暴露邊際資訊當作限制納入，能縮小標準誤——同樣的點估計、更窄的區間。是效率提升，不是 AI。</p>
+          <button id="runCcExternal" class="btn" data-en="Show the efficiency gain">看效率提升</button>
+          <div id="ccExtOut" class="hidden"><div id="ccExtChart" class="chart"></div><p class="caption" id="ccExtReading"></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== Case-control ④ 假設檢驗 ===================== -->
+  <section id="ccassume" class="panel">
+    <h1 data-en="Can we trust this case-control? Five checks">這個病例對照可不可信？五道體檢</h1>
+    <p class="lead" data-en="The core assumptions are mostly about study <b>design</b> and untestable from data alone (blue cards): controls represent the source population, exposure is measured equally, matching/time-zero are set right. The testable ones are how far the crude OR is confounded and whether the cells are well-populated. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      核心假設大多關於研究<b>設計</b>、無法只用資料檢驗（藍卡）：對照能代表來源族群、暴露兩組量得一樣準、配對與
+      時間零點設對。可檢的是粗 OR 被混淆多少、以及各格人數夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="ccOverall" class="overall hidden"></div>
+    <div id="ccAssumeCards" class="assume-cards"></div>
+    <p id="ccAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== Case-control ⑤ 用 AI 強化 ===================== -->
+  <section id="ccml" class="panel">
+    <h1 data-en="Boost with AI: a random forest for matched case-control">用 AI 強化：配對病例對照的隨機森林</h1>
+    <p class="lead" data-en="This is the <b>only</b> tab here that genuinely runs machine learning. When the exposure effect appears only in a subgroup (an exposure × covariate <b>interaction</b>) and a covariate acts non-linearly, a main-effects conditional logistic model flattens the structure. A <b>random forest adapted to matched case-control</b> (Matched Forest / CLogitForest) captures it — higher held-out AUC, and its importances surface the effect modifier.">
+      這是本頁<b>唯一</b>真正會跑機器學習的分頁。當暴露效應只在某亞群出現（暴露 × 共變項的<b>交互作用</b>）、且某共變項
+      以非線性方式作用時，只放主效應的條件 logistic 會抹平這個結構。<b>為配對病例對照量身的隨機森林</b>（Matched Forest／
+      CLogitForest）能抓到它——留出 AUC 較高，變數重要度也標出效應修飾因子。
+    </p>
+    <button id="runCcForest" class="btn primary" data-en="Run the real ML (first run loads the ML package, ~5–10s)">跑真正的 ML（首次需載入 ML 套件，約 5–10 秒）</button>
+    <div id="ccForestOut" class="hidden">
+      <div id="ccForestChart" class="chart"></div>
+      <p class="caption" id="ccForestReading"></p>
+      <div id="ccForestImp" class="muted"></div>
+    </div>
+
+    <h2 data-en="Honest notes from the literature">文獻中誠實的注意事項</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="① ML for matched data needs the matched structure">① 配對資料的 ML 要顧到配對結構</h3>
+        <p data-en="Ordinary ML can't handle the matched (conditional) structure of matched case-control data. Matched Forest adds counterfactuals; CLogitForest builds trees/forests on conditional logistic — that's what makes them valid here (Shomal Zadeh 2020; Schauberger 2024).">一般 ML 無法處理配對病例對照的條件式結構。Matched Forest 加入反事實、CLogitForest 在條件 logistic 上長樹／森林——這才讓它們在這裡有效（Shomal Zadeh 2020；Schauberger 2024）。</p></div>
+      <div class="card"><h3 data-en="② ML finds structure, not a free lunch">② ML 找的是結構，不是免費午餐</h3>
+        <p data-en="The forest helps when there are non-linearities and interactions to find. With a simple linear main effect, plain conditional logistic is just as good and far more interpretable — use ML to explore effect modification, then report a clear estimate.">森林在「有非線性與交互作用可找」時才幫得上忙。若只是單純的線性主效應，條件 logistic 一樣好、且更好解釋——用 ML 探索效應修飾，再報一個清楚的估計。</p></div>
+      <div class="card"><h3 data-en="③ Confounding still needs design">③ 混淆仍要靠設計</h3>
+        <p data-en="A forest with higher AUC still doesn't fix selection bias, recall bias, or unmeasured confounding — those are design problems (controls, time zero, matching). ML sharpens the analysis; it doesn't rescue a biased design.">AUC 較高的森林仍修不了選擇偏誤、回憶偏誤、未測混淆——那些是設計問題（對照、時間零點、配對）。ML 讓分析更銳利，但救不了有偏的設計。</p></div>
     </div>
   </section>
 
@@ -2776,14 +2942,18 @@
       <li data-ref="cctc">Wong, A. Y. S., et al. (2025). Potential interactions between digoxin and direct oral anticoagulants: cohort &amp; novel case-crossover designs. <i>American Journal of Epidemiology</i>. <span data-en="〔applied case-crossover, immeasurable time〕">〔案例交叉應用、不可測時間〕</span></li>
       <li data-ref="cctc"><b data-en="Clinical application">臨床應用</b> · Kang, H.-R., Lee, E.-K., Kim, W. J., &amp; Shin, J.-Y. (2018). Risk of neuropsychiatric adverse events associated with oseltamivir: a nationwide population-based case-crossover study. <i>J. Antimicrob. Chemother.</i> <span data-en="〔oseltamivir &amp; neuropsychiatric events〕">〔克流感與神經精神事件〕</span></li>
       <li data-ref="seq"><b data-en="Method">方法</b> · Hernán, M. A., &amp; Robins, J. M. (2016). Using Big Data to Emulate a Target Trial When a Randomized Trial Is Not Available. <i>American Journal of Epidemiology, 183</i>(8), 758–764. <span data-en="〔the target-trial framework — Sequential tabs ①–⑤〕">〔目標試驗框架 —— 序列分頁 ①–⑤〕</span></li>
-      <li data-ref="seq">Danaei, G., García Rodríguez, L. A., Cantero, O. F., Logan, R. W., &amp; Hernán, M. A. (2013). Electronic medical records can be used to emulate target trials of sustained treatment strategies. <i>Journal of Clinical Epidemiology</i> / Stat Methods Med Res. <span data-en="〔nested sequential trial emulation &amp; pooling〕">〔巢式序列試驗模擬與合併〕</span></li>
+      <li data-ref="seq">Danaei, G., García Rodríguez, L. A., Cantero, O. F., Logan, R. W., &amp; Hernán, M. A. (2013). Electronic medical records can be used to emulate target trials of sustained treatment strategies. <i>Journal of Clinical Epidemiology</i> / Stat Methods Med Res. <span data-en="〔sequential trial emulation &amp; pooling〕">〔序列試驗模擬與合併〕</span></li>
       <li data-ref="seq">Gran, J. M., et al. A sequential Cox approach for estimating the causal effect of treatment in the presence of time-dependent confounding. <i>Statistics in Medicine.</i> <span data-en="〔sequential/stacked estimation〕">〔序列／堆疊估計〕</span></li>
-      <li data-ref="seq"><b data-en="Clinical application">臨床應用</b> · Emulating target trials to avoid immortal time bias — an application to medication safety in pregnancy. <i>Epidemiology, 34</i>(3), 430–438 (2023). <span data-en="〔nested trials avoid immortal time〕">〔巢式試驗避免 immortal time〕</span></li>
+      <li data-ref="seq"><b data-en="Clinical application">臨床應用</b> · Emulating target trials to avoid immortal time bias — an application to medication safety in pregnancy. <i>Epidemiology, 34</i>(3), 430–438 (2023). <span data-en="〔sequential trials avoid immortal time〕">〔序列試驗避免 immortal time〕</span></li>
+      <li data-ref="cc"><b data-en="Method &amp; framing">方法／框架</b> · Dickerman, B. A., García-Albéniz, X., Logan, R. W., Denaxas, S., &amp; Hernán, M. A. (2020). Emulating a target trial in case-control designs: an application to statins and colorectal cancer. <i>International Journal of Epidemiology, 49</i>(5), 1637–1646. <span data-en="〔case-control = sampling of a target-trial-emulating cohort — CC tabs ①/③〕">〔病例對照＝對模擬目標試驗的世代抽樣 —— CC 分頁 ①/③〕</span></li>
+      <li data-ref="cc">Shi, H., Liu, X., Zheng, M., &amp; Yu, W. (2024). Statistical inference for case-control logistic regression via integrating external summary data. <i>arXiv:2405.20655.</i> <span data-en="〔external-summary integration improves efficiency — CC tab ③〕">〔整合外部彙總資料提升效率 —— CC 分頁 ③〕</span></li>
+      <li data-ref="cc"><b data-en="AI / machine learning">AI／機器學習</b> · Shomal Zadeh, N., Lin, S., &amp; Runger, G. C. (2020). Matched Forest: supervised learning for high-dimensional matched case-control studies. <i>Bioinformatics, 36</i>(5), 1570–1576. <span data-en="〔random forest with counterfactuals for matched data — CC tab ⑤〕">〔配對資料的反事實隨機森林 —— CC 分頁 ⑤〕</span></li>
+      <li data-ref="cc">Schauberger, G., Klug, S. J., &amp; Berger, M. (2024). Random forests for the analysis of matched case-control studies. <i>BMC Bioinformatics, 25</i>, 253. <span data-en="〔CLogitForest: random forests for matched case-control — CC tab ⑤〕">〔CLogitForest：配對病例對照的隨機森林 —— CC 分頁 ⑤〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=53"></script>
-<script src="app.js?v=53"></script>
+<script src="i18n.js?v=54"></script>
+<script src="app.js?v=54"></script>
 </body>
 </html>

@@ -45,6 +45,9 @@ import cctc_assumptions
 import seq_core
 import seq_gen
 import seq_assumptions
+import cc_core
+import cc_gen
+import cc_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -794,6 +797,67 @@ def _seq_demo(q: dict) -> dict:
     return seq_core.seq_demo(lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# Case-control (病例對照)
+# ---------------------------------------------------------------------------
+CC_DEFAULTS = {"case": "case", "exposed": "exposed",
+               "covariates": ["age", "sex", "comorbidity"]}
+
+
+def _load_cc(source: str) -> pd.DataFrame:
+    if source in ("example_cc", "example"):
+        return cc_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _cc_example() -> dict:
+    df = cc_gen.generate()
+    return {
+        "columns": list(df.columns), "defaults": CC_DEFAULTS, "n": len(df),
+        "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "case": "case（1＝病例 有結果，0＝對照 無結果）",
+            "exposed": "exposed（過去是否有暴露）",
+            "age": "age／sex／comorbidity（共變項；年齡是混淆因子）",
+        },
+    }
+
+
+def _cc_analyze(req: dict) -> dict:
+    df = _load_cc(req.get("source", "example_cc"))
+    cov = req.get("covariates") or ["age", "sex", "comorbidity"]
+    return cc_core.full_cc(df, req.get("case", "case"), req.get("exposed", "exposed"),
+                           covariates=tuple(cov), lang=req.get("lang", "zh"))
+
+
+def _cc_assumptions(req: dict) -> dict:
+    df = _load_cc(req.get("source", "example_cc"))
+    return cc_assumptions.run_dashboard(df, req.get("case", "case"),
+                                        req.get("exposed", "exposed"), lang=req.get("lang", "zh"))
+
+
+def _cc_interactive(q: dict) -> dict:
+    conf = float(np.clip(float(q.get("conf", 1.0)), 0.0, 1.5))
+    return cc_core.cc_interactive(conf, lang=q.get("lang", "zh"))
+
+
+def _cc_targettrial(q: dict) -> dict:
+    return cc_core.cc_targettrial_demo(lang=q.get("lang", "zh"))
+
+
+def _cc_external(q: dict) -> dict:
+    return cc_core.cc_external_demo(lang=q.get("lang", "zh"))
+
+
+def _cc_forest(q: dict) -> dict:
+    import cc_ml
+    return cc_ml.matched_forest_demo(seed=int(q.get("seed", 23)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -860,6 +924,13 @@ _ROUTES = {
     ("POST", "/api/seq_assumptions"): lambda q, b: _seq_assumptions(b),
     ("GET", "/api/seq_interactive"): lambda q, b: _seq_interactive(q),
     ("GET", "/api/seq_demo"): lambda q, b: _seq_demo(q),
+    ("GET", "/api/cc_example"): lambda q, b: _cc_example(),
+    ("POST", "/api/cc_analyze"): lambda q, b: _cc_analyze(b),
+    ("POST", "/api/cc_assumptions"): lambda q, b: _cc_assumptions(b),
+    ("GET", "/api/cc_interactive"): lambda q, b: _cc_interactive(q),
+    ("GET", "/api/cc_targettrial"): lambda q, b: _cc_targettrial(q),
+    ("GET", "/api/cc_external"): lambda q, b: _cc_external(q),
+    ("GET", "/api/cc_forest"): lambda q, b: _cc_forest(q),
 }
 
 
