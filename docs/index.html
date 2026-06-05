@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=58" />
+<link rel="stylesheet" href="styles.css?v=59" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -2773,6 +2773,64 @@
         </p>
       </div>
     </details>
+
+    <details class="term">
+      <summary data-en="Canonical resources — the masters' own site (sccs-studies.info)">大師原典與軟體資源 —— 官方網站 sccs-studies.info 全紀錄</summary>
+      <div class="tdef">
+        <h4>方法源頭與維護者 <span class="en">origin &amp; people</span></h4>
+        <p data-en="The SCCS method was developed by <b>Paddy Farrington</b> (Open University, now emeritus). Co-developers and contributors at the Open University: <b>Heather Whitaker</b> (UK Health Security Agency; site maintainer, heatherjwhitaker@gmail.com), <b>Yonas Ghebremichael-Weldeselassie</b> (Open University; R-package author), <b>Patrick Musonda</b> (University of Zambia), <b>Mounia Hocine</b> (Public Health France). The SAS programs were contributed by <b>Bart Spiessens</b> and <b>Francois Haguinet</b> (GSK Biologicals, Belgium). Official site: <a href='https://sccs-studies.info' target='_blank' rel='noopener'>sccs-studies.info</a> (Home · R · STATA · SAS · About).">
+          SCCS 方法由 <b>Paddy Farrington</b>（Open University，現為榮譽教授）開發。Open University 的共同開發與貢獻者：
+          <b>Heather Whitaker</b>（UK Health Security Agency；網站維護者，heatherjwhitaker@gmail.com）、
+          <b>Yonas Ghebremichael-Weldeselassie</b>（Open University；R 套件作者）、<b>Patrick Musonda</b>（University of Zambia）、
+          <b>Mounia Hocine</b>（Public Health France）。SAS 程式由 <b>Bart Spiessens</b> 與 <b>Francois Haguinet</b>
+          （GSK Biologicals, 比利時）貢獻。官方網站：<a href='https://sccs-studies.info' target='_blank' rel='noopener'>sccs-studies.info</a>
+          （Home · R · STATA · SAS · About）。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>專書與教學論文 <span class="en">book &amp; tutorials</span></h4>
+        <p data-en="<b>Book:</b> Farrington P, Whitaker H &amp; Ghebremichael-Weldeselassie Y. <i>Self-Controlled Case Series Studies: A Modelling Guide with R.</i> Chapman &amp; Hall/CRC Biostatistics Series.<br /><b>Tutorial:</b> Whitaker HJ, Farrington CP &amp; Musonda P. Tutorial in Biostatistics: the self-controlled case series method. <i>Statistics in Medicine</i> 2006; 25(10): 1768–1797.<br /><b>Overview:</b> Petersen I, Douglas I &amp; Whitaker H. Self-controlled case series methods — an alternative to standard epidemiological study designs. <i>BMJ</i> 2016; 354: i4515.">
+          <b>專書：</b>Farrington P, Whitaker H &amp; Ghebremichael-Weldeselassie Y. <i>Self-Controlled Case Series Studies: A Modelling Guide with R.</i> Chapman &amp; Hall/CRC Biostatistics Series。<br />
+          <b>教學論文：</b>Whitaker HJ, Farrington CP &amp; Musonda P. Tutorial in Biostatistics: the self-controlled case series method. <i>Statistics in Medicine</i> 2006; 25(10): 1768–1797。<br />
+          <b>綜論：</b>Petersen I, Douglas I &amp; Whitaker H. Self-controlled case series methods — an alternative to standard epidemiological study designs. <i>BMJ</i> 2016; 354: i4515。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>R 軟體 <span class="en">R software</span></h4>
+        <p data-en="<b>CRAN package <code>SCCS</code></b> (v1.5, 2021-12-11; author Yonas Ghebremichael-Weldeselassie) — <a href='https://cran.r-project.org/package=SCCS' target='_blank' rel='noopener'>cran.r-project.org/package=SCCS</a>. Models: standard SCCS · semiparametric SCCS · event-dependent observation periods · event-dependent exposures (pseudolikelihood) · smooth age effect (splines) · smooth exposure effect (splines) · full spline-based SCCS. Includes tutorial datasets (midat, siddat, rotdat, bupdat, opvdat, nrtdat, rsvdat, pmdat, bpdat, febdat, amdat, apdat, condat, itpdat, intdat, gbsdat, autdat, adidat, hibdat, addat, dtpdat, gidat, hipdat), a sample-size calculator, data-simulation and clogit-reformatting tools. Conditional fits via <code>gnm</code>, <code>survival::clogit</code> (event-stratified), or <code>cyclops</code>. For OMOP/CDM data: OHDSI <code>SelfControlledCaseSeries</code> (GitHub). Worked examples: MMR/meningitis (Oxford), ITP &amp; MMR (multiple risk periods), intussusception &amp; oral polio (repeat exposures).">
+          <b>CRAN 套件 <code>SCCS</code></b>（v1.5，2021-12-11；作者 Yonas Ghebremichael-Weldeselassie）——
+          <a href='https://cran.r-project.org/package=SCCS' target='_blank' rel='noopener'>cran.r-project.org/package=SCCS</a>。
+          模型：標準 SCCS · 半參數 SCCS · 事件相依觀察期 · 事件相依暴露（pseudolikelihood）· 平滑年齡效果（樣條）·
+          平滑暴露效果（樣條）· 全樣條 SCCS。內含教學資料集（midat、siddat、rotdat、bupdat、opvdat、nrtdat、rsvdat、
+          pmdat、bpdat、febdat、amdat、apdat、condat、itpdat、intdat、gbsdat、autdat、adidat、hibdat、addat、dtpdat、
+          gidat、hipdat）、樣本數計算器、資料模擬與 clogit 重整工具。條件式擬合可用 <code>gnm</code>、
+          <code>survival::clogit</code>（事件分層）或 <code>cyclops</code>。OMOP/CDM 資料：OHDSI <code>SelfControlledCaseSeries</code>
+          （GitHub）。教學範例：MMR／腦膜炎（Oxford）、ITP 與 MMR（多重危險窗）、腸套疊與口服小兒麻痺（重複暴露）。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>STATA 軟體 <span class="en">STATA software</span></h4>
+        <p data-en="Fit the conditional Poisson with standard STATA (replaces the old <code>aglm.ado</code>): <code>xi: xtpoisson nevents i.exgr i.agegr, fe i(indiv) offset(loginterval)</code>. Example do-files &amp; datasets: <b>oxford.dta/oxford.do</b> (MMR &amp; meningitis); <b>itp.dta/itp.do</b> (multiple risk periods), <b>itp_non_ind.do</b> (non-independent events); <b>intuss.dta</b> with <b>intuss_analysis1–6.do</b> and <b>intuss_interact.do</b> (covariates/interactions). Semiparametric: oxford_sp.do, itp_sp.do, intuss_sp.do (Farrington &amp; Whitaker 2006). Censored/curtailed post-event exposures: intuss_censored.do, intuss_cens_pseudo.do with bootstrap CIs (Farrington, Whitaker &amp; Hocine 2009).">
+          用標準 STATA 配條件 Poisson（取代舊的 <code>aglm.ado</code>）：
+          <code>xi: xtpoisson nevents i.exgr i.agegr, fe i(indiv) offset(loginterval)</code>。
+          範例 do-file 與資料集：<b>oxford.dta／oxford.do</b>（MMR 與腦膜炎）；<b>itp.dta／itp.do</b>（多重危險窗）、
+          <b>itp_non_ind.do</b>（非獨立事件）；<b>intuss.dta</b> 搭配 <b>intuss_analysis1–6.do</b> 與 <b>intuss_interact.do</b>
+          （共變項／交互作用）。半參數：oxford_sp.do、itp_sp.do、intuss_sp.do（Farrington &amp; Whitaker 2006）。
+          設限／截斷的事件後暴露：intuss_censored.do、intuss_cens_pseudo.do（含自助法信賴區間；Farrington, Whitaker &amp; Hocine 2009）。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>SAS 軟體 <span class="en">SAS software</span></h4>
+        <p data-en="Three macros (SAS v8.0+, by Spiessens &amp; Haguinet): <b>SCCS.sas</b> builds the case-series dataset (v9.4 fix: sccsdta_symbol_replaced.sas); <b>Poisreg.sas</b> fits Poisson regression by Newton–Raphson (factor elimination to speed up); <b>element.sas</b> makes macro variables from a variable list. Global parameters: <code>agerange</code> (e.g. 0 730 days), <code>risk</code> (e.g. 0 6 7 14), <code>age</code> cutpoints, <code>season</code> cutpoints, <code>semi=Y</code> for semiparametric. Worked examples (parametric &amp; semiparametric, with .lst output): Oxford MMR &amp; meningitis (Miller et al., Lancet 1993); ITP &amp; MMR (Miller et al., 2001); OPV intussusception (Andrews et al., 2001). Extensions: censored/perturbed post-event exposures (Farrington et al., 2009) and individually varying risk-period durations.">
+          三個巨集（SAS v8.0+，Spiessens &amp; Haguinet 提供）：<b>SCCS.sas</b> 建立病例系列資料集（v9.4 修正版
+          sccsdta_symbol_replaced.sas）；<b>Poisreg.sas</b> 用 Newton–Raphson 配 Poisson 迴歸（可消因子加速）；
+          <b>element.sas</b> 由變數清單產生巨集變數。全域參數：<code>agerange</code>（如 0 730 天）、<code>risk</code>
+          （如 0 6 7 14）、<code>age</code> 切點、<code>season</code> 切點、<code>semi=Y</code> 半參數。教學範例（參數與半參數、附 .lst 輸出）：
+          Oxford MMR 與腦膜炎（Miller 等, Lancet 1993）；ITP 與 MMR（Miller 等, 2001）；OPV 腸套疊（Andrews 等, 2001）。
+          延伸：設限／擾動的事件後暴露（Farrington 等, 2009）、個體間不同的危險窗長度。
+        </p>
+      </div>
+    </details>
   </section>
 
   <!-- ===================== SCCS ② 互動講解 ===================== -->
@@ -3105,11 +3163,13 @@
       <li data-ref="sccs">Farrington, C. P., Whitaker, H. J., &amp; Ghebremichael-Weldeselassie, Y. <i>Self-Controlled Case Series Studies: A Modelling Guide with R.</i> &amp; the SCCS resource site <a href="https://sccs-studies.info" target="_blank" rel="noopener">sccs-studies.info</a> (R / STATA / SAS). <span data-en="〔book &amp; software resource〕">〔專書與程式資源〕</span></li>
       <li data-ref="sccs"><b data-en="AI / machine learning">AI／機器學習</b> · Xu, T., Chen, Y., Zeng, D., &amp; Wang, Y. (2022). Self-matched learning to construct treatment decision rules from electronic health records. <i>Statistics in Medicine, 41</i>(15), 2843–2860. <span data-en="〔self-matched ML for heterogeneous effects — SCCS tab ⑤〕">〔自我對照 × 機器學習找效應異質性 —— SCCS 分頁 ⑤〕</span></li>
       <li data-ref="sccs"><b data-en="Clinical application">臨床應用</b> · Lai, D., Lim, D., Lu, J., et al. (2024). Risk of myocarditis after three doses of COVID-19 mRNA vaccines: a self-controlled case series study. <i>Journal of Evidence-Based Medicine.</i> <span data-en="〔SCCS for vaccine safety〕">〔SCCS 用於疫苗安全〕</span></li>
+      <li data-ref="sccs"><b data-en="Extensions">方法延伸</b> · Farrington, C. P., &amp; Whitaker, H. J. (2006). Semiparametric analysis of case series data (with discussion). <i>Journal of the Royal Statistical Society: Series C, 55</i>(5), 553–594. · Farrington, C. P., Whitaker, H. J., &amp; Hocine, M. N. (2009). Case series analysis for censored, perturbed, or curtailed post-event exposures. <i>Biostatistics, 10</i>(1), 3–16. <span data-en="〔semiparametric &amp; event-dependent SCCS〕">〔半參數與事件相依 SCCS〕</span></li>
+      <li data-ref="sccs"><b data-en="Software">軟體</b> · Ghebremichael-Weldeselassie, Y. <i>SCCS</i> R package v1.5 (CRAN, 2021) · OHDSI <i>SelfControlledCaseSeries</i> (R, OMOP CDM) · STATA <code>xtpoisson … fe</code> · SAS macros (SCCS.sas / Poisreg.sas / element.sas, Spiessens &amp; Haguinet). <span data-en="〔code, datasets &amp; worked examples on sccs-studies.info〕">〔程式、資料集與教學範例見 sccs-studies.info〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=58"></script>
-<script src="app.js?v=58"></script>
+<script src="i18n.js?v=59"></script>
+<script src="app.js?v=59"></script>
 </body>
 </html>
