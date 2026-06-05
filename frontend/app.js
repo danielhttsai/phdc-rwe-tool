@@ -3056,85 +3056,153 @@ function ccwCurveInto(elId, curve) {
 const CCW_RING = "#2e8b6f", CCW_CENS = "#cbd5e1", CCW_PILL = "#b45309";
 function drawSceneCcw() {
   if (!document.getElementById("ccwScene")) return;
-  return ccwPanelScene(ccwState.scenario);
+  const sc = ccwState.scenario;
+  if (sc === "earlylate") return drawCcwEarlyLate();
+  if (sc === "sustained") return drawCcwSustained();
+  return drawCcwGraceSwim();
 }
+const CCW_ON = TEAL, CCW_ARM1 = "#5b7aa8", CCW_CUT = "#b45309";
 
-// All three CCW scenarios share the source-supplement panel COMPOSITION (Tsai et al,
-// Br J Psychiatry 2024, Suppl Fig 1): original cohort → clone into two arms → censor
-// deviators across the decision window → weight survivors. What differs per scenario is
-// the arm names, WHICH people get censored, and the timeline labels (the deviation rule).
-const CCW_CENS_BY = {
-  // [panel][arm] = indices of the 6 people censored by that panel (accumulating)
-  grace:     [[[], []], [[5], [2]], [[4, 5], [1, 2]], [[4, 5], [1, 2]]],
-  earlylate: [[[], []], [[5], [1]], [[4, 5], [0, 1]], [[4, 5], [0, 1]]],
-  sustained: [[[], []], [[3], [0]], [[2, 3], [0, 5]], [[2, 3], [0, 5]]],
-};
-const CCW_STEP2 = {
-  grace:     { zh: "② 偏離即設限（沒在窗內起始／窗內就起始）", en: "② censor deviators (didn't / did initiate in grace)" },
-  earlylate: { zh: "② 偏離即設限（太晚／太早起始）", en: "② censor deviators (started too late / too early)" },
-  sustained: { zh: "② 偏離即設限（停藥／沒如期停藥）", en: "② censor deviators (discontinued / didn't stop)" },
-};
+// shared helpers for the swimmer-style scenes
+function ccwLane(shapes, x0, x1, y, color, solid, w) {
+  shapes.push({ type: "line", x0, x1, y0: y, y1: y, line: { color, width: w || 4.5, dash: solid ? "solid" : "dot" }, opacity: solid ? 1 : 0.35 });
+}
+function ccwCensorMark(x, y) { return { x, y, sym: "x-thin-open" }; }
 
-function ccwPanelScene(sc) {
-  const [armA, armB] = ccwArmLabels(sc);
-  const meta = ccwSceneMeta(sc);
-  const ARM0 = TEAL, ARM1 = "#5b7aa8", RING = CCW_RING;
-  // six distinct "people" (colours) make up the cohort; each arm gets a clone of all six
-  const PEOPLE = ["#1f2937", "#3f8268", "#f59e0b", "#60a5fa", "#2563eb", "#9aa6b2"];
-  const cohortX = -1.45, panelX = [0, 1.6, 3.2, 4.8];          // clone, censor, censor, weight
-  const tint = ["rgba(245,158,11,.10)", "rgba(148,163,184,.12)", "rgba(148,163,184,.12)", "rgba(63,130,104,.14)"];
-  const tline = ["rgba(245,158,11,.5)", "rgba(148,163,184,.45)", "rgba(148,163,184,.45)", "rgba(63,130,104,.5)"];
-  const armY = [2.5, 1.0], dx = 0.22, dy = 0.20;
-  const censByPanel = CCW_CENS_BY[sc] || CCW_CENS_BY.grace;
-  const wt = [1, 1.2, 1.5, 1.5];                                // running IPCW weight per panel
-  const shapes = panelX.map((cx, p) => ({
-    type: "rect", x0: cx - 0.62, x1: cx + 0.62, y0: 0.5, y1: 3.25, fillcolor: tint[p], line: { color: tline[p], width: 1 },
-  }));
-  shapes.push({ type: "line", x0: cohortX + 0.5, x1: 5.3, y0: 0.34, y1: 0.34, line: { color: "#94a3b8", width: 1.4, dash: "dot" } });
-  [0, 4.8].forEach((cx) => shapes.push({ type: "line", x0: cx, x1: cx, y0: 0.28, y1: 0.4, line: { color: "#94a3b8", width: 1.4 } }));
-  const live = { x: [], y: [], c: [], s: [], lw: [] }, dead = { x: [], y: [] }, coh = { x: [], y: [], c: [] };
-  // original cohort cluster on the left
-  PEOPLE.forEach((c, k) => { const col = k % 2, row = Math.floor(k / 2); coh.x.push(cohortX + (col - 0.5) * 0.34); coh.y.push(1.75 + (1 - row) * 0.34); coh.c.push(c); });
-  // clone/censor/weight panels
-  panelX.forEach((cx, p) => {
-    const size = 8 * Math.pow(wt[p], 0.8), ring = p === 3 ? 0.6 + (wt[p] - 1) * 3.5 : 0;
-    armY.forEach((yc, a) => {
-      const censored = censByPanel[p][a];
-      PEOPLE.forEach((c, k) => {
-        const col = k % 3, row = Math.floor(k / 3);
-        const x = cx + (col - 1) * dx, y = yc + (0.5 - row) * dy;
-        if (censored.includes(k)) { dead.x.push(x); dead.y.push(y); }
-        else { live.x.push(x); live.y.push(y); live.c.push(c); live.s.push(p === 3 ? size : 8); live.lw.push(ring); }
-      });
-    });
-  });
+// ---- GRACE: a clone swimmer where IPCW up-weighting happens AT each censoring ----
+// Each person is cloned into the "initiate within grace" arm and the "defer" arm. The
+// moment a clone deviates it is censored (✂); at that SAME instant the still-uncensored
+// clones in that arm are up-weighted (their lanes thicken + ×w↑), because IPCW is the
+// inverse probability of remaining uncensored — recomputed continuously over time.
+function drawCcwGraceSwim() {
+  const A = CCW_ON, B = CCW_ARM1, RING = CCW_RING, g = 3, XMAX = 12;
+  const shapes = [
+    { type: "rect", x0: 0, x1: g, y0: 0.4, y1: 5.4, fillcolor: "rgba(245,158,11,.10)", line: { width: 0 } },
+    { type: "line", x0: g, x1: g, y0: 0.4, y1: 5.4, line: { color: CCW_CUT, width: 1.4, dash: "dot" } },
+  ];
+  const evX = [], evY = [], pillX = [], pillY = [], censX = [], censY = [];
+  // within-grace arm (top), defer arm (bottom). 3 clones each.
+  // within-grace: A1 init@1 (ok), A2 init@2 (ok), A3 never inits → censored at g
+  ccwLane(shapes, 0, XMAX, 4.8, A, true); pillX.push(1); pillY.push(4.8); evX.push(9); evY.push(4.8);
+  ccwLane(shapes, 0, XMAX, 4.3, A, true); pillX.push(2); pillY.push(4.3);
+  ccwLane(shapes, 0, g, 3.8, A, true); ccwLane(shapes, g, XMAX, 3.8, A, false); censX.push(g); censY.push(3.8);
+  // after A3 is censored at g, the two survivors get up-weighted → thicken from g onward
+  ccwLane(shapes, g, XMAX, 4.8, A, true, 8); ccwLane(shapes, g, XMAX, 4.3, A, true, 8);
+  // defer arm: B1 defers (ok), B3 defers→event, B2 inits@2 during grace → censored at 2
+  ccwLane(shapes, 0, XMAX, 2.0, B, true);
+  ccwLane(shapes, 0, XMAX, 1.5, B, true); evX.push(7); evY.push(1.5);
+  ccwLane(shapes, 0, 2, 1.0, B, true); ccwLane(shapes, 2, XMAX, 1.0, B, false); pillX.push(2); pillY.push(1.0); censX.push(2); censY.push(1.0);
+  ccwLane(shapes, 2, XMAX, 2.0, B, true, 8); ccwLane(shapes, 2, XMAX, 1.5, B, true, 8);
   const traces = [
-    { x: coh.x, y: coh.y, mode: "markers", type: "scatter", name: tr("原始世代", "original cohort"), marker: { color: coh.c, size: 9, symbol: "circle" } },
-    { x: live.x, y: live.y, mode: "markers", type: "scatter", name: tr("未設限（仍符合策略）", "uncensored (still compatible)"),
-      marker: { color: live.c, size: live.s, line: { color: RING, width: live.lw } } },
-    { x: dead.x, y: dead.y, mode: "markers", type: "scatter", name: tr("偏離策略 → 設限", "deviated → censored"), marker: { color: CCW_CENS, size: 8 } },
+    { x: pillX, y: pillY, mode: "markers", type: "scatter", name: tr("起始用藥", "treatment start"), marker: { color: CCW_CUT, size: 12, symbol: "square" } },
+    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件", "● event"), marker: { color: RED, size: 13 } },
+    { x: censX, y: censY, mode: "markers", type: "scatter", name: tr("偏離策略 → 設限 ✂", "deviated → censored ✂"), marker: { color: "#64748b", size: 15, symbol: "x-thin-open", line: { width: 3 } } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("設限後存活者被加權（粗線＝×w↑）", "survivors up-weighted after censoring (thick = ×w↑)"), marker: { color: RING, size: 12, symbol: "line-ew", line: { width: 4 } } },
   ];
   const anns = [
-    Object.assign(_lbl(cohortX, 1.2, tr("原始世代", "original cohort"), INK, 9), { xanchor: "center" }),
-    Object.assign(_lbl(panelX[0], 3.5, tr("① 複製成兩臂", "① clone into two arms"), ARM0, 9.5), { xanchor: "center" }),
-    Object.assign(_lbl(panelX[1] + 0.8, 3.5, tr(CCW_STEP2[sc].zh, CCW_STEP2[sc].en), SLATE, 9), { xanchor: "center" }),
-    Object.assign(_lbl(panelX[3], 3.5, tr("③ 加權", "③ weight"), RING, 9.5), { xanchor: "center" }),
-    Object.assign(_lbl(panelX[3], 3.05, "×" + wt[3].toFixed(1), RING, 11), { xanchor: "center" }),
-    // arm labels at left of each band (scenario-specific)
-    Object.assign(_lbl(cohortX, armY[0], armA, ARM0, 8), { xanchor: "center" }),
-    Object.assign(_lbl(cohortX, armY[1], armB, ARM1, 8), { xanchor: "center" }),
-    // timeline endpoints (scenario-specific)
-    Object.assign(_lbl(0, 0.12, meta.start, INK, 9), { xanchor: "center" }),
-    Object.assign(_lbl(4.8, 0.12, meta.end, INK, 9), { xanchor: "center" }),
-    _lbl(2.0, -0.45, tr(
-      `把原始世代①複製成兩臂（上＝${armA}、下＝${armB}）；②一旦偏離被指派的策略就設限——${meta.dev}兩臂掉的是不同人；③再依設限因子對存活者加權（IPCW，每個時間點重算，×w 漸增）。`,
-      `Clone the cohort into two arms (top = ${armA}, bottom = ${armB}); ② censor anyone who deviates — ${meta.dev} different people drop in each arm; ③ then weight survivors by their censoring factors (IPCW, recomputed at every time point, growing ×w).`), INK, 9.5),
+    Object.assign(_lbl(g, 5.55, tr("寬限期結束 g", "end of grace g"), CCW_CUT, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(-0.1, 4.3, tr("寬限期內起始臂", "within-grace arm"), A, 9), { xanchor: "right" }),
+    Object.assign(_lbl(-0.1, 1.5, tr("延後起始臂", "defer arm"), B, 9), { xanchor: "right" }),
+    // the key callouts: censoring → IPCW up-weight at the SAME instant
+    Object.assign(_lbl(g + 0.15, 4.05, tr("✂ 設限 → 同一刻把存活者 ×1.5", "✂ censor → up-weight survivors ×1.5 right now"), RING, 9), { xanchor: "left" }),
+    Object.assign(_lbl(2 + 0.15, 0.75, tr("✂ 設限 → 同一刻把存活者 ×1.5", "✂ censor → up-weight survivors ×1.5 right now"), RING, 9), { xanchor: "left" }),
+    Object.assign(_lbl(7.5, 4.55, "×1.5", RING, 10), { xanchor: "center" }),
+    Object.assign(_lbl(7.5, 1.75, "×1.5", RING, 10), { xanchor: "center" }),
+    _lbl(6, -0.35, tr(
+      "每個人在診斷日複製到兩臂。寬限期內：「寬限期內起始」臂在沒能於 g 前起始時設限(✂)；「延後起始」臂在窗內就起始時設限(✂)。關鍵：<b>設限的那一刻，當下仍未被設限的分身就被放大權重（IPCW＝1∕未被設限機率，線變粗、×w↑）</b>，補回被設限流失的資訊——設限與加權是同一刻、沿時間持續發生。",
+      "Each person is cloned into both arms at diagnosis. During grace, the within-grace arm is censored (✂) if it fails to initiate by g; the defer arm if it initiates inside the window. Key: <b>at the instant of censoring, the clones still uncensored are up-weighted (IPCW = 1∕probability-uncensored; lanes thicken, ×w↑)</b> to recover the lost information — censoring and weighting happen at the same moment, continuously over time."), INK, 9.5),
   ];
   Plotly.react("ccwScene", traces, schemaLayout({
-    height: 320, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
-    xaxis: { visible: false, range: [-2.1, 5.6], fixedrange: true },
-    yaxis: { visible: false, range: [-0.6, 3.75] },
-    margin: { t: 30, r: 12, b: 26, l: 12 },
+    height: 340, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.14 },
+    xaxis: { visible: true, title: tr("診斷後月份", "months since diagnosis"), range: [0, XMAX], fixedrange: true, dtick: 2 },
+    yaxis: { visible: false, range: [-0.7, 5.8] },
+    margin: { t: 30, r: 14, b: 38, l: 92 },
+  }), SCENE_CFG);
+}
+
+// ---- EARLY vs LATE: both arms eventually treat; the early/late cutoff τ decides which
+// clone is compatible. Survivors up-weighted (×w↑, thicker) after each ✂. ----
+function drawCcwEarlyLate() {
+  const A = CCW_ON, B = CCW_ARM1, RING = CCW_RING, TAU = 3, XMAX = 12;
+  const shapes = [
+    { type: "rect", x0: 0, x1: TAU, y0: 0.4, y1: 5.4, fillcolor: "rgba(63,130,104,.07)", line: { width: 0 } },
+    { type: "line", x0: TAU, x1: TAU, y0: 0.4, y1: 5.4, line: { color: CCW_CUT, width: 1.4, dash: "dot" } },
+  ];
+  const pillX = [], pillY = [], censX = [], censY = [], evX = [], evY = [];
+  // early arm (top): compatible if initiate ≤ τ. A1 init@1 ok→event; A2 init@2 ok; A3 inits@6 (too late)→censored at τ
+  ccwLane(shapes, 0, XMAX, 4.8, A, true); pillX.push(1); pillY.push(4.8); evX.push(10); evY.push(4.8);
+  ccwLane(shapes, 0, XMAX, 4.3, A, true); pillX.push(2); pillY.push(4.3);
+  ccwLane(shapes, 0, TAU, 3.8, A, true); ccwLane(shapes, TAU, XMAX, 3.8, A, false); censX.push(TAU); censY.push(3.8);
+  ccwLane(shapes, TAU, XMAX, 4.8, A, true, 8); ccwLane(shapes, TAU, XMAX, 4.3, A, true, 8);
+  // late arm (bottom): compatible if initiate > τ. B1 inits@6 ok; B3 inits@8 ok→event; B2 inits@2 (too early)→censored at 2
+  ccwLane(shapes, 0, XMAX, 2.0, B, true); pillX.push(6); pillY.push(2.0);
+  ccwLane(shapes, 0, XMAX, 1.5, B, true); pillX.push(8); pillY.push(1.5); evX.push(11); evY.push(1.5);
+  ccwLane(shapes, 0, 2, 1.0, B, true); ccwLane(shapes, 2, XMAX, 1.0, B, false); pillX.push(2); pillY.push(1.0); censX.push(2); censY.push(1.0);
+  ccwLane(shapes, 2, XMAX, 2.0, B, true, 8); ccwLane(shapes, 2, XMAX, 1.5, B, true, 8);
+  const traces = [
+    { x: pillX, y: pillY, mode: "markers", type: "scatter", name: tr("實際起始用藥", "actual treatment start"), marker: { color: CCW_CUT, size: 12, symbol: "square" } },
+    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件", "● event"), marker: { color: RED, size: 13 } },
+    { x: censX, y: censY, mode: "markers", type: "scatter", name: tr("與指派臂衝突 → 設限 ✂", "conflicts with arm → censored ✂"), marker: { color: "#64748b", size: 15, symbol: "x-thin-open", line: { width: 3 } } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("設限後存活者被加權（粗線＝×w↑）", "survivors up-weighted (thick = ×w↑)"), marker: { color: RING, size: 12, symbol: "line-ew", line: { width: 4 } } },
+  ];
+  const anns = [
+    Object.assign(_lbl(TAU, 5.55, tr("早／晚分界 τ", "early/late cutoff τ"), CCW_CUT, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(-0.1, 4.3, tr("早啟動臂", "early arm"), A, 9), { xanchor: "right" }),
+    Object.assign(_lbl(-0.1, 1.5, tr("晚啟動臂", "late arm"), B, 9), { xanchor: "right" }),
+    Object.assign(_lbl(TAU + 0.15, 4.05, tr("太晚才用藥 → 設限；存活者 ×w↑", "started too late → censor; survivors ×w↑"), RING, 9), { xanchor: "left" }),
+    Object.assign(_lbl(2 + 0.15, 0.75, tr("太早就用藥 → 設限；存活者 ×w↑", "started too early → censor; survivors ×w↑"), RING, 9), { xanchor: "left" }),
+    _lbl(6, -0.35, tr(
+      "兩臂<b>最終都會用藥</b>，差別只在「早或晚」。每人複製成早臂、晚臂；實際起始時機與指派臂衝突時就設限(✂)——早臂在「太晚才起始」、晚臂在「太早就起始」。設限的同時，當下仍存活的分身被 IPCW 放大權重（線變粗、×w↑）。",
+      "Both arms <b>eventually treat</b> — only the timing differs. Clone each person into an early and a late arm; censor (✂) the clone whose actual initiation conflicts with its arm — the early arm if it starts too late, the late arm if it starts too early. At each censoring, the surviving clones are IPC-weighted up (thicker lanes, ×w↑)."), INK, 9.5),
+  ];
+  Plotly.react("ccwScene", traces, schemaLayout({
+    height: 340, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.14 },
+    xaxis: { visible: true, title: tr("診斷後月份", "months since diagnosis"), range: [0, XMAX], fixedrange: true, dtick: 2 },
+    yaxis: { visible: false, range: [-0.7, 5.8] },
+    margin: { t: 30, r: 14, b: 38, l: 78 },
+  }), SCENE_CFG);
+}
+
+// ---- SUSTAINED: time-varying on/off treatment; censor at status deviation; up-weight ----
+function drawCcwSustained() {
+  const ONc = TEAL, OFFc = "#d6dde6", B = CCW_ARM1, RING = CCW_RING, TAU = 4, XMAX = 12;
+  const shapes = [];
+  const bar = (x0, x1, y, c, op) => shapes.push({ type: "rect", x0, x1, y0: y - 0.18, y1: y + 0.18, fillcolor: c, line: { width: 0 }, opacity: op == null ? 1 : op });
+  const censX = [], censY = [], evX = [], evY = [];
+  // stay-on arm (top): censored at discontinuation. P1 never stops (ok→event); P2 stops@5 → censored
+  bar(0, XMAX, 4.8, ONc); evX.push(10); evY.push(4.8);
+  bar(0, 5, 4.3, ONc); bar(5, XMAX, 4.3, OFFc, 0.5); censX.push(5); censY.push(4.3);
+  // stay-on survivor (P1) up-weighted after the ✂ at 5 → outline ring band
+  shapes.push({ type: "rect", x0: 5, x1: XMAX, y0: 4.8 - 0.22, y1: 4.8 + 0.22, fillcolor: "rgba(0,0,0,0)", line: { color: RING, width: 2.5 } });
+  // discontinue arm (bottom): must stop by τ. P3 stops@3 (ok); P4 never stops → censored at τ
+  bar(0, 3, 2.0, ONc); bar(3, XMAX, 2.0, OFFc); evX.push(9); evY.push(2.0);
+  bar(0, XMAX, 1.4, ONc, 0.85); censX.push(TAU); censY.push(1.4);
+  shapes.push({ type: "rect", x0: 3, x1: XMAX, y0: 2.0 - 0.22, y1: 2.0 + 0.22, fillcolor: "rgba(0,0,0,0)", line: { color: RING, width: 2.5 } });
+  const traces = [
+    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件", "● event"), marker: { color: RED, size: 13 } },
+    { x: censX, y: censY, mode: "markers", type: "scatter", name: tr("狀態偏離指派 → 設限 ✂", "status deviates → censored ✂"), marker: { color: "#64748b", size: 15, symbol: "x-thin-open", line: { width: 3 } } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("用藥中 on", "on treatment"), marker: { color: ONc, size: 12, symbol: "square" } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("已停藥 off", "off treatment"), marker: { color: OFFc, size: 12, symbol: "square" } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("存活者被加權（綠框＝×w↑）", "survivors up-weighted (green outline = ×w↑)"), marker: { color: "#fff", size: 12, symbol: "square", line: { color: RING, width: 2.5 } } },
+  ];
+  const anns = [
+    Object.assign(_lbl(TAU, 5.4, tr("應停藥期限 τ", "stop-by deadline τ"), CCW_CUT, 9), { xanchor: "center" }),
+    { type: "line", x0: TAU, x1: TAU, y0: 0.6, y1: 5.0, line: { color: CCW_CUT, width: 1.2, dash: "dot" }, xref: "x", yref: "y" },
+    Object.assign(_lbl(-0.2, 4.55, tr("持續用藥臂", "stay-on arm"), ONc, 9), { xanchor: "right" }),
+    Object.assign(_lbl(-0.2, 1.7, tr("停藥臂", "discontinue arm"), B, 9), { xanchor: "right" }),
+    Object.assign(_lbl(5.15, 4.0, tr("停藥當下 → 設限；存活者 ×w↑", "discontinues → censor; survivors ×w↑"), RING, 9), { xanchor: "left" }),
+    Object.assign(_lbl(TAU + 0.15, 1.1, tr("沒如期停藥 → 設限", "didn't stop in time → censor"), RING, 9), { xanchor: "left" }),
+    _lbl(6, -0.4, tr(
+      "全員第 0 月起都在用藥，治療狀態<b>隨時間開／關</b>。每人複製成持續臂、停藥臂；狀態一偏離指派就設限(✂)——持續臂在「停藥當下」、停藥臂在「沒有如期停藥」。設限的同時，符合策略而存活的分身被 IPCW 放大權重（綠框＝×w↑）。",
+      "Everyone is on treatment from month 0; status switches <b>on/off over time</b>. Clone each into a stay-on and a discontinue arm; censor (✂) the moment status deviates — the stay-on arm at discontinuation, the discontinue arm if it never stops. At each censoring, the still-compatible survivors are IPC-weighted up (green outline = ×w↑)."), INK, 9.5),
+  ];
+  // pull the τ line shape out of anns into shapes
+  shapes.push(anns.splice(1, 1)[0]);
+  Plotly.react("ccwScene", traces, schemaLayout({
+    height: 340, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.14 },
+    xaxis: { visible: true, title: tr("診斷後月份", "months since diagnosis"), range: [0, XMAX], fixedrange: true, dtick: 2 },
+    yaxis: { visible: false, range: [-0.75, 5.7] },
+    margin: { t: 30, r: 14, b: 38, l: 78 },
   }), SCENE_CFG);
 }
 
@@ -3858,70 +3926,65 @@ function seqPerTrialInto(elId, d) {
   }), SCENE_CFG);
 }
 
-// ① learn: a mini-trial opens at each eligibility month; an untreated person re-enters
-// ① learn: the same source-supplement panel COMPOSITION (cohort → progression panels
-// → pooled), adapted to sequential trials. An eligible pool feeds a mini-trial at each
-// eligibility month; each panel splits that month's eligible people into "initiate now"
-// (treated, top) vs "not yet" (control, bottom). People who don't initiate RE-ENTER the
-// next month's trial; the per-trial effects are inverse-variance pooled (green panel).
+// ① learn: the SPIRIT of sequential (target-trial) emulation — at each eligibility month
+// you open a brand-new emulated trial, RESET its clock to time-zero, and compare those who
+// initiate at that moment (treated) vs those who don't yet (control), following each forward.
+// The same person can be a control in early trials then an initiator later (re-entry). The
+// per-trial effects are pooled. This avoids the immortal-time bias of "ever vs never".
 function drawSceneSeq() {
   if (!document.getElementById("seqScene")) return;
-  const TREAT = TEAL, CTRL = "#5b7aa8", RING = "#2e8b6f";
-  const PEOPLE = ["#1f2937", "#3f8268", "#f59e0b", "#60a5fa", "#2563eb", "#9aa6b2"];
-  const cohortX = -1.45, panelX = [0, 1.6, 3.2], poolX = 4.8;
-  const yT = 2.55, yC = 1.05, dx = 0.22, dy = 0.20;
-  // per-trial: who is eligible, and who initiates this month (the rest are controls).
-  // person idx 2 (amber) re-enters as a control in k0,k1 then initiates in k2.
-  const trials = [
-    { elig: [0, 1, 2, 3, 4, 5], init: [0, 3] },
-    { elig: [1, 2, 4, 5], init: [4] },
-    { elig: [1, 2, 5], init: [2] },
+  const TREAT = TEAL, CTRL = "#5b7aa8", RING = "#2e8b6f", T0 = 1.4, TEND = 6.6;
+  // three emulated trials, each realigned to its own time zero (T0) and run forward
+  const trialY = [[5.0, 4.45], [3.5, 2.95], [2.0, 1.45]];   // [treated, control] per trial
+  const labels = [tr("資格月 k=0", "elig. month k=0"), tr("資格月 k=1", "k=1"), tr("資格月 k=2", "k=2")];
+  const shapes = [
+    // common time-zero alignment line
+    { type: "line", x0: T0, x1: T0, y0: 0.9, y1: 5.45, line: { color: "#94a3b8", width: 1.4, dash: "dot" } },
+    // pooling region on the right
+    { type: "rect", x0: 8.0, x1: 9.5, y0: 1.2, y1: 5.0, fillcolor: "rgba(63,130,104,.12)", line: { color: "rgba(63,130,104,.5)", width: 1 } },
   ];
-  const tint = ["rgba(148,163,184,.12)", "rgba(148,163,184,.12)", "rgba(148,163,184,.12)"];
-  const shapes = panelX.map((cx, p) => ({
-    type: "rect", x0: cx - 0.62, x1: cx + 0.62, y0: 0.5, y1: 3.2, fillcolor: tint[p], line: { color: "rgba(148,163,184,.45)", width: 1 },
-  }));
-  shapes.push({ type: "rect", x0: poolX - 0.6, x1: poolX + 0.6, y0: 0.5, y1: 3.2, fillcolor: "rgba(63,130,104,.14)", line: { color: "rgba(63,130,104,.5)", width: 1 } });
-  shapes.push({ type: "line", x0: cohortX + 0.5, x1: 5.4, y0: 0.34, y1: 0.34, line: { color: "#94a3b8", width: 1.4, dash: "dot" } });
-  [0, 1.6, 3.2, poolX].forEach((cx) => shapes.push({ type: "line", x0: cx, x1: cx, y0: 0.28, y1: 0.4, line: { color: "#94a3b8", width: 1.4 } }));
-  // dot positions per cluster of n (centred at cx,yc)
-  function place(idxList, cx, yc, into, hi) {
-    idxList.forEach((k, j) => {
-      const col = j % 3, row = Math.floor(j / 3);
-      into.x.push(cx + (col - 1) * dx); into.y.push(yc + (0.5 - row) * dy); into.c.push(PEOPLE[k]);
-      into.s.push(k === 2 ? 12 : 9); into.lw.push(k === 2 ? 2 : 0);
-    });
-  }
-  const treated = { x: [], y: [], c: [], s: [], lw: [] }, ctrl = { x: [], y: [], c: [], s: [], lw: [] }, coh = { x: [], y: [], c: [] };
-  PEOPLE.forEach((c, k) => { const col = k % 2, row = Math.floor(k / 2); coh.x.push(cohortX + (col - 0.5) * 0.34); coh.y.push(1.75 + (1 - row) * 0.34); coh.c.push(c); });
-  trials.forEach((t, p) => {
-    const cx = panelX[p];
-    place(t.init, cx, yT, treated);
-    place(t.elig.filter((k) => !t.init.includes(k)), cx, yC, ctrl);
+  const pillX = [], pillY = [], evX = [], evY = [], reX = [], reY = [];
+  trialY.forEach(([yT, yC], k) => {
+    // treated (initiate-now) lane + control (not-yet) lane, both running forward from T0
+    shapes.push({ type: "line", x0: T0, x1: TEND, y0: yT, y1: yT, line: { color: TREAT, width: 6 } });
+    shapes.push({ type: "line", x0: T0, x1: TEND, y0: yC, y1: yC, line: { color: CTRL, width: 6 } });
+    pillX.push(T0); pillY.push(yT);                                  // treatment starts at time zero
+    // a couple of events along the lanes
+    if (k === 0) { evX.push(5.6); evY.push(yC); }
+    if (k === 1) { evX.push(6.0); evY.push(yT); }
+    if (k === 2) { evX.push(5.2); evY.push(yC); }
+    // per-trial effect → feeds the pool
+    shapes.push({ type: "line", x0: TEND + 0.15, x1: 8.0, y0: (yT + yC) / 2, y1: 3.1, line: { color: "#9aa6b2", width: 1, dash: "dot" } });
   });
+  // re-entry: the same person (amber) is a CONTROL in k=0 and k=1, then INITIATES in k=2
+  reX.push(T0, T0, T0); reY.push(4.45, 2.95, 2.0);
+  shapes.push({ type: "line", x0: T0, x1: T0, y0: 2.0, y1: 4.45, line: { color: "#f59e0b", width: 1.2, dash: "dot" } });
   const traces = [
-    { x: coh.x, y: coh.y, mode: "markers", type: "scatter", name: tr("合格群（陸續符合）", "eligible pool (over time)"), marker: { color: coh.c, size: 9 } },
-    { x: treated.x, y: treated.y, mode: "markers", type: "scatter", name: tr("當下啟動（treated）", "initiate now (treated)"), marker: { color: treated.c, size: treated.s, symbol: "square", line: { color: RING, width: treated.lw } } },
-    { x: ctrl.x, y: ctrl.y, mode: "markers", type: "scatter", name: tr("未啟動（control）", "not yet (control)"), marker: { color: ctrl.c, size: ctrl.s, line: { color: "#94a3b8", width: ctrl.lw } } },
-    { x: [poolX], y: [1.8], mode: "markers", type: "scatter", name: tr("反變異合併估計", "inverse-variance pooled"), marker: { color: RING, size: 20, symbol: "diamond" } },
+    { x: pillX, y: pillY, mode: "markers", type: "scatter", name: tr("時間零點＝當下啟動", "time zero = initiate now"), marker: { color: "#b45309", size: 12, symbol: "square" } },
+    { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("● 事件", "● event"), marker: { color: RED, size: 12 } },
+    { x: reX, y: reY, mode: "markers", type: "scatter", name: tr("同一人重複收案", "same person re-enters"), marker: { color: "#f59e0b", size: 11, symbol: "circle-open", line: { width: 2.5 } } },
+    { x: [8.75], y: [3.1], mode: "markers", type: "scatter", name: tr("反變異合併＝序列估計", "inverse-variance pool = sequential estimate"), marker: { color: RING, size: 22, symbol: "diamond" } },
+    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("啟動臂 / 未啟動臂", "treated / control arm"), marker: { color: TREAT, size: 11 } },
   ];
   const anns = [
-    Object.assign(_lbl(cohortX, 1.2, tr("合格群", "eligible pool"), INK, 9), { xanchor: "center" }),
-    Object.assign(_lbl(panelX[1], 3.45, tr("① 每個資格月開一場 mini-trial（② 當下啟動 vs 未啟動）", "① a mini-trial at each eligibility month (② initiate-now vs not)"), SLATE, 9), { xanchor: "center" }),
-    Object.assign(_lbl(poolX, 3.45, tr("③ 反變異合併", "③ pool"), RING, 9.5), { xanchor: "center" }),
-    Object.assign(_lbl(cohortX, yT, tr("啟動", "treated"), TREAT, 8), { xanchor: "center" }),
-    Object.assign(_lbl(cohortX, yC, tr("未啟動", "control"), CTRL, 8), { xanchor: "center" }),
-    ...panelX.map((cx, p) => Object.assign(_lbl(cx, 0.12, "k=" + p, INK, 9), { xanchor: "center" })),
-    Object.assign(_lbl(poolX, 0.12, tr("合併", "pooled"), INK, 9), { xanchor: "center" }),
-    _lbl(2.0, -0.42, tr(
-      "在每個資格月開一場 mini-trial：把當月合格的人分成「當下啟動」與「未啟動」、對齊時間零點。未啟動者可在下個月<b>重複收案</b>（橘點：k=0、1 當對照，k=2 才啟動）；啟動後退出後續。各場效果用<b>反變異</b>合併＝序列試驗估計。",
-      "Open a mini-trial at each eligibility month: split that month's eligible people into 'initiate now' vs 'not yet', aligned at time zero. Those who don't initiate <b>re-enter</b> next month (amber dot: a control in k=0,1, initiates in k=2); they exit once they initiate. The per-trial effects are <b>inverse-variance pooled</b> = the sequential-trials estimate."), INK, 9.5),
+    Object.assign(_lbl(T0, 5.6, tr("時間零點對齊（每場各自歸零）", "time-zero aligned (each trial resets its clock)"), SLATE, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(8.75, 5.15, tr("③ 反變異合併", "③ pool"), RING, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(8.75, 0.95, tr("序列試驗估計", "sequential estimate"), RING, 9), { xanchor: "center" }),
+    Object.assign(_lbl((T0 + TEND) / 2, 5.85, tr("① 每個資格月開一場「模擬目標試驗」（② 當下啟動 vs 未啟動，往前追蹤）", "① an emulated target trial at each eligibility month (② initiate-now vs not, followed forward)"), INK, 9), { xanchor: "center" }),
   ];
+  trialY.forEach(([yT, yC], k) => {
+    anns.push(Object.assign(_lbl(T0 - 0.15, (yT + yC) / 2, labels[k], INK, 8.5), { xanchor: "right" }));
+    anns.push(Object.assign(_lbl(TEND + 0.05, yT, tr("啟動", "treated"), TREAT, 8), { xanchor: "left" }));
+    anns.push(Object.assign(_lbl(7.05, (yT + yC) / 2, "RD" + ["₀", "₁", "₂"][k], "#64748b", 9), { xanchor: "center" }));
+  });
+  anns.push(_lbl(4.5, 0.3, tr(
+    "天真「曾治療 vs 從未」把所有時間混在一起：曾治療者必須<b>活到能治療</b>＝immortal time，會高估治療。序列試驗在<b>每個資格月各開一場</b>、把<b>時間零點歸零</b>後比「當下啟動 vs 未啟動」、再<b>反變異合併</b>，就避開這個偏誤；同一人未啟動可重複收案（橘圈），啟動後退出。",
+    "Naive 'ever vs never' lumps all time together: the ever-treated had to <b>survive long enough to treat</b> = immortal time, overstating the effect. Sequential trials open <b>one trial per eligibility month</b>, <b>reset time-zero</b>, compare 'initiate-now vs not', and <b>inverse-variance pool</b> — avoiding the bias. The same person can re-enter as a control (amber) until they initiate, then exits."), INK, 9.5));
   Plotly.react("seqScene", traces, schemaLayout({
-    height: 320, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
-    xaxis: { visible: false, range: [-2.1, 5.6], fixedrange: true },
-    yaxis: { visible: false, range: [-0.6, 3.7] },
-    margin: { t: 30, r: 12, b: 26, l: 12 },
+    height: 340, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.14 },
+    xaxis: { visible: true, title: tr("試驗內追蹤時間（已對齊）", "in-trial follow-up time (aligned)"), range: [-0.2, 9.8], fixedrange: true, showticklabels: false },
+    yaxis: { visible: false, range: [-0.1, 6.1] },
+    margin: { t: 30, r: 14, b: 30, l: 70 },
   }), SCENE_CFG);
 }
 function initSeqLearn() { if (seqLearnReady) return; seqLearnReady = true; drawSceneSeq(); }
