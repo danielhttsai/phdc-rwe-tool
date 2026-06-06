@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=65" />
+<link rel="stylesheet" href="styles.css?v=66" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -28,6 +28,7 @@
         <option value="cc" data-en="CC · Case-control">CC · 病例對照</option>
         <option value="sccs" data-en="SCCS · Self-controlled case series">SCCS · 自身對照病例系列</option>
         <option value="acnu" data-en="ACNU · Active-comparator new-user">ACNU · 主動對照新使用者</option>
+        <option value="pnu" data-en="PNU · Prevalent new-user">PNU · 盛行新使用者</option>
       </select>
     </label>
     <div class="subtabs">
@@ -3080,6 +3081,150 @@
     </div>
   </section>
 
+  <!-- ===================== PNU ① 是什麼 ===================== -->
+  <section id="pnulearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="PNU: bring prevalent users back without depletion bias">盛行新使用者（PNU）：把既有使用者納回來，又不中耗竭偏誤</h1>
+    <p class="lead" data-en="The clean <b>new-user-only</b> design compares fresh starters of A vs B — but it <b>discards every prevalent (existing) user</b>, shrinking the sample and hurting representativeness. Naively pooling prevalent users with new starters, though, suffers <b>depletion of susceptibles</b>: the people prone to the event had it early and left, so the prevalent users still on A are the lower-risk survivors (and are past the early-risk period). PNU (Suissa 2017) uses <b>time-conditional matching</b> — align prevalent users by <b>time-since-start</b> and use a time-conditional propensity score — to bring them back unbiasedly.">
+      乾淨的<b>純新使用者</b>設計只比 A、B 的新起始者——但會<b>丟掉所有盛行（既有）使用者</b>，樣本變小、代表性差。
+      可是若<b>天真</b>把盛行使用者直接和新起始者一起比，會中<b>易感者耗竭</b>：容易出事的人早就出事、退出了，
+      留下來還在用 A 的盛行使用者是低風險存活者（又過了起始後的高風險期）。PNU（Suissa 2017）用<b>時間條件配對</b>——
+      依<b>距起始時間</b>對齊、再用時間條件傾向分數——把盛行使用者不偏地納回來。
+    </p>
+
+    <div class="card scene">
+      <h3 data-en="Depletion of susceptibles — prevalent A users are the low-risk survivors">易感者耗竭 —— 盛行 A 使用者是低風險存活者</h3>
+      <div id="pnuScene" class="chart"></div>
+    </div>
+
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef">
+        <h4>盛行新使用者 <span class="en">prevalent new-user (PNU)</span></h4>
+        <p data-en="<b>Plain:</b> include existing (prevalent) users by matching them to comparator initiators on how long they've been treated.<br /><b>Definition:</b> a time-conditional cohort design pairing prevalent users with comparator new users by time-since-start + a time-conditional propensity score.<br /><b>Why it matters:</b> it keeps the prevalent users (more data, more representative) without the depletion bias of naively pooling them.<br /><b>Origin:</b> Suissa, Moodie &amp; Dell'Aniello 2017.">
+          <b>白話：</b>用「已經用了多久」把既有（盛行）使用者配到對照藥的起始者，把他們納入。<br />
+          <b>定義：</b>時間條件世代設計，依距起始時間＋時間條件傾向分數，把盛行使用者配到對照組新使用者。<br />
+          <b>為什麼重要：</b>留住盛行使用者（更多資料、更有代表性），又不會像天真合併那樣中耗竭偏誤。<br />
+          <b>源頭：</b>Suissa, Moodie &amp; Dell'Aniello 2017。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>易感者耗竭 <span class="en">depletion of susceptibles</span></h4>
+        <p data-en="<b>Plain:</b> the people most likely to have the event have it early and drop out, so long-term survivors look low-risk.<br /><b>Definition:</b> selection by survival — prevalent users are a non-random, lower-risk subset of all who ever started.<br /><b>Why it matters:</b> comparing prevalent users to fresh starters underestimates harm (or overstates protection).<br /><b>Example:</b> people who couldn't tolerate drug A stopped; those still on it are the tolerant, lower-risk ones.">
+          <b>白話：</b>最容易出事的人早就出事、退出了，所以長期存活下來的看起來低風險。<br />
+          <b>定義：</b>由存活造成的選擇——盛行使用者是「所有曾起始者」中非隨機、較低風險的子集。<br />
+          <b>為什麼重要：</b>拿盛行使用者和新起始者比，會低估危害（或高估保護）。<br />
+          <b>例子：</b>受不了藥 A 的人停了；還在用的是耐受、較低風險的人。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>時間條件配對 <span class="en">time-conditional matching</span></h4>
+        <p data-en="<b>Plain:</b> compare A users to comparator users at the <b>same time-since-start</b>, so you don't pit a long-term survivor against a fresh starter.<br /><b>Definition:</b> matching / a propensity score conditional on duration since treatment start (and the covariates at that point).<br /><b>Why it matters:</b> it aligns the early-risk window and removes the depletion bias while keeping prevalent users.<br /><b>Needs:</b> each prevalent user's treatment-start date.">
+          <b>白話：</b>在<b>相同的距起始時間</b>下比 A 與對照組，才不會拿長期存活者去對上剛起始的人。<br />
+          <b>定義：</b>以「距起始時間」（及該時點的共變項）為條件的配對／傾向分數。<br />
+          <b>為什麼重要：</b>對齊起始後的高風險窗、消掉耗竭偏誤，又能留住盛行使用者。<br />
+          <b>需要：</b>每位盛行使用者的暴露起始日。
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== PNU ② 互動講解 ===================== -->
+  <section id="pnuplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: naive pooling sinks toward the null; PNU holds the truth">互動：天真合併往無效值沉；PNU 穩住真值</h1>
+    <p class="lead" data-en="Drag the slider for the strength of <b>depletion of susceptibles</b>. The <b>naive prevalent</b> contrast (all A users vs B new starters) is dragged ever further toward the null as depletion grows; the <b>new-user-only</b> benchmark and <b>PNU</b> both stay on the truth — but only PNU also <b>keeps the prevalent users</b>.">
+      拉動滑桿改變<b>易感者耗竭</b>的強度。<b>天真盛行</b>比較（A 全部 vs B 新起始者）會隨耗竭越來越被往<b>無效值</b>拉；
+      <b>純新使用者</b>標竿與 <b>PNU</b> 都停在真值——但只有 PNU 同時<b>留住盛行使用者</b>。
+    </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="Depletion-of-susceptibles strength:">易感者耗竭強度：</span><b id="pnuDeplVal">1.0</b>
+        <input type="range" id="pnuDeplSlider" min="0" max="1.5" value="1" step="0.05" />
+        <small data-en="0 = prevalent users aren't selected. Larger = stronger survival selection, so the naive prevalent contrast sinks toward 1 — while new-user-only and PNU stay on the truth.">0＝盛行使用者沒被選擇。越大＝存活選擇越強，天真盛行比越往 1 沉——而純新使用者與 PNU 停在真值。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Naive prevalent (A-all vs B-new)">天真盛行（A 全部 vs B 新）</div><div class="stat-num" id="pnuNaive">–</div><div class="stat-foot" data-en="depletion bias">易感者耗竭偏誤</div></div>
+      <div class="stat"><div class="stat-label" data-en="New-user-only">純新使用者</div><div class="stat-num" id="pnuNewuser">–</div><div class="stat-foot" data-en="clean but small">乾淨但樣本小</div></div>
+      <div class="stat"><div class="stat-label" data-en="PNU (time-conditional)">PNU（時間條件）</div><div class="stat-num" id="pnuPnu">–</div><div class="stat-foot" data-en="should hug the truth 1.7">應緊貼真值 1.7</div></div>
+    </div>
+
+    <div id="pnuPlayChart" class="chart"></div>
+    <p class="caption" id="pnuPlayReading"></p>
+  </section>
+
+  <!-- ===================== PNU ③ 資料分析 ===================== -->
+  <section id="pnuanalyze" class="panel">
+    <h1 data-en="Data analysis: new-user-only vs naive prevalent vs PNU">資料分析：純新使用者 vs 天真盛行 vs PNU</h1>
+    <p class="lead" data-en="Load the built-in cohort (drug = A / B, whether A is a prevalent user, time-since-start, frailty, follow-up, event). The tool computes the new-user-only rate ratio (clean but discards prevalent users), the naive prevalent rate ratio (depletion-biased), and the PNU time-conditional estimate (frailty + time-since-start adjusted) that recovers the truth using the prevalent users.">
+      載入內建世代（drug＝A／B、A 是否盛行使用者、距起始時間、體質、追蹤人時、是否發生事件）。工具會算純新使用者速率比
+      （乾淨但丟掉盛行使用者）、天真盛行速率比（中耗竭偏誤），以及 PNU 時間條件估計（校正體質＋距起始時間）——用上盛行使用者又還原真值。
+    </p>
+
+    <div class="datasource">
+      <button id="usePnuExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="pnuFileInput" accept=".csv" hidden /></label>
+      <span id="pnuDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="pnuColMap" class="colmap hidden">
+      <div class="field"><label data-en="Drug (A/B)">用藥（A/B）</label><select id="pnuSelDrug"></select></div>
+      <div class="field"><label data-en="Event">事件</label><select id="pnuSelEvent"></select></div>
+      <div class="field"><label data-en="Follow-up time">追蹤人時</label><select id="pnuSelFu"></select></div>
+      <button id="runPnuAnalyze" class="btn primary" data-en="Run PNU analysis">執行 PNU 分析</button>
+    </div>
+
+    <div id="pnuAnalyzeOut" class="hidden">
+      <h2 data-en="Rate ratio: three designs side by side">速率比：三種設計並排</h2>
+      <div class="result-cards" id="pnuAnalyzeCards"></div>
+      <div id="pnuAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="The naive prevalent bar sits below the truth (depletion); new-user-only is on the truth but uses fewer people; PNU lands on the dashed truth line while using the prevalent users too.">
+        天真盛行低於真值（耗竭）；純新使用者貼在真值但用的人較少；PNU 落在虛線真值上、又用上了盛行使用者。
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== PNU ④ 假設檢驗 ===================== -->
+  <section id="pnuassume" class="panel">
+    <h1 data-en="Can we trust this PNU? Five checks">這個 PNU 可不可信？五道體檢</h1>
+    <p class="lead" data-en="The identifying assumptions are mostly about study <b>design</b> (blue cards): conditional exchangeability given time-since-start, correct time-conditional matching, and access to the prevalent users' treatment-start history. The testable ones are whether PNU agrees with the new-user-only benchmark and how strong the depletion is. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      核心假設大多關於研究<b>設計</b>（藍卡）：在距起始時間條件下可交換、時間條件配對要正確、要拿得到盛行使用者的起始史。
+      可檢的是 PNU 與純新使用者標竿是否一致、耗竭有多強。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="pnuOverall" class="overall hidden"></div>
+    <div id="pnuAssumeCards" class="assume-cards"></div>
+    <p id="pnuAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== PNU ⑤ 用 AI 強化 ===================== -->
+  <section id="pnuml" class="panel">
+    <h1 data-en="Boost with AI: a machine-learning time-conditional propensity score">用 AI 強化：機器學習的時間條件傾向分數</h1>
+    <p class="lead" data-en="PNU brings prevalent users back with a <b>time-conditional propensity score</b> (on time-since-start + frailty). When the A-vs-B pattern depends <b>non-linearly</b> on time-since-start (the early-risk period decays), a main-effects <b>logistic</b> PS is mis-specified and leaves residual depletion bias; a <b>gradient-boosting</b> PS captures the non-linearity and pulls the rate ratio back to the truth.">
+      PNU 用<b>時間條件傾向分數</b>（依距起始時間＋體質）把盛行使用者納回來。當「拿 A 還是 B」和<b>距起始時間</b>是
+      <b>非線性</b>關係（起始後的高風險期會衰減）時，只放主效應的<b>邏輯斯</b> PS 設定錯誤、留下殘餘耗竭偏誤；改用
+      <b>梯度提升</b> PS 抓到非線性，把速率比拉回真值。
+    </p>
+    <button id="runPnuPs" class="btn primary" data-en="Run the real ML (first run loads the ML package, ~5–10s)">跑真正的 ML（首次需載入 ML 套件，約 5–10 秒）</button>
+    <div id="pnuPsOut" class="hidden">
+      <div id="pnuPsChart" class="chart"></div>
+      <p class="caption" id="pnuPsReading"></p>
+    </div>
+
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="① The time-conditional design does the work">① 時間條件設計做了關鍵的事</h3>
+        <p data-en="PNU's bias removal comes from aligning on <b>time-since-start</b> by design; the ML only flexibly models the time-conditional propensity. A flexible PS without the time-conditional structure does not fix depletion.">PNU 的去偏靠的是<b>依距起始時間對齊</b>的設計；ML 只是把時間條件傾向分數模型化得更彈性。沒有時間條件結構，再彈性的 PS 也修不掉耗竭。</p></div>
+      <div class="card"><h3 data-en="② Overlap by time-since-start matters">② 距起始時間的重疊很重要</h3>
+        <p data-en="For a time-conditional PS to work, both arms must have people at comparable durations (overlap/positivity along time-since-start). If the comparator has no long-duration users to match, prevalent A users can't be placed — check the overlap.">時間條件 PS 要成立，兩臂在相近的「距起始時間」都要有人（沿時間軸的重疊／正性）。若對照組沒有長期使用者可配，盛行 A 使用者就放不進去——要檢查重疊。</p></div>
+      <div class="card"><h3 data-en="③ Unmeasured time-varying confounding remains">③ 未測的時變混淆仍在</h3>
+        <p data-en="PNU handles measured time-varying factors (frailty, time-since-start). If something <b>unmeasured</b> changes with duration and affects both staying on A and the outcome, PNU is still biased — the design doesn't make that go away.">PNU 處理量得到的時變因子（體質、距起始時間）。若有<b>沒測到</b>、會隨用藥時間改變、又同時影響「續用 A」與結果的因子，PNU 仍會偏——設計本身消不掉它。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -3273,6 +3418,22 @@
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability</b>: after restricting to the same indication and adjusting severity, A vs B are comparable (no unmeasured confounding). <b>Positivity</b>: both drugs are plausible choices for these patients. <b>Consistency</b>: new users, a clear time zero (first prescription).">​<b>可交換性</b>：限制在同適應症＋校正嚴重度後，A 與 B 可比（無未測混淆）。<b>正性</b>：這些病人兩種藥都可能拿。<b>一致性</b>：新使用者、明確時間零點（第一張處方）。</p></div>
       <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From an <b>active comparator with the same indication</b> (which narrows severity), the <b>new-user</b> design (aligned time zero, no immortal time), and a <b>propensity score</b> for the residual severity gap between A and B.">來自<b>同適應症的主動對照</b>（縮小嚴重度範圍）、<b>新使用者</b>設計（對齊時間零點、無 immortal time），加上對 A、B 殘留嚴重度差的<b>傾向分數</b>校正。</p></div>
       <div class="card"><h3 data-en="④ In What If">④ 對應《What If》</h3><p data-en="Confounding &amp; exchangeability; the new-user active-comparator design as a target-trial emulation (Ch. 22). Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">混淆與可交換性；新使用者主動對照設計即目標試驗模擬（第 22 章）。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
+    </div>
+  </section>
+
+  <section id="pnuwhatif" class="panel">
+    <h1 data-en="⑥ What if…? PNU in the language of counterfactuals">⑥ 如果……？用反事實的語言看「盛行新使用者 PNU」</h1>
+    <p class="lead" data-en="What if everyone took A (Yᵃ⁼¹) vs everyone took B (Yᵃ⁼⁰)? With prevalent users, exchangeability fails marginally: those still on A are the depleted, lower-risk survivors. PNU restores it by conditioning on <b>time-since-start</b> (and frailty) — a time-conditional comparison.">
+      如果大家都用 A（Yᵃ⁼¹）vs 都用 B（Yᵃ⁼⁰）會怎樣？有盛行使用者時，可交換性在邊際上不成立：還在用 A 的是被耗竭的低風險存活者。PNU 靠<b>條件在距起始時間</b>（與體質）把它救回來——一個時間條件的比較。
+    </p>
+    <div class="card scene"><h3 data-en="Depletion via survival selection, blocked by time-conditional matching">由存活選擇造成的耗竭，用時間條件配對擋住</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pnu" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_pnu" class="chart"></div></div>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The effect of <b>drug A vs comparator B</b> on the outcome rate in the population that includes <b>prevalent users</b> — more representative of the real treated population than new-users only.">在<b>含盛行使用者</b>的族群中，<b>藥 A vs 對照藥 B</b> 對結果率的效應——比只用新使用者更能代表真實在用藥的族群。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability</b> holds only <b>conditional on time-since-start</b> (and frailty), because prevalent users are survival-selected. <b>Positivity</b>: both arms have people at comparable durations. <b>Consistency</b>: a well-defined treatment with a knowable start date.">​<b>可交換性</b>只在<b>條件於距起始時間</b>（與體質）下成立，因為盛行使用者是存活選出來的。<b>正性</b>：兩臂在相近的距起始時間都有人。<b>一致性</b>：治療定義明確、起始日可知。</p></div>
+      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>time-conditional matching</b>: align prevalent users to comparator users at the same time-since-start (and adjust frailty / a time-conditional propensity score), so the depletion + early-risk differences are removed.">來自<b>時間條件配對</b>：把盛行使用者對齊到相同距起始時間的對照組（並校正體質／時間條件傾向分數），把耗竭與早期高風險的差異消掉。</p></div>
+      <div class="card"><h3 data-en="④ In What If">④ 對應《What If》</h3><p data-en="Selection bias &amp; survival selection; time-varying confounding and conditioning on the past. Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">選擇偏誤與存活選擇；時變混淆與條件在過去。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
 
@@ -3514,11 +3675,14 @@
       <li data-ref="acnu">Ray, W. A. (2003). Evaluating medication effects outside of clinical trials: new-user designs. <i>American Journal of Epidemiology, 158</i>(9), 915–920. <span data-en="〔the new-user design〕">〔新使用者設計〕</span></li>
       <li data-ref="acnu">Yoshida, K., Solomon, D. H., &amp; Kim, S. C. (2015). Active-comparator design and new-user design in observational studies. <i>Nature Reviews Rheumatology, 11</i>(7), 437–441. <span data-en="〔practical overview〕">〔實務綜論〕</span></li>
       <li data-ref="acnu"><b data-en="AI / machine learning">AI／機器學習</b> · Schneeweiss, S., Rassen, J. A., Glynn, R. J., et al. (2009). High-dimensional propensity score adjustment in studies of treatment effects using health care claims data. <i>Epidemiology, 20</i>(4), 512–522. <span data-en="〔hdPS / ML propensity score — ACNU tab ⑤〕">〔hdPS／機器學習傾向分數 —— ACNU 分頁 ⑤〕</span></li>
+      <li data-ref="pnu"><b data-en="Design">方法</b> · Suissa, S., Moodie, E. E. M., &amp; Dell'Aniello, S. (2017). Prevalent new-user cohort designs for comparative drug effect studies by time-conditional propensity scores. <i>Pharmacoepidemiology and Drug Safety, 26</i>(4), 459–468. <span data-en="〔the canonical PNU design — PNU tabs ①–④〕">〔PNU 設計經典 —— PNU 分頁 ①–④〕</span></li>
+      <li data-ref="pnu">Suissa, S. (2008). Immortal time bias in pharmacoepidemiology. <i>American Journal of Epidemiology, 167</i>(4), 492–499. · <span data-en="on depletion of susceptibles &amp; prevalent-user bias">關於易感者耗竭與既有使用者偏誤</span></li>
+      <li data-ref="pnu"><b data-en="AI / machine learning">AI／機器學習</b> · Schneeweiss, S., et al. (2009). High-dimensional propensity score. <i>Epidemiology, 20</i>(4), 512–522. · Lee, B. K., Lessler, J., &amp; Stuart, E. A. (2010). Improving propensity score weighting using machine learning. <i>Statistics in Medicine, 29</i>(3), 337–346. <span data-en="〔ML time-conditional propensity score — PNU tab ⑤〕">〔機器學習時間條件傾向分數 —— PNU 分頁 ⑤〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=65"></script>
-<script src="app.js?v=65"></script>
+<script src="i18n.js?v=66"></script>
+<script src="app.js?v=66"></script>
 </body>
 </html>

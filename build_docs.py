@@ -33,7 +33,8 @@ BACKEND_PY = ["i18n.py", "iv_core.py", "assumptions.py", "ml_iv.py", "gen_data.p
               "seq_core.py", "seq_gen.py", "seq_assumptions.py",
               "cc_core.py", "cc_gen.py", "cc_assumptions.py", "cc_ml.py",
               "sccs_core.py", "sccs_gen.py", "sccs_assumptions.py", "sccs_ml.py",
-              "acnu_core.py", "acnu_gen.py", "acnu_assumptions.py", "acnu_ml.py"]
+              "acnu_core.py", "acnu_gen.py", "acnu_assumptions.py", "acnu_ml.py",
+              "pnu_core.py", "pnu_gen.py", "pnu_assumptions.py", "pnu_ml.py"]
 
 
 def _clean_docs():

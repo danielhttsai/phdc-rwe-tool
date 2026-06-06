@@ -54,6 +54,9 @@ import sccs_assumptions
 import acnu_core
 import acnu_gen
 import acnu_assumptions
+import pnu_core
+import pnu_gen
+import pnu_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -967,6 +970,57 @@ def _acnu_psml(q: dict) -> dict:
     return acnu_ml.ps_ml_demo(seed=int(q.get("seed", 41)), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# PNU (prevalent new-user, 盛行新使用者)
+# ---------------------------------------------------------------------------
+PNU_DEFAULTS = {"drug": "drug", "event": "event", "futime": "futime"}
+
+
+def _load_pnu(source: str) -> pd.DataFrame:
+    if source in ("example_pnu", "example"):
+        return pnu_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _pnu_example() -> dict:
+    df = pnu_gen.generate()
+    return {
+        "columns": list(df.columns), "defaults": PNU_DEFAULTS, "n": len(df),
+        "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "drug": "drug（A＝研究藥／B＝對照藥）；prevalent（A 是否盛行使用者）",
+            "time_since_start": "time_since_start（進入世代時的距起始月）／frailty（體質）",
+            "event": "event＋futime（追蹤內是否發生結果、追蹤人時）",
+        },
+    }
+
+
+def _pnu_analyze(req: dict) -> dict:
+    df = _load_pnu(req.get("source", "example_pnu"))
+    return pnu_core.full_pnu(df, req.get("drug", "drug"), req.get("event", "event"),
+                             req.get("futime", "futime"), lang=req.get("lang", "zh"))
+
+
+def _pnu_assumptions(req: dict) -> dict:
+    df = _load_pnu(req.get("source", "example_pnu"))
+    return pnu_assumptions.run_dashboard(df, req.get("drug", "drug"), req.get("event", "event"),
+                                         req.get("futime", "futime"), lang=req.get("lang", "zh"))
+
+
+def _pnu_interactive(q: dict) -> dict:
+    depl = float(np.clip(float(q.get("depletion", 1.0)), 0.0, 1.5))
+    return pnu_core.pnu_interactive(depl, lang=q.get("lang", "zh"))
+
+
+def _pnu_psml(q: dict) -> dict:
+    import pnu_ml
+    return pnu_ml.ps_ml_demo(seed=int(q.get("seed", 53)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1050,6 +1104,11 @@ _ROUTES = {
     ("POST", "/api/acnu_assumptions"): lambda q, b: _acnu_assumptions(b),
     ("GET", "/api/acnu_interactive"): lambda q, b: _acnu_interactive(q),
     ("GET", "/api/acnu_psml"): lambda q, b: _acnu_psml(q),
+    ("GET", "/api/pnu_example"): lambda q, b: _pnu_example(),
+    ("POST", "/api/pnu_analyze"): lambda q, b: _pnu_analyze(b),
+    ("POST", "/api/pnu_assumptions"): lambda q, b: _pnu_assumptions(b),
+    ("GET", "/api/pnu_interactive"): lambda q, b: _pnu_interactive(q),
+    ("GET", "/api/pnu_psml"): lambda q, b: _pnu_psml(q),
 }
 
 

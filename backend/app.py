@@ -56,6 +56,10 @@ import acnu_core
 import acnu_gen
 import acnu_assumptions
 import acnu_ml
+import pnu_core
+import pnu_gen
+import pnu_assumptions
+import pnu_ml
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1086,6 +1090,65 @@ def acnu_interactive(conf: float = 1.0, lang: str = "zh"):
 def acnu_psml(seed: int = 41, lang: str = "zh"):
     """ACNU ⑤: real sklearn ML propensity score (cleans up residual confounding)."""
     return _clean(acnu_ml.ps_ml_demo(seed=seed, lang=lang))
+
+
+# ---------------------------------------------------------------------------
+# PNU (prevalent new-user)
+# ---------------------------------------------------------------------------
+class PnuRequest(BaseModel):
+    source: str = "example_pnu"
+    drug: str = "drug"
+    event: str = "event"
+    futime: str = "futime"
+    lang: str = "zh"
+
+
+def _load_pnu(source: str) -> pd.DataFrame:
+    if source in ("example_pnu", "example"):
+        return pnu_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/pnu_example")
+def pnu_example():
+    df = pnu_gen.generate()
+    return _clean({
+        "columns": list(df.columns),
+        "defaults": {"drug": "drug", "event": "event", "futime": "futime"},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "drug": "drug（A＝研究藥／B＝對照藥）；prevalent（A 是否盛行使用者）",
+            "time_since_start": "time_since_start（進入世代時的距起始月）／frailty（體質）",
+            "event": "event＋futime（追蹤內是否發生結果、追蹤人時）",
+        },
+    })
+
+
+@app.post("/api/pnu_analyze")
+def pnu_analyze(req: PnuRequest):
+    df = _load_pnu(req.source)
+    return _clean(pnu_core.full_pnu(df, req.drug, req.event, req.futime, lang=req.lang))
+
+
+@app.post("/api/pnu_assumptions")
+def pnu_assumptions_check(req: PnuRequest):
+    df = _load_pnu(req.source)
+    return _clean(pnu_assumptions.run_dashboard(df, req.drug, req.event, req.futime, lang=req.lang))
+
+
+@app.get("/api/pnu_interactive")
+def pnu_interactive(depletion: float = 1.0, lang: str = "zh"):
+    return _clean(pnu_core.pnu_interactive(float(np.clip(depletion, 0.0, 1.5)), lang=lang))
+
+
+@app.get("/api/pnu_psml")
+def pnu_psml(seed: int = 53, lang: str = "zh"):
+    """PNU ⑤: real sklearn ML time-conditional propensity score."""
+    return _clean(pnu_ml.ps_ml_demo(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")
