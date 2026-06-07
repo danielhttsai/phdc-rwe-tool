@@ -4828,6 +4828,17 @@ function drawNcCal(s) {
       annotations: [{ x: 1.5, y: 5, text: tr("名目 5%", "nominal 5%"), showarrow: false, yshift: 10, xanchor: "right", font: { color: GREEN, size: 11 } }],
     }), SCENE_CFG);
   }
+  if (s.cov_bars && document.getElementById("ncCalCovChart")) {
+    Plotly.react("ncCalCovChart", [{
+      x: s.cov_bars.labels, y: s.cov_bars.values, type: "bar", marker: { color: [RED, TEAL] },
+      text: s.cov_bars.values.map((v) => v.toFixed(1) + "%"), textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 22, r: 16, b: 44, l: 52 },
+      yaxis: { title: tr("95% CI 涵蓋真值的比例（應 ~95%）", "95% CI coverage of the truth (should ~95%)"), range: [0, 105] },
+      shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: 95, y1: 95, line: { color: GREEN, width: 2, dash: "dash" } }],
+      annotations: [{ x: 1.5, y: 95, text: tr("名目 95%", "nominal 95%"), showarrow: false, yshift: 10, xanchor: "right", font: { color: GREEN, size: 11 } }],
+    }), SCENE_CFG);
+  }
   document.getElementById("ncCalReading").innerHTML = s.reading;
 }
 

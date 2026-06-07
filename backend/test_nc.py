@@ -66,3 +66,16 @@ def test_calibration_makes_pvalue_more_honest():
     assert r["type1_cal"] <= 0.15
     # the main estimate's calibrated p-value is larger (more honest) than the naive one
     assert r["p_cal"] > r["p_naive"]
+
+
+def test_pnas_ci_calibration_restores_coverage():
+    import nc_ml
+    r = nc_ml.calibration_demo()
+    # PNAS 2018: positive controls let us calibrate confidence intervals
+    assert r["k_pos"] >= 30
+    # naive 95% CIs badly under-cover the truth; calibration restores ~95%
+    assert r["cov_naive"] < 0.6
+    assert r["cov_cal"] >= 0.85
+    assert r["cov_cal"] > r["cov_naive"]
+    # a systematic-error model (intercept + slope on the true effect) was fitted
+    assert "err_intercept" in r and "err_slope" in r and "err_sd" in r

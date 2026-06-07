@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=71" />
+<link rel="stylesheet" href="/styles.css?v=72" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -3336,14 +3336,20 @@
   <!-- ===================== NC ⑤ 用 AI 強化 ===================== -->
   <section id="ncml" class="panel">
     <h1 data-en="Boost with AI: empirical calibration with a panel of negative controls">用 AI 強化：用一批陰性對照做實證校準</h1>
-    <p class="lead" data-en="Beyond a single negative control, a <b>panel</b> of known-null negative controls lets you measure a study's <b>systematic error</b> and recalibrate its p-values / CIs (Schuemie et al.). Naive analysis assumes sampling error only, so even truly-null controls look 'significant'; empirical calibration fits an empirical null and restores honest false-positive rates. (This is data-driven calibration; the ML frontier — DANCE for auto-finding controls, ML proximal bridges — is noted below.)">
-      除了單一陰性對照，用一<b>整批</b>已知為虛無的陰性對照，可以量出研究的<b>系統誤差</b>並校準 p 值／信賴區間（Schuemie 等）。
-      天真分析只假設抽樣誤差，於是連真值為 0 的陰性對照都顯得「顯著」；實證校準擬合經驗虛無、把偽陽性率拉回誠實水準。
-      （這是資料驅動的校準；ML 前沿——DANCE 自動找陰性對照、ML 近端橋函數——見下方註。）
+    <p class="lead" data-en="Beyond a single negative control, a <b>panel</b> of known-null negative controls lets you measure a study's <b>systematic error</b> and recalibrate its statistics (Schuemie et al.). Two milestones: <b>(2014, Stat Med)</b> fits an empirical null to the negative controls to calibrate <b>p-values</b>; <b>(2018, PNAS)</b> adds a panel of <b>positive controls</b> (known non-null effects) so the systematic error can vary with the true effect size, calibrating <b>confidence intervals</b> — the PNAS paper showed naive 95% CIs cover the truth only about half the time, while calibrated CIs restore ~95% coverage. (Data-driven calibration; the ML frontier — DANCE for auto-finding controls, ML proximal bridges — is noted below.)">
+      除了單一陰性對照，用一<b>整批</b>已知為虛無的陰性對照，可以量出研究的<b>系統誤差</b>並校準統計量（Schuemie 等）。兩個里程碑：
+      <b>（2014，Stat Med）</b>把陰性對照擬合成經驗虛無，校準<b>p 值</b>；<b>（2018，PNAS）</b>再加進一批<b>陽性對照</b>
+      （已知非零的真效應），讓系統誤差能<b>隨真效應大小變化</b>，進而校準<b>信賴區間</b>——這篇 PNAS 證明：天真 95% CI 涵蓋真值的比例
+      只有大約一半，校準後才拉回 ~95%。（這是資料驅動的校準；ML 前沿——DANCE 自動找陰性對照、ML 近端橋函數——見下方註。）
     </p>
     <button id="runNcCal" class="btn primary" data-en="Run empirical calibration">跑實證校準</button>
     <div id="ncCalOut" class="hidden">
+      <h3 data-en="① p-value calibration (Schuemie 2014, Stat Med) — negative controls only">① p 值校準（Schuemie 2014，Stat Med）——只用陰性對照</h3>
+      <p class="caption" data-en="False-positive rate among truly-null negative controls: naive vs calibrated (should land at the nominal 5%).">真正虛無的陰性對照中的偽陽性率：天真 vs 校準後（應落在名目 5%）。</p>
       <div id="ncCalChart" class="chart"></div>
+      <h3 data-en="② Confidence-interval calibration (Schuemie 2018, PNAS) — adds positive controls">② 信賴區間校準（Schuemie 2018，PNAS）——再加入陽性對照</h3>
+      <p class="caption" data-en="Adding a panel of <b>positive controls</b> (known non-null effects) lets the systematic error vary with the true effect size, so 95% CIs can be calibrated. Headline PNAS result: naive 95% CIs cover the truth far below 95% of the time; calibration restores ~95% coverage.">再加進一批<b>陽性對照</b>（已知非零的真效應），讓系統誤差能隨真效應大小變化，就能校準 95% 信賴區間。PNAS 的招牌結果：天真 95% CI 涵蓋真值的比例遠低於 95%，校準後拉回 ~95%。</p>
+      <div id="ncCalCovChart" class="chart"></div>
       <p class="caption" id="ncCalReading"></p>
     </div>
 
@@ -3351,6 +3357,8 @@
     <div class="cards">
       <div class="card"><h3 data-en="① Calibration is data-driven, not ML itself">① 校準是資料驅動，不是 ML 本身</h3>
         <p data-en="Empirical calibration fits a simple empirical-null distribution to the negative-control estimates — powerful, but not machine learning per se. We label it honestly.">實證校準只是把陰性對照的估計擬合成簡單的經驗虛無分布——很有用，但本身不是機器學習。我們誠實標示。</p></div>
+      <div class="card"><h3 data-en="①b Why PNAS 2018 needs positive controls">①b 為什麼 PNAS 2018 需要陽性對照</h3>
+        <p data-en="Negative controls reveal the bias <b>only at a true effect of zero</b>. To calibrate a confidence interval you need the bias <b>across a range of true effects</b>, so PNAS adds <b>positive controls</b> with known non-null effects — typically <b>synthesised</b> by injecting extra outcome events on top of a negative control at a known relative risk. The fitted systematic-error model <b>a + b·θ</b> (with residual SD τ) then lets the CI widen/shift correctly. b≠0 means the bias itself depends on how large the true effect is.">陰性對照只揭露<b>真效應為 0 時</b>的偏誤。要校準信賴區間，需要知道<b>各種真效應大小下</b>的偏誤，所以 PNAS 加入<b>陽性對照</b>——已知非零真效應，通常用「在陰性對照上以已知相對風險<b>注入額外結果事件</b>」<b>合成</b>而來。擬合出的系統誤差模型 <b>a＋b·θ</b>（殘差 SD τ）就能讓 CI 正確地平移／加寬。b≠0 代表偏誤本身會隨真效應大小而不同。</p></div>
       <div class="card"><h3 data-en="② The ML frontier: finding &amp; using controls">② ML 前沿：找到並用上陰性對照</h3>
         <p data-en="ML enters in (a) DANCE — data-driven search/validation of negative controls (Kummerfeld 2024); and (b) flexible ML bridge functions for non-linear proximal causal inference. Not implemented here.">ML 用在 (a) DANCE——資料驅動地搜尋／驗證陰性對照（Kummerfeld 2024）；(b) 非線性近端因果的彈性 ML 橋函數。本頁未實作。</p></div>
       <div class="card"><h3 data-en="③ Garbage controls in, garbage out">③ 對照選錯，校準也錯</h3>
@@ -4347,13 +4355,13 @@ run;</code></pre>
       <li data-ref="pnu"><b data-en="AI / machine learning">AI／機器學習</b> · Schneeweiss, S., et al. (2009). High-dimensional propensity score. <i>Epidemiology, 20</i>(4), 512–522. · Lee, B. K., Lessler, J., &amp; Stuart, E. A. (2010). Improving propensity score weighting using machine learning. <i>Statistics in Medicine, 29</i>(3), 337–346. <span data-en="〔ML time-conditional propensity score — PNU tab ⑤〕">〔機器學習時間條件傾向分數 —— PNU 分頁 ⑤〕</span></li>
       <li data-ref="nc"><b data-en="Concept">概念</b> · Lipsitch, M., Tchetgen Tchetgen, E., &amp; Cohen, T. (2010). Negative controls: a tool for detecting confounding and bias in observational studies. <i>Epidemiology, 21</i>(3), 383–388. <span data-en="〔the canonical negative-control idea — NC tabs ①②〕">〔陰性對照經典——NC 分頁 ①②〕</span></li>
       <li data-ref="nc"><b data-en="Proximal correction">近端校正</b> · Miao, W., Geng, Z., &amp; Tchetgen Tchetgen, E. J. (2018). Identifying causal effects with proxy variables of an unmeasured confounder. <i>Biometrika, 105</i>(4), 987–993. · Tchetgen Tchetgen, E. J., Ying, A., Cui, Y., Shi, X., &amp; Miao, W. (2024). An introduction to proximal causal inference. <i>Statistical Science.</i> · regression-based proximal causal inference (<i>Epidemiology</i>, 2025). <span data-en="〔double negative control / P2SLS — NC tabs ②③〕">〔雙陰性對照／P2SLS——NC 分頁 ②③〕</span></li>
-      <li data-ref="nc"><b data-en="AI / calibration">AI／校準</b> · Schuemie, M. J., Ryan, P. B., DuMouchel, W., Suchard, M. A., &amp; Madigan, D. (2014). Interpreting observational studies: why empirical calibration is needed to correct p-values. <i>Statistics in Medicine, 33</i>(2), 209–218. · Schuemie, M. J., et al. (2018). Empirical confidence interval calibration. <i>PNAS, 115</i>(11), 2571–2577. <span data-en="〔empirical calibration — NC tab ⑤〕">〔實證校準——NC 分頁 ⑤〕</span></li>
+      <li data-ref="nc"><b data-en="AI / calibration">AI／校準</b> · Schuemie, M. J., Ryan, P. B., DuMouchel, W., Suchard, M. A., &amp; Madigan, D. (2014). Interpreting observational studies: why empirical calibration is needed to correct p-values. <i>Statistics in Medicine, 33</i>(2), 209–218. · Schuemie, M. J., Hripcsak, G., Ryan, P. B., Madigan, D., &amp; Suchard, M. A. (2018). Empirical confidence interval calibration for population-level effect estimation studies in observational healthcare data. <i>PNAS, 115</i>(11), 2571–2577. <span data-en="〔CI calibration via negative + positive controls; effect-size-dependent systematic error; restores 95% coverage — NC tab ⑤〕">〔以陰性＋陽性對照校準信賴區間、系統誤差隨真效應變化、把 95% 涵蓋率拉回 —— NC 分頁 ⑤〕</span></li>
       <li data-ref="nc"><b data-en="Vaccine application">疫苗應用</b> · Li, K. Q., Shi, X., Miao, W., &amp; Tchetgen Tchetgen, E. (2023). Double negative control inference in test-negative design studies of vaccine effectiveness. <i>JASA.</i> · Tchetgen Tchetgen, E. (2014). The control outcome calibration approach. <i>AJE, 179</i>(5), 633–640. <span data-en="〔negative controls for vaccine studies〕">〔陰性對照用於疫苗研究〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=71"></script>
-<script src="app.js?v=71"></script>
+<script src="i18n.js?v=72"></script>
+<script src="app.js?v=72"></script>
 </body>
 </html>
