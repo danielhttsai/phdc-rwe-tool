@@ -951,8 +951,6 @@ const rddBwSlider = document.getElementById("rddBwSlider");
 function initRdd() {
   if (rddReady) return;
   rddReady = true;
-  drawSceneSurvIntro();   // "what does censored time-to-event data look like"
-  drawAFT("aftDiagram"); drawIPCW("ipcwDiagram");  // AFT / IPCW concept illustrations
   refreshRdd();
   // NOTE: the survival fit (IPCW/Cox/AFT) is heavy (~3s) and, on the
   // browser-only Pyodide build, runs synchronously and freezes the UI.
@@ -1092,6 +1090,8 @@ let rddAnalyzeReady = false;
 function initRddAnalyze() {
   if (rddAnalyzeReady) return;
   rddAnalyzeReady = true;
+  drawSceneSurvIntro();   // "what does censored time-to-event data look like" (survival teaching)
+  drawAFT("aftDiagram"); drawIPCW("ipcwDiagram");  // AFT / IPCW concept illustrations
   document.getElementById("useRddExample").click();   // auto-load the demo
 }
 
@@ -1808,28 +1808,48 @@ function renderFullMap(hitKey) {
   box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
-// Six methods, one vaccine question. Each method's truth is on a different scale
-// (effect difference, odds ratio, rate ratio, level change…), so we plot every
-// estimate ÷ its OWN truth: 1.0 = perfectly recovered. Amber = the naive comparison
-// (biased, off 1.0); teal = the method's corrected estimate (back near 1.0).
-// Representative values from this tool's verified demos.
+// All 13 methods, one vaccine question, grouped by DESIGN FAMILY. Each method's truth
+// is on a different scale (effect difference, odds ratio, rate ratio, level change…),
+// so we plot every estimate ÷ its OWN truth: 1.0 = perfectly recovered. Amber = the
+// naive comparison (biased, off 1.0); teal = the method's corrected estimate (back near
+// 1.0). Representative values from this tool's verified demos.
+const CHOOSE_FAMILIES = [
+  { zh: "借外生變異", en: "borrowed exogenous variation", members: [
+      ["IV", 1.83, 1.00], ["RDD", 1.83, 1.00]] },
+  { zh: "借時間", en: "borrowed timing / trends", members: [
+      ["DiD", 0.52, 1.00], ["ITS", 1.45, 1.00], ["PERR", 1.47, 1.06], ["TiT", 1.57, 1.08]] },
+  { zh: "自我對照", en: "self-controlled", members: [
+      ["CCTC", 2.04, 1.06], ["SCCS", 0.52, 0.99]] },
+  { zh: "目標試驗模擬", en: "target-trial emulation", members: [
+      ["CCW", 1.75, 1.00], ["Seq", 2.95, 0.95]] },
+  { zh: "主動對照新使用者", en: "active-comparator new-user", members: [
+      ["ACNU", 2.53, 0.99], ["PNU", 0.69, 1.03]] },
+  { zh: "抽樣設計", en: "sampling design", members: [["CC", 1.66, 1.00]] },
+];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
-  const M = [
-    ["IV", 1.83, 1.00], ["RDD", 1.83, 1.00], ["DiD", 0.52, 1.00],
-    ["TiT", 1.57, 1.08], ["ITS", 1.45, 1.00], ["PERR", 1.47, 1.06],
-  ];
+  const M = CHOOSE_FAMILIES.flatMap((f) => f.members);
   const x = M.map((r) => r[0]);
   const naive = { x, y: M.map((r) => r[1]), type: "bar", name: tr("天真比較（被混淆帶偏）", "naive (confounded)"),
-    marker: { color: AMBER }, text: M.map((r) => r[1].toFixed(2)), textposition: "outside" };
+    marker: { color: AMBER }, text: M.map((r) => r[1].toFixed(2)), textposition: "outside", cliponaxis: false };
   const corr = { x, y: M.map((r) => r[2]), type: "bar", name: tr("該方法校正後", "method (corrected)"),
-    marker: { color: TEAL }, text: M.map((r) => r[2].toFixed(2)), textposition: "outside" };
+    marker: { color: TEAL }, text: M.map((r) => r[2].toFixed(2)), textposition: "outside", cliponaxis: false };
+  // alternating family bands + family labels
+  const shapes = [{ type: "line", x0: -0.5, x1: x.length - 0.5, y0: 1, y1: 1, line: { color: GREEN, width: 2, dash: "dash" } }];
+  const anns = [{ x: x.length - 1, y: 1, text: tr("真值＝1.0", "truth = 1.0"), showarrow: false, yshift: 10, font: { size: 11, color: GREEN } }];
+  let i = 0;
+  CHOOSE_FAMILIES.forEach((f, fi) => {
+    const x0 = i - 0.5, x1 = i + f.members.length - 0.5;
+    if (fi % 2 === 1) shapes.push({ type: "rect", x0, x1, y0: 0, y1: 3.2, yref: "y", fillcolor: "rgba(20,40,60,.045)", line: { width: 0 }, layer: "below" });
+    anns.push({ x: (x0 + x1) / 2, y: 3.18, yref: "y", text: tr(f.zh, f.en), showarrow: false, font: { size: 9.5, color: SLATE }, xanchor: "center" });
+    i += f.members.length;
+  });
   Plotly.react("chooseChart", [naive, corr], sceneLayout({
-    height: 320, barmode: "group", showlegend: true, legend: { orientation: "h", y: 1.12 },
-    yaxis: { title: tr("估計 ÷ 各自真值（1.0＝命中）", "estimate ÷ own truth (1.0 = on target)"), range: [0, 2] },
-    shapes: [{ type: "line", x0: -0.5, x1: 5.5, y0: 1, y1: 1, line: { color: GREEN, width: 2, dash: "dash" } }],
-    annotations: [{ x: 5, y: 1, text: tr("真值＝1.0", "truth = 1.0"), showarrow: false,
-      yshift: 10, font: { size: 11, color: GREEN } }],
+    height: 340, barmode: "group", showlegend: true, legend: { orientation: "h", y: 1.1 },
+    margin: { t: 36, r: 14, b: 40, l: 56 },
+    xaxis: { tickfont: { size: 10 } },
+    yaxis: { title: tr("估計 ÷ 各自真值（1.0＝命中）", "estimate ÷ own truth (1.0 = on target)"), range: [0, 3.3] },
+    shapes, annotations: anns,
   }), SCENE_CFG);
 }
 
@@ -1875,7 +1895,7 @@ function filterRefs(method) {
   if (intro) {
     const m = METHOD_REF[refsContext];
     intro.innerHTML = showAll
-      ? tr("六法的完整參考文獻：", "Full reference list for all six methods:")
+      ? tr("全部方法的完整參考文獻：", "Full reference list for all methods:")
       : tr(`本頁（${m.zh}）的參考文獻：`, `References for this page (${m.en}):`);
   }
   renderCitation();
@@ -5085,9 +5105,10 @@ window.addEventListener("iv-lang", async () => {
   if (state.nlData) renderNonlinear(state.nlData); // ML nonlinear
   if (state.cmpDone) runMlCompare();               // ML compare (backend text)
   if (state.fbData) renderForbidden(state.fbData); // ML forbidden
-  if (rddReady) { drawSceneSurvIntro(); drawAFT("aftDiagram"); drawIPCW("ipcwDiagram"); refreshRdd(); }  // RDD ② interactive
+  if (rddReady) refreshRdd();                           // RDD ② interactive (bandwidth)
   if (state.rddSurv) renderRddSurvival(state.rddSurv);  // re-render cached survival (no recompute → no freeze)
-  if (rddAnalyzeReady) {                                // RDD ③ data analysis
+  if (rddAnalyzeReady) {                                // RDD ③ data analysis (+ survival teaching diagrams)
+    drawSceneSurvIntro(); drawAFT("aftDiagram"); drawIPCW("ipcwDiagram");
     const keepSurv = state.rddAnalyzeSurv;             // runRddAnalyze resets this
     await runRddAnalyze();                              // analyze+assumptions are light (~70 ms)
     if (keepSurv) {                                     // re-show a previously computed survival result

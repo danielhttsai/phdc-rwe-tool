@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=66" />
+<link rel="stylesheet" href="styles.css?v=67" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=29"></script>
@@ -698,60 +698,6 @@
       偏差—變異的取捨：視窗<b>窄</b>→納入的人<b>少</b>→信賴區間變<b>寬</b>（變異變大）；視窗<b>寬</b>→人多，但混入較不相似的年齡→估計可能<b>偏離真值 1.80</b>（偏差變大）。拖動滑桿，看著上面兩個數字一起變。
     </p>
 
-    <div class="card warn">
-      <h3 data-en="Bonus: when the outcome is time-to-event (survival)">進階：當結果是「多久後才發生」（存活型）</h3>
-
-      <div class="card scene">
-        <h3 data-en="What does the data look like? Each line is one person's follow-up">資料長什麼樣子？每條線是一個人的追蹤過程</h3>
-        <p data-en="Here the outcome is no longer a single number — it is <b>how long until a major event happens</b>. Each line is one person, from enrolment to the end of their follow-up. <b style=&quot;color:#ef4444&quot;>●</b> = the event actually happened; <b>|</b> = follow-up ended while still event-free — that person is <b>censored</b> (their data is incomplete), and the <b>faint dotted line</b> after it is where their event <i>would have</i> occurred. <b>Frailer / sicker people tend to drop out earlier</b>, which is exactly what makes this tricky.">
-          這次的結果不再是一個數字，而是「<b>多久之後會發生大事件</b>」。每條線＝一個人，從進場到追蹤結束。
-          <b style="color:#ef4444">●</b>＝期間真的發生了事件；<b>|</b>＝追蹤結束時還沒發生——這個人被「<b>設限</b>」了
-          （他的資料不完整），它後面那段<b>淡色虛線</b>＝事件<i>本來會發生</i>的時間。
-          <b>體質較弱／較病重的人，往往更早離開</b>，這正是麻煩的地方。
-        </p>
-        <div id="sceneSurvIntro" class="chart"></div>
-      </div>
-
-      <p data-en="There are two ways to cope, in opposite directions:"><b data-en="There are two ways to cope, pulling in opposite directions:">面對這種資料，有兩個方向（剛好相反）：</b></p>
-      <div class="cards">
-        <div class="card">
-          <h3 data-en="① Add a dimension: an AFT time model">① 增加維度：用 AFT 時間模型</h3>
-          <p data-en="Instead of comparing only averages, fit a <b>parametric time-to-event model</b> — Accelerated Failure Time (AFT; e.g. log-normal or log-logistic) — that describes the <b>whole distribution of event times</b>. It can say directly &quot;the treatment stretches time-to-event by ×N&quot;, which is richer than a single mean. This takes the same time-to-event analysis from a single average up to the <b>whole time distribution</b> — adding a dimension.">
-            不要只比平均，而是配一個<b>參數化的時間模型</b>——加速失效時間（Accelerated Failure Time, AFT；
-            例如對數常態、對數羅吉斯）——它描述「<b>整段事件時間的分布</b>」，能直接講「處置讓事件時間延後幾倍」，
-            比單一平均資訊更豐富。這是把同一份 time-to-event 分析，從「一個平均效果」<b>增加到整段時間分布</b>的維度。
-          </p>
-          <div id="aftDiagram" class="chart"></div>
-        </div>
-        <div class="card">
-          <h3 data-en="② Handle censoring: IPCW + AFT combined into doubly-robust (DR)">② 處理設限：IPCW ＋ AFT 合成的雙重穩健（DR）</h3>
-          <p data-en="<b>IPCW</b> (inverse-probability-of-censoring weighting): at each moment an event is observed, it weights that event by <b>1 ÷ (the chance that person was still uncensored at that time)</b> — so each observed event also &quot;stands in&quot; for similar people who were censored before their own event could be seen. <b>AFT</b> describes the <b>whole distribution of event times</b> (see left). Combining the two gives a <b>doubly-robust (DR)</b> estimate: it stays unbiased as long as <i>either</i> the censoring model (IPCW) <i>or</i> the outcome model (AFT/Cox) is correct.">
-            <b>IPCW</b>（反設限機率加權）：在<b>每個觀察到事件的時點</b>，把這個事件乘上
-            <b>1 ÷（這個人能撐到此刻、還沒被設限的機率）</b>——於是每個被看到的事件，也「代表」了那些
-            <b>特徵相近、卻在自己事件被看到之前就先被設限</b>的人，把因設限流失的資訊補回來。
-            <b>AFT</b> 則負責描述<b>整段事件時間的分布</b>（見左圖）。把兩者合起來＝<b>雙重穩健（DR）</b>：
-            只要「設限模型（IPCW）」或「結果模型（AFT／Cox）」<b>其中一個是對的</b>，估計就不偏。
-          </p>
-          <div id="ipcwDiagram" class="chart"></div>
-        </div>
-      </div>
-
-      <p data-en="If the outcome is <b>time to a major health event</b> (some people are still event-free when follow-up ends — &quot;censored&quot;), a plain RD on the observed time is biased downward. The outcome is <b>log(event time)</b>; we correct censoring with <b>IPCW</b> (re-weight by the chance of not being censored) plus a <b>doubly-robust</b> augmentation that adds an outcome model (Cox or AFT) for E[log T | T &gt; T_j, covariates] — consistent if <i>either</i> model is right. The resulting pseudo-outcomes go through the same local-linear RD.">
-        如果結果是「<b>到重大健康事件的時間</b>」（有些人追蹤結束時還沒發生事件——稱為「設限」），
-        直接對觀察到的時間做 RD 會低估。這裡的結果取 <b>log（事件時間）</b>；我們用 <b>IPCW</b>
-        （依「沒被設限的機率」重新加權）處理設限，再加上 <b>雙重穩健</b>校正——多帶一個結果模型
-        （Cox 或 AFT）估 E[log T｜T &gt; T_j、共變項]，只要「設限模型」或「結果模型」其中一個對就一致。
-        最後把校正後的虛擬結果丟進同一套局部線性 RD。
-      </p>
-      <button id="runRddSurv" class="btn primary" data-en="Run the censoring-corrected estimate (~3 sec)">跑設限校正估計（約 3 秒）</button>
-      <div class="result-cards" id="rddSurvCards"></div>
-      <p class="caption" data-en="Method faithful to the JSR sharp/fuzzy survival-RD scripts: Kaplan–Meier censoring with 5% upper-tail truncation, Cox / log-normal-AFT / log-logistic-AFT outcome regressions, IPCW = a1 and DR = a1 + b1 − c1. The age-65 demo runs on a fixed, seeded teaching sub-sample (the outcome regression needs an N×N matrix).">
-        方法忠實對應 JSR 銳利／模糊存活型 RD 的做法：Kaplan–Meier 設限（上尾 5% 截斷）、Cox／對數常態 AFT／
-        對數羅吉斯 AFT 結果回歸、IPCW＝a1、DR＝a1＋b1－c1。年齡 65 範例在固定種子的教學子樣本上計算
-        （結果回歸需要 N×N 矩陣）。
-      </p>
-    </div>
-
   </section>
 
   <!-- ===================== RDD ③ 資料分析 ===================== -->
@@ -793,6 +739,50 @@
         <div class="result-cards" id="rddAnalyzeSurv"></div>
       </div>
     </div>
+
+    <div class="card warn">
+      <h3 data-en="When the outcome is time-to-event (survival): AFT + IPCW + doubly-robust">當結果是「多久後才發生」（存活型）：AFT ＋ IPCW ＋ 雙重穩健</h3>
+
+      <div class="card scene">
+        <h3 data-en="What does the data look like? Each line is one person's follow-up">資料長什麼樣子？每條線是一個人的追蹤過程</h3>
+        <p data-en="Here the outcome is no longer a single number — it is <b>how long until a major event happens</b>. Each line is one person, from enrolment to the end of their follow-up. <b style=&quot;color:#ef4444&quot;>●</b> = the event actually happened; <b>|</b> = follow-up ended while still event-free — that person is <b>censored</b> (their data is incomplete), and the <b>faint dotted line</b> after it is where their event <i>would have</i> occurred. <b>Frailer / sicker people tend to drop out earlier</b>, which is exactly what makes this tricky.">
+          這次的結果不再是一個數字，而是「<b>多久之後會發生大事件</b>」。每條線＝一個人，從進場到追蹤結束。
+          <b style="color:#ef4444">●</b>＝期間真的發生了事件；<b>|</b>＝追蹤結束時還沒發生——這個人被「<b>設限</b>」了
+          （他的資料不完整），它後面那段<b>淡色虛線</b>＝事件<i>本來會發生</i>的時間。
+          <b>體質較弱／較病重的人，往往更早離開</b>，這正是麻煩的地方。
+        </p>
+        <div id="sceneSurvIntro" class="chart"></div>
+      </div>
+
+      <p data-en="There are two ways to cope, pulling in opposite directions:"><b>面對這種資料，有兩個方向（剛好相反）：</b></p>
+      <div class="cards">
+        <div class="card">
+          <h3 data-en="① Add a dimension: an AFT time model">① 增加維度：用 AFT 時間模型</h3>
+          <p data-en="Instead of comparing only averages, fit a <b>parametric time-to-event model</b> — Accelerated Failure Time (AFT; e.g. log-normal or log-logistic) — that describes the <b>whole distribution of event times</b>. It can say directly &quot;the treatment stretches time-to-event by ×N&quot;, which is richer than a single mean. This takes the same time-to-event analysis from a single average up to the <b>whole time distribution</b> — adding a dimension.">
+            不要只比平均，而是配一個<b>參數化的時間模型</b>——加速失效時間（Accelerated Failure Time, AFT；
+            例如對數常態、對數羅吉斯）——它描述「<b>整段事件時間的分布</b>」，能直接講「處置讓事件時間延後幾倍」，
+            比單一平均資訊更豐富。這是把同一份 time-to-event 分析，從「一個平均效果」<b>增加到整段時間分布</b>的維度。
+          </p>
+          <div id="aftDiagram" class="chart"></div>
+        </div>
+        <div class="card">
+          <h3 data-en="② Handle censoring: IPCW + AFT combined into doubly-robust (DR)">② 處理設限：IPCW ＋ AFT 合成的雙重穩健（DR）</h3>
+          <p data-en="<b>IPCW</b> (inverse-probability-of-censoring weighting): at each moment an event is observed, it weights that event by <b>1 ÷ (the chance that person was still uncensored at that time)</b> — so each observed event also &quot;stands in&quot; for similar people who were censored before their own event could be seen. <b>AFT</b> describes the <b>whole distribution of event times</b> (see left). Combining the two gives a <b>doubly-robust (DR)</b> estimate: it stays unbiased as long as <i>either</i> the censoring model (IPCW) <i>or</i> the outcome model (AFT/Cox) is correct.">
+            <b>IPCW</b>（反設限機率加權）：在<b>每個觀察到事件的時點</b>，把這個事件乘上
+            <b>1 ÷（這個人能撐到此刻、還沒被設限的機率）</b>——於是每個被看到的事件，也「代表」了那些
+            <b>特徵相近、卻在自己事件被看到之前就先被設限</b>的人，把因設限流失的資訊補回來。
+            <b>AFT</b> 則負責描述<b>整段事件時間的分布</b>（見左圖）。把兩者合起來＝<b>雙重穩健（DR）</b>：
+            只要「設限模型（IPCW）」或「結果模型（AFT／Cox）」<b>其中一個是對的</b>，估計就不偏。
+          </p>
+          <div id="ipcwDiagram" class="chart"></div>
+        </div>
+      </div>
+
+      <p class="caption" data-en="To actually run it: map an event time + an event indicator in the column picker above, run the analysis, and the censoring-aware IPCW / doubly-robust survival RD appears in the output. Tab ⑤ then swaps the outcome model for a flexible ML one (doubly-robust) for a tighter, steadier estimate.">
+        實際要跑：在上方欄位對應「事件時間」與「事件指標」、按執行分析，輸出就會出現帶設限的 IPCW／雙重穩健存活型 RD。
+        分頁 ⑤ 再把結果模型換成<b>彈性 ML</b>（雙重穩健），給出更窄、更穩的估計。
+      </p>
+    </div>
   </section>
 
   <!-- ===================== RDD ④ 假設檢驗 ===================== -->
@@ -813,10 +803,10 @@
   <section id="rddml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is simulated in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
     <h1 data-en="How AI lends regression discontinuity a hand">AI 怎麼幫「斷點回歸」一把</h1>
-    <p class="lead" data-en="Remember RDD's two soft spots? — ② Interactive showed the estimate <b>depends on the window (bandwidth)</b> you pick, and the survival card showed that <b>censoring</b> needs careful correction. AI / machine learning helps with exactly these two, using <b>the same age-65 vaccine story</b>.">
+    <p class="lead" data-en="Remember RDD's two soft spots? — ② Interactive showed the estimate <b>depends on the window (bandwidth)</b> you pick, and ③ Data analysis showed that a <b>censored survival</b> outcome needs IPCW / doubly-robust correction. AI / machine learning sharpens exactly these two (it doesn't re-teach them — see ② and ③ for the basics), using <b>the same age-65 vaccine story</b>.">
       還記得 RDD 的兩個痛處嗎？—— ② 互動講解裡，估計會<b>隨你挑的視窗（頻寬）而變</b>；
-      存活卡片裡，<b>設限</b>需要小心校正。AI／機器學習正好能幫上這兩個忙，
-      下面用<b>同一個「滿 65 歲」的疫苗故事</b>來看。
+      ③ 資料分析裡，<b>帶設限的存活</b>結果需要 IPCW／雙重穩健校正。AI／機器學習正好能把這兩個再<b>磨利</b>
+      （不重講基礎——基礎見 ② 與 ③），下面用<b>同一個「滿 65 歲」的疫苗故事</b>來看。
     </p>
 
     <div class="cards">
@@ -943,13 +933,11 @@
       <div id="sceneCensor" class="chart"></div>
     </div>
     <div class="card info">
-      <h3 data-en="First, the plain-language idea">先用白話想一遍</h3>
-      <p data-en="Now the outcome is <b>time to a major health event</b>, and some people are still event-free when follow-up ends (&quot;censored&quot;) — worse, <b>who gets censored depends on age and frailty</b>. If you just ignore censoring you get a biased answer. Re-weighting by the chance of not being censored (<b>IPCW</b>) helps but is shaky. The strong move: also fit a <b>flexible outcome model</b> and combine the two — it is right <b>if either piece is right</b> (doubly robust) and lands a <b>tighter, steadier</b> estimate. Click to run (fitting the models takes a few seconds):">
-        現在結果改成「<b>到重大健康事件的時間</b>」，有些人追蹤結束時還沒發生事件（「設限」）——
-        更麻煩的是，<b>誰被設限跟年齡、體弱程度有關</b>。如果直接忽略設限，答案會有偏。
-        用「沒被設限的機率」重新加權（<b>IPCW</b>）有幫助、但不太穩。真正厲害的一步：
-        再配一個<b>彈性的結果模型</b>把兩者結合——只要<b>其中一塊對</b>就準（雙重穩健），
-        而且估計<b>更窄、更穩</b>。按下面跑跑看（要擬合模型，約需幾秒）：
+      <h3 data-en="The AI twist (basics of censoring / IPCW / DR are in ③)">這裡的 AI 之處（設限／IPCW／DR 的基礎在 ③）</h3>
+      <p data-en="③ already showed how to handle a censored survival outcome with <b>IPCW</b> + a <b>doubly-robust</b> pairing (Cox / AFT outcome model). The AI twist is simple: swap that outcome model for a <b>flexible ML</b> one. Because the estimate is doubly-robust, it is right <b>if either piece is right</b> — and the flexible model gives a <b>tighter, steadier</b> answer when the outcome surface is non-linear. Click to run (fitting the models takes a few seconds):">
+        ③ 已經介紹過怎麼用 <b>IPCW</b> ＋ <b>雙重穩健</b>（Cox／AFT 結果模型）處理帶設限的存活結果。這裡的 AI 之處很單純：
+        把那個結果模型換成<b>彈性 ML</b>。因為估計是雙重穩健的，<b>只要其中一塊對就準</b>——而當結果曲面非線性時，
+        彈性模型會給出<b>更窄、更穩</b>的答案。按下面跑跑看（要擬合模型，約需幾秒）：
       </p>
     </div>
     <button id="runRddSurvMl" class="btn primary" data-en="Run the censoring-correction comparison">跑「設限校正」的比較</button>
@@ -1778,7 +1766,7 @@
   <!-- ===================== PERR ① 是什麼 ===================== -->
   <section id="perrlearn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="A sixth trick: subtract the confounding you can see in the past (Prior Event Rate Ratio)">第六種招式：把過去看得到的混淆減掉（事前事件率比）</h1>
+    <h1 data-en="Another trick: subtract the confounding you can see in the past (Prior Event Rate Ratio)">另一種招式：把過去看得到的混淆減掉（事前事件率比）</h1>
     <p class="lead" data-en="People put on a vaccine are usually different from those who aren't — often sicker (that's why they got it). So directly comparing their event rates after treatment is confounded. PERR's trick: also compare the two groups <b>before</b> anyone was treated. Whatever rate-ratio gap shows up in that prior period is pure confounding — so divide it out of the post-period ratio: <b>PERR = (rate ratio after) ÷ (rate ratio before)</b>.">
       會被接種的人，通常和沒接種的人不一樣——常常是風險較高（所以才被優先接種）。所以直接比較他們接種後的
       事件率會被混淆。PERR 的招式：也比較兩組在<b>還沒有人接種之前</b>的事件率。事前期出現的任何率比落差
@@ -3447,34 +3435,35 @@
     </p>
 
     <div class="card scene">
-      <h3 data-en="All six correct their naive bias back to the truth">六種設計，各自把「天真偏誤」修回真值</h3>
-      <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding); <b>teal</b> = the method's corrected estimate (back near 1.0). Same story, six different ways of borrowing randomness — all landing near the truth.">
+      <h3 data-en="All 13 designs correct their naive bias back to the truth (grouped by family)">十三種設計，各自把「天真偏誤」修回真值（按家族分組）</h3>
+      <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling) — many different ways of borrowing randomness, all landing near the truth.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
-        <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝天真比較（被混淆從 1.0 帶偏）；<b>青色</b>＝該方法校正後
-        （貼回 1.0 附近）。同一個故事、六種借隨機的方式——最後都落在真值附近。
+        <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝天真比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
+        <b>青色</b>＝該方法校正後（貼回 1.0 附近）。長條依設計<b>家族</b>分組（借外生變異・借時間・自我對照・
+        目標試驗模擬・主動對照新使用者・抽樣）——多種借隨機的方式，最後都落在真值附近。
       </p>
       <div id="chooseChart" class="chart"></div>
     </div>
 
-    <h2 data-en="Three things all six share">六個其實都一樣的地方</h2>
+    <h2 data-en="Three things these designs all share">這些設計其實都一樣的地方</h2>
     <div class="card scene">
       <h3 data-en="Same family, same logic">同一家族、同一套邏輯</h3>
       <ul>
-        <li data-en="<b>All six fake a randomised trial.</b> None truly randomises who gets the vaccine; each finds a source of variation that is <b>as good as random</b> and uses it as a stand-in.">
-          <b>六種都在「假裝」做隨機試驗。</b>沒有一個真的隨機分派誰接種，而是各自找到一段<b>近似隨機</b>的變異來頂替。
+        <li data-en="<b>They all fake a randomised trial.</b> None truly randomises who gets the vaccine; each finds a source of variation (or a self-controlled / sampling trick) that is <b>as good as random</b> and uses it as a stand-in.">
+          <b>每一種都在「假裝」做隨機試驗。</b>沒有一個真的隨機分派誰接種，而是各自找到一段<b>近似隨機</b>的變異（或自我對照／抽樣的把戲）來頂替。
         </li>
-        <li data-en="<b>All hinge on one untestable core assumption.</b> Exclusion, continuity, parallel trends, no-synchronised-confounder-trend, no-coincident-event, time-invariant confounding — each design rests on one thing you can't prove from data, plus testable supports. So every method has a ④ dashboard you must run.">
-          <b>都押在一條不可檢驗的核心假設上。</b>排除限制、連續性、平行趨勢、無同步混淆趨勢、無同時代事件、
-          時間不變混淆——每種設計都靠一條無法用資料證明的前提，外加可檢驗的佐證。所以每個方法都配一個 ④ 假設儀表板，一定要跑。
+        <li data-en="<b>Each hinges on one untestable core assumption.</b> Exclusion, continuity, parallel trends, no-synchronised-confounder-trend, no-coincident-event, time-invariant confounding, sequential exchangeability, the active comparator's shared indication, time-conditional exchangeability — each design rests on one thing you can't prove from data, plus testable supports. So every method has a ④ dashboard you must run.">
+          <b>每一種都押在一條不可檢驗的核心假設上。</b>排除限制、連續性、平行趨勢、無同步混淆趨勢、無同時代事件、
+          時間不變混淆、序列可交換、對照藥同適應症、時間條件可交換——每種設計都靠一條無法用資料證明的前提，外加可檢驗的佐證。所以每個方法都配一個 ④ 假設儀表板，一定要跑。
         </li>
-        <li data-en="<b>Most can be boosted by the same ML ideas (tab ⑤).</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt — though for TiT and PERR the literature has no AI version yet, and we say so honestly.">
-          <b>多數都能用同一套 ML 想法強化（⑤）。</b>用彈性模型處理輔助部分、用交叉擬合當安全帶——
-          不過 TiT 與 PERR 的文獻目前沒有現成的 AI 藥方，我們也誠實說明。
+        <li data-en="<b>Most can be boosted by ML (tab ⑤), and several now run real scikit-learn.</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt — IV, RDD, DiD, ITS, CC, SCCS, ACNU and PNU run a genuine ML demo; for TiT and PERR the literature has no AI version yet, and we say so honestly.">
+          <b>多數都能用 ML 強化（⑤），且有好幾個現在真的會跑 scikit-learn。</b>用彈性模型處理輔助部分、用交叉擬合當安全帶——
+          IV、RDD、DiD、ITS、CC、SCCS、ACNU、PNU 都有真的 ML 示範；TiT 與 PERR 的文獻目前沒有現成的 AI 藥方，我們也誠實說明。
         </li>
       </ul>
     </div>
 
-    <h2 data-en="One vaccine question, six ways to borrow randomness">同一個疫苗問題，六種「借隨機」的方式</h2>
+    <h2 data-en="One vaccine question, many ways to borrow randomness (by family)">同一個疫苗問題，多種「借隨機」的方式（按家族）</h2>
     <div class="table-wrap">
       <table class="cmp">
         <thead><tr>
@@ -3484,6 +3473,7 @@
           <th data-en="The one untestable assumption">最關鍵、不可檢驗的假設</th>
         </tr></thead>
         <tbody>
+          <tr><td colspan="4" class="famhdr" data-en="Family · borrowed exogenous variation (an instrument / a cutoff)">家族 · 借外生變異（工具／斷點）</td></tr>
           <tr><td>IV</td>
             <td data-en="A randomly mailed reminder nudged some people to get vaccinated">隨機寄出的接種提醒，推了一部分人去打疫苗</td>
             <td data-en="A genuinely exogenous instrument (the random reminder)">一個真正外生的工具（隨機提醒）</td>
@@ -3492,14 +3482,11 @@
             <td data-en="A free vaccination programme offered only at age 65+">免費接種計畫只開放給滿 65 歲的人</td>
             <td data-en="A sharp rule at a cutoff (age 65)">分數上的明確門檻（年齡 65）</td>
             <td data-en="Continuity: people just below vs above 65 are otherwise alike">連續性：剛好 65 歲上下的人其他條件相同</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · borrowed timing / trends (a policy date, a pre-trend, before-vs-after)">家族 · 借時間（政策時點／前後趨勢）</td></tr>
           <tr><td>DiD</td>
             <td data-en="Some communities switch on a vaccination drive at a known time">某些社區在某個時點開啟接種推廣政策</td>
             <td data-en="Timing: a policy turned on for some groups at a known date">時間：政策在已知時點對部分社區開啟</td>
             <td data-en="Parallel trends: absent the policy, the groups would move together">平行趨勢：沒政策時兩組會一起變</td></tr>
-          <tr><td>TiT</td>
-            <td data-en="A new vaccine's uptake rises over calendar quarters, faster in some groups">一支新疫苗的接種率隨季逐漸上升，不同族群快慢不同</td>
-            <td data-en="A differential time-trend in vaccination prevalence across strata">接種盛行率隨時間、跨層不同的趨勢</td>
-            <td data-en="No unmeasured confounder trends in step with the uptake">沒有與接種趨勢同步的未測混淆趨勢</td></tr>
           <tr><td>ITS</td>
             <td data-en="A county launches a vaccination programme at a known month, tracked monthly">某縣市在已知月份推出接種計畫，逐月追蹤健康指標</td>
             <td data-en="Timing: the pre-intervention trend extrapolated as the counterfactual">時間：介入前趨勢外推當反事實</td>
@@ -3508,6 +3495,42 @@
             <td data-en="Higher-risk people get vaccinated more; compare rates before vs after">高風險者較常被接種；比較接種 vs 未接種者在接種前後的事件率</td>
             <td data-en="The same people's pre-vaccination ratio as the confounding benchmark">同一群人「接種前」的率比當混淆基準</td>
             <td data-en="The confounding is time-invariant and multiplicative">混淆時間不變且乘法</td></tr>
+          <tr><td>TiT</td>
+            <td data-en="A new vaccine's uptake rises over calendar quarters, faster in some groups">一支新疫苗的接種率隨季逐漸上升，不同族群快慢不同</td>
+            <td data-en="A differential time-trend in vaccination prevalence across strata">接種盛行率隨時間、跨層不同的趨勢</td>
+            <td data-en="No unmeasured confounder trends in step with the uptake">沒有與接種趨勢同步的未測混淆趨勢</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · self-controlled (each person is their own control)">家族 · 自我對照（同一個人前後比）</td></tr>
+          <tr><td>CCTC</td>
+            <td data-en="The same person's hazard window before an acute event vs an earlier reference window, while exposure prevalence drifts over calendar time">同一人「急性事件前的危險窗」vs「更早的參考窗」，且暴露盛行率隨日曆時間漂移</td>
+            <td data-en="Within-person comparison + a control series to divide out the exposure time-trend">同一人前後比＋對照序列把暴露時間趨勢除掉</td>
+            <td data-en="The reference window is exchangeable and the trend is divided out correctly">參考窗可交換、時間趨勢扣得對</td></tr>
+          <tr><td>SCCS</td>
+            <td data-en="Only people who had the event; compare their post-vaccination risk window vs their own other time">只用發生過事件的人，比較他們「接種後危險窗」vs「自己其他時間」</td>
+            <td data-en="Conditioning on the person — all time-fixed factors cancel">條件在「人」——所有時間不變因子相消</td>
+            <td data-en="The event does not change later exposure probability">事件不改變日後的暴露機率</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · target-trial emulation (sustained / point treatment strategies)">家族 · 目標試驗模擬（持續／點治療策略）</td></tr>
+          <tr><td>CCW</td>
+            <td data-en="Compare a dynamic strategy: start early vs start late (or stay-on vs discontinue)">比較動態策略：早接種 vs 晚接種（或持續 vs 停藥）</td>
+            <td data-en="Time-zero alignment + IPCW for the artificial censoring (g-methods)">對齊時間零點＋對人為設限做 IPCW（g-methods）</td>
+            <td data-en="Sequential exchangeability — no unmeasured time-varying confounding">序列可交換——無未測的時變混淆</td></tr>
+          <tr><td>Seq</td>
+            <td data-en="A point decision (vaccinate now vs not); open one emulated trial each eligibility month, then pool">點決定（現在接種 vs 不接種）；每個資格月開一場模擬試驗，再合併</td>
+            <td data-en="Emulate a trial at each eligibility time, aligning time zero">在每個資格時點模擬一場試驗、對齊時間零點</td>
+            <td data-en="Baseline exchangeability within each emulated trial">每場模擬試驗內的基線可交換</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · active-comparator new-user cohort (a comparator drug for the same indication)">家族 · 主動對照新使用者世代（同適應症的對照藥）</td></tr>
+          <tr><td>ACNU</td>
+            <td data-en="New recipients of vaccine brand A vs new recipients of brand B (same indication)">A 廠牌的新接種者 vs B 廠牌的新接種者（同適應症）</td>
+            <td data-en="An active comparator with the same indication + a clear new-user time zero">同適應症的主動對照＋明確的新使用者時間零點</td>
+            <td data-en="The comparator shares the indication and is neutral for the outcome">對照藥同適應症、且對該結果中性</td></tr>
+          <tr><td>PNU</td>
+            <td data-en="Bring back people already vaccinated a while ago (prevalent users) by matching on time-since-vaccination">把已接種一段時間的人（盛行使用者）依「距接種時間」對齊納回來</td>
+            <td data-en="Time-conditional matching + a time-conditional propensity score">時間條件配對＋時間條件傾向分數</td>
+            <td data-en="Time-conditional exchangeability; the treatment-start history is available">時間條件可交換、且拿得到暴露起始史</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · sampling design (efficient sampling of a target-trial cohort)">家族 · 抽樣設計（對目標試驗世代有效率抽樣）</td></tr>
+          <tr><td>CC</td>
+            <td data-en="Find people who had the event (cases) vs who didn't (controls), then look back at vaccination">找有事件的人（病例）vs 沒事件的人（對照），再回頭看接種史</td>
+            <td data-en="Efficient sampling of a target-trial cohort by outcome, then adjust">依結果對「模擬目標試驗的世代」做有效率抽樣，再校正</td>
+            <td data-en="Controls represent the source population; measured confounders adjusted">對照代表來源族群；已測混淆校正</td></tr>
         </tbody>
       </table>
     </div>
@@ -3521,28 +3544,64 @@
           <th data-en="Who the answer is about (estimand)">答案是關於誰（估計對象）</th>
         </tr></thead>
         <tbody>
+          <tr><td colspan="3" class="famhdr" data-en="Family · borrowed exogenous variation">家族 · 借外生變異</td></tr>
           <tr><td>IV</td><td data-en="A valid instrument (often the hard part)">一個合格的工具變數（通常最難找）</td><td data-en="LATE for compliers moved by the instrument">被工具推動的順從者 LATE</td></tr>
           <tr><td>RDD</td><td data-en="A running score with a sharp eligibility rule">一個帶明確資格規則的跑分變數</td><td data-en="Sharp: LATE at the cutoff; Fuzzy: complier LATE at the cutoff">Sharp：斷點處 LATE；Fuzzy：斷點處順從者 LATE</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · borrowed timing / trends">家族 · 借時間（政策時點／前後趨勢）</td></tr>
           <tr><td>DiD</td><td data-en="A panel of units × periods, with a control group">單位×期別的面板，含對照組</td><td data-en="ATT — the effect on the treated communities">介入社區的平均處置效果（ATT）</td></tr>
-          <tr><td>TiT</td><td data-en="Individual data over many periods, a rare outcome, a strong uptake trend">多期個體資料、罕見結果、夠強的接種趨勢</td><td data-en="A population causal odds ratio (≈ relative risk)">母體層級的因果勝算比（≈相對風險）</td></tr>
           <tr><td>ITS</td><td data-en="One series with many points before & after a known interruption">一條序列、介入前後都有許多時間點</td><td data-en="Level &amp; slope change for the treated population">該母體的水準與斜率變化</td></tr>
           <tr><td>PERR</td><td data-en="Event counts & person-time for a prior and a post period, by group">分組的事前/事後期事件數與人時</td><td data-en="A causal rate ratio for the treated">處置者的因果率比</td></tr>
+          <tr><td>TiT</td><td data-en="Individual data over many periods, a rare outcome, a strong uptake trend">多期個體資料、罕見結果、夠強的接種趨勢</td><td data-en="A population causal odds ratio (≈ relative risk)">母體層級的因果勝算比（≈相對風險）</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · self-controlled">家族 · 自我對照</td></tr>
+          <tr><td>CCTC</td><td data-en="Acute events with a transient exposure recorded in multiple windows; an exposure time-trend">急性事件＋多時窗的短暫暴露紀錄；暴露有日曆時間趨勢</td><td data-en="A within-person odds ratio (with the time-trend divided out)">個人內勝算比（已扣掉時間趨勢）</td></tr>
+          <tr><td>SCCS</td><td data-en="Only people who had the event; a well-defined exposure risk window">只要發生過事件的人；暴露有明確的危險時窗</td><td data-en="A within-person incidence rate ratio (IRR)">個人內的相對速率（IRR）</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · target-trial emulation">家族 · 目標試驗模擬</td></tr>
+          <tr><td>CCW</td><td data-en="Individual-level data, a time-varying treatment process, event times">個體層資料、時變的治療過程、事件時間</td><td data-en="The effect of a sustained / dynamic strategy (early vs late)">持續／動態策略（早 vs 晚）的效果</td></tr>
+          <tr><td>Seq</td><td data-en="Individual-level data, eligibility arising at many time points">個體層資料、在多個時點陸續符合資格</td><td data-en="The effect of a point treatment decision (pooled over trials)">點治療決定的效果（跨試驗合併）</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · active-comparator new-user cohort">家族 · 主動對照新使用者世代</td></tr>
+          <tr><td>ACNU</td><td data-en="A new-user cohort of two drugs for the same indication, with covariates">同一適應症兩種藥的新使用者世代，含共變項</td><td data-en="A's effect relative to the active comparator B">A 相對於主動對照藥 B 的效應</td></tr>
+          <tr><td>PNU</td><td data-en="A cohort including prevalent users, with time-since-start &amp; start history">含盛行使用者的世代，含距起始時間與起始史</td><td data-en="A-vs-B rate ratio in a population that includes prevalent users">含盛行使用者族群中 A vs B 的率比</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · sampling design">家族 · 抽樣設計</td></tr>
+          <tr><td>CC</td><td data-en="Cases + controls representing the source population, with exposure history">病例＋代表來源族群的對照，含暴露史</td><td data-en="An odds ratio (≈ relative risk when the outcome is rare)">勝算比（結果罕見時 ≈ 相對風險）</td></tr>
         </tbody>
       </table>
     </div>
 
     <h2 data-en="A one-page decision guide: reach for…">一頁決策指南：什麼時候用哪個</h2>
+    <h4 class="fam-sub" data-en="Borrowed exogenous variation">借外生變異（工具／斷點）</h4>
     <div class="cards">
       <div class="card info"><h3>IV</h3><p data-en="You have an <b>external, as-good-as-random push</b> (a randomised reminder, a lottery, a genetic variant) that affects the outcome <b>only through</b> vaccination.">你有一個<b>外部、近似隨機的推力</b>（隨機提醒、抽籤、基因變異），且它<b>只透過</b>接種影響結果。</p></div>
       <div class="card info"><h3>RDD</h3><p data-en="Eligibility is set by a <b>sharp cutoff</b> on a score (age, date, an index) that people can't precisely game, and you only need an answer <b>near the cutoff</b>.">資格由分數上的<b>明確門檻</b>決定（年齡、日期、指標），人無法精準操弄，且你只需<b>門檻附近</b>的答案。</p></div>
+    </div>
+    <h4 class="fam-sub" data-en="Borrowed timing / trends">借時間（政策時點／前後趨勢）</h4>
+    <div class="cards">
       <div class="card info"><h3>DiD</h3><p data-en="A policy <b>switches on for some groups at a known time</b>, you have a <b>control group</b>, and the groups looked parallel before.">政策在<b>某時點對部分群開啟</b>，你有<b>對照組</b>，且兩組在政策前走勢平行。</p></div>
-      <div class="card info"><h3>TiT</h3><p data-en="Vaccination <b>spreads gradually over calendar time</b> at different rates across groups, and the outcome is <b>rare</b>.">接種<b>隨日曆時間逐漸普及</b>、跨族群速度不同，且結果<b>罕見</b>。</p></div>
       <div class="card info"><h3>ITS</h3><p data-en="A <b>single population</b>, a <b>known intervention time</b>, and <b>many time points</b> before and after — and no other big event at that moment."><b>單一群體</b>、一個<b>已知介入時點</b>、前後有<b>許多時間點</b>，且那一刻沒有別的大事。</p></div>
       <div class="card info"><h3>PERR</h3><p data-en="You have <b>event rates before and after</b> treatment for both groups, and you believe the confounding is <b>stable over time</b>.">你有兩組<b>處置前後的事件率</b>，且相信混淆<b>隨時間穩定</b>。</p></div>
+      <div class="card info"><h3>TiT</h3><p data-en="Vaccination <b>spreads gradually over calendar time</b> at different rates across groups, and the outcome is <b>rare</b>.">接種<b>隨日曆時間逐漸普及</b>、跨族群速度不同，且結果<b>罕見</b>。</p></div>
+    </div>
+    <h4 class="fam-sub" data-en="Self-controlled (each person their own control)">自我對照（同一個人前後比）</h4>
+    <div class="cards">
+      <div class="card info"><h3>CCTC</h3><p data-en="An <b>acute event</b> possibly triggered by a <b>transient</b> exposure, where exposure prevalence also <b>drifts over calendar time</b> — use the person as their own control and divide out the trend."><b>急性事件</b>、可能由<b>短暫暴露</b>觸發，且暴露盛行率<b>隨日曆時間漂移</b>——用同一個人當對照，再把趨勢扣掉。</p></div>
+      <div class="card info"><h3>SCCS</h3><p data-en="You have <b>only cases</b> (people who had the event), the exposure has a <b>clear risk window</b>, the event is non-fatal/recurrent and doesn't change later exposure.">你只有<b>病例</b>（發生過事件的人）、暴露有<b>明確危險窗</b>、事件非致命／可復發且不改變日後暴露。</p></div>
+    </div>
+    <h4 class="fam-sub" data-en="Target-trial emulation (sustained / point strategies)">目標試驗模擬（持續／點治療策略）</h4>
+    <div class="cards">
+      <div class="card info"><h3>CCW</h3><p data-en="The treatment is a <b>sustained / dynamic strategy</b> (start early vs late, stay-on vs discontinue) unfolding over time — clone, censor on deviation, and IP-weight.">處置是隨時間展開的<b>持續／動態策略</b>（早 vs 晚起始、持續 vs 停藥）——複製、偏離設限、再加權。</p></div>
+      <div class="card info"><h3>Seq</h3><p data-en="A <b>point treatment</b> decision, with people becoming eligible at <b>many time points</b> — open one emulated trial per eligibility time and pool.">是<b>點治療</b>決定，且病人在<b>多個時點</b>陸續符合資格——每個資格時點開一場模擬試驗再合併。</p></div>
+    </div>
+    <h4 class="fam-sub" data-en="Active-comparator new-user cohort">主動對照新使用者世代</h4>
+    <div class="cards">
+      <div class="card info"><h3>ACNU</h3><p data-en="You have a <b>pharmacologically similar comparator</b> for the same indication — compare <b>new users of A vs new users of B</b> to cancel confounding by indication.">你有<b>藥理／適應症相近的對照藥</b>——比<b>A 的新使用者 vs B 的新使用者</b>，消掉因適應症的混淆。</p></div>
+      <div class="card info"><h3>PNU</h3><p data-en="You want to <b>keep the prevalent (existing) users</b> too, not just new starters — match them time-conditionally on time-since-start.">你還想<b>留住盛行（既有）使用者</b>、不只用新起始者——依距起始時間做時間條件配對納回來。</p></div>
+    </div>
+    <h4 class="fam-sub" data-en="Sampling design">抽樣設計</h4>
+    <div class="cards">
+      <div class="card info"><h3>CC</h3><p data-en="The outcome is <b>rare</b> and a full cohort is wasteful — sample <b>cases + representative controls</b> and look back at exposure (efficient sampling of a target-trial cohort).">結果<b>罕見</b>、追蹤整個世代太浪費——抽<b>病例＋有代表性的對照</b>再回頭看暴露（對目標試驗世代的有效率抽樣）。</p></div>
     </div>
 
     <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
-    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's six methods in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱六法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 13 methods in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 13 種方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
     <div class="flow-legend">
       <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
@@ -3580,11 +3639,12 @@
 
     <div class="card">
       <h3 data-en="The one-line summary">一句話總結</h3>
-      <p data-en="<b>All six fake a randomised trial, each borrowing &quot;as-good-as-random&quot; variation from a different place</b> — a random push (IV), a sharp cutoff (RDD), policy timing (DiD &amp; ITS), a calendar-time uptake trend (TiT), or a clean pre-treatment period (PERR). Each leans on one assumption you can't fully test, so always run its ④ dashboard. What you <b>have</b> — an instrument, a cutoff, a control group, a time series, a rising uptake, a prior period — decides which you <b>can</b> use. And when two or three different designs point to the <b>same</b> answer, you can be a lot more confident.">
-        <b>六種都在「假裝」做隨機試驗，各自從不同的地方借近似隨機</b>——一個隨機推力（IV）、一條明確門檻（RDD）、
-        政策的時點（DiD 與 ITS）、隨日曆時間的採用趨勢（TiT），或一段乾淨的處置前期（PERR）。每種都依賴一條
-        無法完全檢驗的假設，所以一定要跑它的 ④ 儀表板。你<b>手上有什麼</b>——工具、門檻、對照組、時間序列、
-        上升的接種率、事前期——就決定你<b>能用</b>哪一種。而當兩三種不同設計都指向<b>同一個</b>答案時，你就能更有信心。
+      <p data-en="<b>Every design here fakes a randomised trial, each borrowing &quot;as-good-as-random&quot; comparability from a different place</b> — a random push or a cutoff (IV, RDD), policy timing or a pre-trend (DiD, ITS, PERR, TiT), the person themselves (CCTC, SCCS), an aligned time zero in an emulated trial (CCW, Seq), an active comparator drug (ACNU, PNU), or efficient outcome-based sampling (CC). Each leans on one assumption you can't fully test, so always run its ④ dashboard. What you <b>have</b> — an instrument, a cutoff, a control group, a time series, a self-controlled window, a comparator drug, treatment-start dates — decides which you <b>can</b> use. And when two or three different designs point to the <b>same</b> answer, you can be a lot more confident.">
+        <b>這裡每一種設計都在「假裝」做隨機試驗，各自從不同的地方借「可比性」</b>——一個隨機推力或門檻（IV、RDD）、
+        政策時點或前期趨勢（DiD、ITS、PERR、TiT）、病人自己當對照（CCTC、SCCS）、模擬試驗裡對齊的時間零點
+        （CCW、Seq）、一個主動對照藥（ACNU、PNU），或依結果做有效率的抽樣（CC）。每種都依賴一條無法完全檢驗的
+        假設，所以一定要跑它的 ④ 儀表板。你<b>手上有什麼</b>——工具、門檻、對照組、時間序列、自我對照的時窗、
+        對照藥、用藥起始日——就決定你<b>能用</b>哪一種。而當兩三種不同設計都指向<b>同一個</b>答案時，你就能更有信心。
       </p>
     </div>
   </section>
@@ -3682,7 +3742,7 @@
   </footer>
 </main>
 
-<script src="i18n.js?v=66"></script>
-<script src="app.js?v=66"></script>
+<script src="i18n.js?v=67"></script>
+<script src="app.js?v=67"></script>
 </body>
 </html>

@@ -266,6 +266,14 @@ table.cmp thead th { background: var(--ink, #14283c); color: #fff; font-weight: 
 table.cmp tbody td:first-child { font-weight: 600; color: var(--muted); white-space: nowrap; }
 table.cmp tbody tr:last-child td { border-bottom: none; }
 table.cmp tbody tr:nth-child(even) { background: #f8fafc; }
+/* design-family sub-header row inside comparison tables */
+table.cmp td.famhdr, table.cmp tbody tr td.famhdr {
+  background: #e7efeb; color: var(--z, #3f7d62); font-weight: 700; white-space: normal;
+  border-top: 2px solid var(--z, #3f7d62); font-size: .9em; letter-spacing: .01em;
+}
+/* design-family sub-heading above grouped decision cards */
+h4.fam-sub { margin: 1.2rem 0 .5rem; color: var(--z, #3f7d62); font-size: 1rem;
+  border-left: 4px solid var(--z, #3f7d62); padding-left: .55rem; }
 .stat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1rem; text-align: center; box-shadow: var(--shadow); }
 .stat-label { color: var(--muted); font-size: .85rem; }
 .stat-num { font-size: 2rem; font-weight: 800; margin: .2rem 0; }
