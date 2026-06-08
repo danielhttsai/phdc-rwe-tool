@@ -60,6 +60,9 @@ import pnu_assumptions
 import nc_core
 import nc_gen
 import nc_assumptions
+import med_core
+import med_gen
+import med_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1076,6 +1079,56 @@ def _nc_calibrate(q: dict) -> dict:
     return nc_ml.calibration_demo(seed=int(q.get("seed", 67)), lang=q.get("lang", "zh"))
 
 
+# ----------------------------- Mediation (MED) -----------------------------
+MED_DEFAULTS = {"treat": "A", "mediator": "M", "outcome": "Y", "cov": "X"}
+
+
+def _load_med(source: str) -> pd.DataFrame:
+    if source in ("example_med", "example"):
+        return med_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _med_example() -> dict:
+    df = med_gen.generate()
+    return {
+        "columns": list(df.columns), "defaults": MED_DEFAULTS, "n": len(df),
+        "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "A": "A（接種 1／否 0）；Y（感染風險分數，連續）",
+            "M": "M＝中介（抗體效價）；疫苗的保護有多少透過 M？",
+            "X": "X＝已測共變項",
+        },
+    }
+
+
+def _med_analyze(req: dict) -> dict:
+    df = _load_med(req.get("source", "example_med"))
+    return med_core.full_med(df, req.get("treat", "A"), req.get("mediator", "M"),
+                             req.get("outcome", "Y"), req.get("cov", "X"), lang=req.get("lang", "zh"))
+
+
+def _med_assumptions(req: dict) -> dict:
+    df = _load_med(req.get("source", "example_med"))
+    return med_assumptions.run_dashboard(df, req.get("treat", "A"), req.get("mediator", "M"),
+                                         req.get("outcome", "Y"), req.get("cov", "X"),
+                                         lang=req.get("lang", "zh"))
+
+
+def _med_interactive(q: dict) -> dict:
+    strength = float(np.clip(float(q.get("strength", 1.0)), 0.0, 1.5))
+    return med_core.med_interactive(strength, lang=q.get("lang", "zh"))
+
+
+def _med_ml(q: dict) -> dict:
+    import med_ml
+    return med_ml.natural_effects_ml_demo(seed=int(q.get("seed", 31)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1169,6 +1222,11 @@ _ROUTES = {
     ("POST", "/api/nc_assumptions"): lambda q, b: _nc_assumptions(b),
     ("GET", "/api/nc_interactive"): lambda q, b: _nc_interactive(q),
     ("GET", "/api/nc_calibrate"): lambda q, b: _nc_calibrate(q),
+    ("GET", "/api/med_example"): lambda q, b: _med_example(),
+    ("POST", "/api/med_analyze"): lambda q, b: _med_analyze(b),
+    ("POST", "/api/med_assumptions"): lambda q, b: _med_assumptions(b),
+    ("GET", "/api/med_interactive"): lambda q, b: _med_interactive(q),
+    ("GET", "/api/med_natural_ml"): lambda q, b: _med_ml(q),
 }
 
 

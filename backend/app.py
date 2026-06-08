@@ -64,6 +64,10 @@ import nc_core
 import nc_gen
 import nc_assumptions
 import nc_ml
+import med_core
+import med_gen
+import med_assumptions
+import med_ml
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1213,6 +1217,63 @@ def nc_interactive(conf: float = 1.0, lang: str = "zh"):
 def nc_calibrate(seed: int = 67, lang: str = "zh"):
     """NC ⑤: empirical calibration (Schuemie) with a panel of negative controls."""
     return _clean(nc_ml.calibration_demo(seed=seed, lang=lang))
+
+
+# ------------------------------- Mediation (MED) -------------------------------
+class MedRequest(BaseModel):
+    source: str = "example_med"
+    treat: str = "A"
+    mediator: str = "M"
+    outcome: str = "Y"
+    cov: str = "X"
+    lang: str = "zh"
+
+
+def _load_med(source: str) -> pd.DataFrame:
+    if source in ("example_med", "example"):
+        return med_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/med_example")
+def med_example():
+    df = med_gen.generate()
+    return _clean({
+        "columns": list(df.columns), "defaults": {"treat": "A", "mediator": "M", "outcome": "Y", "cov": "X"},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {
+            "A": "A（接種 1／否 0）；Y（感染風險分數，連續）",
+            "M": "M＝中介（抗體效價）；疫苗的保護有多少透過 M？",
+            "X": "X＝已測共變項",
+        },
+    })
+
+
+@app.post("/api/med_analyze")
+def med_analyze(req: MedRequest):
+    df = _load_med(req.source)
+    return _clean(med_core.full_med(df, req.treat, req.mediator, req.outcome, req.cov, lang=req.lang))
+
+
+@app.post("/api/med_assumptions")
+def med_assumptions_check(req: MedRequest):
+    df = _load_med(req.source)
+    return _clean(med_assumptions.run_dashboard(df, req.treat, req.mediator, req.outcome, req.cov, lang=req.lang))
+
+
+@app.get("/api/med_interactive")
+def med_interactive(strength: float = 1.0, lang: str = "zh"):
+    return _clean(med_core.med_interactive(float(np.clip(strength, 0.0, 1.5)), lang=lang))
+
+
+@app.get("/api/med_natural_ml")
+def med_natural_ml(seed: int = 31, lang: str = "zh"):
+    """MED ⑤: real-sklearn g-computation natural effects under a non-linear mediator."""
+    return _clean(med_ml.natural_effects_ml_demo(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")

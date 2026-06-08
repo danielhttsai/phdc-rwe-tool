@@ -4,15 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=76" />
+<link rel="stylesheet" href="styles.css?v=77" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-<script src="pyodide-bridge.js?v=30"></script>
+<script src="pyodide-bridge.js?v=31"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -30,6 +30,7 @@
         <option value="acnu" data-en="ACNU · Active-comparator new-user">ACNU · 主動對照新使用者</option>
         <option value="pnu" data-en="PNU · Prevalent new-user">PNU · 盛行新使用者</option>
         <option value="nc" data-en="NC · Negative control &amp; proximal">NC · 陰性對照與近端因果</option>
+        <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
       </select>
     </label>
     <div class="subtabs">
@@ -289,6 +290,14 @@
   <section id="ml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is simulated in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
     <h1 data-en="How AI lends instrumental variables a hand">AI 怎麼幫「工具變數」一把</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="Remember the biggest trap from ② Interactive? — <b>when the nudge is too weak, the answer jumps around</b>. AI / machine learning can help in two ways here; below we walk through them step by step, using <b>the same vaccine story</b>.">
       還記得 ② 互動講解裡那個最大的陷阱嗎？——<b>外力（提醒）太弱，答案就會亂跳</b>。
       AI／機器學習能在這裡幫上兩個忙，下面我們用<b>同一個疫苗的故事</b>，一步一步看懂。
@@ -818,6 +827,14 @@
   <section id="rddml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is simulated in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時模擬出來的，僅供教學展示。</div>
     <h1 data-en="How AI lends regression discontinuity a hand">AI 怎麼幫「斷點回歸」一把</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="Remember RDD's two soft spots? — ② Interactive showed the estimate <b>depends on the window (bandwidth)</b> you pick, and ③ Data analysis showed that a <b>censored survival</b> outcome needs IPCW / doubly-robust correction. AI / machine learning sharpens exactly these two (it doesn't re-teach them — see ② and ③ for the basics), using <b>the same age-65 vaccine story</b>.">
       還記得 RDD 的兩個痛處嗎？—— ② 互動講解裡，估計會<b>隨你挑的視窗（頻寬）而變</b>；
       ③ 資料分析裡，<b>帶設限的存活</b>結果需要 IPCW／雙重穩健校正。AI／機器學習正好能把這兩個再<b>磨利</b>
@@ -1251,6 +1268,14 @@
   <section id="didml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is computed in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時計算出來的，僅供教學展示。</div>
     <h1 data-en="The one place DiD genuinely uses machine learning">DiD 真正用到機器學習的那一個地方</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="<b>Double / debiased machine-learning DiD (DML)</b>: when who-gets-treated and the time trend both depend <b>non-linearly</b> on many covariates, fit those nuisance pieces with gradient boosting and de-bias with cross-fitting. Below it really runs <b>scikit-learn</b> (the most widely used open-source machine-learning library for Python) right in your browser.">
       <b>雙重／去偏機器學習 DiD（DML）</b>：當「誰受處置」與時間趨勢都<b>非線性</b>地取決於許多共變項時，
       用梯度提升去估那些輔助模型、再用交叉擬合去偏。下面會<b>真的在你的瀏覽器裡跑 scikit-learn</b>
@@ -1491,6 +1516,14 @@
   <!-- ===================== TiT ⑤ 用 AI 強化 ===================== -->
   <section id="titml" class="panel">
     <h1 data-en="Boosting TiT with AI — an honest &quot;we don't know yet&quot;">用 AI 強化 TiT —— 誠實的「目前還不知道」</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="For the other three methods this tab showed concrete, published ML upgrades. For trend-in-trend we have to be honest: across the source papers we drew on, there is <b>no established machine-learning or doubly-robust version of trend-in-trend</b>. So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b> about where AI <i>might</i> help.">
       在另外三個方法，這個分頁能展示具體、已發表的 ML 升級。對趨勢中的趨勢，我們必須誠實：
       在我們依據的來源論文裡，<b>並沒有成熟的機器學習或雙重穩健版本的趨勢中的趨勢</b>。
@@ -1748,6 +1781,14 @@
   <section id="itsml" class="panel">
     <div class="banner" data-en="⚠ Every number on this page is computed in real time from <b>purely fictional synthetic data</b>, for teaching only.">⚠ 本頁所有數字都是用<b>純屬虛構的合成資料</b>即時計算出來的，僅供教學展示。</div>
     <h1 data-en="The one place ITS genuinely uses machine learning">ITS 真正用到機器學習的那一個地方</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="<b>ML two-stage counterfactual</b> (Dey 2025): when the no-intervention outcome depends <b>non-linearly</b> on observed covariates, train a model on the pre-period to predict it, then forecast the counterfactual. Below it really runs <b>scikit-learn</b> (the most widely used open-source machine-learning library for Python) right in your browser.">
       <b>ML 兩階段反事實</b>（Dey 2025）：當「沒介入會怎樣」<b>非線性</b>地取決於可觀測的共變項時，
       用介入前資料訓練模型去預測它、再外推反事實。下面會<b>真的在你的瀏覽器裡跑 scikit-learn</b>
@@ -1990,6 +2031,14 @@
   <!-- ===================== PERR ⑤ 用 AI 強化 ===================== -->
   <section id="perrml" class="panel">
     <h1 data-en="Boosting PERR with AI — an honest &quot;we don't know yet&quot;">用 AI 強化 PERR —— 誠實的「目前還不知道」</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="For three of the methods this tab showed concrete, published ML upgrades. For PERR we have to be honest: across the source papers, there is <b>no established machine-learning or doubly-robust version of PERR</b> (the latest work, Cheung &amp; Ma 2025, clarifies the framework — it is not an AI method). So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b>. The literature's real, <b>non-AI</b> refinements (PERR-ALT, PERR vs PERD, PERR-Comp + the scale-sensitivity demo) now live in tab ③.">
       在其中三個方法，這個分頁能展示具體、已發表的 ML 升級。對 PERR，我們必須誠實：在來源論文裡，
       <b>並沒有成熟的機器學習或雙重穩健版本的 PERR</b>（最新的 Cheung &amp; Ma 2025 是在釐清框架，不是 AI 方法）。
@@ -2216,6 +2265,14 @@
   <!-- ===================== CCW ⑤ 用 AI 強化 ===================== -->
   <section id="ccwml" class="panel">
     <h1 data-en="Boosting CCW: refinements (and where ML fits)">強化 CCW：精修（以及 ML 的位置）</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="The clone-censor-weight literature does not center black-box AI; its real refinements are about <b>design and the nuisance (weight) models</b>. The most important, and the most computable, is the <b>grace-period sensitivity analysis</b> — so we ship that. Below it are the other refinements, including where flexible/ML weight models genuinely fit.">
       複製-設限-加權的文獻並不以黑箱 AI 為核心；它真正的精修是關於<b>設計與雜務（權重）模型</b>。其中最重要、
       也最能計算的，就是<b>寬限期敏感度分析</b>——所以我們直接做出來。下面再列出其他精修，包括「彈性／ML
@@ -2387,6 +2444,14 @@
   <!-- ===================== CCTC ⑤ 進階 ===================== -->
   <section id="cctcml" class="panel">
     <h1 data-en="Refinements: case-time-control vs case-case-time-control">進階：案例-時間對照 vs 案例-案例-時間對照</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="Both remove the exposure-trend bias; they differ in <b>what plays the role of the trend reference</b>. Click to see them side by side on the same (strongly-trending) data, then read the honest notes on when each is preferred.">
       兩者都消掉暴露趨勢偏誤；差別在<b>用什麼當趨勢參考</b>。按下面在同一筆（趨勢強）資料上並排比較，再看下面的取捨說明。
     </p>
@@ -2537,6 +2602,14 @@
   <!-- ===================== Sequential ⑤ 進階 ===================== -->
   <section id="seqml" class="panel">
     <h1 data-en="Refinement: one baseline trial vs pooling all sequential trials">進階：只用一場基線試驗 vs 合併所有序列試驗</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="Both the single month-0 trial and the full pooling are unbiased — the difference is <b>efficiency</b>. Pooling uses people at every eligibility time (a person can re-enter), shrinking the interval. Click to compare, and read the honest notes.">
       只用第 0 月那一場、以及合併所有序列試驗，<b>兩者都無偏</b>——差別在<b>效率</b>。合併用到每個資格時點的人
       （同一人可重複收案），讓區間更窄。按下面比較，再看說明。
@@ -2708,6 +2781,14 @@
   <!-- ===================== Case-control ⑤ 用 AI 強化 ===================== -->
   <section id="ccml" class="panel">
     <h1 data-en="Boost with AI: a random forest for matched case-control">用 AI 強化：配對病例對照的隨機森林</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="When the exposure effect appears only in a subgroup (an exposure × covariate <b>interaction</b>) and a covariate acts non-linearly, a main-effects conditional logistic model flattens the structure. A <b>random forest adapted to matched case-control</b> (Matched Forest / CLogitForest) captures it — higher held-out AUC, and its importances surface the effect modifier.">
       當暴露效應只在某亞群出現（暴露 × 共變項的<b>交互作用</b>）、且某共變項
       以非線性方式作用時，只放主效應的條件 logistic 會抹平這個結構。<b>為配對病例對照量身的隨機森林</b>（Matched Forest／
@@ -2838,6 +2919,23 @@
         </p>
       </div>
     </details>
+
+    <h2 data-en="SCCS extensions — when the standard assumptions break (Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, 2018; sccs-studies.info)">SCCS 延伸 —— 當標準假設不成立時（Farrington、Whitaker &amp; Ghebremichael-Weldeselassie 2018；sccs-studies.info）</h2>
+    <p class="lead" data-en="The standard SCCS rests on four assumptions; the book and the SCCS R package provide extensions for when each is threatened. Each card: the problem it solves and when to reach for it.">標準 SCCS 建立在四條假設上；專書與 SCCS R 套件為每一條被威脅時提供了延伸。每張卡：解決什麼問題、何時用。</p>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Event-dependent exposure (pseudo-likelihood)">① 事件相依暴露（pseudo-likelihood）</h3>
+        <p data-en="<b>Problem:</b> the event changes the chance of <b>future</b> exposure (e.g. a seizure makes a clinician avoid the next vaccine dose), breaking the SCCS assumption that exposure history is external. <b>Fix:</b> a <b>modified / pseudo-likelihood</b> SCCS that models the exposure-after-event process. <b>When:</b> vaccine-after-reaction settings — influenza vaccine &amp; GBS, ITP &amp; MMR. R: <code>eventdepenexp()</code>.">​<b>問題：</b>事件會改變<b>日後</b>暴露的機率（如抽搐後醫師避開下一劑疫苗），破壞「暴露史是外生」的假設。<b>修法：</b><b>修正／偽概似</b> SCCS，把「事件後暴露」過程模型化。<b>何時：</b>反應後是否再暴露的情境——流感疫苗與 GBS、ITP 與 MMR。R：<code>eventdepenexp()</code>。</p></div>
+      <div class="card"><h3 data-en="② Event-dependent observation period (incl. death) / SCRI">② 事件相依觀察期（含死亡）／SCRI</h3>
+        <p data-en="<b>Problem:</b> the event can <b>end</b> observation (death, or it triggers earlier censoring), so the observation window is not independent of the event. <b>Fix:</b> the extension for <b>event-dependent observation periods</b> (handles heavy censoring), or a tightly-defined <b>self-controlled risk interval (SCRI)</b> using only a short window around exposure. <b>When:</b> antipsychotics &amp; stroke, NRT &amp; myocardial infarction. R: <code>eventdepenobs()</code>.">​<b>問題：</b>事件會<b>終止</b>觀察（死亡、或提前設限），使觀察期與事件不獨立。<b>修法：</b><b>事件相依觀察期</b>延伸（處理重度設限），或用暴露附近短窗的<b>自我對照風險區間（SCRI）</b>。<b>何時：</b>抗精神病藥與中風、NRT 與心肌梗塞。R：<code>eventdepenobs()</code>。</p></div>
+      <div class="card"><h3 data-en="③ Age &amp; seasonality — splines / non-parametric">③ 年齡與季節 —— 樣條／非參數</h3>
+        <p data-en="<b>Problem:</b> the baseline incidence varies with age or season in a shape that crude age bands miss. <b>Fix:</b> model the age/season effect with <b>splines or a non-parametric step function</b> instead of a few cut-points. <b>When:</b> convulsions vs age (sharp infant peak); MMR &amp; convulsions. R: <code>smoothagesccs()</code> / spline options.">​<b>問題：</b>基準發生率隨年齡或季節變化，粗略年齡分層抓不到那個形狀。<b>修法：</b>用<b>樣條或非參數階梯函數</b>建模年齡／季節效果，而非少數切點。<b>何時：</b>抽搐 vs 年齡（嬰兒期尖峰）；MMR 與抽搐。R：<code>smoothagesccs()</code>／樣條選項。</p></div>
+      <div class="card"><h3 data-en="④ Dose / quantitative &amp; environmental exposure">④ 劑量／連續暴露與環境暴露</h3>
+        <p data-en="<b>Problem:</b> exposure is not just on/off but has a <b>dose or intensity</b>, or is an environmental level shared in time (air pollution, temperature). <b>Fix:</b> SCCS for <b>quantitative individual exposures</b> and for <b>environmental exposures</b> (a different likelihood). <b>When:</b> blood pressure &amp; headache (dose); air pollution &amp; asthma; ambient temperature &amp; RSV.">​<b>問題：</b>暴露不只「有／無」，而有<b>劑量或強度</b>，或是隨時間共享的環境水準（空污、氣溫）。<b>修法：</b>針對<b>連續個體暴露</b>與<b>環境暴露</b>的 SCCS（不同的概似）。<b>何時：</b>血壓與頭痛（劑量）；空污與氣喘；氣溫與 RSV。</p></div>
+      <div class="card"><h3 data-en="⑤ Multiple doses, exposure types &amp; multi-type events">⑤ 多劑量、多暴露型、多型事件</h3>
+        <p data-en="<b>Problem:</b> several doses or exposure types, or several event subtypes that may share risk windows. <b>Fix:</b> SCCS data formats for <b>repeated / intermittent exposures</b> (NSAIDs &amp; GI bleeds; DTP doses &amp; convulsions) and likelihoods for <b>multi-type events</b>. <b>When:</b> febrile vs non-febrile convulsions; fracture site by drug.">​<b>問題：</b>多劑量或多種暴露型，或多種事件亞型可能共享危險窗。<b>修法：</b><b>重複／間歇暴露</b>的 SCCS 資料格式（NSAID 與消化道出血；DTP 多劑與抽搐）與<b>多型事件</b>的概似。<b>何時：</b>熱性 vs 非熱性抽搐；依藥物分骨折部位。</p></div>
+      <div class="card"><h3 data-en="⑥ Design, power &amp; identifiability">⑥ 設計、檢定力與可辨識性</h3>
+        <p data-en="<b>Problem:</b> choosing risk windows, age groups and observation periods, and knowing whether you have enough events. <b>Fix:</b> the design chapter's guidance on risk periods, <b>sample size &amp; power</b> (by formula or simulation), and SCCS efficiency / identifiability — plus the SCRI design as a pragmatic option. <b>When:</b> planning any SCCS study before you analyse.">​<b>問題：</b>怎麼選危險窗、年齡組與觀察期，以及事件數夠不夠。<b>修法：</b>設計章對危險區間、<b>樣本數與檢定力</b>（公式或模擬）、SCCS 效率／可辨識性的指引——加上 SCRI 作為務實選項。<b>何時：</b>分析前規劃任何 SCCS 研究。</p></div>
+    </div>
   </section>
 
   <!-- ===================== SCCS ② 互動講解 ===================== -->
@@ -2916,6 +3014,14 @@
   <!-- ===================== SCCS ⑤ 用 AI 強化 ===================== -->
   <section id="sccsml" class="panel">
     <h1 data-en="Boost with AI: self-matched learning for heterogeneous risk">用 AI 強化：自我對照 × 機器學習，找出高風險亞群</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="Standard SCCS returns a single pooled IRR; but if the risk-window effect is <b>heterogeneous</b> (large only in some subgroup), the average hides it. Feeding each case's self-matched label (did the event fall in the risk window?) to a <b>random forest</b> (the spirit of Xu et al. 2022's self-matched learning) recovers <b>who</b> is high-risk — the start of a personalized decision rule.">
       標準 SCCS 只回一個平均 IRR；但若危險窗的風險其實<b>因人而異</b>
       （只在某亞群很高），平均值就把它藏起來。把每個人的自我對照標籤（事件有沒有落在危險窗）交給<b>隨機森林</b>
@@ -3062,6 +3168,14 @@
   <!-- ===================== ACNU ⑤ 用 AI 強化 ===================== -->
   <section id="acnuml" class="panel">
     <h1 data-en="Boost with AI: a machine-learning propensity score">用 AI 強化：機器學習傾向分數</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="After the active comparator removes most confounding, A and B still carry <b>residual confounding</b> to adjust with a <b>propensity score (PS)</b>. When the A-vs-B choice depends <b>non-linearly</b> on covariates (a severity × age threshold interaction), a main-effects <b>logistic PS</b> is mis-specified and adjusts imperfectly; a <b>gradient-boosting PS</b> (the spirit of hdPS / ML-PS) captures the non-linearity and pulls the rate ratio back to the truth.">
       主動對照削掉大半混淆後，A 與 B 之間還有<b>殘留混淆</b>要用<b>傾向分數（PS）</b>校正。當「拿 A 還是 B」的決定和共變項是
       <b>非線性</b>關係（嚴重度 × 年齡的閾值交互作用）時，只放主效應的<b>邏輯斯 PS</b> 設定錯誤、校正不乾淨；改用
@@ -3206,6 +3320,14 @@
   <!-- ===================== PNU ⑤ 用 AI 強化 ===================== -->
   <section id="pnuml" class="panel">
     <h1 data-en="Boost with AI: a machine-learning time-conditional propensity score">用 AI 強化：機器學習的時間條件傾向分數</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="PNU brings prevalent users back with a <b>time-conditional propensity score</b> (on time-since-start + frailty). When the A-vs-B pattern depends <b>non-linearly</b> on time-since-start (the early-risk period decays), a main-effects <b>logistic</b> PS is mis-specified and leaves residual depletion bias; a <b>gradient-boosting</b> PS captures the non-linearity and pulls the rate ratio back to the truth.">
       PNU 用<b>時間條件傾向分數</b>（依距起始時間＋體質）把盛行使用者納回來。當「拿 A 還是 B」和<b>距起始時間</b>是
       <b>非線性</b>關係（起始後的高風險期會衰減）時，只放主效應的<b>邏輯斯</b> PS 設定錯誤、留下殘餘耗竭偏誤；改用
@@ -3352,6 +3474,14 @@
   <!-- ===================== NC ⑤ 用 AI 強化 ===================== -->
   <section id="ncml" class="panel">
     <h1 data-en="Boost with AI: empirical calibration with a panel of negative controls">用 AI 強化：用一批陰性對照做實證校準</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
     <p class="lead" data-en="Beyond a single negative control, a <b>panel</b> of known-null negative controls lets you measure a study's <b>systematic error</b> and recalibrate its statistics (Schuemie et al.). Two milestones: <b>(2014, Stat Med)</b> fits an empirical null to the negative controls to calibrate <b>p-values</b>; <b>(2018, PNAS)</b> adds a panel of <b>positive controls</b> (known non-null effects) so the systematic error can vary with the true effect size, calibrating <b>confidence intervals</b> — the PNAS paper showed naive 95% CIs cover the truth only about half the time, while calibrated CIs restore ~95% coverage. (Data-driven calibration; the ML frontier — DANCE for auto-finding controls, ML proximal bridges — is noted below.)">
       除了單一陰性對照，用一<b>整批</b>已知為虛無的陰性對照，可以量出研究的<b>系統誤差</b>並校準統計量（Schuemie 等）。兩個里程碑：
       <b>（2014，Stat Med）</b>把陰性對照擬合成經驗虛無，校準<b>p 值</b>；<b>（2018，PNAS）</b>再加進一批<b>陽性對照</b>
@@ -3379,6 +3509,154 @@
         <p data-en="ML enters in (a) DANCE — data-driven search/validation of negative controls (Kummerfeld 2024); and (b) flexible ML bridge functions for non-linear proximal causal inference. Not implemented here.">ML 用在 (a) DANCE——資料驅動地搜尋／驗證陰性對照（Kummerfeld 2024）；(b) 非線性近端因果的彈性 ML 橋函數。本頁未實作。</p></div>
       <div class="card"><h3 data-en="③ Garbage controls in, garbage out">③ 對照選錯，校準也錯</h3>
         <p data-en="Calibration assumes the controls really are null and share the study's systematic error. Invalid controls (truly non-null, or with different bias) distort the empirical null — choose them with domain knowledge.">校準假設這些對照真的虛無、且和研究共享系統誤差。無效的對照（其實非虛無、或偏誤結構不同）會扭曲經驗虛無——要靠領域知識挑選。</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== MED ① 是什麼 ===================== -->
+  <section id="medlearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Mediation analysis: how much of the effect runs through the mediator?">中介分析：效果有多少是「透過中介」發生的？</h1>
+    <p class="lead" data-en="The other methods ask <b>whether</b> the vaccine works. Mediation asks <b>how</b> it works: of the vaccine's protection against infection Y, how much runs <b>through raising antibodies M</b> (the <b>indirect</b> effect, NIE) versus <b>other pathways</b> (the <b>direct</b> effect, NDE)? The total effect splits as <b>TE = NDE + NIE</b>, and we report the <b>proportion mediated</b> = NIE ÷ TE. Identification needs a much stronger condition than a single effect — <b>no unmeasured mediator-outcome confounding</b> — which is untestable, so a sensitivity analysis is essential.">
+      其他方法問疫苗「<b>有沒有</b>效」；中介分析問「<b>怎麼</b>有效」：疫苗對感染 Y 的保護，有多少是<b>透過提高抗體 M</b>
+      （<b>間接</b>效果 NIE），有多少走<b>其他路徑</b>（<b>直接</b>效果 NDE）？總效果拆成 <b>TE ＝ NDE ＋ NIE</b>，
+      並報<b>被中介比例</b>＝NIE ÷ TE。它的識別條件比「估單一效果」嚴格得多——尤其是<b>無未測的中介–結果混淆</b>，
+      無法用資料檢驗，所以敏感度分析不可少。
+    </p>
+
+    <div class="card scene">
+      <h3 data-en="The mediation triangle: A → M → Y, plus A → Y direct">中介三角：A → M → Y，外加 A → Y 直接路徑</h3>
+      <div id="medScene" class="chart"></div>
+    </div>
+
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef">
+        <h4>總／直接／間接效果 <span class="en">total / direct / indirect effect</span></h4>
+        <p data-en="<b>Plain:</b> total effect = the whole change in Y when A goes 0→1; indirect = the part flowing through the mediator M; direct = everything else.<br /><b>Definition (natural effects):</b> NIE = effect of moving M from M(0) to M(1) while A=1; NDE = effect of A holding M at M(0). TE = NDE + NIE.<br /><b>Why it matters:</b> it tells you the <b>mechanism</b>, and whether targeting the mediator would help.">
+          <b>白話：</b>總效果＝A 從 0→1 時 Y 的整體變化；間接＝透過中介 M 流過去的部分；直接＝其餘所有路徑。<br />
+          <b>定義（自然效果）：</b>NIE＝把 M 從 M(0) 搬到 M(1)（A 設 1）造成的效果；NDE＝固定 M 在 M(0)、只動 A 的效果。TE＝NDE＋NIE。<br />
+          <b>為什麼重要：</b>它告訴你<b>機制</b>，以及「針對中介下手」會不會有用。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>被中介比例／控制直接效果 <span class="en">proportion mediated / controlled direct effect (CDE)</span></h4>
+        <p data-en="<b>Plain:</b> proportion mediated = NIE ÷ TE, the share of the effect that runs through M.<br /><b>CDE:</b> the direct effect when the mediator is <b>fixed</b> at a chosen value m — useful when the cross-world assumption is shaky.<br /><b>Interaction:</b> if A makes M more potent (exposure-mediator interaction), the naive 'Y~A+M' direct effect is wrong; use the interaction-aware decomposition (VanderWeele).">
+          <b>白話：</b>被中介比例＝NIE ÷ TE，效果中走 M 的那一份。<br />
+          <b>CDE：</b>把中介<b>固定</b>在某值 m 時的直接效果——當 cross-world 假設站不穩時很有用。<br />
+          <b>交互：</b>若 A 讓 M 更有效（暴露–中介交互），天真『Y~A+M』的直接效果會錯；要用含交互的分解（VanderWeele）。
+        </p>
+      </div>
+      <div class="tdef">
+        <h4>序列可忽略性／敏感度分析 <span class="en">sequential ignorability / sensitivity analysis</span></h4>
+        <p data-en="<b>Plain:</b> to split off the indirect effect you must assume no unmeasured confounding of A–Y, A–M, and especially M–Y — even randomising A does not buy you the M–Y part.<br /><b>Why it matters:</b> the M–Y condition is untestable and easily violated; the standard remedy is a sensitivity analysis (e.g. Imai's medsens: how strong must unmeasured M–Y confounding be to overturn the result?).<br /><b>Origin:</b> Imai, Keele &amp; Yamamoto; VanderWeele.">
+          <b>白話：</b>要拆出間接效果，必須假設 A–Y、A–M、尤其 M–Y 都沒有未測混淆——連把 A 隨機分派都換不到 M–Y 這一條。<br />
+          <b>為什麼重要：</b>M–Y 條件不可檢、又容易被破壞；標準做法是敏感度分析（如 Imai 的 medsens：未測 M–Y 混淆要多強才會翻盤？）。<br />
+          <b>源頭：</b>Imai, Keele &amp; Yamamoto；VanderWeele。
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== MED ② 互動講解 ===================== -->
+  <section id="medplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: strengthen the mediator pathway, watch the split shift">互動：加強中介路徑，看分解如何移動</h1>
+    <p class="lead" data-en="Drag the slider for the strength of the <b>mediator pathway</b> (how strongly antibodies M protect against infection Y). As it grows, the <b>indirect effect NIE</b> and the <b>proportion mediated</b> rise, while the <b>direct effect NDE</b> barely moves. At strength 0, none of the protection runs through antibodies (NIE = 0).">
+      拉動滑桿改變<b>中介路徑</b>的強度（抗體 M 對感染 Y 的保護有多強）。強度越大，<b>間接效果 NIE</b> 與<b>被中介比例</b>上升，
+      而<b>直接效果 NDE</b> 幾乎不動。強度為 0 時，保護完全不經抗體（NIE＝0）。
+    </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="Mediator-pathway strength:">中介路徑強度：</span><b id="medStrengthVal">1.0</b>
+        <input type="range" id="medStrengthSlider" min="0" max="1.5" value="1" step="0.05" />
+        <small data-en="0 = the vaccine protects only via other pathways (NIE = 0, proportion mediated = 0). Larger = more of the protection flows through antibodies.">0＝疫苗只靠其他路徑保護（NIE＝0、被中介比例＝0）。越大＝越多保護透過抗體流過去。</small>
+      </label>
+    </div>
+
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Direct effect NDE">直接效果 NDE</div><div class="stat-num" id="medNde">–</div><div class="stat-foot" data-en="other pathways">其他路徑</div></div>
+      <div class="stat"><div class="stat-label" data-en="Indirect effect NIE">間接效果 NIE</div><div class="stat-num" id="medNie">–</div><div class="stat-foot" data-en="through antibodies M">透過抗體 M</div></div>
+      <div class="stat"><div class="stat-label" data-en="Proportion mediated">被中介比例</div><div class="stat-num" id="medPm">–</div><div class="stat-foot" data-en="NIE ÷ TE">NIE ÷ TE</div></div>
+    </div>
+
+    <div id="medPlayChart" class="chart"></div>
+    <p class="caption" id="medPlayReading"></p>
+  </section>
+
+  <!-- ===================== MED ③ 資料分析 ===================== -->
+  <section id="medanalyze" class="panel">
+    <h1 data-en="Data analysis: decompose the total effect into NDE + NIE">資料分析：把總效果拆成 NDE ＋ NIE</h1>
+    <p class="lead" data-en="Load the built-in cohort (treatment A, mediator M = antibody titer, outcome Y = infection score, covariate X). The tool fits a mediator model and an outcome model (with an exposure-mediator interaction), then reports the natural direct effect (NDE), natural indirect effect (NIE), total effect, and proportion mediated — each with a bootstrap CI. It also shows the <b>naive 'Y~A+M' direct effect</b>, which is biased when there is interaction.">
+      載入內建世代（治療 A、中介 M＝抗體效價、結果 Y＝感染分數、共變項 X）。工具配一個中介模型與一個結果模型（含暴露–中介交互），
+      回報自然直接效果 NDE、自然間接效果 NIE、總效果與被中介比例，各附自助信賴區間；並顯示<b>天真『Y~A+M』直接效果</b>——有交互時它會偏。
+    </p>
+
+    <div class="datasource">
+      <button id="useMedExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="medFileInput" accept=".csv" hidden /></label>
+      <span id="medDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+
+    <div id="medColMap" class="colmap hidden">
+      <div class="field"><label data-en="Treatment A">治療 A</label><select id="medSelA"></select></div>
+      <div class="field"><label data-en="Mediator M">中介 M</label><select id="medSelM"></select></div>
+      <div class="field"><label data-en="Outcome Y">結果 Y</label><select id="medSelY"></select></div>
+      <div class="field"><label data-en="Covariate X">共變項 X</label><select id="medSelX"></select></div>
+      <button id="runMedAnalyze" class="btn primary" data-en="Run mediation analysis">執行中介分析</button>
+    </div>
+
+    <div id="medAnalyzeOut" class="hidden">
+      <h2 data-en="Decomposition: NDE, NIE, total &amp; proportion mediated">分解：NDE、NIE、總效果與被中介比例</h2>
+      <div class="result-cards" id="medAnalyzeCards"></div>
+      <div id="medAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="The total effect (TE) splits into the direct (NDE) and indirect (NIE) bars, which add up to it. The naive 'Y~A+M' direct effect is shown for contrast — it differs from the true NDE because of the exposure-mediator interaction.">
+        總效果 TE 拆成直接（NDE）與間接（NIE）兩條，兩者相加等於它。天真『Y~A+M』直接效果並列對照——它因暴露–中介交互而不等於真正的 NDE。
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================== MED ④ 假設檢驗 ===================== -->
+  <section id="medassume" class="panel">
+    <h1 data-en="Can we trust this mediation analysis? Five checks">這個中介分析可不可信？五道體檢</h1>
+    <p class="lead" data-en="Mediation rests on <b>sequential ignorability</b> — no unmeasured confounding of A–Y, A–M, and especially <b>M–Y</b>, plus the cross-world 'no exposure-induced M–Y confounder' condition. These are untestable from data (blue cards) and not fixed by randomising A. The testable supports: whether an exposure-mediator interaction is needed, and enough data; plus a sensitivity-analysis card. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      中介分析建立在<b>序列可忽略</b>之上——A–Y、A–M、尤其 <b>M–Y</b> 都無未測混淆，外加 cross-world 的「無暴露誘發的 M–Y 混淆」。
+      這些<b>無法用資料檢驗</b>（藍卡），也不會因為把 A 隨機分派就成立。可檢的是：是否需要暴露–中介交互、以及資料量；另有一張敏感度分析卡。
+      綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="medOverall" class="overall hidden"></div>
+    <div id="medAssumeCards" class="assume-cards"></div>
+    <p id="medAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== MED ⑤ 用 AI 強化 ===================== -->
+  <section id="medml" class="panel">
+    <h1 data-en="Boost with AI: flexible ML for natural effects under a non-linear mediator">用 AI 強化：非線性中介下，用彈性 ML 估自然效果</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef">
+        <p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>: who benefits, and by how much. <b>Meta-learners</b> (S-/T-/X-/DR-learner) are model-agnostic recipes that plug flexible ML into the <b>nuisance</b> pieces (outcome &amp; propensity models) while the <b>causal identification still rests on the same assumptions</b> as here — no unmeasured confounding, overlap/positivity, consistency. <b>Caution on real-world data</b> (EHRs, registries): flexible ML reduces bias from model mis-specification but <b>cannot fix unmeasured confounding</b>, and a good predictor is <b>not</b> a causal effect. The ⑤ demo on this page is one concrete instance of this idea — flexible ML for a nuisance model, identification still from the design. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kaddour et al., arXiv:2206.15475; Li &amp; Chu (eds.), Springer 2023.</i>">
+          <b>超越單一平均效果。</b>傳統方法估的是一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>：誰受益、受益多少。<b>Meta-learners</b>（S-／T-／X-／DR-learner）是 model-agnostic 的套法，把彈性 ML 放進<b>輔助</b>模型（結果與傾向模型），而<b>因果識別仍靠和本頁相同的假設</b>——無未測混淆、重疊／正性、一致性。<b>對真實世界資料（EHR、登錄）要小心</b>：彈性 ML 能減少模型設定錯誤的偏誤，但<b>救不了未測混淆</b>，而且「預測得準」<b>不等於</b>「因果效果」。本頁 ⑤ 的示範正是這個想法的一個具體案例——用彈性 ML 處理輔助模型，識別仍來自設計。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kaddour 等, arXiv:2206.15475；Li &amp; Chu 主編, Springer 2023。</i>
+        </p>
+      </div>
+    </details>
+    <p class="lead" data-en="Antibody protection often <b>saturates</b> — beyond a level, more barely helps — so the mediator→outcome relationship is <b>non-linear</b>. A linear outcome model then biases the NDE/NIE split. Using a <b>gradient-boosting</b> outcome model with g-computation (simulating the counterfactual mediator values) learns the curve and recovers the true natural effects. Click to run (fitting the ML model loads scikit-learn the first time, ~5–10 s):">
+      抗體的保護常會<b>飽和</b>——超過某水準再多也幫不上——所以中介→結果是<b>非線性</b>的。此時線性結果模型會把 NDE／NIE 分解估偏。
+      改用<b>梯度提升</b>當結果模型、搭配 g-computation（模擬反事實的中介值）學會這條曲線，就能還原真正的自然效果。按下執行（首次會載入 scikit-learn，約 5–10 秒）：
+    </p>
+    <button id="runMedMl" class="btn primary" data-en="Run the real-ML natural-effects demo">跑真正的 ML 自然效果示範</button>
+    <div id="medMlOut" class="hidden">
+      <div id="medMlChart" class="chart"></div>
+      <p class="caption" id="medMlReading"></p>
+    </div>
+
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="① ML fixes the nuisance models, not the assumptions">① ML 修的是輔助模型，不是假設</h3>
+        <p data-en="Flexible ML makes the mediator / outcome models fit better, but the identification of NDE/NIE still rests on sequential ignorability (C1–C5). ML cannot rescue unmeasured M–Y confounding.">彈性 ML 讓中介／結果模型配得更好，但 NDE／NIE 的識別仍靠序列可忽略（C1–C5）。ML 救不了未測的 M–Y 混淆。</p></div>
+      <div class="card"><h3 data-en="② g-computation / simulation is the engine">② g-computation／模擬是引擎</h3>
+        <p data-en="Natural effects are computed by predicting counterfactual outcomes at simulated mediator values M(0), M(1) and averaging — exactly the Imai et al. simulation approach, here with a flexible outcome model.">自然效果是用模擬的中介值 M(0)、M(1) 預測反事實結果再平均算出——正是 Imai 等的模擬法，這裡換上彈性結果模型。</p></div>
     </div>
   </section>
 
@@ -3607,6 +3885,22 @@
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability fails marginally</b> (U is unmeasured), so it is replaced by <b>proxy conditions</b>: A↛W (valid NCO), Z↛Y (valid NCE), both relevant to U, plus completeness. <b>Positivity</b>: treatment varies given the proxies. <b>Consistency</b>: a well-defined exposure.">​<b>邊際可交換性不成立</b>（U 未測），改用<b>代理條件</b>：A↛W（有效 NCO）、Z↛Y（有效 NCE）、兩者都與 U 相關，加完備性。<b>正性</b>：給定代理下治療有變異。<b>一致性</b>：暴露定義明確。</p></div>
       <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From a <b>confounding bridge</b>: the negative-control exposure Z and outcome W are proxies of U, and a bridge function lets you subtract U's effect (linear case = P2SLS) — turning an unidentifiable problem into an identifiable one.">來自<b>混淆橋</b>：陰性對照暴露 Z 與結果 W 是 U 的代理，混淆橋函數讓你把 U 的效應扣掉（線性情形＝P2SLS）——把不可辨識變成可辨識。</p></div>
       <div class="card"><h3 data-en="④ In What If &amp; the proximal literature">④ 對應《What If》與近端文獻</h3><p data-en="Confounding &amp; exchangeability (Hernán &amp; Robins, <i>What If</i>, 2020); negative controls (Lipsitch 2010) and proximal causal learning (Miao 2018; Tchetgen Tchetgen et al.). Free book online.">混淆與可交換性（Hernán &amp; Robins, <i>What If</i>, 2020）；陰性對照（Lipsitch 2010）與近端因果學習（Miao 2018；Tchetgen Tchetgen 等）。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
+    </div>
+  </section>
+
+  <section id="medwhatif" class="panel">
+    <h1 data-en="⑥ What if…? Mediation in the language of counterfactuals">⑥ 如果……？用反事實的語言看「中介分析 MED」</h1>
+    <p class="lead" data-en="Mediation asks a <b>nested counterfactual</b>: what would infection be if everyone were vaccinated but their antibodies were held at the level they'd have <b>without</b> the vaccine — Yᵃ⁼¹˒ᴹ⁽⁰⁾? Comparing such cross-world quantities is what splits the effect into a part <b>through</b> the mediator (NIE) and a part <b>around</b> it (NDE).">
+      中介分析問的是一個<b>巢狀反事實</b>：如果大家都接種，但抗體被固定在「<b>沒接種</b>會有的水準」——Yᵃ⁼¹˒ᴹ⁽⁰⁾——感染會怎樣？比較這種<b>跨世界</b>的量，正是把效果拆成<b>透過</b>中介（NIE）與<b>繞過</b>中介（NDE）的方法。
+    </p>
+    <div class="card scene"><h3 data-en="The mediation DAG: A → M → Y with a direct A → Y">中介 DAG：A → M → Y，外加直接 A → Y</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_med" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a; the outcome becomes the cross-world counterfactual Yᵃ˒ᴹ⁽ᵃ*⁾">反事實介入圖（SWIG）：治療節點拆成 A∣a；結果變成跨世界反事實 Yᵃ˒ᴹ⁽ᵃ*⁾</p><div id="swigScene_med" class="chart"></div></div>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="Two estimands: NDE = Y^{1,M(0)} − Y^{0,M(0)} (change A, hold the mediator at its no-treatment value) and NIE = Y^{1,M(1)} − Y^{1,M(0)} (hold A=1, move the mediator). They add to the total effect.">兩個估計目標：NDE = Y^{1,M(0)} − Y^{0,M(0)}（動 A、把中介固定在沒接種的值）與 NIE = Y^{1,M(1)} − Y^{1,M(0)}（固定 A=1、搬動中介）。兩者相加＝總效果。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="Natural effects need <b>sequential</b> exchangeability: no unmeasured A–Y, A–M, and (the crux) <b>M–Y</b> confounding, plus the <b>cross-world</b> 'no exposure-induced M–Y confounder'. <b>Positivity</b>: every mediator value is possible under both treatments. <b>Consistency</b>: well-defined A and M.">自然效果需要<b>序列</b>可交換：無未測的 A–Y、A–M、以及（命門）<b>M–Y</b> 混淆，加上 <b>cross-world</b>「無暴露誘發的 M–Y 混淆」。<b>正性</b>：兩種治療下每個中介值都可能出現。<b>一致性</b>：A 與 M 定義明確。</p></div>
+      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="<b>Nowhere automatic</b> — unlike the other designs, randomising A does <b>not</b> deliver the M–Y exchangeability. You must rely on measured confounders for the M–Y arm plus a <b>sensitivity analysis</b>; if the cross-world condition is doubtful, switch to the <b>controlled direct effect</b> (fix M).">​<b>沒有自動來源</b>——和其他設計不同，把 A 隨機分派<b>換不到</b> M–Y 的可交換。M–Y 這條只能靠已測共變項＋<b>敏感度分析</b>；若 cross-world 條件可疑，改估<b>控制直接效果</b>（固定 M）。</p></div>
+      <div class="card"><h3 data-en="④ In What If &amp; the mediation literature">④ 對應《What If》與中介文獻</h3><p data-en="Mediation, natural &amp; controlled direct effects, cross-world assumptions (Hernán &amp; Robins, <i>What If</i>, Ch 21); Imai, Keele &amp; Yamamoto; VanderWeele 2015. Free book online.">中介、自然與控制直接效果、跨世界假設（Hernán &amp; Robins, <i>What If</i>, 第 21 章）；Imai, Keele &amp; Yamamoto；VanderWeele 2015。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
 
@@ -4044,6 +4338,45 @@ run;</code></pre>
       <p data-en="Stage 1 regresses W on A+Z+X; stage 2 puts the fitted W into the outcome model, and the coefficient on A is the proximally-identified causal effect. Empirical calibration of many negative controls uses the OHDSI <code>EmpiricalCalibration</code> package (R).">第一階段 W~A+Z+X；第二階段把配適的 W 放進結果模型，A 的係數即近端辨識的因果效應。多個陰性對照的實證校準可用 OHDSI <code>EmpiricalCalibration</code>（R）套件。</p></div>
   </section>
 
+  <section id="medsas" class="panel">
+    <h1 data-en="⑦ SAS code: the key steps for mediation analysis">⑦ SAS 程式：中介分析的關鍵步驟</h1>
+    <p class="lead" data-en="SAS has a built-in causal mediation procedure (PROC CAUSALMED) that fits the mediator and outcome models, handles the exposure-mediator interaction, and reports the natural direct/indirect effects and proportion mediated.">SAS 內建因果中介程序 <code>PROC CAUSALMED</code>，會配中介與結果模型、處理暴露–中介交互，並回報自然直接／間接效果與被中介比例。</p>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — from longitudinal records to one analysis row per person">步驟 0 — 從縱貫紀錄整理成每人一列</h3>
+      <pre class="sas"><code><span class="cm">/* assemble exposure A, mediator M (measured AFTER A, BEFORE Y), outcome Y, and X. */</span>
+<span class="cm">/* temporal order matters: A → M → Y must hold in the data windows.               */</span>
+proc sql;
+   create table med as
+   select c.pid,
+          c.vaccinated                       as A,   <span class="cm">/* exposure (time zero)        */</span>
+          m.titer                            as M,   <span class="cm">/* mediator: post-vax antibody */</span>
+          (y.pid is not null)                as Y,   <span class="cm">/* outcome: later infection    */</span>
+          c.age                              as X    <span class="cm">/* baseline covariate          */</span>
+   from cohort c
+      left join antibody m on m.pid=c.pid and m.draw_date  between c.index_date and c.index_date+90
+      left join infection y on y.pid=c.pid and y.event_date &gt; c.index_date+90;   <span class="cm">/* Y after M */</span>
+quit;</code></pre>
+      <p data-en="Mediation lives or dies on temporal order: the mediator M must be measured AFTER exposure A and BEFORE outcome Y. Build the windows so A → M → Y holds, then keep one row per person.">中介分析成敗在時序：中介 M 必須量在暴露 A <b>之後</b>、結果 Y <b>之前</b>。把時間窗切成 A → M → Y，再整理成每人一列。</p></div>
+    <div class="card"><h3 data-en="Step 1 — natural-effects decomposition (PROC CAUSALMED)">步驟 1 — 自然效果分解（PROC CAUSALMED）</h3>
+      <pre class="sas"><code>proc causalmed data=med;
+   model Y = A M A*M X;          <span class="cm">/* outcome model WITH exposure-mediator interaction */</span>
+   mediator M = A X;             <span class="cm">/* mediator model                                   */</span>
+   effectplot;                   <span class="cm">/* reports NDE, NIE, total effect, proportion mediated */</span>
+run;</code></pre>
+      <p data-en="PROC CAUSALMED fits both models and the A×M interaction, then outputs the natural direct effect (NDE), natural indirect effect (NIE), total effect and proportion mediated — the counterfactual decomposition, not a naive 'adjust for M' coefficient.">CAUSALMED 同時配兩個模型與 A×M 交互，輸出自然直接效果 NDE、自然間接效果 NIE、總效果與被中介比例——是反事實分解，不是天真「校正 M」的係數。</p></div>
+    <div class="card"><h3 data-en="Step 2 — sensitivity analysis (and R / Stata equivalents)">步驟 2 — 敏感度分析（與 R／Stata 對照）</h3>
+      <pre class="sas"><code><span class="cm">/* the key M–Y no-confounding assumption is untestable → probe its robustness. */</span>
+proc causalmed data=med;
+   model Y = A M A*M X;  mediator M = A X;
+   bootstrap / seed=1 nboot=1000;   <span class="cm">/* bootstrap CIs for NIE / proportion mediated */</span>
+run;
+<span class="cm">/* R:  library(mediation); m &lt;- mediate(med.fit, out.fit, treat="A", mediator="M", sims=1000) */</span>
+<span class="cm">/*     summary(m); medsens(m)   # rho sensitivity to unmeasured M–Y confounding            */</span>
+<span class="cm">/* Stata:  mediate (Y) (M) (A), … ; estat … (NDE/NIE/CDE, multiple outcome/mediator types) */</span>
+</code></pre>
+      <p data-en="Because no-unmeasured-M–Y-confounding cannot be tested, always pair the estimate with a sensitivity analysis (R's medsens varies a correlation ρ to see how strong hidden confounding must be to overturn the result). R's mediation package and Stata's mediate give the same decomposition.">因為「M–Y 無未測混淆」無法檢驗，務必配敏感度分析（R 的 medsens 用相關 ρ 看隱藏混淆要多強才會翻盤）。R 的 mediation 套件與 Stata 的 mediate 給出同一套分解。</p></div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -4054,7 +4387,7 @@ run;</code></pre>
     </p>
 
     <div class="card scene">
-      <h3 data-en="All 13 designs correct their naive bias back to the truth (grouped by family)">十三種設計，各自把「天真偏誤」修回真值（按家族分組）</h3>
+      <h3 data-en="All 14 designs correct their naive bias back to the truth (grouped by family; mediation is a separate decomposition, below)">十四種設計，各自把「天真偏誤」修回真值（按家族分組；中介分析是另一種「分解」，見下）</h3>
       <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling) — many different ways of borrowing randomness, all landing near the truth.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
         <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝天真比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
@@ -4176,6 +4509,11 @@ run;</code></pre>
             <td data-en="Health-seeking (unmeasured) drives both vaccination and the outcome; you have a negative-control outcome (a pre-vaccination event) and a negative-control exposure">健康／就醫傾向（未測）同時影響接種與結果；你有陰性對照結果（接種前事件）與陰性對照暴露</td>
             <td data-en="A pair of negative controls — proxies of the unmeasured confounder (no A→W, no Z→Y)">一對陰性對照——未測混淆的代理（A 不影響 W、Z 不影響 Y）</td>
             <td data-en="The negative controls' 'no causal effect' + a confounding bridge / completeness">陰性對照的「無因果」＋混淆橋／完備性</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · mechanism (a decomposition that follows any design above)">家族 · 機制（接在上面任一設計之後的效果分解）</td></tr>
+          <tr><td>MED</td>
+            <td data-en="An effect is already known (vaccine → infection); you also measured a mediator M (antibody titer) on the path A → M → Y">已知有效果（疫苗 → 感染）；你還量了一個中介 M（抗體效價），位在 A → M → Y 的路徑上</td>
+            <td data-en="Nothing — mediation is not a confounding-control design; it decomposes a known effect">不借——中介分析不是控制混淆的設計，而是把已知效果做分解</td>
+            <td data-en="No unmeasured M–Y confounding (+ A–Y, A–M) and no exposure-induced M–Y confounder — untestable, not fixed by randomising A">無未測的 M–Y（＋A–Y、A–M）混淆、且無暴露誘發的 M–Y 混淆——不可檢，隨機化 A 也換不到</td></tr>
         </tbody>
       </table>
     </div>
@@ -4210,12 +4548,14 @@ run;</code></pre>
           <tr><td>CC</td><td data-en="Cases + controls representing the source population, with exposure history">病例＋代表來源族群的對照，含暴露史</td><td data-en="An odds ratio (≈ relative risk when the outcome is rare)">勝算比（結果罕見時 ≈ 相對風險）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · proxies / negative controls">家族 · 代理／陰性對照（近端因果）</td></tr>
           <tr><td>NC</td><td data-en="Treatment, outcome, covariates + a negative-control outcome (NCO) and a negative-control exposure (NCE)">治療、結果、共變項＋一個陰性對照結果（NCO）與一個陰性對照暴露（NCE）</td><td data-en="The causal effect under unmeasured confounding (identified proximally via the NC pair)">在未測混淆下的因果效應（用陰性對照對近端辨識）</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · mechanism (decomposition)">家族 · 機制（分解）</td></tr>
+          <tr><td>MED</td><td data-en="Treatment A, a mediator M measured after A and before Y, outcome Y, covariates X (one row per person)">治療 A、量在 A 之後 Y 之前的中介 M、結果 Y、共變項 X（每人一列）</td><td data-en="The total effect split into natural direct (NDE) + natural indirect (NIE), and the proportion mediated">把總效果拆成自然直接 NDE ＋ 自然間接 NIE，以及被中介比例</td></tr>
         </tbody>
       </table>
     </div>
 
     <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
-    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 13 methods in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 13 種方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 15 methods (14 designs + mediation) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 15 種方法（14 設計＋中介分析）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
     <div class="flow-legend">
       <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
@@ -4278,6 +4618,7 @@ run;</code></pre>
     <p class="muted" id="refsIntro" data-en="References for this page:">本頁的參考文獻：</p>
     <ul class="reflist" id="refsList">
       <li data-ref="all"><b data-en="Causal-inference foundations (tab ⑥)">因果推論基礎（分頁 ⑥）</b> · Hernán, M. A., &amp; Robins, J. M. (2020). <i>Causal Inference: What If.</i> Boca Raton: Chapman &amp; Hall/CRC. <span data-en="〔counterfactuals; exchangeability / positivity / consistency; g-methods; target trial — free book: hsph.harvard.edu/miguel-hernan/causal-inference-book〕">〔反事實；可交換性／正性／一致性；g-methods；目標試驗 —— 免費電子書：<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">hsph.harvard.edu/miguel-hernan/causal-inference-book</a>〕</span></li>
+      <li data-ref="all"><b data-en="Causal machine learning (tab ⑤ framing)">因果機器學習（⑤ 框架）</b> · Feuerriegel, S., et al. (2024). Causal machine learning for predicting treatment outcomes. <i>Nature Medicine, 30</i>, 958–968. https://doi.org/10.1038/s41591-024-02902-1. · Kaddour, J., Lynch, A., Liu, Q., Kusner, M. J., &amp; Silva, R. (2022). Causal Machine Learning: A Survey and Open Problems. <i>arXiv</i>:2206.15475. · Li, S., &amp; Chu, Z. (Eds.) (2023). <i>Machine Learning for Causal Inference.</i> Springer. <span data-en="〔individualised effects (CATE), meta-learners (S/T/X/DR-learner), cautions for RWD — woven into every method's ⑤〕">〔個體化效果（CATE）、meta-learners（S/T/X/DR-learner）、對 RWD 的提醒 —— 織入每個方法的 ⑤〕</span></li>
       <li data-ref="iv">Homayra, F., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
@@ -4358,11 +4699,16 @@ run;</code></pre>
       <li data-ref="nc"><b data-en="Proximal correction">近端校正</b> · Miao, W., Geng, Z., &amp; Tchetgen Tchetgen, E. J. (2018). Identifying causal effects with proxy variables of an unmeasured confounder. <i>Biometrika, 105</i>(4), 987–993. · Tchetgen Tchetgen, E. J., Ying, A., Cui, Y., Shi, X., &amp; Miao, W. (2024). An introduction to proximal causal inference. <i>Statistical Science.</i> · regression-based proximal causal inference (<i>Epidemiology</i>, 2025). <span data-en="〔double negative control / P2SLS — NC tabs ②③〕">〔雙陰性對照／P2SLS——NC 分頁 ②③〕</span></li>
       <li data-ref="nc"><b data-en="AI / calibration">AI／校準</b> · Schuemie, M. J., Ryan, P. B., DuMouchel, W., Suchard, M. A., &amp; Madigan, D. (2014). Interpreting observational studies: why empirical calibration is needed to correct p-values. <i>Statistics in Medicine, 33</i>(2), 209–218. · Schuemie, M. J., Hripcsak, G., Ryan, P. B., Madigan, D., &amp; Suchard, M. A. (2018). Empirical confidence interval calibration for population-level effect estimation studies in observational healthcare data. <i>PNAS, 115</i>(11), 2571–2577. <span data-en="〔CI calibration via negative + positive controls; effect-size-dependent systematic error; restores 95% coverage — NC tab ⑤〕">〔以陰性＋陽性對照校準信賴區間、系統誤差隨真效應變化、把 95% 涵蓋率拉回 —— NC 分頁 ⑤〕</span></li>
       <li data-ref="nc"><b data-en="Vaccine application">疫苗應用</b> · Li, K. Q., Shi, X., Miao, W., &amp; Tchetgen Tchetgen, E. (2023). Double negative control inference in test-negative design studies of vaccine effectiveness. <i>JASA.</i> · Tchetgen Tchetgen, E. (2014). The control outcome calibration approach. <i>AJE, 179</i>(5), 633–640. <span data-en="〔negative controls for vaccine studies〕">〔陰性對照用於疫苗研究〕</span></li>
+      <li data-ref="med"><b data-en="Method &amp; software">方法／軟體</b> · Tingley, D., Yamamoto, T., Hirose, K., Keele, L., &amp; Imai, K. (2014). mediation: R Package for Causal Mediation Analysis. <i>Journal of Statistical Software, 59</i>(5), 1–38. https://doi.org/10.18637/jss.v059.i05. <span data-en="〔the mediate() workflow: ACME/ADE, sims, medsens — MED tabs ③⑤⑦〕">〔mediate() 工作流程：ACME／ADE、模擬、medsens —— MED 分頁 ③⑤⑦〕</span></li>
+      <li data-ref="med">Imai, K., Keele, L., &amp; Yamamoto, T. (2010). Identification, Inference and Sensitivity Analysis for Causal Mediation Effects. <i>Statistical Science, 25</i>(1), 51–71. <span data-en="〔sequential ignorability &amp; the simulation approach — MED tabs ④⑤〕">〔序列可忽略性與模擬法 —— MED 分頁 ④⑤〕</span></li>
+      <li data-ref="med">Valeri, L., &amp; VanderWeele, T. J. (2013). Mediation analysis allowing for exposure-mediator interactions and causal interpretation: theoretical assumptions and implementation with SAS and SPSS macros. <i>Psychological Methods, 18</i>(2), 137–150. <span data-en="〔exposure-mediator interaction; NDE/NIE/CDE — MED tabs ①③⑦〕">〔暴露–中介交互；NDE／NIE／CDE —— MED 分頁 ①③⑦〕</span></li>
+      <li data-ref="med">VanderWeele, T. J. (2015). <i>Explanation in Causal Inference: Methods for Mediation and Interaction.</i> Oxford University Press. · Baron, R. M., &amp; Kenny, D. A. (1986). The moderator-mediator variable distinction in social psychological research. <i>JPSP, 51</i>(6), 1173–1182. <span data-en="〔the modern counterfactual treatment &amp; the classic Baron–Kenny steps〕">〔現代反事實取徑與經典 Baron–Kenny 步驟〕</span></li>
+      <li data-ref="med"><b data-en="Applied guidance">應用指引</b> · Schuler, M. S., Coffman, D. L., Stuart, E. A., Nguyen, T. Q., Vegetabile, B., &amp; McCaffrey, D. F. (2025). Practical challenges in mediation analysis: a guide for applied researchers. <i>Health Services and Outcomes Research Methodology, 25</i>, 57–84. · StataCorp. <i>causal mediation analysis</i> (the <code>mediate</code> command). <span data-en="〔practical pitfalls; Stata mediate (NDE/NIE/CDE, RD/OR/RR/IRR scales) — MED tab ⑦〕">〔實務陷阱；Stata mediate（NDE/NIE/CDE、RD/OR/RR/IRR 尺度）—— MED 分頁 ⑦〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=76"></script>
-<script src="app.js?v=76"></script>
+<script src="i18n.js?v=77"></script>
+<script src="app.js?v=77"></script>
 </body>
 </html>

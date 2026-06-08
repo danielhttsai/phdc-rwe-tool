@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -39,11 +39,14 @@ const PANEL_INIT = {
   pnuassume: () => initPnuAssume(), pnuml: () => initPnuMl(),
   nclearn: () => initNcLearn(), ncplay: () => initNcPlay(), ncanalyze: () => initNcAnalyze(),
   ncassume: () => initNcAssume(), ncml: () => initNcMl(),
+  medlearn: () => initMedLearn(), medplay: () => initMedPlay(), medanalyze: () => initMedAnalyze(),
+  medassume: () => initMedAssume(), medml: () => initMedMl(),
   whatif: () => drawWhatifPair("iv"), rddwhatif: () => drawWhatifPair("rdd"), didwhatif: () => drawWhatifPair("did"),
   perrwhatif: () => drawWhatifPair("perr"), itswhatif: () => drawWhatifPair("its"), titwhatif: () => drawWhatifPair("tit"),
   ccwwhatif: () => drawWhatifPair("ccw"), seqwhatif: () => drawWhatifPair("seq"), cctcwhatif: () => drawWhatifPair("cctc"),
   ccwhatif: () => drawWhatifPair("cc"), sccswhatif: () => drawWhatifPair("sccs"), acnuwhatif: () => drawWhatifPair("acnu"),
   pnuwhatif: () => drawWhatifPair("pnu"), ncwhatif: () => drawWhatifPair("nc"),
+  medwhatif: () => drawWhatifPair("med"),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -1422,6 +1425,7 @@ const DNODES = {
     opts: [
       { l: { zh: "暴露錨定：先固定一個暴露／介入，看它造成什麼結果", en: "Exposure-anchored: fix one exposure/intervention, study its effects" }, to: "exOut" },
       { l: { zh: "結果錨定：先固定一個結果，回頭找是哪些暴露造成的", en: "Outcome-anchored: fix one outcome, look back for the exposures" }, to: "outHow" },
+      { l: { zh: "機制錨定：已知某暴露有效果，想知道有多少<b>透過某中介</b>發生（中介分析）", en: "Mechanism-anchored: an effect is known — ask how much runs <b>through a mediator</b> (mediation)" }, to: "rMED" },
     ],
   },
   // ================= A · exposure-anchored =================
@@ -1543,6 +1547,14 @@ const DNODES = {
                 en: "Vaccine scenario: health / care-seeking (unmeasured) drives both vaccination and the outcome. Use a pre-vaccination event as the NCO and a health-related exposure that can't affect the outcome as the NCE to detect and correct healthy-vaccinee bias (see the NC tabs ①–⑥)." },
     watch: { zh: "✓ 本工具箱已實作。核心代價：<b>陰性對照的「無因果」與完備性不可檢驗</b>，要靠領域知識挑選；代理要夠相關（類似工具強度）。",
              en: "✓ Implemented in this toolbox. The price: the negative controls' <b>'no causal effect' and completeness are untestable</b> — choose by domain knowledge; proxies must be relevant enough (like instrument strength)." } } },
+  rMED: { rec: { kind: "toolbox", method: "med", badge: "Mediation ✓",
+    title: { zh: "最適合：中介分析 Mediation ✓（本工具）", en: "Best fit: Mediation analysis (MED) ✓ (this tool)" },
+    why: { zh: "你已知（或正在估）某暴露對結果有效果，現在想知道<b>機制</b>：這個效果有多少是<b>透過某個中介 M</b>（間接 NIE）、多少走<b>其他路徑</b>（直接 NDE）。中介分析把總效果拆成 TE＝NDE＋NIE，並報<b>被中介比例</b>。這不是「控制混淆的設計」，而是效果的<b>分解</b>，通常接在前面任一設計之後。",
+           en: "You already know (or are estimating) that an exposure affects an outcome, and now want the <b>mechanism</b>: how much of the effect runs <b>through a mediator M</b> (indirect NIE) vs <b>other pathways</b> (direct NDE). Mediation splits the total into TE = NDE + NIE and reports the <b>proportion mediated</b>. It is not a confounding-control design but a <b>decomposition</b> that usually follows one of the designs above." },
+    scenario: { zh: "疫苗情境：疫苗對感染的保護，有多少是透過提高抗體效價（中介）？用中介分析估自然直接／間接效果與被中介比例（見「MED」分頁 ①–⑦）。",
+                en: "Vaccine scenario: how much of the vaccine's protection against infection runs through raising antibody titer (the mediator)? Mediation estimates the natural direct/indirect effects and proportion mediated (see the MED tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。最關鍵代價：要拆出間接效果，必須<b>沒有未測的中介–結果（M–Y）混淆</b>——<b>連把暴露隨機分派都換不到</b>這一條；務必做敏感度分析。",
+             en: "✓ Implemented in this toolbox. The key price: isolating the indirect effect needs <b>no unmeasured mediator-outcome (M–Y) confounding</b> — <b>not even randomising the exposure buys this</b>; always run a sensitivity analysis." } } },
   // common / external designs (reference)
   rACC: { rec: { kind: "toolbox", method: "acnu", badge: "ACNU ✓",
     title: { zh: "建議：主動對照新使用者 ACNU ✓（本工具）", en: "Suggested: Active-Comparator, New-User (ACNU) ✓ (this tool)" },
@@ -1697,6 +1709,19 @@ const FULLMAP = {
           ] },
       ],
     },
+    {
+      cls: "c",
+      edge: { zh: "機制錨定", en: "mechanism-anchored" },
+      head: { zh: "C · 機制錨定", en: "C · Mechanism-anchored" },
+      sub: { zh: "已知有效果 → 問「怎麼有效」（效果的分解，接在任一設計之後）", en: "an effect is known → ask 'how' (a decomposition, follows any design)" },
+      steps: [
+        { q: { zh: "想拆出效果的機制？", en: "Want to decompose the mechanism?" },
+          forks: [
+            { edge: { zh: "多少透過某中介？", en: "how much via a mediator?" },
+              leaves: [{ key: "rMED", cond: { zh: "把總效果拆成直接 NDE ＋ 間接 NIE（透過中介）、報被中介比例", en: "split the total into direct NDE + indirect NIE (via a mediator), report proportion mediated" }, tag: "Mediation ✓", kind: "tb" }] },
+          ] },
+      ],
+    },
   ],
   rct: {
     q: { zh: "最後一步（沒辦法的辦法）：上面都不符合——你其實已有一場（別族群的）RCT 可以借嗎？", en: "Last step (last resort): nothing above fits — do you actually have an RCT (in another population) to borrow?" },
@@ -1820,7 +1845,8 @@ function renderFullMap(hitKey) {
   box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
-// All 13 methods, one vaccine question, grouped by DESIGN FAMILY. Each method's truth
+// All 14 design methods, one vaccine question, grouped by DESIGN FAMILY (mediation is a
+// separate decomposition, not shown here). Each method's truth
 // is on a different scale (effect difference, odds ratio, rate ratio, level change…),
 // so we plot every estimate ÷ its OWN truth: 1.0 = perfectly recovered. Amber = the
 // naive comparison (biased, off 1.0); teal = the method's corrected estimate (back near
@@ -1872,8 +1898,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC）線上教學工具",
-  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/iv-rdd-tool/",
 };
@@ -1894,6 +1920,7 @@ const METHOD_REF = {
   acnu: { zh: "主動對照新使用者 ACNU", en: "Active-Comparator, New-User (ACNU)", src: "Lund, Richardson & Stürmer (2015); Ray (2003); Yoshida, Solomon & Kim (2015)" },
   pnu:  { zh: "盛行新使用者 PNU", en: "Prevalent New-User (PNU)", src: "Suissa, Moodie & Dell'Aniello (2017), Pharmacoepidemiol Drug Saf" },
   nc:   { zh: "陰性對照與近端因果 NC", en: "Negative Control & Proximal (NC)", src: "Lipsitch, Tchetgen Tchetgen & Cohen (2010); Miao, Geng & Tchetgen Tchetgen (2018); Schuemie et al. (2014/2018)" },
+  med:  { zh: "中介分析 Mediation", en: "Mediation analysis (MED)", src: "Imai, Keele & Yamamoto (2010); Tingley et al. (2014), JSS; VanderWeele (2015)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -4843,6 +4870,215 @@ function drawNcCal(s) {
 }
 
 // ======================================================================
+// MED — Mediation analysis (15th method)
+// ======================================================================
+const medState = { source: null, columns: [], req: null };
+let medLearnReady = false, medPlayReady = false, medAnalyzeReady = false,
+    medAssumeReady = false, medMlCache = null;
+
+// ① learn scene: the decomposition TE = NDE + NIE in bars (representative demo numbers)
+function drawSceneMed() {
+  if (!document.getElementById("medScene")) return;
+  const labels = [tr("總效果<br>TE", "total<br>TE"), tr("直接 NDE<br>（其他路徑）", "direct NDE<br>(other paths)"),
+    tr("間接 NIE<br>（透過抗體）", "indirect NIE<br>(via antibodies)")];
+  const vals = [-1.19, -0.55, -0.64];
+  Plotly.react("medScene", [{
+    x: labels, y: vals, type: "bar", marker: { color: [INK, TEAL, PURPLE] },
+    text: vals.map((v) => v.toFixed(2)), textposition: "outside",
+  }], schemaLayout({
+    height: 300, margin: { t: 16, r: 14, b: 46, l: 48 },
+    xaxis: { visible: true, tickfont: { size: 9.5 } },
+    yaxis: { visible: true, title: tr("對感染的效果", "effect on infection"), range: [-1.4, 0.2] },
+    annotations: [{ x: 0, y: -1.19, yref: "y", showarrow: false, yshift: -12, font: { color: SLATE, size: 9 },
+      text: tr("TE = NDE + NIE（約 54% 被中介）", "TE = NDE + NIE (~54% mediated)") }],
+  }), SCENE_CFG);
+}
+function initMedLearn() { if (medLearnReady) return; medLearnReady = true; drawSceneMed(); }
+
+// ② interactive — mediator-pathway-strength slider
+const medStrengthSlider = document.getElementById("medStrengthSlider");
+let medPlayTimer = null;
+function initMedPlay() { if (medPlayReady) return; medPlayReady = true; refreshMedPlay(); }
+function scheduleMedPlay() {
+  document.getElementById("medStrengthVal").textContent = Number(medStrengthSlider.value).toFixed(2);
+  clearTimeout(medPlayTimer); medPlayTimer = setTimeout(refreshMedPlay, 250);
+}
+if (medStrengthSlider) medStrengthSlider.addEventListener("input", scheduleMedPlay);
+async function refreshMedPlay() {
+  const s = medStrengthSlider ? Number(medStrengthSlider.value) : 1.0;
+  let d;
+  try { d = await getJSON(`${API}/api/med_interactive?strength=${s}&lang=${lang()}`); } catch (e) { return; }
+  state.medPlay = d;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = fmt(v, 2); };
+  set("medNde", d.nde); set("medNie", d.nie);
+  const pm = document.getElementById("medPm"); if (pm) pm.textContent = (d.pm * 100).toFixed(0) + "%";
+  const rd = document.getElementById("medPlayReading"); if (rd) rd.innerHTML = d.reading;
+  drawMedPlay(d);
+}
+function drawMedPlay(d) {
+  if (!document.getElementById("medPlayChart")) return;
+  const g = d.grid;
+  Plotly.react("medPlayChart", [
+    { x: g.s, y: g.te, mode: "lines+markers", type: "scatter", name: tr("總效果 TE", "total TE"), line: { color: INK, width: 3 }, marker: { size: 5 } },
+    { x: g.s, y: g.nde, mode: "lines+markers", type: "scatter", name: tr("直接 NDE", "direct NDE"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
+    { x: g.s, y: g.nie, mode: "lines+markers", type: "scatter", name: tr("間接 NIE", "indirect NIE"), line: { color: PURPLE, width: 3, dash: "dot" }, marker: { size: 5 } },
+    { x: [d.strength], y: [d.nie], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 300, legend: { orientation: "h", y: 1.18 }, margin: { t: 30, r: 18, b: 44, l: 50 },
+    xaxis: { title: tr("中介路徑強度", "mediator-pathway strength") },
+    yaxis: { title: tr("對感染的效果", "effect on infection"), range: [Math.min(...g.te) * 1.12, 0.15] },
+    shapes: [{ type: "line", x0: g.s[0], x1: g.s[g.s.length - 1], y0: 0, y1: 0, line: { color: "#cbd5e1", width: 1 } }],
+  }), SCENE_CFG);
+}
+
+// ③ analyze
+function initMedAnalyze() { if (medAnalyzeReady) return; medAnalyzeReady = true; document.getElementById("useMedExample").click(); }
+function medFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["medSelA", "medSelM", "medSelY", "medSelX"].forEach((id) => document.getElementById(id).innerHTML = opts);
+  document.getElementById("medColMap").classList.remove("hidden");
+}
+function medApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null && el) el.value = v; };
+  set("medSelA", d.treat); set("medSelM", d.mediator); set("medSelY", d.outcome); set("medSelX", d.cov);
+}
+document.getElementById("useMedExample").addEventListener("click", async () => {
+  const st = document.getElementById("medDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/med_example`);
+    medState.source = "example_med"; medState.columns = d.columns;
+    st.textContent = tr(`已載入內建範例（${d.n} 人，合成虛構）`, `Loaded built-in example (${d.n} people, synthetic)`);
+    medFillSelects(d.columns); medApplyDefaults(d.defaults);
+    runMedAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("medFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("medDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    medState.source = d.token; medState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    medFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function medCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return { source: medState.source, treat: v("medSelA"), mediator: v("medSelM"),
+    outcome: v("medSelY"), cov: v("medSelX"), lang: lang() };
+}
+const runMedBtn = document.getElementById("runMedAnalyze");
+if (runMedBtn) runMedBtn.addEventListener("click", runMedAnalyze);
+async function runMedAnalyze() {
+  const req = medCurrentMapping();
+  if (!req.source) return;
+  medState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/med_analyze`, req);
+    renderMedAnalyze(a);
+    runMedAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderMedAnalyze(a) {
+  document.getElementById("medAnalyzeOut").classList.remove("hidden");
+  const ciN = a.ci_nie && a.ci_nie[0] != null ? ` (95% CI ${fmt(a.ci_nie[0],2)}–${fmt(a.ci_nie[1],2)})` : "";
+  const ciD = a.ci_nde && a.ci_nde[0] != null ? ` (95% CI ${fmt(a.ci_nde[0],2)}–${fmt(a.ci_nde[1],2)})` : "";
+  const cards = [
+    [tr("間接效果 NIE（透過抗體 M）", "indirect effect NIE (via antibodies M)"), a.nie, a.interpretation, true],
+    [tr("直接效果 NDE（其他路徑）", "direct effect NDE (other pathways)"), a.nde,
+      tr("固定中介在沒接種的值、只動暴露。", "holds the mediator at its no-treatment value, moves only exposure.") + ciD, false],
+    [tr("總效果 TE = NDE + NIE", "total effect TE = NDE + NIE"), a.te,
+      tr(`被中介比例 ≈ ${(a.pm*100).toFixed(0)}%。`, `proportion mediated ≈ ${(a.pm*100).toFixed(0)}%.`) + ciN, false],
+    [tr("天真直接（Y~A+M，偏）", "naive direct (Y~A+M, biased)"), a.naive_direct,
+      tr("忽略暴露×中介交互，≠ 真正的 NDE。", "ignores the exposure-mediator interaction, ≠ the true NDE."), false],
+  ];
+  document.getElementById("medAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  drawMedAnalyze(a);
+}
+function drawMedAnalyze(a) {
+  if (!document.getElementById("medAnalyzeChart")) return;
+  const labels = [tr("總效果 TE", "total TE"), tr("直接 NDE", "direct NDE"), tr("間接 NIE", "indirect NIE"), tr("天真直接", "naive direct")];
+  const vals = [a.te, a.nde, a.nie, a.naive_direct];
+  Plotly.react("medAnalyzeChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: [INK, TEAL, PURPLE, AMBER] },
+    text: vals.map((v) => fmt(v, 2)), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 22, r: 16, b: 40, l: 50 },
+    yaxis: { title: tr("對感染的效果", "effect on infection"), range: [Math.min(...vals) * 1.2, 0.15] },
+    shapes: [{ type: "line", x0: -0.5, x1: 3.5, y0: a.true_te, y1: a.true_te, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: 0, y: a.true_te, text: tr("真值 TE " + fmt(a.true_te, 2), "truth TE " + fmt(a.true_te, 2)), showarrow: false, yshift: -12, font: { color: GREEN, size: 10 } }],
+  }), SCENE_CFG);
+}
+
+// ④ assumptions
+function initMedAssume() {
+  if (medAssumeReady) return;
+  medAssumeReady = true;
+  runMedAssumptions(medState.req || { source: "example_med", lang: lang() });
+}
+async function runMedAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_med", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/med_assumptions`, body); } catch (e) { return; }
+  state.medDash = out;
+  renderMedAssumptions(out);
+}
+function renderMedAssumptions(out) {
+  const hint = document.getElementById("medAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("medOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；關鍵設計假設仍需領域判斷。", "Testable checks pass; key design assumptions need domain judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("medAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ⑤ real-ML natural effects — button-triggered (loads scikit-learn)
+function initMedMl() { if (medMlCache) drawMedMl(medMlCache); }
+const runMedMlBtn = document.getElementById("runMedMl");
+if (runMedMlBtn) runMedMlBtn.addEventListener("click", async () => {
+  const btn = runMedMlBtn; const old = btn.textContent;
+  btn.disabled = true; btn.textContent = tr("計算中（載入 ML 套件）…", "Computing (loading ML)…");
+  try {
+    const s = await getJSON(`${API}/api/med_natural_ml?lang=${lang()}`);
+    medMlCache = s; drawMedMl(s);
+  } catch (e) { alert(tr("計算失敗：", "Failed: ") + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
+});
+function drawMedMl(s) {
+  document.getElementById("medMlOut").classList.remove("hidden");
+  if (document.getElementById("medMlChart")) {
+    Plotly.react("medMlChart", [{
+      x: s.bars.labels, y: s.bars.values, type: "bar", marker: { color: [AMBER, TEAL, GREEN] },
+      text: s.bars.values.map((v) => v.toFixed(2)), textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 22, r: 16, b: 44, l: 52 },
+      yaxis: { title: tr("間接效果 NIE", "indirect effect NIE"), range: [Math.min(...s.bars.values) * 1.2, 0.1] },
+      shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: s.nie_true, y1: s.nie_true, line: { color: GREEN, width: 2, dash: "dash" } }],
+    }), SCENE_CFG);
+  }
+  document.getElementById("medMlReading").innerHTML = s.reading;
+}
+
+// ======================================================================
 // ⑥ What if — every method in the language of counterfactuals
 // (original plain-language take on Hernán & Robins, Causal Inference: What If;
 //  no text is copied from the book). One small counterfactual-contrast diagram
@@ -4947,6 +5183,15 @@ const WHATIF = {
       { id: "W", x: 4.0, y: 2.5, role: "X", label: { zh: "陰性對照結果 W（NCO）", en: "neg-control outcome W" } }],
     edges: [{ a: "A", b: "Y", kind: "effect" }, { a: "U", b: "A", kind: "bias" }, { a: "U", b: "Y", kind: "bias" }, { a: "U", b: "Z", kind: "causal" }, { a: "U", b: "W", kind: "causal" }],
     note: { zh: "U 開了後門（A←U→Y），但<b>沒測到</b>。關鍵：<b>A 不影響 W、Z 不影響 Y</b>（陰性對照定義），Z、W 只是 U 的代理。偵測：A→W 本應 0，≠0 即偏誤訊號；校正：用 Z、W 解出 U 的效應（confounding bridge / P2SLS）→ 辨識 A→Y。", en: "U opens a backdoor (A←U→Y) but is <b>unmeasured</b>. Key: <b>A does not affect W, Z does not affect Y</b> (the negative-control definitions); Z and W are mere proxies of U. Detection: A→W should be 0, ≠0 flags bias; correction: use Z and W to back out U's effect (confounding bridge / P2SLS) → identify A→Y." } },
+  med: { nodes: [
+      { id: "A", x: 1.0, y: 0.9, role: "A", label: { zh: "治療（接種）", en: "treatment A" } },
+      { id: "M", x: 2.65, y: 2.4, role: "L", label: { zh: "中介 M（抗體）", en: "mediator M (antibody)" } },
+      { id: "Y", x: 4.3, y: 0.9, role: "Y", label: { zh: "結果（感染）", en: "outcome Y" } },
+      { id: "X", x: 0.4, y: 2.4, role: "X", label: { zh: "共變項 X", en: "covariate X" } }],
+    edges: [{ a: "A", b: "M", kind: "causal", label: { zh: "a", en: "a" } }, { a: "M", b: "Y", kind: "causal", label: { zh: "b", en: "b" } },
+            { a: "A", b: "Y", kind: "effect", label: { zh: "直接", en: "direct" } },
+            { a: "X", b: "A", kind: "bias" }, { a: "X", b: "M", kind: "causal" }, { a: "X", b: "Y", kind: "causal" }],
+    note: { zh: "效果走兩條路：<b>間接</b> A→M→Y（透過抗體，NIE＝a·b 一帶）與<b>直接</b> A→Y（其他路徑，NDE）。中介分析把總效果拆成這兩部分。關鍵代價：要拆出間接，必須<b>沒有未測的 M–Y 混淆</b>——連把 A 隨機分派都換不到這一條。", en: "The effect travels two paths: <b>indirect</b> A→M→Y (through antibodies, NIE ≈ a·b) and <b>direct</b> A→Y (other pathways, NDE). Mediation splits the total into these two. The key price: to isolate the indirect part you need <b>no unmeasured M–Y confounding</b> — not even randomising A buys you that." } },
 };
 
 const WHATIF_COL = { A: TEAL, Y: "#c0504d", U: "#5b7aa8", Z: "#f59e0b", X: "#b45309", T: "#64748b", L: "#7c5fae", S: "#94a3b8" };
@@ -5009,6 +5254,7 @@ const SWIG_META = {
   acnu: { split: "A",  cf: "Yᵃ", note: { zh: "把『用 A（vs 對照藥 B）』設成 a → 反事實 Yᵃ。可交換性靠<b>主動對照＋新使用者</b>把 S 範圍縮小，再<b>校正嚴重度 S</b>達成：A ⫫ Yᵃ | S。", en: "Set 'take A (vs comparator B)' to a → counterfactual Yᵃ. Exchangeability comes from the <b>active comparator + new-user</b> design narrowing S, then <b>adjusting for severity S</b>: A ⫫ Yᵃ | S." } },
   pnu: { split: "A",  cf: "Yᵃ", note: { zh: "把『用 A』設成 a → 反事實 Yᵃ。盛行使用者有易感者耗竭，要<b>條件在距起始時間 T 與體質 F</b> 才可交換：A ⫫ Yᵃ | T, F（時間條件配對＋校正）。", en: "Set 'take A' to a → counterfactual Yᵃ. Prevalent users carry depletion of susceptibles, so exchangeability holds only <b>conditional on time-since-start T and frailty F</b>: A ⫫ Yᵃ | T, F (time-conditional matching + adjustment)." } },
   nc:  { split: "A",  cf: "Yᵃ", note: { zh: "把治療設成 a → 反事實 Yᵃ。U 未測，A ⫫ Yᵃ <b>不成立</b>；改用陰性對照 Z、W（U 的代理）解出 confounding bridge，在<b>近端意義</b>下辨識 Yᵃ（P2SLS）。", en: "Set treatment to a → counterfactual Yᵃ. U is unmeasured so A ⫫ Yᵃ <b>fails</b>; instead the negative controls Z, W (proxies of U) solve a confounding bridge that identifies Yᵃ in the <b>proximal</b> sense (P2SLS)." } },
+  med: { split: "A",  cf: "Yᵃ", note: { zh: "把治療設成 a → 反事實。中介分析用<b>跨世界</b>反事實 Yᵃ˒ᴹ⁽ᵃ*⁾：把暴露設 a、卻把中介固定在另一暴露值 a* 會有的 M。NDE 比 a=1 vs 0（M 固定在 M(0)）；NIE 在 a=1 下搬動 M(0)→M(1)。需序列可交換＋無暴露誘發的 M–Y 混淆。", en: "Set treatment to a → counterfactual. Mediation uses the <b>cross-world</b> counterfactual Yᵃ˒ᴹ⁽ᵃ*⁾: set exposure to a but hold the mediator at the M it would take under another exposure a*. NDE contrasts a=1 vs 0 with M fixed at M(0); NIE moves M(0)→M(1) under a=1. Needs sequential exchangeability + no exposure-induced M–Y confounder." } },
 };
 
 const swigShown = new Set();
@@ -5433,6 +5679,11 @@ window.addEventListener("iv-lang", async () => {
   if (ncAnalyzeReady) runNcAnalyze();                  // NC ③ analysis + dashboard
   else if (ncAssumeReady) runNcAssumptions(ncState.req);
   if (ncCalCache) drawNcCal(ncCalCache);               // NC ⑤ empirical calibration (re-render cache)
+  if (medLearnReady) drawSceneMed();                   // MED ① learn scene
+  if (medPlayReady) refreshMedPlay();                  // MED ② interactive
+  if (medAnalyzeReady) runMedAnalyze();                // MED ③ analysis + dashboard
+  else if (medAssumeReady) runMedAssumptions(medState.req);
+  if (medMlCache) drawMedMl(medMlCache);               // MED ⑤ natural-effects ML (re-render cache)
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
