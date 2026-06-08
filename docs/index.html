@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=75" />
+<link rel="stylesheet" href="styles.css?v=76" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=30"></script>
@@ -4214,43 +4214,6 @@ run;</code></pre>
       </table>
     </div>
 
-    <h2 data-en="A one-page decision guide: reach for…">一頁決策指南：什麼時候用哪個</h2>
-    <h4 class="fam-sub" data-en="Borrowed exogenous variation">借外生變異（工具／斷點）</h4>
-    <div class="cards">
-      <div class="card info"><h3>IV</h3><p data-en="You have an <b>external, as-good-as-random push</b> (a randomised reminder, a lottery, a genetic variant) that affects the outcome <b>only through</b> vaccination.">你有一個<b>外部、近似隨機的推力</b>（隨機提醒、抽籤、基因變異），且它<b>只透過</b>接種影響結果。</p></div>
-      <div class="card info"><h3>RDD</h3><p data-en="Eligibility is set by a <b>sharp cutoff</b> on a score (age, date, an index) that people can't precisely game, and you only need an answer <b>near the cutoff</b>.">資格由分數上的<b>明確門檻</b>決定（年齡、日期、指標），人無法精準操弄，且你只需<b>門檻附近</b>的答案。</p></div>
-    </div>
-    <h4 class="fam-sub" data-en="Borrowed timing / trends">借時間（政策時點／前後趨勢）</h4>
-    <div class="cards">
-      <div class="card info"><h3>DiD</h3><p data-en="A policy <b>switches on for some groups at a known time</b>, you have a <b>control group</b>, and the groups looked parallel before.">政策在<b>某時點對部分群開啟</b>，你有<b>對照組</b>，且兩組在政策前走勢平行。</p></div>
-      <div class="card info"><h3>ITS</h3><p data-en="A <b>single population</b>, a <b>known intervention time</b>, and <b>many time points</b> before and after — and no other big event at that moment."><b>單一群體</b>、一個<b>已知介入時點</b>、前後有<b>許多時間點</b>，且那一刻沒有別的大事。</p></div>
-      <div class="card info"><h3>PERR</h3><p data-en="You have <b>event rates before and after</b> treatment for both groups, and you believe the confounding is <b>stable over time</b>.">你有兩組<b>處置前後的事件率</b>，且相信混淆<b>隨時間穩定</b>。</p></div>
-      <div class="card info"><h3>TiT</h3><p data-en="Vaccination <b>spreads gradually over calendar time</b> at different rates across groups, and the outcome is <b>rare</b>.">接種<b>隨日曆時間逐漸普及</b>、跨族群速度不同，且結果<b>罕見</b>。</p></div>
-    </div>
-    <h4 class="fam-sub" data-en="Self-controlled (each person their own control)">自我對照（同一個人前後比）</h4>
-    <div class="cards">
-      <div class="card info"><h3>CCTC</h3><p data-en="An <b>acute event</b> possibly triggered by a <b>transient</b> exposure, where exposure prevalence also <b>drifts over calendar time</b> — use the person as their own control and divide out the trend."><b>急性事件</b>、可能由<b>短暫暴露</b>觸發，且暴露盛行率<b>隨日曆時間漂移</b>——用同一個人當對照，再把趨勢扣掉。</p></div>
-      <div class="card info"><h3>SCCS</h3><p data-en="You have <b>only cases</b> (people who had the event), the exposure has a <b>clear risk window</b>, the event is non-fatal/recurrent and doesn't change later exposure.">你只有<b>病例</b>（發生過事件的人）、暴露有<b>明確危險窗</b>、事件非致命／可復發且不改變日後暴露。</p></div>
-    </div>
-    <h4 class="fam-sub" data-en="Target-trial emulation (sustained / point strategies)">目標試驗模擬（持續／點治療策略）</h4>
-    <div class="cards">
-      <div class="card info"><h3>CCW</h3><p data-en="The treatment is a <b>sustained / dynamic strategy</b> (start early vs late, stay-on vs discontinue) unfolding over time — clone, censor on deviation, and IP-weight.">處置是隨時間展開的<b>持續／動態策略</b>（早 vs 晚起始、持續 vs 停藥）——複製、偏離設限、再加權。</p></div>
-      <div class="card info"><h3>Seq</h3><p data-en="A <b>point treatment</b> decision, with people becoming eligible at <b>many time points</b> — open one emulated trial per eligibility time and pool.">是<b>點治療</b>決定，且病人在<b>多個時點</b>陸續符合資格——每個資格時點開一場模擬試驗再合併。</p></div>
-    </div>
-    <h4 class="fam-sub" data-en="Active-comparator new-user cohort">主動對照新使用者世代</h4>
-    <div class="cards">
-      <div class="card info"><h3>ACNU</h3><p data-en="You have a <b>pharmacologically similar comparator</b> for the same indication — compare <b>new users of A vs new users of B</b> to cancel confounding by indication.">你有<b>藥理／適應症相近的對照藥</b>——比<b>A 的新使用者 vs B 的新使用者</b>，消掉因適應症的混淆。</p></div>
-      <div class="card info"><h3>PNU</h3><p data-en="You want to <b>keep the prevalent (existing) users</b> too, not just new starters — match them time-conditionally on time-since-start.">你還想<b>留住盛行（既有）使用者</b>、不只用新起始者——依距起始時間做時間條件配對納回來。</p></div>
-    </div>
-    <h4 class="fam-sub" data-en="Sampling design">抽樣設計</h4>
-    <div class="cards">
-      <div class="card info"><h3>CC</h3><p data-en="The outcome is <b>rare</b> and a full cohort is wasteful — sample <b>cases + representative controls</b> and look back at exposure (efficient sampling of a target-trial cohort).">結果<b>罕見</b>、追蹤整個世代太浪費——抽<b>病例＋有代表性的對照</b>再回頭看暴露（對目標試驗世代的有效率抽樣）。</p></div>
-    </div>
-    <h4 class="fam-sub" data-en="Proxies / negative controls (proximal causal inference)">代理／陰性對照（近端因果）</h4>
-    <div class="cards">
-      <div class="card info"><h3>NC</h3><p data-en="You suspect <b>unmeasured confounding</b> and have a pair of <b>negative controls</b> — an exposure proxy that can't affect the outcome and an outcome proxy the exposure can't affect. Detect the bias (A→NCO should be 0), then correct it proximally (P2SLS).">你懷疑有<b>未測混淆</b>，且有一對<b>陰性對照</b>——一個不影響結果的暴露代理＋一個不被暴露影響的結果代理。先偵測偏誤（A→NCO 應為 0），再用近端因果（P2SLS）校正。</p></div>
-    </div>
-
     <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
     <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 13 methods in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 13 種方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
     <div class="flow-legend">
@@ -4399,7 +4362,7 @@ run;</code></pre>
   </footer>
 </main>
 
-<script src="i18n.js?v=75"></script>
-<script src="app.js?v=75"></script>
+<script src="i18n.js?v=76"></script>
+<script src="app.js?v=76"></script>
 </body>
 </html>
