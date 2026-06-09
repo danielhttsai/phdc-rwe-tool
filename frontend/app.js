@@ -53,6 +53,7 @@ let curMethod = "iv", curSub = "learn";
 const methodSelect = document.getElementById("methodSelect");
 const subtabBtns = [...document.querySelectorAll(".subtab")];
 const chooseTab = document.getElementById("chooseTab");
+const dataTab = document.getElementById("dataTab");
 
 function showPanel(panelId) {
   document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
@@ -63,6 +64,7 @@ function showPanel(panelId) {
 }
 function showMethodSub() {
   chooseTab.classList.remove("active");
+  if (dataTab) dataTab.classList.remove("active");
   subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
   showPanel(METHOD_PREFIX[curMethod] + curSub);
   if (typeof filterRefs === "function") filterRefs(curMethod);
@@ -71,9 +73,17 @@ methodSelect.addEventListener("change", () => { curMethod = methodSelect.value; 
 subtabBtns.forEach((b) => b.addEventListener("click", () => { curSub = b.dataset.sub; showMethodSub(); }));
 chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
+  if (dataTab) dataTab.classList.remove("active");
   chooseTab.classList.add("active");
   showPanel("choose");
   if (typeof filterRefs === "function") filterRefs("choose");
+});
+if (dataTab) dataTab.addEventListener("click", () => {
+  subtabBtns.forEach((x) => x.classList.remove("active"));
+  chooseTab.classList.remove("active");
+  dataTab.classList.add("active");
+  showPanel("dbpanel");
+  if (typeof filterRefs === "function") filterRefs("db");
 });
 
 async function getJSON(url) {
@@ -1921,6 +1931,7 @@ const METHOD_REF = {
   pnu:  { zh: "盛行新使用者 PNU", en: "Prevalent New-User (PNU)", src: "Suissa, Moodie & Dell'Aniello (2017), Pharmacoepidemiol Drug Saf" },
   nc:   { zh: "陰性對照與近端因果 NC", en: "Negative Control & Proximal (NC)", src: "Lipsitch, Tchetgen Tchetgen & Cohen (2010); Miao, Geng & Tchetgen Tchetgen (2018); Schuemie et al. (2014/2018)" },
   med:  { zh: "中介分析 Mediation", en: "Mediation analysis (MED)", src: "Imai, Keele & Yamamoto (2010); Tingley et al. (2014), JSS; VanderWeele (2015)" },
+  db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai et al.)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 

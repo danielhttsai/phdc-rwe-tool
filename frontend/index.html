@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=80" />
+<link rel="stylesheet" href="/styles.css?v=81" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -40,6 +40,7 @@
       <button class="tab subtab" data-sub="sas" data-en="⑦ SAS code">⑦ SAS 程式</button>
     </div>
     <button class="tab tab-sep" id="chooseTab" data-en="Which one?">怎麼選</button>
+    <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -2918,22 +2919,46 @@
     </details>
 
     <h2 data-en="SCCS extensions — when the standard assumptions break (Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, 2018; sccs-studies.info)">SCCS 延伸 —— 當標準假設不成立時（Farrington、Whitaker &amp; Ghebremichael-Weldeselassie 2018；sccs-studies.info）</h2>
-    <p class="lead" data-en="The standard SCCS rests on four assumptions; the book and the SCCS R package provide extensions for when each is threatened. Each card: the problem it solves and when to reach for it.">標準 SCCS 建立在四條假設上；專書與 SCCS R 套件為每一條被威脅時提供了延伸。每張卡：解決什麼問題、何時用。</p>
-    <div class="cards">
-      <div class="card"><h3 data-en="① Event-dependent exposure — short-term vs long-term">① 事件相依暴露 —— 短期 vs 長期</h3>
-        <p data-en="<b>Problem:</b> the event changes the chance of <b>future</b> exposure, breaking the SCCS assumption that exposure history is external. Two regimes. <b>(a) Short-term</b> (the event briefly postpones exposure, e.g. a vaccine delayed while the child recovers): add a <b>pre-exposure risk window [−τ,0)</b> and test whether its rate ratio is 1 — a robustness check inside the standard likelihood (book §5.4). <b>(b) Long-term / permanent</b> (the event <b>precludes</b> or <b>precipitates</b> later exposure — rotavirus vaccine &amp; intussusception; injury &amp; opioids): the SCCS likelihood is no longer valid, so the correction (book §7.1) leaves likelihood behind and uses a <b>counterfactual exposure history</b> (treat the case as if no further exposure ever occurred) plus <b>estimating equations</b>, solved by <b>iteration</b>. <b>Note (answering a common question):</b> the 'iterative Farrington method' and the 'use the unexposed/counterfactual history then iterate' approach are <b>the same method</b> — the 'unexposed case' just <i>is</i> the counterfactual exposure history. Combined with high event-related mortality (e.g. COVID-19 vaccines) → the <b>modified SCCS</b> (Ghebremichael-Weldeselassie et al. 2022) handles both at once, with a dose-effect test.">​<b>問題：</b>事件會改變<b>日後</b>暴露的機率，破壞「暴露史外生」的假設。分兩種。<b>(a) 短期</b>（事件只是短暫延後暴露，如生病延後接種）：加一段<b>暴露前風險窗 [−τ,0)</b>、檢定它的率比是否＝1——是標準概似內的穩健性檢查（書 §5.4）。<b>(b) 長期／永久</b>（事件<b>排除</b>或<b>促成</b>日後暴露——輪狀病毒疫苗 vs 腸套疊；外傷 vs 鴉片）：標準 SCCS 概似失效，校正法（書 §7.1）<b>離開概似</b>，改用<b>反事實暴露史</b>（把該案例當作之後從未再暴露）＋<b>估計方程式</b>，以<b>迭代</b>求解。<b>註（回答常見疑問）：</b>「Farrington 迭代法」與「納入 unexposed／反事實暴露史再迭代」是<b>同一個方法</b>——所謂「unexposed case」就<i>是</i>那個反事實暴露史。若同時遇到高事件相關死亡率（如 COVID-19 疫苗）→ <b>modified SCCS</b>（Ghebremichael-Weldeselassie 等 2022）一次處理兩者，並附劑量效應檢定。</p></div>
-      <div class="card"><h3 data-en="② Event-dependent observation period (incl. death) / SCRI">② 事件相依觀察期（含死亡）／SCRI</h3>
-        <p data-en="<b>Problem:</b> the event raises mortality so it can <b>end</b> observation (death, or it triggers earlier censoring) — the observation window is then <b>not independent</b> of the event, a separate assumption from exposure. <b>Fix:</b> the extension for <b>event-dependent observation periods</b> (Farrington et al. 2011, JASA) adds a term/weights estimated from the interval between event and end of observation, fit by iteration; or use a tightly-defined <b>self-controlled risk interval (SCRI)</b> — only a short window around exposure, which sidesteps long event-dependent follow-up. <b>When:</b> antipsychotics &amp; stroke, NRT &amp; myocardial infarction; any study where the event is (or strongly predicts) <b>death</b>. R: <code>eventdepenobs()</code>.">​<b>問題：</b>事件會升高死亡率而<b>終止</b>觀察（死亡、或提前設限）——觀察期與事件<b>不獨立</b>，這是和暴露不同的另一條假設。<b>修法：</b><b>事件相依觀察期</b>延伸（Farrington 等 2011, JASA）在概似加一項／權重，由「事件到觀察結束的間隔」估計、迭代擬合；或用嚴格界定的<b>自我對照風險區間（SCRI）</b>——只取暴露附近短窗，避開長的事件相依追蹤。<b>何時：</b>抗精神病藥與中風、NRT 與心肌梗塞；以及事件本身（或強烈預測）<b>死亡</b>的研究。R：<code>eventdepenobs()</code>。</p></div>
-      <div class="card"><h3 data-en="③ Age &amp; seasonality — splines / non-parametric">③ 年齡與季節 —— 樣條／非參數</h3>
-        <p data-en="<b>Problem:</b> the baseline incidence varies with age or season in a shape that crude age bands miss. <b>Fix:</b> model the age/season effect with <b>splines or a non-parametric step function</b> instead of a few cut-points. <b>When:</b> convulsions vs age (sharp infant peak); MMR &amp; convulsions. R: <code>smoothagesccs()</code> / spline options.">​<b>問題：</b>基準發生率隨年齡或季節變化，粗略年齡分層抓不到那個形狀。<b>修法：</b>用<b>樣條或非參數階梯函數</b>建模年齡／季節效果，而非少數切點。<b>何時：</b>抽搐 vs 年齡（嬰兒期尖峰）；MMR 與抽搐。R：<code>smoothagesccs()</code>／樣條選項。</p></div>
-      <div class="card"><h3 data-en="④ Dose / quantitative &amp; environmental exposure">④ 劑量／連續暴露與環境暴露</h3>
-        <p data-en="<b>Problem:</b> exposure is not just on/off but has a <b>dose or intensity</b>, or is an environmental level shared in time (air pollution, temperature). <b>Fix:</b> SCCS for <b>quantitative individual exposures</b> and for <b>environmental exposures</b> (a different likelihood). <b>When:</b> blood pressure &amp; headache (dose); air pollution &amp; asthma; ambient temperature &amp; RSV.">​<b>問題：</b>暴露不只「有／無」，而有<b>劑量或強度</b>，或是隨時間共享的環境水準（空污、氣溫）。<b>修法：</b>針對<b>連續個體暴露</b>與<b>環境暴露</b>的 SCCS（不同的概似）。<b>何時：</b>血壓與頭痛（劑量）；空污與氣喘；氣溫與 RSV。</p></div>
-      <div class="card"><h3 data-en="⑤ Multiple doses, exposure types &amp; multi-type events">⑤ 多劑量、多暴露型、多型事件</h3>
-        <p data-en="<b>Problem:</b> several doses or exposure types, or several event subtypes that may share risk windows. <b>Fix:</b> SCCS data formats for <b>repeated / intermittent exposures</b> (NSAIDs &amp; GI bleeds; DTP doses &amp; convulsions) and likelihoods for <b>multi-type events</b>. <b>When:</b> febrile vs non-febrile convulsions; fracture site by drug.">​<b>問題：</b>多劑量或多種暴露型，或多種事件亞型可能共享危險窗。<b>修法：</b><b>重複／間歇暴露</b>的 SCCS 資料格式（NSAID 與消化道出血；DTP 多劑與抽搐）與<b>多型事件</b>的概似。<b>何時：</b>熱性 vs 非熱性抽搐；依藥物分骨折部位。</p></div>
-      <div class="card"><h3 data-en="⑥ Design, power &amp; identifiability">⑥ 設計、檢定力與可辨識性</h3>
-        <p data-en="<b>Problem:</b> choosing risk windows, age groups and observation periods, and knowing whether you have enough events. <b>Fix:</b> the design chapter's guidance on risk periods, <b>sample size &amp; power</b> (by formula or simulation), and SCCS efficiency / identifiability — plus the SCRI design as a pragmatic option. <b>When:</b> planning any SCCS study before you analyse.">​<b>問題：</b>怎麼選危險窗、年齡組與觀察期，以及事件數夠不夠。<b>修法：</b>設計章對危險區間、<b>樣本數與檢定力</b>（公式或模擬）、SCCS 效率／可辨識性的指引——加上 SCRI 作為務實選項。<b>何時：</b>分析前規劃任何 SCCS 研究。</p></div>
-      <div class="card"><h3 data-en="⑦ Active-comparator SCCS — time-varying confounding by indication (Schultze 2025)">⑦ 主動對照 SCCS —— 時變適應症混淆（Schultze 2025）</h3>
-        <p data-en="<b>Problem:</b> standard SCCS controls <b>time-fixed</b> confounders automatically, but <b>not time-varying</b> ones — e.g. the underlying condition that drives prescribing also raises the event rate just when the drug is started (confounding by indication). <b>Fix:</b> put a <b>comparator drug</b>'s exposure into the <i>same</i> SCCS model and read the <b>active-comparator rate ratio = exp(β<sub>drug</sub> − β<sub>comparator</sub>)</b> (a simple ratio of the two within-person RRs, or an equivalent nested model). If the comparator is prescribed for the same indication, the shared time-varying confounding cancels — the SCCS analogue of the active-comparator new-user (ACNU) design. <b>Bonus:</b> because both drugs share the same event-driven prescribing behaviour, any <b>event-dependent exposure</b> in the comparator arm is also differenced out. <b>When:</b> drug-vs-drug safety where indication severity changes over time — thiazolidinediones &amp; fractures, fluoroquinolones &amp; uveitis (Schultze et al. 2025; the formal active-comparator methodology for self-controlled designs is Hallas et al. 2021).">​<b>問題：</b>標準 SCCS 自動控制<b>時間不變</b>混淆，卻<b>不能控時變</b>混淆——例如「驅動處方的底層病況」同時在開藥當下抬高事件率（適應症混淆）。<b>修法：</b>把<b>對照藥</b>的暴露放進<i>同一個</i> SCCS 模型，讀<b>主動對照率比 ＝ exp(β<sub>藥</sub> − β<sub>對照藥</sub>)</b>（兩個人內 RR 相除，或等價的 nested model）。若對照藥用於相同適應症，共享的時變混淆相消——這是<b>主動對照新使用者（ACNU）</b>設計的 SCCS 版。<b>附帶好處：</b>因兩藥共享「事件後改處方」的行為，對照組那邊的<b>事件相依暴露</b>也一併被差掉。<b>何時：</b>適應症嚴重度隨時間變化的藥對藥安全性——thiazolidinedione 與骨折、fluoroquinolone 與葡萄膜炎（Schultze 等 2025；自我對照設計的正式主動對照方法另見 Hallas 等 2021）。</p></div>
+    <p class="lead" data-en="The standard SCCS rests on four assumptions; the book and the SCCS R package provide extensions for when each is threatened. For each extension: <b>what the data looks like</b>, <b>the analysis</b>, and <b>when you'd use it</b>.">標準 SCCS 建立在四條假設上；專書與 SCCS R 套件為每一條被威脅時提供了延伸。每一種延伸都列出：<b>資料長相</b>、<b>分析怎麼做</b>、以及<b>會用到的情境</b>。</p>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead><tr>
+          <th data-en="Extension">延伸</th>
+          <th data-en="What the data looks like">資料長相</th>
+          <th data-en="The analysis">分析</th>
+          <th data-en="When you use it">會用到的情境</th>
+        </tr></thead>
+        <tbody>
+          <tr><td data-en="① Event-dependent exposure (short / long-term)">① 事件相依暴露（短／長期）</td>
+            <td data-en="Standard SCCS long format — each person cut into many rows (age × risk window × other factors; each row = one interval with its event count &amp; person-time). Short-term: add a pre-exposure window [−τ,0) column. Long-term: build a counterfactual exposure history (treat later exposure as if it never happened).">標準 SCCS 長格式——每人切成多列（年齡 × 風險窗 × 其他因子；每列＝一個 interval，含事件數與曝險時間）。短期：多加一段暴露前風險窗 [−τ,0) 欄。長期：另建「反事實暴露史」（把後續暴露當作沒發生）。</td>
+            <td data-en="Short-term: conditional-Poisson SCCS with a pre-exposure indicator + LRT that its RR = 1. Long-term: leave the likelihood, solve estimating equations on the counterfactual exposure, iteratively (book §7.1).">短期：條件 Poisson／SCCS 概似內加暴露前指標、LRT 檢定 RI=1。長期：離開概似，用反事實暴露的估計方程式迭代求解（書 §7.1）。</td>
+            <td data-en="The event precludes / delays / precipitates later exposure: rotavirus vaccine &amp; intussusception; seizure &amp; vaccine; injury &amp; opioids.">事件會排除／延後／促成日後暴露：輪狀病毒疫苗 vs 腸套疊；抽搐 vs 疫苗；外傷 vs 鴉片。</td></tr>
+          <tr><td data-en="② Event-dependent observation / SCRI">② 事件相依觀察期／SCRI</td>
+            <td data-en="Same long format, but each person's observation is cut short by the event (death); you also record the interval from event to end of observation. SCRI: keep only a short window around exposure (a few rows per person).">同長格式，但每人觀察期被事件（死亡）截短；另記「事件→觀察結束」的間隔。SCRI：只取暴露附近短窗（每人少數列）。</td>
+            <td data-en="Add a weight/term to the likelihood, estimated from the event-to-end interval, fit iteratively (Farrington et al. 2011); or run a plain conditional Poisson inside the SCRI short window.">概似加權重／項，由「事件→結束」間隔估計、迭代擬合（Farrington 等 2011）；或在 SCRI 短窗內跑條件 Poisson。</td>
+            <td data-en="The event raises mortality and shortens follow-up: antipsychotics &amp; stroke; outcome = death (bupropion &amp; sudden death).">事件升高死亡率、截短追蹤：抗精神病藥與中風；結果為死亡（bupropion 與猝死）。</td></tr>
+          <tr><td data-en="③ Age / seasonality — splines / non-parametric">③ 年齡／季節（樣條／非參數）</td>
+            <td data-en="Standard long format, but age/season is cut more finely, or replaced by spline basis columns instead of a few cut-points.">標準長格式，但 age／season 切更細，或以樣條基底欄取代少數切點。</td>
+            <td data-en="Conditional Poisson with a spline / non-parametric age (season) term that smooths the time-varying baseline rate.">條件 Poisson＋樣條／非參數的年齡（季節）項，平滑時變基準率。</td>
+            <td data-en="The baseline rate has a sharp shape: infant convulsions; seasonal infections.">基準率有尖峰：嬰兒抽搐；季節性感染。</td></tr>
+          <tr><td data-en="④ Dose / quantitative &amp; environmental exposure">④ 劑量／連續與環境暴露</td>
+            <td data-en="The exposure column is a dose / intensity value (not 0/1); for environmental exposure each interval carries a shared environmental level (air pollution, temperature).">暴露欄是劑量／強度數值（非 0/1）；環境暴露則每個 interval 帶一個共享的環境水準（空污、氣溫）。</td>
+            <td data-en="Conditional Poisson with a continuous exposure term (log-linear dose-response); environmental exposures use the matching likelihood.">條件 Poisson＋連續暴露項（log-linear 劑量反應）；環境暴露用對應概似。</td>
+            <td data-en="Dose-response (blood pressure &amp; headache); environment (air pollution &amp; asthma, temperature &amp; RSV).">劑量反應（血壓與頭痛）；環境（空污與氣喘、氣溫與 RSV）。</td></tr>
+          <tr><td data-en="⑤ Multiple doses / exposure types / multi-type events">⑤ 多劑量／多暴露型／多型事件</td>
+            <td data-en="Each person has several exposure starts (repeat / intermittent) → more risk-window rows; multi-type events carry a subtype label and may share windows.">每人多個暴露起點（重複／間歇）→更多風險窗列；多型事件＝事件帶亞型標籤、可能共用窗。</td>
+            <td data-en="Conditional Poisson with several exposure indicators; multi-type events use stratification or a multinomial likelihood.">條件 Poisson 放多個暴露指標；多型事件用分層或多項概似。</td>
+            <td data-en="NSAIDs &amp; GI bleeds (intermittent); DTP doses &amp; convulsions; febrile vs non-febrile convulsions.">NSAID 與消化道出血（間歇）；DTP 多劑與抽搐；熱性 vs 非熱性抽搐。</td></tr>
+          <tr><td data-en="⑥ Active-comparator SCCS">⑥ 主動對照 SCCS</td>
+            <td data-en="Same long format, but it also carries a second exposure column for the comparator drug (two sets of risk windows, mutually exclusive or nested).">同長格式，但同時納入「藥」與「對照藥」兩組暴露欄（兩種風險窗，互斥或 nested）。</td>
+            <td data-en="Conditional Poisson with both exposures → active-comparator RR = exp(β_drug − β_comparator) (simple ratio or nested model; Hallas 2021, Schultze 2025).">條件 Poisson 同放兩暴露 → 主動對照 RR ＝ exp(β藥 − β對照)（simple-ratio 或 nested；Hallas 2021、Schultze 2025）。</td>
+            <td data-en="Drug-vs-drug safety with time-varying confounding by indication: glitazone vs sulphonylurea &amp; fracture.">時變適應症混淆的藥對藥：glitazone vs sulphonylurea 與骨折。</td></tr>
+          <tr><td data-en="⑦ Design, power &amp; identifiability">⑦ 設計、檢定力與可辨識性</td>
+            <td data-en="Planning stage — choosing risk windows, age groups and the observation period decides how many rows each person is cut into.">規劃階段——決定風險窗、年齡組與觀察期切法（決定每人被切成幾列）。</td>
+            <td data-en="Sample size / power (formula or simulation), efficiency &amp; identifiability checks; SCRI as a pragmatic design.">樣本數／檢定力（公式或模擬）、效率與可辨識性評估；SCRI 作為務實設計。</td>
+            <td data-en="Planning any SCCS study before you analyse.">分析前規劃任何 SCCS 研究。</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <h2 data-en="Practical judgement &amp; worked examples (from Ian Douglas's SCCS course, LSHTM — Aarhus 2023)">實務判斷與應用範例（取自 Ian Douglas 的 SCCS 課程，LSHTM —— Aarhus 2023）</h2>
@@ -4398,6 +4423,11 @@ run;
       近似隨機的變異來回答。這裡把它們並排，幫你挑出你的資料撐得起的那一個。
     </p>
 
+    <div class="card info">
+      <h3 data-en="Start from your data: which database do you have?">先從你的資料出發：你手上是哪種資料庫？</h3>
+      <p data-en="Which design you <b>can</b> run is decided by your data. A near-universal <b>claims</b> database powers self-controlled designs (SCCS/CCTC), rare-outcome cohort/case-control and PERR; an <b>EHR</b> with lab values powers active-comparator and mediation; <b>long traceability</b> powers new-user / PNU / CCW; a <b>biobank</b> powers IV / Mendelian randomization; a <b>policy/eligibility cutoff</b> powers RDD / DiD / ITS. See the dedicated <b>Databases</b> tab for the feature→design map and a directory of pharmacoepidemiology databases (AsPEN).">你<b>能</b>用哪個設計，是你的資料決定的。近全人口<b>理賠</b>撐得起自我對照（SCCS/CCTC）、罕見結果的世代／病例對照與 PERR；含檢驗值的 <b>EHR</b> 撐得起主動對照與中介；<b>長期可追溯</b>撐得起新使用者／PNU／CCW；<b>生物資料庫</b>撐得起工具變數／孟德爾隨機化；<b>政策／資格切點</b>撐得起 RDD／DiD／ITS。完整的「特性→設計」對應與藥物流行病學資料庫名錄（AsPEN）見專屬的<b>「資料庫」</b>分頁。</p>
+    </div>
+
     <div class="card scene">
       <h3 data-en="All 14 designs correct their naive bias back to the truth (grouped by family; mediation is a separate decomposition, below)">十四種設計，各自把「天真偏誤」修回真值（按家族分組；中介分析是另一種「分解」，見下）</h3>
       <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling) — many different ways of borrowing randomness, all landing near the truth.">
@@ -4615,6 +4645,51 @@ run;
     </div>
   </section>
 
+  <!-- ===================== 9. 資料庫 → 研究設計強項 ===================== -->
+  <section id="dbpanel" class="panel">
+    <h1 data-en="Which database do you have — and which designs it powers">資料庫：你手上的資料庫，撐得起哪些設計</h1>
+    <p class="lead" data-en="A study design is only as good as the data behind it. Real-world databases differ in <b>type</b> (claims, EHR, registry, biobank), <b>coverage</b> (a national near-census vs a sample), <b>linkage</b> (to deaths, hospital, lab, genomes) and <b>longitudinal traceability</b> — and those features decide which of the designs in this toolbox you can actually run. Below: how database features map to design strengths, then a directory of pharmacoepidemiology databases (from the AsPEN network).">設計再好，也只能跟得上背後的資料。真實世界資料庫差別在<b>類型</b>（理賠、EHR、登錄、生物資料庫）、<b>涵蓋</b>（全國近普查 vs 抽樣）、<b>連結</b>（死亡、住院、檢驗、基因）與<b>長期可追溯性</b>——這些特性決定你<b>實際能跑</b>工具箱裡哪些設計。以下先講「資料庫特性 → 設計強項」，再附一份藥物流行病學資料庫名錄（取自 AsPEN 網絡）。</p>
+
+    <h2 data-en="Database features → which designs they power">資料庫特性 → 撐得起哪些設計</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="Near-universal claims (national)">全國近普查理賠</h3><p data-en="A whole-population claims database (every dispensing + diagnosis) is ideal for <b>rare outcomes</b> and for <b>self-controlled</b> designs that need within-person exposure variation. <b>Powers:</b> cohort / case-control (rare events), SCCS &amp; CCTC, PERR, sequential trials. <b>Weak on:</b> lab values, clinical detail, the indication for prescribing.">全人口理賠（每筆給藥＋診斷）最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。<b>撐得起：</b>世代／病例對照（罕見事件）、SCCS 與 CCTC、PERR、序列試驗。<b>弱點：</b>檢驗值、臨床細節、處方的適應症。</p></div>
+      <div class="card"><h3 data-en="EHR with labs &amp; diagnoses">含檢驗值與診斷的 EHR</h3><p data-en="Electronic health records carry lab values, severity, and richer diagnoses. <b>Powers:</b> adjustment for confounding by indication, <b>active-comparator new-user (ACNU)</b>, and <b>mediation</b> (you have a measured mediator/biomarker M). <b>Weak on:</b> completeness across providers, sample representativeness.">電子病歷帶檢驗值、嚴重度與更豐富的診斷。<b>撐得起：</b>校正適應症混淆、<b>主動對照新使用者（ACNU）</b>、<b>中介分析</b>（有量到的中介／生物標記 M）。<b>弱點：</b>跨院完整度、樣本代表性。</p></div>
+      <div class="card"><h3 data-en="Long longitudinal traceability">長期可追溯</h3><p data-en="Databases that follow members for many years (e.g. up to ~20) support <b>new-user</b> and <b>prevalent new-user (PNU)</b> designs, <b>clone-censor-weight</b> sustained strategies, and long-term outcomes. <b>Weak on:</b> people who churn out of the database.">能追蹤成員多年（如達約 20 年）的資料庫，支援<b>新使用者</b>與<b>盛行新使用者（PNU）</b>設計、<b>複製-設限-加權</b>的持續策略、與長期結果。<b>弱點：</b>離開資料庫者的流失。</p></div>
+      <div class="card"><h3 data-en="Linked deaths &amp; registries">連結死亡與登錄</h3><p data-en="Linkage to mortality and disease registries enables <b>survival</b> outcomes (survival RDD, CCW) and the <b>event-dependent observation</b> SCCS when the event is death. <b>Weak on:</b> outpatient drug detail unless pharmacy is also linked.">連結死亡與疾病登錄能做<b>存活</b>結果（存活型 RDD、CCW）與結果為死亡時的<b>事件相依觀察期</b> SCCS。<b>弱點：</b>除非也連藥局，否則門診用藥細節有限。</p></div>
+      <div class="card"><h3 data-en="Biobank / genomic">生物資料庫／基因</h3><p data-en="Biobanks linking genomes to EHR (e.g. Taiwan Biobank, UK Biobank) enable <b>instrumental variables / Mendelian randomization</b> — a genetic variant as the as-good-as-random instrument. <b>Weak on:</b> volunteer selection, age range.">把基因連到 EHR 的生物資料庫（如台灣人體生物資料庫、UK Biobank）能做<b>工具變數／孟德爾隨機化</b>——用基因變異當近似隨機的工具。<b>弱點：</b>自願者選擇、年齡範圍。</p></div>
+      <div class="card"><h3 data-en="Policy / eligibility cutoffs">政策／資格切點</h3><p data-en="When the database captures a <b>policy date</b>, a <b>reimbursement threshold</b>, or an <b>age-eligibility cutoff</b>, you can borrow a quasi-random structure: <b>RDD</b> (a sharp cutoff), <b>DiD</b> (policy + control group), <b>ITS</b> (a single series over time).">當資料庫記到<b>政策日</b>、<b>給付門檻</b>或<b>年齡資格切點</b>，就能借準隨機結構：<b>RDD</b>（明確切點）、<b>DiD</b>（政策＋對照組）、<b>ITS</b>（單一序列的時間趨勢）。</p></div>
+    </div>
+
+    <h2 data-en="A directory of pharmacoepidemiology databases (AsPEN network &amp; partners)">藥物流行病學資料庫名錄（AsPEN 網絡與夥伴）</h2>
+    <p class="caption" data-en="Compiled from the AsPEN database directory (phd-center.github.io/AsPEN) and Sturkenboom &amp; Schink (2020). Coverage and strengths are approximate, for orientation.">整理自 AsPEN 資料庫名錄（phd-center.github.io/AsPEN）與 Sturkenboom &amp; Schink（2020）。涵蓋與強項為約略值，供定位用。</p>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead><tr>
+          <th data-en="Database">資料庫</th><th data-en="Type">類型</th>
+          <th data-en="Coverage">涵蓋</th><th data-en="Strength / good for">強項／適合</th>
+        </tr></thead>
+        <tbody>
+          <tr><td colspan="4" class="famhdr" data-en="East Asia · AsPEN network">東亞 · AsPEN 網絡</td></tr>
+          <tr><td data-en="Taiwan NHIRD">台灣 健保資料庫 NHIRD</td><td data-en="Claims">理賠</td><td data-en="~23M, &gt;99% since 2000">~2300萬，&gt;99%，自 2000</td><td data-en="National census-like claims + now lab/imaging; rare outcomes, self-controlled, sequential">全國普查式理賠＋現含檢驗／影像；罕見結果、自我對照、序列試驗</td></tr>
+          <tr><td data-en="Taiwan CGRD">台灣 長庚 CGRD</td><td data-en="Multi-hospital EHR">多院 EHR</td><td data-en="~1.5M since 2011">~150萬，自 2011</td><td data-en="Lab values &amp; clinical detail → indication adjustment, ACNU, mediation">檢驗值與臨床細節→適應症校正、ACNU、中介</td></tr>
+          <tr><td data-en="Taiwan Biobank (TWB)">台灣人體生物資料庫 TWB</td><td data-en="Biobank">生物資料庫</td><td data-en="~200K (target 1M)">~20萬（目標百萬）</td><td data-en="Genomes + lifestyle + clinical → IV / Mendelian randomization">基因＋生活型態＋臨床→工具變數／孟德爾隨機化</td></tr>
+          <tr><td data-en="Korea HIRA / NHIS-NHID">韓國 HIRA／NHIS-NHID</td><td data-en="Claims">理賠</td><td data-en="~50M nationwide">~5000萬，全國</td><td data-en="Nationwide claims; NHIS adds enrolment &amp; health-check linkage">全國理賠；NHIS 另連投保與健檢</td></tr>
+          <tr><td data-en="Japan NDB / JMDC">日本 NDB／JMDC</td><td data-en="Claims">理賠</td><td data-en="NDB ~120M; JMDC ~13.5M">NDB ~1.2億；JMDC ~1350萬</td><td data-en="NDB ≈ all Japan; JMDC up to ~20-yr traceability → new-user / PNU / sustained">NDB 近全日本；JMDC 可追溯約 20 年→新使用者／PNU／持續策略</td></tr>
+          <tr><td data-en="Hong Kong CDARS">香港 CDARS</td><td data-en="National EHR">全 territory EHR</td><td data-en="~7M public-sector since 1995">~700萬公營，自 1995</td><td data-en="Territory-wide hospital EHR; clinical detail + linkage">全港住院 EHR；臨床細節＋連結</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="International partners (benchmarking)">國際夥伴（對照基準）</td></tr>
+          <tr><td data-en="UK CPRD / THIN">英國 CPRD／THIN</td><td data-en="Primary-care EHR">基層 EHR</td><td data-en="CPRD ~60M (linked HES, ONS)">CPRD ~6000萬（連 HES、ONS）</td><td data-en="Rich primary-care + linkage → most designs, incl. SCCS examples">豐富基層＋連結→多數設計，含 SCCS 範例</td></tr>
+          <tr><td data-en="UK Biobank">UK Biobank</td><td data-en="Biobank">生物資料庫</td><td data-en="~500K, aged 40–69">~50萬，40–69 歲</td><td data-en="Genomes + imaging + EHR → IV / Mendelian randomization">基因＋影像＋EHR→工具變數／孟德爾隨機化</td></tr>
+          <tr><td data-en="Public Health Scotland (ISD)">蘇格蘭 ISD</td><td data-en="National EHR">全國 EHR</td><td data-en="~5.4M whole population">~540萬，全人口</td><td data-en="Prescribing + admissions + deaths → survival, self-controlled">給藥＋住院＋死亡→存活、自我對照</td></tr>
+          <tr><td data-en="Netherlands PHARMO">荷蘭 PHARMO</td><td data-en="Linked multi-source">多源連結</td><td data-en="~7M (~40%) since 1999">~700萬（~40%），自 1999</td><td data-en="Linked pharmacy + primary + hospital → new-user, active comparator">連結藥局＋基層＋住院→新使用者、主動對照</td></tr>
+          <tr><td data-en="Finland FinReg">芬蘭 FinReg</td><td data-en="Claims + registries">理賠＋登錄</td><td data-en="~5.5M whole population since 1972">~550萬，全人口，自 1972</td><td data-en="Prescriptions + discharges + cause-of-death → long-term, survival">處方＋出院＋死因→長期、存活</td></tr>
+          <tr><td data-en="Australia PBS / VLHD">澳洲 PBS／VLHD</td><td data-en="Claims (+linkage)">理賠（＋連結）</td><td data-en="PBS 10% sample; VLHD whole-state">PBS 10% 抽樣；VLHD 全省</td><td data-en="Subsidised dispensing; VLHD adds admissions + deaths">補助給藥；VLHD 另連住院＋死亡</td></tr>
+          <tr><td data-en="US Medicare / Medicaid">美國 Medicare／Medicaid</td><td data-en="Claims">理賠</td><td data-en="Medicare 20% (~13M); Medicaid ~70M">Medicare 20%（~1300萬）；Medicaid ~7000萬</td><td data-en="Elderly / low-income claims; large, but specific populations">老年／低收入理賠；量大，但族群特定</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption" data-en="Cross-regional networks (e.g. AsPEN; NeuroGEN — Tsai et al.) run the <b>same protocol</b> across several of these databases and meta-analyse, trading single-database depth for breadth, generalisability and replication.">跨區域網絡（如 AsPEN；NeuroGEN —— Tsai 等）會把<b>同一套協定</b>跑在上述多個資料庫上再做合併分析，以單一資料庫的深度換取廣度、可推論性與可重複性。</p>
+  </section>
+
   <!-- ===================== 參考文獻 / References ===================== -->
   <footer class="refs">
     <h2 data-en="References &amp; citation">參考文獻與引用</h2>
@@ -4631,6 +4706,7 @@ run;
     <ul class="reflist" id="refsList">
       <li data-ref="all"><b data-en="Causal-inference foundations (tab ⑥)">因果推論基礎（分頁 ⑥）</b> · Hernán, M. A., &amp; Robins, J. M. (2020). <i>Causal Inference: What If.</i> Boca Raton: Chapman &amp; Hall/CRC. <span data-en="〔counterfactuals; exchangeability / positivity / consistency; g-methods; target trial — free book: hsph.harvard.edu/miguel-hernan/causal-inference-book〕">〔反事實；可交換性／正性／一致性；g-methods；目標試驗 —— 免費電子書：<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">hsph.harvard.edu/miguel-hernan/causal-inference-book</a>〕</span></li>
       <li data-ref="all"><b data-en="Causal machine learning (tab ⑤ framing)">因果機器學習（⑤ 框架）</b> · Feuerriegel, S., et al. (2024). Causal machine learning for predicting treatment outcomes. <i>Nature Medicine, 30</i>, 958–968. https://doi.org/10.1038/s41591-024-02902-1. · Kaddour, J., Lynch, A., Liu, Q., Kusner, M. J., &amp; Silva, R. (2022). Causal Machine Learning: A Survey and Open Problems. <i>arXiv</i>:2206.15475. · Li, S., &amp; Chu, Z. (Eds.) (2023). <i>Machine Learning for Causal Inference.</i> Springer. <span data-en="〔individualised effects (CATE), meta-learners (S/T/X/DR-learner), cautions for RWD — woven into every method's ⑤〕">〔個體化效果（CATE）、meta-learners（S/T/X/DR-learner）、對 RWD 的提醒 —— 織入每個方法的 ⑤〕</span></li>
+      <li data-ref="db"><b data-en="Databases (Databases tab)">資料庫（資料庫分頁）</b> · AsPEN database directory (Asian Pharmacoepidemiology Network / PHD Center). <a href="https://phd-center.github.io/AsPEN/databases/" target="_blank" rel="noopener">phd-center.github.io/AsPEN/databases</a>. · Sturkenboom, M., &amp; Schink, T. (Eds.) (2020). <i>Databases for Pharmacoepidemiological Research.</i> Springer (Series on Epidemiology and Public Health). · Tsai, D. H-T., …, &amp; Lai, E. C-C. <i>Cross-Regional Data Initiative for the Assessment and Development of Treatment for Neurological and Mental Disorders (NeuroGEN).</i> <span data-en="〔database directory + how database features map to design strengths — Databases tab〕">〔資料庫名錄＋資料庫特性如何對應設計強項 —— 資料庫分頁〕</span></li>
       <li data-ref="iv">Homayra, F., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
@@ -4724,7 +4800,7 @@ run;
   </footer>
 </main>
 
-<script src="i18n.js?v=80"></script>
-<script src="app.js?v=80"></script>
+<script src="i18n.js?v=81"></script>
+<script src="app.js?v=81"></script>
 </body>
 </html>
