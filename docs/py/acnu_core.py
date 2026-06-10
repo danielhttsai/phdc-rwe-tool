@@ -14,7 +14,7 @@ healthy-user／immortal-time 偏誤大幅相消</b>。A 與 B 之間若還有殘
   ACNU adj    = exp(β_A)  from a Poisson rate model on A∪B         再校正殘留嚴重度 → ≈ 真值
                 (offset = log person-time, covariates = severity, comorbidity)
 
-NOTE — faithful-but-simplified teaching reconstruction (Lund, Richardson & Stürmer 2015,
+NOTE — faithful teaching re-implementation (Lund, Richardson & Stürmer 2015,
 Curr Epidemiol Rep 2:221; Ray 2003, AJE 158:915; Yoshida, Solomon & Kim 2015, Nat Rev
 Rheumatol 11:437). Synthetic data only; not a copy of any package.
 """

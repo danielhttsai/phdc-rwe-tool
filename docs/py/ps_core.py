@@ -10,7 +10,7 @@
   ・<b>重疊權重 ATO</b>：w = A·(1−PS) + (1−A)·PS，給「兩組都可能出現」的人最大權重，最穩定（Li, Morgan & Zaslavsky 2018）。
   平衡用<b>標準化差異（SMD）</b>檢查：加權前大、加權後接近 0。
 
-NOTE — faithful-but-simplified teaching reconstruction (Rosenbaum & Rubin 1983; Austin 2011;
+NOTE — faithful teaching re-implementation (Rosenbaum & Rubin 1983; Austin 2011;
 Brookhart et al. 2006; Li, Morgan & Zaslavsky 2018; Desai & Franklin 2019). Synthetic data only.
 """
 from __future__ import annotations

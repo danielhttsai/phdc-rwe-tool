@@ -12,7 +12,7 @@ in Pyodide with no external estimation packages.
   * group_means_by_period —— 兩條折線（介入/對照各期平均），畫趨勢圖用
 
 實作為教學等級：以單位群集的 CRVE（HC0 風格），合成資料上點估計與標準誤都與標準
-套件（如 R 的 fixest/sandwich）相符到可教學的程度，這點我們誠實說明。
+套件（如 R 的 fixest/sandwich）相符到可教學的程度。
 """
 from __future__ import annotations
 

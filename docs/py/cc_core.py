@@ -13,7 +13,7 @@
   adjusted OR = exp(β_exposed)                    （logistic 校正 age,sex,comorbidity）
   MH OR = Σ(aᵢdᵢ/nᵢ) / Σ(bᵢcᵢ/nᵢ)               （按年齡層×性別分層合併）
 
-NOTE — faithful-but-simplified teaching reconstruction (Breslow & Day; Mantel–Haenszel 1959;
+NOTE — faithful teaching re-implementation (Breslow & Day; Mantel–Haenszel 1959;
 Dickerman et al. 2020, IJE 49:1637; Shi et al. 2024). Not a copy of any package.
 """
 from __future__ import annotations

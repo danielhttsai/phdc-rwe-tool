@@ -9,7 +9,7 @@
     log L(β) = Σᵢ [ xᵣ·β + log e_r − log Σⱼ eⱼ·exp(β·xⱼ) ]，  IRR = exp(β)
   條件 Poisson ＝ 把每個人的 frailty 當固定效果條件掉，所以時間不變的混淆全部相消。
 
-NOTE — faithful-but-simplified teaching reconstruction (Farrington 1995; Whitaker, Farrington
+NOTE — faithful teaching re-implementation (Farrington 1995; Whitaker, Farrington
 & Musonda 2006; Petersen, Douglas & Whitaker 2016, BMJ 354:i4515; sccs-studies.info). Not a
 copy of any package.
 """

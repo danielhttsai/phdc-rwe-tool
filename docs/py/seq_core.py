@@ -10,7 +10,7 @@ align time-zero, pool. Pure numpy, Pyodide-safe.
   RD_pool = Σ_k (RD_k / Var_k) / Σ_k (1/Var_k)     （反變異合併）
   SE_pool ：因重複收案，用個人叢集自助（重抽 pid）較誠實。
 
-NOTE — faithful-but-simplified teaching reconstruction (Hernán & Robins target-trial;
+NOTE — faithful teaching re-implementation (Hernán & Robins target-trial;
 Danaei et al. nested sequential trials; Gran et al.). The literature stacks
 Cox/pooled-logistic with person-robust SEs; here we use per-trial IPTW + inverse-
 variance pooling + a person-cluster bootstrap SE. Not a copy of any package.

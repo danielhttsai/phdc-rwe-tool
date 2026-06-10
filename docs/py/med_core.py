@@ -11,7 +11,7 @@
     TE  = NDE + NIE ；  proportion mediated = NIE / TE
   對照：<b>天真直接效果</b>＝只放 Y ~ A + M（無交互）的 A 係數——有交互或基線中介≠0 時，它<b>不等於</b> NDE。
 
-NOTE — faithful-but-simplified teaching reconstruction (Baron & Kenny 1986; Imai, Keele, Tingley
+NOTE — faithful teaching re-implementation (Baron & Kenny 1986; Imai, Keele, Tingley
 & Yamamoto; Tingley et al. `mediation` R package, JSS 2014; VanderWeele & Valeri 2013 SAS/SPSS
 macros; Stata `mediate`). Synthetic data only.
 """

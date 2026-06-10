@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=88" />
+<link rel="stylesheet" href="/styles.css?v=89" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -811,9 +811,9 @@
   <!-- ===================== RDD ④ 假設檢驗 ===================== -->
   <section id="rddassume" class="panel">
     <h1 data-en="Can we trust this RDD? Five checks (different from IV's)">這個 RDD 可不可信？五道體檢（和 IV 的不一樣）</h1>
-    <p class="lead" data-en="RDD rests on <b>different assumptions</b> from IV. The key one — that people just below and just above the cutoff are alike — <b>cannot be proven from data</b>, so we are honest about it and run the supporting checks that <b>can</b> be tested: no manipulation of the running variable, balanced background characteristics, a real first-stage jump (for fuzzy), and stability across bandwidths. Green = fine, amber = watch out, red = problem.">
+    <p class="lead" data-en="RDD rests on <b>different assumptions</b> from IV. The key one — that people just below and just above the cutoff are alike — <b>cannot be proven from data</b>, so we run the supporting checks that <b>can</b> be tested: no manipulation of the running variable, balanced background characteristics, a real first-stage jump (for fuzzy), and stability across bandwidths. Green = fine, amber = watch out, red = problem.">
       RDD 依賴的假設和 IV <b>不一樣</b>。最關鍵的那一條——斷點下方與上方的人很像——
-      <b>沒辦法用資料直接證明</b>，所以我們誠實說明，並改跑<b>可以檢驗</b>的佐證項目：
+      <b>沒辦法用資料直接證明</b>，所以改跑<b>可以檢驗</b>的佐證項目：
       跑分變數沒有被操弄、背景條件平衡、（模糊版）真的有第一階段跳躍、以及結論在不同視窗下穩不穩。
       綠燈沒問題、黃燈要留意、紅燈有狀況。
     </p>
@@ -1253,9 +1253,8 @@
   <!-- ===================== DiD ④ 假設檢驗 ===================== -->
   <section id="didassume" class="panel">
     <h1 data-en="Can we trust this DiD? Five checks">這個 DiD 可不可信？五道體檢</h1>
-    <p class="lead" data-en="DiD rests on <b>parallel trends</b>: absent the policy, the two groups would have moved together. That cannot be proven in the post period, so we are honest about it and run the checks that <b>can</b> be tested — a pre-trend (event-study) check, no anticipation, enough pre-periods and a balanced panel, no spillover, and enough clusters for valid inference. Green = fine, amber = watch out, red = problem.">
-      DiD 依賴<b>平行趨勢</b>：沒有政策時，兩組會一起變。這在政策後本質上無法證明，所以我們誠實說明，
-      並改跑<b>可以檢驗</b>的項目——前期趨勢（事件研究）檢查、無預期、足夠前期與完整面板、無外溢、
+    <p class="lead" data-en="DiD rests on <b>parallel trends</b>: absent the policy, the two groups would have moved together. That cannot be proven in the post period, so we run the checks that <b>can</b> be tested — a pre-trend (event-study) check, no anticipation, enough pre-periods and a balanced panel, no spillover, and enough clusters for valid inference. Green = fine, amber = watch out, red = problem.">
+      DiD 依賴<b>平行趨勢</b>：沒有政策時，兩組會一起變。這在政策後本質上無法證明，所以改跑<b>可以檢驗</b>的項目——前期趨勢（事件研究）檢查、無預期、足夠前期與完整面板、無外溢、
       以及足夠的群集數讓推論可信。綠燈沒問題、黃燈要留意、紅燈有狀況。
     </p>
     <div id="didOverall" class="overall hidden"></div>
@@ -1523,8 +1522,8 @@
         </p>
       </div>
     </details>
-    <p class="lead" data-en="For the other three methods this tab showed concrete, published ML upgrades. For trend-in-trend we have to be honest: across the source papers we drew on, there is <b>no established machine-learning or doubly-robust version of trend-in-trend</b>. So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b> about where AI <i>might</i> help.">
-      在另外三個方法，這個分頁能展示具體、已發表的 ML 升級。對趨勢中的趨勢，我們必須誠實：
+    <p class="lead" data-en="For the other three methods this tab showed concrete, published ML upgrades. For trend-in-trend, across the source papers we drew on there is <b>no established machine-learning or doubly-robust version of trend-in-trend</b>. So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b> about where AI <i>might</i> help.">
+      在另外三個方法，這個分頁能展示具體、已發表的 ML 升級。對趨勢中的趨勢，
       在我們依據的來源論文裡，<b>並沒有成熟的機器學習或雙重穩健版本的趨勢中的趨勢</b>。
       所以與其假裝有，不如老實說明文獻有什麼、沒有什麼——再加上清楚標示為<b>推測</b>的、AI <i>可能</i>幫得上忙的方向。
     </p>
@@ -2017,8 +2016,8 @@
   <!-- ===================== PERR ④ 假設檢驗 ===================== -->
   <section id="perrassume" class="panel">
     <h1 data-en="Can we trust this PERR? Five checks">這個 PERR 可不可信？五道體檢</h1>
-    <p class="lead" data-en="PERR rests on assumptions that are mostly <b>not testable from data alone</b>, so we are honest (blue cards) and point to what the literature DOES offer. The key one: the confounding is time-invariant and multiplicative. Others: a clean prior period, no event-dependent treatment or dropout, and enough prior events (the one testable check). Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      PERR 依賴的假設大多<b>無法只用資料檢驗</b>，所以我們誠實（藍卡），並指出文獻真有的檢查。最關鍵的：
+    <p class="lead" data-en="PERR rests on assumptions that are mostly <b>not testable from data alone</b> (blue cards); we point to what the literature DOES offer. The key one: the confounding is time-invariant and multiplicative. Others: a clean prior period, no event-dependent treatment or dropout, and enough prior events (the one testable check). Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      PERR 依賴的假設大多<b>無法只用資料檢驗</b>（藍卡），並指出文獻真有的檢查。最關鍵的：
       混淆時間不變且乘法。其餘：乾淨的事前期、無事件相依的處置或退出、以及足夠的事前事件數（唯一可檢項）。
       綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
@@ -2038,8 +2037,8 @@
         </p>
       </div>
     </details>
-    <p class="lead" data-en="For three of the methods this tab showed concrete, published ML upgrades. For PERR we have to be honest: across the source papers, there is <b>no established machine-learning or doubly-robust version of PERR</b> (the latest work, Cheung &amp; Ma 2025, clarifies the framework — it is not an AI method). So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b>. The literature's real, <b>non-AI</b> refinements (PERR-ALT, PERR vs PERD, PERR-Comp + the scale-sensitivity demo) now live in tab ③.">
-      在其中三個方法，這個分頁能展示具體、已發表的 ML 升級。對 PERR，我們必須誠實：在來源論文裡，
+    <p class="lead" data-en="For three of the methods this tab showed concrete, published ML upgrades. For PERR, across the source papers there is <b>no established machine-learning or doubly-robust version of PERR</b> (the latest work, Cheung &amp; Ma 2025, clarifies the framework — it is not an AI method). So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b>. The literature's real, <b>non-AI</b> refinements (PERR-ALT, PERR vs PERD, PERR-Comp + the scale-sensitivity demo) now live in tab ③.">
+      在其中三個方法，這個分頁能展示具體、已發表的 ML 升級。對 PERR，在來源論文裡
       <b>並沒有成熟的機器學習或雙重穩健版本的 PERR</b>（最新的 Cheung &amp; Ma 2025 是在釐清框架，不是 AI 方法）。
       所以與其假裝有，不如老實說明文獻有什麼、沒有什麼——再加上清楚標示為<b>推測</b>的方向。文獻真正提供的
       <b>非 AI 精修</b>（PERR-ALT、PERR vs PERD、PERR-Comp，以及尺度敏感度示範）<b>已移到分頁 ③</b>。
@@ -2251,8 +2250,8 @@
   <!-- ===================== CCW ④ 假設檢驗 ===================== -->
   <section id="ccwassume" class="panel">
     <h1 data-en="Can we trust this CCW? Five checks">這個 CCW 可不可信？五道體檢</h1>
-    <p class="lead" data-en="CCW's core assumptions are mostly <b>not testable from data alone</b>, so we are honest (blue cards) and surface what IS checkable. The key one: no unmeasured confounding of who follows which strategy. Others: positivity (the one clearly testable check), well-defined strategies and grace period, a reasonable weight model, and correct time-zero alignment. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      CCW 的核心假設大多<b>無法只用資料檢驗</b>，所以我們誠實（藍卡），並把可檢查的指標攤出來。最關鍵的：
+    <p class="lead" data-en="CCW's core assumptions are mostly <b>not testable from data alone</b> (blue cards); here is what IS checkable. The key one: no unmeasured confounding of who follows which strategy. Others: positivity (the one clearly testable check), well-defined strategies and grace period, a reasonable weight model, and correct time-zero alignment. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      CCW 的核心假設大多<b>無法只用資料檢驗</b>（藍卡），這裡把可檢查的指標攤出來。最關鍵的：
       「誰遵循哪個策略」無未測混淆。其餘：正性（最明確可檢的一項）、策略與寬限期定義清楚、權重模型合理、
       時間零點對齊正確。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
@@ -3542,7 +3541,7 @@
     <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① Calibration is data-driven, not ML itself">① 校準是資料驅動，不是 ML 本身</h3>
-        <p data-en="Empirical calibration fits a simple empirical-null distribution to the negative-control estimates — powerful, but not machine learning per se. We label it honestly.">實證校準只是把陰性對照的估計擬合成簡單的經驗虛無分布——很有用，但本身不是機器學習。我們誠實標示。</p></div>
+        <p data-en="Empirical calibration fits a simple empirical-null distribution to the negative-control estimates — powerful, but not machine learning per se.">實證校準只是把陰性對照的估計擬合成簡單的經驗虛無分布——很有用，但本身不是機器學習。</p></div>
       <div class="card"><h3 data-en="①b Why PNAS 2018 needs positive controls">①b 為什麼 PNAS 2018 需要陽性對照</h3>
         <p data-en="Negative controls reveal the bias <b>only at a true effect of zero</b>. To calibrate a confidence interval you need the bias <b>across a range of true effects</b>, so PNAS adds <b>positive controls</b> with known non-null effects — typically <b>synthesised</b> by injecting extra outcome events on top of a negative control at a known relative risk. The fitted systematic-error model <b>a + b·θ</b> (with residual SD τ) then lets the CI widen/shift correctly. b≠0 means the bias itself depends on how large the true effect is.">陰性對照只揭露<b>真效應為 0 時</b>的偏誤。要校準信賴區間，需要知道<b>各種真效應大小下</b>的偏誤，所以 PNAS 加入<b>陽性對照</b>——已知非零真效應，通常用「在陰性對照上以已知相對風險<b>注入額外結果事件</b>」<b>合成</b>而來。擬合出的系統誤差模型 <b>a＋b·θ</b>（殘差 SD τ）就能讓 CI 正確地平移／加寬。b≠0 代表偏誤本身會隨真效應大小而不同。</p></div>
       <div class="card"><h3 data-en="② The ML frontier: finding &amp; using controls">② ML 前沿：找到並用上陰性對照</h3>
@@ -4829,9 +4828,9 @@ run;   <span class="cm">/* reports the ATE with a robust SE; overlap weights via
           <b>每一種都押在一條不可檢驗的核心假設上。</b>排除限制、連續性、平行趨勢、無同步混淆趨勢、無同時代事件、
           時間不變混淆、序列可交換、對照藥同適應症、時間條件可交換——每種設計都靠一條無法用資料證明的前提，外加可檢驗的佐證。所以每個方法都配一個 ④ 假設儀表板，一定要跑。
         </li>
-        <li data-en="<b>Most can be boosted by ML (tab ⑤), and several now run real scikit-learn.</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt — IV, RDD, DiD, ITS, CC, SCCS, ACNU and PNU run a genuine ML demo; for TiT and PERR the literature has no AI version yet, and we say so honestly.">
+        <li data-en="<b>Most can be boosted by ML (tab ⑤), and several now run real scikit-learn.</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt — IV, RDD, DiD, ITS, CC, SCCS, ACNU, PNU, MED and PS run a genuine scikit-learn demo; for TiT and PERR the literature has no AI version yet.">
           <b>多數都能用 ML 強化（⑤），且有好幾個現在真的會跑 scikit-learn。</b>用彈性模型處理輔助部分、用交叉擬合當安全帶——
-          IV、RDD、DiD、ITS、CC、SCCS、ACNU、PNU 都有真的 ML 示範；TiT 與 PERR 的文獻目前沒有現成的 AI 藥方，我們也誠實說明。
+          IV、RDD、DiD、ITS、CC、SCCS、ACNU、PNU、MED、PS 都有真的 scikit-learn 示範；TiT 與 PERR 的文獻目前沒有現成的 AI 藥方。
         </li>
       </ul>
     </div>
@@ -5189,7 +5188,7 @@ run;   <span class="cm">/* reports the ATE with a robust SE; overlap weights via
   </footer>
 </main>
 
-<script src="i18n.js?v=88"></script>
-<script src="app.js?v=88"></script>
+<script src="i18n.js?v=89"></script>
+<script src="app.js?v=89"></script>
 </body>
 </html>

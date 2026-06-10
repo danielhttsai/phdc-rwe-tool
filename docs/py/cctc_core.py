@@ -10,7 +10,7 @@ CCO 會被這個趨勢高估。case-time-control / case-case-time-control（CCTC
   OR_CCTC  = OR_CCO / OR_trend          ≈ 真實因果勝算比
   Var(log OR_CCTC) = 1/b_case+1/c_case+1/b_ctrl+1/c_ctrl   （McNemar/條件 logistic）
 
-NOTE — faithful-but-simplified teaching reconstruction (Maclure 1991 case-crossover;
+NOTE — faithful teaching re-implementation (Maclure 1991 case-crossover;
 Suissa 1995 case-time-control; Wang & Hennessy case-case-time-control; Jeong et al.
 2023, J Epidemiol 33:82-90). Not a copy of any package.
 """

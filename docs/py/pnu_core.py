@@ -11,7 +11,7 @@
   PNU            = exp(β_A) from a Poisson rate model on A∪B    時間條件：校正體質＋距起始時間
                    (offset=log person-time; covariates = frailty, time-since-start)  → ≈ 真值，且用上盛行者
 
-NOTE — faithful-but-simplified teaching reconstruction (Suissa, Moodie & Dell'Aniello 2017,
+NOTE — faithful teaching re-implementation (Suissa, Moodie & Dell'Aniello 2017,
 Pharmacoepidemiol Drug Saf 26:459; Webster-Clark et al. applications). Synthetic data only;
 not a copy of any package.
 """

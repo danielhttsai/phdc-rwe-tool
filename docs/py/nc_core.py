@@ -9,7 +9,7 @@
        第二階段： Y ~ A + Ŵ + X        → A 的係數＝因果效應（在有 U 下仍還原真值）
      對照：天真 Y ~ A + X 被 U 偏掉。
 
-NOTE — faithful-but-simplified teaching reconstruction (Lipsitch, Tchetgen Tchetgen & Cohen
+NOTE — faithful teaching re-implementation (Lipsitch, Tchetgen Tchetgen & Cohen
 2010, Epidemiology; Miao, Geng & Tchetgen Tchetgen 2018, Biometrika; Tchetgen Tchetgen et al.
 proximal causal learning; regression-based PCI, Epidemiology 2025). Synthetic data only.
 """

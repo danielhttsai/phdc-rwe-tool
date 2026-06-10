@@ -12,7 +12,7 @@ in Pyodide with no external estimation packages:
 
 This is local-linear with heteroskedasticity-robust variance; it is NOT the full
 Calonico–Cattaneo–Titiunik robust bias-correction. For teaching on synthetic data
-the point estimates match the standard estimator closely; we say so honestly.
+the point estimates match the standard estimator closely.
 """
 from __future__ import annotations
 
