@@ -96,6 +96,57 @@ document.addEventListener("click", (e) => {
   else if (a.dataset.tab === "choose") chooseTab.click();
 });
 
+// Auto-link method abbreviations inside every panel's prose / tables, so the
+// methods cross-link to each other. Links the FIRST occurrence of each token
+// per block, skips the panel's own method, code/charts/decision-tree, and
+// already-linked text. Re-run after each language switch (applyStatic wipes them).
+const _MLINK = { SCCS: "sccs", CCTC: "cctc", ACNU: "acnu", PNU: "pnu", CCW: "ccw",
+  RDD: "rdd", DiD: "did", PERR: "perr", ITS: "its", TiT: "tit", Seq: "seq",
+  MED: "med", NC: "nc", CC: "cc", IV: "iv" };
+const _MTOKENS = Object.keys(_MLINK).sort((a, b) => b.length - a.length);
+const _MRE = new RegExp("\\b(" + _MTOKENS.join("|") + ")\\b", "g");
+function _panelMethod(id) {
+  const subs = ["learn", "play", "analyze", "assume", "ml", "whatif", "sas"];
+  for (const sub of subs) { if (id.endsWith(sub)) { const pre = id.slice(0, -sub.length); return pre === "" ? "iv" : pre; } }
+  return null;
+}
+function autolinkMethods() {
+  document.querySelectorAll(".panel").forEach((panel) => {
+    const owner = _panelMethod(panel.id);
+    panel.querySelectorAll("p, td, li, h1, h2, h3, h4, summary").forEach((block) => {
+      if (block.closest("#dtree, #dtreeMap, .chart, a, code, pre")) return;
+      const seen = new Set();
+      const tw = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (!n.nodeValue) return NodeFilter.FILTER_REJECT;
+          let p = n.parentNode;
+          while (p && p !== block) { const t = p.tagName; if (t === "A" || t === "CODE" || t === "PRE") return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      const tns = []; while (tw.nextNode()) tns.push(tw.currentNode);
+      tns.forEach((node) => {
+        const s = node.nodeValue; _MRE.lastIndex = 0;
+        if (!_MRE.test(s)) return; _MRE.lastIndex = 0;
+        const frag = document.createDocumentFragment(); let last = 0, m;
+        while ((m = _MRE.exec(s))) {
+          const tok = m[0], to = _MLINK[tok];
+          if (seen.has(tok) || to === owner) continue;   // first-per-block, skip self
+          seen.add(tok);
+          if (m.index > last) frag.appendChild(document.createTextNode(s.slice(last, m.index)));
+          const a = document.createElement("a"); a.className = "xref"; a.dataset.m = to; a.textContent = tok;
+          frag.appendChild(a); last = m.index + tok.length;
+        }
+        if (last === 0) return;                            // nothing linked → leave node
+        if (last < s.length) frag.appendChild(document.createTextNode(s.slice(last)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
+  });
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", autolinkMethods);
+else autolinkMethods();
+
 async function getJSON(url) {
   const r = await fetch(url);
   if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
@@ -5710,6 +5761,7 @@ window.addEventListener("iv-lang", async () => {
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
+  autolinkMethods();                                   // re-apply inline method cross-links (applyStatic wiped them)
 });
 
 // initial render of interactive tab data
