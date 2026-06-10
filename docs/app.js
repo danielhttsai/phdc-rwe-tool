@@ -1974,7 +1974,7 @@ const CITE = {
   titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED）線上教學工具",
   titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED) — Online Teaching Tool",
   year: "2026",
-  url: "https://danielhttsai.github.io/iv-rdd-tool/",
+  url: "https://danielhttsai.github.io/phdc-rwe-tool/",
 };
 // per-method label + the primary methodological source(s) for that page, so both the
 // reference list and the citation can be scoped to the page you are actually on.
@@ -2043,7 +2043,7 @@ function citationText() {
 function bibtex() {
   const a = accessDates();
   return [
-    "@misc{phdc-iv-rdd-tool-2026,",
+    "@misc{phdc-rwe-tool-2026,",
     "  author       = {{Methodology Working Group, Population Health Data Center, National Cheng Kung University} and Tsai, DH-T and Lai, EC-C},",
     `  title        = {${CITE.titleEn}},`,
     `  year         = {${CITE.year}},`,
@@ -2103,7 +2103,7 @@ document.getElementById("dlRis").addEventListener("click", () => {
   const blob = new Blob([risText()], { type: "application/x-research-info-systems" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "iv-rdd-tool.ris";
+  a.href = url; a.download = "phdc-rwe-tool.ris";
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
