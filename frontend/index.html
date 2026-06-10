@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=81" />
+<link rel="stylesheet" href="/styles.css?v=82" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -4429,12 +4429,12 @@ run;
     </div>
 
     <div class="card scene">
-      <h3 data-en="All 14 designs correct their naive bias back to the truth (grouped by family; mediation is a separate decomposition, below)">十四種設計，各自把「天真偏誤」修回真值（按家族分組；中介分析是另一種「分解」，見下）</h3>
-      <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling) — many different ways of borrowing randomness, all landing near the truth.">
+      <h3 data-en="All 15 methods correct their naive bias back to the truth (grouped by family; mediation recovers the true direct effect)">十五種方法，各自把「天真偏誤」修回真值（按家族分組；中介分析還原真正的直接效果）</h3>
+      <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling · proxies/negative controls · mechanism/mediation) — different ways of recovering the truth, all landing near 1.0.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
         <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝天真比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
         <b>青色</b>＝該方法校正後（貼回 1.0 附近）。長條依設計<b>家族</b>分組（借外生變異・借時間・自我對照・
-        目標試驗模擬・主動對照新使用者・抽樣）——多種借隨機的方式，最後都落在真值附近。
+        目標試驗模擬・主動對照新使用者・抽樣・代理／陰性對照・機制／中介）——不同的還原真值方式，最後都落在 1.0 附近。
       </p>
       <div id="chooseChart" class="chart"></div>
     </div>
@@ -4800,7 +4800,7 @@ run;
   </footer>
 </main>
 
-<script src="i18n.js?v=81"></script>
-<script src="app.js?v=81"></script>
+<script src="i18n.js?v=82"></script>
+<script src="app.js?v=82"></script>
 </body>
 </html>

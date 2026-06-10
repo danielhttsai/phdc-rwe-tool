@@ -1855,8 +1855,9 @@ function renderFullMap(hitKey) {
   box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
-// All 14 design methods, one vaccine question, grouped by DESIGN FAMILY (mediation is a
-// separate decomposition, not shown here). Each method's truth
+// All 15 methods, one vaccine question, grouped by DESIGN FAMILY (mediation shown as the
+// 'mechanism' family: its naive direct effect is biased, the proper NDE recovers truth).
+// Each method's truth
 // is on a different scale (effect difference, odds ratio, rate ratio, level change…),
 // so we plot every estimate ÷ its OWN truth: 1.0 = perfectly recovered. Amber = the
 // naive comparison (biased, off 1.0); teal = the method's corrected estimate (back near
@@ -1874,6 +1875,7 @@ const CHOOSE_FAMILIES = [
       ["ACNU", 2.53, 0.99], ["PNU", 0.69, 1.03]] },
   { zh: "抽樣設計", en: "sampling design", members: [["CC", 1.66, 1.00]] },
   { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC", 2.12, 0.94]] },
+  { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
