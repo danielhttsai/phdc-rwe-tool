@@ -1196,6 +1196,11 @@ def _tit_interactive(q: dict) -> dict:
     }
 
 
+def _tit_realmle(q: dict) -> dict:
+    import tit_realmle
+    return tit_realmle.published_estimator_demo(lang=q.get("lang", "zh"))
+
+
 _ROUTES = {
     ("GET", "/api/example"): lambda q, b: _example(),
     ("POST", "/api/upload"): lambda q, b: _upload(b.get("_csv_text", "")),
@@ -1223,6 +1228,7 @@ _ROUTES = {
     ("POST", "/api/tit_analyze"): lambda q, b: _tit_analyze(b),
     ("POST", "/api/tit_assumptions"): lambda q, b: _tit_assumptions(b),
     ("GET", "/api/tit_interactive"): lambda q, b: _tit_interactive(q),
+    ("GET", "/api/tit_realmle"): lambda q, b: _tit_realmle(q),
     ("GET", "/api/its_example"): lambda q, b: _its_example(),
     ("POST", "/api/its_analyze"): lambda q, b: _its_analyze(b),
     ("POST", "/api/its_assumptions"): lambda q, b: _its_assumptions(b),

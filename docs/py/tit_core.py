@@ -18,16 +18,15 @@ where
 The effect is identified from how outcome prevalence tracks exposure prevalence ACROSS
 time within strata — not from the confounded individual exposed-vs-unexposed contrast.
 
-NOTE — this is a SIMPLIFIED teaching reconstruction, NOT the published estimator.
-The original `TrendInTrend::OR()` (Ji & Small) fits the full 2x2 (exposed x outcome)
-cell counts n11/n10/n01/n00 with per-stratum latent-CPE moment params C1[g],C2[g],C3[g]
-and a recursive exposure-prevalence factor h2[t], i.e.
-    P(Y=1|Z=1,g,t) = exp(b0+b1+b2*t) * C1[g]/C3[g]
-    P(Y=1|Z=0,g,t) = exp(b0+b2*t) * (C2[g]-C1[g]*h2[t]) / (1 - C3[g]*h2[t])
-via multi-start MLE + a bootstrap CI. Here we instead fit a lighter MARGINAL model
-(outcome prevalence tracking exposure prevalence across strata) with a Hessian CI, so it
-runs fast and stably under Pyodide. Same identifying idea; NOT the same likelihood — the
-returned OR is illustrative, not the package's output. (Reconstructed independently; no
+This is the FAST, always-on estimator: a marginal model that runs stably in the browser.
+The EXACT published cell-MLE of Ji & Small (`TrendInTrend::OR()` — full 2×2 counts with
+per-stratum latent-CPE moments C1/C2/C3 and a recursive h(t), multi-start MLE + bootstrap
+CI) is also implemented, in `tit_realmle.py`, and offered behind the ③ "run the published
+estimator" button. The marginal model is used for the live tab because on browser-feasible
+sample sizes the cell-MLE's β₁ is weakly identified (a near-flat likelihood ridge), so it
+needs a large Ji & Small-regime dataset and a heavy multi-start fit (~25 s) — too slow and
+fragile to run live; the published estimator is therefore pre-computed offline. Same
+identifying idea here; a different (marginal) likelihood. (Reconstructed independently; no
 package source is copied.)
 """
 from __future__ import annotations

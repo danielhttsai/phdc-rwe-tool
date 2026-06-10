@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=89" />
+<link rel="stylesheet" href="/styles.css?v=90" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -1482,6 +1482,18 @@
       <div id="titAnalyzeOut2" class="chart"></div>
       <p class="caption" data-en="Outcome rate by the same strata. The causal OR is identified from whether this tracks the uptake fan-out.">同樣各層的結果率。因果 OR 由它是否跟隨接種率扇形來識別。</p>
     </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3 data-en="Bonus: run the PUBLISHED Ji &amp; Small estimator (full cell-MLE)">加碼：跑已發表的 Ji &amp; Small 估計器（完整 cell-MLE）</h3>
+      <p data-en="The ③ estimate above uses a fast, stable MARGINAL approximation of the trend-in-trend idea. This button runs the EXACT published cell-MLE (<code>TrendInTrend::OR</code>, Ji &amp; Small 2017) — the full 2×2 likelihood with per-stratum latent-CPE moments and the recursive h(t) — on a Ji &amp; Small-regime synthetic dataset (100k people, 20 periods) where it is well enough identified to fit. It is the genuine published estimator, shown with its honestly wide bootstrap interval. (Pre-computed offline: a live fit takes ~25 s of multi-start optimisation and would freeze the browser.)">
+        上面 ③ 的估計用的是又快又穩的<b>邊際近似</b>。這顆按鈕會跑<b>完整、已發表的 cell-MLE</b>（<code>TrendInTrend::OR</code>，Ji &amp; Small 2017）——完整 2×2 概似、每層潛在 CPE 動差、遞迴 h(t)——資料是 Ji &amp; Small 生成機制的合成集（10 萬人、20 期），在這個規模下才足以識別擬合。這是貨真價實的發表版估計器，附上它<b>誠實偏寬</b>的重抽樣區間。（離線預算：完整多起點最佳化約需 25 秒、會凍結瀏覽器。）
+      </p>
+      <button id="runTitRealMle" class="btn" data-en="Show the published cell-MLE result">顯示已發表 cell-MLE 的結果</button>
+      <div id="titRealOut" class="hidden">
+        <div id="titRealChart" class="chart"></div>
+        <p class="caption" id="titRealReading"></p>
+      </div>
+    </div>
   </section>
 
   <!-- ===================== TiT ④ 假設檢驗 ===================== -->
@@ -1498,8 +1510,8 @@
     <div class="card warn">
       <h3 data-en="Honest limitations &amp; how this tool differs from the published estimator">老實說的限制，以及本工具和原版估計式的差別</h3>
       <ul>
-        <li data-en="<b>This tool uses a simplified reconstruction, not the published MLE.</b> The original <i>TrendInTrend::OR()</i> (Ji &amp; Small) fits the full 2×2 (exposed×outcome) cell counts with per-stratum latent-CPE moment parameters (C1, C2, C3) and a recursive exposure-prevalence factor h(t), via multi-start MLE with a bootstrap CI. For a fast, stable in-browser demo we fit a lighter marginal model (outcome prevalence tracking exposure prevalence across strata, with a Hessian-based CI). Same identifying idea, <b>not the same likelihood</b> — treat the number as illustrative, not as the package's output.<br /><b>We actually implemented and tested that full likelihood too</b>, and found β₁ (the log-OR) is <b>weakly identified</b>: the likelihood is almost a <b>flat ridge</b> in β₁, so different starts land on wildly different solutions (e.g. OR≈2 vs OR≈580,000) at <b>nearly identical likelihood</b>. That is exactly why the package itself returns &quot;multiple solutions / may not be reliable&quot; warnings and needs an analytic-gradient Newton step + bootstrap + an identifiability check. So forcing that estimator to run in the browser would hand you an unreliable number — which would be dishonest — and we <b>deliberately</b> use the stable simplified version instead.">
-          <b>本工具用的是「簡化重建版」，不是已發表的那支 MLE。</b>原版 <i>TrendInTrend::OR()</i>（Ji &amp; Small）是在完整的 2×2（暴露×結果）格子上、用每層的潛在 CPE 動差參數（C1、C2、C3）加上一個遞迴的暴露盛行率因子 h(t)，做多起點 MLE＋自助法信賴區間。為了能在瀏覽器裡又快又穩地示範，我們改配一個較輕的邊際模型（看結果盛行率跨層怎麼跟著暴露盛行率走，信賴區間用 Hessian）。識別的想法相同，但<b>不是同一條概似</b>——這裡的數字當作示意，別當成套件的輸出。<br /><b>我們其實把那條完整概似也實作並測試過</b>：發現它對 β₁（log-OR）的<b>識別很弱</b>——概似面在 β₁ 上幾乎是一條<b>平脊</b>，從不同起點會落到天差地遠的解（例如 OR≈2 與 OR≈58 萬）卻有<b>幾乎一樣的概似值</b>。這正是為什麼套件本身會回報「多重解／結果可能不可靠」的警告，並需要解析梯度的牛頓法＋自助法＋可識別性檢查。所以在瀏覽器裡硬跑那支估計式只會給你一個不可靠的數字、並不誠實——我們才<b>刻意</b>改用穩定的簡化版。
+        <li data-en="<b>Two estimators, both honest.</b> The always-on ③ estimate uses a fast, stable MARGINAL model (outcome prevalence tracking exposure prevalence across strata, Hessian CI) — the same identifying idea as, but not the same likelihood as, the published estimator. The EXACT published cell-MLE (<i>TrendInTrend::OR()</i>, Ji &amp; Small: full 2×2 counts, per-stratum latent-CPE moments C1/C2/C3, recursive h(t), multi-start MLE + bootstrap CI) is implemented too — run it from the <b>‘run the published estimator’ button in tab ③</b>. We use the marginal model for the live tab because on browser-feasible sample sizes β₁ (the log-OR) is <b>weakly identified</b>: the likelihood is nearly a <b>flat ridge</b> in β₁, so different starts can land on very different solutions at nearly identical likelihood (which is why the package itself flags &quot;multiple solutions / may not be reliable&quot; and needs a Newton step + bootstrap + identifiability check). So the heavier published estimator is offered separately, pre-computed on a Ji &amp; Small-regime dataset where it is identified, and shown with its honestly wide interval.">
+          <b>兩種估計器，都誠實。</b>常駐的 ③ 估計用又快又穩的<b>邊際模型</b>（看結果盛行率跨層怎麼跟著暴露盛行率走，信賴區間用 Hessian）——識別想法和發表版相同，但不是同一條概似。<b>完整的發表版 cell-MLE</b>（<i>TrendInTrend::OR()</i>，Ji &amp; Small：完整 2×2 計數、每層潛在 CPE 動差 C1/C2/C3、遞迴 h(t)、多起點 MLE＋自助法 CI）也實作了——可從 <b>③ 分頁的「跑已發表的估計器」按鈕</b>執行。常駐分頁之所以用邊際模型，是因為在瀏覽器可行的樣本量下，β₁（log-OR）<b>識別很弱</b>：概似面在 β₁ 上幾乎是一條<b>平脊</b>，不同起點會落到差很多的解卻有幾乎一樣的概似值（這也是套件本身會回報「多重解／可能不可靠」、需要牛頓步＋自助法＋可識別性檢查的原因）。所以較重的發表版另外提供：在一個夠識別的 Ji &amp; Small 生成資料上離線預算，並附上它誠實偏寬的區間。
         </li>
         <li data-en="<b>CPE is a propensity score — from BASELINE covariates.</b> The published design builds the cumulative-probability-of-exposure from <i>baseline</i> characteristics (as we do). Using covariates measured over the whole study period instead can leak post-exposure information and is a genuine design choice, not something to do casually.">
           <b>CPE 其實就是傾向分數——而且是用「基線」共變項算的。</b>已發表的設計是用<i>基線</i>特徵建累積暴露機率（本工具也是）。若改用整段研究期間量到的共變項，可能漏進暴露後的資訊，這是個需要慎重的設計選擇，不能隨手換。
@@ -5188,7 +5200,7 @@ run;   <span class="cm">/* reports the ATE with a robust SE; overlap weights via
   </footer>
 </main>
 
-<script src="i18n.js?v=89"></script>
-<script src="app.js?v=89"></script>
+<script src="i18n.js?v=90"></script>
+<script src="app.js?v=90"></script>
 </body>
 </html>

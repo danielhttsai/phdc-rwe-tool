@@ -2605,6 +2605,38 @@ function renderTitAnalyze(a) {
   titCurvesInto("titAnalyzeOut2", a.outcome_curve, "q", tr("結果率", "outcome rate"), true);
 }
 
+// ---- ③ bonus: the PUBLISHED Ji & Small cell-MLE (offline-precomputed) ----
+let titRealCache = null;
+const runTitRealBtn = document.getElementById("runTitRealMle");
+if (runTitRealBtn) runTitRealBtn.addEventListener("click", async () => {
+  const btn = runTitRealBtn; const old = btn.textContent;
+  btn.disabled = true; btn.textContent = tr("載入中…", "Loading…");
+  try {
+    const s = await getJSON(`${API}/api/tit_realmle?lang=${lang()}`);
+    titRealCache = s; drawTitReal(s);
+  } catch (e) { alert(tr("載入失敗：", "Failed: ") + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
+});
+function drawTitReal(s) {
+  document.getElementById("titRealOut").classList.remove("hidden");
+  const ci = s.ci || [null, null];
+  const err = (ci[0] != null) ? { type: "data", symmetric: false, array: [ci[1] - s.or], arrayminus: [s.or - ci[0]], color: INK, thickness: 1.5, width: 8 } : undefined;
+  if (document.getElementById("titRealChart")) {
+    Plotly.react("titRealChart", [{
+      x: [tr("發表版 cell-MLE", "published cell-MLE"), tr("天真世代", "naive cohort")],
+      y: [s.or, s.naive_or], type: "bar", marker: { color: [TEAL, AMBER] },
+      error_y: err ? { ...err, array: [ci[1] - s.or, 0], arrayminus: [s.or - ci[0], 0] } : undefined,
+      text: [s.or.toFixed(2), s.naive_or.toFixed(2)], textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 24, r: 16, b: 40, l: 50 },
+      yaxis: { title: tr("勝算比 OR", "odds ratio OR"), range: [0, Math.max(s.naive_or, (ci[1] || s.or)) * 1.2] },
+      shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: s.true_or, y1: s.true_or, line: { color: GREEN, width: 2, dash: "dash" } }],
+      annotations: [{ x: 1, y: s.true_or, text: tr("真值 " + s.true_or, "truth " + s.true_or), showarrow: false, yshift: 11, font: { color: GREEN, size: 10 } }],
+    }), SCENE_CFG);
+  }
+  document.getElementById("titRealReading").innerHTML = s.reading;
+}
+
 // ---- ④ assumptions ----
 function initTitAssume() {
   if (titAssumeReady) return;
@@ -5942,6 +5974,9 @@ window.addEventListener("iv-lang", async () => {
   if (titPlayReady) refreshTitPlay();                  // TiT ② interactive
   if (titAnalyzeReady) runTitAnalyze();                // TiT ③ analysis + dashboard
   else if (titAssumeReady) runTitAssumptions(titState.req);
+  if (titRealCache) {                                  // TiT ③ published cell-MLE (re-render cached, re-fetch reading)
+    try { const s = await getJSON(`${API}/api/tit_realmle?lang=${lang()}`); titRealCache = s; drawTitReal(s); } catch (e) { /* ignore */ }
+  }
   if (itsLearnReady) drawSceneItsExplain();            // ITS ① learn scene
   if (itsPlayReady) refreshItsPlay();                  // ITS ② interactive
   if (itsAnalyzeReady) runItsAnalyze();                // ITS ③ analysis + dashboard

@@ -1353,6 +1353,14 @@ def tit_interactive(trend: float = 1.0, lang: str = "zh"):
     })
 
 
+@app.get("/api/tit_realmle")
+def tit_realmle(lang: str = "zh"):
+    """The PUBLISHED Ji & Small cell-MLE (TrendInTrend::OR), pre-computed offline on a
+    Ji & Small-regime dataset (the live fit takes ~25 s and would freeze the browser)."""
+    import tit_realmle as _tr
+    return _clean(_tr.published_estimator_demo(lang=lang))
+
+
 # ---------------------------------------------------------------------------
 # Static frontend (mounted last so /api/* wins)
 # ---------------------------------------------------------------------------

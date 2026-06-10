@@ -50,3 +50,30 @@ def test_bilingual_interpretation():
     en = tit_core.full_tit(df, lang="en")
     assert zh["interpretation"] != en["interpretation"]
     assert "OR" in en["interpretation"]
+
+
+def test_published_estimator_demo_shape_and_bilingual():
+    """The ③ 'run the published estimator' button serves a baked Ji & Small cell-MLE
+    result (the live fit is too slow for the browser)."""
+    import tit_realmle
+    zh = tit_realmle.published_estimator_demo(lang="zh")
+    en = tit_realmle.published_estimator_demo(lang="en")
+    for r in (zh, en):
+        assert 1.0 < r["or"] < 4.0                       # a real, in-range estimate
+        assert r["naive_or"] > r["true_or"]              # naive cohort OR is biased upward
+        assert r["ci"][0] < r["or"] < r["ci"][1] or r["ci"][0] < r["or"]   # wide, possibly skewed
+        assert r["true_or"] == tit_realmle.TRUE_OR
+        assert len(r["curves"]["periods"]) == tit_realmle.TN
+    assert zh["reading"] != en["reading"]
+
+
+def test_published_estimator_recompute_matches_baked():
+    """Audit: the baked _REAL is reproducible by the offline real cell-MLE.
+    Skipped by default (the multi-start fit takes ~25 s); run with TIT_SLOW=1."""
+    import os
+    if os.environ.get("TIT_SLOW") != "1":
+        import pytest
+        pytest.skip("slow (~25s) real-MLE recompute; set TIT_SLOW=1 to run")
+    import tit_realmle
+    r = tit_realmle._recompute(seed=2)
+    assert abs(r["or"] - tit_realmle._REAL["or"]) < 0.05
