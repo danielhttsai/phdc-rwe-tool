@@ -62,8 +62,8 @@ def _p1_time_invariant(res, lang="zh"):
             "scale, PERR is biased. The data cannot prove it, but you can: ① run the PERR-vs-PERD scale sensitivity in "
             "⑤; ② inspect measured time-varying proxies; ③ benchmark against a randomized trial where one exists.",
         ),
-        "term": t(lang, "專有名詞：時間不變、乘法尺度的混淆（time-invariant, multiplicative confounding）；尺度敏感度（PERR vs PERD）。",
-                  "Term: time-invariant, multiplicative confounding; scale sensitivity (PERR vs PERD)."),
+        "term": t(lang, "時間不變、乘法尺度的混淆＝兩組病人本來就有的差距：治療前後一樣大、而且是「差幾倍」而非「差幾件」——PERR 只能消掉這一種。尺度敏感度（PERR vs PERD）＝同一份資料用「除法／比值」(PERR) 與「減法／差值」(PERD) 各算一次；兩種結論若差很多，代表答案很「看你用哪把尺」，要保守看待。",
+                  "Time-invariant, multiplicative confounding = the groups' baseline difference, the same size before and after and acting as 'so many times more' (not 'so many extra cases') — the only kind PERR can cancel. Scale sensitivity (PERR vs PERD) = compute the same data on a ratio scale (PERR, division) and a difference scale (PERD, subtraction); if the two disagree a lot, the answer is scale-dependent and should be read cautiously."),
         "metrics": metrics,
     }
 
@@ -87,8 +87,8 @@ def _p2_no_anticipation(lang="zh"):
             "prior-period ratio is no longer a clean confounding fingerprint and PERR is contaminated. Remedy: define a "
             "prior window strictly before treatment and exclude any transition period.",
         ),
-        "term": t(lang, "專有名詞：無預期假設（no-anticipation）；乾淨的事前期（clean prior window）。",
-                  "Term: no-anticipation assumption; clean prior window."),
+        "term": t(lang, "無預期假設＝大家沒有因為「知道之後會用藥」就提前改變行為（否則事前期已被汙染）。乾淨的事前期＝那段「治療前」的時窗裡兩組都還沒用藥、也沒有過渡期，才能當作純粹反映「兩組本來差距」的基準。",
+                  "No-anticipation = people don't change behaviour ahead of time just because they know treatment is coming (otherwise the prior period is already contaminated). Clean prior window = a 'before treatment' window where neither group is treated yet and there is no transition, so it can serve as a pure baseline benchmark."),
         "metrics": [],
     }
 
@@ -111,8 +111,8 @@ def _p3_event_dependent_treatment(lang="zh"):
             "likely to be put on the drug. Cheung et al. (2024) propose using a <b>self-controlled case series (SCCS)</b> "
             "— reversing the roles to see whether prior events predict later treatment — to actually check this.",
         ),
-        "term": t(lang, "專有名詞：事件相依的處置分派（event-dependent treatment）；自我對照病例系列（SCCS）。",
-                  "Term: event-dependent treatment assignment; self-controlled case series (SCCS)."),
+        "term": t(lang, "事件相依的處置分派＝「有沒有發生過事件」本身會影響一個人之後有沒有被開藥（例如剛出過事的人更可能、或更不可能被開）——這會破壞 PERR 的前後對稱。自我對照病例系列（SCCS）＝一種「每個人當自己對照」的設計，這裡借它反過來檢查「事前事件是否預測之後的用藥」。",
+                  "Event-dependent treatment = whether someone had an event itself changes whether they are later put on the drug (e.g. someone who just had an event is more — or less — likely to be treated), which breaks PERR's before/after symmetry. Self-controlled case series (SCCS) = a design where each person is their own control; here it is borrowed in reverse to check whether prior events predict later treatment."),
         "metrics": [],
     }
 
@@ -137,8 +137,8 @@ def _p4_event_dependent_dropout(lang="zh"):
             "approximately unbiased; a <b>dynamic random-intercept model (DRIM)</b> can check whether earlier events "
             "predict later events/attrition.",
         ),
-        "term": t(lang, "專有名詞：事件相依的流失（event-dependent dropout）；PERR-Comp（完成者版）；DRIM。",
-                  "Term: event-dependent dropout; PERR-Comp (completers version); DRIM."),
+        "term": t(lang, "事件相依的流失＝事前期出過事的人，更容易在事後期退出或死亡，導致高風險的人被選掉、事後率比被扭曲。PERR-Comp（完成者版）＝只用「有完成追蹤」者、在一致定義下仍近似無偏的 PERR 變體。DRIM（動態隨機截距模型）＝一種檢查工具，看「早期事件會不會預測晚期事件／流失」。",
+                  "Event-dependent dropout = people who had a prior event are more likely to drop out or die later, so high-risk people are removed and the post-period ratio is distorted. PERR-Comp (completers version) = a PERR variant defined consistently on those who completed follow-up, which stays approximately unbiased. DRIM (dynamic random-intercept model) = a checking tool for whether earlier events predict later events/attrition."),
         "metrics": [],
     }
 
@@ -176,7 +176,7 @@ def _p5_enough_prior_events(ev, lang="zh"):
             "denominator is itself very unstable, and dividing inflates PERR's uncertainty — the confidence interval "
             "blows up. A longer prior observation window, or a more common outcome, both help.",
         ),
-        "term": t(lang, "專有名詞：事前期事件數／估計穩定性（prior-event count, stability）。",
-                  "Term: prior-event count / estimate stability."),
+        "term": t(lang, "事前期事件數／估計穩定性＝PERR 要除以「事前期率比」，而這個分母是用事前期的事件數算的；事件太少，分母就估得很抖，一除下去整個 PERR 的不確定性被放大、信賴區間爆寬。所以事前期事件夠不夠多，直接決定 PERR 穩不穩。",
+                  "Prior-event count / estimate stability = PERR divides by the prior-period rate ratio, and that denominator is built from the prior period's event count; too few events makes the denominator jittery, and dividing by it inflates PERR's whole uncertainty and blows the interval wide. So how many prior-period events you have directly decides how stable PERR is."),
         "metrics": metrics,
     }
