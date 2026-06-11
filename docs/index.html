@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=97" />
+<link rel="stylesheet" href="styles.css?v=98" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
 <script src="pyodide-bridge.js?v=39"></script>
@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span> · <span>GM</span> · <span>TND</span> · <span>PSSA</span> · <span>TreeScan</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -2953,63 +2953,192 @@
       </div>
     </details>
 
-    <h2 data-en="SCCS extensions — when the standard assumptions break (Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, 2018; sccs-studies.info)">SCCS 延伸 —— 當標準假設不成立時（Farrington、Whitaker &amp; Ghebremichael-Weldeselassie 2018；sccs-studies.info）</h2>
-    <p class="lead" data-en="The standard SCCS rests on four assumptions; the book and the SCCS R package provide extensions for when each is threatened. For each extension: <b>what the data looks like</b>, <b>the analysis</b>, and <b>when you'd use it</b>.">標準 SCCS 建立在四條假設上；專書與 SCCS R 套件為每一條被威脅時提供了延伸。每一種延伸都列出：<b>資料長相</b>、<b>分析怎麼做</b>、以及<b>會用到的情境</b>。</p>
-    <div class="table-wrap">
-      <table class="cmp">
-        <thead><tr>
-          <th data-en="Extension">延伸</th>
-          <th data-en="What the data looks like">資料長相</th>
-          <th data-en="The analysis">分析</th>
-          <th data-en="When you use it">會用到的情境</th>
-        </tr></thead>
-        <tbody>
-          <tr><td data-en="① Event-dependent exposure (short / long-term)">① 事件相依暴露（短／長期）</td>
-            <td data-en="Standard SCCS long format — each person cut into many rows (age × risk window × other factors; each row = one interval with its event count &amp; person-time). Short-term: add a pre-exposure window [−τ,0) column. Long-term: build a counterfactual exposure history (treat later exposure as if it never happened).">標準 SCCS 長格式——每人切成多列（年齡 × 風險窗 × 其他因子；每列＝一個 interval，含事件數與曝險時間）。短期：多加一段暴露前風險窗 [−τ,0) 欄。長期：另建「反事實暴露史」（把後續暴露當作沒發生）。</td>
-            <td data-en="Short-term: conditional-Poisson SCCS with a pre-exposure indicator + LRT that its RR = 1. Long-term: leave the likelihood, solve estimating equations on the counterfactual exposure, iteratively (book §7.1).">短期：條件 Poisson／SCCS 概似內加暴露前指標、LRT 檢定 RI=1。長期：離開概似，用反事實暴露的估計方程式迭代求解（書 §7.1）。</td>
-            <td data-en="The event precludes / delays / precipitates later exposure: rotavirus vaccine &amp; intussusception; seizure &amp; vaccine; injury &amp; opioids.">事件會排除／延後／促成日後暴露：輪狀病毒疫苗 vs 腸套疊；抽搐 vs 疫苗；外傷 vs 鴉片。</td></tr>
-          <tr><td data-en="② Event-dependent observation / SCRI">② 事件相依觀察期／SCRI</td>
-            <td data-en="Same long format, but each person's observation is cut short by the event (death); you also record the interval from event to end of observation. SCRI: keep only a short window around exposure (a few rows per person).">同長格式，但每人觀察期被事件（死亡）截短；另記「事件→觀察結束」的間隔。SCRI：只取暴露附近短窗（每人少數列）。</td>
-            <td data-en="Add a weight/term to the likelihood, estimated from the event-to-end interval, fit iteratively (Farrington et al. 2011); or run a plain conditional Poisson inside the SCRI short window.">概似加權重／項，由「事件→結束」間隔估計、迭代擬合（Farrington 等 2011）；或在 SCRI 短窗內跑條件 Poisson。</td>
-            <td data-en="The event raises mortality and shortens follow-up: antipsychotics &amp; stroke; outcome = death (bupropion &amp; sudden death).">事件升高死亡率、截短追蹤：抗精神病藥與中風；結果為死亡（bupropion 與猝死）。</td></tr>
-          <tr><td data-en="③ Age / seasonality — splines / non-parametric">③ 年齡／季節（樣條／非參數）</td>
-            <td data-en="Standard long format, but age/season is cut more finely, or replaced by spline basis columns instead of a few cut-points.">標準長格式，但 age／season 切更細，或以樣條基底欄取代少數切點。</td>
-            <td data-en="Conditional Poisson with a spline / non-parametric age (season) term that smooths the time-varying baseline rate.">條件 Poisson＋樣條／非參數的年齡（季節）項，平滑時變基準率。</td>
-            <td data-en="The baseline rate has a sharp shape: infant convulsions; seasonal infections.">基準率有尖峰：嬰兒抽搐；季節性感染。</td></tr>
-          <tr><td data-en="④ Dose / quantitative &amp; environmental exposure">④ 劑量／連續與環境暴露</td>
-            <td data-en="The exposure column is a dose / intensity value (not 0/1); for environmental exposure each interval carries a shared environmental level (air pollution, temperature).">暴露欄是劑量／強度數值（非 0/1）；環境暴露則每個 interval 帶一個共享的環境水準（空污、氣溫）。</td>
-            <td data-en="Conditional Poisson with a continuous exposure term (log-linear dose-response); environmental exposures use the matching likelihood.">條件 Poisson＋連續暴露項（log-linear 劑量反應）；環境暴露用對應概似。</td>
-            <td data-en="Dose-response (blood pressure &amp; headache); environment (air pollution &amp; asthma, temperature &amp; RSV).">劑量反應（血壓與頭痛）；環境（空污與氣喘、氣溫與 RSV）。</td></tr>
-          <tr><td data-en="⑤ Multiple doses / exposure types / multi-type events">⑤ 多劑量／多暴露型／多型事件</td>
-            <td data-en="Each person has several exposure starts (repeat / intermittent) → more risk-window rows; multi-type events carry a subtype label and may share windows.">每人多個暴露起點（重複／間歇）→更多風險窗列；多型事件＝事件帶亞型標籤、可能共用窗。</td>
-            <td data-en="Conditional Poisson with several exposure indicators; multi-type events use stratification or a multinomial likelihood.">條件 Poisson 放多個暴露指標；多型事件用分層或多項概似。</td>
-            <td data-en="NSAIDs &amp; GI bleeds (intermittent); DTP doses &amp; convulsions; febrile vs non-febrile convulsions.">NSAID 與消化道出血（間歇）；DTP 多劑與抽搐；熱性 vs 非熱性抽搐。</td></tr>
-          <tr><td data-en="⑥ Active-comparator SCCS">⑥ 主動對照 SCCS</td>
-            <td data-en="Same long format, but it also carries a second exposure column for the comparator drug (two sets of risk windows, mutually exclusive or nested).">同長格式，但同時納入「藥」與「對照藥」兩組暴露欄（兩種風險窗，互斥或 nested）。</td>
-            <td data-en="Conditional Poisson with both exposures → active-comparator RR = exp(β_drug − β_comparator) (simple ratio or nested model; Hallas 2021, Schultze 2025).">條件 Poisson 同放兩暴露 → 主動對照 RR ＝ exp(β藥 − β對照)（simple-ratio 或 nested；Hallas 2021、Schultze 2025）。</td>
-            <td data-en="Drug-vs-drug safety with time-varying confounding by indication: glitazone vs sulphonylurea &amp; fracture.">時變適應症混淆的藥對藥：glitazone vs sulphonylurea 與骨折。</td></tr>
-          <tr><td data-en="⑦ Design, power &amp; identifiability">⑦ 設計、檢定力與可辨識性</td>
-            <td data-en="Planning stage — choosing risk windows, age groups and the observation period decides how many rows each person is cut into.">規劃階段——決定風險窗、年齡組與觀察期切法（決定每人被切成幾列）。</td>
-            <td data-en="Sample size / power (formula or simulation), efficiency &amp; identifiability checks; SCRI as a pragmatic design.">樣本數／檢定力（公式或模擬）、效率與可辨識性評估；SCRI 作為務實設計。</td>
-            <td data-en="Planning any SCCS study before you analyse.">分析前規劃任何 SCCS 研究。</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <h2 data-en="SCCS extensions &amp; practical judgement — when the standard assumptions break">SCCS 延伸與實務判斷 —— 當標準假設不成立時</h2>
+    <p class="lead" data-en="The standard SCCS rests on four assumptions; the book and the SCCS R package add an extension for when each is threatened. Each card below fuses the extension with a real worked example, and shows <b>what the data looks like</b> and the <b>SAS code</b> that fits it. The within-person design's core win — it removes <b>all</b> time-fixed, between-person confounding (e.g. antidepressants &amp; hip fracture: the extra SSRI risk over TCAs was frailer patients, not the drug; Hubbard et al. 2003) — is what every extension protects. (Farrington, Whitaker &amp; Ghebremichael-Weldeselassie 2018; sccs-studies.info; worked examples after Douglas 2023, citing the original papers.)">標準 SCCS 建立在四條假設上；專書與 SCCS R 套件為每一條被威脅時提供一個延伸。以下每張卡把延伸與一個真實範例結合，並展示<b>資料長相</b>與配適它的 <b>SAS code</b>。個人內設計的核心優勢——它消掉<b>所有</b>時間不變、人與人之間的混淆（如抗憂鬱藥與髖部骨折：SSRI 比 TCA 多出的風險其實是體弱病人、不是藥；Hubbard 等 2003）——正是每個延伸要守住的東西。（Farrington、Whitaker &amp; Ghebremichael-Weldeselassie 2018；sccs-studies.info；範例改寫自 Douglas 2023，引用原始論文。）</p>
 
-    <h2 data-en="Practical judgement &amp; worked examples (from Ian Douglas's SCCS course, LSHTM — Aarhus 2023)">實務判斷與應用範例（取自 Ian Douglas 的 SCCS 課程，LSHTM —— Aarhus 2023）</h2>
-    <p class="lead" data-en="A respected teaching deck distils the design into decisions and real studies. Below is an original plain-language summary of its key practical points, citing the original papers (not the slides).">一份廣受好評的教學講義，把這個設計濃縮成「判斷」與「真實研究」。以下是其關鍵實務要點的原創白話整理，並引用原始論文（非投影片）。</p>
-    <div class="cards">
-      <div class="card"><h3 data-en="A. The first question: is assumption-2 violation permanent or temporary?">A. 第一個問題：違反假設2是「永久」還是「暫時」？</h3>
-        <p data-en="The assumption that <b>events don't influence future exposure</b> fails in two ways. <b>Permanent</b> (the event stops the drug for good — e.g. an MI changes statin use): there is <b>no fix — don't use SCCS</b>. <b>Temporary</b> (the event briefly delays/brings forward exposure — e.g. a seizure delays the next vaccine): add a <b>pre-exposure period</b> and remove that biased time from baseline. Deciding which regime you are in is the practical first step.">「<b>事件不影響日後暴露</b>」這條假設會以兩種方式失效。<b>永久</b>（事件讓藥永遠停掉——如心肌梗塞改變 statin 使用）：<b>沒有救、別用 SCCS</b>。<b>暫時</b>（事件只是短暫延後／提前暴露——如抽搐延後下一劑疫苗）：加一段<b>暴露前期間</b>、把那段被偏的時間移出基線。先判斷自己屬於哪一種，是務實的第一步。</p></div>
-      <div class="card"><h3 data-en="B. Case-control can over-estimate: antidepressants &amp; hip fracture">B. 病例對照可能高估：抗憂鬱藥與髖部骨折</h3>
-        <p data-en="Earlier case-control work found SSRIs riskier than older TCAs for hip fracture — but a within-person SCCS showed the risk is concentrated in the <b>first ~6 weeks</b> and is <b>similar for TCAs and SSRIs</b>. The extra SSRI risk was <b>between-person confounding</b> (frailer patients were prescribed SSRIs), which the self-controlled design removes (Hubbard et al., AJE 2003).">早期病例對照認為 SSRI 比舊的 TCA 更易致髖部骨折——但人內 SCCS 顯示風險集中在<b>前約 6 週</b>，且 <b>TCA 與 SSRI 相近</b>。多出來的 SSRI 風險其實是<b>人與人之間的混淆</b>（較體弱者被開 SSRI），自我對照設計把它移除了（Hubbard 等, AJE 2003）。</p></div>
-      <div class="card"><h3 data-en="C. Design the observation period: pre-exposure, censoring, post-death">C. 設計觀察期：暴露前、設限、死後</h3>
-        <p data-en="Real studies turn on the window design. <b>Pre-exposure elevated too</b> → confounding by indication (orlistat &amp; liver injury: risk also raised <i>before</i> initiation, so initiation isn't what changes incidence — Douglas et al.). <b>Event-dependent censoring</b> can flip results (antipsychotics &amp; stroke: IRR 1.73 overall, but a censoring 'fix' moved a subgroup from 1.31 to 1.05). <b>Post-death SCCS</b> is even possible for a short, predictable, unique exposure when the outcome is death (bupropion &amp; sudden death — observation begins at exposure; Hubbard et al. 2005).">真實研究成敗在窗的設計。<b>暴露前也升高</b>→適應症混淆（orlistat 與肝損傷：起始<i>之前</i>風險也升高，所以不是起始改變了發生率——Douglas 等）。<b>事件相依設限</b>可能翻盤（抗精神病藥與中風：整體 IRR 1.73，但設限校正讓某亞群從 1.31 變 1.05）。<b>死後 SCCS</b> 甚至可行於短、可預測、唯一的暴露且結果為死亡時（bupropion 與猝死——觀察從暴露開始；Hubbard 等 2005）。</p></div>
-      <div class="card"><h3 data-en="D. Beyond drugs: attendance &amp; COVID-19 (Events Research Programme)">D. 不只藥物：活動出席與 COVID-19（Events Research Programme）</h3>
-        <p data-en="SCCS isn't only for drugs. To ask whether attending an event raised COVID-19 risk, the analysis adjusts for changing background prevalence and — neatly — <b>divides the rate ratio for positive tests by the rate ratio for negative tests</b> over the same window, netting out trends in testing (a negative-control-style correction). Festivals showed ~70% higher risk; seated indoor/outdoor little. A reminder to <b>think hard about the observation period and what varies along it</b>.">SCCS 不只用於藥物。要問「出席活動是否提高 COVID-19 風險」，分析會校正變動的背景盛行率，並巧妙地<b>把陽性檢驗的率比除以同窗陰性檢驗的率比</b>，扣掉檢驗趨勢（陰性對照式的校正）。音樂節風險約高 70%；室內外坐席則不明顯。提醒我們要<b>認真想觀察期、以及沿著它變動的東西</b>。</p></div>
-      <div class="card"><h3 data-en="E. Incident vs prevalent exposure/outcome: prevalent users attenuate SCCS too (Jung et al. 2025)">E. 入組為「初次 vs 既有」：盛行使用者也會把 SCCS 拉淡（Jung 等 2025）</h3>
-        <p data-en="SCCS removes time-fixed confounding, but it does <b>not</b> immunise you against <b>prevalent-user bias</b>. Jung et al. (PDS 2025) re-ran two Korean NHIS studies under four definitions — incident vs prevalent <b>exposure</b> × incident vs prevalent <b>outcome</b> (set by a washout window). Varying the <b>exposure</b> definition mattered most: with <b>prevalent</b> users the IRR was <b>attenuated toward the null</b> — fluoroquinolone &amp; retinal detachment fell from <b>1.83 (incident) to 1.70 (prevalent)</b>; the null ranibizumab &amp; cardiovascular example drifted 0.91→1.02. The mechanism is <b>depletion of susceptibles</b> (people prone to the event have already had it and dropped out). Varying the <b>outcome</b> definition barely moved things here (severe, low-recurrence outcomes), though survivor bias can bite elsewhere. <b>Practical rule: prefer an incident (new-user) exposure definition with a long enough washout</b>, and report how sensitive the IRR is to it.">SCCS 消掉時間不變的混淆，但它<b>並不</b>能讓你免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）用韓國 NHIS 重跑兩個研究，套上四種定義——初次 vs 既有<b>暴露</b> × 初次 vs 既有<b>結果</b>（用洗滌窗界定）。結果<b>暴露</b>定義影響最大：用<b>既有（盛行）</b>使用者時 IRR <b>被往虛無拉淡</b>——氟喹諾酮與視網膜剝離從 <b>1.83（初次）降到 1.70（既有）</b>；本應為虛無的 ranibizumab 與心血管則 0.91→1.02。機制是<b>易感者耗竭</b>（容易出事的人早已出事、退出了）。這裡<b>結果</b>定義幾乎沒影響（結果嚴重、低復發），但別處仍可能有存活者偏誤。<b>實務原則：盡量用初次（新使用者）暴露定義、配夠長的洗滌期</b>，並報告 IRR 對它有多敏感。</p></div>
-    </div>
+    <details class="ext-card"><summary data-en="① Event-dependent exposure (short / long-term) <span class='ext-tag'>— is the violation temporary or permanent?</span>">① 事件相依暴露（短期／長期）<span class="ext-tag">—— 違反是「暫時」還是「永久」？</span></summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="The event itself changes later exposure. <b>Permanent</b> (an MI stops statins for good): <b>no fix — don't use SCCS</b>. <b>Temporary</b> (a seizure briefly delays the next vaccine; rotavirus vaccine &amp; intussusception): add a <b>pre-exposure window [−τ,0)</b> so the biased time is taken out of baseline; if its RR ≠ 1, exposure is event-dependent. Long-term dependence needs a counterfactual exposure history solved by estimating equations (book §7.1).">事件本身改變了日後暴露。<b>永久</b>（心肌梗塞讓 statin 永遠停掉）：<b>沒救、別用 SCCS</b>。<b>暫時</b>（抽搐短暫延後下一劑疫苗；輪狀病毒疫苗 vs 腸套疊）：加一段<b>暴露前風險窗 [−τ,0)</b>，把被偏的時間移出基線；若它的 RR ≠ 1，就代表暴露是事件相依的。長期相依要用反事實暴露史＋估計方程式求解（書 §7.1）。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Long format — one person cut into intervals; a pre-exposure interval is added before the risk window.">長格式——一個人切成多段；危險窗之前多加一段「暴露前」。</caption>
+          <thead><tr><th>pid</th><th data-en="interval">區段</th><th>expgr</th><th data-en="nevents">事件數</th><th>loginterval</th></tr></thead>
+          <tbody>
+            <tr><td>7</td><td class="lo" data-en="pre-exposure [−14,0)">暴露前 [−14,0)</td><td class="lo">pre</td><td class="lo">0</td><td class="lo">log 14</td></tr>
+            <tr><td>7</td><td data-en="risk [1,28]">危險窗 [1,28]</td><td>risk</td><td>1</td><td>log 28</td></tr>
+            <tr><td>7</td><td class="lo" data-en="baseline">基線</td><td class="lo">base</td><td class="lo">0</td><td class="lo">log 300</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code>proc genmod data=sccs;  class pid expgr;
+   model nevents = expgr / dist=poisson link=log offset=loginterval;
+   repeated subject=pid;            <span class="cm">/* condition on the person */</span>
+   <span class="cm">/* expgr levels = base / pre / risk; test exp(pre)=1: an LRT vs a model</span>
+<span class="cm">      without 'pre' checks short-term event-dependence (Farrington book §5.4). */</span>
+run;
+<span class="cm">/* Long-term dependence: R SCCS::eventdepenexp() — counterfactual exposure + EE. */</span></code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="② Event-dependent observation / SCRI <span class='ext-tag'>— censoring, death &amp; changing background</span>">② 事件相依觀察期／SCRI <span class="ext-tag">—— 設限、死亡與變動的背景</span></summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="The event shortens follow-up (it raises mortality, or the outcome <i>is</i> death). Standard SCCS is biased; weight the likelihood by the event-to-end interval, fit iteratively (Farrington et al. 2011), or restrict to a short Self-Controlled Risk Interval (SCRI). A censoring 'fix' can flip results (antipsychotics &amp; stroke moved a subgroup 1.31→1.05). For changing background prevalence you can divide the positive-test RR by the negative-test RR over the same window (a negative-control-style correction — attendance &amp; COVID-19).">事件截短了追蹤（升高死亡率，或結果<i>就是</i>死亡）。標準 SCCS 會偏；用「事件→結束」間隔對概似加權、迭代擬合（Farrington 等 2011），或限制在短的自我對照風險區間（SCRI）。設限校正可能翻盤（抗精神病藥與中風讓某亞群 1.31→1.05）。背景盛行率在變時，可把陽性檢驗的 RR 除以同窗陰性檢驗的 RR（陰性對照式校正——活動出席與 COVID-19）。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Same long format, plus the interval from the event to the end of observation (here, death censors follow-up).">同長格式，另記「事件→觀察結束」的間隔（這裡死亡截短了追蹤）。</caption>
+          <thead><tr><th>pid</th><th>expgr</th><th data-en="nevents">事件數</th><th>loginterval</th><th data-en="evt→end">事件→結束</th></tr></thead>
+          <tbody>
+            <tr><td>12</td><td class="lo">risk</td><td class="lo">1</td><td class="lo">log 28</td><td class="lo">9</td></tr>
+            <tr><td>12</td><td>base</td><td>0</td><td>log 110</td><td>9</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code><span class="cm">/* SCRI: keep only a short window around exposure, then a plain SCCS. */</span>
+proc genmod data=scri;  class pid expgr;
+   model nevents = expgr / dist=poisson link=log offset=loginterval;
+   repeated subject=pid;
+run;
+<span class="cm">/* Event-dependent observation (incl. death): R SCCS::eventdepenobs() weights</span>
+<span class="cm">   the likelihood by the event→end interval and fits it iteratively. */</span></code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="③ Age / seasonality — splines / non-parametric baseline">③ 年齡／季節（樣條／非參數基準）</summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="The baseline rate has a sharp shape (infant convulsions peak at an age; seasonal infections). A few age cut-points are too coarse: cut age/season finely or replace the cut-points with spline basis columns so the time-varying baseline is smooth.">基準率有尖峰（嬰兒抽搐在某年齡達峰；季節性感染）。少數年齡切點太粗：把 age／season 切更細，或用樣條基底欄取代切點，讓時變基準平滑。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Finer age bands (or spline basis columns s1,s2,…) replace a few coarse cut-points.">更細的年齡帶（或樣條基底欄 s1,s2,…）取代少數粗切點。</caption>
+          <thead><tr><th>pid</th><th>expgr</th><th>agegr</th><th data-en="nevents">事件數</th><th>loginterval</th></tr></thead>
+          <tbody>
+            <tr><td>3</td><td class="lo">base</td><td class="lo">a4</td><td class="lo">0</td><td class="lo">log 30</td></tr>
+            <tr><td>3</td><td>risk</td><td>a5</td><td>1</td><td>log 14</td></tr>
+            <tr><td>3</td><td class="lo">base</td><td class="lo">a6</td><td class="lo">0</td><td class="lo">log 30</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code><span class="cm">/* fine age bands as a class factor (or spline columns s1-s4 as effects). */</span>
+proc genmod data=sccs;  class pid expgr agegr;
+   model nevents = expgr agegr / dist=poisson link=log offset=loginterval;
+   repeated subject=pid;          <span class="cm">/* agegr soaks up the seasonal/age baseline */</span>
+run;</code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="④ Dose / quantitative &amp; environmental exposure">④ 劑量／連續與環境暴露</summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="The exposure is a dose / intensity, not on/off (dose-response: blood pressure &amp; headache), or a shared environmental level per interval (air pollution &amp; asthma; temperature &amp; RSV). Use a continuous exposure term (log-linear dose-response) instead of a 0/1 indicator.">暴露是劑量／強度、不是有無（劑量反應：血壓與頭痛），或每段一個共享的環境水準（空污與氣喘；氣溫與 RSV）。用連續暴露項（log-linear 劑量反應）取代 0/1 指標。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="The exposure column carries a dose / level value, not just 0/1.">暴露欄帶劑量／水準數值，不只是 0/1。</caption>
+          <thead><tr><th>pid</th><th data-en="dose/level">劑量／水準</th><th data-en="nevents">事件數</th><th>loginterval</th></tr></thead>
+          <tbody>
+            <tr><td>5</td><td class="lo">0</td><td class="lo">0</td><td class="lo">log 60</td></tr>
+            <tr><td>5</td><td>10</td><td>0</td><td>log 30</td></tr>
+            <tr><td>5</td><td class="lo">40</td><td class="lo">1</td><td class="lo">log 30</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code>proc genmod data=sccs;  class pid;
+   model nevents = dose / dist=poisson link=log offset=loginterval;
+   repeated subject=pid;          <span class="cm">/* exp(dose) = RR per unit dose (log-linear) */</span>
+run;</code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="⑤ Multiple doses / exposure types / multi-type events">⑤ 多劑量／多暴露型／多型事件</summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="Several exposure starts per person (repeat / intermittent — NSAIDs &amp; GI bleeds; DTP doses &amp; convulsions), or events of more than one subtype (febrile vs non-febrile convulsions). Give each exposure its own indicator/window; for multi-type events, stratify or use a multinomial likelihood.">每人多個暴露起點（重複／間歇——NSAID 與消化道出血；DTP 多劑與抽搐），或事件不只一種亞型（熱性 vs 非熱性抽搐）。每個暴露各給一個指標／窗；多型事件則分層或用多項概似。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Repeat exposures → several risk-window rows (risk1, risk2, …) per person.">重複暴露→每人多個風險窗列（risk1、risk2、…）。</caption>
+          <thead><tr><th>pid</th><th>expgr</th><th data-en="evt type">事件型</th><th data-en="nevents">事件數</th><th>loginterval</th></tr></thead>
+          <tbody>
+            <tr><td>9</td><td class="lo">risk1</td><td class="lo" data-en="febrile">熱性</td><td class="lo">1</td><td class="lo">log 14</td></tr>
+            <tr><td>9</td><td>base</td><td data-en="febrile">熱性</td><td>0</td><td>log 90</td></tr>
+            <tr><td>9</td><td class="lo">risk2</td><td class="lo" data-en="febrile">熱性</td><td class="lo">0</td><td class="lo">log 14</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code>proc genmod data=sccs;  class pid expgr;
+   model nevents = expgr / dist=poisson link=log offset=loginterval;
+   repeated subject=pid;          <span class="cm">/* expgr = base/risk1/risk2/... one RR per window */</span>
+   <span class="cm">/* multi-type events: add 'where evttype=...' strata, or a multinomial model. */</span>
+run;</code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="⑥ Active-comparator SCCS <span class='ext-tag'>— time-varying confounding by indication</span>">⑥ 主動對照 SCCS <span class="ext-tag">—— 時變適應症混淆</span></summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="Standard SCCS removes time-<i>fixed</i> confounding but not time-<i>varying</i> confounding by indication (the disease that prompts the drug also varies the outcome rate). Carry a second exposure column for a comparator drug used for the same indication; the active-comparator RR = exp(β_drug − β_comparator) differences it out (glitazone vs sulphonylurea &amp; fracture; Hallas 2021, Schultze 2025).">標準 SCCS 消掉時間<i>不變</i>的混淆，但消不掉時<i>變</i>的適應症混淆（促使開藥的疾病也讓結果率變動）。納入一個同適應症對照藥的第二暴露欄；主動對照 RR ＝ exp(β藥 − β對照) 把它差掉（glitazone vs sulphonylurea 與骨折；Hallas 2021、Schultze 2025）。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Two exposure columns — the drug and an active comparator (mutually exclusive or nested windows).">兩個暴露欄——藥與主動對照藥（互斥或 nested 風險窗）。</caption>
+          <thead><tr><th>pid</th><th>drug</th><th>comp</th><th data-en="nevents">事件數</th><th>loginterval</th></tr></thead>
+          <tbody>
+            <tr><td>21</td><td class="lo">1</td><td class="lo">0</td><td class="lo">1</td><td class="lo">log 28</td></tr>
+            <tr><td>21</td><td>0</td><td>1</td><td>0</td><td>log 28</td></tr>
+            <tr><td>21</td><td class="lo">0</td><td class="lo">0</td><td class="lo">0</td><td class="lo">log 250</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code>proc genmod data=sccs;  class pid;
+   model nevents = drug comp / dist=poisson link=log offset=loginterval;
+   repeated subject=pid;
+   estimate 'active-comparator RR' drug 1 comp -1;   <span class="cm">/* exp(b_drug - b_comp) */</span>
+run;</code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 既有暴露 <span class="ext-tag">—— 盛行使用者也會把 SCCS 拉淡（Jung 2025）</span></summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="SCCS removes time-fixed confounding but is <b>not</b> immune to <b>prevalent-user bias</b>. Jung et al. (PDS 2025) showed that defining exposure as <b>prevalent</b> (rather than incident/new use) attenuates the IRR toward the null — fluoroquinolone &amp; retinal detachment fell from <b>1.83 → 1.70</b> — via depletion of susceptibles. Practical rule: prefer an <b>incident</b> exposure with a long enough washout, and report sensitivity.">SCCS 消掉時間不變的混淆，但<b>不</b>能免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）顯示把暴露定義成<b>既有（盛行）</b>（而非初次／新使用）會把 IRR 往虛無拉淡——氟喹諾酮與視網膜剝離從 <b>1.83 → 1.70</b>——機制是易感者耗竭。實務原則：盡量用<b>初次</b>暴露＋夠長的洗滌期，並報告敏感度。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Add a first-ever-use flag from a washout; keep incident (incident=1) exposures before splitting.">由洗滌窗加一個「首次使用」旗標；切段前只留初次（incident=1）暴露。</caption>
+          <thead><tr><th>pid</th><th data-en="first fill">首次處方</th><th data-en="washout clean?">洗滌乾淨？</th><th>incident</th></tr></thead>
+          <tbody>
+            <tr><td>31</td><td class="lo">2019-03</td><td class="lo" data-en="yes">是</td><td class="lo">1</td></tr>
+            <tr><td>32</td><td>2019-05</td><td data-en="no (prior use)">否（先前用過）</td><td>0</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS code">SAS code</h5>
+        <pre class="sas"><code><span class="cm">/* keep INCIDENT exposure: first-ever fill with a clean washout, THEN run SCCS. */</span>
+proc sql;
+   create table incident as select * from rx
+   where first_fill = min_fill and prior_use_in_washout = 0;   <span class="cm">/* new user */</span>
+quit;
+<span class="cm">/* then split incident exposures into intervals and fit the SCCS as above; */</span>
+<span class="cm">/* report the IRR under incident vs prevalent definitions as a sensitivity check. */</span></code></pre>
+      </div>
+    </details>
+
+    <details class="ext-card"><summary data-en="⑧ Design, power &amp; identifiability (before you analyse)">⑧ 設計、檢定力與可辨識性（分析之前）</summary>
+      <div class="ext-body">
+        <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
+        <p data-en="At the planning stage the choice of risk windows, age groups and observation period decides how many intervals each person is cut into — and thus the power and whether effects are even identifiable. Estimate sample size / power (formula or simulation), check efficiency, and consider an SCRI as a pragmatic design.">規劃階段，風險窗、年齡組與觀察期的選擇決定每人被切成幾段——也決定檢定力、以及效果是否可辨識。用公式或模擬估樣本數／檢定力，檢查效率，並考慮用 SCRI 作為務實設計。</p>
+        <h5 data-en="What the data looks like">資料長相</h5>
+        <table class="mini">
+          <caption data-en="Planning inputs — not data yet: candidate risk window, expected RR, event count, observation length.">規劃輸入（還沒有資料）——候選風險窗、預期 RR、事件數、觀察長度。</caption>
+          <thead><tr><th data-en="risk window">風險窗</th><th data-en="target RR">目標 RR</th><th data-en="#events">事件數</th><th data-en="obs (days)">觀察(天)</th></tr></thead>
+          <tbody>
+            <tr><td class="lo" data-en="1–28 d">1–28 天</td><td class="lo">2.0</td><td class="lo">300</td><td class="lo">365</td></tr>
+            <tr><td data-en="1–14 d">1–14 天</td><td>2.0</td><td>300</td><td>365</td></tr>
+          </tbody>
+        </table>
+        <h5 data-en="SAS / R code">SAS／R code</h5>
+        <pre class="sas"><code><span class="cm">/* Power by simulation: generate SCCS data under a target RR, fit, repeat, */</span>
+<span class="cm">/* and record the % of runs that reject — vary the risk window &amp; #events.   */</span>
+<span class="cm">/* R: SCCS::sccssim()/power helpers; SAS: a %macro looping the genmod fit.  */</span></code></pre>
+      </div>
+    </details>
   </section>
 
   <!-- ===================== SCCS ② 互動講解 ===================== -->
@@ -6043,7 +6172,7 @@ res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</co
   </footer>
 </main>
 
-<script src="i18n.js?v=97"></script>
-<script src="app.js?v=97"></script>
+<script src="i18n.js?v=98"></script>
+<script src="app.js?v=98"></script>
 </body>
 </html>
