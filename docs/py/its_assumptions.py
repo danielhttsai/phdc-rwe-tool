@@ -50,8 +50,8 @@ def _i1_coincident(lang="zh"):
             "data cannot reveal this — it rests on your knowledge of the context, or on a controlled ITS (an ⑤ upgrade) "
             "that differences out shared, contemporaneous change.",
         ),
-        "term": t(lang, "專有名詞：共時混淆／同時介入（co-intervention, history threat）。",
-                  "Term: co-intervention / history threat."),
+        "term": t(lang, "共時混淆／同時介入＝在你關心的介入發生的同一個時點，剛好還有別的事情也一起發生（另一個政策、季節、通報方式改變……）。它的麻煩在於：資料上看到的跳變或轉折，可能其實是那件「別的事」造成的，而被誤算到這個介入頭上，而且光看數字分不出來。",
+                  "Co-intervention / history threat = at the very same time point as the intervention you care about, something else also happened to occur (another policy, a season, a change in reporting…). The trouble is that the jump or turn you see in the data may really be caused by that 'other thing' but get credited to this intervention — and the numbers alone cannot tell them apart."),
         "metrics": [],
     }
 
@@ -105,8 +105,8 @@ def _i2_functional_form(df, outcome, time, post, lang="zh"):
             "the counterfactual wrong and biases the effect. We check for clear curvature in the pre-period; if present, "
             "add curvature/seasonal terms or use the flexible counterfactual in ⑤.",
         ),
-        "term": t(lang, "專有名詞：函數型態設定（functional-form specification）、季節性。",
-                  "Term: functional-form specification; seasonality."),
+        "term": t(lang, "函數型態設定＝你選用「哪種形狀的線」去描述介入前的趨勢；標準 ITS 預設是一條直線。選錯形狀（其實是曲線卻硬畫成直線），往後外推的「沒介入會怎樣」就畫歪了，效果也跟著估錯。季節性＝資料隨月份或季節規律地起伏（例如冬天高、夏天低），若沒納入模型，會被誤當成趨勢或介入效果。",
+                  "Functional-form specification = which 'shape of line' you choose to describe the pre-intervention trend; standard ITS defaults to a straight line. Pick the wrong shape (forcing a straight line through what is really a curve) and the extrapolated 'what would have happened without the intervention' comes out wrong, biasing the effect. Seasonality = a regular rise and fall tied to the month or season (say, higher in winter, lower in summer); if it is left out of the model it can be mistaken for the trend or the intervention effect."),
         "metrics": metrics,
     }
 
@@ -141,8 +141,8 @@ def _i3_points(n_pre, n_post, lang="zh"):
             "both before and after. Too few pre-points and the trend (hence the extrapolated counterfactual) is "
             "unreliable; too few post-points and the effect (especially the slope change) cannot be detected.",
         ),
-        "term": t(lang, "專有名詞：序列長度／檢定力（series length, power）。",
-                  "Term: series length / statistical power."),
+        "term": t(lang, "序列長度＝介入前、後各有幾個時間點（例如幾個月）；點越多，趨勢和效果就量得越穩。檢定力＝即使效果真的存在，你的資料有多大把握能把它「看出來」；點太少時檢定力低，就算有效果也可能因為雜訊而沒被偵測到。",
+                  "Series length = how many time points (e.g. months) you have before and after the intervention; the more points, the more stably the trend and effect can be measured. Statistical power = how good a chance your data has of actually 'seeing' an effect when one really exists; with too few points power is low, so a real effect can go undetected simply because of noise."),
         "metrics": metrics,
     }
 
@@ -183,8 +183,8 @@ def _i4_autocorr(fit, lang="zh"):
             "p-values too good. We check residuals with Durbin–Watson and the lag-1 autocorrelation, and correct with "
             "Newey–West (HAC) SEs; with strong autocorrelation, ARIMA is a further option.",
         ),
-        "term": t(lang, "專有名詞：自相關（autocorrelation）、Newey–West/HAC 標準誤、Durbin–Watson。",
-                  "Term: autocorrelation; Newey–West/HAC standard errors; Durbin–Watson."),
+        "term": t(lang, "自相關＝時間序列裡相鄰的點彼此牽連（這個月高、下個月也容易高）；忽略它，迴歸算出來的誤差範圍會太窄、結論看起來比實際更篤定。Newey–West／HAC 標準誤＝一種把這種牽連考慮進去、再重新算誤差範圍的修正方法，讓信賴區間和 p 值不再過度樂觀。Durbin–Watson＝一個檢查殘差有沒有一階自相關的數字，大約在 2 附近代表幾乎沒有、偏離 2 越多代表牽連越強。",
+                  "Autocorrelation = adjacent points in a time series lean on each other (a high month tends to be followed by another high month); ignore it and the error bars the regression reports come out too narrow, making the conclusion look more certain than it is. Newey–West / HAC standard errors = a correction that folds this leaning back in and recomputes the error bars, so confidence intervals and p-values stop being over-optimistic. Durbin–Watson = a single number that checks for first-order autocorrelation in the residuals; around 2 means there is essentially none, and the further it strays from 2 the stronger the leaning."),
         "metrics": metrics,
     }
 
@@ -206,7 +206,7 @@ def _i5_sharp(lang="zh"):
             "transition period, model the effect as a slope change that starts after a lag, and run a sensitivity "
             "analysis shifting the intervention time by a period or two.",
         ),
-        "term": t(lang, "專有名詞：介入時點的明確性（sharp, known intervention time）、過渡期。",
-                  "Term: sharp/known intervention time; transition period."),
+        "term": t(lang, "介入時點的明確性＝你能不能指出介入「就是從某一個確定的時點瞬間開始生效」；ITS 把它當成一條乾淨的分界線，前後各配一段趨勢。過渡期＝介入不是一夕到位、而是慢慢推行或延遲才見效的那段模糊期間；這段時間既不算完全「前」也不算完全「後」，通常要排除或另外建模，否則尖銳跳變的假設會被它破壞。",
+                  "Sharp, known intervention time = whether you can point to a definite moment at which the intervention 'switches on' instantly; ITS treats it as a clean dividing line, fitting one trend before and one after. Transition period = the blurry stretch when the intervention is phased in gradually or takes effect only after a delay, rather than landing all at once; that stretch is neither fully 'before' nor fully 'after' and usually has to be excluded or modelled separately, otherwise it breaks the sharp-jump assumption."),
         "metrics": [],
     }

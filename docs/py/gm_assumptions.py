@@ -55,8 +55,8 @@ def _c1(lang="zh"):
             "that drives both later treatment and the outcome leaves residual bias. Support it with rich time-varying covariates, "
             "domain knowledge, and sensitivity analysis.",
         ),
-        "term": t(lang, "專有名詞：序列可交換（sequential exchangeability）；無未測時變混淆；可忽略性。",
-                  "Term: sequential exchangeability; no unmeasured time-varying confounding; ignorability."),
+        "term": t(lang, "序列可交換＝在每個時點，把「過去用過哪些藥、過去各項身體指標」都對齊之後，「這一刻有沒有治療」就像擲銅板一樣與將來的結果無關；只要做到這點就能比較。無未測時變混淆＝沒有任何「沒被記錄到、卻會隨時間變動」的因素，同時左右「之後會不會治療」與「最後結果」——只要有這種漏掉的因素，估出來就有偏差。可忽略性＝就是上面這件事的另一個說法：分組可看成近似隨機，所以可以放心忽略分組的不公平。這三者都無法用手上的資料證明。",
+                  "Sequential exchangeability = at each time point, once you line up everyone on their past treatments and past health measurements, whether they are treated right now is like a coin flip — unrelated to their future outcome — so the groups are comparable. No unmeasured time-varying confounding = there is no factor that changes over time, was never recorded, yet pushes both later treatment and the final outcome; any such missing factor biases the estimate. Ignorability = another name for the same idea: the grouping can be treated as good-as-random, so its unfairness can safely be ignored. None of these can be proven from the data you have."),
         "metrics": [],
     }
 
@@ -86,8 +86,8 @@ def _c2_positivity(frac_extreme, lang="zh"):
             "and g-formula must extrapolate where there's no data. The testable metric is the <b>fraction with extreme treatment "
             "propensity</b> at each time. Fixes: stabilize/truncate weights, or restrict to histories with common support.",
         ),
-        "term": t(lang, "專有名詞：正性（positivity）；共同支持；穩定化／截斷權重。",
-                  "Term: positivity; common support; stabilized / truncated weights."),
+        "term": t(lang, "正性＝在每個時點、每一種「病史長相」的人裡面，都要同時找得到「有治療」和「沒治療」的人；如果某種人幾乎一定會治療（或一定不治療），那種情況下的效果其實估不出來，只能硬猜。共同支持＝兩組人在共變項上要有重疊的範圍；唯有在重疊處才能公平比較，沒有重疊就無從對照。穩定化／截斷權重＝IPTW 會給每個人一個權重，極端的人權重會大到失控；「穩定化」用一個基準比例把權重縮回合理範圍，「截斷」則直接把過大的權重砍到上限，兩者都是為了讓估計不被少數極端個案綁架。",
+                  "Positivity = at every time point and for every type of patient history, you must be able to find both treated and untreated people; if some type is almost certain to be treated (or never treated), the effect there simply cannot be estimated and can only be guessed. Common support = the two groups must overlap in their covariate values; only where they overlap can you compare fairly, and outside the overlap there is nothing to compare against. Stabilized / truncated weights = IPTW gives each person a weight, and extreme people get weights so large they dominate; stabilizing rescales weights back to a sensible range using a baseline rate, while truncating simply caps oversized weights — both stop a few extreme cases from hijacking the estimate."),
         "metrics": [
             {"name": t(lang, "治療傾向極端（&lt;0.05 或 &gt;0.95）比例", "fraction with extreme treatment propensity"),
              "value": f"{frac_extreme*100:.1f}%",
@@ -116,8 +116,8 @@ def _c3_models(lang="zh"):
             "models</b>. In practice: use splines/interactions, or <b>machine learning (see ⑤)</b>; a doubly-robust estimator (TMLE, "
             "see the TMLE tab) stays unbiased if <b>either</b> the outcome or the treatment model is right.",
         ),
-        "term": t(lang, "專有名詞：輔助模型；g-formula／IPTW；雙重穩健；機器學習輔助估計。",
-                  "Term: nuisance models; g-formula / IPTW; double robustness; ML-assisted estimation."),
+        "term": t(lang, "輔助模型＝為了算出最終效果，途中要先用統計模型去描述一些「中間的東西」（例如某種人有多大機率被治療、身體指標會怎麼變、結果大概多少）；它們本身不是我們關心的答案，只是過程中的工具，但工具配錯，答案就跟著錯。g-formula／IPTW＝兩種不同的算法路線：g-formula 靠「結果與共變項怎麼演變」的模型一步步推算，IPTW 則靠「每個時點被治療的機率」去加權重新平衡兩組人。雙重穩健＝一種保險設計：同時準備「結果模型」和「治療模型」兩道防線，只要其中一道配對了，最終估計就不會偏，等於多一層保障。機器學習輔助估計＝改用更有彈性的機器學習方法去配這些輔助模型，比死板的直線假設更能抓住真實的曲折關係，降低配錯的風險。",
+                  "Nuisance models = to reach the final answer you must first use statistical models to describe some 'in-between' quantities (e.g. how likely a type of person is to be treated, how health indicators evolve, roughly what the outcome will be); these are not the answer we care about, just tools along the way — but if a tool is wrong, the answer goes wrong with it. g-formula / IPTW = two different calculation routes: g-formula works step by step from models of how the outcome and covariates evolve, while IPTW uses the probability of being treated at each time to reweight and rebalance the two groups. Double robustness = a safety design: you prepare two lines of defence — an outcome model and a treatment model — and as long as either one is right, the final estimate stays unbiased, giving you a backup. ML-assisted estimation = fitting those nuisance models with more flexible machine-learning methods, which capture real-world bends and curves better than rigid straight-line assumptions and so cut the risk of mis-specification."),
         "metrics": [],
     }
 
@@ -141,8 +141,8 @@ def _c4_consistency(lang="zh"):
             "counterfactual without a single meaning. It also requires that everyone could be assigned to either arm at each time "
             "(tied to positivity).",
         ),
-        "term": t(lang, "專有名詞：一致性（consistency）；明確介入；動態／靜態治療策略。",
-                  "Term: consistency; well-defined intervention; dynamic / static treatment regime."),
+        "term": t(lang, "一致性＝對那些「實際上剛好照著某套用藥方式做」的人，他們真實看到的結果，就能直接當成「如果大家都照這套方式做」的反事實結果；要成立，前提是這套方式講得夠清楚、沒有歧義。明確介入＝把要比較的做法講到一清二楚：用什麼藥、用多少、什麼時候用——如果只說「過健康生活」這種模糊指令，每個人理解不同，反事實就沒有單一意義。動態／靜態治療策略＝兩種治療規則：靜態是「不管你身體怎樣，每期都照同一套做」（例如每期都用藥）；動態是「看你當下的身體指標再決定要不要治療」，會隨情況調整。",
+                  "Consistency = for people who happen to follow a particular treatment plan in real life, the outcome they actually experience can be taken directly as the counterfactual outcome of 'everyone following that plan'; this only holds if the plan is described clearly enough to be unambiguous. Well-defined intervention = spelling out exactly what is being compared: which drug, how much, and when — if the instruction is vague like 'live a healthy lifestyle', everyone interprets it differently and the counterfactual has no single meaning. Dynamic / static treatment regime = two kinds of treatment rule: a static one applies the same plan every period regardless of the patient's state (e.g. treat in every period); a dynamic one decides whether to treat based on the patient's current measurements, adjusting as circumstances change."),
         "metrics": [],
     }
 
@@ -172,8 +172,8 @@ def _c5_data(n, n_treat0, n_treat1, lang="zh"):
             "<b>enough treated and untreated at each time</b>. If one arm is thin, weights and extrapolation become unstable. This "
             "metric is the smallest arm share across times.",
         ),
-        "term": t(lang, "專有名詞：每時點正性；有效樣本；資料稀疏。",
-                  "Term: per-time positivity; effective sample; data sparsity."),
+        "term": t(lang, "每時點正性＝在每一個時間點上，都要同時有夠多「有治療」和「沒治療」的人；只要某個時點幾乎全部都治療或全部都不治療，那一格就沒東西可比，估出來不可靠。有效樣本＝真正在貢獻資訊的人數，往往遠少於名目上的總人數；當權重很不平均、或某一臂人很少時，實際能用的資訊就被稀釋掉了。資料稀疏＝把人按「病史×當下治療」切成許多小格後，有些格子裡幾乎沒人；格子一空，那裡的估計就只能靠外推硬補，變得很不穩。",
+                  "Per-time positivity = at every single time point you must have enough people who were treated and enough who were not; if at some time almost everyone is treated (or almost no one is), that cell has nothing to compare and its estimate is unreliable. Effective sample = the number of people actually contributing information, which is often far smaller than the headline total; when weights are very uneven or one arm is thin, the usable information gets diluted. Data sparsity = once people are sliced into many small cells by 'history x current treatment', some cells end up almost empty; an empty cell forces the estimate there to be patched in by extrapolation, making it very unstable."),
         "metrics": [
             {"name": t(lang, "第 1 期治療人數", "treated at time 1"), "value": f"{n_treat0} / {n}", "note": ""},
             {"name": t(lang, "第 2 期治療人數", "treated at time 2"), "value": f"{n_treat1} / {n}", "note": ""},

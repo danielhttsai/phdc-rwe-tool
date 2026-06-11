@@ -45,8 +45,8 @@ def _c1_transient(lang="zh"):
             "drug) with a defined <b>induction window</b>. For a chronic, sustained exposure both windows are exposed, "
             "there are no informative discordant pairs, and the design does not apply — use a cohort method instead.",
         ),
-        "term": t(lang, "專有名詞：案例交叉（case-crossover）；危險窗／參考窗；誘發窗（induction window）。",
-                  "Term: case-crossover; hazard / reference window; induction window."),
+        "term": t(lang, "案例交叉（case-crossover）＝不另找別人當對照，而是拿同一個病人自己在不同時間的暴露來比，自動排除性別、體質這類不隨時間變的差異。危險窗／參考窗＝把事件發生前最可疑的那一小段時間叫「危險窗」，再挑一段平常、沒被觸發的時間叫「參考窗」，比較兩段有沒有暴露。誘發窗（induction window）＝從吃藥（暴露）到真正引發事件需要的那段反應時間，必須先設定它，危險窗才知道該抓哪一段。",
+                  "Case-crossover = instead of finding other people as controls, you compare the same patient's exposure at different times, which automatically cancels out anything fixed like sex or constitution. Hazard / reference window = the short stretch of time just before the event (the suspicious one, 'hazard') is compared against an ordinary untriggered stretch ('reference') to see whether exposure was present. Induction window = the delay between taking the drug and the event it can trigger; you must set it first so the hazard window knows which stretch of time to look at."),
         "metrics": [],
     }
 
@@ -82,8 +82,8 @@ def _c2_trend(res, lang="zh"):
             "inflated. The pure-trend OR and exposure curve above are the fingerprint of that trend; CCTC divides it out "
             "using controls (or future cases) that share the same trend.",
         ),
-        "term": t(lang, "專有名詞：暴露時間趨勢（exposure time trend）；案例-時間對照（case-time-control）。",
-                  "Term: exposure time trend; case-time-control."),
+        "term": t(lang, "暴露時間趨勢（exposure time trend）＝某個暴露（例如某種藥）隨著年月份越來越普遍（或越來越少），跟有沒有生病無關，純粹是「最近的人本來就比較常用」。這會讓近期的危險窗看起來暴露偏高，把假象算成因果。案例-時間對照（case-time-control）＝額外找一群沒發病的對照，量出他們身上同一段時間趨勢有多大，再從病人的結果裡把這份趨勢扣掉，留下真正的效果。",
+                  "Exposure time trend = an exposure (say a particular drug) gradually becoming more (or less) common from month to month, unrelated to who gets sick — recent periods are simply more exposed. This makes the recent hazard window look more exposed and turns an artefact into apparent cause. Case-time-control = bring in a separate group who did not have the event, measure how big that same time trend is in them, and subtract it out of the cases' result to leave the real effect."),
         "metrics": metrics,
     }
 
@@ -106,8 +106,8 @@ def _c3_reference(lang="zh"):
             "apart more. Ideally W0 represents the person's usual exposure when not triggered. Report a sensitivity "
             "analysis over the choice of W0 position/length.",
         ),
-        "term": t(lang, "專有名詞：參考窗可交換性（reference-window exchangeability）；carry-over。",
-                  "Term: reference-window exchangeability; carry-over."),
+        "term": t(lang, "參考窗可交換性（reference-window exchangeability）＝挑出來的參考窗要能誠實代表「這個人平常、沒被觸發時」的暴露機率，跟危險窗除了時間先後以外其他條件都一樣、可以對等互換；否則兩段一開始就不公平。carry-over＝同一次的暴露（例如一次用藥的效果）拖太久，連參考窗也沾到了，使「沒暴露的對照段」其實也算有暴露，兩段差距被沖淡。",
+                  "Reference-window exchangeability = the chosen reference window must honestly stand for the person's usual, untriggered exposure probability, identical to the hazard window in every respect except timing so the two are interchangeable; otherwise the comparison is unfair from the start. Carry-over = one exposure episode (e.g. the effect of a single dose) lingers so long that it spills into the reference window, so the supposedly unexposed control stretch is actually exposed too and the contrast between the two windows is washed out."),
         "metrics": [],
     }
 
@@ -131,8 +131,8 @@ def _c4_immeasurable(lang="zh"):
             "Case-case-time-control is more robust to it, but you must still ensure exposure is measured consistently in "
             "both windows.",
         ),
-        "term": t(lang, "專有名詞：不可測時間偏誤（immeasurable-time bias）；案例-案例-時間對照（CCTC）。",
-                  "Term: immeasurable-time bias; case-case-time-control (CCTC)."),
+        "term": t(lang, "不可測時間偏誤（immeasurable-time bias）＝事件前有一段時間根本看不到病人到底有沒有暴露（例如人在住院、外面的處方紀錄抓不到），於是危險窗的暴露被系統性地少算或扭曲，估出來的風險就失真。案例-案例-時間對照（CCTC）＝再加一群「未來才發病」或對照的案例當基準，比單純的自我對照更能抵抗這種看不到的時間，但前提仍是兩段時窗的暴露都用一樣的方式被測到。",
+                  "Immeasurable-time bias = for some stretch just before the event you genuinely cannot see whether the patient was exposed (e.g. they are hospitalised and outside prescription records are not captured), so the hazard window's exposure is systematically under-counted or distorted and the risk estimate goes wrong. Case-case-time-control (CCTC) = adds a group of future or control cases as a baseline, making it sturdier against this unobservable time than a plain self-controlled design — but it still relies on exposure being measured the same way in both windows."),
         "metrics": [],
     }
 
@@ -169,7 +169,7 @@ def _c5_discordant(res, lang="zh"):
             "window but not the other). If such pairs are few (rare event, or very stable exposure), the odds ratio is "
             "unstable and the interval blows up. A longer observation window or a more variable exposure both help.",
         ),
-        "term": t(lang, "專有名詞：一致對（discordant pairs）；條件 logistic／McNemar。",
-                  "Term: discordant pairs; conditional logistic / McNemar."),
+        "term": t(lang, "一致對（discordant pairs，又稱不一致對）＝同一個人兩段時窗的暴露剛好不同（一段有、一段沒有），只有這種人才提供資訊；兩段都暴露或都沒暴露的人對結果毫無貢獻，所以真正算數的樣本往往比總人數少很多。條件 logistic／McNemar＝專門用來分析這種「自己跟自己配對」資料的統計方法，計算時自動只看一致對；當一致對太少，這兩種方法算出的勝算比就會非常不穩、信賴區間爆寬。",
+                  "Discordant pairs = the same person was exposed in one of the two windows but not the other (one yes, one no); only these people carry information, while anyone exposed in both windows or neither contributes nothing, so the sample that actually counts is often far smaller than the headcount. Conditional logistic / McNemar = the statistical methods built for this 'each person matched to themselves' data; they automatically rely only on discordant pairs, and when those pairs are few the odds ratio they produce becomes very unstable with a wide confidence interval."),
         "metrics": metrics,
     }

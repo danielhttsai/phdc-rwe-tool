@@ -83,14 +83,19 @@ def check_a1_strength(df, A, Z, lang="zh"):
              "confirm: did this nudge really get enough people vaccinated?")),
         "term": t(
             lang,
-            ("📖 專有名詞:這一步在檢查工具的「相關性 / 強度」。常用「第一階段 F 統計量」當分數,"
-             "經驗法則是大於 10 就算夠強、低於 10 稱為「弱工具(weak instrument)」。"
-             "當處置是「有/沒有」這種二元時,也可看 McFadden 偽 R²,代表外力對行為的解釋力。"),
-            ("📖 Terminology: this step checks the instrument's relevance / strength. "
-             "The usual score is the first-stage F-statistic; a rule of thumb is that "
-             "above 10 is strong, while below 10 is a \"weak instrument\". When the "
-             "treatment is binary you can also look at the McFadden pseudo-R², which "
-             "captures how much the nudge explains the behaviour.")),
+            ("📖 相關性／強度＝外力到底有沒有真的帶動行為。如果收到提醒的人跟沒收到的人,去接種的比例其實差不多,"
+             "那這個外力就是空包彈,後面全部白做。第一階段 F 統計量＝衡量這股帶動力道的分數;"
+             "經驗法則是大於 10 算夠力,低於 10 就叫「弱工具」,代表外力太軟、推不動人,結論會忽大忽小不可信。"
+             "McFadden 偽 R²＝當行為是「有做／沒做」時,用來看外力能解釋多少這個選擇的另一把尺,數字越大代表外力對行為的影響越明顯。"),
+            ("📖 Relevance / strength = whether the nudge actually drives the behaviour. "
+             "If reminded and un-reminded people get vaccinated at about the same rate, "
+             "the nudge is a blank cartridge and everything downstream is wasted. "
+             "First-stage F-statistic = the score for that driving force; the rule of "
+             "thumb is above 10 is strong and below 10 is a 'weak instrument', meaning "
+             "the nudge is too soft to move people and the answer swings wildly and "
+             "cannot be trusted. McFadden pseudo-R² = a second gauge, used when the "
+             "behaviour is a yes/no choice, of how much of that choice the nudge "
+             "explains — the larger it is, the clearer the nudge's grip on behaviour.")),
         "metrics": metrics,
     }
 
@@ -151,14 +156,20 @@ def check_a2_exclusion(df, Y, A, Z, lang="zh"):
              "sense and domain knowledge that the nudge truly has no other route.")),
         "term": t(
             lang,
-            ("📖 專有名詞:這個假設叫「排除限制(exclusion restriction)」。"
-             "因為無法用統計檢定,實務上的輔助做法是:找一個理論上『不該被外力影響』的結果當"
-             "「負對照(negative control)」來檢查;或做「敏感度分析」,評估萬一假設稍微被違反、結論會不會翻盤。"),
-            ("📖 Terminology: this assumption is the \"exclusion restriction\". Because "
-             "it cannot be tested statistically, common supporting tactics are to use "
-             "an outcome that should *not* be affected by the nudge as a \"negative "
-             "control\", or to run a \"sensitivity analysis\" estimating whether the "
-             "conclusion would flip if the assumption were slightly violated.")),
+            ("📖 排除限制＝這個外力影響健康的唯一通道,只能是「讓人去接種」這一條;只要它還偷偷走別條路"
+             "(例如收到提醒的社區同時多了健康補助),結論就被汙染。這條假設沒辦法用資料直接驗證,只能靠專業論證。"
+             "負對照＝故意找一個照理說『外力根本不該影響』的結果來測:如果連它都被外力動到,就代表外力果然走了別條路。"
+             "敏感度分析＝先假設這條假設被輕微違反,再算算看結論會不會因此整個翻盤;翻得越容易,結論越脆弱、要越保守。"),
+            ("📖 Exclusion restriction = the nudge's only channel to health may be "
+             "'getting people vaccinated'; the moment it secretly takes another route "
+             "(say, reminded communities also got extra subsidies), the conclusion is "
+             "contaminated. This assumption cannot be verified directly from data and "
+             "rests on domain reasoning. Negative control = deliberately pick an outcome "
+             "the nudge should have no business affecting and test it: if even that "
+             "moves, the nudge clearly took another path. Sensitivity analysis = assume "
+             "the assumption is mildly violated and see whether the conclusion flips — "
+             "the more easily it flips, the more fragile the conclusion and the more "
+             "cautiously it should be read.")),
         "metrics": [
             {"name": t(lang, "能不能用資料證明?", "Provable from data?"),
              "value": t(lang, "不能", "No"),
@@ -256,20 +267,23 @@ def check_a3_independence(df, Z, covariates, A=None, lang="zh"):
              "not really random.")),
         "term": t(
             lang,
-            ("📖 專有名詞:這一步在檢查工具的「獨立性 / 可交換性(independence / exchangeability)」。"
-             "比較兩群人差異的數字叫「標準化均值差(SMD)」,通常小於 0.1 就算夠接近。"
-             "另外列出的「偏誤放大(bias amplification)」是 Homayra 等人特別提醒的陷阱:"
-             "IV 會把共變項的不平衡『除以外力的力道』來放大,所以外力越弱、一點點不平衡就可能造成很大的偏誤。"
-             "提醒:這只能比『有量到』的特徵,沒量到的干擾因子無法保證也平衡。"),
-            ("📖 Terminology: this step checks the instrument's independence / "
-             "exchangeability. The number comparing the two groups is the "
-             "\"standardised mean difference (SMD)\"; below 0.1 usually counts as close "
-             "enough. The separately listed \"bias amplification\" is a trap "
-             "highlighted by Homayra et al.: IV divides any covariate imbalance by the "
-             "nudge's strength, so the weaker the nudge, the more a tiny imbalance can "
-             "blow up into a large bias. Note: this only compares *measured* "
-             "characteristics — unmeasured confounders are not guaranteed to be "
-             "balanced.")),
+            ("📖 獨立性／可交換性＝誰收到外力應該像抽籤一樣與其他條件無關,所以收到和沒收到的兩群人,"
+             "除了那個提醒之外,年齡、BMI、收入這些背景應該都差不多;若差很多,就不像隨機,結果會被汙染。"
+             "標準化均值差(SMD)＝把兩群人某個特徵的差距換算成統一的尺度,讓不同單位的特徵可以一起比;通常小於 0.1 就算夠接近。"
+             "偏誤放大＝Homayra 等人特別提醒的陷阱:IV 會把一點點背景不平衡『除以外力的力道』來放大,"
+             "所以外力越弱(推動的人越少),同樣的小不平衡造成的偏差就越誇張。注意:這裡只能比『有量到』的特徵,沒量到的干擾因子無法保證也平衡。"),
+            ("📖 Independence / exchangeability = who receives the nudge should be "
+             "unrelated to everything else, as if by lottery, so apart from the reminder "
+             "the two groups should match on age, BMI, income and the like; large gaps "
+             "mean it is not random and the result is contaminated. Standardised mean "
+             "difference (SMD) = the gap between the two groups on a characteristic, "
+             "rescaled to a common ruler so features with different units can be "
+             "compared side by side; below 0.1 usually counts as close enough. Bias "
+             "amplification = a trap flagged by Homayra et al.: IV divides any "
+             "background imbalance by the nudge's strength, so the weaker the nudge (the "
+             "fewer people moved), the more grotesquely the same small imbalance "
+             "distorts the result. Note: this only compares *measured* characteristics — "
+             "unmeasured confounders are not guaranteed to be balanced.")),
         "metrics": rows or [{"name": t(lang, "(沒有選共變項)", "(no covariates selected)"),
                              "value": "-",
                              "note": t(lang, "請在分析頁選一些共變項",
@@ -316,13 +330,19 @@ def check_a4a_monotonicity(df, A, Z, lang="zh"):
              "act\", never the reverse.")),
         "term": t(
             lang,
-            ("📖 專有名詞:這個假設叫「單調性(monotonicity)」,唱反調的人叫「defier」。"
-             "因為 defier 看不到,只能用第一階段的方向是否一致為正來間接判斷,"
-             "並在不同次群組中確認方向不會反轉。"),
-            ("📖 Terminology: this assumption is \"monotonicity\", and the contrarians "
-             "are \"defiers\". Because defiers are unobservable, we judge indirectly by "
-             "whether the first stage is consistently positive, and confirm the "
-             "direction does not flip across subgroups.")),
+            ("📖 單調性＝外力對每個人的推力方向都一樣,沒有人會因為收到提醒反而更不去接種;只要方向一致,"
+             "估計才不會被攪亂。defier(唱反調者)＝那種「被推往東、偏偏往西」的人——收到提醒反而更不去做的人。"
+             "麻煩的是這種人沒辦法一個個認出來,只能間接判斷:看整體第一階段是不是一致地正向(有外力→更會做),"
+             "並在不同次群組裡確認方向都不會反轉,藉此推測沒有成群的唱反調者。"),
+            ("📖 Monotonicity = the nudge pushes everyone the same way, with nobody made "
+             "*less* likely to vaccinate by getting the reminder; only with one "
+             "consistent direction does the estimate stay unscrambled. Defier "
+             "(contrarian) = someone who goes west precisely because you push them east "
+             "— the reminder makes them *less* likely to act. The snag is they cannot be "
+             "spotted one by one, so we judge indirectly: check that the overall first "
+             "stage is consistently positive (nudge → more likely to act) and that the "
+             "direction never flips across subgroups, inferring there is no mass of "
+             "contrarians.")),
         "metrics": [
             {"name": t(lang, "被推動的人佔比", "Share of people moved"),
              "value": t(lang, f"約 {share*100:.1f}%", f"~{share*100:.1f}%"),
@@ -411,15 +431,22 @@ def check_a4b_homogeneity(df, Y, A, Z, covariates, lang="zh"):
              "actually differ with background, so it is not that uniform.")),
         "term": t(
             lang,
-            ("📖 專有名詞:這個假設叫「效果同質性(homogeneity)」。「背景條件」在統計裡叫"
-             "「共變項(covariates)」。IV 算出來的數字只代表順從者那群人的效果,"
-             "術語叫「LATE(局部平均處置效果)」。這種「加進共變項看答案變多少」的檢查法,"
-             "叫「change-in-estimate」。"),
-            ("📖 Terminology: this assumption is effect \"homogeneity\". The "
-             "\"background conditions\" are called \"covariates\". The number IV "
-             "produces only describes the compliers' effect, known as the \"LATE "
-             "(local average treatment effect)\". This \"add covariates and see how "
-             "much the answer moves\" check is the \"change-in-estimate\".")),
+            ("📖 效果同質性＝接種對健康的好處,是不是對每個人都差不多;如果差很多,算出來的數字就只代表某一小群人,不能套到全部人。"
+             "共變項＝就是年齡、BMI、收入這些「背景條件」的統計講法,代表每個人本來就帶著、可能影響結果的特徵。"
+             "LATE(局部平均處置效果)＝IV 算出來的數字其實只反映「被外力推動的那群順從者」的效果,而不是全人口的平均;"
+             "「局部」就是指僅限這一小群人。change-in-estimate＝這套「把共變項加進去前後各算一次、看答案跳多少」的檢查法,"
+             "跳得越少代表效果越穩定、越像對每個人都一樣。"),
+            ("📖 Effect homogeneity = whether the vaccine's health benefit is about the "
+             "same for everyone; if it varies a lot, the estimate describes only a small "
+             "subgroup and cannot be applied to all. Covariates = the statistical name "
+             "for those 'background conditions' like age, BMI and income — features each "
+             "person already carries that may sway the outcome. LATE (local average "
+             "treatment effect) = the IV number actually reflects only the effect for "
+             "'the compliers the nudge moved', not the whole-population average; 'local' "
+             "means it is confined to that small group. Change-in-estimate = this check "
+             "of 'estimate once without and once with the covariates, then see how far "
+             "the answer jumps' — the smaller the jump, the more stable the effect and "
+             "the more it looks the same for everyone.")),
         "metrics": metrics,
     }
 
@@ -458,11 +485,16 @@ def check_falsification_inequalities(df, Y, A, Z, lang="zh"):
                  "(A) to be binary yes/no.")),
             "term": t(
                 lang,
-                ("📖 專有名詞:這套檢查叫「工具不等式(instrumental inequalities)」,"
-                 "屬於「反證 / 否證檢定(falsification test)」——不證明假設成立,而是試著推翻它。"),
-                ("📖 Terminology: this check is the \"instrumental inequalities\", a kind "
-                 "of \"falsification test\" — it does not prove the assumption holds, it "
-                 "tries to refute it.")),
+                ("📖 工具不等式＝一組「合格的外力絕對不會超過」的數字上限;只要資料算出來超過了,就等於當場抓到這個外力不合格。"
+                 "反證／否證檢定＝一種反過來的檢查思路:不去正面證明假設成立(那做不到),而是拚命挑毛病、想辦法推翻它——"
+                 "推翻成功就確定不合格,推不翻也只是「目前沒被抓到」,不算保證清白。"),
+                ("📖 Instrumental inequalities = a set of ceilings that a valid nudge can "
+                 "never exceed; the moment the data computes a value above them, the "
+                 "nudge is caught out as invalid. Falsification test = a reverse "
+                 "checking strategy: instead of proving the assumption true (which is "
+                 "impossible), it hunts for flaws and tries to refute it — succeed and "
+                 "the nudge is definitely disqualified; fail and it only means 'not "
+                 "caught so far', not proven innocent.")),
             "metrics": [{"name": t(lang, "目前能不能做這個抓包?", "Can the gotcha run now?"),
                          "value": t(lang, "不能", "No"),
                          "note": t(lang, "需要 Z 與 A 都是二元", "needs both Z and A binary")}],
@@ -553,14 +585,19 @@ def check_falsification_inequalities(df, Y, A, Z, lang="zh"):
              "means \"not caught so far\", not \"proven innocent\".")),
         "term": t(
             lang,
-            ("📖 專有名詞:這套上限叫「工具不等式(instrumental inequalities,Balke–Pearl / Pearl)」,"
-             "是一種「反證 / 否證檢定(falsification test)」。它能否證的是「排除限制(A2)」與"
-             "「獨立性(A3)」這組假設:違反 → IV 一定不成立;沒違反 → 通過這關,但無法反推它一定成立。"),
-            ("📖 Terminology: these ceilings are the \"instrumental inequalities "
-             "(Balke–Pearl / Pearl)\", a form of \"falsification test\". What they can "
-             "refute is the pair of assumptions exclusion restriction (A2) and "
-             "independence (A3): violated → IV definitely fails; not violated → it "
-             "clears this hurdle, but that does not prove it must hold.")),
+            ("📖 工具不等式(Balke–Pearl／Pearl)＝一組由機率組合算出的上限;只要外力真的合格,資料絕不可能超過這些上限,"
+             "因此一旦超過,就等於資料親自把外力的資格打掉。反證／否證檢定＝這種「不證明對、只試著推翻」的檢查精神。"
+             "重點是它否證的是「排除限制(A2,外力只走一條路)」加「獨立性(A3,外力像抽籤)」這一組:超過上限→這組假設至少壞一個、IV 一定不成立;"
+             "沒超過→只是通過這一關,並不能反推假設一定成立。"),
+            ("📖 Instrumental inequalities (Balke–Pearl / Pearl) = a set of ceilings "
+             "computed from combinations of probabilities; if the nudge really is valid, "
+             "the data can never exceed them, so exceeding one means the data itself has "
+             "stripped the nudge of its credentials. Falsification test = this 'do not "
+             "prove it right, just try to break it' spirit of checking. Crucially, what "
+             "it can refute is the pair exclusion restriction (A2, the nudge travels one "
+             "path) plus independence (A3, the nudge is like a lottery): over the ceiling "
+             "→ at least one of that pair is broken and IV definitely fails; not over → "
+             "it merely clears this hurdle, which does not prove the assumptions hold.")),
         "metrics": metrics,
     }
 

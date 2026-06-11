@@ -51,8 +51,8 @@ def _c1_unmeasured(lang="zh"):
             "and you <b>cannot prove from data that it is absent</b>. Support it with rich covariates, active-comparator / new-user "
             "designs, negative controls, and sensitivity analysis.",
         ),
-        "term": t(lang, "專有名詞：條件可交換性（conditional exchangeability）；無未測混淆；可忽略性（ignorability）。",
-                  "Term: conditional exchangeability; no unmeasured confounding; ignorability."),
+        "term": t(lang, "條件可交換性（conditional exchangeability）＝把已測共變項 X 對齊之後，誰接種、誰不接種就像隨機決定的；於是兩組的結果差異可以當成治療的效果。無未測混淆＝沒有任何「沒記錄到、卻同時影響接種與結果」的因子（例如虛弱、生活型態）；只要有這種因子殘留，估計就有偏誤。可忽略性（ignorability）是上面這件事的另一個說法：給定 X 後，治療分派可以「被忽略」，當成跟潛在結果無關——這是 PS 的命脈，卻無法用資料證明成立。",
+                  "Conditional exchangeability = once you line people up on the measured covariates X, who got treated looks as good as random, so the difference in outcomes can be read as the treatment effect. No unmeasured confounding = there is no unrecorded factor (frailty, lifestyle) that drives both treatment and outcome; any such leftover factor biases the estimate. Ignorability is just another name for this: given X, treatment assignment can be 'ignored' as if unrelated to the potential outcomes — the lifeblood of PS, yet something data can never prove."),
         "metrics": [],
     }
 
@@ -83,8 +83,8 @@ def _c2_positivity(frac_extreme, lang="zh"):
             "the fraction with extreme PS. Fixes: trim extreme weights, use <b>overlap weights (ATO)</b> (which down-weight the tails "
             "automatically), or restrict to the region of common support.",
         ),
-        "term": t(lang, "專有名詞：正性（positivity）；共同支持（common support）；極端權重；重疊權重（overlap weights）。",
-                  "Term: positivity; common support; extreme weights; overlap weights."),
+        "term": t(lang, "正性（positivity）＝每一種人都「有可能」接種、也「有可能」不接種，機率都不是 0；若某種人幾乎一定接種或一定不接種，就找不到對照可比。共同支持（common support）＝接種組與未接種組的 PS 分布實際重疊、能對上號的那段範圍；只有在這段裡才比得出效果。極端權重＝PS 太接近 0 或 1 時，1／PS 變成超大的數字，讓少數幾個人主導整個估計，結果很不穩。重疊權重（overlap weights）＝一種自動把分布兩端的人壓低、聚焦在重疊區的加權方式，權重有界、比較穩。",
+                  "Positivity = every kind of person could plausibly be treated and could plausibly be untreated, with neither probability stuck at 0; if some people are almost certain to (not) get treated, there is simply no comparison for them. Common support = the range where the treated and untreated PS distributions actually overlap and can be matched up — only there is the effect estimable. Extreme weights = when PS sits near 0 or 1, 1/PS becomes a huge number that lets a few people dominate the whole estimate, making it unstable. Overlap weights = a weighting scheme that automatically down-weights the tails and focuses on the overlap region, keeping weights bounded and the estimate steadier."),
         "metrics": [
             {"name": t(lang, "PS 極端（&lt;0.05 或 &gt;0.95）比例", "fraction with extreme PS (&lt;0.05 or &gt;0.95)"),
              "value": f"{frac_extreme*100:.1f}%",
@@ -119,8 +119,8 @@ def _c3_balance(res, lang="zh"):
             "remain large, the PS model missed structure (an interaction, a non-linearity) — add it and refit. This is the iterative "
             "spirit of PS: <b>tune the model → check balance → tune again</b> until balanced (not chase AUC).",
         ),
-        "term": t(lang, "專有名詞：標準化差異（SMD）；平衡診斷；PS 模型設定。",
-                  "Term: standardized mean difference (SMD); balance diagnostics; PS model specification."),
+        "term": t(lang, "標準化差異（SMD）＝把某個共變項在兩組的平均差距，換算成「相差幾個標準差」的無單位數字，方便不同變項一起比；一般以小於 0.1 視為兩組在這個變項上已經夠像。平衡診斷＝加權／配對之後，逐一檢查每個共變項的 SMD 是否都夠小，用來判斷 PS 模型有沒有把可測的差距清乾淨。PS 模型設定＝你用哪些變項、加不加交互項或非線性項去估接種機率；設定錯了平衡就做不好，要回頭改模型再重算（不是去追求預測準度）。",
+                  "Standardized mean difference (SMD) = the gap between the two groups' means on a covariate, rescaled into a unit-free 'how many standard deviations apart' number so different variables can be compared on one scale; below 0.1 is the usual sign the groups are similar enough on that variable. Balance diagnostics = after weighting/matching, checking each covariate's SMD to judge whether the PS model wiped out the measurable differences. PS model specification = which variables you use and whether you add interactions or non-linear terms when estimating the treatment probability; get it wrong and balance fails, so you fix the model and recompute (rather than chasing prediction accuracy)."),
         "metrics": [
             {"name": t(lang, "加權後最大 SMD", "max SMD after weighting"), "value": f"{smd:.3f}",
              "note": t(lang, "目標 &lt; 0.1", "target &lt; 0.1")},
@@ -150,8 +150,8 @@ def _c4_selection(lang="zh"):
             "— including them inflates variance and can amplify residual bias (Z-bias). Use only variables measured <b>before</b> "
             "exposure; <b>never</b> a post-treatment mediator or the outcome. This rests on domain knowledge and a DAG, not data alone.",
         ),
-        "term": t(lang, "專有名詞：混淆因子 vs 工具變數；Z-bias；變數選擇（Brookhart 2006）。",
-                  "Term: confounder vs instrument; Z-bias; variable selection (Brookhart 2006)."),
+        "term": t(lang, "混淆因子＝同時影響「接不接種」和「結果」的變項（例如年齡、慢性病），一定要放進 PS，否則兩組本來就不公平。工具變數＝只影響「接不接種」、卻不影響結果的變項（例如某診所剛好比較推廣接種）；它不是混淆，放進去沒好處。Z-bias＝把這種工具型變項放進 PS 時，不但讓估計變異變大，還可能把原本沒測到的混淆放大、讓偏誤更嚴重。變數選擇（Brookhart 2006）＝就是這套挑變項的準則：放混淆與純結果風險因子、別放工具型變項，而且只用接種之前測到的變項。",
+                  "Confounder = a variable that affects both whether someone gets treated and the outcome (e.g. age, chronic disease); it must go in the PS, or the two groups are unfair to begin with. Instrument = a variable that affects only whether someone gets treated but not the outcome (e.g. a clinic that happens to push vaccination); it is not a confounder, so adding it brings no benefit. Z-bias = putting such an instrument-like variable into the PS not only inflates the estimate's variance but can also amplify any unmeasured confounding, making the bias worse. Variable selection (Brookhart 2006) = the rule for choosing variables: include confounders and pure outcome risk factors, leave out instrument-like variables, and use only variables measured before treatment."),
         "metrics": [],
     }
 
@@ -182,8 +182,8 @@ def _c5_ess(ess, n, lang="zh"):
             "sample size means very uneven weights, a wider CI, and an unstable result. Fixes: trim/stabilize the weights, or use "
             "<b>overlap weights</b> (bounded weights, higher ESS).",
         ),
-        "term": t(lang, "專有名詞：有效樣本數（ESS）；權重穩定化／截斷；重疊權重。",
-                  "Term: effective sample size (ESS); weight stabilization/trimming; overlap weights."),
+        "term": t(lang, "有效樣本數（ESS ＝（Σw）²／Σw²）＝加權之後實際還剩多少「有效的人」在貢獻資訊；如果權重很平均，ESS 接近總人數，如果少數人權重特別大，ESS 就遠小於總人數，代表估計被那幾個人主導、信賴區間會變寬。權重穩定化／截斷＝兩種馴服大權重的手法：穩定化是用整體接種比例去調整、讓權重別飄太遠，截斷是把超過某上限的權重直接砍到上限，兩者都換來更穩定的估計。重疊權重＝改用一種權重天生有界的加權方式，自然不會出現爆大的權重，ESS 通常比較高。",
+                  "Effective sample size (ESS = (Σw)² / Σw²) = how many 'effective people' are really still contributing information after weighting; if weights are even, ESS sits near the total count, but if a few people carry huge weights, ESS falls far below it, meaning those few dominate the estimate and the confidence interval widens. Weight stabilization/trimming = two ways to tame big weights: stabilization rescales them using the overall treatment rate so they do not drift too far, while trimming caps any weight above a chosen limit; both buy a steadier estimate. Overlap weights = switching to a weighting scheme whose weights are bounded by design, so no weight ever blows up and ESS is usually higher."),
         "metrics": [
             {"name": t(lang, "IPTW 有效樣本數 ESS", "IPTW effective sample size (ESS)"),
              "value": f"{ess:.0f} / {n}",

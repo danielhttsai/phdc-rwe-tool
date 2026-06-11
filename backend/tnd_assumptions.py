@@ -46,8 +46,8 @@ def _c1_test(lang="zh"):
             "usually biases VE <b>toward the null</b>. In practice: use a high-quality PCR / molecular assay, clear testing indications, "
             "and run sensitivity analyses across test definitions.",
         ),
-        "term": t(lang, "專有名詞：敏感度／特異度；分類錯誤；往虛無的偏誤。",
-                  "Term: sensitivity / specificity; misclassification; bias toward the null."),
+        "term": t(lang, "敏感度＝檢驗抓得到真正有病的人的能力（敏感度低就會漏掉真 case）；特異度＝檢驗排得掉沒這病的人的能力（特異度低就會把別人誤判成 case）。分類錯誤＝因為這兩種不準，把 case 當成 control 或反之，組別就被混在一起。往虛無的偏誤＝這種混淆通常讓兩組看起來比實際接近，於是把疫苗的保護效果<b>低估</b>。",
+                  "Sensitivity = the test's ability to catch people who truly have the disease (low sensitivity misses real cases); specificity = its ability to rule out people who don't (low specificity flags the wrong people as cases). Misclassification = because the test is imperfect, cases get counted as controls or vice versa, blurring the two groups. Bias toward the null = this blurring usually makes the groups look more alike than they are, so it <b>underestimates</b> the vaccine's protection."),
         "metrics": [],
     }
 
@@ -71,8 +71,8 @@ def _c2_nontarget(lang="zh"):
             "RSV care-seeking, the TND control would not be neutral. This <b>cannot be proven from data</b> — it rests on biology and "
             "domain knowledge (Jackson & Nelson 2013).",
         ),
-        "term": t(lang, "專有名詞：對照疾病中性；非目標病原；對照污染。",
-                  "Term: neutral control disease; non-target pathogen; control contamination."),
+        "term": t(lang, "非目標病原＝對照組得到的「<b>不是</b>疫苗要防的那種」病原（檢驗陰性的其他感染）。對照疾病中性＝這個前提要求疫苗對這些其他病原完全沒影響，這樣對照組才能當成乾淨的比較基準。對照污染＝萬一疫苗也改變了這些其他病原的發生或就醫，對照組就不乾淨了，算出來的勝算比也跟著失真。",
+                  "Non-target pathogen = the infection the controls have, which is <b>not</b> the one the vaccine targets (a test-negative, different illness). Neutral control disease = the assumption that the vaccine has zero effect on these other pathogens, so the controls can serve as a clean comparison baseline. Control contamination = if the vaccine does change how often those other pathogens occur or send people to be tested, the control group is no longer clean and the odds ratio gets distorted."),
         "metrics": [],
     }
 
@@ -97,8 +97,8 @@ def _c3_careseeking(lang="zh"):
             "the <b>same access to testing</b>. A causal TND (IPW / g-computation, see ⑤) can adjust for <b>measured</b> care-seeking "
             "correlates.",
         ),
-        "term": t(lang, "專有名詞：就醫傾向混淆；檢驗門檻；條件在「有檢驗」上。",
-                  "Term: care-seeking confounding; testing threshold; conditioning on being tested."),
+        "term": t(lang, "就醫傾向混淆＝有些人天生比較會去看病、比較會被檢驗，如果這種習慣又跟接種與否綁在一起，就會假裝成疫苗效果。檢驗門檻＝一個人要多不舒服才會去做檢驗的那條線；接種者若門檻不同（例如更謹慎、症狀很輕也去驗），兩組就不可比。條件在「有檢驗」上＝TND 只看「<b>已經來檢驗</b>」的人，藉此把就醫傾向約掉——但前提是有症狀時接種與否不影響來不來驗，否則偏誤還在。",
+                  "Care-seeking confounding = some people are simply more inclined to see a doctor and get tested, and if that habit also tracks with whether they're vaccinated, it masquerades as a vaccine effect. Testing threshold = how sick a person has to feel before they go get tested; if vaccinees have a different threshold (e.g. more cautious, tested even when barely ill), the two groups aren't comparable. Conditioning on being tested = TND looks only at people who <b>actually came in and got tested</b>, which cancels care-seeking — but only if, given symptoms, vaccination doesn't change whether you show up to be tested; otherwise bias remains."),
         "metrics": [],
     }
 
@@ -121,8 +121,8 @@ def _c4_symptoms(lang="zh"):
             "returns. In practice: use a <b>common eligibility symptom definition</b> (e.g. ILI / ARI) so cases and controls arise from "
             "the same care-seeking context.",
         ),
-        "term": t(lang, "專有名詞：共同症狀定義（ILI／ARI）；就醫情境；可比性。",
-                  "Term: common symptom definition (ILI / ARI); care-seeking context; comparability."),
+        "term": t(lang, "共同症狀定義（ILI／ARI）＝事先講好一套大家都符合的入選症狀（如類流感 ILI／急性呼吸道感染 ARI），case 與 control 都要因這套症狀來就醫才收。就醫情境＝兩組是在「同一種不舒服、同一種看病理由」下被收進來的。可比性＝因為來看病的理由一樣，那種「比較會去看病」的傾向在 case 與 control 之間大小相當，相除時才會抵銷掉。",
+                  "Common symptom definition (ILI / ARI) = a pre-agreed set of qualifying symptoms everyone must meet (e.g. influenza-like illness or acute respiratory infection); cases and controls are enrolled only if they sought care for that same set. Care-seeking context = both groups are brought in under the same kind of illness and the same reason for seeing a doctor. Comparability = because the reason for the visit is the same, the tendency to seek care is roughly equal in cases and controls, so it cancels out when you take the ratio."),
         "metrics": [],
     }
 
@@ -150,8 +150,8 @@ def _c5_counts(n_case, n_ctrl, lang="zh"):
             "TND precision depends entirely on how many cases (target-positive) and controls (negative) there are <b>among the tested</b>. "
             "Too few and the odds ratio and VE are unstable with wide intervals. This metric is the smaller of the two counts.",
         ),
-        "term": t(lang, "專有名詞：檢驗者樣本；勝算比精度；信賴區間寬度。",
-                  "Term: tested sample; odds-ratio precision; confidence-interval width."),
+        "term": t(lang, "檢驗者樣本＝真正算進分析的只有「<b>有來檢驗</b>」的那群人，再分成目標陽性的 case 與陰性的 control。勝算比精度＝勝算比（OR，TND 用來換算保護力的核心數字）算得有多穩；人越多越穩。信賴區間寬度＝估計值上下擺動的範圍，越窄代表越有把握；人太少時區間會很寬，等於答案模糊。",
+                  "Tested sample = only people who <b>actually came in and were tested</b> count in the analysis, split into target-positive cases and test-negative controls. Odds-ratio precision = how stable the odds ratio is (the OR is the core number TND converts into protection); more people means more stable. Confidence-interval width = the range the estimate could swing within; narrower means more certain, while too few people gives a wide interval, i.e. a fuzzy answer."),
         "metrics": [
             {"name": t(lang, "目標陽性 case 數", "target-positive cases"), "value": str(n_case), "note": ""},
             {"name": t(lang, "檢驗陰性 control 數", "test-negative controls"), "value": str(n_ctrl), "note": ""},

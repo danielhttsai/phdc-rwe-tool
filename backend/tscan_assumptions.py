@@ -45,8 +45,8 @@ def _c1_tree(lang="zh"):
             "<b>reflecting real clinical grouping</b> (e.g. MedDRA PT→HLT→SOC). Tying unrelated events under one parent dilutes or "
             "fabricates signals. This rests on <b>domain knowledge</b> and cannot be proven from data.",
         ),
-        "term": t(lang, "專有名詞：結果階層；節點粒度；MedDRA SOC/HLT/PT。",
-                  "Term: outcome hierarchy; node granularity; MedDRA SOC/HLT/PT."),
+        "term": t(lang, "結果階層（樹）＝把眾多不良事件由細到粗排成一棵家族樹，每個事件都掛在某個臨床分類底下。節點粒度＝你看的是「單一細項事件」（細粒度）還是「整個器官系統」（粗粒度）；訊號可能在細項太弱、卻在系統層級聚得起來。MedDRA SOC／HLT／PT＝國際通用的醫學詞彙三層：PT 是最細的單一事件，HLT 是把相關 PT 收在一起的中層，SOC 是最上層的器官系統大類。",
+                  "Outcome hierarchy (tree) = arranging many adverse events into a family tree from fine to coarse, each event hanging under a clinical grouping. Node granularity = whether you look at a single fine-grained event or a whole organ system (coarse); a signal can be too weak at the fine level yet add up at the system level. MedDRA SOC／HLT／PT = the standard three-tier medical vocabulary: PT is the finest single event, HLT a mid-level bundle of related PTs, and SOC the top-level organ-system class."),
         "metrics": [],
     }
 
@@ -85,8 +85,8 @@ def _c2_baseline(p0, df, lang="zh"):
             "propensities (age, indication structure), that breaks the baseline and fabricates signals. Fixes: scan on "
             "<b>stratified or adjusted</b> data, or switch to a conditional (self-controlled) tree-temporal scan.",
         ),
-        "term": t(lang, "專有名詞：常數基準率；Bernoulli 模型；分層掃描。",
-                  "Term: constant baseline rate; Bernoulli model; stratified scan."),
+        "term": t(lang, "常數基準率＝假設在「沒有問題」的情況下，每一個結果節點的接種比例都一樣（都等於整體平均 p₀）；有了這條平整的底線，某節點異常偏高才看得出來。Bernoulli 模型＝把每個人簡化成「有沒有接種」一個是非題，再比較各節點的接種比例與基準。分層掃描＝先按年齡、適應症等把人分成同質小組，在組內各自比較，避免這些背景差異被誤當成訊號。",
+                  "Constant baseline rate = assuming that, when nothing is wrong, every outcome node has the same exposed fraction (all equal to the overall average p₀); with this flat baseline, a node that runs unusually high stands out. Bernoulli model = reducing each person to a single yes／no — exposed or not — then comparing each node's exposed fraction with the baseline. Stratified scan = first splitting people into homogeneous groups by age, indication, etc. and comparing within each group, so those background differences are not mistaken for a signal."),
         "metrics": [
             {"name": t(lang, "節點接種率離散（SD）", "spread of node rates (SD)"), "value": f"{spread:.3f}",
              "note": t(lang, "越小越接近常數基準", "smaller is closer to a constant baseline")},
@@ -117,8 +117,8 @@ def _c3_counts(top, lang="zh"):
             "The LLR is driven by a node's n and exposed count c; if either is small, the LLR and its permutation p are noisy. "
             "Look at the strongest node's n and the smaller cell.",
         ),
-        "term": t(lang, "專有名詞：節點事件數；對數概似比 LLR；統計精度。",
-                  "Term: node event count; log-likelihood ratio (LLR); precision."),
+        "term": t(lang, "節點事件數＝這個節點裡到底有多少人（n）、其中多少人有暴露（c）；數字太小，任何結論都只是少數幾筆湊出來的。對數概似比 LLR＝衡量「這個節點比基準異常多少」的分數，分數越高越像有訊號；但 n、c 太小時這個分數會上下亂跳。統計精度＝估計值的穩定度；樣本越多越精準，樣本太少時同一份資料換批人就可能得到完全不同的答案。",
+                  "Node event count = how many people are in the node (n) and how many of them are exposed (c); when these are small, any conclusion rests on just a handful of records. Log-likelihood ratio (LLR) = a score for how far above baseline a node is — higher looks more like a signal — but with small n and c this score jumps around. Precision = how stable an estimate is; more data means tighter estimates, while too few cases mean a different batch of people could give a completely different answer."),
         "metrics": [
             {"name": t(lang, "最強節點 n", "strongest node n"), "value": str(top["n"]), "note": ""},
             {"name": t(lang, "其中暴露 c", "exposed c"), "value": str(top["c"]), "note": ""},
@@ -145,8 +145,8 @@ def _c4_reference(lang="zh"):
             "drives both exposure and which outcome node you land in. If there is, the permutation reference is wrong and p is off. "
             "Fixes: permute within strata, or adjust by a propensity score first.",
         ),
-        "term": t(lang, "專有名詞：蒙地卡羅排列；可交換性；族系錯誤率（FWER）。",
-                  "Term: Monte-Carlo permutation; exchangeability; family-wise error rate (FWER)."),
+        "term": t(lang, "蒙地卡羅排列＝把「誰有暴露」這個標籤隨機打亂很多次，看看純粹靠運氣最多能跑出多強的訊號，用這條「亂數基準線」當作沒有真效果時該長什麼樣。可交換性＝假設在沒有真效果時，把暴露標籤在人與人之間互換不會改變整體樣貌；只有這樣，打亂標籤得到的參考分布才算數。族系錯誤率（FWER）＝因為一次測了一整棵樹的很多節點，這是「至少誤報一個」的總機率；TreeScan 把它一次壓低，避免靠數量多硬湊出假警報。",
+                  "Monte-Carlo permutation = randomly reshuffling the exposed labels many times to see how strong a signal pure luck can produce, using this random baseline as a picture of what no-real-effect should look like. Exchangeability = assuming that, with no real effect, swapping exposure labels between people would not change the overall picture; only then does the reshuffled reference distribution count. Family-wise error rate (FWER) = because a whole tree of nodes is tested at once, this is the overall chance of at least one false alarm; TreeScan holds it down in one step so sheer node count cannot manufacture spurious alerts."),
         "metrics": [],
     }
 
@@ -174,8 +174,8 @@ def _c5_multiplicity(top, n_tscan, n_naive, lang="zh"):
             "shot via the <b>permutation distribution of the maximum LLR</b>, giving a family-wise-error-controlled p. Contrast: a "
             "naive uncorrected scan flags more nodes. Look at the strongest node's adjusted p and the naive-vs-TreeScan flag counts.",
         ),
-        "term": t(lang, "專有名詞：族系錯誤率；最大統計量校正；假陽性。",
-                  "Term: family-wise error rate; max-statistic correction; false positive."),
+        "term": t(lang, "族系錯誤率＝整棵樹有很多節點，每個都測一次就會累積錯誤，這是「至少誤標一個」的總機率，必須整體壓低而不是逐一看。最大統計量校正＝每次打亂資料只記下「最強的那個節點分數」，用這些最強分數當門檻；唯有比純運氣最好的情況還強，才算數，一次擺平多重比較。假陽性＝其實沒有問題卻被標成有訊號的誤報；節點越多越容易冒出，這也是天真未校正會標出一堆節點的原因。",
+                  "Family-wise error rate = a whole tree has many nodes, and testing each one piles up errors, so this is the overall chance of at least one false flag — it must be held down as a whole, not judged node by node. Max-statistic correction = each reshuffle records only the single strongest node score, and those strongest scores set the bar; only beating luck's best case counts, settling all the multiple comparisons at once. False positive = a false alarm where nothing is actually wrong yet a node gets flagged; more nodes make them likelier, which is why a naive uncorrected scan flags so many."),
         "metrics": [
             {"name": t(lang, "最強節點校正後 p", "strongest node adjusted p"), "value": f"{top['p']:.3g}", "note": ""},
             {"name": t(lang, "天真標記數 / TreeScan 標記數", "naive flags / TreeScan flags"),

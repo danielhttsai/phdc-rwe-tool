@@ -44,8 +44,8 @@ def _c1_controls(lang="zh"):
             "exposure distribution) or controls whose selection is related to exposure. Sample the wrong base and the odds "
             "ratio carries <b>selection bias</b> that no amount of analysis can fix.",
         ),
-        "term": t(lang, "專有名詞：來源族群（source population）；選擇偏誤；發生密度抽樣（incidence-density sampling）。",
-                  "Term: source population; selection bias; incidence-density sampling."),
+        "term": t(lang, "來源族群＝會「產生這些病例」的那群人；換句話說，如果某位對照真的得了病，他也應該會被收進來當本研究的病例。對照就要從這群人裡隨機抽。選擇偏誤＝對照抽錯了人（不是來自這群人），導致兩組的暴露比例一開始就不可比，勝算比因此偏掉。發生密度抽樣＝在「病例陸續發生」的整段期間動態抽對照，每當有人得病，就從當下還沒得病的人裡挑對照，這樣抽出來的對照才真正代表那段時間的來源族群。",
+                  "Source population = the group of people who 'produce' the cases; put differently, if one of your controls had actually fallen ill, they too should have ended up as a case in this study. Controls must be drawn at random from exactly this group. Selection bias = you sampled controls from the wrong people, so the two groups' exposure rates were not comparable to begin with and the odds ratio is thrown off. Incidence-density sampling = pick controls dynamically across the whole period while cases keep occurring — each time someone becomes a case, draw a control from those still disease-free at that moment, so the controls truly represent the source population over time."),
         "metrics": [],
     }
 
@@ -68,8 +68,8 @@ def _c2_exposure(lang="zh"):
             "bias</b>), the exposure contrast is artificially widened or shrunk. Using <b>objective records</b> (e.g. a "
             "prescription database) instead of self-report, and blinding exposure assessment, both help.",
         ),
-        "term": t(lang, "專有名詞：回憶偏誤（recall bias）；差異性錯分（differential misclassification）。",
-                  "Term: recall bias; differential misclassification."),
+        "term": t(lang, "回憶偏誤＝因為暴露是事後回頭問的，已經生病的病例往往會比健康的對照更努力、更容易回想起過去的暴露；於是病例「記得」的暴露比較多，純粹是記憶差異，卻被誤當成真的風險差異。差異性錯分＝把暴露量錯（有的記成沒有、沒的記成有）本身難免，但若這種量錯在兩組「程度不一樣」（病例量得比較準或比較不準），就會系統性地把勝算比往某個方向推；若兩組量錯的程度一樣，偏誤通常只會把結果拉向「沒差別」。",
+                  "Recall bias = because exposure is asked about after the fact, already-ill cases tend to search their memory harder and recall past exposure more readily than healthy controls; so cases 'remember' more exposure purely as a memory difference, which gets mistaken for a real difference in risk. Differential misclassification = some exposure will always be recorded wrong (present logged as absent, or vice versa), but if that error differs in degree between the two groups (cases measured more, or less, accurately than controls), it systematically pushes the odds ratio one way; if both groups are mismeasured to the same degree, the bias usually just drags the result toward 'no difference'."),
         "metrics": [],
     }
 
@@ -108,8 +108,8 @@ def _c3_confounding(res, lang="zh"):
             "between the crude and adjusted OR above is the size of the measured-confounding bias. Note this only handles "
             "<b>measured</b> confounding; unmeasured confounding still needs design (matching, sensitivity analysis).",
         ),
-        "term": t(lang, "專有名詞：混淆（confounding）；Mantel–Haenszel；條件 logistic（配對時）。",
-                  "Term: confounding; Mantel–Haenszel; conditional logistic (when matched)."),
+        "term": t(lang, "混淆＝有第三個因子（這裡是年齡）同時牽動「誰會暴露」和「誰會生病」，於是暴露和疾病看起來有關，其實一部分是這個因子在背後造成的假象；把它列入考慮（校正或分層）才能還原真實關聯。Mantel–Haenszel＝先按混淆因子把資料切成幾層（例如各年齡層各算一張表），在每層內各組都已經年齡相近、可比，再把各層的勝算比加權合併成一個總值，藉此「在同年齡內」比較暴露效果。條件 logistic＝當研究是「一個病例配上條件相近的對照」的配對設計時要用的模型，它只在每一配對組「內部」比較，剛好抵掉了被拿來配對的那些因子；若忽略配對、硬用一般模型，勝算比會被往 1（沒效果）拉。",
+                  "Confounding = a third factor (here, age) drives both 'who gets exposed' and 'who gets ill', so exposure and disease look linked when part of that link is really this factor working behind the scenes; only by accounting for it (adjusting or stratifying) do you recover the true association. Mantel–Haenszel = first slice the data into layers by the confounder (e.g. one 2x2 table per age band) so that within each layer the groups are already similar in age and comparable, then combine each layer's odds ratio into one weighted overall value — in effect comparing exposure 'within the same age'. Conditional logistic = the model to use when the design pairs each case with a closely matched control; it compares only 'within' each matched set, which exactly cancels out the factors you matched on. Ignore the matching and use an ordinary model and the odds ratio gets pulled toward 1 (no effect)."),
         "metrics": metrics,
     }
 
@@ -135,8 +135,8 @@ def _c4_design(lang="zh"):
             "clear <b>time zero</b> and <b>new users</b>, or prevalent users and unaligned time create a spurious 'protective' "
             "effect (see ③ advanced).",
         ),
-        "term": t(lang, "專有名詞：中介／對撞因子；過度配對（overmatching）；目標試驗模擬（target-trial emulation）。",
-                  "Term: mediator / collider; overmatching; target-trial emulation."),
+        "term": t(lang, "中介因子＝位在「暴露→疾病」這條因果鏈中間、被暴露影響後再去影響疾病的因子（暴露的下游）；它本來就是效果的一部分，若拿來配對或校正，等於把真效果削掉一塊。對撞因子＝同時被暴露和疾病兩邊「指向」的因子；一旦對它配對或校正，反而會憑空製造出暴露和疾病的假關聯。過度配對＝配對配過頭，配到了中介或對撞因子（而不只是混淆因子），結果不是減少偏誤而是引入偏誤、或把真效果稀釋掉。目標試驗模擬＝把這個觀察性研究想像成「我們本來想做、但沒辦法做的那個理想隨機試驗」，再照它的規格來設計：要有明確的起算時間點（時間零點）、只收新使用者，這樣才不會無中生有跑出假的「保護」效果。",
+                  "Mediator = a factor that sits in the middle of the 'exposure -> disease' chain — exposure affects it, and it in turn affects disease (downstream of exposure); it is part of the effect itself, so matching or adjusting on it carves away a chunk of the real effect. Collider = a factor that both exposure and disease point into; match or adjust on it and you conjure up a fake association between exposure and disease out of nothing. Overmatching = matching too aggressively, on a mediator or collider rather than only on confounders, which adds bias or dilutes the true effect instead of removing bias. Target-trial emulation = picture this observational study as 'the ideal randomized trial we wish we could have run but couldn't', then build it to that spec: a clearly defined start time (time zero) and new users only, so you don't fabricate a spurious 'protective' effect."),
         "metrics": [],
     }
 
@@ -171,7 +171,7 @@ def _c5_counts(res, lang="zh"):
             "'unexposed cases') has very few people, the estimate is unstable, the interval blows up, or it can't be computed. "
             "Watch out with a rare exposure plus a rare outcome. Adding controls (1:k matching) helps.",
         ),
-        "term": t(lang, "專有名詞：稀疏資料偏誤（sparse-data bias）；1:k 配對。",
-                  "Term: sparse-data bias; 1:k matching."),
+        "term": t(lang, "稀疏資料偏誤＝四格表裡只要有一格人數很少（資料太稀），勝算比的計算就會被那一小格主導、變得很不穩，估出來的值容易偏大且信賴區間爆寬，極端時甚至算不出來；這不是真的效果變大，而是樣本太少造成的人為偏差。1:k 配對＝每收 1 個病例，就配進 k 個（例如 2 個、4 個）條件相近的對照，用「多找對照」來把偏小的格子補大、提高估計的穩定度，比硬去增加難找的病例更省力。",
+                  "Sparse-data bias = if any one of the four cells holds very few people (the data is too thin there), the odds ratio calculation gets dominated by that tiny cell and turns unstable — the estimate tends to come out too large with a blown-up confidence interval, and in extreme cases can't be computed at all; this is not a real, larger effect but an artefact of too small a sample. 1:k matching = for every 1 case you enrol, you bring in k matched controls (say 2 or 4), padding out the small cells and steadying the estimate by 'getting more controls' — far easier than chasing down extra hard-to-find cases."),
         "metrics": metrics,
     }

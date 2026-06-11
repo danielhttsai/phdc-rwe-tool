@@ -47,8 +47,8 @@ def _c1_timeconditional(lang="zh"):
             "into the matching / propensity score; with <b>unmeasured time-varying factors</b>, PNU is still biased. The "
             "assumption cannot be proven from data alone.",
         ),
-        "term": t(lang, "專有名詞：時間條件配對（time-conditional matching）；距起始時間；時變混淆。",
-                  "Term: time-conditional matching; time-since-start; time-varying confounding."),
+        "term": t(lang, "時間條件配對（time-conditional matching）＝比較時先把人按「已經用藥多久」分層，只在同一層裡互比，避免拿老用戶去對上剛起始的新人。距起始時間＝某人從第一次用藥到現在過了多久；剛起始時風險最高，之後通常降下來，所以這個「時間點」要對齊才公平。時變混淆＝會隨時間變動、又同時影響「是否續用」與「會不會出事」的因素（例如病情起伏）；沒量到它，配得再齊也還是會偏。",
+                  "Time-conditional matching = before comparing, sort people by how long they have already been on the drug and only compare within the same band, so you never pit a long-term user against a fresh starter. Time-since-start = how long it has been since a person's first dose; risk is highest right after starting and usually falls later, so this clock has to be lined up for a fair comparison. Time-varying confounding = factors that change over time and affect both whether someone keeps taking the drug and whether they have the event (e.g. a fluctuating illness); if it goes unmeasured, even perfectly aligned timing stays biased."),
         "metrics": [],
     }
 
@@ -86,8 +86,8 @@ def _c2_matching(res, lang="zh"):
             "direct check is whether <b>the PNU estimate sits close to the new-user-only estimate</b>: close = the matching is "
             "right; far apart = the time-conditional adjustment is mis-specified.",
         ),
-        "term": t(lang, "專有名詞：標竿估計；時間條件傾向分數（time-conditional PS）。",
-                  "Term: benchmark estimate; time-conditional propensity score."),
+        "term": t(lang, "標竿估計＝只比「剛起始用藥」的人所得到的答案；這種設計公認沒有盛行使用者的偏誤，所以拿它當「正確答案」來對照，看 PNU 有沒有對齊。時間條件傾向分數（time-conditional PS）＝先估計「在已經用藥這麼久的情況下，這個人會被分到 A 組的機率」，再用這個機率把兩組湊得可比；它把「用藥多久」也算進去，所以同一時間點上的人才會被擺在一起比。",
+                  "Benchmark estimate = the answer you get from comparing only fresh starters; this design is accepted as free of prevalent-user bias, so it serves as the 'correct answer' to check whether PNU lines up with it. Time-conditional propensity score (time-conditional PS) = the estimated probability that a person ends up in group A given how long they have already been on the drug, used to make the two groups comparable; because it folds in time-since-start, only people at the same point on the treatment clock get matched together."),
         "metrics": metrics,
     }
 
@@ -110,8 +110,8 @@ def _c3_history(lang="zh"):
             "<b>start date</b> (e.g. left truncation in the database), you cannot place prevalent users in the right "
             "time-conditional stratum and PNU cannot be done. This is a data-availability limit, not something statistics can fix.",
         ),
-        "term": t(lang, "專有名詞：暴露起始史；左截斷（left truncation）；距起始時間。",
-                  "Term: treatment-start history; left truncation; time-since-start."),
+        "term": t(lang, "暴露起始史＝每位盛行使用者「何時拿到第一張處方、已經連續用了多久」的完整紀錄；沒有它就算不出每個人在治療時間軸上的位置。左截斷（left truncation）＝資料的觀察是從某一天才開始記的，在那之前就已經在用藥的人，他們真正的起始日落在紀錄之外、看不到。距起始時間＝從第一次用藥到進入研究過了多久；這正是 PNU 配對要對齊的「時鐘」，缺了起始日就無從計算。",
+                  "Treatment-start history = a full record of each prevalent user's first prescription date and how long they have been on the drug continuously; without it you cannot place anyone on the treatment timeline. Left truncation (left truncation) = the data only start recording from a certain date, so for people already on the drug before that, their true start date falls outside the records and is invisible. Time-since-start = how long from the first dose to entering the study; this is exactly the clock PNU's matching must align, and with no start date it cannot be computed."),
         "metrics": [],
     }
 
@@ -152,8 +152,8 @@ def _c4_depletion(res, lang="zh"):
             "the larger the gap, the more a <b>naive</b> pooling of prevalent users is biased (pulled toward the null). PNU "
             "corrects this with its time-conditional adjustment.",
         ),
-        "term": t(lang, "專有名詞：易感者耗竭（depletion of susceptibles）；存活者偏誤；盛行使用者偏誤。",
-                  "Term: depletion of susceptibles; survivor bias; prevalent-user bias."),
+        "term": t(lang, "易感者耗竭（depletion of susceptibles）＝體質敏感、容易因藥物出事的人早就出事退出了，剩下還在用藥的都是耐受得住的低風險族群；所以盛行使用者看起來特別「安全」，其實是篩選的結果。存活者偏誤＝你只看到「撐到現在的人」，沒看到中途出事離開的人，於是把這群被挑剩的人當成全體，結論就偏樂觀。盛行使用者偏誤＝因為上述篩選，直接拿盛行使用者來算藥物風險，會系統性低估真正的傷害。",
+                  "Depletion of susceptibles (depletion of susceptibles) = the people whose constitution makes them prone to harm from the drug have already had the event and dropped out, so those still on it are the tolerant, lower-risk survivors; prevalent users therefore look unusually 'safe', but that is a selection artifact. Survivor bias = you only see the people who lasted until now, not those who had the event and left, so treating this leftover group as if it were everyone makes the conclusion overly rosy. Prevalent-user bias = because of that selection, computing drug risk directly from prevalent users systematically underestimates the true harm."),
         "metrics": metrics,
     }
 
@@ -190,7 +190,7 @@ def _c5_events(res, lang="zh"):
             "the real treated population (including long-term users). The metrics show the events per arm and how many more "
             "people PNU uses than the new-user-only design.",
         ),
-        "term": t(lang, "專有名詞：精確度／效能；代表性；有效樣本數。",
-                  "Term: precision / power; representativeness; effective sample size."),
+        "term": t(lang, "精確度／效能＝估計值有多「穩」：人多、事件多，信賴區間就窄，也比較有把握偵測到真正的效果（效能高）。代表性＝你的樣本像不像真實在用這個藥的整群人；只看剛起始的人會漏掉長期使用者，PNU 把他們納回來就更貼近真實族群。有效樣本數＝把每個人對精確度的實際貢獻加總起來的「實質人數」；它通常比帳面人數小，是衡量估計穩不穩的更誠實指標。",
+                  "Precision / power = how 'steady' the estimate is: more people and more events give a narrower confidence interval and a better chance of detecting a real effect (higher power). Representativeness = how closely your sample resembles the whole population actually taking the drug; looking only at fresh starters misses long-term users, and PNU brings them back to better mirror the real population. Effective sample size = the 'real headcount' you get after adding up how much each person actually contributes to precision; it is usually smaller than the raw count and is a more honest gauge of how stable the estimate is."),
         "metrics": metrics,
     }

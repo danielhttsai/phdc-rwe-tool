@@ -50,8 +50,8 @@ def _c1_nco(res, lang="zh"):
             "affect but that still reflects health / care-seeking. Point (1) is a design assumption, unprovable from data; a bad NCO "
             "(secretly affected by exposure) makes detection misleading and correction introduce new bias.",
         ),
-        "term": t(lang, "專有名詞：陰性對照結果（negative-control outcome）；偽陽性查核；Lipsitch 2010。",
-                  "Term: negative-control outcome; falsification check; Lipsitch 2010."),
+        "term": t(lang, "陰性對照結果（NCO）＝一個暴露「不可能」真的影響、卻同樣受未測混淆牽動的結果（例如接種前就量到的指標）；因為真效應理應是 0，它能當混淆的探照燈。偽陽性查核＝故意拿這個「答案應該是 0」的結果去跑模型；如果跑出非 0，代表偏誤確實存在、不是真效果。Lipsitch 2010 是把這套陰性對照查核法引進流行病學的經典文獻。",
+                  "Negative-control outcome (NCO) = a result the exposure cannot truly affect yet that is still moved by the same unmeasured confounding (e.g. a measure taken before vaccination); since its true effect should be 0, it acts as a flashlight for confounding. Falsification check = deliberately running the model on this 'answer should be 0' outcome; if it comes back non-zero, real bias exists rather than a true effect. Lipsitch 2010 is the classic paper that brought this negative-control approach into epidemiology."),
         "metrics": [
             {"name": t(lang, "天真 A → W（本應 0）", "naive A → W (should be 0)"),
              "value": f"{res['detect']:+.2f}",
@@ -78,8 +78,8 @@ def _c2_nce(lang="zh"):
             "'U part' of the NCO (W), then subtracts U's effect from the outcome model. If Z actually affects Y directly (not a valid "
             "NCE), the correction is biased. Like the NCO, this is a design assumption chosen by domain knowledge.",
         ),
-        "term": t(lang, "專有名詞：陰性對照暴露（negative-control exposure）；治療混淆代理；confounding bridge。",
-                  "Term: negative-control exposure; treatment confounding proxy; confounding bridge."),
+        "term": t(lang, "陰性對照暴露（NCE）＝一個「不可能」真的影響結果、卻和未測混淆同源的因子；它是 NCO 的另一半搭檔。治療混淆代理＝把這個 NCE 當成「未測混淆 U 在暴露端的影子」，用它去把混淆抓出來。混淆橋（confounding bridge）＝一條把結果、暴露、陰性對照串起來的關係式；只要這條橋存在，就能用兩個陰性對照把 U 的效應解出來、扣掉。",
+                  "Negative-control exposure (NCE) = a factor that cannot truly affect the outcome yet shares the same unmeasured confounding; it is the NCO's other half. Treatment confounding proxy = treating this NCE as the 'shadow of the unmeasured U on the exposure side' and using it to pin the confounding down. Confounding bridge = a relationship tying the outcome, exposure and the negative controls together; as long as this bridge exists, the two controls let you solve for U's effect and subtract it out."),
         "metrics": [],
     }
 
@@ -105,8 +105,8 @@ def _c3_bridge(lang="zh"):
             "analyses; benchmark against a known answer / trial when possible. Linear P2SLS is the special case under <b>additive-linear</b> "
             "structure; non-linear settings need flexible bridge functions (ML — see the ⑤ extension).",
         ),
-        "term": t(lang, "專有名詞：混淆橋函數（confounding bridge）；完備性（completeness）；近端因果學習（proximal causal learning）。",
-                  "Term: confounding bridge function; completeness; proximal causal learning."),
+        "term": t(lang, "混淆橋函數＝一條把「結果」用「暴露＋陰性對照」表示出來的關係式；它的存在讓我們不必直接觀測未測混淆 U，也能把 U 的效應算掉。完備性＝兩個陰性對照對 U 的資訊要「夠豐富」，豐富到能唯一地把 U 反推出來——資訊不足就解不出唯一答案。近端因果學習＝這整套「用兩個陰性對照當代理、靠混淆橋來校正未測混淆」的方法論的統稱。以上三點都無法用資料證明，是這個方法的核心代價。",
+                  "Confounding bridge function = a relationship that expresses the outcome in terms of the exposure plus the negative controls; its existence lets us cancel U's effect without ever observing the unmeasured U directly. Completeness = the two negative controls must carry 'rich enough' information about U — rich enough to recover U uniquely; too little information and there is no single answer. Proximal causal learning = the umbrella name for this whole method of using two negative controls as proxies and a confounding bridge to correct unmeasured confounding. None of these three can be proven from data — that is the method's core price."),
         "metrics": [],
     }
 
@@ -136,8 +136,8 @@ def _c4_relevance(z_t, res, lang="zh"):
             "<b>strength of the NCE (Z) on the NCO (W)</b> (t-statistic) — too weak is like a weak instrument and P2SLS becomes noisy and "
             "unstable. Relevance is <b>testable</b>; the 'no causal effect' (C1, C2) and completeness (C3) conditions remain untestable.",
         ),
-        "term": t(lang, "專有名詞：代理相關性（proxy relevance）；弱工具類比；第一階段強度。",
-                  "Term: proxy relevance; weak-instrument analogy; first-stage strength."),
+        "term": t(lang, "代理相關性＝兩個陰性對照和未測混淆 U「綁得有多緊」；綁得越緊，它們才越能代表 U、校正才越可靠。弱工具類比＝就像 IV 法裡工具太弱會讓估計暴衝失準，這裡的陰性對照太弱也會讓 P2SLS 放大誤差、結果亂跳。第一階段強度＝實際看的數字，就是迴歸 W ～ A＋Z＋X 裡 NCE（Z）對 NCO（W）的 t 值；t 值越大代表代理越相關、越穩。這一項是少數「可以用資料檢驗」的假設。",
+                  "Proxy relevance = how tightly the two negative controls are tied to the unmeasured U; the tighter the tie, the better they stand in for U and the more reliable the correction. Weak-instrument analogy = just as a weak instrument in IV makes estimates blow up and wobble, weak negative controls make P2SLS amplify noise and jump around. First-stage strength = the actual number to look at — the t-statistic of the NCE (Z) on the NCO (W) in the regression W ~ A + Z + X; a bigger t means more relevant, steadier proxies. This is one of the few assumptions you can actually test from data."),
         "metrics": [
             {"name": t(lang, "第一階段 NCE→NCO（t 值）", "first-stage NCE→NCO (t-stat)"), "value": f"{z_t:.1f}",
              "note": t(lang, "越大越好；類比 IV 的工具強度", "larger is better; analogous to IV instrument strength")},
@@ -168,8 +168,8 @@ def _c5_data(res, lang="zh"):
             "propagates, so it is more sensitive to <b>sample size</b> than a naive one-stage analysis. With too few observations the CI is "
             "wide or unstable — always read the bootstrap CI, not just the point estimate.",
         ),
-        "term": t(lang, "專有名詞：兩階段估計；誤差傳遞；自助信賴區間。",
-                  "Term: two-stage estimation; error propagation; bootstrap CI."),
+        "term": t(lang, "兩階段估計＝先用第一階段配出 Ŵ，再拿它去跑第二階段估真正的效應；要分兩步走才能扣掉未測混淆。誤差傳遞＝第一階段的雜訊不會消失，會一路傳到第二階段、層層放大，所以這方法比天真的一步到位更吃樣本量。自助信賴區間（bootstrap CI）＝把資料反覆重抽、重算很多次，看估計值散得多開，藉此誠實量出不確定性；樣本少時務必看它，別只信單一點估計。",
+                  "Two-stage estimation = first fit Ŵ in stage one, then feed it into stage two to estimate the real effect; the two steps are what let you subtract out the unmeasured confounding. Error propagation = stage-one noise does not vanish — it carries into stage two and gets amplified, so this method is hungrier for sample size than a naive one-step analysis. Bootstrap CI = resample and recompute the data many times to see how widely the estimate scatters, giving an honest measure of uncertainty; with a small sample always read it rather than trusting the single point estimate."),
         "metrics": [
             {"name": t(lang, "樣本數", "sample size"), "value": f"{n}",
              "note": t(lang, "兩階段估計需要較大樣本", "two-stage estimation needs a larger sample")},

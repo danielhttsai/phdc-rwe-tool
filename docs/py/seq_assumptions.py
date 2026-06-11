@@ -51,8 +51,8 @@ def _c1_confounding(res, lang="zh"):
             "biases the estimate. Remedy: include the important confounders and run an unmeasured-confounding sensitivity "
             "analysis.",
         ),
-        "term": t(lang, "專有名詞：（序列性）可交換性；目標試驗模擬（target trial emulation）。",
-                  "Term: (sequential) exchangeability; target trial emulation."),
+        "term": t(lang, "（序列性）可交換性＝在每一個資格月那一刻，當下啟動的人和不啟動的人，除了治療之外其他條件都「夠像」（在已測共變項相同時），像是被隨機分配的一樣；只有這樣，兩組的結果差距才能歸因於治療。目標試驗模擬＝把一份觀察資料假想成「我們本來想做卻沒做的那場隨機試驗」，明訂誰有資格、何時算起點、怎麼分組，再照著這個藍圖分析，避免事後諸葛式的偏誤。",
+                  "(Sequential) exchangeability = at each eligibility month, the people who initiate now and those who do not are otherwise 'alike enough' (once measured covariates match), as if randomly assigned; only then can the outcome gap be credited to treatment. Target trial emulation = pretend the observational data came from the randomized trial you wish you had run — spell out who is eligible, when time starts, and how groups form, then analyze by that blueprint to avoid hindsight bias."),
         "metrics": metrics,
     }
 
@@ -96,7 +96,8 @@ def _c2_positivity(df, init, covariates, res, lang="zh"):
             "not is above 0. If some people (say the frailest) almost always initiate, that stratum has no comparable "
             "controls and the weights blow up.",
         ),
-        "term": t(lang, "專有名詞：正性（positivity）；傾向加權（IPTW）。", "Term: positivity; inverse-probability-of-treatment weighting."),
+        "term": t(lang, "正性＝不論病人長什麼樣（任一共變項層），當下「會啟動」和「不啟動」都真的有人、機率都大於 0；如果某種人幾乎一定啟動，那一層就沒有可比的對照，估計無從進行。傾向加權（IPTW）＝先估每個人「在這一刻啟動」的機率，再用這機率的倒數當權重——本來容易被忽略的少數選擇者被放大、過度代表的被縮小，讓加權後兩組看起來像隨機分配；但某一層機率太接近 0 時，倒數權重會爆大、估計變得很不穩。",
+                  "Positivity = whatever a patient looks like (in any covariate stratum), both 'initiate now' and 'do not' actually happen, each with probability above 0; if some people almost always initiate, that stratum has no comparable controls and the estimate cannot be formed. IPTW (inverse-probability-of-treatment weighting) = estimate each person's probability of initiating at that moment, then weight by its reciprocal — rare choosers get scaled up, over-represented ones scaled down, so the weighted groups resemble random assignment; but when a stratum's probability is near 0, the reciprocal weight blows up and the estimate becomes very unstable."),
         "metrics": metrics,
     }
 
@@ -118,8 +119,8 @@ def _c3_alignment(lang="zh"):
             "trials fix it by fixing time-zero at each eligibility month, comparing initiate-vs-not at that moment with "
             "baseline covariates measured then. Aligning time-zero, eligibility and assignment removes immortal time.",
         ),
-        "term": t(lang, "專有名詞：immortal-time bias；時間零點對齊；巢式序列試驗。",
-                  "Term: immortal-time bias; time-zero alignment; nested sequential trials."),
+        "term": t(lang, "immortal-time bias（不死時間偏誤）＝用「將來有沒有治療」回頭分組造成的假象：被歸到治療組的人，必須先活到能接受治療那天，這段「保證沒死」的時間若算進治療組，會讓治療看起來比實際更有效。時間零點對齊＝把每個人的「起算點」固定在同一個有意義的時刻（這裡是該資格月），資格、基線共變項、治療指派都在那一刻決定，不偷看未來。巢式序列試驗＝在每個資格月各開一場小型模擬試驗、當下比較啟動 vs 不啟動，再把多場結果合併，藉由時間零點對齊把不死時間消掉。",
+                  "Immortal-time bias = a false signal created by grouping with 'whether someone was ever treated' later: a person placed in the treated group had to survive until treatment day, and counting that guaranteed-alive stretch toward the treated group makes treatment look better than it is. Time-zero alignment = fix everyone's 'start of the clock' at the same meaningful moment (here, the eligibility month), deciding eligibility, baseline covariates and assignment then, without peeking at the future. Nested sequential trials = open one small emulated trial at each eligibility month comparing initiate-vs-not at that instant, then pool the trials — the time-zero alignment is what removes immortal time."),
         "metrics": [],
     }
 
@@ -142,8 +143,8 @@ def _c4_carryover(lang="zh"):
             "fix is <b>person-clustered</b> robust SEs (or bootstrapping by pid); this tool can use a person-cluster "
             "bootstrap for the interval.",
         ),
-        "term": t(lang, "專有名詞：carry-over；個人叢集標準誤（person-clustered SE）。",
-                  "Term: carry-over; person-clustered standard errors."),
+        "term": t(lang, "carry-over（重複收案的牽連）＝同一個人以「尚未啟動」的身分被放進好幾場 mini-trial，他的那幾列資料其實來自同一個人、彼此相關，不是各自獨立的新觀察；把它們當成獨立會以為手上的資訊比實際多。個人叢集標準誤＝計算估計值的不確定範圍時，先把屬於同一個人的所有列綁成一叢、承認叢內相關，再算誤差（常用對 pid 自助重抽）；這樣得到的信賴區間才不會假性變窄、誤導我們以為結論比實際更精準。",
+                  "Carry-over (dependence from repeated entry) = the same person enters several mini-trials as a 'not-yet-initiated' record, so those rows come from one person and are correlated, not independent fresh observations; treating them as independent overstates how much information you really have. Person-clustered standard errors = when gauging the estimate's uncertainty, bundle all rows belonging to one person into a cluster, acknowledge the within-person correlation, then compute the error (often by bootstrapping over pid); only then does the confidence interval avoid being falsely narrow and misleading you into thinking the result is more precise than it is."),
         "metrics": [],
     }
 
@@ -180,7 +181,7 @@ def _c5_enough(res, ev, lang="zh"):
             "few initiators, the pooled risk difference is unstable and the interval widens. A longer recruitment window "
             "or a more common outcome both help.",
         ),
-        "term": t(lang, "專有名詞：巢式試驗數／事件數（trials & events）；反變異合併。",
-                  "Term: number of trials & events; inverse-variance pooling."),
+        "term": t(lang, "巢式試驗數／事件數＝可用的資格時點越多，就有越多場 mini-trial 可以合併；而真正撐起精準度的是「事件」（實際發生結果的人數），事件太少時，不管收了多少人，風險差都估得搖搖晃晃、區間很寬。反變異合併＝把多場試驗的結果加權平均成一個總估計時，讓「估得越穩（變異越小）的那場」講話越大聲、權重越高，反之越小；如此合併出來的總結論最有效率、最可信。",
+                  "Number of trials & events = the more usable eligibility times, the more mini-trials there are to pool; but what really drives precision is events (people who actually had the outcome) — with too few events, no matter how many people you enrolled, the risk difference is shaky and the interval is wide. Inverse-variance pooling = when averaging several trials into one overall estimate, let the more reliable trials (smaller variance) speak louder with higher weight and the noisier ones count less, giving the most efficient and trustworthy combined answer."),
         "metrics": metrics,
     }

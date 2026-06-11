@@ -69,8 +69,8 @@ def _a1_trend(expo_overall, lang="zh"):
             "there is to identify the effect; if exposure barely moves (an old drug at stable uptake) the method has "
             "nothing to work with. This is its biggest premise and the main driver of its power.",
         ),
-        "term": t(lang, "專有名詞：暴露盛行率的時間趨勢（temporal trend in exposure prevalence）。",
-                  "Term: temporal trend in exposure prevalence."),
+        "term": t(lang, "暴露盛行率的時間趨勢＝同一種藥（或處置）在族群裡被使用的比例，隨著日曆年份往上（或往下）走的幅度。這條趨勢就是 trend-in-trend 唯一的「施力點」：用藥率變得越多，方法能抓到的因果訊號就越強；如果一直平平的，方法等於沒東西可分析。",
+                  "Temporal trend in exposure prevalence = how much the share of people using the drug (or treatment) rises or falls across calendar years. This trend is the only thing trend-in-trend has to push against: the more the usage rate moves, the more causal signal there is to capture; if it stays flat, the method has nothing to analyse."),
         "metrics": metrics,
     }
 
@@ -106,8 +106,8 @@ def _a2_rare(out_rate, lang="zh"):
             "risk ratio nearly coincide and the maths simplifies). If the outcome is actually common, that "
             "approximation is shaky and the scale of the estimate needs more caution.",
         ),
-        "term": t(lang, "專有名詞：罕見結果假設（rare-outcome assumption）。",
-                  "Term: rare-outcome assumption."),
+        "term": t(lang, "罕見結果假設＝假定我們研究的事件（例如某種嚴重副作用）發生機率很低、很少見。在這種情況下，「勝算比」和「相對風險」這兩種衡量風險的方式幾乎一樣，背後的數學就能大幅簡化；trend-in-trend 的計算正是建立在這個簡化上。一旦結果其實很常見，這個近似就不準，估出來的風險尺度要打折看待。",
+                  "Rare-outcome assumption = assuming the event we study (say, a serious side effect) happens with low probability and is uncommon. When that holds, two ways of measuring risk — the odds ratio and the risk ratio — nearly coincide and the underlying maths simplifies a lot; trend-in-trend's calculation is built on that simplification. If the outcome is actually common, the approximation breaks down and the estimated risk scale should be read with a discount."),
         "metrics": metrics,
     }
 
@@ -150,8 +150,8 @@ def _a3_covariate_trend(df, covariates, periods, lang="zh"):
             "with rising exposure, it confounds the estimate. We check whether measured covariates drift across periods; "
             "unmeasured ones fall under A4.",
         ),
-        "term": t(lang, "專有名詞：共變項的時間穩定性（temporal stability of covariates）。",
-                  "Term: temporal stability of covariates."),
+        "term": t(lang, "共變項的時間穩定性＝病人的背景特徵（年齡、性別、合併疾病等這些「共變項」）在不同年份之間是不是大致維持一樣、沒有悄悄改變。如果使用者的組成隨時間慢慢變了，而且剛好跟用藥率上升同步，方法就會把這種變化誤當成藥的效果；所以我們檢查這些可測特徵在各時間點的平均值有沒有漂移。",
+                  "Temporal stability of covariates = whether patients' background characteristics (age, sex, comorbidities — the covariates) stay roughly the same across years rather than quietly shifting. If the patient mix drifts over time and happens to move in step with rising usage, the method can mistake that drift for a drug effect; so we check whether these measured features' averages drift across time points."),
         "metrics": rows,
     }
 
@@ -179,8 +179,8 @@ def _a4_confounder_trend(lang="zh"):
             "trend-in-trend are a SUBSET of those that break an ordinary cohort study — so it is more robust; the bad "
             "news: you still need domain knowledge to argue no such exposure-synchronised secular change exists.",
         ),
-        "term": t(lang, "專有名詞：與暴露趨勢相關的未測混淆趨勢（unmeasured confounder trends correlated with the exposure trend across strata）。",
-                  "Term: unmeasured confounder trends correlated with the exposure trend across strata."),
+        "term": t(lang, "與暴露趨勢相關的未測混淆趨勢＝一個我們沒量到、看不見的因素，它本身也隨著年份在變，而且這個變化在不同 CPE 層之間，剛好跟用藥率的上升「步調一致」。例如診斷標準逐年放寬、或整體醫療習慣的時代變遷，若正好和用藥潮同進退又跨層不一致，就會假裝成藥的因果效果。固定不動的混淆 trend-in-trend 不怕（會被分層吸收掉），它真正怕的就是這種「跟著暴露一起變」的看不見趨勢——而這只能靠領域知識去論證它不存在，資料本身證不了。",
+                  "Unmeasured confounder trends correlated with the exposure trend across strata = a factor we never measured and cannot see, which itself changes over the years AND whose change happens to move in step with rising usage, differently across CPE strata. For example, diagnostic criteria loosening year by year, or secular shifts in medical practice, can masquerade as a drug effect if they rise and fall together with the uptake wave and unevenly across strata. Fixed confounding does not worry trend-in-trend (stratification absorbs it); what it truly fears is this kind of unseen trend that moves WITH exposure — and only domain knowledge, not the data itself, can argue it away."),
         "metrics": [],
     }
 
@@ -219,7 +219,7 @@ def _a5_multiplicative(auc, lang="zh"):
             "more the strata's exposure-time trends differ and the better the identification. We use the c-statistic "
             "(AUC) as a measure of stratification quality.",
         ),
-        "term": t(lang, "專有名詞：累積暴露機率（CPE）分層、可乘共變項-時間結構（multiplicative covariate–time structure）、c 統計量。",
-                  "Term: CPE stratification; multiplicative covariate–time structure; c-statistic."),
+        "term": t(lang, "累積暴露機率（CPE）分層＝先用每個人的背景特徵算出「這個人有多大機會用到這種藥」，再依這個機率把人分成幾層；機率相近的人歸在同一層，方法就在層內比較。可乘的共變項-時間結構＝假設背景特徵對「會不會用藥」的影響，跟時間的影響是「相乘可拆開」的，也就是特徵的效果不會隨年份而改變方向或強度（沒有特徵×時間的交互作用）。c 統計量（AUC）＝衡量上面那個 CPE 模型「分得準不準」的分數，介於 0.5（等於亂猜）到 1（完美區辨），越高代表越能把暴露趨勢不同的人拉開、識別力越好。",
+                  "Cumulative-probability-of-exposure (CPE) stratification = first work out, from each person's background features, how likely they are to use this drug, then sort people into layers by that probability; those with similar probabilities sit in the same layer and the method compares within layers. Multiplicative covariate–time structure = assuming a feature's effect on whether someone gets the drug and the effect of time multiply apart cleanly — a feature's effect does not change direction or strength from year to year (no feature-by-time interaction). c-statistic (AUC) = a score, from 0.5 (no better than guessing) to 1 (perfect), for how well that CPE model tells exposed from unexposed; higher means it separates people with different exposure trends better, giving stronger identification."),
         "metrics": metrics,
     }

@@ -69,8 +69,8 @@ def check_d1_parallel(df, unit, group, period, outcome, t0, lang="zh"):
             "design is not automatically void — you can allow group-specific trends, or use the doubly-robust / "
             "synthetic-control ideas in '⑤ Boost with AI' — but interpret more cautiously.",
         ),
-        "term": t(lang, "專有名詞：平行趨勢（parallel trends）／事件研究前期檢定（event-study pre-trend test）。",
-                  "Term: parallel trends / event-study pre-trend test."),
+        "term": t(lang, "平行趨勢（parallel trends）＝如果政策從沒發生，介入組與對照組的結果會以「一樣的步調」變化——兩條線高低可以不同，但上下起伏要同步；這是 DiD 能把效果歸功於政策的根本前提。事件研究前期檢定（event-study pre-trend test）＝把政策上路前每一期的「介入減對照」差距畫出來、各自做檢定；若這些前期差距都貼近 0，代表政策前兩組確實同步，是平行趨勢成立的有力佐證。",
+                  "Parallel trends = if the policy had never happened, the treated and control outcomes would move at the same pace — the two lines can sit at different heights but their ups and downs stay in step; this is the bedrock that lets DiD credit the change to the policy. Event-study pre-trend test = plot and test the treated-minus-control gap for each period before the policy; if those pre-period gaps all hug 0, the two groups really were moving together beforehand, strong support for parallel trends."),
         "metrics": metrics,
         "_event_study": ev,
     }
@@ -115,8 +115,8 @@ def check_d2_anticipation(ev, t0, lang="zh"):
             "(e.g. getting vaccinated early), some effect leaks into the pre period and contaminates the DiD. "
             "We specifically check the last pre-policy period for an abnormal jump.",
         ),
-        "term": t(lang, "專有名詞：無預期假設（no-anticipation assumption）。",
-                  "Term: no-anticipation assumption."),
+        "term": t(lang, "無預期假設（no-anticipation assumption）＝政策正式上路「之前」，沒有人因為預期它要來而提前改變行為（例如聽到要發補助就提前去打疫苗）。如果有人提前反應，這部分效果會跑進「前期」，讓政策前看起來就有變化，污染前後比較、使 DiD 高估或低估。所以我們特別檢查政策上路前最後一期有沒有異常跳動。",
+                  "No-anticipation assumption = before the policy formally starts, nobody changes behaviour because they expect it (e.g. rushing to get vaccinated once a subsidy is announced). If people do react early, that slice of the effect leaks into the pre period, makes things look like they already moved before the policy, and contaminates the before/after comparison — biasing the DiD. That is why we specifically check the last pre-policy period for an abnormal jump."),
         "metrics": metrics,
     }
 
@@ -164,8 +164,8 @@ def check_d3_panel(df, unit, period, group, t0, lang="zh"):
             "observed in every period (a balanced panel), otherwise a before/after comparison may actually "
             "compare different units — composition bias.",
         ),
-        "term": t(lang, "專有名詞：平衡面板（balanced panel）、組成穩定（stable composition）。",
-                  "Term: balanced panel; stable composition."),
+        "term": t(lang, "平衡面板（balanced panel）＝每一個單位（社區）在每一期都有資料，沒有人中途加入或退出；資料表沒有缺格。組成穩定（stable composition）＝你前後比較的是「同一批人」，而不是因為有人來、有人走，導致前期和後期其實是不同的人。一旦組成會變，前後差異可能只是換了人造成的（組成偏誤），而非政策效果。",
+                  "Balanced panel = every unit (community) has data in every period, with nobody joining or dropping out partway, so there are no empty cells in the table. Stable composition = your before/after comparison is on the same set of units, not a pre period and a post period made up of different people because some entered and others left. When the mix changes, a before/after gap can reflect a change of who is in the sample (composition bias) rather than the policy's effect."),
         "metrics": metrics,
     }
 
@@ -191,8 +191,8 @@ def check_d4_sutva(lang="zh"):
             "region's climate — the control is no longer a clean benchmark and the estimate is biased. Keep treated "
             "and control separated in space/time and argue from domain knowledge that spillover is negligible.",
         ),
-        "term": t(lang, "專有名詞：SUTVA（穩定單位處置值假設）／外溢、干擾（spillover, interference）。",
-                  "Term: SUTVA (stable unit treatment value assumption) / spillover, interference."),
+        "term": t(lang, "SUTVA（穩定單位處置值假設）＝一個單位的結果只取決於「它自己」有沒有受政策影響，不會被別的單位是否受政策牽動；簡單說就是各組互不干擾。外溢、干擾（spillover, interference）＝政策的影響「漏」到了對照組，例如介入社區的人跑去隔壁對照社區打疫苗、或政策改變了整個地區的氛圍。一旦發生，對照組就不再是乾淨的比較基準，DiD 估計會偏掉。",
+                  "SUTVA (stable unit treatment value assumption) = a unit's outcome depends only on whether it itself is treated, not on whether other units are treated — in plain terms, the groups do not interfere with each other. Spillover, interference = the policy's effect leaks into the control group, e.g. people from a treated community get vaccinated in a neighbouring control community, or the policy shifts the mood of the whole region. Once that happens the control is no longer a clean benchmark and the DiD estimate is biased."),
         "metrics": [],
     }
 
@@ -233,8 +233,8 @@ def check_d5_clusters(df, unit, lang="zh"):
             "standard error must be clustered by unit. But cluster-robust SEs need enough clusters to be reliable; "
             "with too few, they understate uncertainty and make p-values look too good.",
         ),
-        "term": t(lang, "專有名詞：群集穩健標準誤（cluster-robust standard errors）、群集數量不足問題。",
-                  "Term: cluster-robust standard errors; the few-clusters problem."),
+        "term": t(lang, "群集穩健標準誤（cluster-robust standard errors）＝同一個單位（社區）在不同期的觀測值會彼此相關，不能當成各自獨立；這種標準誤把「同一單位內各期」當成一群一起算，避免高估資訊量、把不確定性算得太小。群集數量不足問題（few-clusters problem）＝這套算法要「夠多群集」才準；社區數太少時，它會低估不確定性、讓 p 值與信賴區間看起來太漂亮，這時改用較保守的做法（如 wild bootstrap）比較安全。",
+                  "Cluster-robust standard errors = observations from the same unit (community) across periods are correlated rather than independent, so this standard error treats all periods within a unit as one cluster, avoiding overcounting the information and understating the uncertainty. The few-clusters problem = this method needs enough clusters to be accurate; with too few communities it understates uncertainty and makes p-values and confidence intervals look too good, so a more conservative approach (such as a wild bootstrap) is safer."),
         "metrics": metrics,
     }
 

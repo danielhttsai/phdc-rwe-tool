@@ -46,8 +46,8 @@ def _c1_comparator(lang="zh"):
             "severe) patients, the two groups differ in baseline risk and ACNU's benefit shrinks. Choosing the right comparator "
             "is a matter of <b>clinical knowledge</b>; the data cannot prove it.",
         ),
-        "term": t(lang, "專有名詞：主動對照（active comparator）；因適應症而生的混淆（confounding by indication）；可交換性。",
-                  "Term: active comparator; confounding by indication; exchangeability."),
+        "term": t(lang, "主動對照（active comparator）＝拿另一種「真的在治同一個病」的藥當對照組，而不是拿沒吃藥的人；這樣兩邊都是有病、需要治療的人，才比得起來。因適應症而生的混淆（confounding by indication）＝會讓人覺得「藥有效或有害」的假象，其實是因為「病情本來就不一樣的人」才會去吃這個藥——病重的人吃藥也出事多，看起來像藥害，其實是病害。可交換性＝兩組病人「除了吃哪種藥不同、其他都差不多」，這樣對調過來結果也會一樣，比較才公平；ACNU 就是靠選對對照藥來逼近這個狀態。",
+                  "Active comparator = use another drug that actually treats the same disease as the control group, instead of people taking nothing; that way both sides are sick and in need of treatment, so they are comparable. Confounding by indication = the false impression that 'the drug helps or harms' when really it is the kind of patient who takes it — sicker patients take the drug and also have more bad events, which looks like drug harm but is disease harm. Exchangeability = the two groups are alike in everything except which drug they took, so swapping them would give the same result and the comparison is fair; ACNU approaches this by choosing the right comparator."),
         "metrics": [],
     }
 
@@ -72,8 +72,8 @@ def _c2_newuser(lang="zh"):
             "prescription</b>, so both groups start together and accrue risk from zero, with no immortal time. This requires "
             "the data to capture the full treatment-initiation history.",
         ),
-        "term": t(lang, "專有名詞：新使用者設計（new-user design）；既有使用者偏誤；immortal time；易感者耗竭。",
-                  "Term: new-user design; prevalent-user bias; immortal time; depletion of susceptibles."),
+        "term": t(lang, "新使用者設計（new-user design）＝只收「第一次開始吃這個藥」的人，並把第一張處方那天當成大家共同的起跑點，兩組同時起算風險。既有使用者偏誤＝如果把「早就在吃、吃了好一陣子」的人也算進來，他們是「吃了沒出事所以還留著」的幸存者，天生比較耐受，會害藥看起來比實際安全。immortal time（不死時間）＝某段「照規則他一定還活著、還沒出事」的時間，如果錯算進觀察期，會憑空讓某組看起來更安全。易感者耗竭（depletion of susceptibles）＝容易出事的人早早就出局了，留下來繼續吃的都是體質好的，造成同樣的低估假象。",
+                  "New-user design = enrol only people starting the drug for the FIRST time, and treat that first prescription as everyone's shared starting line so both groups begin accruing risk together. Prevalent-user bias = if you also count people who have already been on the drug for a while, they are survivors who tolerated it and are healthier by nature, making the drug look safer than it is. Immortal time = a stretch of time during which a person is guaranteed (by the way they were selected) to still be alive and event-free; counting it in the follow-up falsely makes one group look safer. Depletion of susceptibles = the people prone to bad events drop out early, leaving only the hardy ones still taking the drug, which produces the same false underestimate of harm."),
         "metrics": [],
     }
 
@@ -96,8 +96,8 @@ def _c3_comparator_effect(lang="zh"):
             "contaminated by B's effect. The ideal comparator is a drug that is <b>neutral for this outcome</b> while treating "
             "the same indication; otherwise B's effect must be folded into the interpretation using external knowledge.",
         ),
-        "term": t(lang, "專有名詞：主動對照的效應；相對效應；陰性對照結果（negative-control outcome）。",
-                  "Term: comparator effect; relative effect; negative-control outcome."),
+        "term": t(lang, "主動對照的效應＝對照藥 B 自己對這個結果也有作用（可能保護、也可能有害）；如果 B 不是中立的，你算出來的就不是 A 單獨的效果。相對效應＝你量到的永遠是「A 比 B 多好或多差」這個差距，而不是「A 比起完全不吃藥」的效果——換一種對照藥，數字就會變。陰性對照結果（negative-control outcome）＝特意挑一個「照理說這個藥不該影響」的結果來檢查；如果連它都出現差異，代表方法本身還藏著偏誤，要回頭懷疑結論。",
+                  "Comparator effect = comparator B has its own effect on this outcome (protective or harmful); if B is not neutral, what you compute is not A's effect alone. Relative effect = what you measure is always 'how much better or worse A is than B', not 'A versus taking nothing at all' — change the comparator and the number changes. Negative-control outcome = an outcome deliberately chosen because the drug should not plausibly affect it; if a difference shows up even there, the method still hides some bias and the conclusion should be doubted."),
         "metrics": [],
     }
 
@@ -147,8 +147,8 @@ def _c4_residual(res, lang="zh"):
             "truth. The three metrics above show how large the residual gap is, how large the naive gap is, and how much "
             "adjustment moves the estimate.",
         ),
-        "term": t(lang, "專有名詞：殘留混淆；傾向分數（propensity score）；標準化差（standardized difference）。",
-                  "Term: residual confounding; propensity score; standardized difference."),
+        "term": t(lang, "殘留混淆＝就算用了主動對照加新使用者，A 組和 B 組的病人「病情輕重」通常還是沒完全一樣，剩下的這點差距會繼續干擾結論，需要再校正。傾向分數（propensity score）＝把每個人的年齡、共病等資料綜合成一個「他比較會被開到 A 還是 B」的分數，再用它讓兩組病情拉齊，等於事後把人配得更像。標準化差（standardized difference）＝一把衡量「兩組某項特徵差多少」的尺，數字越接近 0 代表越平衡；一般小於 0.1 就算兩組已經很接近。",
+                  "Residual confounding = even after the active comparator plus new-user design, groups A and B usually still differ a little in how sick the patients are, and that leftover gap keeps distorting the conclusion until it is adjusted for. Propensity score = a single number combining each person's age, comorbidities, etc. into 'how likely they were to be given A rather than B', which is then used to even out the two groups' disease severity, in effect matching the patients more closely after the fact. Standardized difference = a yardstick for 'how far apart the two groups are on a given characteristic'; the closer to 0 the more balanced, and below about 0.1 the groups are considered well matched."),
         "metrics": metrics,
     }
 
@@ -185,7 +185,7 @@ def _c5_events(res, lang="zh"):
             "removes bias, but because it compares only 'A vs B' and discards non-users, the <b>sample and event counts are "
             "smaller</b> than in the naive comparison. With few events the CI is wide — be careful not to read noise as signal.",
         ),
-        "term": t(lang, "專有名詞：人時（person-time）；事件率；精確度／效能。",
-                  "Term: person-time; event rate; precision / power."),
+        "term": t(lang, "人時（person-time）＝把每個人被追蹤的時間全部加起來（例如 100 人各追 1 年＝100 人年），用來當「曝險了多久」的分母，這樣追得久的和追得短的才能公平相加。事件率＝事件數除以人時，也就是「平均每多少人年會發生一件」，比單純比件數更公平。精確度／效能＝事件越多，估出來的速率比就越穩、信賴區間越窄（精確度高），也越有把握偵測到真正的差異（效能足）；事件太少時數字會抖得很厲害，別把雜訊當訊號。",
+                  "Person-time = add up the time every person was followed (e.g. 100 people for 1 year each = 100 person-years), used as the denominator for 'how much exposure there was', so people followed long and short can be fairly combined. Event rate = events divided by person-time, i.e. 'how many cases occur per so many person-years', which is fairer than just counting cases. Precision / power = more events make the estimated rate ratio steadier and its confidence interval narrower (high precision) and give a better chance of detecting a real difference (enough power); with too few events the number wobbles wildly, so do not mistake noise for signal."),
         "metrics": metrics,
     }

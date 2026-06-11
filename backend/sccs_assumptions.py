@@ -43,8 +43,8 @@ def _c1_event_exposure(lang="zh"):
             "clinician avoids re-prescribing), exposure is pushed before the event and the IRR is biased. For this there is "
             "an <b>event-dependent-exposure</b> modified SCCS (Farrington et al.).",
         ),
-        "term": t(lang, "專有名詞：事件相依暴露（event-dependent exposure）；修正版 SCCS。",
-                  "Term: event-dependent exposure; modified SCCS."),
+        "term": t(lang, "事件相依暴露＝「先發病、再決定要不要暴露」的情形：例如得了這個病之後就不敢再接種、或醫師避免再開這藥，於是暴露被事件「往前推」，IRR 就被扭曲了。修正版 SCCS＝專門替這種情形設計的算法，會把「事件改變了之後暴露機率」這件事一起納入模型來校正。",
+                  "Event-dependent exposure = when getting the event changes whether you get exposed afterwards — e.g. after this disease you avoid being vaccinated again, or a clinician avoids re-prescribing, so exposure gets pushed before the event and the IRR is distorted. Modified SCCS = a version built for exactly this case; it folds 'the event changed the chance of later exposure' into the model to correct for it."),
         "metrics": [],
     }
 
@@ -66,8 +66,8 @@ def _c2_event_observation(res, lang="zh"):
             "biased. When the event is <b>rare</b> (little time truncated) or <b>recurrent</b>, the effect is negligible; for "
             "fatal, non-recurrent events use a modified SCCS with <b>event-dependent observation periods</b> (Farrington 2011).",
         ),
-        "term": t(lang, "專有名詞：事件相依觀察期；可復發 vs 非復發事件。",
-                  "Term: event-dependent observation period; recurrent vs non-recurrent events."),
+        "term": t(lang, "事件相依觀察期＝事件本身會「結束」這個人的可觀察時間（最典型是死亡），導致事件之後的時間被截掉、資料不完整，需要用修正版把這個截斷一起算進去。可復發 vs 非復發事件＝同一個人能不能再發生第二次：可復發（如反覆癲癇發作）不會因為一次事件就終止觀察、影響很小；非復發又致死的事件最麻煩，標準 SCCS 會偏。",
+                  "Event-dependent observation period = the event itself ends the person's observable time (death being the classic case), so the time after the event gets cut off and the data is incomplete — a modified version is needed to account for that truncation. Recurrent vs non-recurrent event = whether the same person can have it again: recurrent ones (like repeated seizures) don't end observation after one event and barely matter, while a fatal non-recurrent event is the troublesome case that biases standard SCCS."),
         "metrics": [],
     }
 
@@ -90,8 +90,8 @@ def _c3_risk_window(lang="zh"):
             "<b>dilutes</b> the IRR. Run a sensitivity analysis over window lengths, and consider splitting the window to see "
             "the shape of risk over time.",
         ),
-        "term": t(lang, "專有名詞：危險窗（risk window）；暴露相關區間；窗長敏感度。",
-                  "Term: risk window; exposure-related interval; window-length sensitivity."),
+        "term": t(lang, "危險窗＝暴露之後「風險真的升高」的那一段時間（例如打完疫苗後的 1～14 天），SCCS 就是比較事件落在這段、還是落在其他平常時間。暴露相關區間＝跟暴露有關、要特別標出來的時段，可能還包含暴露當下或前後的緩衝期。窗長敏感度＝把危險窗設長一點、短一點各算一次，看結論會不會跟著大變；若很敏感，代表答案很看你怎麼框這個窗，要保守看待。",
+                  "Risk window = the stretch of time right after exposure when risk is genuinely elevated (say days 1–14 after a vaccine); SCCS compares whether events land in this stretch versus ordinary time. Exposure-related interval = the period flagged as tied to the exposure, which may also include the moment of exposure or a buffer around it. Window-length sensitivity = re-running with a longer and a shorter window to see if the conclusion swings; if it's very sensitive, the answer depends heavily on how you draw the window and should be read cautiously."),
         "metrics": [],
     }
 
@@ -114,8 +114,8 @@ def _c4_timevarying(lang="zh"):
             "timing. The fix is to further <b>split each person's time into age/season bands</b> and estimate them jointly in "
             "the conditional Poisson, separating out their time effects.",
         ),
-        "term": t(lang, "專有名詞：時變共變項（time-varying covariate）；年齡分層；半參數 SCCS（樣條年齡效果）。",
-                  "Term: time-varying covariate; age stratification; semiparametric SCCS (spline age effects)."),
+        "term": t(lang, "時變共變項＝會「隨時間改變」的背景因子，例如年齡、季節、流行高峰——它在觀察期內不是固定值，若又剛好和暴露時點同步，就會混進去害 IRR 偏掉。年齡分層＝把每個人的觀察期再切成幾個年齡段（如 0～1 歲、1～2 歲），讓模型分開估各段的基線風險，把年齡的影響扣掉。半參數 SCCS（樣條年齡效果）＝不硬性假設年齡風險是某條固定曲線，而是讓資料自己彎出一條平滑曲線（樣條）來描述風險隨年齡的形狀，更貼近真實。",
+                  "Time-varying covariate = a background factor that changes over time — age, season, an epidemic peak — that isn't constant during follow-up, and if it happens to move in step with exposure timing it leaks in and biases the IRR. Age stratification = splitting each person's follow-up into age bands (say 0–1 yr, 1–2 yr) so the model estimates baseline risk separately in each and subtracts out the age effect. Semiparametric SCCS (spline age effects) = instead of forcing the age-risk curve to a fixed shape, it lets the data bend a smooth curve (a spline) to describe how risk varies with age, fitting reality more closely."),
         "metrics": [],
     }
 
@@ -147,6 +147,7 @@ def _c5_counts(res, lang="zh"):
             "fall in the risk window</b> (rare event, short window, or truly no effect), the IRR is unstable and the interval "
             "blows up. Accruing more cases helps.",
         ),
-        "term": t(lang, "專有名詞：條件式資訊量；危險窗事件數。", "Term: conditional information; risk-window event count."),
+        "term": t(lang, "條件式資訊量＝這個分析「實際上有多少有效情報」可拿來估 IRR；SCCS 只靠每個人事件落在危險窗或基線的對比，所以真正的情報量取決於有多少事件落進危險窗，而非總人數有多大。危險窗事件數＝實際落在危險窗裡的事件件數，這個數字太小（事件罕見、窗很短、或真的沒效應），IRR 就會極不穩、信賴區間爆寬。",
+                  "Conditional information = how much usable evidence the analysis actually has to estimate the IRR; SCCS relies only on the contrast of each person's event falling in the risk window versus baseline, so the real information depends on how many events land in the risk window, not on the total headcount. Risk-window event count = the actual number of events that fall inside the risk window; when this is too small (rare event, short window, or truly no effect), the IRR becomes very unstable and the confidence interval blows up."),
         "metrics": metrics,
     }

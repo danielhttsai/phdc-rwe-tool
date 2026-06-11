@@ -115,8 +115,19 @@ def check_r2_manipulation(x, c, lang="zh"):
             "bounds instead of a single point, or re-estimate inside a narrower, more random-like window; but treat the result "
             "as suggestive rather than definitive.",
         ),
-        "term": t(lang, "專有名詞：McCrary 密度檢定（操弄/分類排序檢定）。",
-                  "Term: McCrary density test (manipulation / sorting test)."),
+        "term": t(
+            lang,
+            "McCrary 密度檢定（操弄／分類排序檢定）＝專門檢查斷點兩側「人數有沒有被擠來擠去」的方法。"
+            "做法是數一數斷點左右各有多少人，看跨過 65 歲那條線時人數會不會突然多一塊或少一塊。"
+            "如果有人能挑邊（把自己塞到有資格那一側），有資格那邊就會不正常地堆出一坨人；"
+            "兩側人數順順地接上、沒有突起，就代表沒人動手腳，兩側相似的前提比較站得住。",
+            "McCrary density test (manipulation / sorting test) = a method that checks whether people got "
+            "shoved from one side of the cutoff to the other. You count how many people sit just below versus "
+            "just above 65 and see if the count suddenly piles up or drops right at the line. If people can game "
+            "which side they land on (pushing themselves into the eligible group), the eligible side bulges with "
+            "an abnormal heap; if the counts join up smoothly with no bump, no one tampered with it and the "
+            "'both sides alike' premise holds up better.",
+        ),
         "metrics": metrics,
     }
 
@@ -161,8 +172,21 @@ def check_r3_balance(df, x_name, cov_names, c, h, lang="zh"):
             "(sex, BMI, chronic conditions, income) should also be smooth across the cutoff. We run an RD on each "
             "and check for a jump at 65. No jumps is strong support for comparability.",
         ),
-        "term": t(lang, "專有名詞：共變項連續性／平衡檢定（covariate continuity / balance）。",
-                  "Term: covariate continuity / balance test."),
+        "term": t(
+            lang,
+            "共變項連續性／平衡檢定（covariate continuity／balance）＝拿那些「不該被資格門檻影響」的背景條件"
+            "（像性別、BMI、慢性病、收入），一個一個去看它們在 65 歲那條線上會不會突然跳一下。"
+            "共變項就是這些背景變項；連續就是「順順地過、不跳」，平衡就是「兩側看起來一樣」。"
+            "資格只跟年齡有關，照理不會改變一個人的性別或 BMI，所以這些條件若在斷點都不跳，"
+            "就是兩側的人本來就很像的有力佐證；要是某一項跳了，代表兩側其實不太一樣，結論要打折。",
+            "Covariate continuity / balance test = take the background characteristics that the threshold should "
+            "NOT affect (such as sex, BMI, chronic conditions, income) and check, one by one, whether each one "
+            "suddenly jumps right at the age-65 line. A covariate is just one of these background variables; "
+            "'continuity' means it passes through smoothly with no jump, and 'balance' means the two sides look "
+            "the same. Eligibility depends only on age and should not change someone's sex or BMI, so if none of "
+            "these jump at the cutoff that is strong evidence the two groups were alike to begin with; if one does "
+            "jump, the sides differ and the conclusion must be discounted.",
+        ),
         "metrics": metrics,
     }
 
@@ -208,8 +232,19 @@ def check_r4_firststage(x, d, c, h, lang="zh"):
             "(it need not reach 100%). If uptake does not jump at the cutoff there is no signal to scale up and "
             "the fuzzy RDD breaks down. This mirrors IV instrument strength (A1).",
         ),
-        "term": t(lang, "專有名詞：第一階段跳躍（first-stage discontinuity），即模糊 RDD 的工具強度。",
-                  "Term: first-stage discontinuity — the fuzzy-RDD analogue of instrument strength."),
+        "term": t(
+            lang,
+            "第一階段跳躍（first-stage discontinuity）＝跨過 65 歲資格門檻時，「實際接種率」往上跳的那一下。"
+            "模糊 RDD 不是假設一過門檻大家就一定接種，而是假設過了門檻接種的人會明顯變多（不必到 100%）；"
+            "這個跳幅就是我們能拿來放大、估出效果的訊號。跳幅越大、越確定不是雜訊，這個「工具」就越有力；"
+            "幾乎沒跳就等於沒有訊號可用，模糊 RDD 也就失效——這跟 IV 裡「工具夠不夠強」（A1）是同一回事。",
+            "First-stage discontinuity = the upward jump in the actual vaccination rate that happens when people "
+            "cross the age-65 eligibility line. Fuzzy RDD does not assume everyone gets vaccinated the moment they "
+            "cross the threshold — only that noticeably more of them do (it need not reach 100%); that jump is the "
+            "signal we scale up to estimate the effect. The bigger and clearer-than-noise the jump, the stronger "
+            "this 'instrument'; almost no jump means no usable signal and the fuzzy RDD breaks down — the same idea "
+            "as 'is the instrument strong enough' (A1) in IV.",
+        ),
         "metrics": metrics,
     }
 
@@ -259,8 +294,19 @@ def check_r5_bandwidth(x, y, c, d=None, lang="zh"):
             "too wide a window pulls in dissimilar people far from the cutoff and adds bias. A good RDD conclusion "
             "should not hinge on one window. We sweep the bandwidth from 3 to 12 years and check stability.",
         ),
-        "term": t(lang, "專有名詞：頻寬敏感度（bandwidth sensitivity）。",
-                  "Term: bandwidth sensitivity."),
+        "term": t(
+            lang,
+            "頻寬敏感度（bandwidth sensitivity）＝同一份資料換不同寬窄的觀察視窗各算一次，看答案會不會跟著變。"
+            "頻寬（bandwidth）就是「斷點左右各取幾歲的人來算」的這個範圍：取太窄人太少、數字飄；"
+            "取太寬會把離斷點很遠、其實不太像的人也算進來而失真。我們把視窗從 3 年掃到 12 年，"
+            "如果估計值大致不動，結論就穩、不挑視窗；如果一換視窗答案就差很多，代表結果很「看你怎麼框」，要保守看待。",
+            "Bandwidth sensitivity = running the same data through windows of different widths and seeing whether "
+            "the answer moves with them. The bandwidth is the range of 'how many years either side of the cutoff "
+            "to include': too narrow leaves too few people and the number jitters; too wide drags in people far "
+            "from the cutoff who are not really alike and distorts it. We sweep the window from 3 to 12 years — if "
+            "the estimate barely moves the conclusion is robust and not window-dependent; if it swings a lot the "
+            "result depends heavily on how you frame it and should be read cautiously.",
+        ),
         "metrics": metrics,
     }
 
