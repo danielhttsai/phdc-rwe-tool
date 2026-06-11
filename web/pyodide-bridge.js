@@ -21,6 +21,7 @@
   var routeFn = null;
   var readyPromise = null;
   var sklearnLoaded = false;
+  var pendingApiCalls = 0;   // >0 時背景預熱會讓路給使用者主動觸發的分析
 
   // ---- 載入進度遮罩 -------------------------------------------------------
   function buildOverlay() {
@@ -78,23 +79,24 @@
       await pyodide.loadPackage(["numpy", "scipy", "pandas"]);
 
       setStatus("正在載入分析程式…", 72);
-      for (var i = 0; i < PY_MODULES.length; i++) {
-        var name = PY_MODULES[i];
-        var resp = await fetch("py/" + name + ".py?v=" + PY_VER);
-        if (!resp.ok) throw new Error("載入 " + name + ".py 失敗(" + resp.status + ")");
-        var src = await resp.text();
-        pyodide.FS.writeFile(name + ".py", src);
-      }
+      // 平行抓取所有 .py 來源(網路 I/O 可並行),抓完才寫入檔案系統。
+      var sources = await Promise.all(PY_MODULES.map(function (name) {
+        return fetch("py/" + name + ".py?v=" + PY_VER).then(function (resp) {
+          if (!resp.ok) throw new Error("載入 " + name + ".py 失敗(" + resp.status + ")");
+          return resp.text().then(function (src) { return [name, src]; });
+        });
+      }));
+      sources.forEach(function (ns) { pyodide.FS.writeFile(ns[0] + ".py", ns[1]); });
       await pyodide.runPythonAsync("import api");
       routeFn = pyodide.runPython("api.route");
 
-      // 預熱：在遮罩還在時先跑一次常用分析,觸發 numpy/scipy 的 JIT 編譯,
-      // 這樣使用者第一次點分頁時不會卡住幾秒(設限存活除外,它在按鈕後才算)。
-      setStatus("正在預熱分析核心…", 90);
-      warmup();
-
+      // 引擎就緒,立刻放使用者進來(教學/互動分頁可用,分析端點也已可呼叫)。
       setStatus("準備就緒 ✓", 100);
       hideOverlay();
+
+      // 預熱改在背景「慢慢跑」:逐一觸發各方法分析以編譯 numpy/scipy 熱路徑,
+      // 每跑一個就讓出主執行緒,避免凍住 UI。使用者不必等預熱就能開始用。
+      backgroundWarmup();
     } catch (err) {
       setStatus("載入失敗：" + (err && err.message ? err.message : err), null);
       console.error("[pyodide-bridge] init failed", err);
@@ -107,7 +109,10 @@
   }
 
   // 跑幾個常用端點一次,讓 Pyodide 先把熱路徑編譯好(結果丟棄)。
-  function warmup() {
+  // 在背景逐一執行、每次之間讓出主執行緒,使 UI 不被凍住(「慢慢跑」)。
+  var warmupDone = false;
+  async function backgroundWarmup() {
+    if (warmupDone) return;
     var calls = [
       ["GET", "/api/example", "{}", "{}"],
       ["GET", "/api/rdd_example", "{}", "{}"],
@@ -155,10 +160,15 @@
       ["POST", "/api/tnd_analyze", "{}", JSON.stringify({ source: "example_tnd", lang: "zh" })],
     ];
     for (var i = 0; i < calls.length; i++) {
+      // 若使用者正在主動操作(有待處理的 /api 呼叫),先讓路給他,避免和預熱搶主執行緒。
+      while (pendingApiCalls > 0) { await sleep(60); }
       try { routeFn(calls[i][0], calls[i][1], calls[i][2], calls[i][3]); }
       catch (e) { /* 預熱失敗不影響功能,忽略 */ }
+      await sleep(30);   // 讓出主執行緒,UI 保持回應
     }
+    warmupDone = true;
   }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   async function ensureSklearn() {
     if (sklearnLoaded) return;
@@ -168,6 +178,14 @@
 
   // ---- 處理一個 /api/* 請求 ----------------------------------------------
   async function handleApi(method, url, init) {
+    pendingApiCalls++;
+    try {
+      return await _handleApi(method, url, init);
+    } finally {
+      pendingApiCalls--;
+    }
+  }
+  async function _handleApi(method, url, init) {
     await ready();
     var u = new URL(url, location.href);
     var path = u.pathname;
