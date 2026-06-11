@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=94" />
+<link rel="stylesheet" href="/styles.css?v=95" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -1028,6 +1028,21 @@
         </p>
       </div>
     </details>
+
+    <!-- 前沿閱讀：ML/DML 強化 RDD -->
+    <h2 data-en="Frontier reading: flexible-ML &amp; doubly-robust RDD">前沿閱讀：彈性 ML／雙重穩健的 RDD</h2>
+    <p class="lead" data-en="Two recent lines of work push the &quot;AI-assisted RDD&quot; idea above further. Both keep the same RDD identification (continuity / local randomisation at the cutoff) — they only change how the estimation borrows strength from covariates and ML.">
+      上面「用 AI 強化 RDD」的想法，最近有兩條研究把它推得更遠。兩者都<b>沿用同一套 RDD 識別</b>（斷點處的連續性／局部隨機化）——只是改變了「估計怎麼向共變項與 ML 借力」。
+    </p>
+    <div class="cards">
+      <div class="card"><h3 data-en="① RDFlex — flexible covariate adjustment for precision (Noack, Olma &amp; Rothe 2024)">① RDFlex —— 用彈性共變項調整換精度（Noack, Olma &amp; Rothe 2024）</h3>
+        <p data-en="Standard RDD throws covariates away (or adds them linearly). <b>RDFlex</b> uses <b>double/debiased ML</b> to flexibly residualise the outcome on baseline covariates first, then runs the local-linear RDD on the adjusted outcome. The cutoff jump is <b>unchanged in expectation</b> (covariates are continuous at the cutoff, so they cannot create the jump) but the residual is <b>less noisy</b>, so the confidence interval is <b>tighter</b> — more precision for free, with cross-fitting guarding against over-fitting. It covers <b>sharp and fuzzy</b> RDD and is implemented in the <b>DoubleML</b> package (<code>RDFlex</code>). This is the precision-focused cousin of Remedy 1's bandwidth-robust DML.">標準 RDD 把共變項丟掉（或只線性放入）。<b>RDFlex</b> 用<b>雙重／去偏 ML</b> 先把結果對基線共變項做彈性殘差化，再對「調整後的結果」跑局部線性 RDD。斷點跳幅<b>期望值不變</b>（共變項在斷點處連續、製造不出跳幅），但殘差<b>變小、噪音變低</b>，信賴區間<b>更窄</b>——白賺精度，並用交叉擬合防過度配適。它<b>sharp 與 fuzzy</b> 都適用，已實作於 <b>DoubleML</b> 套件（<code>RDFlex</code>）。它是藥方一「對頻寬穩健 DML」的<b>精度版</b>表親。</p></div>
+      <div class="card"><h3 data-en="② DR-RDD — a doubly-robust RD estimator with faster convergence (Kato 2024)">② DR-RDD —— 雙重穩健、收斂更快的 RD 估計（Kato 2024）</h3>
+        <p data-en="Local-linear RDD is nonparametric, so its rate is slower than √n and inference is delicate. Kato's <b>DR-RDD</b> combines <b>two</b> estimators of the conditional outcome with a debiasing (doubly-robust) correction: it stays consistent if <b>either</b> estimator is right, and — when both are merely decent — achieves <b>√n-consistency</b>, faster than the usual nonparametric rate, which also <b>simplifies the inference</b>. Same RD identification, a better-behaved estimator. (Same doubly-robust spirit as the AIPW score in Remedy 1, here aimed at the convergence rate.)">局部線性 RDD 是無母數的，收斂率比 √n 慢、推論也較棘手。Kato 的 <b>DR-RDD</b> 把<b>兩個</b>條件結果的估計式用去偏（雙重穩健）校正結合：<b>其一</b>對就一致；而當<b>兩個都只是還可以</b>時，能達到 <b>√n 一致性</b>（比一般無母數率快），也讓<b>推論更簡單</b>。同一套 RD 識別、更好駕馭的估計式。（與藥方一 AIPW 分數同樣的雙重穩健精神，這裡瞄準的是收斂率。）</p></div>
+    </div>
+    <p class="caption" data-en="These two are advanced reading, not interactive demos here. The takeaway: AI helps RDD on two axes — <b>robustness to the window</b> (Remedy 1 / DR-RDD) and <b>precision from covariates</b> (RDFlex) — without changing what makes an RDD valid.">
+      這兩者屬進階閱讀，本頁未做成互動示範。重點：AI 在兩個軸上幫 RDD——<b>對視窗穩健</b>（藥方一／DR-RDD）與<b>從共變項換精度</b>（RDFlex）——而不改變「RDD 為何成立」的根本。
+    </p>
   </section>
 
   <!-- ===================== DiD ① 是什麼 ===================== -->
@@ -5611,6 +5626,8 @@ run;</code></pre>
       <li data-ref="rdd">Schuessler, M., Sverdrup, E., Tibshirani, J., &amp; Wager, S. (2026). <i>Nonparametric Regression Discontinuity Designs with Survival Outcomes.</i> Stanford University. arXiv:2604.03502. <span data-en="〔doubly-robust censoring correction with flexible ML — RDD tab ⑤ Remedy 2〕">〔以彈性機器學習做雙重穩健的設限校正 —— RDD 分頁⑤ 藥方二〕</span></li>
       <li data-ref="rdd">Adeleke, M. O., Baio, G., &amp; O&#39;Keeffe, A. G. (2022). Regression discontinuity designs for time-to-event outcomes: An approach using accelerated failure time models. <i>Journal of the Royal Statistical Society: Series A, 185</i>(3), 1216. https://doi.org/10.1111/rssa.12812. <span data-en="〔purely parametric AFT approach for RDD survival — RDD tab ⑤ Remedy 2〕">〔RDD 存活的純參數 AFT 取徑 —— RDD 分頁⑤ 藥方二〕</span></li>
       <li data-ref="rdd">Crowther, M. J., Royston, P., &amp; Clements, M. (2023). A flexible parametric accelerated failure time model and the extension to time-dependent acceleration factors. <i>Biostatistics, 24</i>(3), 811–831. https://doi.org/10.1093/biostatistics/kxac009. <span data-en="〔flexible spline-based AFT, collapsible &amp; suited to causal inference — RDD tab ⑤ Remedy 2〕">〔以限制性立方樣條的彈性 AFT，可塌縮、適合因果推論 —— RDD 分頁⑤ 藥方二〕</span></li>
+      <li data-ref="rdd"><b data-en="Flexible-ML &amp; doubly-robust RDD">彈性 ML／雙重穩健 RDD</b> · Noack, C., Olma, T., &amp; Rothe, C. (2024). Flexible Covariate Adjustments in Regression Discontinuity Designs. arXiv:2107.07942. <span data-en="〔RDFlex: DML-based flexible covariate adjustment for precision; implemented in DoubleML — RDD tab ⑤ frontier reading ①〕">〔RDFlex：以 DML 做彈性共變項調整換精度；實作於 DoubleML —— RDD 分頁⑤ 前沿閱讀①〕</span></li>
+      <li data-ref="rdd">Kato, M. (2024). <i>Doubly Robust Regression Discontinuity Designs.</i> University of Tokyo. arXiv:2411.07978. · DoubleML team. <code>RDFlex</code> example. https://docs.doubleml.org/stable/examples/py_double_ml_rdflex.html. · Wang, Q. (2025). <i>Double/Debiased Machine Learning for Inference in Regression Discontinuity Designs under Local Randomization</i> (advised by J. Bradic), UC San Diego. <span data-en="〔DR-RDD: a doubly-robust RD estimator with √n-consistency; plus the DoubleML RDFlex tutorial &amp; a DML-RDD thesis — RDD tab ⑤ frontier reading ①②〕">〔DR-RDD：雙重穩健、達 √n 一致性的 RD 估計；附 DoubleML RDFlex 教學與 DML-RDD 論文 —— RDD 分頁⑤ 前沿閱讀①②〕</span></li>
       <li data-ref="did">Rothbard, S., Etheridge, J. C., &amp; Murray, E. J. (2024). A Tutorial on Applying the Difference-in-Differences Method to Health Data. <i>Current Epidemiology Reports, 11</i>, 85–95. https://doi.org/10.1007/s40471-023-00327-x. <span data-en="〔DiD basics, assumptions &amp; synthetic data — DiD tabs ①–④〕">〔DiD 基礎、假設與合成資料 —— DiD 分頁 ①–④〕</span></li>
       <li data-ref="did">Chang, N.-C. (2020). Double/debiased machine learning for difference-in-differences models. <i>The Econometrics Journal, 23</i>(2), 177–191. https://doi.org/10.1093/ectj/utaa001. <span data-en="〔doubly-robust / DML DiD — DiD tab ⑤ remedy ①〕">〔雙重穩健／DML DiD —— DiD 分頁⑤ 進階①〕</span></li>
       <li data-ref="did">Callaway, B., &amp; Sant&#39;Anna, P. H. C. (2021). Difference-in-Differences with multiple time periods. <i>Journal of Econometrics, 225</i>(2), 200–230. <span data-en="〔staggered adoption, cohort-time ATT — DiD tab ⑤ remedy ②〕">〔交錯採用、群組-時間 ATT —— DiD 分頁⑤ 進階②〕</span></li>
@@ -5714,7 +5731,7 @@ run;</code></pre>
   </footer>
 </main>
 
-<script src="i18n.js?v=94"></script>
-<script src="app.js?v=94"></script>
+<script src="i18n.js?v=95"></script>
+<script src="app.js?v=95"></script>
 </body>
 </html>
