@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=98" />
+<link rel="stylesheet" href="/styles.css?v=99" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -1505,8 +1505,8 @@
 
     <div class="card" style="margin-top:16px">
       <h3 data-en="Bonus: run the PUBLISHED Ji &amp; Small estimator (full cell-MLE)">加碼：跑已發表的 Ji &amp; Small 估計器（完整 cell-MLE）</h3>
-      <p data-en="The ③ estimate above uses a fast, stable MARGINAL approximation of the trend-in-trend idea. This button runs the EXACT published cell-MLE (<code>TrendInTrend::OR</code>, Ji &amp; Small 2017) — the full 2×2 likelihood with per-stratum latent-CPE moments and the recursive h(t) — on a Ji &amp; Small-regime synthetic dataset (100k people, 20 periods) where it is well enough identified to fit. It is the genuine published estimator, shown with its honestly wide bootstrap interval. (Pre-computed offline: a live fit takes ~25 s of multi-start optimisation and would freeze the browser.)">
-        上面 ③ 的估計用的是又快又穩的<b>邊際近似</b>。這顆按鈕會跑<b>完整、已發表的 cell-MLE</b>（<code>TrendInTrend::OR</code>，Ji &amp; Small 2017）——完整 2×2 概似、每層潛在 CPE 動差、遞迴 h(t)——資料是 Ji &amp; Small 生成機制的合成集（10 萬人、20 期），在這個規模下才足以識別擬合。這是貨真價實的發表版估計器，附上它<b>誠實偏寬</b>的重抽樣區間。（離線預算：完整多起點最佳化約需 25 秒、會凍結瀏覽器。）
+      <p data-en="The ③ estimate above uses a fast, stable MARGINAL approximation of the trend-in-trend idea. This button runs the EXACT published cell-MLE (<code>TrendInTrend::OR</code>, Ji &amp; Small 2017) — the full 2×2 likelihood with per-stratum latent-CPE moments and the recursive h(t) — on a Ji &amp; Small-regime synthetic dataset (100k people, 20 periods) where it is well enough identified to fit. It is the genuine published estimator, shown with its wide bootstrap interval. (Pre-computed offline: a live fit takes ~25 s of multi-start optimisation and would freeze the browser.)">
+        上面 ③ 的估計用的是又快又穩的<b>邊際近似</b>。這顆按鈕會跑<b>完整、已發表的 cell-MLE</b>（<code>TrendInTrend::OR</code>，Ji &amp; Small 2017）——完整 2×2 概似、每層潛在 CPE 動差、遞迴 h(t)——資料是 Ji &amp; Small 生成機制的合成集（10 萬人、20 期），在這個規模下才足以識別擬合。這是貨真價實的發表版估計器，附上它<b>偏寬</b>的重抽樣區間。（離線預算：完整多起點最佳化約需 25 秒、會凍結瀏覽器。）
       </p>
       <button id="runTitRealMle" class="btn" data-en="Show the published cell-MLE result">顯示已發表 cell-MLE 的結果</button>
       <div id="titRealOut" class="hidden">
@@ -1528,10 +1528,10 @@
     <p id="titAssumeHint" class="muted" data-en="Loading…">載入中…</p>
 
     <div class="card warn">
-      <h3 data-en="Honest limitations &amp; how this tool differs from the published estimator">老實說的限制，以及本工具和原版估計式的差別</h3>
+      <h3 data-en="Limitations &amp; how this tool differs from the published estimator">限制，以及本工具和原版估計式的差別</h3>
       <ul>
-        <li data-en="<b>Two estimators, both honest.</b> The always-on ③ estimate uses a fast, stable MARGINAL model (outcome prevalence tracking exposure prevalence across strata, Hessian CI) — the same identifying idea as, but not the same likelihood as, the published estimator. The EXACT published cell-MLE (<i>TrendInTrend::OR()</i>, Ji &amp; Small: full 2×2 counts, per-stratum latent-CPE moments C1/C2/C3, recursive h(t), multi-start MLE + bootstrap CI) is implemented too — run it from the <b>‘run the published estimator’ button in tab ③</b>. We use the marginal model for the live tab because on browser-feasible sample sizes β₁ (the log-OR) is <b>weakly identified</b>: the likelihood is nearly a <b>flat ridge</b> in β₁, so different starts can land on very different solutions at nearly identical likelihood (which is why the package itself flags &quot;multiple solutions / may not be reliable&quot; and needs a Newton step + bootstrap + identifiability check). So the heavier published estimator is offered separately, pre-computed on a Ji &amp; Small-regime dataset where it is identified, and shown with its honestly wide interval.">
-          <b>兩種估計器，都誠實。</b>常駐的 ③ 估計用又快又穩的<b>邊際模型</b>（看結果盛行率跨層怎麼跟著暴露盛行率走，信賴區間用 Hessian）——識別想法和發表版相同，但不是同一條概似。<b>完整的發表版 cell-MLE</b>（<i>TrendInTrend::OR()</i>，Ji &amp; Small：完整 2×2 計數、每層潛在 CPE 動差 C1/C2/C3、遞迴 h(t)、多起點 MLE＋自助法 CI）也實作了——可從 <b>③ 分頁的「跑已發表的估計器」按鈕</b>執行。常駐分頁之所以用邊際模型，是因為在瀏覽器可行的樣本量下，β₁（log-OR）<b>識別很弱</b>：概似面在 β₁ 上幾乎是一條<b>平脊</b>，不同起點會落到差很多的解卻有幾乎一樣的概似值（這也是套件本身會回報「多重解／可能不可靠」、需要牛頓步＋自助法＋可識別性檢查的原因）。所以較重的發表版另外提供：在一個夠識別的 Ji &amp; Small 生成資料上離線預算，並附上它誠實偏寬的區間。
+        <li data-en="<b>Two estimators.</b> The always-on ③ estimate uses a fast, stable MARGINAL model (outcome prevalence tracking exposure prevalence across strata, Hessian CI) — the same identifying idea as, but not the same likelihood as, the published estimator. The EXACT published cell-MLE (<i>TrendInTrend::OR()</i>, Ji &amp; Small: full 2×2 counts, per-stratum latent-CPE moments C1/C2/C3, recursive h(t), multi-start MLE + bootstrap CI) is implemented too — run it from the <b>‘run the published estimator’ button in tab ③</b>. We use the marginal model for the live tab because on browser-feasible sample sizes β₁ (the log-OR) is <b>weakly identified</b>: the likelihood is nearly a <b>flat ridge</b> in β₁, so different starts can land on very different solutions at nearly identical likelihood (which is why the package itself flags &quot;multiple solutions / may not be reliable&quot; and needs a Newton step + bootstrap + identifiability check). So the heavier published estimator is offered separately, pre-computed on a Ji &amp; Small-regime dataset where it is identified, and shown with its wide interval.">
+          <b>兩種估計器。</b>常駐的 ③ 估計用又快又穩的<b>邊際模型</b>（看結果盛行率跨層怎麼跟著暴露盛行率走，信賴區間用 Hessian）——識別想法和發表版相同，但不是同一條概似。<b>完整的發表版 cell-MLE</b>（<i>TrendInTrend::OR()</i>，Ji &amp; Small：完整 2×2 計數、每層潛在 CPE 動差 C1/C2/C3、遞迴 h(t)、多起點 MLE＋自助法 CI）也實作了——可從 <b>③ 分頁的「跑已發表的估計器」按鈕</b>執行。常駐分頁之所以用邊際模型，是因為在瀏覽器可行的樣本量下，β₁（log-OR）<b>識別很弱</b>：概似面在 β₁ 上幾乎是一條<b>平脊</b>，不同起點會落到差很多的解卻有幾乎一樣的概似值（這也是套件本身會回報「多重解／可能不可靠」、需要牛頓步＋自助法＋可識別性檢查的原因）。所以較重的發表版另外提供：在一個夠識別的 Ji &amp; Small 生成資料上離線預算，並附上它（弱識別下）偏寬的區間。
         </li>
         <li data-en="<b>CPE is a propensity score — from BASELINE covariates.</b> The published design builds the cumulative-probability-of-exposure from <i>baseline</i> characteristics (as we do). Using covariates measured over the whole study period instead can leak post-exposure information and is a genuine design choice, not something to do casually.">
           <b>CPE 其實就是傾向分數——而且是用「基線」共變項算的。</b>已發表的設計是用<i>基線</i>特徵建累積暴露機率（本工具也是）。若改用整段研究期間量到的共變項，可能漏進暴露後的資訊，這是個需要慎重的設計選擇，不能隨手換。
@@ -1545,7 +1545,7 @@
 
   <!-- ===================== TiT ⑤ 用 AI 強化 ===================== -->
   <section id="titml" class="panel">
-    <h1 data-en="Boosting TiT with AI — an honest &quot;we don't know yet&quot;">用 AI 強化 TiT —— 誠實的「目前還不知道」</h1>
+    <h1 data-en="Boosting TiT with AI — there isn't one in the literature yet">用 AI 強化 TiT —— 文獻目前還沒有</h1>
     <details class="term causalml">
       <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
       <div class="tdef">
@@ -1557,7 +1557,7 @@
     <p class="lead" data-en="For the other three methods this tab showed concrete, published ML upgrades. For trend-in-trend, across the source papers we drew on there is <b>no established machine-learning or doubly-robust version of trend-in-trend</b>. So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b> about where AI <i>might</i> help.">
       在另外三個方法，這個分頁能展示具體、已發表的 ML 升級。對趨勢中的趨勢，
       在我們依據的來源論文裡，<b>並沒有成熟的機器學習或雙重穩健版本的趨勢中的趨勢</b>。
-      所以與其假裝有，不如老實說明文獻有什麼、沒有什麼——再加上清楚標示為<b>推測</b>的、AI <i>可能</i>幫得上忙的方向。
+      所以與其假裝有，不如說明文獻有什麼、沒有什麼——再加上清楚標示為<b>推測</b>的、AI <i>可能</i>幫得上忙的方向。
     </p>
 
     <div class="card warn">
@@ -1570,7 +1570,7 @@
     </div>
 
     <div class="card info">
-      <h3 data-en="Are there any possible AI remedies here? Honestly: we don't know — but plausibly…">有沒有可能的「AI 藥方」？老實說：不知道——但有可能…</h3>
+      <h3 data-en="Are there any possible AI remedies here? We don't know — but plausibly…">有沒有可能的「AI 藥方」？目前不知道——但有可能…</h3>
       <p data-en="The following are <b>our cautious speculation</b> (possible remedies, not established ones), not results from any paper. Treat them as research directions, not recommendations:">
         以下是<b>我們謹慎的推測</b>（可能的藥方，不是成熟的藥方），不是任何論文的結果。請當成研究方向，而非建議：
       </p>
@@ -2060,7 +2060,7 @@
 
   <!-- ===================== PERR ⑤ 用 AI 強化 ===================== -->
   <section id="perrml" class="panel">
-    <h1 data-en="Boosting PERR with AI — an honest &quot;we don't know yet&quot;">用 AI 強化 PERR —— 誠實的「目前還不知道」</h1>
+    <h1 data-en="Boosting PERR with AI — there isn't one in the literature yet">用 AI 強化 PERR —— 文獻目前還沒有</h1>
     <details class="term causalml">
       <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
       <div class="tdef">
@@ -2072,7 +2072,7 @@
     <p class="lead" data-en="For three of the methods this tab showed concrete, published ML upgrades. For PERR, across the source papers there is <b>no established machine-learning or doubly-robust version of PERR</b> (the latest work, Cheung &amp; Ma 2025, clarifies the framework — it is not an AI method). So instead of pretending, here is exactly what the literature does and does not offer — and some cautious, clearly-labelled <b>speculation</b>. The literature's real, <b>non-AI</b> refinements (PERR-ALT, PERR vs PERD, PERR-Comp + the scale-sensitivity demo) now live in tab ③.">
       在其中三個方法，這個分頁能展示具體、已發表的 ML 升級。對 PERR，在來源論文裡
       <b>並沒有成熟的機器學習或雙重穩健版本的 PERR</b>（最新的 Cheung &amp; Ma 2025 是在釐清框架，不是 AI 方法）。
-      所以與其假裝有，不如老實說明文獻有什麼、沒有什麼——再加上清楚標示為<b>推測</b>的方向。文獻真正提供的
+      所以與其假裝有，不如說明文獻有什麼、沒有什麼——再加上清楚標示為<b>推測</b>的方向。文獻真正提供的
       <b>非 AI 精修</b>（PERR-ALT、PERR vs PERD、PERR-Comp，以及尺度敏感度示範）<b>已移到分頁 ③</b>。
     </p>
 
@@ -2086,7 +2086,7 @@
     </div>
 
     <div class="card info">
-      <h3 data-en="Are there any possible AI remedies here? Honestly: we don't know — but plausibly…">有沒有可能的「AI 藥方」？老實說：不知道——但有可能…</h3>
+      <h3 data-en="Are there any possible AI remedies here? We don't know — but plausibly…">有沒有可能的「AI 藥方」？目前不知道——但有可能…</h3>
       <p data-en="The following are <b>our cautious speculation</b> (possible remedies, not established ones), not results from any paper. Treat them as research directions, not recommendations:">
         以下是<b>我們謹慎的推測</b>（可能的藥方，不是成熟的藥方），不是任何論文的結果。請當成研究方向，而非建議：
       </p>
@@ -2482,7 +2482,7 @@
         </p>
       </div>
     </details>
-    <p class="lead" data-en="Both remove the exposure-trend bias; they differ in <b>what plays the role of the trend reference</b>. Click to see them side by side on the same (strongly-trending) data, then read the honest notes on when each is preferred.">
+    <p class="lead" data-en="Both remove the exposure-trend bias; they differ in <b>what plays the role of the trend reference</b>. Click to see them side by side on the same (strongly-trending) data, then read the notes on when each is preferred.">
       兩者都消掉暴露趨勢偏誤；差別在<b>用什麼當趨勢參考</b>。按下面在同一筆（趨勢強）資料上並排比較，再看下面的取捨說明。
     </p>
     <button id="runCctcDemo" class="btn primary" data-en="Show CTC vs case-case-time-control">看 CTC vs 案例-案例-時間對照</button>
@@ -2640,7 +2640,7 @@
         </p>
       </div>
     </details>
-    <p class="lead" data-en="Both the single month-0 trial and the full pooling are unbiased — the difference is <b>efficiency</b>. Pooling uses people at every eligibility time (a person can re-enter), shrinking the interval. Click to compare, and read the honest notes.">
+    <p class="lead" data-en="Both the single month-0 trial and the full pooling are unbiased — the difference is <b>efficiency</b>. Pooling uses people at every eligibility time (a person can re-enter), shrinking the interval. Click to compare, and read the notes.">
       只用第 0 月那一場、以及合併所有序列試驗，<b>兩者都無偏</b>——差別在<b>效率</b>。合併用到每個資格時點的人
       （同一人可重複收案），讓區間更窄。按下面比較，再看說明。
     </p>
@@ -3239,7 +3239,7 @@ quit;
       <div class="card"><h3 data-en="① The core SCCS is not an ML method">① 核心 SCCS 不是 ML 方法</h3>
         <p data-en="The standard SCCS is a conditional-Poisson model — no machine learning. The ML angle is recent and specific: self-matched learning for heterogeneous effects / decision rules (Xu et al. 2022), and high-dimensional regularized SCCS for vaccine-safety signal detection.">標準 SCCS 是條件 Poisson 模型，沒有機器學習。ML 角度是近期且特定的：針對效應異質性／決策規則的 self-matched learning（Xu 等 2022），以及疫苗安全訊號偵測的高維正則化 SCCS。</p></div>
       <div class="card"><h3 data-en="② Heterogeneity ≠ a free subgroup hunt">② 異質性 ≠ 隨意挖亞群</h3>
-        <p data-en="ML-found subgroups must be pre-specified or validated (held-out / cross-fit), or you'll find noise. Report the discovery honestly and confirm the subgroup IRR on fresh data before acting on it.">ML 找到的亞群要事先指定或交叉驗證，否則會挖到雜訊。誠實報告這是探索，並在新資料上確認亞群 IRR 再據以行動。</p></div>
+        <p data-en="ML-found subgroups must be pre-specified or validated (held-out / cross-fit), or you'll find noise. Report it as a discovery and confirm the subgroup IRR on fresh data before acting on it.">ML 找到的亞群要事先指定或交叉驗證，否則會挖到雜訊。報告這是探索，並在新資料上確認亞群 IRR 再據以行動。</p></div>
       <div class="card"><h3 data-en="③ The SCCS assumptions still bind">③ SCCS 的假設仍然要顧</h3>
         <p data-en="Self-matched ML still inherits the SCCS assumptions (event doesn't change future exposure, transient exposure, time-varying factors split out). ML refines the question 'for whom?'; it doesn't relax the design assumptions.">自我對照的 ML 仍承襲 SCCS 的假設（事件不改變日後暴露、暴露短暫、時變因子切分）。ML 精修「對誰有效」，但不會放鬆設計假設。</p></div>
     </div>
@@ -3391,7 +3391,7 @@ quit;
     <div class="cards">
       <div class="card"><h3 data-en="① The design does most of the work">① 設計做了大半的事</h3>
         <p data-en="The active-comparator new-user design removes confounding by indication and immortal time by <b>design</b>, before any modelling. The ML propensity score only mops up the <b>residual</b> severity imbalance between A and B.">主動對照新使用者設計靠<b>設計本身</b>消掉因適應症的混淆與 immortal time，還沒建模就先成立。ML 傾向分數只是把 A 與 B 之間<b>殘留</b>的嚴重度差補掉。</p></div>
-      <div class="card"><h3 data-en="② ML-PS needs overlap &amp; honest validation">② ML-PS 要有重疊、要誠實驗證</h3>
+      <div class="card"><h3 data-en="② ML-PS needs overlap &amp; proper validation">② ML-PS 要有重疊、要確實驗證</h3>
         <p data-en="A flexible PS can over-fit; check covariate <b>overlap</b> (positivity), trim/clip extreme weights, and validate balance after weighting. A higher AUC is not the goal — covariate balance is.">彈性 PS 會過擬合；要檢查共變項<b>重疊</b>（正性）、截斷極端權重、加權後再看平衡。AUC 高不是目的——共變項平衡才是。</p></div>
       <div class="card"><h3 data-en="③ It estimates A relative to B">③ 估的是 A『相對 B』</h3>
         <p data-en="Even a perfect PS still estimates A's effect <b>relative to the comparator B</b>, not vs 'no drug'. Choose a comparator that is neutral for the outcome, or fold its effect into the interpretation.">就算 PS 完美，估的仍是 A <b>相對於對照藥 B</b> 的效應，不是相對於「沒用藥」。要挑對結果中性的對照藥，否則把它的效應納入解讀。</p></div>
@@ -4369,8 +4369,8 @@ quit;
   <section id="pssaplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive: turn up the cascade, watch the crude SR stay high but the aSR separate signal from trend">互動：加大瀑布，看粗 SR 一直高、aSR 把訊號從趨勢中分出來</h1>
-    <p class="lead" data-en="Drag the slider for the strength of the <b>real cascade</b> (how often A actually triggers B). The <b>crude SR</b> is <b>high throughout</b> — even at 0 cascade — because the prescribing trend alone inflates it (a false signal). The <b>adjusted SR (aSR)</b> sits at the null (≈1) when there is no cascade and climbs only as the real cascade grows. That gap is the whole point: aSR, not cSR, is the honest signal.">
-      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>粗 SR</b> <b>從頭到尾都高</b>——連瀑布為 0 時也是——因為光是處方趨勢就把它灌大（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：誠實的訊號是 aSR，不是 cSR。
+    <p class="lead" data-en="Drag the slider for the strength of the <b>real cascade</b> (how often A actually triggers B). The <b>crude SR</b> is <b>high throughout</b> — even at 0 cascade — because the prescribing trend alone inflates it (a false signal). The <b>adjusted SR (aSR)</b> sits at the null (≈1) when there is no cascade and climbs only as the real cascade grows. That gap is the whole point: aSR, not cSR, is the real signal.">
+      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>粗 SR</b> <b>從頭到尾都高</b>——連瀑布為 0 時也是——因為光是處方趨勢就把它灌大（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：真正的訊號是 aSR，不是 cSR。
     </p>
     <div class="controls"><label>
       <span data-en="Real cascade strength:">真實瀑布強度：</span><b id="pssaCascVal">1.0</b>
@@ -4380,7 +4380,7 @@ quit;
     <div class="play-grid">
       <div class="stat"><div class="stat-label" data-en="Crude SR">粗 SR</div><div class="stat-num" id="pssaCsr">–</div><div class="stat-foot" data-en="trend-inflated">趨勢灌大</div></div>
       <div class="stat"><div class="stat-label" data-en="Null SR (trend)">SRnull（趨勢）</div><div class="stat-num" id="pssaSrnull">–</div><div class="stat-foot" data-en="trend baseline">趨勢基準</div></div>
-      <div class="stat"><div class="stat-label" data-en="Adjusted SR">校正 SR（aSR）</div><div class="stat-num" id="pssaAsr">–</div><div class="stat-foot" data-en="honest signal">誠實訊號</div></div>
+      <div class="stat"><div class="stat-label" data-en="Adjusted SR">校正 SR（aSR）</div><div class="stat-num" id="pssaAsr">–</div><div class="stat-foot" data-en="the real signal">真正的訊號</div></div>
     </div>
     <div id="pssaPlayChart" class="chart"></div>
     <p class="caption" id="pssaPlayReading"></p>
@@ -4402,8 +4402,8 @@ quit;
       <h2 data-en="Sequence-ratio estimates">順序比估計</h2>
       <div class="result-cards" id="pssaAnalyzeCards"></div>
       <div id="pssaAnalyzeChart" class="chart"></div>
-      <p class="caption" data-en="The crude SR bar is lifted above 1 by the prescribing trend; dividing by SRnull gives the adjusted SR, the honest signal. A 95% CI that excludes 1 flags the pair.">
-        粗 SR 那條被處方趨勢抬到 1 以上；除以 SRnull 得到校正 SR，才是誠實的訊號。95% CI 不含 1 就把這對標出來。</p>
+      <p class="caption" data-en="The crude SR bar is lifted above 1 by the prescribing trend; dividing by SRnull gives the adjusted SR, the real signal. A 95% CI that excludes 1 flags the pair.">
+        粗 SR 那條被處方趨勢抬到 1 以上；除以 SRnull 得到校正 SR，才是真正的訊號。95% CI 不含 1 就把這對標出來。</p>
     </div>
   </section>
 
@@ -4418,23 +4418,23 @@ quit;
     <p id="pssaAssumeHint" class="muted" data-en="Loading…">載入中…</p>
   </section>
 
-  <!-- ===================== PSSA ⑤ 用 AI 強化（誠實：核心無 ML；前沿＝TreeScan 高通量篩檢）===================== -->
+  <!-- ===================== PSSA ⑤ 用 AI 強化（核心無 ML；前沿＝TreeScan 高通量篩檢）===================== -->
   <section id="pssaml" class="panel">
-    <h1 data-en="Boost with AI: there is no ML version of the core screen — and that is honest">用 AI 強化：核心篩檢沒有 ML 版本——而這是誠實的</h1>
+    <h1 data-en="Boost with AI: there is no ML version of the core screen — the frontier is high-throughput screening">用 AI 強化：核心篩檢沒有 ML 版本——前沿在高通量篩檢</h1>
     <details class="term causalml">
       <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
-      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. PSSA is different in kind: it is a <b>self-controlled signal screen</b>, not an effect estimator — there is no nuisance model for ML to flex. The honest frontier here is <b>high-throughput screening</b> (TreeScan), not CATE. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Hallas 1996; Kulldorff et al. 2003.</i>">
-        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。PSSA 性質不同：它是<b>自我對照的訊號篩檢</b>、不是效果估計器——沒有讓 ML 發揮的輔助模型。這裡誠實的前沿是<b>高通量篩檢</b>（TreeScan），不是 CATE。<i>出處：Feuerriegel 等, Nature Medicine 2024；Hallas 1996；Kulldorff 等 2003。</i></p></div>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. PSSA is different in kind: it is a <b>self-controlled signal screen</b>, not an effect estimator — there is no nuisance model for ML to flex. The frontier here is <b>high-throughput screening</b> (TreeScan), not CATE. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Hallas 1996; Kulldorff et al. 2003.</i>">
+        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。PSSA 性質不同：它是<b>自我對照的訊號篩檢</b>、不是效果估計器——沒有讓 ML 發揮的輔助模型。這裡的前沿是<b>高通量篩檢</b>（TreeScan），不是 CATE。<i>出處：Feuerriegel 等, Nature Medicine 2024；Hallas 1996；Kulldorff 等 2003。</i></p></div>
     </details>
-    <p class="lead" data-en="The PSSA estimator is a couple of counts and a ratio: cSR = a ÷ b, SRnull from the empirical timing distributions, aSR = cSR ÷ SRnull. There is <b>no model to learn</b> — SRnull is already a non-parametric (empirical-CDF) estimator of the trend, so there is nothing for an ML model to flex against. Rather than bolt on a fake &quot;AI&quot; layer, here is the honest landscape and the real frontier this method points to.">
-      PSSA 的估計式就是幾個計數和一個比值：cSR ＝ a ÷ b、SRnull 來自經驗時序分布、aSR ＝ cSR ÷ SRnull。<b>沒有要學的模型</b>——SRnull 本身已是趨勢的無母數（經驗 CDF）估計，沒有讓 ML 發揮的對象。與其硬掛一層假「AI」，這裡誠實交代全貌，以及這個方法指向的真正前沿。
+    <p class="lead" data-en="The PSSA estimator is a couple of counts and a ratio: cSR = a ÷ b, SRnull from the empirical timing distributions, aSR = cSR ÷ SRnull. There is <b>no model to learn</b> — SRnull is already a non-parametric (empirical-CDF) estimator of the trend, so there is nothing for an ML model to flex against. Rather than bolt on a fake &quot;AI&quot; layer, here is the landscape and the real frontier this method points to.">
+      PSSA 的估計式就是幾個計數和一個比值：cSR ＝ a ÷ b、SRnull 來自經驗時序分布、aSR ＝ cSR ÷ SRnull。<b>沒有要學的模型</b>——SRnull 本身已是趨勢的無母數（經驗 CDF）估計，沒有讓 ML 發揮的對象。與其硬掛一層假「AI」，這裡交代全貌，以及這個方法指向的真正前沿。
     </p>
     <div class="cards">
       <div class="card"><h3 data-en="① Why there's no ML version">① 為什麼沒有 ML 版本</h3>
         <p data-en="PSSA's validity comes from <b>self-control</b> (each person is their own comparison) and from dividing out the trend with a non-parametric SRnull — not from a flexible outcome/propensity model. Adding ML to the ratio doesn't address its real limits (cascade direction, time window, event-dependent timing); it would be decoration, not method.">PSSA 的效度來自<b>自我對照</b>（每個人當自己的對照）與用無母數 SRnull 除掉趨勢——不是來自彈性的結果／傾向模型。把 ML 加到這個比值上，並不能處理它真正的限制（瀑布方向、時間窗、事件相依時序）；那只是裝飾、不是方法。</p></div>
       <div class="card"><h3 data-en="② The real frontier: high-throughput screening (TreeScan)">② 真正的前沿：高通量篩檢（TreeScan）</h3>
         <p data-en="PSSA screens <b>one pair at a time</b>. To screen <b>thousands of outcomes at once</b> while controlling the family-wise error from all that multiplicity, the field uses the <b>tree-based scan statistic (TreeScan)</b> — a Bernoulli log-likelihood-ratio scanned over an outcome hierarchy with a Monte-Carlo permutation p-value. That is the scalable cousin of this self-controlled screen; it is built as its own full method in this toolbox.">PSSA <b>一次篩一對</b>。要<b>一次篩上千個結果</b>又控制這麼多重複比較帶來的整體型一錯誤，領域用的是<b>樹狀掃描統計（TreeScan）</b>——在結果階層上掃 Bernoulli 對數概似比、用蒙地卡羅排列法給 p 值。它是這個自我對照篩檢的可擴展表親；本工具箱另把它做成完整方法。</p></div>
-      <div class="card"><h3 data-en="③ Honest speculation, clearly labelled">③ 謹慎推測，明確標示</h3>
+      <div class="card"><h3 data-en="③ Speculation, clearly labelled">③ 謹慎推測，明確標示</h3>
         <p data-en="<b>Speculative:</b> ML could help <i>around</i> PSSA — e.g. learning a more flexible time-trend for SRnull, or a classifier to triage which flagged pairs are worth a confounder-controlled follow-up. These are plausible research directions, not part of the established method, and are not implemented here.">​<b>推測：</b>ML 可能在 PSSA 的<i>周邊</i>幫上忙——例如為 SRnull 學一個更彈性的時間趨勢，或用分類器分流「哪些被標出的配對值得做控混淆的追蹤」。這些是合理的研究方向、不是既定方法的一部分，本工具未實作。</p></div>
     </div>
   </section>
@@ -4518,23 +4518,23 @@ quit;
     <p id="tscanAssumeHint" class="muted" data-en="Loading…">載入中…</p>
   </section>
 
-  <!-- ===================== TreeScan ⑤ 用 AI 強化（誠實：核心是掃描統計，無 ML；前沿＝自我對照樹-時序掃描）===================== -->
+  <!-- ===================== TreeScan ⑤ 用 AI 強化（核心是掃描統計，無 ML；前沿＝自我對照樹-時序掃描）===================== -->
   <section id="tscanml" class="panel">
-    <h1 data-en="Boost with AI: the core is a scan statistic, not an ML estimator — and that is honest">用 AI 強化：核心是掃描統計、不是 ML 估計器——而這是誠實的</h1>
+    <h1 data-en="Boost with AI: the core is a scan statistic, not an ML estimator — the frontier is a self-controlled tree-temporal scan">用 AI 強化：核心是掃描統計、不是 ML 估計器——前沿在自我對照樹-時序掃描</h1>
     <details class="term causalml">
       <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
-      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. TreeScan is different in kind: it is a <b>multiplicity-controlled signal screen</b>, not an effect estimator. The honest frontier here is a better null and a self-controlled scan, plus ML to <i>triage</i> the flags — not CATE. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kulldorff et al. 2003; Maro et al. 2014.</i>">
-        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。TreeScan 性質不同：它是<b>控制多重比較的訊號篩檢</b>、不是效果估計器。這裡誠實的前沿是更好的虛無與自我對照掃描，加上用 ML 來<i>分流</i>訊號——不是 CATE。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kulldorff 等 2003；Maro 等 2014。</i></p></div>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. TreeScan is different in kind: it is a <b>multiplicity-controlled signal screen</b>, not an effect estimator. The frontier here is a better null and a self-controlled scan, plus ML to <i>triage</i> the flags — not CATE. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kulldorff et al. 2003; Maro et al. 2014.</i>">
+        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。TreeScan 性質不同：它是<b>控制多重比較的訊號篩檢</b>、不是效果估計器。這裡的前沿是更好的虛無與自我對照掃描，加上用 ML 來<i>分流</i>訊號——不是 CATE。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kulldorff 等 2003；Maro 等 2014。</i></p></div>
     </details>
-    <p class="lead" data-en="TreeScan's engine is a likelihood-ratio scan with a permutation p — there is <b>no nuisance model</b> for ML to flex. Bolting a black-box onto the scan statistic wouldn't address its real limits (a valid tree, a valid null, residual confounding). Here is the honest landscape and the real frontier this method points to.">
-      TreeScan 的引擎是「概似比掃描＋排列 p」——<b>沒有讓 ML 發揮的輔助模型</b>。把黑盒掛到掃描統計上，並不能處理它真正的限制（樹是否有效、虛無是否有效、殘餘混淆）。這裡誠實交代全貌，以及這個方法指向的真正前沿。
+    <p class="lead" data-en="TreeScan's engine is a likelihood-ratio scan with a permutation p — there is <b>no nuisance model</b> for ML to flex. Bolting a black-box onto the scan statistic wouldn't address its real limits (a valid tree, a valid null, residual confounding). Here is the landscape and the real frontier this method points to.">
+      TreeScan 的引擎是「概似比掃描＋排列 p」——<b>沒有讓 ML 發揮的輔助模型</b>。把黑盒掛到掃描統計上，並不能處理它真正的限制（樹是否有效、虛無是否有效、殘餘混淆）。這裡交代全貌，以及這個方法指向的真正前沿。
     </p>
     <div class="cards">
       <div class="card"><h3 data-en="① Why there's no ML version of the core">① 為什麼核心沒有 ML 版本</h3>
         <p data-en="The validity comes from the <b>permutation null</b> and the <b>max-statistic</b> correction, not from a flexible learner. ML can't make a wrong tree right or a confounded null valid; it would be decoration, not method.">效度來自<b>排列虛無</b>與<b>最大統計量</b>校正，不是來自彈性學習器。ML 無法把錯的樹變對、把被混淆的虛無變有效；那只是裝飾、不是方法。</p></div>
       <div class="card"><h3 data-en="② The real frontier: a self-controlled tree-temporal scan">② 真正的前沿：自我對照的樹-時序掃描</h3>
         <p data-en="The Bernoulli scan here assumes a constant baseline across nodes (C2/C4). The field's main advances are <b>conditional, self-controlled</b> tree-temporal scans (each person their own control, scanning over a risk window) that drop that assumption — the same self-control idea behind SCCS and PSSA, scaled over a tree. (Kulldorff et al.; Maro et al. 2014, FDA Sentinel.)">這裡的 Bernoulli 掃描假設各節點基準為常數（C2/C4）。領域的主要進展是<b>條件型、自我對照</b>的樹-時序掃描（每個人當自己的對照、在風險窗上掃），把那個假設拿掉——就是 SCCS 與 PSSA 背後的自我對照想法，擴大到一棵樹上。（Kulldorff 等；Maro 等 2014, FDA Sentinel。）</p></div>
-      <div class="card"><h3 data-en="③ Honest speculation, clearly labelled">③ 謹慎推測，明確標示</h3>
+      <div class="card"><h3 data-en="③ Speculation, clearly labelled">③ 謹慎推測，明確標示</h3>
         <p data-en="<b>Speculative:</b> ML could help <i>around</i> TreeScan — e.g. learning a flexible baseline/propensity to stratify the permutation, or a classifier to triage which flagged nodes deserve a confounder-controlled follow-up. Plausible research directions, not part of the established method, and not implemented here.">​<b>推測：</b>ML 可能在 TreeScan 的<i>周邊</i>幫上忙——例如學一個彈性的基準／傾向來分層排列，或用分類器分流「哪些被標出的節點值得做控混淆的追蹤」。這些是合理的研究方向、不是既定方法的一部分，本工具未實作。</p></div>
     </div>
   </section>
@@ -5074,8 +5074,8 @@ quit;
 
   <section id="tscanwhatif" class="panel">
     <h1 data-en="⑥ What if…? The tree scan in the language of counterfactuals">⑥ 如果……？用反事實的語言看「樹狀掃描 TreeScan」</h1>
-    <p class="lead" data-en="TreeScan is, at heart, a <b>screening</b> machine, not an effect estimator — so its real counterfactual question is modest: &quot;<b>at which outcome node is the exposed risk higher than it would be without the drug?</b>&quot; The deep idea here is not identification of a single effect but <b>honest multiplicity</b>: when you ask that question at thousands of nodes at once, the counterfactual that matters is the <b>whole null world</b> — what the most extreme node would look like if the drug did nothing anywhere. The permutation max-LLR <b>is</b> that null world, simulated.">
-      TreeScan 本質上是<b>篩檢</b>機器、不是效果估計器——所以它真正的反事實問題很樸素：「<b>在哪個結果節點，暴露下的風險高於『沒用藥時會有的風險』？</b>」這裡更深的想法不是辨識單一效果，而是<b>誠實面對多重性</b>：當你一次在數千個節點問這個問題，真正重要的反事實是<b>整個虛無世界</b>——若藥到處都沒作用，最極端的節點會長怎樣。排列法的最大 LLR <b>就是</b>那個被模擬出來的虛無世界。
+    <p class="lead" data-en="TreeScan is, at heart, a <b>screening</b> machine, not an effect estimator — so its real counterfactual question is modest: &quot;<b>at which outcome node is the exposed risk higher than it would be without the drug?</b>&quot; The deep idea here is not identification of a single effect but <b>properly controlling the multiplicity</b>: when you ask that question at thousands of nodes at once, the counterfactual that matters is the <b>whole null world</b> — what the most extreme node would look like if the drug did nothing anywhere. The permutation max-LLR <b>is</b> that null world, simulated.">
+      TreeScan 本質上是<b>篩檢</b>機器、不是效果估計器——所以它真正的反事實問題很樸素：「<b>在哪個結果節點，暴露下的風險高於『沒用藥時會有的風險』？</b>」這裡更深的想法不是辨識單一效果，而是<b>把多重性控制好</b>：當你一次在數千個節點問這個問題，真正重要的反事實是<b>整個虛無世界</b>——若藥到處都沒作用，最極端的節點會長怎樣。排列法的最大 LLR <b>就是</b>那個被模擬出來的虛無世界。
     </p>
     <div class="card scene"><h3 data-en="The TreeScan DAG: exposure → outcome node; the permutation null answers 'what if the drug did nothing?'">TreeScan 的 DAG：暴露 → 結果節點；排列虛無回答「若藥沒作用會如何？」</h3>
       <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tscan" class="chart"></div>
@@ -5757,9 +5757,9 @@ res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</co
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
-    <p class="lead" data-en="Throughout this whole toolbox we asked <b>one</b> causal question — <b>does the vaccine actually improve health / prevent the event?</b> The honest way would be a randomised trial, but often we can't run one. So a range of <b>real-world-evidence &amp; quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
+    <p class="lead" data-en="Throughout this whole toolbox we asked <b>one</b> causal question — <b>does the vaccine actually improve health / prevent the event?</b> The ideal way would be a randomised trial, but often we can't run one. So a range of <b>real-world-evidence &amp; quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
       整個工具箱我們只問<b>一個</b>因果問題——<b>疫苗真的能改善健康／預防那個事件嗎？</b>
-      最誠實的做法是隨機試驗，但我們常常做不到。於是多種<b>真實世界證據／準實驗</b>設計，各自從<b>不同的地方</b>「借」一點
+      最理想的做法是隨機試驗，但我們常常做不到。於是多種<b>真實世界證據／準實驗</b>設計，各自從<b>不同的地方</b>「借」一點
       近似隨機的變異來回答。這裡把它們並排，幫你挑出你的資料撐得起的那一個。
     </p>
 
@@ -6169,7 +6169,7 @@ res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</co
   </footer>
 </main>
 
-<script src="i18n.js?v=98"></script>
-<script src="app.js?v=98"></script>
+<script src="i18n.js?v=99"></script>
+<script src="app.js?v=99"></script>
 </body>
 </html>
