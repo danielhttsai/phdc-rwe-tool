@@ -72,6 +72,10 @@ import ps_core
 import ps_gen
 import ps_assumptions
 import ps_ml
+import tmle_core
+import tmle_gen
+import tmle_assumptions
+import tmle_ml
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1334,6 +1338,57 @@ def ps_interactive(conf: float = 1.0, lang: str = "zh"):
 def ps_ml_endpoint(seed: int = 41, lang: str = "zh"):
     """PS ⑤: real-sklearn high-dimensional / ML propensity score (logistic vs gradient boosting)."""
     return _clean(ps_ml.ml_ps_demo(seed=seed, lang=lang))
+
+
+# ----------------------------- TMLE / doubly-robust -----------------------------
+class TmleRequest(BaseModel):
+    source: str = "example_tmle"
+    treat: str = "A"
+    outcome: str = "Y"
+    cov: str = "X"
+    lang: str = "zh"
+
+
+def _load_tmle(source: str) -> pd.DataFrame:
+    if source in ("example_tmle", "example"):
+        return tmle_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/tmle_example")
+def tmle_example():
+    df = tmle_gen.generate()
+    return _clean({
+        "columns": list(df.columns), "defaults": {"treat": "A", "outcome": "Y", "cov": "X"},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {"A": "A（接種 1／否 0）", "Y": "Y（結果分數，連續）",
+                  "X": "X＝已測共變項（嚴重度）；對 Y 的影響為非線性（含 X²）"},
+    })
+
+
+@app.post("/api/tmle_analyze")
+def tmle_analyze(req: TmleRequest):
+    return _clean(tmle_core.full_tmle(_load_tmle(req.source), req.treat, req.outcome, req.cov, lang=req.lang))
+
+
+@app.post("/api/tmle_assumptions")
+def tmle_assumptions_check(req: TmleRequest):
+    return _clean(tmle_assumptions.run_dashboard(_load_tmle(req.source), req.treat, req.outcome, req.cov, lang=req.lang))
+
+
+@app.get("/api/tmle_interactive")
+def tmle_interactive(conf: float = 1.0, lang: str = "zh"):
+    return _clean(tmle_core.tmle_interactive(float(np.clip(conf, 0.0, 1.5)), lang=lang))
+
+
+@app.get("/api/tmle_ml")
+def tmle_ml_endpoint(seed: int = 43, lang: str = "zh"):
+    """TMLE ⑤: real-sklearn cross-fitted AIPW with gradient-boosted nuisances vs a single linear model."""
+    return _clean(tmle_ml.ml_tmle_demo(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")

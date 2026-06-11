@@ -66,6 +66,9 @@ import med_assumptions
 import ps_core
 import ps_gen
 import ps_assumptions
+import tmle_core
+import tmle_gen
+import tmle_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1183,6 +1186,51 @@ def _ps_ml(q: dict) -> dict:
     return ps_ml.ml_ps_demo(seed=int(q.get("seed", 41)), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# TMLE / doubly-robust (AIPW)
+# ---------------------------------------------------------------------------
+TMLE_DEFAULTS = {"treat": "A", "outcome": "Y", "cov": "X"}
+
+
+def _load_tmle(source: str):
+    if source in ("example_tmle", "example"):
+        return tmle_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _tmle_example() -> dict:
+    df = tmle_gen.generate()
+    return {"columns": list(df.columns), "defaults": TMLE_DEFAULTS, "n": len(df),
+            "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+            "story": {"A": "A（接種 1／否 0）", "Y": "Y（結果分數，連續）",
+                      "X": "X＝已測共變項（嚴重度）；對 Y 的影響為非線性（含 X²）＝適應症混淆＋模型設定挑戰"}}
+
+
+def _tmle_analyze(req: dict) -> dict:
+    df = _load_tmle(req.get("source", "example_tmle"))
+    return tmle_core.full_tmle(df, req.get("treat", "A"), req.get("outcome", "Y"),
+                               req.get("cov", "X"), lang=req.get("lang", "zh"))
+
+
+def _tmle_assumptions(req: dict) -> dict:
+    df = _load_tmle(req.get("source", "example_tmle"))
+    return tmle_assumptions.run_dashboard(df, req.get("treat", "A"), req.get("outcome", "Y"),
+                                          req.get("cov", "X"), lang=req.get("lang", "zh"))
+
+
+def _tmle_interactive(q: dict) -> dict:
+    conf = float(np.clip(float(q.get("conf", 1.0)), 0.0, 1.5))
+    return tmle_core.tmle_interactive(conf, lang=q.get("lang", "zh"))
+
+
+def _tmle_ml(q: dict) -> dict:
+    import tmle_ml
+    return tmle_ml.ml_tmle_demo(seed=int(q.get("seed", 43)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1292,6 +1340,11 @@ _ROUTES = {
     ("POST", "/api/ps_assumptions"): lambda q, b: _ps_assumptions(b),
     ("GET", "/api/ps_interactive"): lambda q, b: _ps_interactive(q),
     ("GET", "/api/ps_ml"): lambda q, b: _ps_ml(q),
+    ("GET", "/api/tmle_example"): lambda q, b: _tmle_example(),
+    ("POST", "/api/tmle_analyze"): lambda q, b: _tmle_analyze(b),
+    ("POST", "/api/tmle_assumptions"): lambda q, b: _tmle_assumptions(b),
+    ("GET", "/api/tmle_interactive"): lambda q, b: _tmle_interactive(q),
+    ("GET", "/api/tmle_ml"): lambda q, b: _tmle_ml(q),
 }
 
 

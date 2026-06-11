@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -43,12 +43,15 @@ const PANEL_INIT = {
   medassume: () => initMedAssume(), medml: () => initMedMl(),
   pslearn: () => initPsLearn(), psplay: () => initPsPlay(), psanalyze: () => initPsAnalyze(),
   psassume: () => initPsAssume(), psml: () => initPsMl(),
+  tmlelearn: () => initTmleLearn(), tmleplay: () => initTmlePlay(), tmleanalyze: () => initTmleAnalyze(),
+  tmleassume: () => initTmleAssume(), tmleml: () => initTmleMl(),
   whatif: () => drawWhatifPair("iv"), rddwhatif: () => drawWhatifPair("rdd"), didwhatif: () => drawWhatifPair("did"),
   perrwhatif: () => drawWhatifPair("perr"), itswhatif: () => drawWhatifPair("its"), titwhatif: () => drawWhatifPair("tit"),
   ccwwhatif: () => drawWhatifPair("ccw"), seqwhatif: () => drawWhatifPair("seq"), cctcwhatif: () => drawWhatifPair("cctc"),
   ccwhatif: () => drawWhatifPair("cc"), sccswhatif: () => drawWhatifPair("sccs"), acnuwhatif: () => drawWhatifPair("acnu"),
   pnuwhatif: () => drawWhatifPair("pnu"), ncwhatif: () => drawWhatifPair("nc"),
   medwhatif: () => drawWhatifPair("med"), pswhatif: () => drawWhatifPair("ps"),
+  tmlewhatif: () => drawWhatifPair("tmle"),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -104,7 +107,7 @@ document.addEventListener("click", (e) => {
 // already-linked text. Re-run after each language switch (applyStatic wipes them).
 const _MLINK = { SCCS: "sccs", CCTC: "cctc", ACNU: "acnu", PNU: "pnu", CCW: "ccw",
   RDD: "rdd", DiD: "did", PERR: "perr", ITS: "its", TiT: "tit", Seq: "seq",
-  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps" };
+  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle" };
 const _MTOKENS = Object.keys(_MLINK).sort((a, b) => b.length - a.length);
 const _MRE = new RegExp("\\b(" + _MTOKENS.join("|") + ")\\b", "g");
 function _panelMethod(id) {
@@ -1539,6 +1542,7 @@ const DNODES = {
       { l: { zh: "是，動態策略（早 vs 晚開始、是否持續或密集用藥）", en: "Yes — a dynamic strategy (early vs late, sustained / intensive use)" }, to: "rCCW" },
       { l: { zh: "比較像一次性的點治療，但病人在多個時間點陸續符合收案", en: "More a one-off point treatment, but patients become eligible at many times" }, to: "rSEQ" },
       { l: { zh: "都不是，但我有<b>豐富的已測共變項</b>，只想把它們<b>平衡</b>掉（配對／加權）", en: "Neither, but I have <b>rich measured covariates</b> and just want to <b>balance</b> them (matching / weighting)" }, to: "rPS" },
+      { l: { zh: "有已測共變項，且想要<b>雙重穩健</b>（兩張網其一對就好）＋可用 ML／效率最佳", en: "Measured covariates, and you want <b>double robustness</b> (two models, either right) + ML / efficiency" }, to: "rTMLE" },
       { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
     ],
   },
@@ -1637,6 +1641,14 @@ const DNODES = {
                 en: "Vaccine scenario: sicker people (large measured severity X) are more likely to be vaccinated and to have the outcome (confounding by indication). Match/weight on the PS so the groups look alike on X, then compare (see the PS tabs ①–⑦)." },
     watch: { zh: "✓ 本工具箱已實作。最關鍵、不可檢驗的是<b>無未測混淆</b>——PS 只能平衡<b>有測到</b>的 X；還要<b>正性／重疊</b>（每人 0 &lt; PS &lt; 1）。",
              en: "✓ Implemented in this toolbox. The key untestable assumption is <b>no unmeasured confounding</b> — PS only balances the X you <b>measured</b>; also needs <b>positivity / overlap</b> (0 &lt; PS &lt; 1 for everyone)." } } },
+  rTMLE: { rec: { kind: "toolbox", method: "tmle", badge: "TMLE ✓",
+    title: { zh: "最適合：雙重穩健／TMLE ✓（本工具）", en: "Best fit: Doubly-robust / TMLE ✓ (this tool)" },
+    why: { zh: "和 PS 一樣是「已測共變項、想校正」的情境，但你想要<b>更穩</b>：<b>雙重穩健（AIPW／TMLE）</b>同時配<b>兩張網</b>——結果模型（給定 X、A 下的 Y）＋傾向模型 PS——只要<b>其中一個對</b>就不偏（PS 法只賭傾向模型對）。TMLE 再做一步 <b>targeting</b> 取得半參數<b>有效率</b>估計，天然搭配 <b>機器學習／Super Learner</b> 當輔助模型。",
+           en: "Same 'measured covariates, want adjustment' situation as PS, but you want to be <b>more robust</b>: <b>doubly-robust (AIPW / TMLE)</b> fits <b>two models</b> — an outcome model (Y given X, A) and a propensity model PS — and stays unbiased if <b>either one</b> is right (plain PS bets only on the propensity model). TMLE adds a <b>targeting</b> step for a semiparametric-<b>efficient</b> estimate and pairs naturally with <b>machine learning / Super Learner</b> for the nuisance models." },
+    scenario: { zh: "疫苗情境：嚴重度 X 對接種與結果都是<b>非線性</b>影響。單一線性模型容易設錯；AIPW／TMLE 用兩張（可用 ML 的）網互相保險，把 ATE 還原到真值（見「TMLE」分頁 ①–⑦）。",
+                en: "Vaccine scenario: severity X drives both treatment and outcome <b>non-linearly</b>. A single linear model is easily mis-specified; AIPW/TMLE insure two (optionally ML) models against each other and recover the true ATE (see the TMLE tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。仍需<b>無未測混淆＋正性</b>；雙重穩健保的是「模型設定」、<b>不是</b>未測混淆。至少一個輔助模型要設定正確、Super Learner 函式庫要夠豐富。",
+             en: "✓ Implemented in this toolbox. Still needs <b>no unmeasured confounding + positivity</b>; double robustness guards <b>model specification</b>, <b>not</b> unmeasured confounding. At least one nuisance model must be right, and the Super Learner library rich enough." } } },
   // common / external designs (reference)
   rACC: { rec: { kind: "toolbox", method: "acnu", badge: "ACNU ✓",
     title: { zh: "建議：主動對照新使用者 ACNU ✓（本工具）", en: "Suggested: Active-Comparator, New-User (ACNU) ✓ (this tool)" },
@@ -1764,6 +1776,7 @@ const FULLMAP = {
                 { key: "rCCW", cond: { zh: "診斷後動態／持續策略（早 vs 晚、密集用藥）", en: "sustained/dynamic strategy (early vs late, intensive)" }, tag: "CCW ✓", kind: "tb" },
                 { key: "rSEQ", cond: { zh: "點治療，但多時點陸續收案", en: "point treatment, eligible at many times" }, tag: "Seq ✓", kind: "tb" },
                 { key: "rPS", cond: { zh: "有豐富已測共變項，配對／加權平衡（PS）", en: "rich measured covariates; balance by matching/weighting (PS)" }, tag: "PS ✓", kind: "tb" },
+                { key: "rTMLE", cond: { zh: "已測共變項，想雙重穩健＋ML／效率（TMLE）", en: "measured covariates; want double robustness + ML / efficiency (TMLE)" }, tag: "TMLE ✓", kind: "tb" },
               ] },
             { edge: { zh: "急性、會反覆又會好、非致命 → 自身對照／趨勢", en: "acute, recurrent/resolving, non-fatal → self-control / trend" },
               leaves: [
@@ -1949,7 +1962,7 @@ const CHOOSE_FAMILIES = [
   { zh: "抽樣設計", en: "sampling design", members: [["CC", 1.66, 1.00]] },
   { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC", 2.12, 0.94]] },
   { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
-  { zh: "共變項校正／傾向分數", en: "covariate adjustment / propensity", members: [["PS", 1.52, 1.01]] },
+  { zh: "共變項校正／傾向分數／雙重穩健", en: "adjustment / propensity / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -1984,8 +1997,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS）線上教學工具",
-  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/phdc-rwe-tool/",
 };
@@ -2008,6 +2021,7 @@ const METHOD_REF = {
   nc:   { zh: "陰性對照與近端因果 NC", en: "Negative Control & Proximal (NC)", src: "Lipsitch, Tchetgen Tchetgen & Cohen (2010); Miao, Geng & Tchetgen Tchetgen (2018); Schuemie et al. (2014/2018)" },
   med:  { zh: "中介分析 Mediation", en: "Mediation analysis (MED)", src: "Imai, Keele & Yamamoto (2010); Tingley et al. (2014), JSS; VanderWeele (2015)" },
   ps:   { zh: "傾向分數 PS", en: "Propensity Score (PS)", src: "Rosenbaum & Rubin (1983), Biometrika; Austin (2011); Li, Morgan & Zaslavsky (2018)" },
+  tmle: { zh: "TMLE／雙重穩健", en: "TMLE / doubly-robust (AIPW)", src: "van der Laan & Rubin (2006); van der Laan & Rose (2011); Luque-Fernandez et al. (2018), Stat Med" },
   db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai et al.)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
@@ -5418,6 +5432,214 @@ function drawPsMl(s) {
 }
 
 // ======================================================================
+// TMLE — doubly-robust / targeted ML (17th method)
+// ======================================================================
+const tmleState = { source: null, columns: [], req: null };
+let tmleLearnReady = false, tmlePlayReady = false, tmleAnalyzeReady = false,
+    tmleAssumeReady = false, tmleMlCache = null;
+
+function drawSceneTmle() {
+  if (!document.getElementById("tmleScene")) return;
+  const nodes = [
+    { x: 2, y: 2.4, t: tr("共變項 X<br>（嚴重度，非線性）", "covariate X<br>(severity, non-linear)"), c: "#b45309" },
+    { x: 1, y: 1, t: tr("治療 A（接種）", "treatment A"), c: TEAL },
+    { x: 3, y: 1, t: tr("結果 Y", "outcome Y"), c: "#c0504d" },
+  ];
+  Plotly.react("tmleScene", [{
+    x: nodes.map((n) => n.x), y: nodes.map((n) => n.y), mode: "markers+text", type: "scatter",
+    text: nodes.map((n) => n.t), textposition: ["top center", "bottom center", "bottom center"],
+    marker: { size: 26, color: nodes.map((n) => n.c) }, textfont: { size: 11 }, hoverinfo: "skip",
+  }], schemaLayout({
+    height: 300, margin: { t: 24, r: 20, b: 30, l: 20 },
+    xaxis: { visible: false, range: [0.3, 3.7] }, yaxis: { visible: false, range: [0.4, 3.0] },
+    annotations: [
+      _psArrow(2, 2.4, 1, 1, "#c0504d"), _psArrow(2, 2.4, 3, 1, "#c0504d"), _psArrow(1, 1, 3, 1, TEAL),
+      { x: 2, y: 1.0, text: tr("A→Y＝想估的效果", "A→Y = the effect we want"), showarrow: false, yshift: 14, font: { size: 9.5, color: TEAL } },
+      { x: 2, y: 0.62, text: tr("兩個模型（結果迴歸＋傾向分數）擋後門：其一對就不偏（雙重穩健）", "two models (outcome regression + propensity) block the back door: unbiased if either is right"), showarrow: false, font: { size: 9.5, color: SLATE } },
+    ],
+  }), SCENE_CFG);
+}
+function initTmleLearn() { if (tmleLearnReady) return; tmleLearnReady = true; drawSceneTmle(); }
+
+const tmleConfSlider = document.getElementById("tmleConfSlider");
+let tmlePlayTimer = null;
+function initTmlePlay() { if (tmlePlayReady) return; tmlePlayReady = true; refreshTmlePlay(); }
+function scheduleTmlePlay() {
+  document.getElementById("tmleConfVal").textContent = Number(tmleConfSlider.value).toFixed(2);
+  clearTimeout(tmlePlayTimer); tmlePlayTimer = setTimeout(refreshTmlePlay, 250);
+}
+if (tmleConfSlider) tmleConfSlider.addEventListener("input", scheduleTmlePlay);
+async function refreshTmlePlay() {
+  const c = tmleConfSlider ? Number(tmleConfSlider.value) : 1.0;
+  let d;
+  try { d = await getJSON(`${API}/api/tmle_interactive?conf=${c}&lang=${lang()}`); } catch (e) { return; }
+  state.tmlePlay = d;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = fmt(v, 2); };
+  set("tmleCrude", d.crude); set("tmleAipw", d.aipw); set("tmleTmle", d.tmle);
+  const rd = document.getElementById("tmlePlayReading"); if (rd) rd.innerHTML = d.reading;
+  drawTmlePlay(d);
+}
+function drawTmlePlay(d) {
+  if (!document.getElementById("tmlePlayChart")) return;
+  const g = d.grid;
+  Plotly.react("tmlePlayChart", [
+    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("粗估", "crude"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.aipw, mode: "lines+markers", type: "scatter", name: tr("AIPW", "AIPW"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.tmle, mode: "lines+markers", type: "scatter", name: tr("TMLE", "TMLE"), line: { color: PURPLE, width: 3, dash: "dot" }, marker: { size: 5 } },
+    { x: [d.conf], y: [d.crude], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 300, legend: { orientation: "h", y: 1.18 }, margin: { t: 30, r: 18, b: 44, l: 50 },
+    xaxis: { title: tr("混淆強度", "confounding strength") },
+    yaxis: { title: tr("估計效果", "estimated effect"), range: [g.true_ate - 0.4, Math.max(...g.crude) * 1.08] },
+    shapes: [{ type: "line", x0: g.conf[0], x1: g.conf[g.conf.length - 1], y0: g.true_ate, y1: g.true_ate, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: g.conf[0], y: g.true_ate, text: tr("真值 " + fmt(g.true_ate, 1), "truth " + fmt(g.true_ate, 1)), showarrow: false, yshift: 11, xanchor: "left", font: { color: GREEN, size: 10 } }],
+  }), SCENE_CFG);
+}
+
+function initTmleAnalyze() { if (tmleAnalyzeReady) return; tmleAnalyzeReady = true; document.getElementById("useTmleExample").click(); }
+function tmleFillSelects(cols) {
+  const opts = cols.map((c) => `<option value="${c}">${c}</option>`).join("");
+  ["tmleSelA", "tmleSelY", "tmleSelX"].forEach((id) => document.getElementById(id).innerHTML = opts);
+  document.getElementById("tmleColMap").classList.remove("hidden");
+}
+function tmleApplyDefaults(d) {
+  if (!d) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (v != null && el) el.value = v; };
+  set("tmleSelA", d.treat); set("tmleSelY", d.outcome); set("tmleSelX", d.cov);
+}
+document.getElementById("useTmleExample").addEventListener("click", async () => {
+  const st = document.getElementById("tmleDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/tmle_example`);
+    tmleState.source = "example_tmle"; tmleState.columns = d.columns;
+    st.textContent = tr(`已載入內建範例（${d.n} 人，合成虛構）`, `Loaded built-in example (${d.n} people, synthetic)`);
+    tmleFillSelects(d.columns); tmleApplyDefaults(d.defaults);
+    runTmleAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("tmleFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("tmleDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    tmleState.source = d.token; tmleState.columns = d.columns;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    tmleFillSelects(d.columns);
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+function tmleCurrentMapping() {
+  const v = (id) => document.getElementById(id).value;
+  return { source: tmleState.source, treat: v("tmleSelA"), outcome: v("tmleSelY"), cov: v("tmleSelX"), lang: lang() };
+}
+const runTmleBtn = document.getElementById("runTmleAnalyze");
+if (runTmleBtn) runTmleBtn.addEventListener("click", runTmleAnalyze);
+async function runTmleAnalyze() {
+  const req = tmleCurrentMapping();
+  if (!req.source) return;
+  tmleState.req = req;
+  try {
+    const a = await postJSON(`${API}/api/tmle_analyze`, req);
+    renderTmleAnalyze(a);
+    runTmleAssumptions(req);
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderTmleAnalyze(a) {
+  document.getElementById("tmleAnalyzeOut").classList.remove("hidden");
+  const ci = a.ci && a.ci[0] != null ? ` (95% CI ${fmt(a.ci[0],2)}–${fmt(a.ci[1],2)})` : "";
+  const cards = [
+    [tr("粗估差異（偏）", "crude difference (biased)"), a.crude,
+      tr("直接比接種 vs 未接種，被適應症混淆＋非線性 X 撐高。", "vaccinated vs unvaccinated directly — inflated by confounding and the non-linear X."), false],
+    [tr("TMLE（targeting）", "TMLE (targeted)"), a.tmle, a.interpretation + ci, true],
+    [tr("雙重穩健 AIPW", "doubly-robust AIPW"), a.aipw,
+      tr("結果模型或傾向分數其一對就不偏。", "unbiased if either the outcome model or the propensity is right."), false],
+    [tr("g-computation／IPTW", "g-computation / IPTW"), a.gcomp,
+      tr(`g-computation ≈ ${fmt(a.gcomp,2)}（只用結果模型）；IPTW ≈ ${fmt(a.iptw,2)}（只用傾向分數）。`,
+         `g-computation ≈ ${fmt(a.gcomp,2)} (outcome model only); IPTW ≈ ${fmt(a.iptw,2)} (propensity only).`), false],
+  ];
+  document.getElementById("tmleAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  drawTmleAnalyze(a);
+}
+function drawTmleAnalyze(a) {
+  if (!document.getElementById("tmleAnalyzeChart")) return;
+  const labels = [tr("粗估", "crude"), tr("g-comp", "g-comp"), tr("IPTW", "IPTW"), tr("AIPW", "AIPW"), tr("TMLE", "TMLE")];
+  const vals = [a.crude, a.gcomp, a.iptw, a.aipw, a.tmle];
+  Plotly.react("tmleAnalyzeChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: [AMBER, "#7c8aa0", "#3f8a6a", TEAL, PURPLE] },
+    text: vals.map((v) => fmt(v, 2)), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 22, r: 16, b: 44, l: 50 },
+    yaxis: { title: tr("估計效果", "estimated effect"), range: [0, Math.max(...vals) * 1.18] },
+    shapes: [{ type: "line", x0: -0.5, x1: 4.5, y0: a.true_ate, y1: a.true_ate, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: 4, y: a.true_ate, text: tr("真值 " + fmt(a.true_ate, 1), "truth " + fmt(a.true_ate, 1)), showarrow: false, yshift: 11, font: { color: GREEN, size: 10 } }],
+  }), SCENE_CFG);
+}
+
+function initTmleAssume() {
+  if (tmleAssumeReady) return;
+  tmleAssumeReady = true;
+  runTmleAssumptions(tmleState.req || { source: "example_tmle", lang: lang() });
+}
+async function runTmleAssumptions(req) {
+  const body = req ? { ...req, lang: lang() } : { source: "example_tmle", lang: lang() };
+  let out;
+  try { out = await postJSON(`${API}/api/tmle_assumptions`, body); } catch (e) { return; }
+  state.tmleDash = out;
+  renderTmleAssumptions(out);
+}
+function renderTmleAssumptions(out) {
+  const hint = document.getElementById("tmleAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("tmleOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；無未測混淆與「至少一模型對」仍需判斷。", "Testable checks pass; no-unmeasured-confounding and ‘at least one model correct’ still need judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("tmleAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+function initTmleMl() { if (tmleMlCache) drawTmleMl(tmleMlCache); }
+const runTmleMlBtn = document.getElementById("runTmleMl");
+if (runTmleMlBtn) runTmleMlBtn.addEventListener("click", async () => {
+  const btn = runTmleMlBtn; const old = btn.textContent;
+  btn.disabled = true; btn.textContent = tr("計算中（載入 ML 套件）…", "Computing (loading ML)…");
+  try {
+    const s = await getJSON(`${API}/api/tmle_ml?lang=${lang()}`);
+    tmleMlCache = s; drawTmleMl(s);
+  } catch (e) { alert(tr("計算失敗：", "Failed: ") + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
+});
+function drawTmleMl(s) {
+  document.getElementById("tmleMlOut").classList.remove("hidden");
+  if (document.getElementById("tmleMlChart")) {
+    Plotly.react("tmleMlChart", [{
+      x: s.bars.labels, y: s.bars.values, type: "bar", marker: { color: [AMBER, TEAL, GREEN] },
+      text: s.bars.values.map((v) => v.toFixed(2)), textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 22, r: 16, b: 44, l: 52 },
+      yaxis: { title: tr("估計 ATE", "estimated ATE"), range: [0, Math.max(...s.bars.values) * 1.18] },
+      shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: s.ate_true, y1: s.ate_true, line: { color: GREEN, width: 2, dash: "dash" } }],
+    }), SCENE_CFG);
+  }
+  document.getElementById("tmleMlReading").innerHTML = s.reading;
+}
+
+// ======================================================================
 // ⑥ What if — every method in the language of counterfactuals
 // (original plain-language take on Hernán & Robins, Causal Inference: What If;
 //  no text is copied from the book). One small counterfactual-contrast diagram
@@ -5537,6 +5759,12 @@ const WHATIF = {
       { id: "Y", x: 3.7, y: 1.0, role: "Y", label: { zh: "結果", en: "outcome Y" } }],
     edges: [{ a: "A", b: "Y", kind: "effect" }, { a: "X", b: "A", kind: "bias" }, { a: "X", b: "Y", kind: "bias" }],
     note: { zh: "後門 A←X→Y 打開：病重者（X 大）較易接種、也較易出事，直接比 A 會偏。X 是<b>已測</b>的，所以可以對<b>傾向分數 PS＝P(A|X)</b> 做配對／加權把後門擋住→還原 A→Y。前提：沒有未測的混淆、且重疊（正性）。", en: "The backdoor A←X→Y is open: sicker people (large X) are both more likely to be treated and to have the outcome, so comparing A directly is biased. X is <b>measured</b>, so matching/weighting on the <b>propensity score PS = P(A|X)</b> blocks the backdoor and recovers A→Y. Provided: no unmeasured confounding and overlap (positivity)." } },
+  tmle: { nodes: [
+      { id: "X", x: 2.1, y: 2.5, role: "X", label: { zh: "已測共變項 X（嚴重度）", en: "measured X (severity)" } },
+      { id: "A", x: 1.0, y: 1.0, role: "A", label: { zh: "治療（接種）", en: "treatment A" } },
+      { id: "Y", x: 3.7, y: 1.0, role: "Y", label: { zh: "結果", en: "outcome Y" } }],
+    edges: [{ a: "A", b: "Y", kind: "effect" }, { a: "X", b: "A", kind: "bias" }, { a: "X", b: "Y", kind: "bias" }],
+    note: { zh: "同一張後門圖（X 混淆 A 與 Y）。不同的是<b>估計器</b>：TMLE／AIPW 用<b>兩個</b>模型描述這個結構——結果迴歸 Q(A,X) 與傾向分數 PS——所以<b>其一</b>對就不偏（雙重穩健）；TMLE 再做一步 targeting 讓插入式估計有效率。識別仍靠無未測混淆＋正性。", en: "The same back-door picture (X confounds A and Y). What differs is the <b>estimator</b>: TMLE/AIPW use <b>two</b> models of this structure — the outcome regression Q(A,X) and the propensity PS — so it is unbiased if <b>either</b> is right (double robustness); TMLE then targets the plug-in for efficiency. Identification still rests on no-unmeasured-confounding + positivity." } },
 };
 
 const WHATIF_COL = { A: TEAL, Y: "#c0504d", U: "#5b7aa8", Z: "#f59e0b", X: "#b45309", T: "#64748b", L: "#7c5fae", S: "#94a3b8" };
@@ -5601,6 +5829,7 @@ const SWIG_META = {
   nc:  { split: "A",  cf: "Yᵃ", note: { zh: "把治療設成 a → 反事實 Yᵃ。U 未測，A ⫫ Yᵃ <b>不成立</b>；改用陰性對照 Z、W（U 的代理）解出 confounding bridge，在<b>近端意義</b>下辨識 Yᵃ（P2SLS）。", en: "Set treatment to a → counterfactual Yᵃ. U is unmeasured so A ⫫ Yᵃ <b>fails</b>; instead the negative controls Z, W (proxies of U) solve a confounding bridge that identifies Yᵃ in the <b>proximal</b> sense (P2SLS)." } },
   med: { split: "A",  cf: "Yᵃ", note: { zh: "把治療設成 a → 反事實。中介分析用<b>跨世界</b>反事實 Yᵃ˒ᴹ⁽ᵃ*⁾：把暴露設 a、卻把中介固定在另一暴露值 a* 會有的 M。NDE 比 a=1 vs 0（M 固定在 M(0)）；NIE 在 a=1 下搬動 M(0)→M(1)。需序列可交換＋無暴露誘發的 M–Y 混淆。", en: "Set treatment to a → counterfactual. Mediation uses the <b>cross-world</b> counterfactual Yᵃ˒ᴹ⁽ᵃ*⁾: set exposure to a but hold the mediator at the M it would take under another exposure a*. NDE contrasts a=1 vs 0 with M fixed at M(0); NIE moves M(0)→M(1) under a=1. Needs sequential exchangeability + no exposure-induced M–Y confounder." } },
   ps:  { split: "A",  cf: "Yᵃ", note: { zh: "把接種設成 a → 反事實 Yᵃ。傾向分數對<b>已測 X</b> 做配對／加權，讓被設定的治療在 X 下和反事實獨立：<b>A ⫫ Yᵃ | X</b>（條件可交換）。這時 IPTW／重疊加權後的對比＝因果效果。救不了未測的混淆。", en: "Set vaccination to a → counterfactual Yᵃ. The propensity score matches/weights on the <b>measured X</b> so the set treatment is independent of the counterfactual given X: <b>A ⫫ Yᵃ | X</b> (conditional exchangeability). Then the IPTW/overlap-weighted contrast equals the causal effect. It cannot fix an unmeasured confounder." } },
+  tmle: { split: "A", cf: "Yᵃ", note: { zh: "把接種設成 a → 反事實 Yᵃ。識別條件和 PS 相同（A ⫫ Yᵃ | X）。差別在估計：TMLE／AIPW 用結果模型<b>與</b>傾向分數兩張網，<b>其一</b>對就不偏（雙重穩健）；TMLE 的 targeting 步讓插入式估計達到半參數有效率。", en: "Set vaccination to a → counterfactual Yᵃ. Identification is the same as PS (A ⫫ Yᵃ | X). The difference is estimation: TMLE/AIPW use both an outcome model <b>and</b> a propensity score, unbiased if <b>either</b> is right (double robustness); TMLE's targeting step makes the plug-in semiparametric-efficient." } },
 };
 
 const swigShown = new Set();
@@ -6038,6 +6267,11 @@ window.addEventListener("iv-lang", async () => {
   if (psAnalyzeReady) runPsAnalyze();                  // PS ③ analysis + dashboard
   else if (psAssumeReady) runPsAssumptions(psState.req);
   if (psMlCache) drawPsMl(psMlCache);                  // PS ⑤ ML propensity score (re-render cache)
+  if (tmleLearnReady) drawSceneTmle();                 // TMLE ① learn scene
+  if (tmlePlayReady) refreshTmlePlay();                // TMLE ② interactive
+  if (tmleAnalyzeReady) runTmleAnalyze();              // TMLE ③ analysis + dashboard
+  else if (tmleAssumeReady) runTmleAssumptions(tmleState.req);
+  if (tmleMlCache) drawTmleMl(tmleMlCache);            // TMLE ⑤ doubly-robust ML (re-render cache)
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree

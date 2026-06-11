@@ -4,15 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=90" />
+<link rel="stylesheet" href="styles.css?v=91" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-<script src="pyodide-bridge.js?v=32"></script>
+<script src="pyodide-bridge.js?v=33"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -32,6 +32,7 @@
         <option value="nc" data-en="NC · Negative control &amp; proximal">NC · 陰性對照與近端因果</option>
         <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
         <option value="ps" data-en="PS · Propensity score">PS · 傾向分數</option>
+        <option value="tmle" data-en="TMLE · Doubly-robust / targeted ML">TMLE · 雙重穩健／目標式</option>
       </select>
     </label>
     <div class="subtabs">
@@ -3862,6 +3863,121 @@
     </div>
   </section>
 
+  <!-- ===================== TMLE ① 是什麼 ===================== -->
+  <section id="tmlelearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="TMLE &amp; doubly-robust estimation: two models, two chances to be right">TMLE 與雙重穩健：兩個模型、兩次機會</h1>
+    <p class="lead" data-en="To estimate a vaccine's effect on outcome Y we must adjust for confounding by severity X. Two models can help: the <b>outcome regression</b> Q(A,X)=E[Y|A,X] (used by g-computation) and the <b>propensity score</b> PS=P(A=1|X) (used by IPTW). Use just one and a mis-specified model biases you. <b>Augmented IPW (AIPW)</b> combines both and is <b>doubly robust</b> — unbiased if <b>either</b> model is correct. <b>TMLE</b> takes the g-computation plug-in and adds a one-step <b>targeting</b> update (a ‘clever covariate’ fluctuation), giving a doubly-robust, semiparametric-efficient, bounded estimate (van der Laan &amp; Rubin 2006; Luque-Fernandez et al. 2018).">
+      要估疫苗對結果 Y 的效果，得校正嚴重度 X 的混淆。兩個模型能幫忙：<b>結果迴歸</b> Q(A,X)=E[Y|A,X]（g-computation 用它）與
+      <b>傾向分數</b> PS=P(A=1|X)（IPTW 用它）。只用其一、若設定錯就偏。<b>擴增反機率加權（AIPW）</b>把兩者合起來、<b>雙重穩健</b>——
+      <b>其一</b>對就不偏。<b>TMLE</b> 在 g-computation 插入式估計上，再做一步<b>targeting</b> 微調（clever covariate 擾動），
+      得到雙重穩健、半參數有效率、且邊界安全的估計（van der Laan &amp; Rubin 2006；Luque-Fernandez 等 2018）。
+    </p>
+    <div class="card scene"><h3 data-en="Confounding by indication: X drives both treatment A and outcome Y (non-linearly)">適應症混淆：X 同時驅動治療 A 與結果 Y（且為非線性）</h3>
+      <div id="tmleScene" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>雙重穩健／AIPW <span class="en">double robustness / augmented IPW</span></h4>
+        <p data-en="<b>Plain:</b> combine an outcome model and a propensity model so you have two chances; the estimate is unbiased if at least one is right.<br /><b>Formula:</b> AIPW = mean[ (Q(1,X)−Q(0,X)) + A/PS·(Y−Q(1,X)) − (1−A)/(1−PS)·(Y−Q(0,X)) ]. The augmentation term corrects whichever model is wrong.">
+          <b>白話：</b>同時配結果模型與傾向模型，等於有兩次機會；只要其一對，估計就不偏。<br />
+          <b>公式：</b>AIPW = mean[ (Q(1,X)−Q(0,X)) + A/PS·(Y−Q(1,X)) − (1−A)/(1−PS)·(Y−Q(0,X)) ]。擴增項會把配錯的那個模型修回來。</p></div>
+      <div class="tdef"><h4>TMLE／targeting <span class="en">targeted maximum likelihood</span></h4>
+        <p data-en="<b>Plain:</b> start from g-computation's plug-in, then make ONE small update aimed at the effect you want, using a ‘clever covariate’ built from the propensity score. The result is doubly robust, semiparametric-efficient, and stays in bounds (a plug-in).<br /><b>Engine:</b> a fluctuation parameter ε fit by a logistic regression of (scaled) Y on the clever covariate, offset by the current Q.">
+          <b>白話：</b>從 g-computation 的插入式估計出發，再用一個由傾向分數構成的「clever covariate」做<b>一步</b>針對目標效果的微調。結果雙重穩健、半參數有效率、且不出邊界（插入式）。<br />
+          <b>引擎：</b>一個擾動參數 ε，用（縮放後）Y 對 clever covariate 的邏輯斯迴歸（以當前 Q 為 offset）擬合。</p></div>
+      <div class="tdef"><h4>Super Learner／交叉擬合 <span class="en">Super Learner / cross-fitting</span></h4>
+        <p data-en="<b>Plain:</b> use a cross-validated ensemble of learners for BOTH nuisance models, maximising the chance that at least one is right; and predict every nuisance OUT-OF-FOLD (cross-fitting) so flexible ML doesn't over-fit into the effect.">
+          <b>白話：</b>對<b>兩個</b>輔助模型都用交叉驗證的學習器集成（Super Learner），把「至少一個對」的機會放大；並對每個輔助量做<b>樣本外</b>預測（交叉擬合），免得彈性 ML 過度配適洩進效果。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== TMLE ② 互動講解 ===================== -->
+  <section id="tmleplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: strengthen the confounding, watch the crude drift but DR hold">互動：加強混淆，看粗估漂掉、雙重穩健卻穩住</h1>
+    <p class="lead" data-en="Drag the slider for the confounding strength (how strongly severity X drives both treatment and the non-linear outcome). The <b>crude</b> estimate drifts ever further from the truth, while <b>AIPW</b> and <b>TMLE</b> stay locked on the true effect. At 0 there is no confounding and even the crude estimate is correct.">
+      拉動滑桿改變混淆強度（嚴重度 X 同時驅動治療與非線性結果的力道）。<b>粗估</b>越來越偏離真值，而 <b>AIPW</b> 與 <b>TMLE</b>
+      始終鎖在真正的效果上。為 0 時沒有混淆，連粗估都準。
+    </p>
+    <div class="controls"><label>
+      <span data-en="Confounding strength:">混淆強度：</span><b id="tmleConfVal">1.0</b>
+      <input type="range" id="tmleConfSlider" min="0" max="1.5" value="1" step="0.05" />
+      <small data-en="0 = no confounding. Larger = severity drives treatment &amp; the non-linear outcome more, so the crude estimate is more biased — but the doubly-robust estimators hold.">0＝沒有混淆。越大＝嚴重度越強地驅動治療與非線性結果，粗估越偏——但雙重穩健估計穩住。</small>
+    </label></div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Crude difference">粗估差異</div><div class="stat-num" id="tmleCrude">–</div><div class="stat-foot" data-en="biased by X">被 X 偏掉</div></div>
+      <div class="stat"><div class="stat-label" data-en="AIPW (doubly robust)">AIPW（雙重穩健）</div><div class="stat-num" id="tmleAipw">–</div><div class="stat-foot" data-en="either model right">其一對就不偏</div></div>
+      <div class="stat"><div class="stat-label" data-en="TMLE (targeted)">TMLE（targeting）</div><div class="stat-num" id="tmleTmle">–</div><div class="stat-foot" data-en="DR + efficient">穩健＋有效率</div></div>
+    </div>
+    <div id="tmlePlayChart" class="chart"></div>
+    <p class="caption" id="tmlePlayReading"></p>
+  </section>
+
+  <!-- ===================== TMLE ③ 資料分析 ===================== -->
+  <section id="tmleanalyze" class="panel">
+    <h1 data-en="Data analysis: crude vs g-computation vs IPTW vs AIPW vs TMLE">資料分析：粗估 vs g-computation vs IPTW vs AIPW vs TMLE</h1>
+    <p class="lead" data-en="Load the built-in cohort (treatment A, outcome Y, covariate X = severity, with a non-linear X effect). The tool reports the <b>crude</b> difference (biased), <b>g-computation</b> (outcome model only), <b>IPTW</b> (propensity only), the <b>doubly-robust AIPW</b>, and <b>TMLE</b> with an influence-curve 95% CI — the DR estimators recover the truth even though a single model could be wrong.">
+      載入內建世代（治療 A、結果 Y、共變項 X＝嚴重度，X 對 Y 為非線性）。工具回報<b>粗估</b>差異（偏）、<b>g-computation</b>（只用結果模型）、
+      <b>IPTW</b>（只用傾向分數）、<b>雙重穩健 AIPW</b>、與 <b>TMLE</b>（附影響曲線 95% CI）——即使單一模型可能錯，雙重穩健估計仍還原真值。
+    </p>
+    <div class="datasource">
+      <button id="useTmleExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="tmleFileInput" accept=".csv" hidden /></label>
+      <span id="tmleDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+    <div id="tmleColMap" class="colmap hidden">
+      <div class="field"><label data-en="Treatment A">治療 A</label><select id="tmleSelA"></select></div>
+      <div class="field"><label data-en="Outcome Y">結果 Y</label><select id="tmleSelY"></select></div>
+      <div class="field"><label data-en="Covariate X">共變項 X</label><select id="tmleSelX"></select></div>
+      <button id="runTmleAnalyze" class="btn primary" data-en="Run TMLE / AIPW">執行 TMLE／AIPW</button>
+    </div>
+    <div id="tmleAnalyzeOut" class="hidden">
+      <h2 data-en="Estimates">估計值</h2>
+      <div class="result-cards" id="tmleAnalyzeCards"></div>
+      <div id="tmleAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="The crude bar is inflated by confounding; g-computation, IPTW, AIPW and TMLE all fall back near the dashed truth line. AIPW/TMLE are doubly robust — unbiased if either nuisance model is right.">
+        粗估那條被混淆撐高；g-computation、IPTW、AIPW 與 TMLE 都回落到虛線真值附近。AIPW／TMLE 雙重穩健——任一輔助模型對就不偏。</p>
+    </div>
+  </section>
+
+  <!-- ===================== TMLE ④ 假設檢驗 ===================== -->
+  <section id="tmleassume" class="panel">
+    <h1 data-en="Can we trust this TMLE? Five checks">這個 TMLE 可不可信？五道體檢</h1>
+    <p class="lead" data-en="Double robustness protects against MODELLING error, not against unmeasured confounding. The key assumption — no unmeasured confounding — is untestable (blue), as are consistency and the ‘at least one model correct’ condition. What you can check: positivity/overlap and enough data. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      雙重穩健只防<b>模型設定錯</b>，不防未測混淆。最關鍵的假設——無未測混淆——不可檢（藍），一致性與「至少一個模型對」也是。
+      可以檢的是：正性／重疊、與資料量。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="tmleOverall" class="overall hidden"></div>
+    <div id="tmleAssumeCards" class="assume-cards"></div>
+    <p id="tmleAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== TMLE ⑤ 用 AI 強化 ===================== -->
+  <section id="tmleml" class="panel">
+    <h1 data-en="Boost with AI: cross-fitted AIPW with gradient-boosted nuisances (Super Learner spirit)">用 AI 強化：交叉擬合 AIPW＋梯度提升輔助模型（Super Learner 精神）</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>. <b>Meta-learners</b> (S-/T-/X-/DR-learner) plug flexible ML into the <b>nuisance</b> pieces while the <b>causal identification still rests on the same assumptions</b> — no unmeasured confounding, overlap, consistency. TMLE/AIPW with a Super Learner IS the canonical doubly-robust instance of this idea. <i>Sources: Feuerriegel et al., Nature Medicine 2024; van der Laan &amp; Rose 2011.</i>">
+        <b>超越單一平均效果。</b>傳統方法估一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>。<b>Meta-learners</b>（S-／T-／X-／DR-learner）把彈性 ML 放進<b>輔助</b>模型，而<b>因果識別仍靠相同假設</b>——無未測混淆、重疊、一致性。TMLE／AIPW 搭 Super Learner 正是這個想法的雙重穩健經典實例。<i>出處：Feuerriegel 等, Nature Medicine 2024；van der Laan &amp; Rose 2011。</i></p></div>
+    </details>
+    <p class="lead" data-en="When BOTH the outcome and the propensity depend on the covariates non-linearly, a single linear model (linear g-computation) is biased. Using <b>gradient boosting</b> for both nuisance models with <b>cross-fitted AIPW</b> learns the non-linearity and recovers the true ATE. Click to run (loads scikit-learn the first time, ~5–10 s):">
+      當結果和傾向都對共變項<b>非線性</b>時，只配一個<b>線性</b>模型（線性 g-computation）會偏。用<b>梯度提升</b>當兩個輔助模型、做<b>交叉擬合的 AIPW</b>，就能把非線性學對、ATE 回到真值。按下執行（首次會載入 scikit-learn，約 5–10 秒）：
+    </p>
+    <button id="runTmleMl" class="btn primary" data-en="Run the real-ML doubly-robust demo">跑真正的 ML 雙重穩健示範</button>
+    <div id="tmleMlOut" class="hidden">
+      <div id="tmleMlChart" class="chart"></div>
+      <p class="caption" id="tmleMlReading"></p>
+    </div>
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="① ML fits the nuisances; identification is unchanged">① ML 配輔助模型，識別不變</h3>
+        <p data-en="Super Learner makes Q and PS flexible, but TMLE/AIPW still identify the effect only under no-unmeasured-confounding + positivity. ML cannot rescue a hidden confounder.">Super Learner 讓 Q 與 PS 更彈性，但 TMLE／AIPW 的識別仍只在無未測混淆＋正性下成立。ML 救不了隱藏的混淆。</p></div>
+      <div class="card"><h3 data-en="② Cross-fitting is the safety belt">② 交叉擬合是安全帶</h3>
+        <p data-en="Predicting nuisances out-of-fold removes the over-fitting bias flexible ML would otherwise leak into the effect — required for valid inference (Chernozhukov et al.; van der Laan &amp; Rose).">把輔助量做樣本外預測，移除彈性 ML 否則會洩進效果的過度配適偏誤——有效推論的必要條件（Chernozhukov 等；van der Laan &amp; Rose）。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -4296,6 +4412,30 @@
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Conditional exchangeability</b>: given the measured X, treatment is as-good-as random (no unmeasured confounding). <b>Positivity</b>: 0 &lt; PS &lt; 1 for everyone (overlap). <b>Consistency</b>: a well-defined vaccination. PS balances X to deliver the first.">​<b>條件可交換性</b>：在已測 X 下，接種近似隨機（無未測混淆）。<b>正性</b>：每人 0 &lt; PS &lt; 1（重疊）。<b>一致性</b>：接種定義明確。PS 平衡 X 來換取第一條。</p></div>
       <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>measured covariates only</b>. PS makes the comparison fair on the X you put in — it cannot manufacture exchangeability for an unmeasured confounder. That gap is why no-unmeasured-confounding is the headline assumption.">只靠<b>已測共變項</b>。PS 讓比較在你放進去的 X 上公平——它<b>無法</b>替未測混淆製造可交換。這個缺口正是「無未測混淆」成為頭號假設的原因。</p></div>
       <div class="card"><h3 data-en="④ In What If &amp; the PS literature">④ 對應《What If》與 PS 文獻</h3><p data-en="Confounding, back-door adjustment, IPW &amp; the propensity score (Hernán &amp; Robins, <i>What If</i>, Ch 7, 12–15); Rosenbaum &amp; Rubin 1983; Austin 2011; Li, Morgan &amp; Zaslavsky 2018. Free book online.">混淆、後門校正、IPW 與傾向分數（Hernán &amp; Robins, <i>What If</i>, 第 7、12–15 章）；Rosenbaum &amp; Rubin 1983；Austin 2011；Li, Morgan &amp; Zaslavsky 2018。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
+    </div>
+  </section>
+
+  <section id="tmlewhatif" class="panel">
+    <h1 data-en="⑥ What if…? TMLE in the language of counterfactuals">⑥ 如果……？用反事實的語言看「TMLE／雙重穩健」</h1>
+    <p class="lead" data-en="The estimand is the same contrast as for the propensity score: E[Yᵃ⁼¹] − E[Yᵃ⁼⁰], the ATE. The DAG is the same back-door picture (X confounds A and Y). What's different is the <b>estimator</b>: TMLE/AIPW use <b>two</b> models of that structure — the outcome regression and the propensity — so you are unbiased if <b>either</b> matches the truth, and TMLE's targeting step makes the plug-in efficient.">
+      估計目標和傾向分數相同：E[Yᵃ⁼¹] − E[Yᵃ⁼⁰]，即 ATE。DAG 也是同一張後門圖（X 混淆 A 與 Y）。不同的是<b>估計器</b>：
+      TMLE／AIPW 用<b>兩個</b>描述這個結構的模型——結果迴歸與傾向分數——所以<b>其一</b>對就不偏，而 TMLE 的 targeting 步讓插入式估計更有效率。
+    </p>
+    <div class="card scene"><h3 data-en="The TMLE DAG: X is a back-door confounder; two models, two chances">TMLE 的 DAG：X 是後門混淆；兩個模型、兩次機會</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tmle" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_tmle" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
+      <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
+        <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each <b>circle</b> is a variable; each <b>arrow</b> is a direct causal direction. The arrow from treatment to outcome is the effect you want; any path that does not go through treatment yet connects to both treatment and outcome (a <b>back door</b>, usually a confounder) dirties the estimate; a good design blocks those back doors. Red arrows are bias; the teal arrow is the effect.">​<b>把它想成「誰造成誰」的地圖。</b>每個<b>圓圈</b>是一個變數；每個<b>箭頭</b>是一個直接因果方向。治療指到結果的箭頭就是你要的效果；任何不經過治療、卻同時連到治療與結果的路徑（<b>後門</b>，通常是混淆）會弄髒估計；好設計把後門擋住。紅箭頭＝偏誤、青箭頭＝效果。</p></div>
+      <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
+        <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> It splits the treatment node into A∣a: the left half is the observed treatment, the small a is the value you would set it to. Every downstream outcome becomes a counterfactual Yᵃ. It draws exchangeability for you: after adjusting, the set treatment is independent of the counterfactual (A ⫫ Yᵃ), and only then does the association equal the causal effect.">​<b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把治療節點切成 A∣a：左半是觀察到的治療，小 a 是你介入要設的值。下游結果都變成反事實 Yᵃ。它把可交換性畫出來：校正後，被設定的治療與反事實獨立（A ⫫ Yᵃ），這時關聯才等於因果效果。</p></div>
+    </details>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The contrast E[Yᵃ⁼¹] − E[Yᵃ⁼⁰] = the ATE. TMLE targets this plug-in directly; AIPW estimates it with the doubly-robust influence-function formula.">對比 E[Yᵃ⁼¹] − E[Yᵃ⁼⁰] ＝ ATE。TMLE 直接針對這個插入式目標 targeting；AIPW 用雙重穩健的影響函數公式估它。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="Same three as PS — conditional exchangeability (no unmeasured confounding), positivity (0&lt;PS&lt;1), consistency. Double robustness does NOT relax any of them; it only protects against getting a nuisance MODEL wrong.">和 PS 相同三條——條件可交換（無未測混淆）、正性（0&lt;PS&lt;1）、一致性。雙重穩健<b>不</b>放寬任何一條；它只防把輔助<b>模型</b>配錯。</p></div>
+      <div class="card"><h3 data-en="③ Where the robustness comes from">③ 穩健性從哪來</h3><p data-en="From having <b>two</b> models of the same structure. If the outcome model is right, the augmentation term has mean zero; if the propensity is right, the plug-in bias is corrected. You only need ONE of them — that's the ‘two chances’.">來自對同一結構有<b>兩個</b>模型。結果模型對，擴增項期望為零；傾向分數對，插入式偏誤被修正。你只需要<b>其中一個</b>對——這就是「兩次機會」。</p></div>
+      <div class="card"><h3 data-en="④ In What If &amp; the TMLE literature">④ 對應《What If》與 TMLE 文獻</h3><p data-en="Standardization / g-formula, IPW &amp; doubly-robust estimation (Hernán &amp; Robins, <i>What If</i>, Ch 13–15); van der Laan &amp; Rubin 2006; van der Laan &amp; Rose 2011; Luque-Fernandez et al. 2018. Free book online.">標準化／g-formula、IPW 與雙重穩健估計（Hernán &amp; Robins, <i>What If</i>, 第 13–15 章）；van der Laan &amp; Rubin 2006；van der Laan &amp; Rose 2011；Luque-Fernandez 等 2018。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
 
@@ -4807,6 +4947,36 @@ run;   <span class="cm">/* reports the ATE with a robust SE; overlap weights via
       <p data-en="PROC CAUSALTRT gives the IPTW ATE directly (method=ipw), or the doubly-robust AIPW (method=aipw) — unbiased if EITHER the PS or the outcome model is correct. For overlap weights (ATO), build w = A(1−PS)+(1−A)PS and run a weighted PROC GENMOD.">CAUSALTRT 直接給 IPTW 的 ATE（method=ipw），或雙重穩健 AIPW（method=aipw）——只要 PS 或結果模型其一對就不偏。要重疊權重（ATO），自建 w = A(1−PS)+(1−A)PS 再跑加權的 <code>PROC GENMOD</code>。</p></div>
   </section>
 
+  <section id="tmlesas" class="panel">
+    <h1 data-en="⑦ SAS / R code: the key steps for TMLE &amp; AIPW">⑦ SAS／R 程式：TMLE 與 AIPW 的關鍵步驟</h1>
+    <p class="lead" data-en="SAS's PROC CAUSALTRT gives the doubly-robust AIPW estimate directly; full TMLE with a Super Learner is most idiomatic in R's tmle / ltmle packages.">SAS 的 <code>PROC CAUSALTRT</code> 直接給雙重穩健 AIPW；完整的 TMLE＋Super Learner 在 R 的 <code>tmle</code>／<code>ltmle</code> 套件最道地。</p>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — one analysis row per person (pre-treatment covariates)">步驟 0 — 每人一列（治療前共變項）</h3>
+      <pre class="sas"><code><span class="cm">/* assemble treatment A, outcome Y, and covariates X measured BEFORE treatment. */</span>
+proc sql;
+   create table tmle as
+   select pid, vaccinated as A, infection as Y, severity as X
+   from cohort;
+quit;</code></pre>
+      <p data-en="As for any confounding-adjustment method, the covariates X must be pre-treatment (confounders + outcome risk factors), never post-treatment.">和任何混淆校正法一樣，共變項 X 必須在治療之前（混淆＋結果風險因子），不能用治療之後的變項。</p></div>
+    <div class="card"><h3 data-en="Step 1 — doubly-robust AIPW (PROC CAUSALTRT)">步驟 1 — 雙重穩健 AIPW（PROC CAUSALTRT）</h3>
+      <pre class="sas"><code>proc causaltrt data=tmle method=aipw;   <span class="cm">/* augmented IPW = doubly robust */</span>
+   class A;
+   psmodel A(ref='0') = X X*X;          <span class="cm">/* propensity model     */</span>
+   model  Y = X X*X;                    <span class="cm">/* outcome model        */</span>
+run;   <span class="cm">/* ATE with a robust SE; unbiased if EITHER model is correct */</span></code></pre>
+      <p data-en="method=aipw is the doubly-robust estimator: it stays unbiased if either the propensity model or the outcome model is right. Include flexible terms (here X²) so at least one model captures the non-linearity.">method=aipw 是雙重穩健估計：傾向或結果模型<b>其一</b>對就不偏。放入彈性項（這裡 X²），讓至少一個模型抓到非線性。</p></div>
+    <div class="card"><h3 data-en="Step 2 — full TMLE with a Super Learner (R)">步驟 2 — 完整 TMLE＋Super Learner（R）</h3>
+      <pre class="sas"><code><span class="cm"># R: targeting + cross-validated ensembles for BOTH nuisance models</span>
+library(tmle); library(SuperLearner)
+fit &lt;- tmle(Y = Y, A = A, W = X,
+            Q.SL.library = c("SL.glm","SL.gam","SL.xgboost"),   <span class="cm"># outcome model</span>
+            g.SL.library = c("SL.glm","SL.gam","SL.xgboost"))   <span class="cm"># propensity model</span>
+fit$estimates$ATE        <span class="cm"># targeted, doubly-robust, efficient ATE + influence-curve CI</span>
+<span class="cm"># ltmle::ltmle() extends this to time-varying treatments (g-methods territory)</span></code></pre>
+      <p data-en="R's tmle adds the targeting step on top of a Super Learner for both Q and g; ltmle generalises it to longitudinal / time-varying treatments. Always cross-fit when the learners are flexible.">R 的 tmle 在 Q 與 g 兩個 Super Learner 上加上 targeting 步；ltmle 把它推廣到縱貫／時變治療。學習器彈性時務必交叉擬合。</p></div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -5199,11 +5369,14 @@ run;   <span class="cm">/* reports the ATE with a robust SE; overlap weights via
       <li data-ref="ps">Wang, K., Rosman, L., &amp; Lu, H. (2025). Evaluation of Machine Learning-Based Propensity Score Estimation: A Benchmarking Observational Analysis Against a Randomized Trial. <i>medRxiv</i> 2025.06.16.25329708. <span data-en="〔ML-PS benchmarked against an RCT: balance, not prediction, recovers the trial estimate — PS tab ⑤ note ④〕">〔ML-PS 以隨機試驗為標準的基準研究：靠平衡而非預測還原試驗結果 —— PS 分頁 ⑤ 注意事項 ④〕</span></li>
       <li data-ref="ps">Goller, D., Lechner, M., Moczall, A., &amp; Wolff, J. (2020). Does the estimation of the propensity score by machine learning improve matching estimation? The case of Germany's programmes for long term unemployed. <i>Labour Economics, 65</i>, 101855. https://doi.org/10.1016/j.labeco.2020.101855. <span data-en="〔ML-PS improves matching only modestly over a careful logistic model — PS tab ⑤ note ③〕">〔ML-PS 相對精心建好的邏輯斯模型僅小幅改善配對 —— PS 分頁 ⑤ 注意事項 ③〕</span></li>
       <li data-ref="ps">Ju, C. (under M. J. van der Laan). Propensity Score Estimation with Machine Learning Methods on Electronic Health Databases with Healthcare Claims Data (UC Berkeley, Division of Biostatistics). · Fan, J., Beemer, J., Yan, X., &amp; Levine, R. A. On Machine Learning Methods for Propensity Score Matching and Weighting in Educational Data Mining Applications (ch. 18). <span data-en="〔super-learner / ML-PS on claims &amp; in educational data mining — PS tab ⑤ note ④〕">〔健保理賠與教育資料探勘上的 super-learner／ML-PS —— PS 分頁 ⑤ 注意事項 ④〕</span></li>
+      <li data-ref="tmle"><b data-en="Foundational">奠基</b> · van der Laan, M. J., &amp; Rubin, D. (2006). Targeted Maximum Likelihood Learning. <i>The International Journal of Biostatistics, 2</i>(1), Article 11. https://doi.org/10.2202/1557-4679.1043. · van der Laan, M. J., &amp; Rose, S. (2011). <i>Targeted Learning: Causal Inference for Observational and Experimental Data.</i> Springer. <span data-en="〔TMLE &amp; targeted learning — TMLE tabs ①④⑥〕">〔TMLE 與目標式學習 —— TMLE 分頁 ①④⑥〕</span></li>
+      <li data-ref="tmle">Luque-Fernandez, M. A., Schomaker, M., Rachet, B., &amp; Schnitzer, M. E. (2018). Targeted maximum likelihood estimation for a binary treatment: A tutorial. <i>Statistics in Medicine, 37</i>(16), 2530–2546. https://doi.org/10.1002/sim.7628. · Gruber, S., &amp; van der Laan, M. J. Targeted Maximum Likelihood Estimation: A Gentle Introduction (UC Berkeley Working Paper). <span data-en="〔the continuous-outcome TMLE this page reconstructs — TMLE tabs ①③〕">〔本頁重建的連續結果 TMLE —— TMLE 分頁 ①③〕</span></li>
+      <li data-ref="tmle"><b data-en="Super Learner &amp; cross-fitting">Super Learner 與交叉擬合</b> · van der Laan, M. J., Polley, E. C., &amp; Hubbard, A. E. (2007). Super Learner. <i>Statistical Applications in Genetics and Molecular Biology, 6</i>(1), Article 25. · Schuler, M. S., &amp; Rose, S. (2017). Targeted Maximum Likelihood Estimation for Causal Inference in Observational Studies. <i>American Journal of Epidemiology, 185</i>(1), 65–73. <span data-en="〔the ensemble for the nuisances; an applied AJE primer — TMLE tab ⑤〕">〔輔助模型的集成；AJE 應用入門 —— TMLE 分頁 ⑤〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=90"></script>
-<script src="app.js?v=90"></script>
+<script src="i18n.js?v=91"></script>
+<script src="app.js?v=91"></script>
 </body>
 </html>
