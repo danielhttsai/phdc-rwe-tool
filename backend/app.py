@@ -76,6 +76,10 @@ import tmle_core
 import tmle_gen
 import tmle_assumptions
 import tmle_ml
+import gm_core
+import gm_gen
+import gm_assumptions
+import gm_ml
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1389,6 +1393,54 @@ def tmle_interactive(conf: float = 1.0, lang: str = "zh"):
 def tmle_ml_endpoint(seed: int = 43, lang: str = "zh"):
     """TMLE ⑤: real-sklearn cross-fitted AIPW with gradient-boosted nuisances vs a single linear model."""
     return _clean(tmle_ml.ml_tmle_demo(seed=seed, lang=lang))
+
+
+# ------------------------------- G-methods (GM) -------------------------------
+class GmRequest(BaseModel):
+    source: str = "example_gm"
+    lang: str = "zh"
+
+
+def _load_gm(source: str) -> pd.DataFrame:
+    if source in ("example_gm", "example"):
+        return gm_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/gm_example")
+def gm_example():
+    df = gm_gen.generate()
+    return _clean({
+        "columns": list(df.columns), "defaults": {},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {"A0/A1": "A₀、A₁（兩期是否用藥）", "L0/L1": "L₀、L₁（時變混淆；L₁ 受 A₀ 影響）",
+                  "Y": "Y（結果，連續；越高越糟）"},
+    })
+
+
+@app.post("/api/gm_analyze")
+def gm_analyze(req: GmRequest):
+    return _clean(gm_core.full_gm(_load_gm(req.source), lang=req.lang))
+
+
+@app.post("/api/gm_assumptions")
+def gm_assumptions_check(req: GmRequest):
+    return _clean(gm_assumptions.run_dashboard(_load_gm(req.source), lang=req.lang))
+
+
+@app.get("/api/gm_interactive")
+def gm_interactive(feedback: float = 1.0, lang: str = "zh"):
+    return _clean(gm_core.gm_interactive(float(np.clip(feedback, 0.0, 1.5)), lang=lang))
+
+
+@app.get("/api/gm_ml")
+def gm_ml_endpoint(seed: int = 11, lang: str = "zh"):
+    """G-methods ⑤: real-sklearn ML-assisted g-formula (gradient boosting vs linear nuisances)."""
+    return _clean(gm_ml.ml_gmethods_demo(seed=seed, lang=lang))
 
 
 @app.get("/api/tit_interactive")

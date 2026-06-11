@@ -4,15 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=91" />
+<link rel="stylesheet" href="styles.css?v=92" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-<script src="pyodide-bridge.js?v=33"></script>
+<script src="pyodide-bridge.js?v=34"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span> · <span>GM</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -33,6 +33,7 @@
         <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
         <option value="ps" data-en="PS · Propensity score">PS · 傾向分數</option>
         <option value="tmle" data-en="TMLE · Doubly-robust / targeted ML">TMLE · 雙重穩健／目標式</option>
+        <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
       </select>
     </label>
     <div class="subtabs">
@@ -3978,6 +3979,115 @@
     </div>
   </section>
 
+  <!-- ===================== GM ① 是什麼 ===================== -->
+  <section id="gmlearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="G-methods: when treatment and confounder feed back on each other over time">G-methods：當治療與混淆「隨時間互相回饋」</h1>
+    <p class="lead" data-en="A drug is taken over two periods (A₀, A₁). In between sits a <b>time-varying confounder</b> Lₜ (disease activity): it drives whether you're treated now (so it <b>confounds</b>), but <b>past treatment also changes it</b> (so it's also a <b>mediator</b>), and it affects the outcome. With this <b>treatment–confounder feedback</b>, standard regression is wrong <b>both ways</b>: don't adjust for Lₜ → confounded; adjust for Lₜ → you block the A→L→Y effect AND open a collider. Only <b>g-methods</b> get it right: the <b>parametric g-formula</b> (model L &amp; Y, simulate the regimes &amp; standardise), the <b>IPTW marginal structural model</b> (weight by inverse treatment probability to delete the arrows into Aₜ), and <b>g-estimation</b> (Robins, Hernán &amp; Brumback 2000; Naimi, Cole &amp; Kennedy 2017).">
+      一種藥分兩期服用（A₀、A₁）。中間有個<b>時變混淆</b> Lₜ（疾病活動度）：它影響「當下是否用藥」（所以是<b>混淆</b>），
+      但<b>過去用藥又會改變它</b>（所以也是<b>中介</b>），而且它影響結果。這種<b>治療↔混淆回饋</b>讓標準迴歸<b>兩頭都錯</b>：
+      不校正 Lₜ→被混淆；校正 Lₜ→擋掉 A→L→Y 的效果又開啟對撞偏誤。只有 <b>g-methods</b> 能做對：<b>參數 g-formula</b>
+      （建 L、Y 模型，模擬策略再標準化）、<b>IPTW 邊際結構模型</b>（用反治療機率加權、去掉指向 Aₜ 的箭頭）、與
+      <b>g-estimation</b>（Robins, Hernán &amp; Brumback 2000；Naimi, Cole &amp; Kennedy 2017）。
+    </p>
+    <div class="card scene"><h3 data-en="Treatment–confounder feedback: A₀ → L₁ → (A₁ and Y), with L confounding each treatment">治療↔混淆回饋：A₀ → L₁ →（A₁ 與 Y），且 L 混淆每一期治療</h3>
+      <div id="gmScene" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>時變混淆／治療-混淆回饋 <span class="en">time-varying confounding / treatment-confounder feedback</span></h4>
+        <p data-en="<b>Plain:</b> a covariate Lₜ that (1) predicts the next treatment, (2) is itself changed by past treatment, and (3) affects the outcome. Adjusting for it the usual way is wrong because it is simultaneously a confounder, a mediator, and a collider.">
+          <b>白話：</b>一個共變項 Lₜ，同時(1)預測下一次治療、(2)被過去治療改變、(3)影響結果。用一般方式校正它會錯，因為它同時是混淆、中介、又是對撞。</p></div>
+      <div class="tdef"><h4>g-formula／IPTW-MSM <span class="en">parametric g-formula / marginal structural model</span></h4>
+        <p data-en="<b>g-formula:</b> model how L evolves and how Y depends on history, then simulate 'always treat' vs 'never treat' and average (standardisation over the time-varying L). <b>IPTW-MSM:</b> weight each person by the inverse probability of their treatment history given the past, fit a simple marginal model E[Yᵃ]=β₀+β₁·(a₀+a₁) — the weights remove the arrows from Lₜ into Aₜ.">
+          <b>g-formula：</b>建 L 的演變與 Y 對史的模型，模擬「全程用藥 vs 全程不用」再平均（對時變 L 做標準化）。<b>IPTW-MSM：</b>用「治療史的反機率」加權，配一個簡單邊際模型 E[Yᵃ]=β₀+β₁·(a₀+a₁)——權重去掉了 Lₜ 指向 Aₜ 的箭頭。</p></div>
+      <div class="tdef"><h4>序列可交換性 <span class="en">sequential exchangeability</span></h4>
+        <p data-en="<b>Plain:</b> at every time, given the measured past (treatment + covariate history), the current treatment is as-good-as random. This is the time-varying version of 'no unmeasured confounding' and is the key, untestable assumption (see ④).">
+          <b>白話：</b>每個時點，在已測的過去（治療＋共變項史）之下，當下治療近似隨機。這是「無未測混淆」的時變版本，是關鍵、不可檢的假設（見 ④）。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== GM ② 互動講解 ===================== -->
+  <section id="gmplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: strengthen the feedback, watch both naive estimates fail but g-methods hold">互動：加強回饋，看兩種天真估計都失敗、g-methods 卻穩住</h1>
+    <p class="lead" data-en="Drag the slider for the <b>feedback strength</b> — how much past treatment moves the later confounder Lₜ. As it grows, the <b>unadjusted</b> estimate (confounded) and the <b>Lₜ-adjusted</b> estimate (which blocks the A→L→Y path) drift ever further from the truth in opposite ways, while the <b>g-formula</b> and <b>IPTW-MSM</b> track the true 'always vs never' effect. At 0 there is no feedback and everything agrees.">
+      拉動滑桿改變<b>回饋強度</b>——過去治療把日後混淆 Lₜ 推動多少。強度越大，<b>不校正</b>（被混淆）與<b>校正 Lₜ</b>（擋掉 A→L→Y 路徑）
+      這兩種天真估計往相反方向越偏越遠，而 <b>g-formula</b> 與 <b>IPTW-MSM</b> 始終跟著真正的「全程 vs 不用」效果走。為 0 時沒有回饋、大家一致。
+    </p>
+    <div class="controls"><label>
+      <span data-en="Feedback strength:">回饋強度：</span><b id="gmFbVal">1.0</b>
+      <input type="range" id="gmFbSlider" min="0" max="1.5" value="1" step="0.05" />
+      <small data-en="0 = past treatment doesn't move Lₜ (no feedback, no mediated path). Larger = stronger treatment–confounder feedback, so the naive estimates fail harder — but g-methods hold.">0＝過去治療不動 Lₜ（無回饋、無中介路徑）。越大＝治療↔混淆回饋越強，天真估計錯越多——但 g-methods 穩住。</small>
+    </label></div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Unadjusted">不校正</div><div class="stat-num" id="gmUnadj">–</div><div class="stat-foot" data-en="confounded">被混淆</div></div>
+      <div class="stat"><div class="stat-label" data-en="Adjusted for Lₜ">校正 Lₜ</div><div class="stat-num" id="gmAdj">–</div><div class="stat-foot" data-en="blocks A→L→Y">擋掉效果路徑</div></div>
+      <div class="stat"><div class="stat-label" data-en="g-formula">g-formula</div><div class="stat-num" id="gmGform">–</div><div class="stat-foot" data-en="recovers truth">還原真值</div></div>
+    </div>
+    <div id="gmPlayChart" class="chart"></div>
+    <p class="caption" id="gmPlayReading"></p>
+  </section>
+
+  <!-- ===================== GM ③ 資料分析 ===================== -->
+  <section id="gmanalyze" class="panel">
+    <h1 data-en="Data analysis: unadjusted vs Lₜ-adjusted vs g-formula vs IPTW-MSM">資料分析：不校正 vs 校正 Lₜ vs g-formula vs IPTW-MSM</h1>
+    <p class="lead" data-en="Load the built-in 2-period cohort (baseline L₀, treatment A₀, time-varying confounder L₁ moved by A₀, treatment A₁, outcome Y). The tool reports the <b>unadjusted</b> estimate (confounded), the <b>Lₜ-adjusted</b> regression (biased — L₁ is a mediator + collider), and the two g-methods, the <b>parametric g-formula</b> and the <b>IPTW marginal structural model</b>, which recover the 'always treat vs never treat' regime effect.">
+      載入內建兩期世代（基線 L₀、治療 A₀、被 A₀ 推動的時變混淆 L₁、治療 A₁、結果 Y）。工具回報<b>不校正</b>估計（被混淆）、
+      <b>校正 Lₜ</b> 的迴歸（偏——L₁ 是中介＋對撞），以及兩個 g-methods：<b>參數 g-formula</b> 與 <b>IPTW 邊際結構模型</b>，
+      它們還原「全程用藥 vs 全程不用」的策略效果。
+    </p>
+    <div class="datasource">
+      <button id="useGmExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="gmFileInput" accept=".csv" hidden /></label>
+      <span id="gmDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+    <div id="gmAnalyzeOut" class="hidden">
+      <h2 data-en="Estimates of the 'always vs never' effect">「全程 vs 不用」效果的估計</h2>
+      <div class="result-cards" id="gmAnalyzeCards"></div>
+      <div id="gmAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="The unadjusted bar is confounded (can even flip sign); adjusting for Lₜ is biased the other way (it blocks the A→L→Y benefit). The g-formula and IPTW-MSM bars fall on the dashed truth line.">
+        不校正那條被混淆（甚至方向相反）；校正 Lₜ 偏向另一邊（擋掉 A→L→Y 的好處）。g-formula 與 IPTW-MSM 落在虛線真值上。</p>
+    </div>
+  </section>
+
+  <!-- ===================== GM ④ 假設檢驗 ===================== -->
+  <section id="gmassume" class="panel">
+    <h1 data-en="Can we trust this g-methods analysis? Five checks">這個 g-methods 分析可不可信？五道體檢</h1>
+    <p class="lead" data-en="g-methods rest on <b>sequential exchangeability</b> — no unmeasured time-varying confounding — which is untestable (blue), as are consistency / well-defined regimes. The nuisance models must be right (improvable with ML, see ⑤). What you can check: positivity at each time and enough treated/untreated. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      g-methods 建立在<b>序列可交換</b>——無未測時變混淆——之上，不可檢（藍），一致性／策略定義明確也是。輔助模型要設定正確（可用 ML 改善，見 ⑤）。
+      可以檢的是：每個時點的正性、以及治療／未治療人數。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="gmOverall" class="overall hidden"></div>
+    <div id="gmAssumeCards" class="assume-cards"></div>
+    <p id="gmAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== GM ⑤ 用 AI 強化 ===================== -->
+  <section id="gmml" class="panel">
+    <h1 data-en="Boost with AI: ML-assisted g-formula (gradient-boosted nuisances)">用 AI 強化：ML 輔助 g-formula（梯度提升輔助模型）</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Classical methods target one <b>average treatment effect</b>. Causal ML aims further — at <b>individualised / conditional effects (CATE)</b>. <b>Meta-learners</b> plug flexible ML into the <b>nuisance</b> pieces while the <b>causal identification still rests on the same assumptions</b> — here, sequential exchangeability, positivity, consistency. The ⑤ demo uses ML for the g-formula's L &amp; Y models. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Naimi, Cole &amp; Kennedy 2017.</i>">
+        <b>超越單一平均效果。</b>傳統方法估一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步——瞄準<b>個體化／條件效果（CATE）</b>。<b>Meta-learners</b> 把彈性 ML 放進<b>輔助</b>模型，而<b>因果識別仍靠相同假設</b>——這裡是序列可交換、正性、一致性。本頁 ⑤ 用 ML 配 g-formula 的 L 與 Y 模型。<i>出處：Feuerriegel 等, Nature Medicine 2024；Naimi, Cole &amp; Kennedy 2017。</i></p></div>
+    </details>
+    <p class="lead" data-en="When the time-varying confounder's evolution and the outcome depend on history <b>non-linearly</b>, a linear g-formula mis-specifies its nuisance models and stays biased. Using <b>gradient boosting</b> for the Lₜ and Y models (the spirit of ML / Super Learner in the g-formula) learns the non-linearity and recovers the regime effect. Click to run (loads scikit-learn the first time, ~5–10 s):">
+      當時變混淆的演變與結果對史是<b>非線性</b>時，線性 g-formula 把輔助模型配錯而偏。用<b>梯度提升</b>當 Lₜ 與 Y 的模型（g-formula 裡 ML／Super Learner 的精神），把非線性學對、還原策略效果。按下執行（首次會載入 scikit-learn，約 5–10 秒）：
+    </p>
+    <button id="runGmMl" class="btn primary" data-en="Run the real-ML g-formula demo">跑真正的 ML g-formula 示範</button>
+    <div id="gmMlOut" class="hidden">
+      <div id="gmMlChart" class="chart"></div>
+      <p class="caption" id="gmMlReading"></p>
+    </div>
+    <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
+    <div class="cards">
+      <div class="card"><h3 data-en="① ML fits the nuisances; identification is unchanged">① ML 配輔助模型，識別不變</h3>
+        <p data-en="Flexible learners make the L and Y models fit better, but g-methods still identify the regime effect only under sequential exchangeability + positivity. ML cannot rescue an unmeasured time-varying confounder.">彈性學習器讓 L 與 Y 模型配得更好，但 g-methods 的識別仍只在序列可交換＋正性下成立。ML 救不了未測的時變混淆。</p></div>
+      <div class="card"><h3 data-en="② Pair with doubly-robust / cross-fitting">② 搭配雙重穩健／交叉擬合</h3>
+        <p data-en="Plugging ML into a single g-formula model can over-fit; the robust route is a doubly-robust g-method (e.g. TMLE for time-varying treatments, ltmle) with cross-fitting, so being wrong about one nuisance is survivable.">把 ML 放進單一 g-formula 模型可能過度配適；穩健做法是雙重穩健的 g-method（如時變治療的 TMLE、ltmle）＋交叉擬合，這樣其中一個輔助模型錯了也撐得住。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -4436,6 +4546,31 @@
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="Same three as PS — conditional exchangeability (no unmeasured confounding), positivity (0&lt;PS&lt;1), consistency. Double robustness does NOT relax any of them; it only protects against getting a nuisance MODEL wrong.">和 PS 相同三條——條件可交換（無未測混淆）、正性（0&lt;PS&lt;1）、一致性。雙重穩健<b>不</b>放寬任何一條；它只防把輔助<b>模型</b>配錯。</p></div>
       <div class="card"><h3 data-en="③ Where the robustness comes from">③ 穩健性從哪來</h3><p data-en="From having <b>two</b> models of the same structure. If the outcome model is right, the augmentation term has mean zero; if the propensity is right, the plug-in bias is corrected. You only need ONE of them — that's the ‘two chances’.">來自對同一結構有<b>兩個</b>模型。結果模型對，擴增項期望為零；傾向分數對，插入式偏誤被修正。你只需要<b>其中一個</b>對——這就是「兩次機會」。</p></div>
       <div class="card"><h3 data-en="④ In What If &amp; the TMLE literature">④ 對應《What If》與 TMLE 文獻</h3><p data-en="Standardization / g-formula, IPW &amp; doubly-robust estimation (Hernán &amp; Robins, <i>What If</i>, Ch 13–15); van der Laan &amp; Rubin 2006; van der Laan &amp; Rose 2011; Luque-Fernandez et al. 2018. Free book online.">標準化／g-formula、IPW 與雙重穩健估計（Hernán &amp; Robins, <i>What If</i>, 第 13–15 章）；van der Laan &amp; Rubin 2006；van der Laan &amp; Rose 2011；Luque-Fernandez 等 2018。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
+    </div>
+  </section>
+
+  <section id="gmwhatif" class="panel">
+    <h1 data-en="⑥ What if…? G-methods in the language of counterfactuals">⑥ 如果……？用反事實的語言看「G-methods／時變混淆」</h1>
+    <p class="lead" data-en="The estimand is a contrast of <b>treatment-regime</b> counterfactuals: E[Y^(1,1)] − E[Y^(0,0)], the outcome if everyone <b>always</b> took the drug vs <b>never</b>. The DAG has the feature that makes time-varying treatment hard: L₁ is on the path A₀ → L₁ → Y (a <b>mediator</b>, so you must NOT condition on it) yet also L₁ → A₁ (a <b>confounder</b> of the second dose, so you MUST account for it). g-methods resolve the tension by standardising (g-formula) or weighting (IPTW) instead of conditioning.">
+      估計目標是<b>治療策略</b>的反事實對比：E[Y^(1,1)] − E[Y^(0,0)]，即「大家<b>全程</b>用藥 vs <b>全程</b>不用」的結果。DAG 的關鍵在：
+      L₁ 落在 A₀ → L₁ → Y 這條路上（是<b>中介</b>，所以<b>不能</b>條件在它上）卻又 L₁ → A₁（是第二劑的<b>混淆</b>，所以<b>必須</b>處理它）。
+      g-methods 用標準化（g-formula）或加權（IPTW）取代「條件控制」，化解這個兩難。
+    </p>
+    <div class="card scene"><h3 data-en="The g-methods DAG: L₀→A₀→L₁→A₁→Y with treatment–confounder feedback">G-methods 的 DAG：L₀→A₀→L₁→A₁→Y 的治療↔混淆回饋</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_gm" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatments split into A₀∣a₀, A₁∣a₁ and the outcome becomes the regime counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A₀∣a₀、A₁∣a₁，結果變成策略反事實 Yᵃ</p><div id="swigScene_gm" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
+      <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
+        <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each <b>circle</b> is a variable; each <b>arrow</b> is a direct causal direction. The arrow from treatment to outcome is the effect you want; a covariate that is caused by past treatment AND causes future treatment and the outcome (here L₁) is the hard case — it is a confounder and a mediator at once. Red arrows are bias; the teal arrows are effect.">​<b>把它想成「誰造成誰」的地圖。</b>每個<b>圓圈</b>是一個變數；每個<b>箭頭</b>是一個直接因果方向。治療指到結果的箭頭就是你要的效果；一個被過去治療造成、又造成未來治療與結果的共變項（這裡的 L₁）就是難題——它同時是混淆又是中介。紅箭頭＝偏誤、青箭頭＝效果。</p></div>
+      <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
+        <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> Here you split BOTH treatments (A₀∣a₀, A₁∣a₁) and read the regime counterfactual Yᵃ. Identification needs <b>sequential</b> exchangeability — at each time, given the past, the set treatment is independent of Yᵃ — which is exactly what standardisation (g-formula) or inverse-probability weighting (IPTW) delivers.">​<b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>這裡把<b>兩個</b>治療都切開（A₀∣a₀、A₁∣a₁），讀出策略反事實 Yᵃ。識別需要<b>序列</b>可交換——每個時點、在過去之下，被設定的治療與 Yᵃ 獨立——這正是標準化（g-formula）或反機率加權（IPTW）所提供的。</p></div>
+    </details>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The contrast E[Y^(1,1)] − E[Y^(0,0)] — the effect of a static <b>regime</b> (always treat vs never), not of a single dose. g-methods can also target <b>dynamic</b> regimes (‘treat when Lₜ crosses a threshold’).">對比 E[Y^(1,1)] − E[Y^(0,0)]——一個<b>靜態策略</b>（全程用 vs 全程不用）的效果，不是單一劑量。g-methods 也能估<b>動態</b>策略（「當 Lₜ 超過門檻才用」）。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Sequential</b> exchangeability (no unmeasured time-varying confounding) at each time; <b>positivity</b> at each time and history; <b>consistency</b> / well-defined regimes. These replace the single-time versions used by PS.">每個時點的<b>序列</b>可交換（無未測時變混淆）；每個時點與史的<b>正性</b>；<b>一致性</b>／策略定義明確。這是 PS 單時點版本的時變推廣。</p></div>
+      <div class="card"><h3 data-en="③ Why ordinary regression fails">③ 為什麼一般迴歸會失敗</h3><p data-en="Conditioning on L₁ blocks the A₀→L₁→Y part of the effect (it's a mediator) and opens a collider (L₁←A₀, L₁←U→Y); NOT conditioning leaves L₁ confounding A₁. No single regression can do both — only standardisation or weighting can.">條件在 L₁ 上會擋掉 A₀→L₁→Y 那段效果（它是中介）又開啟對撞（L₁←A₀、L₁←U→Y）；不條件又讓 L₁ 混淆 A₁。沒有單一迴歸能同時做到——只有標準化或加權可以。</p></div>
+      <div class="card"><h3 data-en="④ In What If &amp; the g-methods literature">④ 對應《What If》與 g-methods 文獻</h3><p data-en="Time-varying treatments, the g-formula, MSMs &amp; IPW, g-estimation (Hernán &amp; Robins, <i>What If</i>, Part III); Robins, Hernán &amp; Brumback 2000; Naimi, Cole &amp; Kennedy 2017; Daniel et al. 2013. Free book online.">時變治療、g-formula、MSM 與 IPW、g-estimation（Hernán &amp; Robins, <i>What If</i>, 第三部）；Robins, Hernán &amp; Brumback 2000；Naimi, Cole &amp; Kennedy 2017；Daniel 等 2013。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
 
@@ -4977,6 +5112,39 @@ fit$estimates$ATE        <span class="cm"># targeted, doubly-robust, efficient A
       <p data-en="R's tmle adds the targeting step on top of a Super Learner for both Q and g; ltmle generalises it to longitudinal / time-varying treatments. Always cross-fit when the learners are flexible.">R 的 tmle 在 Q 與 g 兩個 Super Learner 上加上 targeting 步；ltmle 把它推廣到縱貫／時變治療。學習器彈性時務必交叉擬合。</p></div>
   </section>
 
+  <section id="gmsas" class="panel">
+    <h1 data-en="⑦ SAS / R code: the key steps for g-methods">⑦ SAS／R 程式：g-methods 的關鍵步驟</h1>
+    <p class="lead" data-en="g-methods need data in LONG form (one row per person-time). SAS has the %gformula macro and PROC CAUSALTRT for IPTW; R's ipw + survey fit a marginal structural model, and gfoRmula / ltmle do the g-formula and longitudinal TMLE.">g-methods 需要<b>長表</b>（每人每時點一列）。SAS 有 <code>%gformula</code> 巨集與 <code>PROC CAUSALTRT</code>（IPTW）；R 的 <code>ipw</code>＋<code>survey</code> 配邊際結構模型，<code>gfoRmula</code>／<code>ltmle</code> 做 g-formula 與縱貫 TMLE。</p>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — reshape to person-time long form">步驟 0 — 整理成「每人每時點」長表</h3>
+      <pre class="sas"><code><span class="cm">/* one row per person-visit: time t, the time-varying confounder L, treatment A, */</span>
+<span class="cm">/* the treatment &amp; covariate HISTORY, and the (end-of-follow-up) outcome Y.       */</span>
+proc transpose ... ;   <span class="cm">/* wide → long: pid, t, L, A, lag_A, lag_L, Y */</span>
+run;</code></pre>
+      <p data-en="Every g-method starts from long form: each person contributes one row per time, carrying the time-varying confounder Lₜ and the treatment so far. The ordering L → A within each time matters.">每個 g-method 都從長表開始：每人每時點一列，帶著時變混淆 Lₜ 與目前為止的治療。每個時點內「先 L 後 A」的順序很重要。</p></div>
+    <div class="card"><h3 data-en="Step 1 — IPTW marginal structural model (stabilized weights)">步驟 1 — IPTW 邊際結構模型（穩定化權重）</h3>
+      <pre class="sas"><code><span class="cm">/* numerator: P(A_t | past A) ; denominator: P(A_t | past A, L_t) */</span>
+proc logistic data=long; model A = lag_A;            output out=num p=pn; run;
+proc logistic data=long; model A = lag_A L;          output out=den p=pd; run;
+<span class="cm">/* stabilized weight = product over time of pn/pd, then a weighted outcome model */</span>
+proc genmod data=w; class pid; model Y = cumA;
+   weight sw; repeated subject=pid;   <span class="cm">/* MSM: coef on cumulative A = the effect */</span>
+run;</code></pre>
+      <p data-en="The stabilized inverse-probability-of-treatment weights build a pseudo-population with the arrows from Lₜ into Aₜ removed; a simple weighted regression of Y on cumulative treatment is then the marginal structural model.">穩定化的反治療機率權重造出一個「Lₜ→Aₜ 箭頭被移除」的擬母體；再把 Y 對累積治療做簡單加權迴歸，就是邊際結構模型。</p></div>
+    <div class="card"><h3 data-en="Step 2 — the parametric g-formula (R)">步驟 2 — 參數 g-formula（R）</h3>
+      <pre class="sas"><code><span class="cm"># R: model L_t and Y given history, simulate 'always' vs 'never', standardise</span>
+library(gfoRmula)
+gformula(obs_data = long, id = "pid", time_var = "t",
+         covnames = c("L","A"), outcome_name = "Y",
+         covtypes = c("normal","binary"),
+         histories = c(lagged), histvars = list(c("L","A")),
+         intvars   = list("A","A"),
+         interventions = list(list(c(static, rep(1,K))),    <span class="cm"># always treat</span>
+                              list(c(static, rep(0,K)))))    <span class="cm"># never treat</span>
+<span class="cm"># ltmle::ltmle() gives the doubly-robust longitudinal TMLE version</span></code></pre>
+      <p data-en="The g-formula fits how Lₜ evolves and how Y depends on history, then Monte-Carlo simulates the 'always' and 'never' regimes and contrasts the standardised means. ltmle adds double robustness + Super Learner.">g-formula 配「Lₜ 怎麼演變、Y 怎麼依賴史」，再蒙地卡羅模擬 always 與 never 兩個策略、對比標準化後的平均。ltmle 再加上雙重穩健＋Super Learner。</p></div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -5372,11 +5540,15 @@ fit$estimates$ATE        <span class="cm"># targeted, doubly-robust, efficient A
       <li data-ref="tmle"><b data-en="Foundational">奠基</b> · van der Laan, M. J., &amp; Rubin, D. (2006). Targeted Maximum Likelihood Learning. <i>The International Journal of Biostatistics, 2</i>(1), Article 11. https://doi.org/10.2202/1557-4679.1043. · van der Laan, M. J., &amp; Rose, S. (2011). <i>Targeted Learning: Causal Inference for Observational and Experimental Data.</i> Springer. <span data-en="〔TMLE &amp; targeted learning — TMLE tabs ①④⑥〕">〔TMLE 與目標式學習 —— TMLE 分頁 ①④⑥〕</span></li>
       <li data-ref="tmle">Luque-Fernandez, M. A., Schomaker, M., Rachet, B., &amp; Schnitzer, M. E. (2018). Targeted maximum likelihood estimation for a binary treatment: A tutorial. <i>Statistics in Medicine, 37</i>(16), 2530–2546. https://doi.org/10.1002/sim.7628. · Gruber, S., &amp; van der Laan, M. J. Targeted Maximum Likelihood Estimation: A Gentle Introduction (UC Berkeley Working Paper). <span data-en="〔the continuous-outcome TMLE this page reconstructs — TMLE tabs ①③〕">〔本頁重建的連續結果 TMLE —— TMLE 分頁 ①③〕</span></li>
       <li data-ref="tmle"><b data-en="Super Learner &amp; cross-fitting">Super Learner 與交叉擬合</b> · van der Laan, M. J., Polley, E. C., &amp; Hubbard, A. E. (2007). Super Learner. <i>Statistical Applications in Genetics and Molecular Biology, 6</i>(1), Article 25. · Schuler, M. S., &amp; Rose, S. (2017). Targeted Maximum Likelihood Estimation for Causal Inference in Observational Studies. <i>American Journal of Epidemiology, 185</i>(1), 65–73. <span data-en="〔the ensemble for the nuisances; an applied AJE primer — TMLE tab ⑤〕">〔輔助模型的集成；AJE 應用入門 —— TMLE 分頁 ⑤〕</span></li>
+      <li data-ref="gm"><b data-en="Foundational">奠基</b> · Robins, J. M., Hernán, M. Á., &amp; Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. <i>Epidemiology, 11</i>(5), 550–560. <span data-en="〔marginal structural models &amp; IPTW for time-varying treatments — GM tabs ①③〕">〔時變治療的邊際結構模型與 IPTW —— GM 分頁 ①③〕</span></li>
+      <li data-ref="gm">Naimi, A. I., Cole, S. R., &amp; Kennedy, E. H. (2017). An introduction to g methods. <i>International Journal of Epidemiology, 46</i>(2), 756–762. https://doi.org/10.1093/ije/dyw323. <span data-en="〔the canonical plain-language intro to the g-formula, IPTW-MSM &amp; g-estimation — GM tabs ①–④〕">〔g-formula、IPTW-MSM 與 g-estimation 的經典白話入門 —— GM 分頁 ①–④〕</span></li>
+      <li data-ref="gm">Daniel, R. M., Cousens, S. N., De Stavola, B. L., Kenward, M. G., &amp; Sterne, J. A. C. (2013). Methods for dealing with time-dependent confounding. <i>Statistics in Medicine, 32</i>(9), 1584–1618. https://doi.org/10.1002/sim.5686. · Keil, A. P., Edwards, J. K., Richardson, D. R., Naimi, A. I., &amp; Cole, S. R. (2014). The parametric g-formula for time-to-event data. <i>Epidemiology, 25</i>(6), 889–897. <span data-en="〔a tutorial on time-dependent confounding; the parametric g-formula worked example — GM tabs ③④〕">〔時變混淆方法教學；參數 g-formula 範例 —— GM 分頁 ③④〕</span></li>
+      <li data-ref="gm"><b data-en="ML / g-computation">機器學習／g-computation</b> · Naimi, A. I., Mishler, A. E., &amp; Kennedy, E. H. (2021). Challenges in Obtaining Valid Causal Effect Estimates With Machine Learning Algorithms. <i>American Journal of Epidemiology</i>. · Scientific Reports studies on g-computation, propensity-score methods &amp; TMLE with machine learning (2020, 10:9219; 2021, 11:1435). <span data-en="〔ML-assisted g-formula &amp; the need for cross-fitting / doubly-robust estimation — GM tab ⑤〕">〔ML 輔助 g-formula 與交叉擬合／雙重穩健的必要性 —— GM 分頁 ⑤〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=91"></script>
-<script src="app.js?v=91"></script>
+<script src="i18n.js?v=92"></script>
+<script src="app.js?v=92"></script>
 </body>
 </html>

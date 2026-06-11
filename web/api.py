@@ -69,6 +69,9 @@ import ps_assumptions
 import tmle_core
 import tmle_gen
 import tmle_assumptions
+import gm_core
+import gm_gen
+import gm_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1231,6 +1234,46 @@ def _tmle_ml(q: dict) -> dict:
     return tmle_ml.ml_tmle_demo(seed=int(q.get("seed", 43)), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# G-methods (time-varying confounding)
+# ---------------------------------------------------------------------------
+def _load_gm(source: str):
+    if source in ("example_gm", "example"):
+        return gm_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _gm_example() -> dict:
+    df = gm_gen.generate()
+    return {"columns": list(df.columns), "defaults": {}, "n": len(df),
+            "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+            "story": {"A0/A1": "A₀、A₁（兩期是否用藥）", "L0/L1": "L₀、L₁（時變混淆：疾病活動度；L₁ 受 A₀ 影響）",
+                      "Y": "Y（結果，連續；越高越糟）"}}
+
+
+def _gm_analyze(req: dict) -> dict:
+    df = _load_gm(req.get("source", "example_gm"))
+    return gm_core.full_gm(df, lang=req.get("lang", "zh"))
+
+
+def _gm_assumptions(req: dict) -> dict:
+    df = _load_gm(req.get("source", "example_gm"))
+    return gm_assumptions.run_dashboard(df, lang=req.get("lang", "zh"))
+
+
+def _gm_interactive(q: dict) -> dict:
+    fb = float(np.clip(float(q.get("feedback", 1.0)), 0.0, 1.5))
+    return gm_core.gm_interactive(fb, lang=q.get("lang", "zh"))
+
+
+def _gm_ml(q: dict) -> dict:
+    import gm_ml
+    return gm_ml.ml_gmethods_demo(seed=int(q.get("seed", 11)), lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1345,6 +1388,11 @@ _ROUTES = {
     ("POST", "/api/tmle_assumptions"): lambda q, b: _tmle_assumptions(b),
     ("GET", "/api/tmle_interactive"): lambda q, b: _tmle_interactive(q),
     ("GET", "/api/tmle_ml"): lambda q, b: _tmle_ml(q),
+    ("GET", "/api/gm_example"): lambda q, b: _gm_example(),
+    ("POST", "/api/gm_analyze"): lambda q, b: _gm_analyze(b),
+    ("POST", "/api/gm_assumptions"): lambda q, b: _gm_assumptions(b),
+    ("GET", "/api/gm_interactive"): lambda q, b: _gm_interactive(q),
+    ("GET", "/api/gm_ml"): lambda q, b: _gm_ml(q),
 }
 
 

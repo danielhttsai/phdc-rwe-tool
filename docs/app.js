@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -43,6 +43,8 @@ const PANEL_INIT = {
   medassume: () => initMedAssume(), medml: () => initMedMl(),
   pslearn: () => initPsLearn(), psplay: () => initPsPlay(), psanalyze: () => initPsAnalyze(),
   psassume: () => initPsAssume(), psml: () => initPsMl(),
+  gmlearn: () => initGmLearn(), gmplay: () => initGmPlay(), gmanalyze: () => initGmAnalyze(),
+  gmassume: () => initGmAssume(), gmml: () => initGmMl(),
   tmlelearn: () => initTmleLearn(), tmleplay: () => initTmlePlay(), tmleanalyze: () => initTmleAnalyze(),
   tmleassume: () => initTmleAssume(), tmleml: () => initTmleMl(),
   whatif: () => drawWhatifPair("iv"), rddwhatif: () => drawWhatifPair("rdd"), didwhatif: () => drawWhatifPair("did"),
@@ -51,7 +53,7 @@ const PANEL_INIT = {
   ccwhatif: () => drawWhatifPair("cc"), sccswhatif: () => drawWhatifPair("sccs"), acnuwhatif: () => drawWhatifPair("acnu"),
   pnuwhatif: () => drawWhatifPair("pnu"), ncwhatif: () => drawWhatifPair("nc"),
   medwhatif: () => drawWhatifPair("med"), pswhatif: () => drawWhatifPair("ps"),
-  tmlewhatif: () => drawWhatifPair("tmle"),
+  tmlewhatif: () => drawWhatifPair("tmle"), gmwhatif: () => drawWhatifPair("gm"),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -107,7 +109,7 @@ document.addEventListener("click", (e) => {
 // already-linked text. Re-run after each language switch (applyStatic wipes them).
 const _MLINK = { SCCS: "sccs", CCTC: "cctc", ACNU: "acnu", PNU: "pnu", CCW: "ccw",
   RDD: "rdd", DiD: "did", PERR: "perr", ITS: "its", TiT: "tit", Seq: "seq",
-  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle" };
+  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle", "G-methods": "gm" };
 const _MTOKENS = Object.keys(_MLINK).sort((a, b) => b.length - a.length);
 const _MRE = new RegExp("\\b(" + _MTOKENS.join("|") + ")\\b", "g");
 function _panelMethod(id) {
@@ -1543,6 +1545,7 @@ const DNODES = {
       { l: { zh: "比較像一次性的點治療，但病人在多個時間點陸續符合收案", en: "More a one-off point treatment, but patients become eligible at many times" }, to: "rSEQ" },
       { l: { zh: "都不是，但我有<b>豐富的已測共變項</b>，只想把它們<b>平衡</b>掉（配對／加權）", en: "Neither, but I have <b>rich measured covariates</b> and just want to <b>balance</b> them (matching / weighting)" }, to: "rPS" },
       { l: { zh: "有已測共變項，且想要<b>雙重穩健</b>（兩張網其一對就好）＋可用 ML／效率最佳", en: "Measured covariates, and you want <b>double robustness</b> (two models, either right) + ML / efficiency" }, to: "rTMLE" },
+      { l: { zh: "治療<b>分多個時點</b>給，且有<b>時變混淆</b>（被過去治療改變、又預測未來治療與結果）", en: "Treatment given at <b>several times</b>, with a <b>time-varying confounder</b> (changed by past treatment, predicts future treatment &amp; outcome)" }, to: "rGM" },
       { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
     ],
   },
@@ -1649,6 +1652,14 @@ const DNODES = {
                 en: "Vaccine scenario: severity X drives both treatment and outcome <b>non-linearly</b>. A single linear model is easily mis-specified; AIPW/TMLE insure two (optionally ML) models against each other and recover the true ATE (see the TMLE tabs ①–⑦)." },
     watch: { zh: "✓ 本工具箱已實作。仍需<b>無未測混淆＋正性</b>；雙重穩健保的是「模型設定」、<b>不是</b>未測混淆。至少一個輔助模型要設定正確、Super Learner 函式庫要夠豐富。",
              en: "✓ Implemented in this toolbox. Still needs <b>no unmeasured confounding + positivity</b>; double robustness guards <b>model specification</b>, <b>not</b> unmeasured confounding. At least one nuisance model must be right, and the Super Learner library rich enough." } } },
+  rGM: { rec: { kind: "toolbox", method: "gm", badge: "G-methods ✓",
+    title: { zh: "最適合：G-methods（時變混淆）✓（本工具）", en: "Best fit: G-methods (time-varying confounding) ✓ (this tool)" },
+    why: { zh: "你的治療<b>分多個時點</b>給、且有一個<b>時變混淆 Lₜ</b>：它預測下一次治療、<b>又被過去治療改變</b>、也影響結果（治療↔混淆<b>回饋</b>）。這時標準迴歸<b>兩頭都錯</b>——不校正 Lₜ 被混淆、校正 Lₜ 又擋掉效果路徑＋開對撞。要用 <b>g-methods</b>：<b>g-formula</b>（標準化）、<b>IPTW 邊際結構模型</b>（反治療機率加權）、或 <b>g-estimation</b>，估「全程治療 vs 全程不治療」這類策略的效果。",
+           en: "Your treatment is given at <b>several time points</b> and there is a <b>time-varying confounder Lₜ</b> that predicts the next treatment, is <b>itself changed by past treatment</b>, and affects the outcome (treatment–confounder <b>feedback</b>). Standard regression is then wrong <b>both ways</b> — not adjusting for Lₜ is confounded, adjusting blocks the effect path and opens a collider. Use <b>g-methods</b>: the <b>g-formula</b> (standardisation), the <b>IPTW marginal structural model</b> (inverse-probability-of-treatment weighting), or <b>g-estimation</b>, to estimate a treatment-regime effect like 'always treat vs never'." },
+    scenario: { zh: "疫苗／藥物情境：一種藥分兩期服用，中間的疾病活動度 Lₜ 既決定要不要續用、又被前一劑壓低、也影響結果。用 g-formula／IPTW-MSM 還原「全程用 vs 全程不用」的效果（見「G-methods」分頁 ①–⑦）。",
+                en: "Drug scenario: a drug taken over two periods; disease activity Lₜ in between both drives whether you continue and is lowered by the earlier dose, and affects the outcome. g-formula / IPTW-MSM recover the 'always vs never' effect (see the G-methods tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。最關鍵、不可檢驗的是<b>序列可交換</b>（無未測<b>時變</b>混淆）；還需每個時點正性、輔助模型設定正確（可用 ML，並可搭 TMLE 做雙重穩健）。",
+             en: "✓ Implemented in this toolbox. The key untestable assumption is <b>sequential exchangeability</b> (no unmeasured <b>time-varying</b> confounding); also needs per-time positivity and correct nuisance models (ML-improvable, and pairs with TMLE for double robustness)." } } },
   // common / external designs (reference)
   rACC: { rec: { kind: "toolbox", method: "acnu", badge: "ACNU ✓",
     title: { zh: "建議：主動對照新使用者 ACNU ✓（本工具）", en: "Suggested: Active-Comparator, New-User (ACNU) ✓ (this tool)" },
@@ -1777,6 +1788,7 @@ const FULLMAP = {
                 { key: "rSEQ", cond: { zh: "點治療，但多時點陸續收案", en: "point treatment, eligible at many times" }, tag: "Seq ✓", kind: "tb" },
                 { key: "rPS", cond: { zh: "有豐富已測共變項，配對／加權平衡（PS）", en: "rich measured covariates; balance by matching/weighting (PS)" }, tag: "PS ✓", kind: "tb" },
                 { key: "rTMLE", cond: { zh: "已測共變項，想雙重穩健＋ML／效率（TMLE）", en: "measured covariates; want double robustness + ML / efficiency (TMLE)" }, tag: "TMLE ✓", kind: "tb" },
+                { key: "rGM", cond: { zh: "多時點治療＋時變混淆回饋（g-formula／IPTW-MSM）", en: "multi-time treatment + time-varying confounding feedback (g-formula / IPTW-MSM)" }, tag: "G-methods ✓", kind: "tb" },
               ] },
             { edge: { zh: "急性、會反覆又會好、非致命 → 自身對照／趨勢", en: "acute, recurrent/resolving, non-fatal → self-control / trend" },
               leaves: [
@@ -1963,6 +1975,7 @@ const CHOOSE_FAMILIES = [
   { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC", 2.12, 0.94]] },
   { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
   { zh: "共變項校正／傾向分數／雙重穩健", en: "adjustment / propensity / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
+  { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -1997,8 +2010,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE）線上教學工具",
-  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE · GM）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE · GM) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/phdc-rwe-tool/",
 };
@@ -2022,6 +2035,7 @@ const METHOD_REF = {
   med:  { zh: "中介分析 Mediation", en: "Mediation analysis (MED)", src: "Imai, Keele & Yamamoto (2010); Tingley et al. (2014), JSS; VanderWeele (2015)" },
   ps:   { zh: "傾向分數 PS", en: "Propensity Score (PS)", src: "Rosenbaum & Rubin (1983), Biometrika; Austin (2011); Li, Morgan & Zaslavsky (2018)" },
   tmle: { zh: "TMLE／雙重穩健", en: "TMLE / doubly-robust (AIPW)", src: "van der Laan & Rubin (2006); van der Laan & Rose (2011); Luque-Fernandez et al. (2018), Stat Med" },
+  gm: { zh: "G-methods（時變混淆）", en: "G-methods (time-varying confounding)", src: "Robins, Hernán & Brumback (2000); Naimi, Cole & Kennedy (2017), IJE; Daniel et al. (2013), Stat Med" },
   db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai et al.)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
@@ -5640,6 +5654,201 @@ function drawTmleMl(s) {
 }
 
 // ======================================================================
+// GM — G-methods (time-varying confounding, 18th method)
+// ======================================================================
+const gmState = { source: null };
+let gmLearnReady = false, gmPlayReady = false, gmAnalyzeReady = false,
+    gmAssumeReady = false, gmMlCache = null;
+
+// ① learn scene: the treatment–confounder feedback DAG L0→A0→L1→A1→Y
+function drawSceneGm() {
+  if (!document.getElementById("gmScene")) return;
+  const N = [
+    { x: 0.6, y: 2.3, t: "L₀", c: "#7c5fae" }, { x: 0.6, y: 1.0, t: tr("A₀ 治療", "A₀"), c: TEAL },
+    { x: 2.3, y: 2.3, t: "L₁", c: "#7c5fae" }, { x: 2.3, y: 1.0, t: tr("A₁ 治療", "A₁"), c: TEAL },
+    { x: 3.9, y: 1.65, t: "Y", c: "#c0504d" },
+  ];
+  const arr = (fx, fy, tx, ty, c) => _psArrow(fx, fy, tx, ty, c);
+  Plotly.react("gmScene", [{
+    x: N.map((n) => n.x), y: N.map((n) => n.y), mode: "markers+text", type: "scatter",
+    text: N.map((n) => n.t), textposition: "middle center",
+    marker: { size: 30, color: N.map((n) => n.c) }, textfont: { size: 11, color: "#fff" }, hoverinfo: "skip",
+  }], schemaLayout({
+    height: 300, margin: { t: 18, r: 16, b: 26, l: 16 },
+    xaxis: { visible: false, range: [0.2, 4.3] }, yaxis: { visible: false, range: [0.5, 2.8] },
+    annotations: [
+      arr(0.6, 2.3, 0.6, 1.0, "#c0504d"),   // L0→A0
+      arr(0.6, 2.3, 2.3, 2.3, INK),         // L0→L1
+      arr(0.6, 1.0, 2.3, 2.3, INK),         // A0→L1 (feedback)
+      arr(2.3, 2.3, 2.3, 1.0, "#c0504d"),   // L1→A1
+      arr(2.3, 2.3, 3.9, 1.65, "#c0504d"),  // L1→Y
+      arr(0.6, 1.0, 3.9, 1.65, TEAL),       // A0→Y
+      arr(2.3, 1.0, 3.9, 1.65, TEAL),       // A1→Y
+      { x: 1.45, y: 2.5, text: tr("A₀→L₁＝回饋", "A₀→L₁ = feedback"), showarrow: false, font: { size: 9, color: SLATE } },
+      { x: 2.1, y: 0.66, text: tr("青＝效果 A→Y；紅＝混淆", "teal = effect A→Y; red = confounding"), showarrow: false, font: { size: 9, color: SLATE } },
+    ],
+  }), SCENE_CFG);
+}
+function initGmLearn() { if (gmLearnReady) return; gmLearnReady = true; drawSceneGm(); }
+
+// ② interactive — feedback-strength slider
+const gmFbSlider = document.getElementById("gmFbSlider");
+let gmPlayTimer = null;
+function initGmPlay() { if (gmPlayReady) return; gmPlayReady = true; refreshGmPlay(); }
+function scheduleGmPlay() {
+  document.getElementById("gmFbVal").textContent = Number(gmFbSlider.value).toFixed(2);
+  clearTimeout(gmPlayTimer); gmPlayTimer = setTimeout(refreshGmPlay, 250);
+}
+if (gmFbSlider) gmFbSlider.addEventListener("input", scheduleGmPlay);
+async function refreshGmPlay() {
+  const f = gmFbSlider ? Number(gmFbSlider.value) : 1.0;
+  let d;
+  try { d = await getJSON(`${API}/api/gm_interactive?feedback=${f}&lang=${lang()}`); } catch (e) { return; }
+  state.gmPlay = d;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = fmt(v, 2); };
+  set("gmUnadj", d.unadj); set("gmAdj", d.adj); set("gmGform", d.gformula);
+  const rd = document.getElementById("gmPlayReading"); if (rd) rd.innerHTML = d.reading;
+  drawGmPlay(d);
+}
+function drawGmPlay(d) {
+  if (!document.getElementById("gmPlayChart")) return;
+  const g = d.grid;
+  Plotly.react("gmPlayChart", [
+    { x: g.fb, y: g.truth, mode: "lines", type: "scatter", name: tr("真值", "truth"), line: { color: GREEN, width: 2, dash: "dash" } },
+    { x: g.fb, y: g.unadj, mode: "lines+markers", type: "scatter", name: tr("不校正", "unadjusted"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.fb, y: g.adj, mode: "lines+markers", type: "scatter", name: tr("校正 Lₜ", "adjusted for Lₜ"), line: { color: "#b45309", width: 3, dash: "dot" }, marker: { size: 5 } },
+    { x: g.fb, y: g.gformula, mode: "lines+markers", type: "scatter", name: "g-formula", line: { color: TEAL, width: 3 }, marker: { size: 5 } },
+    { x: g.fb, y: g.iptw, mode: "lines+markers", type: "scatter", name: "IPTW-MSM", line: { color: PURPLE, width: 3 }, marker: { size: 5 } },
+    { x: [d.feedback], y: [d.gformula], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 320, legend: { orientation: "h", y: 1.18 }, margin: { t: 32, r: 18, b: 44, l: 50 },
+    xaxis: { title: tr("治療↔混淆回饋強度", "treatment–confounder feedback strength") },
+    yaxis: { title: tr("估計效果", "estimated effect") },
+  }), SCENE_CFG);
+}
+
+// ③ analyze (fixed columns; load + auto-run)
+function initGmAnalyze() { if (gmAnalyzeReady) return; gmAnalyzeReady = true; document.getElementById("useGmExample").click(); }
+document.getElementById("useGmExample").addEventListener("click", async () => {
+  const st = document.getElementById("gmDataStatus");
+  try {
+    const d = await getJSON(`${API}/api/gm_example`);
+    gmState.source = "example_gm";
+    st.textContent = tr(`已載入內建範例（${d.n} 人，合成虛構）`, `Loaded built-in example (${d.n} people, synthetic)`);
+    runGmAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
+});
+document.getElementById("gmFileInput").addEventListener("change", async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append("file", file);
+  const st = document.getElementById("gmDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const r = await fetch(`${API}/api/upload`, { method: "POST", body: fd });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    const d = await r.json();
+    gmState.source = d.token;
+    st.textContent = tr(`已上傳「${file.name}」（${d.n} 列）`, `Uploaded "${file.name}" (${d.n} rows)`);
+    runGmAnalyze();
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+async function runGmAnalyze() {
+  if (!gmState.source) return;
+  try {
+    const a = await postJSON(`${API}/api/gm_analyze`, { source: gmState.source, lang: lang() });
+    renderGmAnalyze(a);
+    runGmAssumptions();
+  } catch (e) { alert(tr("分析失敗：", "Analysis failed: ") + e.message); }
+}
+function renderGmAnalyze(a) {
+  document.getElementById("gmAnalyzeOut").classList.remove("hidden");
+  const cards = [
+    [tr("不校正（被混淆）", "unadjusted (confounded)"), a.naive_unadj,
+      tr("忽略時變混淆——病重者較常用藥、也較糟，方向都可能反。", "ignores time-varying confounding — can even flip sign."), false],
+    [tr("校正 Lₜ（偏）", "adjusted for Lₜ (biased)"), a.naive_adj,
+      tr("L₁ 是中介＋對撞，條件控制反而擋掉 A→L→Y 的效果。", "L₁ is a mediator + collider; conditioning blocks the A→L→Y effect."), false],
+    [tr("g-formula", "g-formula"), a.gformula, a.interpretation, true],
+    [tr("IPTW-MSM", "IPTW-MSM"), a.iptw,
+      tr(`邊際結構模型加權估計；真值 ${fmt(a.true_effect,2)}。`, `marginal structural model estimate; truth ${fmt(a.true_effect,2)}.`), false],
+  ];
+  document.getElementById("gmAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, 2)}</div><p>${desc}</p></div>`
+  ).join("");
+  drawGmAnalyze(a);
+}
+function drawGmAnalyze(a) {
+  if (!document.getElementById("gmAnalyzeChart")) return;
+  const labels = [tr("不校正", "unadjusted"), tr("校正 Lₜ", "adj. Lₜ"), "g-formula", "IPTW-MSM"];
+  const vals = [a.naive_unadj, a.naive_adj, a.gformula, a.iptw];
+  Plotly.react("gmAnalyzeChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: [AMBER, "#b45309", TEAL, PURPLE] },
+    text: vals.map((v) => fmt(v, 2)), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 22, r: 16, b: 40, l: 50 },
+    yaxis: { title: tr("估計效果", "estimated effect"), range: [Math.min(a.gformula, a.iptw, a.true_effect) * 1.2, Math.max(a.naive_unadj, 0.3) + 0.4] },
+    shapes: [{ type: "line", x0: -0.5, x1: 3.5, y0: a.true_effect, y1: a.true_effect, line: { color: GREEN, width: 2, dash: "dash" } }],
+    annotations: [{ x: 3, y: a.true_effect, text: tr("真值 " + fmt(a.true_effect, 1), "truth " + fmt(a.true_effect, 1)), showarrow: false, yshift: -12, font: { color: GREEN, size: 10 } }],
+  }), SCENE_CFG);
+}
+
+// ④ assumptions
+function initGmAssume() { if (gmAssumeReady) return; gmAssumeReady = true; runGmAssumptions(); }
+async function runGmAssumptions() {
+  const src = gmState.source || "example_gm";
+  let out;
+  try { out = await postJSON(`${API}/api/gm_assumptions`, { source: src, lang: lang() }); } catch (e) { return; }
+  state.gmDash = out;
+  renderGmAssumptions(out);
+}
+function renderGmAssumptions(out) {
+  const hint = document.getElementById("gmAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("gmOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；序列可交換仍需領域判斷。", "Testable checks pass; sequential exchangeability still needs judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("gmAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ⑤ real-ML g-formula — button-triggered (loads scikit-learn)
+function initGmMl() { if (gmMlCache) drawGmMl(gmMlCache); }
+const runGmMlBtn = document.getElementById("runGmMl");
+if (runGmMlBtn) runGmMlBtn.addEventListener("click", async () => {
+  const btn = runGmMlBtn; const old = btn.textContent;
+  btn.disabled = true; btn.textContent = tr("計算中（載入 ML 套件）…", "Computing (loading ML)…");
+  try {
+    const s = await getJSON(`${API}/api/gm_ml?lang=${lang()}`);
+    gmMlCache = s; drawGmMl(s);
+  } catch (e) { alert(tr("計算失敗：", "Failed: ") + e.message); }
+  finally { btn.disabled = false; btn.textContent = old; }
+});
+function drawGmMl(s) {
+  document.getElementById("gmMlOut").classList.remove("hidden");
+  if (document.getElementById("gmMlChart")) {
+    Plotly.react("gmMlChart", [{
+      x: s.bars.labels, y: s.bars.values, type: "bar", marker: { color: [AMBER, TEAL, GREEN] },
+      text: s.bars.values.map((v) => v.toFixed(2)), textposition: "outside",
+    }], sceneLayout({
+      height: 300, margin: { t: 22, r: 16, b: 44, l: 52 },
+      yaxis: { title: tr("估計效果", "estimated effect") },
+      shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: s.truth, y1: s.truth, line: { color: GREEN, width: 2, dash: "dash" } }],
+    }), SCENE_CFG);
+  }
+  document.getElementById("gmMlReading").innerHTML = s.reading;
+}
+
+// ======================================================================
 // ⑥ What if — every method in the language of counterfactuals
 // (original plain-language take on Hernán & Robins, Causal Inference: What If;
 //  no text is copied from the book). One small counterfactual-contrast diagram
@@ -5765,6 +5974,17 @@ const WHATIF = {
       { id: "Y", x: 3.7, y: 1.0, role: "Y", label: { zh: "結果", en: "outcome Y" } }],
     edges: [{ a: "A", b: "Y", kind: "effect" }, { a: "X", b: "A", kind: "bias" }, { a: "X", b: "Y", kind: "bias" }],
     note: { zh: "同一張後門圖（X 混淆 A 與 Y）。不同的是<b>估計器</b>：TMLE／AIPW 用<b>兩個</b>模型描述這個結構——結果迴歸 Q(A,X) 與傾向分數 PS——所以<b>其一</b>對就不偏（雙重穩健）；TMLE 再做一步 targeting 讓插入式估計有效率。識別仍靠無未測混淆＋正性。", en: "The same back-door picture (X confounds A and Y). What differs is the <b>estimator</b>: TMLE/AIPW use <b>two</b> models of this structure — the outcome regression Q(A,X) and the propensity PS — so it is unbiased if <b>either</b> is right (double robustness); TMLE then targets the plug-in for efficiency. Identification still rests on no-unmeasured-confounding + positivity." } },
+  gm: { nodes: [
+      { id: "L0", x: 0.5, y: 2.4, role: "L", label: { zh: "L₀ 基線混淆", en: "L₀ baseline" } },
+      { id: "A0", x: 0.5, y: 0.9, role: "A", label: { zh: "A₀ 第1期治療", en: "A₀ treat t1" } },
+      { id: "L1", x: 2.2, y: 2.4, role: "L", label: { zh: "L₁ 時變混淆", en: "L₁ time-varying" } },
+      { id: "A1", x: 2.2, y: 0.9, role: "A", label: { zh: "A₁ 第2期治療", en: "A₁ treat t2" } },
+      { id: "Y", x: 3.9, y: 1.65, role: "Y", label: { zh: "結果 Y", en: "outcome Y" } }],
+    edges: [{ a: "L0", b: "A0", kind: "bias" }, { a: "L0", b: "L1", kind: "causal" },
+            { a: "A0", b: "L1", kind: "causal", label: { zh: "回饋", en: "feedback" } },
+            { a: "L1", b: "A1", kind: "bias" }, { a: "L1", b: "Y", kind: "bias" }, { a: "L0", b: "Y", kind: "bias" },
+            { a: "A0", b: "Y", kind: "effect" }, { a: "A1", b: "Y", kind: "effect" }],
+    note: { zh: "關鍵在 <b>L₁</b>：它被 A₀ 造成（<b>中介</b>，A₀→L₁→Y），又混淆 A₁（<b>L₁→A₁</b>）。<b>條件控制</b> L₁ 會擋掉 A₀ 的效果路徑又開對撞；<b>不控制</b>又讓 L₁ 混淆 A₁。g-methods 用<b>標準化（g-formula）或反機率加權（IPTW）</b>取代條件控制，估「全程用 vs 全程不用」的策略效果。", en: "The crux is <b>L₁</b>: it is caused by A₀ (a <b>mediator</b>, A₀→L₁→Y) yet confounds A₁ (<b>L₁→A₁</b>). <b>Conditioning</b> on L₁ blocks A₀'s effect path and opens a collider; <b>not</b> conditioning leaves L₁ confounding A₁. g-methods replace conditioning with <b>standardisation (g-formula) or inverse-probability weighting (IPTW)</b> to estimate the 'always vs never' regime effect." } },
 };
 
 const WHATIF_COL = { A: TEAL, Y: "#c0504d", U: "#5b7aa8", Z: "#f59e0b", X: "#b45309", T: "#64748b", L: "#7c5fae", S: "#94a3b8" };
@@ -5830,6 +6050,7 @@ const SWIG_META = {
   med: { split: "A",  cf: "Yᵃ", note: { zh: "把治療設成 a → 反事實。中介分析用<b>跨世界</b>反事實 Yᵃ˒ᴹ⁽ᵃ*⁾：把暴露設 a、卻把中介固定在另一暴露值 a* 會有的 M。NDE 比 a=1 vs 0（M 固定在 M(0)）；NIE 在 a=1 下搬動 M(0)→M(1)。需序列可交換＋無暴露誘發的 M–Y 混淆。", en: "Set treatment to a → counterfactual. Mediation uses the <b>cross-world</b> counterfactual Yᵃ˒ᴹ⁽ᵃ*⁾: set exposure to a but hold the mediator at the M it would take under another exposure a*. NDE contrasts a=1 vs 0 with M fixed at M(0); NIE moves M(0)→M(1) under a=1. Needs sequential exchangeability + no exposure-induced M–Y confounder." } },
   ps:  { split: "A",  cf: "Yᵃ", note: { zh: "把接種設成 a → 反事實 Yᵃ。傾向分數對<b>已測 X</b> 做配對／加權，讓被設定的治療在 X 下和反事實獨立：<b>A ⫫ Yᵃ | X</b>（條件可交換）。這時 IPTW／重疊加權後的對比＝因果效果。救不了未測的混淆。", en: "Set vaccination to a → counterfactual Yᵃ. The propensity score matches/weights on the <b>measured X</b> so the set treatment is independent of the counterfactual given X: <b>A ⫫ Yᵃ | X</b> (conditional exchangeability). Then the IPTW/overlap-weighted contrast equals the causal effect. It cannot fix an unmeasured confounder." } },
   tmle: { split: "A", cf: "Yᵃ", note: { zh: "把接種設成 a → 反事實 Yᵃ。識別條件和 PS 相同（A ⫫ Yᵃ | X）。差別在估計：TMLE／AIPW 用結果模型<b>與</b>傾向分數兩張網，<b>其一</b>對就不偏（雙重穩健）；TMLE 的 targeting 步讓插入式估計達到半參數有效率。", en: "Set vaccination to a → counterfactual Yᵃ. Identification is the same as PS (A ⫫ Yᵃ | X). The difference is estimation: TMLE/AIPW use both an outcome model <b>and</b> a propensity score, unbiased if <b>either</b> is right (double robustness); TMLE's targeting step makes the plug-in semiparametric-efficient." } },
+  gm:  { split: "A0", cf: "Yᵃ", note: { zh: "<b>兩個</b>治療都介入：把 A₀、A₁ 都設成策略值 a → 策略反事實 Yᵃ。識別靠<b>序列可交換</b>：每個時點，在過去史（含 Lₜ）之下被設定的治療與 Yᵃ 獨立。注意不能直接「條件在 L₁」（它是中介＋對撞）——要用標準化（g-formula）或反機率加權（IPTW）。", en: "Intervene on <b>both</b> treatments: set A₀ and A₁ to the regime values a → the regime counterfactual Yᵃ. Identification rests on <b>sequential exchangeability</b>: at each time, given the past history (including Lₜ), the set treatment is independent of Yᵃ. You cannot simply 'condition on L₁' (it's a mediator + collider) — use standardisation (g-formula) or inverse-probability weighting (IPTW)." } },
 };
 
 const swigShown = new Set();
@@ -6272,6 +6493,11 @@ window.addEventListener("iv-lang", async () => {
   if (tmleAnalyzeReady) runTmleAnalyze();              // TMLE ③ analysis + dashboard
   else if (tmleAssumeReady) runTmleAssumptions(tmleState.req);
   if (tmleMlCache) drawTmleMl(tmleMlCache);            // TMLE ⑤ doubly-robust ML (re-render cache)
+  if (gmLearnReady) drawSceneGm();                     // GM ① learn scene
+  if (gmPlayReady) refreshGmPlay();                    // GM ② interactive
+  if (gmAnalyzeReady) runGmAnalyze();                  // GM ③ analysis + dashboard
+  else if (gmAssumeReady) runGmAssumptions();
+  if (gmMlCache) drawGmMl(gmMlCache);                  // GM ⑤ ML g-formula (re-render cache)
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
