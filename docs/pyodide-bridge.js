@@ -14,8 +14,8 @@
   var PYODIDE_INDEX = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/";
   // Cache-bust for the Python sources fetched below. Bump whenever any backend
   // .py changes so returning browsers don't run a stale module from HTTP cache.
-  var PY_VER = "82";
-  var PY_MODULES = ["i18n", "iv_core", "assumptions", "ml_iv", "gen_data", "rdd_core", "rdd_survival", "rdd_assumptions", "rdd_gen", "rdd_ml", "did_core", "did_gen", "did_assumptions", "did_ml", "tit_core", "tit_gen", "tit_assumptions", "tit_realmle", "its_core", "its_gen", "its_assumptions", "its_ml", "perr_core", "perr_gen", "perr_assumptions", "ccw_core", "ccw_gen", "ccw_assumptions", "cctc_core", "cctc_gen", "cctc_assumptions", "seq_core", "seq_gen", "seq_assumptions", "cc_core", "cc_gen", "cc_assumptions", "cc_ml", "sccs_core", "sccs_gen", "sccs_assumptions", "sccs_ml", "acnu_core", "acnu_gen", "acnu_assumptions", "acnu_ml", "pnu_core", "pnu_gen", "pnu_assumptions", "pnu_ml", "nc_core", "nc_gen", "nc_assumptions", "nc_ml", "med_core", "med_gen", "med_assumptions", "med_ml", "ps_core", "ps_gen", "ps_assumptions", "ps_ml", "tmle_core", "tmle_gen", "tmle_assumptions", "tmle_ml", "gm_core", "gm_gen", "gm_assumptions", "gm_ml", "tnd_core", "tnd_gen", "tnd_assumptions", "tnd_ml", "api"];
+  var PY_VER = "83";
+  var PY_MODULES = ["i18n", "iv_core", "assumptions", "ml_iv", "gen_data", "rdd_core", "rdd_survival", "rdd_assumptions", "rdd_gen", "rdd_ml", "did_core", "did_gen", "did_assumptions", "did_ml", "tit_core", "tit_gen", "tit_assumptions", "tit_realmle", "its_core", "its_gen", "its_assumptions", "its_ml", "perr_core", "perr_gen", "perr_assumptions", "ccw_core", "ccw_gen", "ccw_assumptions", "cctc_core", "cctc_gen", "cctc_assumptions", "seq_core", "seq_gen", "seq_assumptions", "cc_core", "cc_gen", "cc_assumptions", "cc_ml", "sccs_core", "sccs_gen", "sccs_assumptions", "sccs_ml", "acnu_core", "acnu_gen", "acnu_assumptions", "acnu_ml", "pnu_core", "pnu_gen", "pnu_assumptions", "pnu_ml", "nc_core", "nc_gen", "nc_assumptions", "nc_ml", "med_core", "med_gen", "med_assumptions", "med_ml", "ps_core", "ps_gen", "ps_assumptions", "ps_ml", "tmle_core", "tmle_gen", "tmle_assumptions", "tmle_ml", "gm_core", "gm_gen", "gm_assumptions", "gm_ml", "tnd_core", "tnd_gen", "tnd_assumptions", "tnd_ml", "pssa_core", "pssa_gen", "pssa_assumptions", "api"];
 
   var pyodide = null;
   var routeFn = null;
@@ -160,6 +160,8 @@
       ["POST", "/api/gm_analyze", "{}", JSON.stringify({ source: "example_gm", lang: "zh" })],
       ["GET", "/api/tnd_example", "{}", "{}"],
       ["POST", "/api/tnd_analyze", "{}", JSON.stringify({ source: "example_tnd", lang: "zh" })],
+      ["GET", "/api/pssa_example", "{}", "{}"],
+      ["POST", "/api/pssa_analyze", "{}", JSON.stringify({ source: "example_pssa", lang: "zh" })],
     ];
     for (var i = 0; i < calls.length; i++) {
       // 若使用者正在主動操作(有待處理的 /api 呼叫),先讓路給他,避免和預熱搶主執行緒。

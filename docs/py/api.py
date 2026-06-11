@@ -75,6 +75,9 @@ import gm_assumptions
 import tnd_core
 import tnd_gen
 import tnd_assumptions
+import pssa_core
+import pssa_gen
+import pssa_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1318,6 +1321,41 @@ def _tnd_ml(q: dict) -> dict:
     return tnd_ml.ml_tnd_demo(seed=int(q.get("seed", 9)), lang=q.get("lang", "zh"))
 
 
+# ---------------------------------------------------------------------------
+# Prescription Sequence Symmetry Analysis (PSSA)
+# ---------------------------------------------------------------------------
+def _load_pssa(source: str):
+    if source in ("example_pssa", "example"):
+        return pssa_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _pssa_example() -> dict:
+    df = pssa_gen.generate()
+    return {"columns": list(df.columns), "defaults": {}, "n": len(df),
+            "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+            "story": {"t_index": "指標藥 A 起始月", "t_marker": "標記藥 B 起始月",
+                      "index_first": "先 A 後 B＝1（不一致對的方向）"}}
+
+
+def _pssa_analyze(req: dict) -> dict:
+    df = _load_pssa(req.get("source", "example_pssa"))
+    return pssa_core.full_pssa(df, lang=req.get("lang", "zh"))
+
+
+def _pssa_assumptions(req: dict) -> dict:
+    df = _load_pssa(req.get("source", "example_pssa"))
+    return pssa_assumptions.run_dashboard(df, lang=req.get("lang", "zh"))
+
+
+def _pssa_interactive(q: dict) -> dict:
+    c = float(np.clip(float(q.get("cascade", 1.0)), 0.0, 1.5))
+    return pssa_core.pssa_interactive(c, lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1442,6 +1480,10 @@ _ROUTES = {
     ("POST", "/api/tnd_assumptions"): lambda q, b: _tnd_assumptions(b),
     ("GET", "/api/tnd_interactive"): lambda q, b: _tnd_interactive(q),
     ("GET", "/api/tnd_ml"): lambda q, b: _tnd_ml(q),
+    ("GET", "/api/pssa_example"): lambda q, b: _pssa_example(),
+    ("POST", "/api/pssa_analyze"): lambda q, b: _pssa_analyze(b),
+    ("POST", "/api/pssa_assumptions"): lambda q, b: _pssa_assumptions(b),
+    ("GET", "/api/pssa_interactive"): lambda q, b: _pssa_interactive(q),
 }
 
 

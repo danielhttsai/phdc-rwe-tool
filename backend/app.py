@@ -84,6 +84,9 @@ import tnd_core
 import tnd_gen
 import tnd_assumptions
 import tnd_ml
+import pssa_core
+import pssa_gen
+import pssa_assumptions
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1493,6 +1496,48 @@ def tnd_interactive(cseek: float = 1.0, lang: str = "zh"):
 def tnd_ml_endpoint(seed: int = 9, lang: str = "zh"):
     """TND ⑤: real-sklearn causal TND (IPW with logistic vs gradient-boosting propensity)."""
     return _clean(tnd_ml.ml_tnd_demo(seed=seed, lang=lang))
+
+
+# --------------------- Prescription Sequence Symmetry Analysis (PSSA) ---------------------
+class PssaRequest(BaseModel):
+    source: str = "example_pssa"
+    lang: str = "zh"
+
+
+def _load_pssa(source: str) -> pd.DataFrame:
+    if source in ("example_pssa", "example"):
+        return pssa_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/pssa_example")
+def pssa_example():
+    df = pssa_gen.generate()
+    return _clean({
+        "columns": list(df.columns), "defaults": {},
+        "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
+        "preview": df.head(8).to_dict(orient="records"),
+        "story": {"t_index": "指標藥 A 起始月", "t_marker": "標記藥 B 起始月",
+                  "index_first": "先 A 後 B＝1（不一致對的方向）"},
+    })
+
+
+@app.post("/api/pssa_analyze")
+def pssa_analyze(req: PssaRequest):
+    return _clean(pssa_core.full_pssa(_load_pssa(req.source), lang=req.lang))
+
+
+@app.post("/api/pssa_assumptions")
+def pssa_assumptions_check(req: PssaRequest):
+    return _clean(pssa_assumptions.run_dashboard(_load_pssa(req.source), lang=req.lang))
+
+
+@app.get("/api/pssa_interactive")
+def pssa_interactive(cascade: float = 1.0, lang: str = "zh"):
+    return _clean(pssa_core.pssa_interactive(float(np.clip(cascade, 0.0, 1.5)), lang=lang))
 
 
 @app.get("/api/tit_interactive")

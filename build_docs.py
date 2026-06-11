@@ -40,7 +40,8 @@ BACKEND_PY = ["i18n.py", "iv_core.py", "assumptions.py", "ml_iv.py", "gen_data.p
               "ps_core.py", "ps_gen.py", "ps_assumptions.py", "ps_ml.py",
               "tmle_core.py", "tmle_gen.py", "tmle_assumptions.py", "tmle_ml.py",
               "gm_core.py", "gm_gen.py", "gm_assumptions.py", "gm_ml.py",
-              "tnd_core.py", "tnd_gen.py", "tnd_assumptions.py", "tnd_ml.py"]
+              "tnd_core.py", "tnd_gen.py", "tnd_assumptions.py", "tnd_ml.py",
+              "pssa_core.py", "pssa_gen.py", "pssa_assumptions.py"]
 
 
 def _clean_docs():
@@ -61,7 +62,7 @@ def _build_index():
     # 2) 在 </head> 前注入 Pyodide 與橋接(必須在 app.js 之前先攔截 fetch)
     inject = (
         f'<script src="{PYODIDE_SCRIPT}"></script>\n'
-        '<script src="pyodide-bridge.js?v=37"></script>\n'
+        '<script src="pyodide-bridge.js?v=38"></script>\n'
         "<!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->\n"
     )
     html = re.sub(r"</head>", inject + "</head>", html, count=1)

@@ -4,15 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=95" />
+<link rel="stylesheet" href="styles.css?v=96" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-<script src="pyodide-bridge.js?v=37"></script>
+<script src="pyodide-bridge.js?v=38"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span> · <span>GM</span> · <span>TND</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span> · <span>GM</span> · <span>TND</span> · <span>PSSA</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -35,6 +35,7 @@
         <option value="tmle" data-en="TMLE · Doubly-robust / targeted ML">TMLE · 雙重穩健／目標式</option>
         <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
         <option value="tnd" data-en="TND · Test-negative design">TND · 陰性檢驗設計</option>
+        <option value="pssa" data-en="PSSA · Prescription sequence symmetry">PSSA · 處方順序對稱</option>
       </select>
     </label>
     <div class="subtabs">
@@ -4214,6 +4215,103 @@
     </div>
   </section>
 
+  <!-- ===================== PSSA ① 是什麼 ===================== -->
+  <section id="pssalearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Prescription sequence symmetry: a fast screen for prescribing cascades">處方順序對稱分析：快速篩出「處方瀑布」的訊號</h1>
+    <p class="lead" data-en="Some adverse drug effects show up as a <b>prescribing cascade</b>: drug A causes a symptom, and the symptom gets treated with drug B. If A really triggers B, then among people who used <b>both</b>, &quot;A-then-B&quot; should outnumber &quot;B-then-A&quot;. The <b>crude sequence ratio (cSR)</b> = (A-then-B) ÷ (B-then-A) captures this — but it is <b>confounded by the prescribing trend</b>: if B's use is simply rising over calendar time, B tends to come &quot;later&quot; for everyone, inflating the cSR into a <b>false signal</b>. PSSA divides out that trend: the <b>null sequence ratio (SRnull)</b> is what the cSR would be under the trend <b>alone</b>, and the <b>adjusted sequence ratio</b> <b>aSR = cSR ÷ SRnull</b> ≈ 1 when there is no cascade and rises above 1 for a real one (Hallas 1996).">
+      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>粗順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個——但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 灌成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>無效果順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
+    </p>
+    <div class="card scene"><h3 data-en="The crude SR is inflated by the prescribing trend; SRnull removes it → aSR">粗順序比被處方趨勢灌大；SRnull 把它除掉 → aSR</h3>
+      <div id="pssaScene" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>順序比 cSR／aSR <span class="en">crude / adjusted sequence ratio</span></h4>
+        <p data-en="<b>Plain:</b> among people who used both drugs, count A-then-B (a) and B-then-A (b). The crude SR = a ÷ b. The adjusted SR divides this by the trend-only expectation (SRnull). aSR &gt; 1 = a signal that A may trigger B.">
+          <b>白話：</b>在兩種藥都用過的人裡，數「先 A 後 B」（a）與「先 B 後 A」（b）。粗順序比 ＝ a ÷ b。校正順序比再除以「只有趨勢」的期望（SRnull）。aSR &gt; 1 ＝ A 可能引發 B 的訊號。</p></div>
+      <div class="tdef"><h4>處方趨勢混淆 <span class="en">prescribing-trend confounding</span></h4>
+        <p data-en="<b>Plain:</b> if a drug's use simply rises (or falls) over calendar time, the order in which two drugs appear is shifted by that trend alone — not by any causal cascade. SRnull captures the trend-only order so aSR can divide it out.">
+          <b>白話：</b>若某藥的使用本來就隨日曆時間上升（或下降），兩藥出現的先後光靠這個趨勢就被推移——和因果瀑布無關。SRnull 抓住「只有趨勢」下的先後，讓 aSR 把它除掉。</p></div>
+      <div class="tdef"><h4>訊號偵測（產生假說）<span class="en">signal detection (hypothesis-generating)</span></h4>
+        <p data-en="<b>Plain:</b> PSSA is a fast, self-controlled <b>screen</b> over many drug pairs — it flags candidates, it does not prove causation. A flagged pair needs follow-up with a confounder-controlled design (cohort, SCCS, an active comparator). It is closely related to <b>TreeScan</b> (see ⑤), which scales screening over a whole outcome hierarchy.">
+          <b>白話：</b>PSSA 是對許多藥物配對做的快速、自我對照<b>篩檢</b>——它標出候選、不證明因果。被標出的配對要再用控混淆的設計（世代、SCCS、主動對照）追下去。它與 <b>TreeScan</b>（見 ⑤）密切相關，後者把篩檢擴大到整個結果階層。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== PSSA ② 互動講解 ===================== -->
+  <section id="pssaplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: turn up the cascade, watch the crude SR stay high but the aSR separate signal from trend">互動：加大瀑布，看粗 SR 一直高、aSR 把訊號從趨勢中分出來</h1>
+    <p class="lead" data-en="Drag the slider for the strength of the <b>real cascade</b> (how often A actually triggers B). The <b>crude SR</b> is <b>high throughout</b> — even at 0 cascade — because the prescribing trend alone inflates it (a false signal). The <b>adjusted SR (aSR)</b> sits at the null (≈1) when there is no cascade and climbs only as the real cascade grows. That gap is the whole point: aSR, not cSR, is the honest signal.">
+      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>粗 SR</b> <b>從頭到尾都高</b>——連瀑布為 0 時也是——因為光是處方趨勢就把它灌大（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：誠實的訊號是 aSR，不是 cSR。
+    </p>
+    <div class="controls"><label>
+      <span data-en="Real cascade strength:">真實瀑布強度：</span><b id="pssaCascVal">1.0</b>
+      <input type="range" id="pssaCascSlider" min="0" max="1.5" value="1" step="0.05" />
+      <small data-en="0 = no cascade (A never triggers B); the crude SR is still &gt; 1 from the trend alone — a false signal — but the aSR sits at 1. Larger = a stronger real cascade, which only the aSR tracks.">0＝沒有瀑布（A 從不引發 B）；粗 SR 仍因趨勢 &gt; 1——假訊號——但 aSR 落在 1。越大＝真瀑布越強，只有 aSR 跟得上。</small>
+    </label></div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Crude SR">粗 SR</div><div class="stat-num" id="pssaCsr">–</div><div class="stat-foot" data-en="trend-inflated">趨勢灌大</div></div>
+      <div class="stat"><div class="stat-label" data-en="Null SR (trend)">SRnull（趨勢）</div><div class="stat-num" id="pssaSrnull">–</div><div class="stat-foot" data-en="trend baseline">趨勢基準</div></div>
+      <div class="stat"><div class="stat-label" data-en="Adjusted SR">校正 SR（aSR）</div><div class="stat-num" id="pssaAsr">–</div><div class="stat-foot" data-en="honest signal">誠實訊號</div></div>
+    </div>
+    <div id="pssaPlayChart" class="chart"></div>
+    <p class="caption" id="pssaPlayReading"></p>
+  </section>
+
+  <!-- ===================== PSSA ③ 資料分析 ===================== -->
+  <section id="pssaanalyze" class="panel">
+    <h1 data-en="Data analysis: crude SR vs adjusted SR (aSR = cSR ÷ SRnull)">資料分析：粗 SR vs 校正 SR（aSR ＝ cSR ÷ SRnull）</h1>
+    <p class="lead" data-en="Load the built-in new-user cohort (first-ever initiation months of the index drug A and the marker drug B). The tool reports the <b>crude SR</b> (confounded by the prescribing trend), the <b>SRnull</b> it implies, and the <b>adjusted SR</b> aSR = cSR ÷ SRnull with a 95% CI, and whether the pair is <b>flagged as a signal</b> (aSR CI excludes 1).">
+      載入內建的新使用者世代（指標藥 A 與標記藥 B 的<b>首次</b>起始月）。工具回報<b>粗 SR</b>（被處方趨勢偏）、它隱含的 <b>SRnull</b>、以及<b>校正 SR</b> aSR ＝ cSR ÷ SRnull 附 95% CI，並判斷這對是否<b>被標為訊號</b>（aSR 的 CI 不含 1）。
+    </p>
+    <div class="datasource">
+      <button id="usePssaExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="pssaFileInput" accept=".csv" hidden /></label>
+      <span id="pssaDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+    <div id="pssaAnalyzeOut" class="hidden">
+      <h2 data-en="Sequence-ratio estimates">順序比估計</h2>
+      <div class="result-cards" id="pssaAnalyzeCards"></div>
+      <div id="pssaAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="The crude SR bar is lifted above 1 by the prescribing trend; dividing by SRnull gives the adjusted SR, the honest signal. A 95% CI that excludes 1 flags the pair.">
+        粗 SR 那條被處方趨勢抬到 1 以上；除以 SRnull 得到校正 SR，才是誠實的訊號。95% CI 不含 1 就把這對標出來。</p>
+    </div>
+  </section>
+
+  <!-- ===================== PSSA ④ 假設檢驗 ===================== -->
+  <section id="pssaassume" class="panel">
+    <h1 data-en="Can we trust this PSSA signal? Five checks">這個 PSSA 訊號可不可信？五道體檢</h1>
+    <p class="lead" data-en="PSSA is a signal-detection (hypothesis-generating) method; most of its validity is design judgement (blue): a plausible cascade direction, a sensible time window, and new-user (incident) ascertainment. What you can check: how strongly the trend drives the null SR, and whether there are enough discordant pairs in both directions. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      PSSA 是訊號偵測（產生假說）的方法；它的效度多半是設計判斷（藍）：合理的瀑布方向、合適的時間窗、新使用者（incident）認定。可以檢的是：趨勢把 SRnull 推離 1 的程度，以及兩個方向是否都有足夠的不一致對。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="pssaOverall" class="overall hidden"></div>
+    <div id="pssaAssumeCards" class="assume-cards"></div>
+    <p id="pssaAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== PSSA ⑤ 用 AI 強化（誠實：核心無 ML；前沿＝TreeScan 高通量篩檢）===================== -->
+  <section id="pssaml" class="panel">
+    <h1 data-en="Boost with AI: there is no ML version of the core screen — and that is honest">用 AI 強化：核心篩檢沒有 ML 版本——而這是誠實的</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. PSSA is different in kind: it is a <b>self-controlled signal screen</b>, not an effect estimator — there is no nuisance model for ML to flex. The honest frontier here is <b>high-throughput screening</b> (TreeScan), not CATE. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Hallas 1996; Kulldorff et al. 2003.</i>">
+        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。PSSA 性質不同：它是<b>自我對照的訊號篩檢</b>、不是效果估計器——沒有讓 ML 發揮的輔助模型。這裡誠實的前沿是<b>高通量篩檢</b>（TreeScan），不是 CATE。<i>出處：Feuerriegel 等, Nature Medicine 2024；Hallas 1996；Kulldorff 等 2003。</i></p></div>
+    </details>
+    <p class="lead" data-en="The PSSA estimator is a couple of counts and a ratio: cSR = a ÷ b, SRnull from the empirical timing distributions, aSR = cSR ÷ SRnull. There is <b>no model to learn</b> — SRnull is already a non-parametric (empirical-CDF) estimator of the trend, so there is nothing for an ML model to flex against. Rather than bolt on a fake &quot;AI&quot; layer, here is the honest landscape and the real frontier this method points to.">
+      PSSA 的估計式就是幾個計數和一個比值：cSR ＝ a ÷ b、SRnull 來自經驗時序分布、aSR ＝ cSR ÷ SRnull。<b>沒有要學的模型</b>——SRnull 本身已是趨勢的無母數（經驗 CDF）估計，沒有讓 ML 發揮的對象。與其硬掛一層假「AI」，這裡誠實交代全貌，以及這個方法指向的真正前沿。
+    </p>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Why there's no ML version">① 為什麼沒有 ML 版本</h3>
+        <p data-en="PSSA's validity comes from <b>self-control</b> (each person is their own comparison) and from dividing out the trend with a non-parametric SRnull — not from a flexible outcome/propensity model. Adding ML to the ratio doesn't address its real limits (cascade direction, time window, event-dependent timing); it would be decoration, not method.">PSSA 的效度來自<b>自我對照</b>（每個人當自己的對照）與用無母數 SRnull 除掉趨勢——不是來自彈性的結果／傾向模型。把 ML 加到這個比值上，並不能處理它真正的限制（瀑布方向、時間窗、事件相依時序）；那只是裝飾、不是方法。</p></div>
+      <div class="card"><h3 data-en="② The real frontier: high-throughput screening (TreeScan)">② 真正的前沿：高通量篩檢（TreeScan）</h3>
+        <p data-en="PSSA screens <b>one pair at a time</b>. To screen <b>thousands of outcomes at once</b> while controlling the family-wise error from all that multiplicity, the field uses the <b>tree-based scan statistic (TreeScan)</b> — a Bernoulli log-likelihood-ratio scanned over an outcome hierarchy with a Monte-Carlo permutation p-value. That is the scalable cousin of this self-controlled screen; it is built as its own full method in this toolbox.">PSSA <b>一次篩一對</b>。要<b>一次篩上千個結果</b>又控制這麼多重複比較帶來的整體型一錯誤，領域用的是<b>樹狀掃描統計（TreeScan）</b>——在結果階層上掃 Bernoulli 對數概似比、用蒙地卡羅排列法給 p 值。它是這個自我對照篩檢的可擴展表親；本工具箱另把它做成完整方法。</p></div>
+      <div class="card"><h3 data-en="③ Honest speculation, clearly labelled">③ 謹慎推測，明確標示</h3>
+        <p data-en="<b>Speculative:</b> ML could help <i>around</i> PSSA — e.g. learning a more flexible time-trend for SRnull, or a classifier to triage which flagged pairs are worth a confounder-controlled follow-up. These are plausible research directions, not part of the established method, and are not implemented here.">​<b>推測：</b>ML 可能在 PSSA 的<i>周邊</i>幫上忙——例如為 SRnull 學一個更彈性的時間趨勢，或用分類器分流「哪些被標出的配對值得做控混淆的追蹤」。這些是合理的研究方向、不是既定方法的一部分，本工具未實作。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -4721,6 +4819,29 @@
       <div class="card"><h3 data-en="② Exchangeability via selection">② 靠選樣換來可交換</h3><p data-en="Unlike PS (which conditions on covariates), the TND achieves comparability by <b>who it samples</b>: restricting to the tested makes care-seeking common to cases and controls, so it no longer confounds vaccination.">和 PS（條件在共變項）不同，TND 靠<b>抽樣對象</b>達成可比：限制在被檢驗者，讓就醫傾向成為 case 與 control 共有，於是不再混淆接種。</p></div>
       <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="If the vaccine affects the control illness (C2), if vaccinees seek testing differently given symptoms (C3), or if the test misclassifies (C1), the selection becomes differential and VE is biased. Other measured confounders still need adjustment (⑤).">若疫苗影響對照疾病（C2）、接種者在相同症狀下就醫不同（C3）、或檢驗錯分（C1），選樣就變差別、VE 偏。其他已測混淆仍要調整（⑤）。</p></div>
       <div class="card"><h3 data-en="④ In the TND literature">④ 對應 TND 文獻</h3><p data-en="The test-negative design &amp; its causal basis (Jackson &amp; Nelson 2013; Sullivan, Tchetgen Tchetgen &amp; Cowling 2016; Vandenbroucke &amp; Pearce 2019; Schnitzer 2022; Andrews et al. 2025). Selection / collider bias also appears in Hernán &amp; Robins, <i>What If</i>, Ch 8.">陰性檢驗設計與其因果基礎（Jackson &amp; Nelson 2013；Sullivan, Tchetgen Tchetgen &amp; Cowling 2016；Vandenbroucke &amp; Pearce 2019；Schnitzer 2022；Andrews 等 2025）。選樣／對撞偏誤亦見 Hernán &amp; Robins, <i>What If</i>, 第 8 章。</p></div>
+    </div>
+  </section>
+
+  <section id="pssawhatif" class="panel">
+    <h1 data-en="⑥ What if…? Sequence symmetry in the language of counterfactuals">⑥ 如果……？用反事實的語言看「處方順序對稱 PSSA」</h1>
+    <p class="lead" data-en="PSSA is a <b>self-controlled</b> screen: each person who used both drugs is their own comparison, so all <b>time-invariant</b> confounders (sex, genetics, stable frailty) cancel — there is no need to make different people comparable. The counterfactual it points at is &quot;<b>would B have been started had A not been taken?</b>&quot; The one thing self-control cannot remove is a <b>time-varying</b> force — the prescribing trend — which is exactly what SRnull divides out.">
+      PSSA 是<b>自我對照</b>的篩檢：每個用過兩種藥的人當自己的對照，所有<b>時間不變</b>的混淆（性別、基因、穩定體質）都相消——不需要讓不同人可比。它指向的反事實是「<b>若沒用 A，B 還會被開立嗎？</b>」自我對照唯一去不掉的是<b>時變</b>的力量——處方趨勢——而那正是 SRnull 除掉的東西。
+    </p>
+    <div class="card scene"><h3 data-en="The PSSA DAG: within-person, the trend (calendar time) is the only thing left to remove">PSSA 的 DAG：在個人內，趨勢（日曆時間）是唯一還要去掉的東西</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pssa" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set the index drug A to a → counterfactual marker-drug start Bᵃ">反事實介入圖（SWIG）：把指標藥 A 設成 a → 反事實的標記藥起始 Bᵃ</p><div id="swigScene_pssa" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
+      <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
+        <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each circle is a variable; each arrow a direct cause. Self-control (within-person comparison) silently blocks every back door through a <b>time-invariant</b> trait — they can't differ within one person. What's left is the <b>calendar-time trend</b> driving when B is prescribed; SRnull is the device that removes it.">​<b>把它想成「誰造成誰」的地圖。</b>每個圓圈是一個變數；每個箭頭是一個直接因果。自我對照（個人內比較）默默擋住所有經由<b>時間不變</b>特質的後門——它們在同一個人內不會變。剩下的是驅動 B 何時被開立的<b>日曆時間趨勢</b>；SRnull 就是去掉它的裝置。</p></div>
+      <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
+        <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> Set the index drug A to a and read the counterfactual marker-drug start Bᵃ. PSSA reads a cascade off the <b>asymmetry</b> in start order; the aSR identifies it once the trend (the only time-varying back door) is divided out by SRnull and the cascade direction is plausible.">​<b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把指標藥 A 設成 a，讀反事實的標記藥起始 Bᵃ。PSSA 從起始順序的<b>不對稱</b>讀出瀑布；一旦趨勢（唯一的時變後門）被 SRnull 除掉、且瀑布方向合理，aSR 就辨識它。</p></div>
+    </details>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The target is the order asymmetry caused by A: would &quot;B-after-A&quot; happen at the same rate as &quot;A-after-B&quot; had A not been taken? aSR &gt; 1 says A makes B more likely to follow — a candidate cascade.">目標是 A 造成的順序不對稱：若沒用 A，「B 接在 A 後」會和「A 接在 B 後」一樣常見嗎？aSR &gt; 1 表示 A 讓 B 更可能跟著來——候選瀑布。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability via self-control">② 靠自我對照換來可交換</h3><p data-en="Like SCCS, comparability comes from <b>within-person</b> contrast: time-invariant confounders cancel automatically. PSSA does not adjust covariates — it removes them by design.">和 SCCS 一樣，可比來自<b>個人內</b>對比：時間不變混淆自動相消。PSSA 不調整共變項——而是用設計把它們去掉。</p></div>
+      <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="A wrong cascade direction (C1), a mis-modelled trend (C2), a poor time window (C3), prevalent users (C4), or too few discordant pairs (C5) all distort the aSR. PSSA flags, it does not confirm — follow up with a confounder-controlled design.">瀑布方向錯（C1）、趨勢建模錯（C2）、時間窗不當（C3）、盛行使用者（C4）、或不一致對太少（C5）都會扭曲 aSR。PSSA 只標、不確認——要用控混淆的設計追下去。</p></div>
+      <div class="card"><h3 data-en="④ In the PSSA literature">④ 對應 PSSA 文獻</h3><p data-en="Sequence symmetry analysis (Hallas 1996; Tsiropoulos et al. 2009; Hendrix et al. 2024 reporting guidance). Self-control / within-person exchangeability also underlies SCCS; see Hernán &amp; Robins, <i>What If</i>, on time-varying structure.">處方順序對稱分析（Hallas 1996；Tsiropoulos 等 2009；Hendrix 等 2024 報告指引）。自我對照／個人內可交換亦是 SCCS 的基礎；時變結構見 Hernán &amp; Robins, <i>What If</i>。</p></div>
     </div>
   </section>
 
@@ -5325,6 +5446,38 @@ run;</code></pre>
       <p data-en="For a causal TND (Schnitzer 2022), weight by an inverse propensity score for vaccination (optionally an ML / Super-Learner PS, as in ⑤), then take the weighted OR → VE. R: logistic + survey/ipw, or the tnd / DR-TND packages.">因果 TND（Schnitzer 2022）用接種的反傾向分數加權（PS 可用 ML／Super Learner，如 ⑤），再取加權 OR → VE。R：logistic ＋ survey/ipw，或 DR-TND 套件。</p></div>
   </section>
 
+  <section id="pssasas" class="panel">
+    <h1 data-en="⑦ SAS / R code: the key steps for sequence symmetry analysis">⑦ SAS／R 程式：處方順序對稱分析的關鍵步驟</h1>
+    <p class="lead" data-en="PSSA is mostly counting: among new users of <b>both</b> drugs, count A-then-B vs B-then-A, then divide the crude SR by a trend-only SRnull. The estimator is a ratio, so the &quot;code&quot; is data-step counting plus a closed-form CI.">PSSA 主要是計數：在<b>兩種藥都首次使用</b>的人裡，數「先 A 後 B」與「先 B 後 A」，再把粗 SR 除以「只有趨勢」的 SRnull。估計式是個比值，所以「程式」就是資料步驟的計數加上閉式 CI。</p>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — new users of both drugs; first-ever start dates">步驟 0 — 兩藥的新使用者；各自首次起始日</h3>
+      <pre class="sas"><code><span class="cm">/* incident (new) use of BOTH drugs, with a washout before each first dispensing. */</span>
+proc sql;
+   create table pairs as
+   select pid,
+          min(case when drug='A' then rx_date end) as tA,   <span class="cm">/* first-ever index drug A   */</span>
+          min(case when drug='B' then rx_date end) as tB    <span class="cm">/* first-ever marker drug B  */</span>
+   from new_user_rx group by pid
+   having tA is not null and tB is not null            <span class="cm">/* keep only the discordant 'both' pairs */</span>
+      and abs(tB - tA) &lt;= 365;                         <span class="cm">/* time window, e.g. 12 months */</span>
+quit;</code></pre>
+      <p data-en="Everything rests on Step 0: first-ever (incident) use of both drugs and a sensible time window. Prevalent users contaminate the order (see ④, C4).">成敗在步驟 0：兩藥都要首次（incident）使用、配合合理的時間窗。盛行使用者會污染順序（見 ④ C4）。</p></div>
+    <div class="card"><h3 data-en="Step 1 — crude SR, then divide out the trend → aSR">步驟 1 — 粗 SR，再除掉趨勢 → aSR</h3>
+      <pre class="sas"><code>data c; set pairs; aThenB = (tA &lt; tB); run;
+proc sql;                                              <span class="cm">/* a = A-then-B, b = B-then-A */</span>
+   select sum(aThenB) into :a from c;
+   select sum(1-aThenB) into :b from c;
+quit;
+<span class="cm">/* crude SR = a/b ; SRnull from the empirical timing CDFs (trend only) ; aSR = cSR/SRnull */</span>
+<span class="cm">/* Var(log aSR) = 1/a + 1/b ; 95% CI = aSR * exp(+/- 1.96*sqrt(1/a+1/b)). aSR>1 & CI excl. 1 = signal */</span></code></pre>
+      <p data-en="The crude SR = a ÷ b; SRnull is the same ratio expected under the prescribing trend alone (estimated from the empirical start-time distributions). aSR = cSR ÷ SRnull, with a log-scale CI. R: the <code>Sequence Symmetry Analysis</code> idiom, or the <code>SSAcox</code> / dedicated SSA packages.">粗 SR ＝ a ÷ b；SRnull 是「只有處方趨勢」時同一比值的期望（由經驗起始時間分布估）。aSR ＝ cSR ÷ SRnull，附 log 尺度 CI。R：序列對稱分析慣用法，或專用 SSA 套件。</p></div>
+    <div class="card"><h3 data-en="Step 2 — scale up: from one pair to a tree (TreeScan)">步驟 2 — 規模化：從一對到一棵樹（TreeScan）</h3>
+      <pre class="sas"><code><span class="cm">/* PSSA screens one pair. To screen thousands of outcomes with FWER control, */</span>
+<span class="cm">/* use a tree-based scan statistic (Bernoulli LLR over an outcome hierarchy,  */</span>
+<span class="cm">/* Monte-Carlo permutation p). R: TreeScan / TreeMineR.  See the TreeScan tabs. */</span></code></pre>
+      <p data-en="When you want to screen a whole drug or outcome hierarchy at once, move from the pairwise SSA to the tree-based scan statistic (TreeScan / TreeMineR) — its own full method in this toolbox.">當你想一次篩整個藥物或結果階層，就從成對的 SSA 走到樹狀掃描統計（TreeScan／TreeMineR）——本工具箱另設為完整方法。</p></div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -5730,11 +5883,14 @@ run;</code></pre>
       <li data-ref="tnd"><b data-en="Foundational">奠基</b> · Jackson, M. L., &amp; Nelson, J. C. (2013). The test-negative design for estimating influenza vaccine effectiveness. <i>Vaccine, 31</i>(17), 2165–2168. https://doi.org/10.1016/j.vaccine.2013.02.053. <span data-en="〔the design &amp; its rationale — TND tabs ①③〕">〔設計與其理據 —— TND 分頁 ①③〕</span></li>
       <li data-ref="tnd">Sullivan, S. G., Tchetgen Tchetgen, E. J., &amp; Cowling, B. J. (2016). Theoretical Basis of the Test-Negative Study Design for Assessment of Influenza Vaccine Effectiveness. <i>American Journal of Epidemiology, 184</i>(5), 345–353. https://doi.org/10.1093/aje/kww064. · Vandenbroucke, J. P., &amp; Pearce, N. (2019). Test-Negative Designs: Differences and Commonalities With Other Case-Control Studies With &quot;Other Patient&quot; Controls. <i>Epidemiology, 30</i>(6), 838–844. <span data-en="〔the causal/theoretical basis &amp; how it relates to case-control designs — TND tabs ①④⑥〕">〔因果／理論基礎與其和病例對照的關係 —— TND 分頁 ①④⑥〕</span></li>
       <li data-ref="tnd"><b data-en="Causal / adjusted TND &amp; validation">因果／調整式 TND 與驗證</b> · Schnitzer, M. E. (2022). Estimands and Estimation of COVID-19 Vaccine Effectiveness Under the Test-Negative Design. <i>Epidemiology, 33</i>(3), 325–333. · Rowley, E. A. K., et al. (2025). Methods to Adjust for Confounding in Test-Negative Design COVID-19 Effectiveness Studies: Simulation Study. <i>JMIR Formative Research</i>. · Andrews, N., et al. (2025). Evaluating the Test-Negative Design for COVID-19 Vaccine Effectiveness Using Randomized Trial Data. <i>JAMA Network Open</i>. <span data-en="〔IPW / g-computation adjustment, confounding-adjustment simulations &amp; validation against trials — TND tabs ④⑤〕">〔IPW／g-computation 調整、混淆調整模擬與以試驗驗證 —— TND 分頁 ④⑤〕</span></li>
+      <li data-ref="pssa"><b data-en="Foundational">奠基</b> · Hallas, J. (1996). Evidence of depression provoked by cardiovascular medication: a prescription sequence symmetry analysis. <i>Epidemiology, 7</i>(5), 478–484. <span data-en="〔the original sequence symmetry analysis &amp; the crude/adjusted sequence ratio — PSSA tabs ①③〕">〔處方順序對稱分析原典與粗／校正順序比 —— PSSA 分頁 ①③〕</span></li>
+      <li data-ref="pssa">Tsiropoulos, I., Andersen, M., &amp; Hallas, J. (2009). Adverse events with use of antiepileptic drugs: a prescription and event symmetry analysis. <i>Pharmacoepidemiology and Drug Safety, 18</i>(6), 483–491. · Lai, E. C.-C., et al. (2017). Sequence symmetry analysis in pharmacovigilance and pharmacoepidemiologic studies. <i>European Journal of Epidemiology, 32</i>(7), 567–582. <span data-en="〔the null sequence ratio &amp; prescribing-trend adjustment, and its use as a fast self-controlled screen — PSSA tabs ①②④〕">〔無效果順序比與處方趨勢校正，及其作為快速自我對照篩檢的應用 —— PSSA 分頁 ①②④〕</span></li>
+      <li data-ref="pssa"><b data-en="Reporting / scaling">報告／規模化</b> · Hendrix, N., et al. (2024). Reporting guidance for sequence symmetry analysis. · Kulldorff, M., et al. (2003). A tree-based scan statistic for database disease surveillance. <i>Biometrics, 59</i>(2), 323–331. <span data-en="〔reporting standards, and the tree-based scan statistic (TreeScan) as the high-throughput cousin — PSSA tab ⑤, see also the TreeScan method〕">〔報告標準，以及樹狀掃描統計（TreeScan）作為高通量表親 —— PSSA 分頁 ⑤，另見 TreeScan 方法〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=95"></script>
-<script src="app.js?v=95"></script>
+<script src="i18n.js?v=96"></script>
+<script src="app.js?v=96"></script>
 </body>
 </html>
