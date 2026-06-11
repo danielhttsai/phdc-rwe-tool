@@ -67,10 +67,12 @@
 
   // ---- 初始化 Pyodide -----------------------------------------------------
   async function init() {
+    // 先同步蓋上遮罩(此時還在 <head> 解析、<body> 尚未繪出),
+    // 避免第一頁(IV)先閃一下才被 loading 介面蓋住。
+    buildOverlay();
     if (document.readyState === "loading") {
       await new Promise(function (r) { document.addEventListener("DOMContentLoaded", r); });
     }
-    buildOverlay();
     try {
       setStatus("正在載入運算核心(Pyodide)…", 12);
       pyodide = await loadPyodide({ indexURL: PYODIDE_INDEX });

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=93" />
+<link rel="stylesheet" href="/styles.css?v=94" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -3998,6 +3998,9 @@
       <div class="tdef"><h4>g-formula／IPTW-MSM <span class="en">parametric g-formula / marginal structural model</span></h4>
         <p data-en="<b>g-formula:</b> model how L evolves and how Y depends on history, then simulate 'always treat' vs 'never treat' and average (standardisation over the time-varying L). <b>IPTW-MSM:</b> weight each person by the inverse probability of their treatment history given the past, fit a simple marginal model E[Yᵃ]=β₀+β₁·(a₀+a₁) — the weights remove the arrows from Lₜ into Aₜ.">
           <b>g-formula：</b>建 L 的演變與 Y 對史的模型，模擬「全程用藥 vs 全程不用」再平均（對時變 L 做標準化）。<b>IPTW-MSM：</b>用「治療史的反機率」加權，配一個簡單邊際模型 E[Yᵃ]=β₀+β₁·(a₀+a₁)——權重去掉了 Lₜ 指向 Aₜ 的箭頭。</p></div>
+      <div class="tdef"><h4>分類釐清：g-methods、MSM、IP 加權 <span class="en">how g-methods, MSMs &amp; IP weighting fit together</span></h4>
+        <p data-en="<b>The hierarchy.</b> <b>g-methods</b> is the umbrella for time-varying confounding; its three members are the <b>g-formula</b>, the <b>marginal structural model (MSM)</b>, and <b>g-estimation</b> (of structural nested models). So an MSM sits <i>inside</i> g-methods — not the other way round.<br /><b>MSM ≠ IP weighting.</b> A common pitfall (Shinozaki &amp; Suzuki 2020) is to equate the two. An <b>MSM is the causal model</b> — it encodes the target effect, e.g. E[Yᵃ] = β₀ + β₁·(a₀+a₁). <b>IP weighting is just one way to fit it</b> (you could also fit an MSM by standardisation / g-computation). The weight model — the probability of treatment given the past — is a separate <b>nuisance</b> model. Keep them apart: variable selection and model specification for the causal MSM and for the weight model are different problems.">
+          <b>層級關係。</b><b>g-methods</b> 是處理時變混淆的<b>總稱</b>；底下三法＝<b>g-formula</b>、<b>邊際結構模型（MSM）</b>、<b>g-estimation</b>（結構巢式模型）。所以 MSM 是<b>包含在</b> g-methods 之內，不是反過來。<br /><b>MSM ≠ IP 加權。</b>常見誤解（Shinozaki &amp; Suzuki 2020）是把兩者畫上等號。<b>MSM 是「因果模型」</b>——它編碼你要估的效果，例如 E[Yᵃ] = β₀ + β₁·(a₀+a₁)。<b>IP 加權只是擬合它的其中一種估法</b>（你也可以用標準化／g-computation 來擬合同一個 MSM）。而「權重模型」——給定過去、當下治療的機率——是另一個<b>輔助（nuisance）</b>模型。務必分清楚：因果 MSM 的變數選擇與設定，和權重模型的，是兩個不同的問題。</p></div>
       <div class="tdef"><h4>序列可交換性 <span class="en">sequential exchangeability</span></h4>
         <p data-en="<b>Plain:</b> at every time, given the measured past (treatment + covariate history), the current treatment is as-good-as random. This is the time-varying version of 'no unmeasured confounding' and is the key, untestable assumption (see ④).">
           <b>白話：</b>每個時點，在已測的過去（治療＋共變項史）之下，當下治療近似隨機。這是「無未測混淆」的時變版本，是關鍵、不可檢的假設（見 ④）。</p></div>
@@ -5701,6 +5704,7 @@ run;</code></pre>
       <li data-ref="tmle"><b data-en="Super Learner &amp; cross-fitting">Super Learner 與交叉擬合</b> · van der Laan, M. J., Polley, E. C., &amp; Hubbard, A. E. (2007). Super Learner. <i>Statistical Applications in Genetics and Molecular Biology, 6</i>(1), Article 25. · Schuler, M. S., &amp; Rose, S. (2017). Targeted Maximum Likelihood Estimation for Causal Inference in Observational Studies. <i>American Journal of Epidemiology, 185</i>(1), 65–73. <span data-en="〔the ensemble for the nuisances; an applied AJE primer — TMLE tab ⑤〕">〔輔助模型的集成；AJE 應用入門 —— TMLE 分頁 ⑤〕</span></li>
       <li data-ref="gm"><b data-en="Foundational">奠基</b> · Robins, J. M., Hernán, M. Á., &amp; Brumback, B. (2000). Marginal Structural Models and Causal Inference in Epidemiology. <i>Epidemiology, 11</i>(5), 550–560. <span data-en="〔marginal structural models &amp; IPTW for time-varying treatments — GM tabs ①③〕">〔時變治療的邊際結構模型與 IPTW —— GM 分頁 ①③〕</span></li>
       <li data-ref="gm">Naimi, A. I., Cole, S. R., &amp; Kennedy, E. H. (2017). An introduction to g methods. <i>International Journal of Epidemiology, 46</i>(2), 756–762. https://doi.org/10.1093/ije/dyw323. <span data-en="〔the canonical plain-language intro to the g-formula, IPTW-MSM &amp; g-estimation — GM tabs ①–④〕">〔g-formula、IPTW-MSM 與 g-estimation 的經典白話入門 —— GM 分頁 ①–④〕</span></li>
+      <li data-ref="gm">Shinozaki, T., &amp; Suzuki, E. (2020). Understanding Marginal Structural Models for Time-Varying Exposures: Pitfalls and Tips. <i>Journal of Epidemiology, 30</i>(9), 377–389. https://doi.org/10.2188/jea.JE20200226. <span data-en="〔MSM ≠ IP weighting: an MSM is the causal model, IPW is one way to fit it — the hierarchy clarification, GM ①〕">〔MSM ≠ IP 加權：MSM 是因果模型、IPW 只是其中一種估法 —— 層級釐清，GM ①〕</span></li>
       <li data-ref="gm">Daniel, R. M., Cousens, S. N., De Stavola, B. L., Kenward, M. G., &amp; Sterne, J. A. C. (2013). Methods for dealing with time-dependent confounding. <i>Statistics in Medicine, 32</i>(9), 1584–1618. https://doi.org/10.1002/sim.5686. · Keil, A. P., Edwards, J. K., Richardson, D. R., Naimi, A. I., &amp; Cole, S. R. (2014). The parametric g-formula for time-to-event data. <i>Epidemiology, 25</i>(6), 889–897. <span data-en="〔a tutorial on time-dependent confounding; the parametric g-formula worked example — GM tabs ③④〕">〔時變混淆方法教學；參數 g-formula 範例 —— GM 分頁 ③④〕</span></li>
       <li data-ref="gm"><b data-en="ML / g-computation">機器學習／g-computation</b> · Naimi, A. I., Mishler, A. E., &amp; Kennedy, E. H. (2021). Challenges in Obtaining Valid Causal Effect Estimates With Machine Learning Algorithms. <i>American Journal of Epidemiology</i>. · Scientific Reports studies on g-computation, propensity-score methods &amp; TMLE with machine learning (2020, 10:9219; 2021, 11:1435). <span data-en="〔ML-assisted g-formula &amp; the need for cross-fitting / doubly-robust estimation — GM tab ⑤〕">〔ML 輔助 g-formula 與交叉擬合／雙重穩健的必要性 —— GM 分頁 ⑤〕</span></li>
       <li data-ref="tnd"><b data-en="Foundational">奠基</b> · Jackson, M. L., &amp; Nelson, J. C. (2013). The test-negative design for estimating influenza vaccine effectiveness. <i>Vaccine, 31</i>(17), 2165–2168. https://doi.org/10.1016/j.vaccine.2013.02.053. <span data-en="〔the design &amp; its rationale — TND tabs ①③〕">〔設計與其理據 —— TND 分頁 ①③〕</span></li>
@@ -5710,7 +5714,7 @@ run;</code></pre>
   </footer>
 </main>
 
-<script src="i18n.js?v=93"></script>
-<script src="app.js?v=93"></script>
+<script src="i18n.js?v=94"></script>
+<script src="app.js?v=94"></script>
 </body>
 </html>
