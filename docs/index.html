@@ -4,15 +4,15 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=96" />
+<link rel="stylesheet" href="styles.css?v=97" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-<script src="pyodide-bridge.js?v=38"></script>
+<script src="pyodide-bridge.js?v=39"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span> · <span>GM</span> · <span>TND</span> · <span>PSSA</span></div>
+  <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span> <span>IV</span> · <span>RDD</span> · <span>DiD</span> · <span>PERR</span> · <span>ITS</span> · <span>TiT</span> · <span>CCW</span> · <span>Seq</span> · <span>CCTC</span> · <span>CC</span> · <span>SCCS</span> · <span>ACNU</span> · <span>PNU</span> · <span>NC</span> · <span>MED</span> · <span>PS</span> · <span>TMLE</span> · <span>GM</span> · <span>TND</span> · <span>PSSA</span> · <span>TreeScan</span></div>
   <nav class="tabs">
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
@@ -36,6 +36,7 @@
         <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
         <option value="tnd" data-en="TND · Test-negative design">TND · 陰性檢驗設計</option>
         <option value="pssa" data-en="PSSA · Prescription sequence symmetry">PSSA · 處方順序對稱</option>
+        <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
       </select>
     </label>
     <div class="subtabs">
@@ -4312,6 +4313,106 @@
     </div>
   </section>
 
+  <!-- ===================== TreeScan ① 是什麼 ===================== -->
+  <section id="tscanlearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Tree-based scan statistic: screen a whole outcome hierarchy at once, without drowning in false alarms">樹狀掃描統計：一次掃整個結果階層，又不被假警報淹沒</h1>
+    <p class="lead" data-en="After a drug exposure we may want to watch <b>hundreds or thousands</b> of possible adverse-event outcomes — organised as a <b>hierarchy</b> (specific events nested under body systems, like MedDRA PT→SOC). If we test every node separately, the sheer <b>multiplicity</b> guarantees false positives. The <b>tree-based scan statistic (TreeScan)</b> scans every node — leaf <b>and</b> parent — with a Bernoulli <b>log-likelihood ratio (LLR)</b> that measures how much the exposed fraction in that node exceeds the baseline, takes the <b>maximum LLR</b> across the whole tree as one test statistic, and gets a <b>permutation p-value</b> by reshuffling exposure labels. That single max-statistic correction controls the <b>family-wise error</b> across all the nodes at once, so only genuine excesses survive (Kulldorff et al. 2003).">
+      在一次藥物暴露後，我們可能想盯著<b>數百到數千</b>個可能的不良反應結果——並把它們組織成<b>階層</b>（具體事件巢狀在身體系統底下，如 MedDRA PT→SOC）。若把每個節點分開檢定，光是<b>多重比較</b>就保證會有假陽性。<b>樹狀掃描統計（TreeScan）</b>掃描每個節點——葉節點<b>與</b>父節點——用 Bernoulli <b>對數概似比（LLR）</b>量「該節點的暴露比例超過基準多少」，取整棵樹的<b>最大 LLR</b> 當作單一檢定統計量，再用<b>打亂暴露標籤</b>的排列法得到 p 值。這個「最大統計量」校正一次就把所有節點的<b>族系錯誤率</b>控制住，於是只有真正的超額能存活（Kulldorff 等 2003）。
+    </p>
+    <div class="card scene"><h3 data-en="Scan every node of the tree; the max-LLR with a permutation p controls the family-wise error">掃描樹的每個節點；最大 LLR ＋排列 p 控制族系錯誤率</h3>
+      <div id="tscanScene" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>樹狀掃描統計／最大 LLR <span class="en">tree-based scan statistic / max LLR</span></h4>
+        <p data-en="<b>Plain:</b> compute a Bernoulli log-likelihood ratio (LLR) for every node — how surprising the exposed excess is — and take the single largest LLR across the whole tree as the test statistic. Scanning leaves AND their parents lets a signal spread thinly across related events add up.">
+          <b>白話：</b>為每個節點算 Bernoulli 對數概似比（LLR）——暴露超額有多「意外」——取整棵樹中最大的那個 LLR 當檢定統計量。同時掃葉節點與其父節點，能把分散在相關事件上的訊號聚起來。</p></div>
+      <div class="tdef"><h4>排列法 p 值／族系錯誤率 <span class="en">permutation p-value / family-wise error rate</span></h4>
+        <p data-en="<b>Plain:</b> reshuffle the exposure labels many times; each time record the max LLR. A node's adjusted p is the rank of its LLR in that null max-LLR distribution. Because we calibrate against the <b>maximum</b>, the correction already accounts for testing the whole tree — that's what controls the family-wise error.">
+          <b>白話：</b>把暴露標籤打亂很多次，每次記下最大 LLR。某節點的校正 p 就是它的 LLR 在這個「虛無最大 LLR 分布」裡的排名。因為是拿<b>最大值</b>校準，這個校正已經把「掃了整棵樹」算進去——這就是控制族系錯誤率的關鍵。</p></div>
+      <div class="tdef"><h4>訊號偵測（產生假說）<span class="en">signal detection (hypothesis-generating)</span></h4>
+        <p data-en="<b>Plain:</b> like PSSA, TreeScan is a high-throughput <b>screen</b> — it flags candidate drug–outcome pairs, it does not prove causation. It is the scalable cousin of the pairwise sequence-symmetry screen: PSSA does one pair, TreeScan does a whole hierarchy at once.">
+          <b>白話：</b>和 PSSA 一樣，TreeScan 是高通量<b>篩檢</b>——它標出候選的藥物–結果配對、不證明因果。它是成對序列對稱篩檢的可擴展表親：PSSA 一次一對，TreeScan 一次掃整個階層。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== TreeScan ② 互動講解 ===================== -->
+  <section id="tscanplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: inject a real excess at one node, watch the naive scan over-flag but TreeScan stay controlled">互動：在一個節點注入真超額，看天真掃描亂標、TreeScan 卻穩住</h1>
+    <p class="lead" data-en="Drag the slider for the <b>signal strength</b> at the one target node (the exposure-odds multiplier there). At strength <b>1</b> there is <b>no</b> real excess anywhere — yet a <b>naive</b> uncorrected scan still flags a node or two by chance (false alarms), while <b>TreeScan</b> correctly flags <b>none</b>. As the signal grows, the max LLR climbs and TreeScan's permutation p drops below 0.05 — flagging the true node (and its parent system) while still holding the family-wise error.">
+      拉動滑桿改變那一個目標節點的<b>訊號強度</b>（該節點的暴露勝算乘數）。強度為 <b>1</b> 時<b>到處都沒有</b>真超額——但<b>天真</b>未校正的掃描仍會因運氣標出一兩個節點（假警報），而 <b>TreeScan</b> 正確地<b>一個都不標</b>。訊號變大時，最大 LLR 往上爬、TreeScan 的排列 p 掉到 0.05 以下——標出真節點（與其父系統），同時仍守住族系錯誤率。
+    </p>
+    <div class="controls"><label>
+      <span data-en="Signal strength at the target node:">目標節點的訊號強度：</span><b id="tscanSigVal">3.0</b>
+      <input type="range" id="tscanSigSlider" min="1" max="4" value="3" step="0.5" />
+      <small data-en="1 = no excess anywhere (pure null); the naive scan still raises false alarms, TreeScan flags none. Larger = a stronger real excess at the one target node, which TreeScan detects while controlling multiplicity.">1＝到處都沒有超額（純虛無）；天真掃描仍會假警報，TreeScan 一個都不標。越大＝那一個目標節點的真超額越強，TreeScan 會偵測到、同時控制多重比較。</small>
+    </label></div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Max LLR">最大 LLR</div><div class="stat-num" id="tscanLlr">–</div><div class="stat-foot" data-en="strongest node">最強節點</div></div>
+      <div class="stat"><div class="stat-label" data-en="Adjusted p">校正後 p</div><div class="stat-num" id="tscanP">–</div><div class="stat-foot" data-en="permutation FWER">排列 FWER</div></div>
+      <div class="stat"><div class="stat-label" data-en="Naive flags">天真標記數</div><div class="stat-num" id="tscanNaive">–</div><div class="stat-foot" data-en="false alarms">假警報</div></div>
+      <div class="stat"><div class="stat-label" data-en="TreeScan flags">TreeScan 標記數</div><div class="stat-num" id="tscanFlags">–</div><div class="stat-foot" data-en="FWER-controlled">控制 FWER</div></div>
+    </div>
+    <div id="tscanPlayChart" class="chart"></div>
+    <p class="caption" id="tscanPlayReading"></p>
+  </section>
+
+  <!-- ===================== TreeScan ③ 資料分析 ===================== -->
+  <section id="tscananalyze" class="panel">
+    <h1 data-en="Data analysis: scan the tree, rank the nodes, count naive vs FWER-controlled flags">資料分析：掃描樹、把節點排名、數天真 vs FWER 控制的標記</h1>
+    <p class="lead" data-en="Load the built-in exposed-vs-control cohort over the outcome tree (one real excess is hidden at a single node). The tool scans every leaf and system node, ranks them by LLR, gives each a permutation-adjusted p, and contrasts how many nodes a <b>naive</b> uncorrected scan would flag vs how many survive the <b>FWER-controlled</b> TreeScan.">
+      載入內建的「暴露 vs 對照」世代（在某一個節點藏了一個真超額）。工具掃描每個葉節點與系統節點、依 LLR 排名、給每個節點排列校正 p，並對比<b>天真</b>未校正掃描會標幾個 vs <b>FWER 控制</b>的 TreeScan 存活幾個。
+    </p>
+    <div class="datasource">
+      <button id="useTscanExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="tscanFileInput" accept=".csv" hidden /></label>
+      <span id="tscanDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+    <div id="tscanAnalyzeOut" class="hidden">
+      <h2 data-en="Naive vs TreeScan flag counts">天真 vs TreeScan 標記數</h2>
+      <div class="result-cards" id="tscanAnalyzeCards"></div>
+      <div id="tscanAnalyzeChart" class="chart"></div>
+      <p class="caption" data-en="Bars are the top nodes' LLR; the dashed line marks the FWER-controlled significance threshold (permutation). Nodes above it are the surviving signals; the naive count flags more — those extras are false alarms.">
+        長條是前幾名節點的 LLR；虛線是 FWER 控制的顯著門檻（排列法）。在它之上的是存活的訊號；天真標記數更多——多出來的是假警報。</p>
+      <h2 data-en="Ranked nodes">節點排名</h2>
+      <div class="table-wrap"><table class="cmp" id="tscanNodeTable"></table></div>
+    </div>
+  </section>
+
+  <!-- ===================== TreeScan ④ 假設檢驗 ===================== -->
+  <section id="tscanassume" class="panel">
+    <h1 data-en="Can we trust this TreeScan? Five checks">這個 TreeScan 可不可信？五道體檢</h1>
+    <p class="lead" data-en="TreeScan controls the multiplicity, but rests on conditions that are mostly design judgement (blue): a meaningful outcome tree and a valid permutation null (exchangeable exposure, no unmodelled confounding). What you can check: a roughly constant baseline across nodes, enough events at the flagged node, and a permutation p that actually clears the correction. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      TreeScan 控制多重比較，但建立在多半屬於設計判斷的條件上（藍）：有意義的結果樹、有效的排列虛無（暴露可交換、無未建模混淆）。可以檢的是：各節點基準大致為常數、被標出的節點有足夠事件、排列 p 真的過了校正門檻。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="tscanOverall" class="overall hidden"></div>
+    <div id="tscanAssumeCards" class="assume-cards"></div>
+    <p id="tscanAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== TreeScan ⑤ 用 AI 強化（誠實：核心是掃描統計，無 ML；前沿＝自我對照樹-時序掃描）===================== -->
+  <section id="tscanml" class="panel">
+    <h1 data-en="Boost with AI: the core is a scan statistic, not an ML estimator — and that is honest">用 AI 強化：核心是掃描統計、不是 ML 估計器——而這是誠實的</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. TreeScan is different in kind: it is a <b>multiplicity-controlled signal screen</b>, not an effect estimator. The honest frontier here is a better null and a self-controlled scan, plus ML to <i>triage</i> the flags — not CATE. <i>Sources: Feuerriegel et al., Nature Medicine 2024; Kulldorff et al. 2003; Maro et al. 2014.</i>">
+        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。TreeScan 性質不同：它是<b>控制多重比較的訊號篩檢</b>、不是效果估計器。這裡誠實的前沿是更好的虛無與自我對照掃描，加上用 ML 來<i>分流</i>訊號——不是 CATE。<i>出處：Feuerriegel 等, Nature Medicine 2024；Kulldorff 等 2003；Maro 等 2014。</i></p></div>
+    </details>
+    <p class="lead" data-en="TreeScan's engine is a likelihood-ratio scan with a permutation p — there is <b>no nuisance model</b> for ML to flex. Bolting a black-box onto the scan statistic wouldn't address its real limits (a valid tree, a valid null, residual confounding). Here is the honest landscape and the real frontier this method points to.">
+      TreeScan 的引擎是「概似比掃描＋排列 p」——<b>沒有讓 ML 發揮的輔助模型</b>。把黑盒掛到掃描統計上，並不能處理它真正的限制（樹是否有效、虛無是否有效、殘餘混淆）。這裡誠實交代全貌，以及這個方法指向的真正前沿。
+    </p>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Why there's no ML version of the core">① 為什麼核心沒有 ML 版本</h3>
+        <p data-en="The validity comes from the <b>permutation null</b> and the <b>max-statistic</b> correction, not from a flexible learner. ML can't make a wrong tree right or a confounded null valid; it would be decoration, not method.">效度來自<b>排列虛無</b>與<b>最大統計量</b>校正，不是來自彈性學習器。ML 無法把錯的樹變對、把被混淆的虛無變有效；那只是裝飾、不是方法。</p></div>
+      <div class="card"><h3 data-en="② The real frontier: a self-controlled tree-temporal scan">② 真正的前沿：自我對照的樹-時序掃描</h3>
+        <p data-en="The Bernoulli scan here assumes a constant baseline across nodes (C2/C4). The field's main advances are <b>conditional, self-controlled</b> tree-temporal scans (each person their own control, scanning over a risk window) that drop that assumption — the same self-control idea behind SCCS and PSSA, scaled over a tree. (Kulldorff et al.; Maro et al. 2014, FDA Sentinel.)">這裡的 Bernoulli 掃描假設各節點基準為常數（C2/C4）。領域的主要進展是<b>條件型、自我對照</b>的樹-時序掃描（每個人當自己的對照、在風險窗上掃），把那個假設拿掉——就是 SCCS 與 PSSA 背後的自我對照想法，擴大到一棵樹上。（Kulldorff 等；Maro 等 2014, FDA Sentinel。）</p></div>
+      <div class="card"><h3 data-en="③ Honest speculation, clearly labelled">③ 謹慎推測，明確標示</h3>
+        <p data-en="<b>Speculative:</b> ML could help <i>around</i> TreeScan — e.g. learning a flexible baseline/propensity to stratify the permutation, or a classifier to triage which flagged nodes deserve a confounder-controlled follow-up. Plausible research directions, not part of the established method, and not implemented here.">​<b>推測：</b>ML 可能在 TreeScan 的<i>周邊</i>幫上忙——例如學一個彈性的基準／傾向來分層排列，或用分類器分流「哪些被標出的節點值得做控混淆的追蹤」。這些是合理的研究方向、不是既定方法的一部分，本工具未實作。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -4842,6 +4943,29 @@
       <div class="card"><h3 data-en="② Exchangeability via self-control">② 靠自我對照換來可交換</h3><p data-en="Like SCCS, comparability comes from <b>within-person</b> contrast: time-invariant confounders cancel automatically. PSSA does not adjust covariates — it removes them by design.">和 SCCS 一樣，可比來自<b>個人內</b>對比：時間不變混淆自動相消。PSSA 不調整共變項——而是用設計把它們去掉。</p></div>
       <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="A wrong cascade direction (C1), a mis-modelled trend (C2), a poor time window (C3), prevalent users (C4), or too few discordant pairs (C5) all distort the aSR. PSSA flags, it does not confirm — follow up with a confounder-controlled design.">瀑布方向錯（C1）、趨勢建模錯（C2）、時間窗不當（C3）、盛行使用者（C4）、或不一致對太少（C5）都會扭曲 aSR。PSSA 只標、不確認——要用控混淆的設計追下去。</p></div>
       <div class="card"><h3 data-en="④ In the PSSA literature">④ 對應 PSSA 文獻</h3><p data-en="Sequence symmetry analysis (Hallas 1996; Tsiropoulos et al. 2009; Hendrix et al. 2024 reporting guidance). Self-control / within-person exchangeability also underlies SCCS; see Hernán &amp; Robins, <i>What If</i>, on time-varying structure.">處方順序對稱分析（Hallas 1996；Tsiropoulos 等 2009；Hendrix 等 2024 報告指引）。自我對照／個人內可交換亦是 SCCS 的基礎；時變結構見 Hernán &amp; Robins, <i>What If</i>。</p></div>
+    </div>
+  </section>
+
+  <section id="tscanwhatif" class="panel">
+    <h1 data-en="⑥ What if…? The tree scan in the language of counterfactuals">⑥ 如果……？用反事實的語言看「樹狀掃描 TreeScan」</h1>
+    <p class="lead" data-en="TreeScan is, at heart, a <b>screening</b> machine, not an effect estimator — so its real counterfactual question is modest: &quot;<b>at which outcome node is the exposed risk higher than it would be without the drug?</b>&quot; The deep idea here is not identification of a single effect but <b>honest multiplicity</b>: when you ask that question at thousands of nodes at once, the counterfactual that matters is the <b>whole null world</b> — what the most extreme node would look like if the drug did nothing anywhere. The permutation max-LLR <b>is</b> that null world, simulated.">
+      TreeScan 本質上是<b>篩檢</b>機器、不是效果估計器——所以它真正的反事實問題很樸素：「<b>在哪個結果節點，暴露下的風險高於『沒用藥時會有的風險』？</b>」這裡更深的想法不是辨識單一效果，而是<b>誠實面對多重性</b>：當你一次在數千個節點問這個問題，真正重要的反事實是<b>整個虛無世界</b>——若藥到處都沒作用，最極端的節點會長怎樣。排列法的最大 LLR <b>就是</b>那個被模擬出來的虛無世界。
+    </p>
+    <div class="card scene"><h3 data-en="The TreeScan DAG: exposure → outcome node; the permutation null answers 'what if the drug did nothing?'">TreeScan 的 DAG：暴露 → 結果節點；排列虛無回答「若藥沒作用會如何？」</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tscan" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set exposure to a → counterfactual outcome-node risk Yᵃ">反事實介入圖（SWIG）：把暴露設成 a → 反事實的結果節點風險 Yᵃ</p><div id="swigScene_tscan" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
+      <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
+        <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each circle is a variable; each arrow a direct cause. TreeScan asks, at each outcome node, whether exposure raises the risk — but a back door (an unmodelled confounder U into both exposure and which node you land in) would fake a signal. The permutation null only stays valid if no such U is doing the work (see ④, C4).">​<b>把它想成「誰造成誰」的地圖。</b>每個圓圈是一個變數；每個箭頭是一個直接因果。TreeScan 在每個結果節點問「暴露是否抬高風險」——但一條後門（未建模的混淆 U 同時指向暴露與「落在哪個節點」）會偽造訊號。排列虛無只在沒有這種 U 作怪時才有效（見 ④ C4）。</p></div>
+      <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
+        <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> Set exposure to a and read the counterfactual risk Yᵃ at each node. TreeScan flags a node when its observed exposed excess is too extreme to be the most-extreme node of a no-effect world — that no-effect world is exactly the permutation (label-shuffled) null.">​<b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把暴露設成 a，讀每個節點的反事實風險 Yᵃ。當某節點觀察到的暴露超額，極端到不可能是「無效果世界」裡最極端的那個節點時，TreeScan 就把它標出——那個無效果世界，正是排列（打亂標籤）的虛無。</p></div>
+    </details>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="At each node: is the exposed risk above its no-drug counterfactual? The estimand is not one effect but a <b>set of node-level excesses</b>, screened together with one family-wise-error budget.">在每個節點：暴露風險是否高於它的「沒用藥」反事實？估計目標不是單一效果，而是一<b>組節點層級的超額</b>，用一份族系錯誤率預算一起篩。</p></div>
+      <div class="card"><h3 data-en="② The null world, simulated">② 被模擬的虛無世界</h3><p data-en="Comparability comes not from adjusting covariates but from the <b>permutation null</b>: shuffle exposure labels to build the world where the drug does nothing, and ask if the real max-LLR is extreme against it.">可比不是來自調整共變項，而是來自<b>排列虛無</b>：打亂暴露標籤建出「藥沒作用」的世界，再問真實的最大 LLR 對它而言夠不夠極端。</p></div>
+      <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="If a confounder drives both exposure and outcome-node (C4), or the baseline isn't constant across nodes (C2), the null world is wrong and the flags are biased. TreeScan flags, it does not confirm — follow up with a confounder-controlled design.">若有混淆同時驅動暴露與結果節點（C4），或各節點基準非常數（C2），虛無世界就錯了、標記有偏。TreeScan 只標、不確認——要用控混淆的設計追下去。</p></div>
+      <div class="card"><h3 data-en="④ In the TreeScan literature">④ 對應 TreeScan 文獻</h3><p data-en="The tree-based scan statistic (Kulldorff et al. 2003; Maro et al. 2014, FDA Sentinel). Self-controlled / within-person comparison links it to SCCS and PSSA; selection &amp; multiplicity also appear in Hernán &amp; Robins, <i>What If</i>.">樹狀掃描統計（Kulldorff 等 2003；Maro 等 2014, FDA Sentinel）。自我對照／個人內比較把它和 SCCS、PSSA 連起來；選樣與多重性亦見 Hernán &amp; Robins, <i>What If</i>。</p></div>
     </div>
   </section>
 
@@ -5478,6 +5602,32 @@ quit;
       <p data-en="When you want to screen a whole drug or outcome hierarchy at once, move from the pairwise SSA to the tree-based scan statistic (TreeScan / TreeMineR) — its own full method in this toolbox.">當你想一次篩整個藥物或結果階層，就從成對的 SSA 走到樹狀掃描統計（TreeScan／TreeMineR）——本工具箱另設為完整方法。</p></div>
   </section>
 
+  <section id="tscansas" class="panel">
+    <h1 data-en="⑦ R code: the key steps for the tree-based scan statistic">⑦ R 程式：樹狀掃描統計的關鍵步驟</h1>
+    <p class="lead" data-en="TreeScan is most naturally run from R (the <code>TreeScan</code> engine, or the <code>TreeMineR</code> package): define the outcome tree, supply per-subject node + exposure, and let the scan compute the max-LLR with a Monte-Carlo permutation p. The mechanics are a likelihood-ratio scan over nodes plus a permutation null.">TreeScan 最自然是從 R 跑（<code>TreeScan</code> 引擎，或 <code>TreeMineR</code> 套件）：定義結果樹、給每個個體的節點＋暴露，讓掃描算出最大 LLR 與蒙地卡羅排列 p。機制就是「節點上的概似比掃描＋排列虛無」。</p>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own tree / dataset.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；樹／資料集請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — define the outcome tree (cuts) and the case file">步驟 0 — 定義結果樹（節點階層）與案例檔</h3>
+      <pre class="sas"><code><span class="cm"># A two-level tree: specific event nested under a body system (MedDRA PT under SOC). </span>
+<span class="cm"># cuts: each leaf node id and its parent; cases: one row per subject. </span>
+library(TreeMineR)
+tree  &lt;- data.frame(leaf = leaf_id, parent = system_id)         <span class="cm"># the hierarchy</span>
+cases &lt;- data.frame(id = pid, node = leaf_id, exposed = exposed) <span class="cm"># exposed 1 / control 0</span></code></pre>
+      <p data-en="Everything hinges on a meaningful tree (C1): parent–child links must reflect real clinical grouping (e.g. MedDRA PT→HLT→SOC), so a thin signal across related events can add up at the parent.">成敗在於樹要有意義（C1）：父子關係要反映真實的臨床歸類（如 MedDRA PT→HLT→SOC），分散在相關事件上的微弱訊號才能在父節點聚起來。</p></div>
+    <div class="card"><h3 data-en="Step 1 — scan: Bernoulli max-LLR with a permutation p">步驟 1 — 掃描：Bernoulli 最大 LLR ＋排列 p</h3>
+      <pre class="sas"><code><span class="cm"># Unconditional Bernoulli tree scan: scan every node, take the max LLR, </span>
+<span class="cm"># calibrate against the label-permutation null (controls the family-wise error). </span>
+res &lt;- treescan(cases, tree, model = "bernoulli",
+                n_perm = 9999)            <span class="cm"># Monte-Carlo permutations</span>
+subset(res, p_value &lt; 0.05)               <span class="cm"># the FWER-controlled signals</span></code></pre>
+      <p data-en="The scan returns each node's LLR and a permutation-adjusted p. Because the p is calibrated against the maximum LLR over the whole tree, a node clearing p &lt; 0.05 has already paid for the multiplicity — unlike a naive per-node test. (TreeScan / TreeMineR; Kulldorff et al. 2003.)">掃描回傳每個節點的 LLR 與排列校正 p。因為 p 是拿整棵樹的最大 LLR 校準，過了 p &lt; 0.05 的節點已經把多重性付清——和天真的逐節點檢定不同。（TreeScan／TreeMineR；Kulldorff 等 2003。）</p></div>
+    <div class="card"><h3 data-en="Step 2 — go conditional / self-controlled (optional)">步驟 2 — 改成條件型／自我對照（選用）</h3>
+      <pre class="sas"><code><span class="cm"># Drop the constant-baseline assumption: a self-controlled tree-temporal scan </span>
+<span class="cm"># (each person their own control, scanning a risk window) — the SCCS/PSSA idea, </span>
+<span class="cm"># scaled over a tree.  model = "poisson" / conditional, with a time dimension. </span>
+res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</code></pre>
+      <p data-en="For confounding robustness, switch to a conditional, self-controlled tree-temporal scan (Kulldorff et al.; Maro et al. 2014, FDA Sentinel) — the frontier described in ⑤.">想對混淆更穩健，就改用條件型、自我對照的樹-時序掃描（Kulldorff 等；Maro 等 2014, FDA Sentinel）——即 ⑤ 描述的前沿。</p></div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -5886,11 +6036,14 @@ quit;
       <li data-ref="pssa"><b data-en="Foundational">奠基</b> · Hallas, J. (1996). Evidence of depression provoked by cardiovascular medication: a prescription sequence symmetry analysis. <i>Epidemiology, 7</i>(5), 478–484. <span data-en="〔the original sequence symmetry analysis &amp; the crude/adjusted sequence ratio — PSSA tabs ①③〕">〔處方順序對稱分析原典與粗／校正順序比 —— PSSA 分頁 ①③〕</span></li>
       <li data-ref="pssa">Tsiropoulos, I., Andersen, M., &amp; Hallas, J. (2009). Adverse events with use of antiepileptic drugs: a prescription and event symmetry analysis. <i>Pharmacoepidemiology and Drug Safety, 18</i>(6), 483–491. · Lai, E. C.-C., et al. (2017). Sequence symmetry analysis in pharmacovigilance and pharmacoepidemiologic studies. <i>European Journal of Epidemiology, 32</i>(7), 567–582. <span data-en="〔the null sequence ratio &amp; prescribing-trend adjustment, and its use as a fast self-controlled screen — PSSA tabs ①②④〕">〔無效果順序比與處方趨勢校正，及其作為快速自我對照篩檢的應用 —— PSSA 分頁 ①②④〕</span></li>
       <li data-ref="pssa"><b data-en="Reporting / scaling">報告／規模化</b> · Hendrix, N., et al. (2024). Reporting guidance for sequence symmetry analysis. · Kulldorff, M., et al. (2003). A tree-based scan statistic for database disease surveillance. <i>Biometrics, 59</i>(2), 323–331. <span data-en="〔reporting standards, and the tree-based scan statistic (TreeScan) as the high-throughput cousin — PSSA tab ⑤, see also the TreeScan method〕">〔報告標準，以及樹狀掃描統計（TreeScan）作為高通量表親 —— PSSA 分頁 ⑤，另見 TreeScan 方法〕</span></li>
+      <li data-ref="tscan"><b data-en="Foundational">奠基</b> · Kulldorff, M., Fang, Z., &amp; Walsh, S. J. (2003). A tree-based scan statistic for database disease surveillance. <i>Biometrics, 59</i>(2), 323–331. https://doi.org/10.1111/1541-0420.00039. <span data-en="〔the tree-based scan statistic: scanning a hierarchy with a max-LLR and a permutation p — TreeScan tabs ①③〕">〔樹狀掃描統計：在階層上掃最大 LLR ＋排列 p —— TreeScan 分頁 ①③〕</span></li>
+      <li data-ref="tscan">Kulldorff, M., et al. (2013). A tree-based scan statistic for database disease surveillance. <i>Statistics in Medicine</i>. · Maro, J. C., et al. (2014). Six methods for evaluating vaccine safety using the tree-based scan statistic. (FDA Sentinel / Mini-Sentinel). <span data-en="〔the self-controlled / conditional tree-temporal scan and its use in active drug- &amp; vaccine-safety surveillance — TreeScan tabs ④⑤〕">〔自我對照／條件型樹-時序掃描，及其在主動藥物與疫苗安全監測的應用 —— TreeScan 分頁 ④⑤〕</span></li>
+      <li data-ref="tscan"><b data-en="Software / application">軟體／應用</b> · Wang, X., et al. (2023). TreeMineR: an R package for tree-based scan statistics. · The TreeScan™ software (treescan.org). <span data-en="〔open implementations used to run the scan in practice — TreeScan tab ⑦〕">〔實務上跑掃描用的開源實作 —— TreeScan 分頁 ⑦〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=96"></script>
-<script src="app.js?v=96"></script>
+<script src="i18n.js?v=97"></script>
+<script src="app.js?v=97"></script>
 </body>
 </html>

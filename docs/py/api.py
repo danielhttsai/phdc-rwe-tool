@@ -78,6 +78,9 @@ import tnd_assumptions
 import pssa_core
 import pssa_gen
 import pssa_assumptions
+import tscan_core
+import tscan_gen
+import tscan_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1356,6 +1359,41 @@ def _pssa_interactive(q: dict) -> dict:
     return pssa_core.pssa_interactive(c, lang=q.get("lang", "zh"))
 
 
+# --------------------------- TreeScan ---------------------------
+def _load_tscan(source: str):
+    if source in ("example_tscan", "example"):
+        return tscan_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _tscan_example() -> dict:
+    d = tscan_gen.generate()
+    preview = [{"pid": int(d["pid"][i]), "leaf": tscan_gen.leaf_names()[int(d["leaf"][i])],
+                "exposed": int(d["exposed"][i])} for i in range(8)]
+    return {"columns": ["pid", "leaf", "exposed"], "defaults": {}, "n": int(d["pid"].size),
+            "synthetic": True, "disclaimer": DISCLAIMER, "preview": preview,
+            "story": {"leaf": "結果葉節點（事件→系統階層）", "exposed": "暴露＝1（藥）／0（對照）",
+                      "target": tscan_gen.node_table()["target_label"]}}
+
+
+def _tscan_analyze(req: dict) -> dict:
+    df = _load_tscan(req.get("source", "example_tscan"))
+    return tscan_core.full_tscan(df, lang=req.get("lang", "zh"))
+
+
+def _tscan_assumptions(req: dict) -> dict:
+    df = _load_tscan(req.get("source", "example_tscan"))
+    return tscan_assumptions.run_dashboard(df, lang=req.get("lang", "zh"))
+
+
+def _tscan_interactive(q: dict) -> dict:
+    s = float(np.clip(float(q.get("signal", 3.0)), 1.0, 4.0))
+    return tscan_core.tscan_interactive(s, lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1484,6 +1522,10 @@ _ROUTES = {
     ("POST", "/api/pssa_analyze"): lambda q, b: _pssa_analyze(b),
     ("POST", "/api/pssa_assumptions"): lambda q, b: _pssa_assumptions(b),
     ("GET", "/api/pssa_interactive"): lambda q, b: _pssa_interactive(q),
+    ("GET", "/api/tscan_example"): lambda q, b: _tscan_example(),
+    ("POST", "/api/tscan_analyze"): lambda q, b: _tscan_analyze(b),
+    ("POST", "/api/tscan_assumptions"): lambda q, b: _tscan_assumptions(b),
+    ("GET", "/api/tscan_interactive"): lambda q, b: _tscan_interactive(q),
 }
 
 

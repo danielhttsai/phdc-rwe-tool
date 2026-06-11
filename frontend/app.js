@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -49,6 +49,8 @@ const PANEL_INIT = {
   tndassume: () => initTndAssume(), tndml: () => initTndMl(),
   pssalearn: () => initPssaLearn(), pssaplay: () => initPssaPlay(), pssaanalyze: () => initPssaAnalyze(),
   pssaassume: () => initPssaAssume(), pssaml: () => {},
+  tscanlearn: () => initTscanLearn(), tscanplay: () => initTscanPlay(), tscananalyze: () => initTscanAnalyze(),
+  tscanassume: () => initTscanAssume(), tscanml: () => {},
   tmlelearn: () => initTmleLearn(), tmleplay: () => initTmlePlay(), tmleanalyze: () => initTmleAnalyze(),
   tmleassume: () => initTmleAssume(), tmleml: () => initTmleMl(),
   whatif: () => drawWhatifPair("iv"), rddwhatif: () => drawWhatifPair("rdd"), didwhatif: () => drawWhatifPair("did"),
@@ -58,7 +60,7 @@ const PANEL_INIT = {
   pnuwhatif: () => drawWhatifPair("pnu"), ncwhatif: () => drawWhatifPair("nc"),
   medwhatif: () => drawWhatifPair("med"), pswhatif: () => drawWhatifPair("ps"),
   tmlewhatif: () => drawWhatifPair("tmle"), gmwhatif: () => drawWhatifPair("gm"), tndwhatif: () => drawWhatifPair("tnd"),
-  pssawhatif: () => drawWhatifPair("pssa"),
+  pssawhatif: () => drawWhatifPair("pssa"), tscanwhatif: () => drawWhatifPair("tscan"),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -114,7 +116,7 @@ document.addEventListener("click", (e) => {
 // already-linked text. Re-run after each language switch (applyStatic wipes them).
 const _MLINK = { SCCS: "sccs", CCTC: "cctc", ACNU: "acnu", PNU: "pnu", CCW: "ccw",
   RDD: "rdd", DiD: "did", PERR: "perr", ITS: "its", TiT: "tit", Seq: "seq",
-  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle", "G-methods": "gm", TND: "tnd", PSSA: "pssa" };
+  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle", "G-methods": "gm", TND: "tnd", PSSA: "pssa", TreeScan: "tscan" };
 const _MTOKENS = Object.keys(_MLINK).sort((a, b) => b.length - a.length);
 const _MRE = new RegExp("\\b(" + _MTOKENS.join("|") + ")\\b", "g");
 function _panelMethod(id) {
@@ -1561,6 +1563,7 @@ const DNODES = {
       { l: { zh: "用個人自身當對照、暴露有明確時窗（非致命、可復發）", en: "Person as own control, exposure has a clear window (non-fatal, recurrent)" }, to: "rSCCS" },
       { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見", en: "Exposure spreads over calendar time at different rates; rare outcome" }, to: "rTiT" },
       { l: { zh: "只想<b>快速篩出</b>「A 引起、B 治療」的<b>處方瀑布</b>訊號（產生假說，先 A 後 B 的不對稱）", en: "Just want a <b>fast screen</b> for an 'A-causes, B-treats' <b>prescribing cascade</b> (hypothesis-generating; A-then-B asymmetry)" }, to: "rPSSA" },
+      { l: { zh: "想<b>一次掃整個結果階層</b>（數百–數千個事件）找暴露的安全訊號，並<b>控制多重比較</b>", en: "Want to <b>scan a whole outcome hierarchy</b> (hundreds–thousands of events) for safety signals while <b>controlling multiplicity</b>" }, to: "rTSCAN" },
       { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
     ],
   },
@@ -1683,6 +1686,14 @@ const DNODES = {
                 en: "Drug-safety scenario: a new drug A diffuses over calendar time; you want to flag whether A triggers an adverse event that gets treated with B. PSSA quickly flags candidate pairs, to follow up with a confounder-controlled design (cohort / SCCS / active comparator) — see the PSSA tabs ①–⑦." },
     watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>瀑布方向合理</b>、趨勢建模正確（SRnull）、新使用者、時間窗合適。被標出的配對要用控混淆的設計追蹤。想<b>一次篩上千個結果</b>＝看 TreeScan。",
              en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a plausible cascade direction, a correctly modelled trend (SRnull), new users, and a sensible time window. Flagged pairs need a confounder-controlled follow-up. To screen <b>thousands of outcomes at once</b>, see TreeScan." } } },
+  rTSCAN: { rec: { kind: "toolbox", method: "tscan", badge: "TreeScan ✓",
+    title: { zh: "最適合：樹狀掃描統計 TreeScan ✓（本工具）", en: "Best fit: Tree-based Scan Statistic (TreeScan) ✓ (this tool)" },
+    why: { zh: "你想<b>一次掃整個結果階層</b>（數百到數千個事件，組成 MedDRA PT→SOC 之類的樹）找暴露的安全訊號，又不被<b>多重比較</b>的假陽性淹沒。TreeScan 為每個節點（葉＋父）算 Bernoulli <b>LLR</b>、取整棵樹的<b>最大 LLR</b>、用<b>打亂暴露標籤的排列法</b>給校正 p；這個最大統計量校正一次就把<b>族系錯誤率</b>控制住，只有真超額存活。",
+           en: "You want to <b>scan a whole outcome hierarchy</b> (hundreds–thousands of events forming a tree like MedDRA PT→SOC) for an exposure's safety signals, without drowning in <b>multiplicity</b> false positives. TreeScan computes a Bernoulli <b>LLR</b> at every node (leaf + parent), takes the <b>maximum LLR</b> over the tree, and gets an adjusted p by <b>permuting exposure labels</b>; that one max-statistic correction controls the <b>family-wise error</b> so only real excesses survive." },
+    scenario: { zh: "藥物／疫苗安全情境：一次暴露後掃描整棵不良反應樹，找出哪個事件（或哪個系統）有超額——FDA Sentinel 式的主動監測（見「TreeScan」分頁 ①–⑦）。",
+                en: "Drug / vaccine safety scenario: after one exposure, scan the whole adverse-event tree to find which event (or system) is in excess — FDA-Sentinel-style active surveillance (see the TreeScan tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>樹建得對</b>、各節點基準為常數、排列虛無有效（無未建模混淆）。被標出的節點要用控混淆的設計追蹤；想對混淆更穩健＝自我對照樹-時序掃描（見 ⑤）。它是 PSSA 的高通量表親。",
+             en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a well-built tree, a constant baseline across nodes, and a valid permutation null (no unmodelled confounding). Flagged nodes need a confounder-controlled follow-up; for confounding robustness use a self-controlled tree-temporal scan (see ⑤). It is the high-throughput cousin of PSSA." } } },
   // common / external designs (reference)
   rACC: { rec: { kind: "toolbox", method: "acnu", badge: "ACNU ✓",
     title: { zh: "建議：主動對照新使用者 ACNU ✓（本工具）", en: "Suggested: Active-Comparator, New-User (ACNU) ✓ (this tool)" },
@@ -1818,6 +1829,7 @@ const FULLMAP = {
                 { key: "rSCCS", cond: { zh: "個人自身當對照＋暴露有明確時窗", en: "person as own control + clear exposure window" }, tag: "SCCS ✓", kind: "tb" },
                 { key: "rTiT", cond: { zh: "暴露隨日曆趨勢、跨族群速度不同、結果罕見", en: "exposure has a calendar trend, rare outcome" }, tag: "TiT ✓", kind: "tb" },
                 { key: "rPSSA", cond: { zh: "快速篩處方瀑布訊號（先 A 後 B 不對稱；aSR＝cSR÷SRnull）", en: "fast screen for a prescribing cascade (A-then-B asymmetry; aSR = cSR ÷ SRnull)" }, tag: "PSSA ✓", kind: "tb" },
+                { key: "rTSCAN", cond: { zh: "一次掃整棵結果樹找安全訊號、控制多重比較（最大 LLR＋排列 p）", en: "scan a whole outcome tree for safety signals with multiplicity control (max LLR + permutation p)" }, tag: "TreeScan ✓", kind: "tb" },
               ] },
           ] },
       ],
@@ -2002,7 +2014,7 @@ const CHOOSE_FAMILIES = [
   { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
   { zh: "共變項校正／傾向分數／雙重穩健", en: "adjustment / propensity / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
   { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97]] },
-  { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00]] },
+  { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00], ["TreeScan", 3.00, 1.00]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -2037,8 +2049,8 @@ function drawChooseChart() {
 const CITE = {
   authors: "Methodology Working Group, Population Health Data Center, National Cheng Kung University; Tsai DH-T, Lai EC-C.",
   publisher: "Population Health Data Center, National Cheng Kung University",
-  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE · GM · TND · PSSA）線上教學工具",
-  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE · GM · TND · PSSA) — Online Teaching Tool",
+  titleZh: "真實世界證據與準實驗工具箱（IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE · GM · TND · PSSA · TreeScan）線上教學工具",
+  titleEn: "RWE and Quasi-experimental Toolbox (IV · RDD · DiD · PERR · ITS · TiT · CCW · Seq · CCTC · CC · SCCS · ACNU · PNU · NC · MED · PS · TMLE · GM · TND · PSSA · TreeScan) — Online Teaching Tool",
   year: "2026",
   url: "https://danielhttsai.github.io/phdc-rwe-tool/",
 };
@@ -2065,6 +2077,7 @@ const METHOD_REF = {
   gm: { zh: "G-methods（時變混淆）", en: "G-methods (time-varying confounding)", src: "Robins, Hernán & Brumback (2000); Naimi, Cole & Kennedy (2017), IJE; Daniel et al. (2013), Stat Med" },
   tnd: { zh: "陰性檢驗設計 TND", en: "Test-Negative Design (TND)", src: "Jackson & Nelson (2013), Vaccine; Sullivan, Tchetgen Tchetgen & Cowling (2016); Schnitzer (2022), Epidemiology" },
   pssa: { zh: "處方順序對稱 PSSA", en: "Prescription Sequence Symmetry (PSSA)", src: "Hallas (1996), Epidemiology; Tsiropoulos, Andersen & Hallas (2009); Lai et al. (2017), Eur J Epidemiol" },
+  tscan: { zh: "樹狀掃描統計 TreeScan", en: "Tree-based Scan Statistic (TreeScan)", src: "Kulldorff, Fang & Walsh (2003), Biometrics; Kulldorff et al. (2013), Stat Med; Maro et al. (2014), FDA Sentinel" },
   db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai et al.)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
@@ -6238,6 +6251,196 @@ function renderPssaAssumptions(out) {
 }
 
 // ======================================================================
+// TreeScan — tree-based scan statistic (21st method)
+// max-LLR over a node hierarchy + permutation p; naive over-flags, TreeScan controls FWER
+// ======================================================================
+const tscanState = { source: null };
+let tscanLearnReady = false, tscanPlayReady = false, tscanAnalyzeReady = false, tscanAssumeReady = false;
+
+// ① learn scene: a small outcome tree with one node lit up (the real signal)
+function drawSceneTscan() {
+  if (!document.getElementById("tscanScene")) return;
+  const root = { x: 2.1, y: 2.5 };
+  const sys = [{ x: 0.8, y: 1.5 }, { x: 2.1, y: 1.5 }, { x: 3.4, y: 1.5 }];
+  const leaves = [
+    { x: 0.4, y: 0.5, hit: false }, { x: 1.2, y: 0.5, hit: false },
+    { x: 1.7, y: 0.5, hit: false }, { x: 2.5, y: 0.5, hit: true },
+    { x: 3.0, y: 0.5, hit: false }, { x: 3.8, y: 0.5, hit: false },
+  ];
+  const edges = [
+    [root, sys[0]], [root, sys[1]], [root, sys[2]],
+    [sys[0], leaves[0]], [sys[0], leaves[1]], [sys[1], leaves[2]], [sys[1], leaves[3]],
+    [sys[2], leaves[4]], [sys[2], leaves[5]],
+  ];
+  const ann = edges.map(([a, b]) => ({
+    x: b.x, y: b.y, ax: a.x, ay: a.y, xref: "x", yref: "y", axref: "x", ayref: "y",
+    showarrow: true, arrowhead: 0, arrowwidth: 1.4, arrowcolor: "#9aa6b2", standoff: 6, startstandoff: 6,
+  }));
+  ann.push({ x: 2.5, y: 0.5, ax: 0, ay: -34, text: tr("真訊號", "real signal"), showarrow: true,
+             arrowhead: 0, arrowcolor: RED, font: { size: 9, color: RED } });
+  ann.push({ x: 2.1, y: 0.02, text: tr("掃描每個節點（葉＋系統＋根），取最大 LLR；排列法給校正 p", "scan every node (leaf+system+root), take the max LLR; permutation gives the adjusted p"),
+             showarrow: false, font: { size: 8.5, color: SLATE } });
+  const allx = [root.x, ...sys.map(s => s.x), ...leaves.map(l => l.x)];
+  const ally = [root.y, ...sys.map(s => s.y), ...leaves.map(l => l.y)];
+  const cols = [INK, ...sys.map(() => "#5b7aa8"), ...leaves.map(l => l.hit ? RED : "#94a3b8")];
+  Plotly.react("tscanScene", [{
+    x: allx, y: ally, mode: "markers", type: "scatter",
+    marker: { size: [22, 18, 18, 18, 13, 13, 13, 13, 13, 13], color: cols, symbol: "circle" },
+    hoverinfo: "skip",
+  }], schemaLayout({
+    height: 300, margin: { t: 14, r: 12, b: 26, l: 12 },
+    xaxis: { visible: false, range: [0.0, 4.2] }, yaxis: { visible: false, range: [-0.1, 2.8] },
+    annotations: ann,
+  }), SCENE_CFG);
+}
+function initTscanLearn() { if (tscanLearnReady) return; tscanLearnReady = true; drawSceneTscan(); }
+
+// ② interactive — signal-strength slider
+const tscanSigSlider = document.getElementById("tscanSigSlider");
+let tscanPlayTimer = null;
+function initTscanPlay() { if (tscanPlayReady) return; tscanPlayReady = true; refreshTscanPlay(); }
+function scheduleTscanPlay() {
+  document.getElementById("tscanSigVal").textContent = Number(tscanSigSlider.value).toFixed(1);
+  clearTimeout(tscanPlayTimer); tscanPlayTimer = setTimeout(refreshTscanPlay, 250);
+}
+if (tscanSigSlider) tscanSigSlider.addEventListener("input", scheduleTscanPlay);
+async function refreshTscanPlay() {
+  const s = tscanSigSlider ? Number(tscanSigSlider.value) : 3.0;
+  let d;
+  try { d = await getJSON(`${API}/api/tscan_interactive?signal=${s}&lang=${lang()}`); } catch (e) { return; }
+  state.tscanPlay = d;
+  document.getElementById("tscanLlr").textContent = fmt(d.llr, 1);
+  document.getElementById("tscanP").textContent = d.p < 0.001 ? "<0.001" : fmt(d.p, 3);
+  document.getElementById("tscanNaive").textContent = d.naive;
+  document.getElementById("tscanFlags").textContent = d.tscan;
+  const rd = document.getElementById("tscanPlayReading"); if (rd) rd.innerHTML = d.reading;
+  drawTscanPlay(d);
+}
+function drawTscanPlay(d) {
+  if (!document.getElementById("tscanPlayChart")) return;
+  const g = d.grid;
+  Plotly.react("tscanPlayChart", [
+    { x: g.sig, y: g.naive, type: "bar", name: tr("天真標記", "naive flags"), marker: { color: "#f0b6b2" } },
+    { x: g.sig, y: g.tscan, type: "bar", name: tr("TreeScan 標記", "TreeScan flags"), marker: { color: TEAL } },
+    { x: g.sig, y: g.llr, mode: "lines+markers", type: "scatter", name: tr("最大 LLR", "max LLR"), yaxis: "y2", line: { color: INK, width: 2.5 }, marker: { size: 5 } },
+    { x: [d.signal], y: [d.llr], mode: "markers", type: "scatter", yaxis: "y2", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 330, margin: { t: 20, r: 48, b: 46, l: 44 }, barmode: "group",
+    xaxis: { title: tr("目標節點訊號強度", "signal strength at target node"), dtick: 0.5 },
+    yaxis: { title: tr("標記數", "flag count"), rangemode: "tozero" },
+    yaxis2: { title: tr("最大 LLR", "max LLR"), overlaying: "y", side: "right", rangemode: "tozero" },
+    legend: { orientation: "h", y: 1.16, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
+}
+
+// ③ data analysis — scan the tree, ranked node table + flag-count contrast
+function initTscanAnalyze() { if (tscanAnalyzeReady) return; tscanAnalyzeReady = true; document.getElementById("useTscanExample").click(); }
+document.getElementById("useTscanExample").addEventListener("click", async () => {
+  const st = document.getElementById("tscanDataStatus");
+  try {
+    await getJSON(`${API}/api/tscan_example`);
+    tscanState.source = "example_tscan";
+    st.textContent = tr("已載入內建世代範例", "Built-in cohort loaded");
+    runTscanAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Failed: ") + e.message; }
+});
+document.getElementById("tscanFileInput").addEventListener("change", async (ev) => {
+  const f = ev.target.files[0]; if (!f) return;
+  const st = document.getElementById("tscanDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const fd = new FormData(); fd.append("file", f);
+    const d = await (await fetch(`${API}/api/upload`, { method: "POST", body: fd })).json();
+    tscanState.source = d.token;
+    st.textContent = tr("已載入：", "Loaded: ") + f.name;
+    runTscanAnalyze();
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+async function runTscanAnalyze() {
+  if (!tscanState.source) return;
+  try {
+    const a = await postJSON(`${API}/api/tscan_analyze`, { source: tscanState.source, lang: lang() });
+    renderTscanAnalyze(a);
+    runTscanAssumptions();
+  } catch (e) { /* ignore */ }
+}
+function renderTscanAnalyze(a) {
+  document.getElementById("tscanAnalyzeOut").classList.remove("hidden");
+  state.tscanAnalyze = a;
+  const cards = [
+    [tr("TreeScan 標記數（控 FWER）", "TreeScan flags (FWER-controlled)"), String(a.n_tscan_flags), a.interpretation, true],
+    [tr("天真標記數（未校正）", "naive flags (uncorrected)"), String(a.n_naive_flags),
+      tr("逐節點未校正會標出更多——多出來的是假警報。", "An uncorrected per-node scan flags more — the extras are false alarms."), false],
+    [tr("掃描節點數", "nodes scanned"), String(a.n_nodes),
+      tr("葉節點＋系統節點都一起掃，同享一份錯誤率預算。", "Leaves and system nodes scanned together under one error budget."), false],
+    [tr("最大 LLR", "max LLR"), fmt(a.T_obs, 1),
+      tr("最強節點：" + a.target_label + (a.target_hit ? "（＝真正有超額者）。" : "。"),
+         "strongest node: " + a.target_label + (a.target_hit ? " (= the one with a real excess)." : ".")), false],
+  ];
+  document.getElementById("tscanAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rcard${hl ? " hl" : ""}"><h4>${t}</h4><div class="rnum">${v}</div><p>${desc}</p></div>`).join("");
+  drawTscanAnalyze(a);
+  renderTscanTable(a);
+}
+function drawTscanAnalyze(a) {
+  if (!document.getElementById("tscanAnalyzeChart")) return;
+  const top = a.nodes.slice(0, 8);
+  Plotly.react("tscanAnalyzeChart", [{
+    x: top.map((n) => n.label), y: top.map((n) => n.llr), type: "bar",
+    marker: { color: top.map((n) => n.flag ? TEAL : "#cbd5e1") },
+    text: top.map((n) => n.llr.toFixed(1)), textposition: "outside",
+  }], sceneLayout({
+    height: 320, margin: { t: 22, r: 16, b: 96, l: 46 },
+    yaxis: { title: "LLR", rangemode: "tozero" },
+    xaxis: { tickangle: -35, automargin: true },
+  }), SCENE_CFG);
+}
+function renderTscanTable(a) {
+  const el = document.getElementById("tscanNodeTable"); if (!el) return;
+  const head = `<thead><tr>
+    <th>${tr("節點", "node")}</th><th>${tr("類型", "kind")}</th><th>LLR</th>
+    <th>${tr("人數 n", "n")}</th><th>${tr("暴露率", "exposed rate")}</th>
+    <th>${tr("校正 p", "adj. p")}</th><th>${tr("標記", "flag")}</th></tr></thead>`;
+  const kindLabel = (k) => k === "leaf" ? tr("葉", "leaf") : (k === "system" ? tr("系統", "system") : tr("根", "root"));
+  const rows = a.nodes.map((n) => `<tr${n.flag ? ' class="hl"' : ""}>
+    <td>${n.label}</td><td>${kindLabel(n.kind)}</td><td>${n.llr.toFixed(1)}</td>
+    <td>${n.n}</td><td>${(n.rate * 100).toFixed(0)}%</td>
+    <td>${n.p < 0.001 ? "&lt;0.001" : n.p.toFixed(3)}</td>
+    <td>${n.flag ? "✔" : "–"}</td></tr>`).join("");
+  el.innerHTML = head + "<tbody>" + rows + "</tbody>";
+}
+
+// ④ assumptions C1–C5
+function initTscanAssume() { if (tscanAssumeReady) return; tscanAssumeReady = true; runTscanAssumptions(); }
+async function runTscanAssumptions() {
+  const src = tscanState.source || "example_tscan";
+  let out;
+  try { out = await postJSON(`${API}/api/tscan_assumptions`, { source: src, lang: lang() }); } catch (e) { return; }
+  state.tscanDash = out;
+  renderTscanAssumptions(out);
+}
+function renderTscanAssumptions(out) {
+  const hint = document.getElementById("tscanAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("tscanOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；TreeScan 的設計假設仍需領域判斷。", "Testable checks pass; the TreeScan design assumptions still need judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，訊號要保守看待。", "Some items fail — interpret the signals with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("tscanAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ======================================================================
 // ⑥ What if — every method in the language of counterfactuals
 // (original plain-language take on Hernán & Robins, Causal Inference: What If;
 //  no text is copied from the book). One small counterfactual-contrast diagram
@@ -6390,6 +6593,13 @@ const WHATIF = {
     edges: [{ a: "T", b: "A", kind: "bias" }, { a: "T", b: "B", kind: "bias", label: { zh: "趨勢", en: "trend" } },
             { a: "A", b: "E", kind: "effect" }, { a: "E", b: "B", kind: "effect", label: { zh: "瀑布", en: "cascade" } }],
     note: { zh: "PSSA 是<b>自我對照</b>：每個用過兩種藥的人當自己的對照，所有<b>時間不變</b>混淆相消、不必畫進來。指標藥 A 的不良反應促使開立標記藥 B（<b>瀑布</b> A→不良反應→B），表現為「先 A 後 B」多於「先 B 後 A」。唯一的後門是<b>日曆趨勢 T</b>：若 B 的使用本來就上升，光趨勢就讓 B 偏晚、灌大 cSR。<b>SRnull</b> 抓住「只有趨勢」下的先後，<b>aSR ＝ cSR ÷ SRnull</b> 把它除掉。", en: "PSSA is <b>self-controlled</b>: each person who used both drugs is their own comparison, so every <b>time-invariant</b> confounder cancels and need not be drawn. The index drug A's adverse event prompts the marker drug B (a <b>cascade</b> A→adverse event→B), seen as more 'A-then-B' than 'B-then-A'. The only back door is the <b>calendar trend T</b>: if B's use is rising, the trend alone makes B come later and inflates the cSR. <b>SRnull</b> captures the trend-only order and <b>aSR = cSR ÷ SRnull</b> divides it out." } },
+  tscan: { nodes: [
+      { id: "A", x: 0.9, y: 1.4, role: "A", label: { zh: "暴露 A（藥）", en: "exposure A (drug)" } },
+      { id: "Y", x: 3.3, y: 1.4, role: "Y", label: { zh: "結果節點 Y", en: "outcome node Y" } },
+      { id: "U", x: 2.1, y: 2.5, role: "U", label: { zh: "混淆 U（若有）", en: "confounder U (if any)" } }],
+    edges: [{ a: "A", b: "Y", kind: "effect" },
+            { a: "U", b: "A", kind: "bias" }, { a: "U", b: "Y", kind: "bias" }],
+    note: { zh: "TreeScan 在<b>每個結果節點</b>問「暴露 A 是否抬高風險」，並用<b>打亂暴露標籤的排列虛無</b>模擬「藥到處都沒作用」的世界，拿真實的<b>最大 LLR</b> 跟它比——極端到不像虛無世界的節點才標出，這就一次控制了整棵樹的<b>族系錯誤率</b>。唯一的威脅是後門<b>混淆 U</b>（同時影響暴露與落在哪個節點）：它若存在，排列虛無就不對、訊號有偏（見 ④ C4）。", en: "TreeScan asks, at <b>each outcome node</b>, whether exposure A raises the risk, and uses the <b>label-permutation null</b> to simulate a world where the drug does nothing anywhere, comparing the real <b>max LLR</b> against it — only nodes too extreme to belong to that null world get flagged, which controls the <b>family-wise error</b> across the whole tree at once. The one threat is a back-door <b>confounder U</b> (driving both exposure and which node you land in): if present, the permutation null is wrong and the signals are biased (see ④, C4)." } },
 };
 
 const WHATIF_COL = { A: TEAL, Y: "#c0504d", U: "#5b7aa8", Z: "#f59e0b", X: "#b45309", T: "#64748b", L: "#7c5fae", S: "#94a3b8" };
@@ -6457,6 +6667,7 @@ const SWIG_META = {
   tmle: { split: "A", cf: "Yᵃ", note: { zh: "把接種設成 a → 反事實 Yᵃ。識別條件和 PS 相同（A ⫫ Yᵃ | X）。差別在估計：TMLE／AIPW 用結果模型<b>與</b>傾向分數兩張網，<b>其一</b>對就不偏（雙重穩健）；TMLE 的 targeting 步讓插入式估計達到半參數有效率。", en: "Set vaccination to a → counterfactual Yᵃ. Identification is the same as PS (A ⫫ Yᵃ | X). The difference is estimation: TMLE/AIPW use both an outcome model <b>and</b> a propensity score, unbiased if <b>either</b> is right (double robustness); TMLE's targeting step makes the plug-in semiparametric-efficient." } },
   gm:  { split: "A0", cf: "Yᵃ", note: { zh: "<b>兩個</b>治療都介入：把 A₀、A₁ 都設成策略值 a → 策略反事實 Yᵃ。識別靠<b>序列可交換</b>：每個時點，在過去史（含 Lₜ）之下被設定的治療與 Yᵃ 獨立。注意不能直接「條件在 L₁」（它是中介＋對撞）——要用標準化（g-formula）或反機率加權（IPTW）。", en: "Intervene on <b>both</b> treatments: set A₀ and A₁ to the regime values a → the regime counterfactual Yᵃ. Identification rests on <b>sequential exchangeability</b>: at each time, given the past history (including Lₜ), the set treatment is independent of Yᵃ. You cannot simply 'condition on L₁' (it's a mediator + collider) — use standardisation (g-formula) or inverse-probability weighting (IPTW)." } },
   tnd: { split: "V",  cf: "Yᵃ", note: { zh: "把接種設成 a → 目標感染的反事實 Yᵃ。TND 不是條件在共變項、而是<b>條件在「被檢驗 S」</b>這個選樣上：用陰性對照讓 S 相對接種<b>非差別</b>，於是在被檢驗者中 <b>V ⫫ Yᵃ</b>，勝算比＝VE。前提：對照疾病中性、檢驗準確、相同症狀下就醫無差別。", en: "Set vaccination to a → the counterfactual target infection Yᵃ. TND conditions not on covariates but on the <b>selection 'tested S'</b>: test-negative controls make S <b>non-differential</b> w.r.t. vaccination, so among the tested <b>V ⫫ Yᵃ</b> and the odds ratio gives VE. Provided: a neutral control disease, an accurate test, and no differential care-seeking given symptoms." } },
+  tscan: { split: "A", cf: "Yᵃ", note: { zh: "把暴露設成 a → 每個結果節點的反事實風險 Yᵃ。TreeScan 不是估單一效果，而是<b>篩</b>：當某節點觀察到的暴露超額，極端到不像「藥沒作用」世界裡最極端的節點時就標出。那個「藥沒作用」的世界＝<b>打亂暴露標籤的排列虛無</b>。前提：樹有意義、各節點基準為常數、無未建模混淆（否則排列虛無不對）。", en: "Set exposure to a → the counterfactual risk Yᵃ at each outcome node. TreeScan estimates no single effect — it <b>screens</b>: a node is flagged when its observed exposed excess is too extreme to belong to the most-extreme node of a 'drug does nothing' world. That no-effect world is the <b>label-permutation null</b>. Provided: a meaningful tree, a constant baseline across nodes, and no unmodelled confounding (else the permutation null is wrong)." } },
   pssa: { split: "A", cf: "Bᵃ", note: { zh: "把指標藥 A 設成 a → 反事實的標記藥起始 Bᵃ。PSSA 靠<b>自我對照</b>取得可交換：時間不變混淆在個人內自動相消，不必校正。剩下唯一要處理的是<b>日曆趨勢</b>——用 SRnull 除掉。於是「先後不對稱」辨識出 A→B 的瀑布（aSR＞1）。前提：瀑布方向合理、趨勢建模正確、新使用者、時間窗合適。", en: "Set the index drug A to a → the counterfactual marker-drug start Bᵃ. PSSA gets exchangeability from <b>self-control</b>: time-invariant confounders cancel within-person and need no adjustment. The only thing left to handle is the <b>calendar trend</b> — removed by SRnull. The order asymmetry then identifies the A→B cascade (aSR > 1). Provided: a plausible cascade direction, a correctly modelled trend, new users, and a sensible time window." } },
 };
 
@@ -6914,6 +7125,10 @@ window.addEventListener("iv-lang", async () => {
   if (pssaPlayReady) refreshPssaPlay();                // PSSA ② interactive
   if (pssaAnalyzeReady) runPssaAnalyze();              // PSSA ③ analysis + dashboard
   else if (pssaAssumeReady) runPssaAssumptions();
+  if (tscanLearnReady) drawSceneTscan();               // TreeScan ① learn scene
+  if (tscanPlayReady) refreshTscanPlay();              // TreeScan ② interactive
+  if (tscanAnalyzeReady) runTscanAnalyze();            // TreeScan ③ analysis + dashboard
+  else if (tscanAssumeReady) runTscanAssumptions();
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree

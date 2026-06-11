@@ -87,6 +87,9 @@ import tnd_ml
 import pssa_core
 import pssa_gen
 import pssa_assumptions
+import tscan_core
+import tscan_gen
+import tscan_assumptions
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1538,6 +1541,49 @@ def pssa_assumptions_check(req: PssaRequest):
 @app.get("/api/pssa_interactive")
 def pssa_interactive(cascade: float = 1.0, lang: str = "zh"):
     return _clean(pssa_core.pssa_interactive(float(np.clip(cascade, 0.0, 1.5)), lang=lang))
+
+
+# --------------------------- TreeScan ---------------------------
+class TscanRequest(BaseModel):
+    source: str = "example_tscan"
+    lang: str = "zh"
+
+
+def _load_tscan(source: str):
+    if source in ("example_tscan", "example"):
+        return tscan_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/tscan_example")
+def tscan_example():
+    d = tscan_gen.generate()
+    preview = [{"pid": int(d["pid"][i]), "leaf": tscan_gen.leaf_names()[int(d["leaf"][i])],
+                "exposed": int(d["exposed"][i])} for i in range(8)]
+    return _clean({
+        "columns": ["pid", "leaf", "exposed"], "defaults": {},
+        "n": int(d["pid"].size), "synthetic": True, "disclaimer": DISCLAIMER, "preview": preview,
+        "story": {"leaf": "結果葉節點（事件→系統階層）", "exposed": "暴露＝1（藥）／0（對照）",
+                  "target": tscan_gen.node_table()["target_label"]},
+    })
+
+
+@app.post("/api/tscan_analyze")
+def tscan_analyze(req: TscanRequest):
+    return _clean(tscan_core.full_tscan(_load_tscan(req.source), lang=req.lang))
+
+
+@app.post("/api/tscan_assumptions")
+def tscan_assumptions_check(req: TscanRequest):
+    return _clean(tscan_assumptions.run_dashboard(_load_tscan(req.source), lang=req.lang))
+
+
+@app.get("/api/tscan_interactive")
+def tscan_interactive(signal: float = 3.0, lang: str = "zh"):
+    return _clean(tscan_core.tscan_interactive(float(np.clip(signal, 1.0, 4.0)), lang=lang))
 
 
 @app.get("/api/tit_interactive")
