@@ -81,6 +81,9 @@ import pssa_assumptions
 import tscan_core
 import tscan_gen
 import tscan_assumptions
+import wce_core
+import wce_gen
+import wce_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1394,6 +1397,41 @@ def _tscan_interactive(q: dict) -> dict:
     return tscan_core.tscan_interactive(s, lang=q.get("lang", "zh"))
 
 
+# --------------------------- WCE ---------------------------
+def _load_wce(source: str):
+    if source in ("example_wce", "example"):
+        return wce_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise ValueError("找不到資料，請重新上傳。")
+    return df
+
+
+def _wce_example() -> dict:
+    d = wce_gen.generate()
+    import numpy as _np
+    dose = d["dose"]
+    preview = [{"pid": i, "months_on_drug": int(dose[i].sum()),
+                "survived_to": int(d["surv"][i]), "event": int(d["event"][i])} for i in range(8)]
+    return {"columns": ["pid", "monthly dose history", "surv", "event"], "defaults": {},
+            "n": int(d["n"]), "synthetic": True, "disclaimer": DISCLAIMER, "preview": preview,
+            "story": {"dose": "每人每月有沒有用藥（0/1）", "surv": "事件或設限的月份",
+                      "event": "是否觀察到事件"}}
+
+
+def _wce_analyze(req: dict) -> dict:
+    return wce_core.full_wce(_load_wce(req.get("source", "example_wce")), lang=req.get("lang", "zh"))
+
+
+def _wce_assumptions(req: dict) -> dict:
+    return wce_assumptions.run_dashboard(_load_wce(req.get("source", "example_wce")), lang=req.get("lang", "zh"))
+
+
+def _wce_interactive(q: dict) -> dict:
+    d = float(np.clip(float(q.get("decay", 8.0)), 6.0, 16.0))
+    return wce_core.wce_interactive(d, lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1526,6 +1564,10 @@ _ROUTES = {
     ("POST", "/api/tscan_analyze"): lambda q, b: _tscan_analyze(b),
     ("POST", "/api/tscan_assumptions"): lambda q, b: _tscan_assumptions(b),
     ("GET", "/api/tscan_interactive"): lambda q, b: _tscan_interactive(q),
+    ("GET", "/api/wce_example"): lambda q, b: _wce_example(),
+    ("POST", "/api/wce_analyze"): lambda q, b: _wce_analyze(b),
+    ("POST", "/api/wce_assumptions"): lambda q, b: _wce_assumptions(b),
+    ("GET", "/api/wce_interactive"): lambda q, b: _wce_interactive(q),
 }
 
 

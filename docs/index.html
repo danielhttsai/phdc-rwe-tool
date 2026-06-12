@@ -4,10 +4,10 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=105" />
+<link rel="stylesheet" href="styles.css?v=106" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
-<script src="pyodide-bridge.js?v=42"></script>
+<script src="pyodide-bridge.js?v=43"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
@@ -37,6 +37,7 @@
         <option value="tnd" data-en="TND · Test-negative design">TND · 陰性檢驗設計</option>
         <option value="pssa" data-en="PSSA · Prescription sequence symmetry">PSSA · 處方順序對稱</option>
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
+        <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
       </select>
     </label>
     <div class="subtabs">
@@ -4336,6 +4337,104 @@ quit;
     </div>
   </section>
 
+  <!-- ===================== WCE ① 是什麼 ===================== -->
+  <section id="wcelearn" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Weighted cumulative exposure: not 'are you on the drug now', but a weighted sum of recent doses">加權累積暴露：不是「現在有沒有用藥」，而是把最近的劑量加權加總</h1>
+    <p class="lead" data-en="A drug's effect on risk often depends neither on whether you are <i>currently</i> taking it, nor on your <i>total</i> lifetime dose — but on a <b>weighted sum of recent doses</b>, where a dose taken a while ago counts less than a fresh one. WCE estimates that <b>weight function</b> w(time-since-dose) directly from the data instead of guessing it. The two common naive choices are special cases of the wrong weight: <b>current-use only</b> says only this instant matters (weight = a spike at 0), and <b>unweighted total dose</b> says every past dose counts equally (a flat weight). When the truth is in between — recent doses matter most and the effect decays — both naive models mis-weight the past and bias the estimated effect; WCE recovers the right shape (Sela &amp; Abrahamowicz 2009).">
+      一個藥物對風險的作用，往往既不取決於你<i>現在</i>有沒有在用，也不取決於你的<i>總</i>累積劑量——而是取決於<b>最近劑量的加權加總</b>，其中越久以前的劑量算得越輕。WCE 直接從資料<b>估出這條權重函數</b> w(距離用藥的時間)，而不是用猜的。兩個常見的天真選擇，其實只是「把權重設錯」的特例：<b>只看當下用藥</b>等於說只有此刻重要（權重是 0 處的尖峰）、<b>等權總劑量</b>等於說過去每一劑都一樣重（一條平的權重）。當真相在中間——最近的劑量最重要、效果隨時間衰減——這兩種天真模型都把過去的時間權重設錯、把效果估偏；WCE 則把正確的形狀抓回來（Sela &amp; Abrahamowicz 2009）。
+    </p>
+    <div class="card scene"><h3 data-en="The weight function: recent doses weigh most, the effect decays with time since exposure">權重函數：最近的劑量權重最高，效果隨「距離用藥的時間」衰減</h3>
+      <div id="wceScene" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>加權累積暴露（WCE）<span class="en">weighted cumulative exposure</span></h4>
+        <p data-en="Instead of one 'exposed yes/no' label, WCE summarises your whole recent drug history into one number: take every dose you took in the past, multiply each by a weight that depends on how long ago it was, and add them up. A fresh dose contributes its full weight; a dose from many months ago contributes much less (or nothing). That single weighted sum is what goes into the risk model — so the method can capture 'recent use matters more than old use' instead of pretending all use is equal.">WCE 不用一個「有沒有暴露」的標籤，而是把你最近整段用藥史壓成一個數字：把你過去用過的每一劑，各自乘上一個「看多久以前」決定的權重，再加起來。剛用的劑量貢獻完整權重；很多月前的劑量貢獻就少很多（甚至為 0）。這個加權加總才是放進風險模型的東西——所以方法能抓到「最近的用藥比很久以前的用藥更重要」，而不是假裝所有用藥都一樣。</p></div>
+      <div class="tdef"><h4>權重函數 <span class="en">weight function w(τ)</span></h4>
+        <p data-en="The weight function is a curve that says, for a dose taken τ months ago, how much it still contributes to today's risk. WCE doesn't fix this curve in advance — it estimates its <b>shape</b> from the data using a few smooth building-block functions (splines), so the curve can come out as a decay, a delayed peak, or whatever the data support. Reading the curve tells you the drug's time-course: e.g. 'the risk is driven mostly by the last few months of use'.">權重函數是一條曲線，告訴你「τ 個月前用的那一劑，現在還貢獻多少風險」。WCE 不事先把這條曲線定死，而是用幾個平滑的小積木函數（樣條）從資料<b>估出它的形狀</b>，所以曲線可以是衰減、可以是延遲達峰、或任何資料支持的樣子。讀這條曲線就讀出了藥的時間歷程：例如「風險主要由最近幾個月的用藥驅動」。</p></div>
+      <div class="tdef"><h4>時變暴露 vs 兩個天真做法 <span class="en">time-varying exposure vs the two naive choices</span></h4>
+        <p data-en="Drug use is <b>time-varying</b>: it switches on and off, goes up and down. Two common shortcuts handle this badly. <b>Current-use only</b> = the covariate is 'on the drug this month?', which throws away all accumulation and assumes a dose stops mattering the instant you stop. <b>Unweighted total dose</b> = add up all recent doses with equal weight, which assumes a year-old dose matters exactly as much as yesterday's. Both are WCE with the weight forced into a wrong shape; if the true effect decays over time, both are biased.">用藥是<b>時變</b>的：會開開關關、增增減減。兩個常見的捷徑都處理得不好。<b>只看當下用藥</b>＝共變項是「這個月有沒有在用藥」，丟掉所有累積、假設一停藥那一刻劑量就立刻不重要。<b>等權總劑量</b>＝把最近所有劑量等權加起來，假設一年前的劑量和昨天的一樣重要。這兩個都只是「把 WCE 的權重硬設成錯的形狀」；若真實效果會隨時間衰減，兩者都偏。</p></div>
+      <div class="tdef"><h4>時間窗 L <span class="en">exposure window L</span></h4>
+        <p data-en="The window L is how many months back you let a dose still count — you must choose it before fitting (here 24 months). Too short and you cut off earlier doses that still act, biasing the estimate; too long and you add a useless, noisy tail. A good check: the estimated weight curve should have decayed to near zero by the end of the window — if it hasn't, the window is too short (see ④, C2).">時間窗 L 是「一劑藥往回算最多還能算幾個月」——你得在配適前先選它（這裡是 24 個月）。太短，會把仍有作用的較早劑量切掉、估偏；太長，會多加一段沒用又吵的尾巴。一個好檢查：估出的權重曲線應在窗尾衰減到接近 0；若還沒，代表窗太短（見 ④ C2）。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== WCE ② 互動講解 ===================== -->
+  <section id="wceplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: change how recent-weighted the effect is, watch the naive models bend but WCE hold">互動：改變「效果有多偏向最近」，看天真模型歪掉、WCE 卻穩住</h1>
+    <p class="lead" data-en="Drag the slider for how <b>concentrated on recent doses</b> the true effect is (a faster decay = only the last few months matter). The true hazard ratio for a sustained user is fixed at <b>2.72</b> throughout. As you change the shape, the naive <b>current-use only</b> model under-states the effect (it can't see accumulation) and the naive <b>equally-weighted total dose</b> over- or under-states it (wrong shape), while <b>WCE</b> stays on the truth whatever the shape — because it estimates the weight curve instead of assuming it.">
+      拉動滑桿改變真實效果<b>有多集中在最近的劑量</b>（衰減越快＝只有最近幾個月重要）。一個持續用藥者的真實風險比始終固定在 <b>2.72</b>。當你改變形狀時，天真的<b>只看當下用藥</b>模型會低估（它看不到累積）、天真的<b>等權總劑量</b>模型會高估或低估（形狀錯），而 <b>WCE</b> 不論形狀都貼在真值上——因為它是把權重曲線<i>估</i>出來，而不是<i>假設</i>它。
+    </p>
+    <div class="controls"><label>
+      <span data-en="Effect concentration (decay scale, months):">效果集中度（衰減尺度，月）：</span><b id="wceDecayVal">8.0</b>
+      <input type="range" id="wceDecaySlider" min="6" max="16" value="8" step="2" />
+      <small data-en="Smaller = the effect is concentrated on very recent doses (sharp decay); larger = it spreads over more months. The truth (HR 2.72) doesn't change — only the time-shape does. WCE tracks it; the naive models don't.">越小＝效果集中在非常近的劑量（陡衰減）；越大＝分散到更多月份。真值（HR 2.72）不變——只有時間形狀變。WCE 跟得上；天真模型跟不上。</small>
+    </label></div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="WCE (HR)">WCE（HR）</div><div class="stat-num" id="wceHrWce">–</div><div class="stat-foot" data-en="recovers truth">還原真值</div></div>
+      <div class="stat"><div class="stat-label" data-en="Naive current-use (HR)">天真：只看當下（HR）</div><div class="stat-num" id="wceHrCur">–</div><div class="stat-foot" data-en="under-states">低估</div></div>
+      <div class="stat"><div class="stat-label" data-en="Naive total dose (HR)">天真：等權總劑量（HR）</div><div class="stat-num" id="wceHrCum">–</div><div class="stat-foot" data-en="wrong shape">形狀錯</div></div>
+      <div class="stat"><div class="stat-label" data-en="True HR">真值 HR</div><div class="stat-num small" id="wceHrTrue">2.72</div><div class="stat-foot" data-en="sustained user">持續用藥者</div></div>
+    </div>
+    <div id="wcePlayChart" class="chart"></div>
+    <p class="caption" id="wcePlayReading"></p>
+  </section>
+
+  <!-- ===================== WCE ③ 資料分析 ===================== -->
+  <section id="wceanalyze" class="panel">
+    <h1 data-en="Data analysis: estimate the weight curve and compare the effect to the naive models">資料分析：估出權重曲線，並把效果和天真模型比一比</h1>
+    <p class="lead" data-en="Load the built-in cohort (each person's monthly drug-use history, and the month of the event or censoring). The tool estimates the <b>weight curve</b> w(time-since-dose) and the overall effect (a hazard ratio for a sustained user), and shows the naive current-use and equally-weighted-total-dose models for contrast.">
+      載入內建世代（每人逐月的用藥史、以及事件或設限的月份）。工具會估出<b>權重曲線</b> w(距離用藥的時間) 與整體效果（持續用藥者的風險比），並列出天真的「只看當下」與「等權總劑量」模型作對比。
+    </p>
+    <div class="datasource">
+      <button id="useWceExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
+      <span class="or" data-en="or">或</span>
+      <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="wceFileInput" accept=".csv" hidden /></label>
+      <span id="wceDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+    <div id="wceAnalyzeOut" class="hidden">
+      <h2 data-en="Estimated weight curve (recovered vs true)">估出的權重曲線（還原 vs 真實）</h2>
+      <div id="wceWeightChart" class="chart"></div>
+      <p class="caption" data-en="The estimated weight curve (teal) tracks the true decaying shape (dashed) — recent doses weigh most. This shape is what the naive models cannot see.">估出的權重曲線（青）貼著真實的衰減形狀（虛線）——最近的劑量權重最高。這個形狀正是天真模型看不到的。</p>
+      <h2 data-en="Effect: WCE vs the naive models">效果：WCE vs 天真模型</h2>
+      <div class="result-cards" id="wceAnalyzeCards"></div>
+      <div id="wceAnalyzeChart" class="chart"></div>
+    </div>
+  </section>
+
+  <!-- ===================== WCE ④ 假設檢驗 ===================== -->
+  <section id="wceassume" class="panel">
+    <h1 data-en="Can we trust this WCE? Five checks">這個 WCE 可不可信？五道體檢</h1>
+    <p class="lead" data-en="WCE flexibly estimates the weight curve, but rests on a well-measured exposure history, a wide-enough window, a correct hazard form, and — the key untestable one — no time-varying confounding by indication. What you can check: the curve decaying within the window, and enough events. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
+      WCE 彈性地估出權重曲線，但它建立在：暴露史量得準、時間窗夠長、風險模型形式正確，以及最關鍵、不可檢驗的——沒有時變的適應症混淆。可以檢的是：曲線在窗內衰減、事件夠多。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+    </p>
+    <div id="wceOverall" class="overall hidden"></div>
+    <div id="wceAssumeCards" class="assume-cards"></div>
+    <p id="wceAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== WCE ⑤ 用 AI 強化（誠實：WCE 本身就是彈性函數估計）===================== -->
+  <section id="wceml" class="panel">
+    <h1 data-en="Boost with AI: WCE is already a flexible-function estimator — the frontier is handling time-varying confounding">用 AI 強化：WCE 本身就是彈性函數估計——前沿在處理時變混淆</h1>
+    <details class="term causalml">
+      <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
+      <div class="tdef"><p data-en="<b>Beyond the ATE.</b> Causal ML aims at <b>individualised / conditional effects (CATE)</b> with <b>meta-learners</b> that plug flexible ML into nuisance models. WCE already <i>is</i> a flexible-function estimator — it learns the weight curve's shape from data via splines. The honest frontier here is not a CATE black box but combining WCE with methods for <b>time-varying confounding</b> (marginal structural Cox / g-methods). <i>Sources: Sela &amp; Abrahamowicz 2009; Hernán &amp; Robins; Feuerriegel et al., Nature Medicine 2024.</i>">
+        <b>超越單一平均效果。</b>因果機器學習瞄準<b>個體化／條件效果（CATE）</b>，用 <b>meta-learners</b> 把彈性 ML 放進輔助模型。WCE 本身<i>就是</i>彈性函數估計——它用樣條從資料學出權重曲線的形狀。這裡誠實的前沿不是 CATE 黑盒，而是把 WCE 和處理<b>時變混淆</b>的方法（邊際結構 Cox／g-methods）結合。<i>出處：Sela &amp; Abrahamowicz 2009；Hernán &amp; Robins；Feuerriegel 等, Nature Medicine 2024。</i></p></div>
+    </details>
+    <p class="lead" data-en="WCE's whole point is already 'let the data choose the shape' — the spline weight curve is the flexible, learned part. So there is no separate 'now add ML' demo to bolt on. Here is the honest landscape and the real frontier this method points to.">
+      WCE 的整個重點已經是「讓資料決定形狀」——樣條權重曲線就是那個彈性、學出來的部分。所以沒有另一個「再加 ML」的示範可掛。這裡誠實交代全貌，以及這個方法指向的真正前沿。
+    </p>
+    <div class="cards">
+      <div class="card"><h3 data-en="① The flexibility is built in">① 彈性已經內建</h3>
+        <p data-en="The weight curve is estimated with splines and can be regularised/penalised — that is the method's flexible-learning core. You can swap the basis (B-splines, penalised splines) or let cross-validation pick smoothness, but that is tuning WCE, not adding a separate ML layer.">權重曲線用樣條估計、可加正則化／懲罰——這就是方法的彈性學習核心。你可以換基底（B-樣條、懲罰樣條）或用交叉驗證選平滑度，但那是在調 WCE，不是加另一層 ML。</p></div>
+      <div class="card"><h3 data-en="② The real frontier: time-varying confounding">② 真正的前沿：時變混淆</h3>
+        <p data-en="WCE's biggest threat is that dose changes are driven by the evolving disease that also drives the outcome (C4). The genuine advance is to combine the weighted-exposure idea with <b>marginal structural Cox models / g-methods</b>, where ML can estimate the time-varying weights/propensities — the same self-controlled and g-method ideas elsewhere in this toolbox.">WCE 最大的威脅是「用藥的增減被會惡化的病情驅動，而病情又驅動結果」（C4）。真正的進展是把加權暴露的想法與<b>邊際結構 Cox 模型／g-methods</b> 結合，讓 ML 去估時變的權重／傾向——就是本工具箱其他地方的自我對照與 g-method 想法。</p></div>
+      <div class="card"><h3 data-en="③ Honest note">③ 誠實附註</h3>
+        <p data-en="The published WCE uses a Cox partial likelihood with B-splines (Sela &amp; Abrahamowicz 2009; the R <code>WCE</code> package). This tool uses a Cox-equivalent pooled-logistic hazard with a smooth basis as a browser-feasible teaching reconstruction; the identifying ideas and the weight-curve recovery are the same.">已發表的 WCE 用 Cox 部分概似＋B-樣條（Sela &amp; Abrahamowicz 2009；R 的 <code>WCE</code> 套件）。本工具用「與 Cox 等價的合併邏輯斯風險＋平滑基底」作為瀏覽器可行的教學重建；識別想法與權重曲線的還原是一樣的。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -4889,6 +4988,29 @@ quit;
       <div class="card"><h3 data-en="② The null world, simulated">② 被模擬的虛無世界</h3><p data-en="Comparability comes not from adjusting covariates but from the <b>permutation null</b>: shuffle exposure labels to build the world where the drug does nothing, and ask if the real max-LLR is extreme against it.">可比不是來自調整共變項，而是來自<b>排列虛無</b>：打亂暴露標籤建出「藥沒作用」的世界，再問真實的最大 LLR 對它而言夠不夠極端。</p></div>
       <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="If a confounder drives both exposure and outcome-node (C4), or the baseline isn't constant across nodes (C2), the null world is wrong and the flags are biased. TreeScan flags, it does not confirm — follow up with a confounder-controlled design.">若有混淆同時驅動暴露與結果節點（C4），或各節點基準非常數（C2），虛無世界就錯了、標記有偏。TreeScan 只標、不確認——要用控混淆的設計追下去。</p></div>
       <div class="card"><h3 data-en="④ In the TreeScan literature">④ 對應 TreeScan 文獻</h3><p data-en="The tree-based scan statistic (Kulldorff et al. 2003; Maro et al. 2014, FDA Sentinel). Self-controlled / within-person comparison links it to SCCS and PSSA; selection &amp; multiplicity also appear in Hernán &amp; Robins, <i>What If</i>.">樹狀掃描統計（Kulldorff 等 2003；Maro 等 2014, FDA Sentinel）。自我對照／個人內比較把它和 SCCS、PSSA 連起來；選樣與多重性亦見 Hernán &amp; Robins, <i>What If</i>。</p></div>
+    </div>
+  </section>
+
+  <section id="wcewhatif" class="panel">
+    <h1 data-en="⑥ What if…? Weighted cumulative exposure in the language of counterfactuals">⑥ 如果……？用反事實的語言看「加權累積暴露 WCE」</h1>
+    <p class="lead" data-en="The counterfactual WCE targets is rich: not 'treated vs untreated', but 'what would your hazard be under <b>this whole weighted exposure history</b> vs another?' The weight curve is really a statement about <i>which past version of you</i> matters for today's risk. The honest catch is the same one g-methods worry about: if your <b>disease state</b> over time both drives your dose changes and drives the outcome, then comparing exposure histories isn't comparing like with like — a time-varying confounder sits on the path.">
+      WCE 指向的反事實很豐富：不是「有沒有治療」，而是「在<b>這整段加權暴露史</b>下、相對於另一段，你的風險會是多少？」權重曲線其實是在說「<i>過去哪一個版本的你</i>對今天的風險最重要」。誠實的陷阱和 g-methods 擔心的一樣：若你隨時間變化的<b>病情</b>既驅動你的用藥增減、又驅動結果，那麼比較不同暴露史就不是「拿同類比同類」——一個時變混淆卡在路徑上。
+    </p>
+    <div class="card scene"><h3 data-en="The WCE DAG: a time-varying confounder L (disease state) drives both dose changes and the outcome">WCE 的 DAG：時變混淆 L（病情）同時驅動用藥增減與結果</h3>
+      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_wce" class="chart"></div>
+      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set the exposure history to a → counterfactual hazard Yᵃ">反事實介入圖（SWIG）：把暴露史設成 a → 反事實風險 Yᵃ</p><div id="swigScene_wce" class="chart"></div></div>
+    <details class="term">
+      <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
+      <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
+        <p data-en="<b>Think of it as a 'who-causes-who' map.</b> Each circle is a variable; each arrow a direct cause. Exposure at each time A_t affects the outcome; but a time-varying confounder L_t (disease state) points into both A_t (you change the dose because you're sicker) and the outcome — a back door that biases the exposure–outcome link unless handled.">​<b>把它想成「誰造成誰」的地圖。</b>每個圓圈是一個變數；每個箭頭是一個直接因果。每個時點的暴露 A_t 影響結果；但時變混淆 L_t（病情）同時指向 A_t（你因為病重而改藥）與結果——這是一條後門，不處理就會偏掉暴露與結果的關聯。</p></div>
+      <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
+        <p data-en="<b>A SWIG is a DAG after you 'operate' on it.</b> Set the whole exposure history to a chosen pattern a and read the counterfactual hazard Yᵃ. WCE estimates the effect of that history through its weighted summary; identification needs the weighted exposure to be as-good-as-randomised given the measured (ideally time-varying) covariates — exactly the assumption C4 is about.">​<b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把整段暴露史設成某個型態 a，讀反事實風險 Yᵃ。WCE 透過加權摘要估這段歷史的效果；辨識需要「在已測（最好是時變）共變項下，加權暴露近似隨機」——正是 ④ C4 在講的假設。</p></div>
+    </details>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The estimand is the hazard ratio between two weighted exposure histories — e.g. 'sustained recent use' vs 'none'. The weight curve says how each past month's dose contributes, so the contrast is over whole trajectories, not a single on/off label.">估計目標是兩段加權暴露史之間的風險比——例如「持續近期用藥」vs「都沒用」。權重曲線說明過去每個月的劑量各貢獻多少，所以對比的是整段軌跡，而非單一的有無標籤。</p></div>
+      <div class="card"><h3 data-en="② Where comparability comes from">② 可比從哪來</h3><p data-en="WCE adjusts for measured covariates in the hazard model. Comparability holds if, given those, your weighted exposure is as-good-as-random — i.e. dose changes aren't driven by unmeasured factors that also drive the outcome.">WCE 在風險模型裡校正已測共變項。若在這些之下你的加權暴露近似隨機——即用藥增減不是被「同時驅動結果的未測因子」帶動——可比就成立。</p></div>
+      <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="The classic failure is time-varying confounding by indication (C4): worsening disease changes the dose and raises risk. A single baseline adjustment can't fix it — you need time-varying methods (marginal structural Cox / g-methods).">經典的失效是時變適應症混淆（C4）：惡化的病情改變用藥又拉高風險。單一基線校正修不了——要用時變方法（邊際結構 Cox／g-methods）。</p></div>
+      <div class="card"><h3 data-en="④ In the WCE literature">④ 對應 WCE 文獻</h3><p data-en="Weighted cumulative exposure with spline weights (Sela &amp; Abrahamowicz 2009; Abrahamowicz et al.). Time-varying confounding &amp; g-methods: Hernán &amp; Robins, <i>What If</i>, Part III.">加權累積暴露＋樣條權重（Sela &amp; Abrahamowicz 2009；Abrahamowicz 等）。時變混淆與 g-methods：Hernán &amp; Robins, <i>What If</i> 第三部。</p></div>
     </div>
   </section>
 
@@ -5551,6 +5673,30 @@ res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</co
       <p data-en="For confounding robustness, switch to a conditional, self-controlled tree-temporal scan (Kulldorff et al.; Maro et al. 2014, FDA Sentinel) — the frontier described in ⑤.">想對混淆更穩健，就改用條件型、自我對照的樹-時序掃描（Kulldorff 等；Maro 等 2014, FDA Sentinel）——即 ⑤ 描述的前沿。</p></div>
   </section>
 
+  <section id="wcesas" class="panel">
+    <h1 data-en="⑦ R code: the key steps for weighted cumulative exposure">⑦ R 程式：加權累積暴露的關鍵步驟</h1>
+    <p class="lead" data-en="WCE is run most naturally from R with the <code>WCE</code> package (Sylvestre &amp; Abrahamowicz): supply a long, person-time table with the time-varying dose, and it fits a Cox model whose weight function is a B-spline, returning the estimated weight curve and the effect.">WCE 最自然是從 R 用 <code>WCE</code> 套件（Sylvestre &amp; Abrahamowicz）跑：給一張長格式的「人 × 時間」表、帶時變劑量，它就配一個權重函數為 B-樣條的 Cox 模型，回傳估出的權重曲線與效果。</p>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — long person-time data with the time-varying dose">步驟 0 — 帶時變劑量的長格式人-時間資料</h3>
+      <pre class="sas"><code><span class="cm"># one row per person per time interval: id, start/stop, event, and the dose. </span>
+<span class="cm"># WCE looks back over a window and weights each past dose by w(time-since-dose). </span>
+str(pt)   <span class="cm">#  id  start  stop  event  dose   (dose may be 0/1 or a quantity)</span></code></pre>
+      <p data-en="The data must be in counting-process (start, stop, event) form with the dose recorded at each interval — the exposure history is what WCE weights, so it has to be complete and time-resolved (assumption C1).">資料要是計數過程（start, stop, event）格式、每個區間記錄劑量——暴露史正是 WCE 要加權的東西，所以必須完整且逐時間（假設 C1）。</p></div>
+    <div class="card"><h3 data-en="Step 1 — fit WCE (spline weight function in a Cox model)">步驟 1 — 配 WCE（Cox 模型裡的樣條權重函數）</h3>
+      <pre class="sas"><code>library(WCE)
+fit &lt;- WCE(data = pt, analysis = "Cox", nknots = 1, cutoff = 24,
+           id = "id", event = "event", start = "start", stop = "stop",
+           expos = "dose", covariates = c("age","sex"))
+plot(fit)                 <span class="cm"># the estimated weight function w(time-since-dose)</span>
+HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: sustained vs none</span></code></pre>
+      <p data-en="<code>cutoff</code> is the window L; <code>nknots</code> controls the spline flexibility. <code>plot()</code> shows the weight curve (recent doses weigh most), and <code>HR.WCE()</code> contrasts two exposure histories — e.g. sustained recent use vs none. (Sela &amp; Abrahamowicz 2009.)">​<code>cutoff</code> 是時間窗 L；<code>nknots</code> 控制樣條彈性。<code>plot()</code> 畫出權重曲線（最近劑量權重最高），<code>HR.WCE()</code> 對比兩段暴露史——例如持續近期用藥 vs 都沒用。（Sela &amp; Abrahamowicz 2009。）</p></div>
+    <div class="card"><h3 data-en="Step 2 — for time-varying confounding, go to a marginal structural Cox">步驟 2 — 處理時變混淆，改用邊際結構 Cox</h3>
+      <pre class="sas"><code><span class="cm"># If dose changes are driven by evolving disease (C4), adjust by time-varying </span>
+<span class="cm"># inverse-probability weights and fit a marginal structural Cox (g-methods). </span>
+<span class="cm"># R: ipw + coxph(... , weights = sw), or the gfoRmula / WCE-in-MSM combination.</span></code></pre>
+      <p data-en="The key threat is time-varying confounding by indication; the principled fix combines the weighted-exposure idea with a marginal structural Cox model / g-methods (see the g-methods and CCW tabs).">關鍵威脅是時變適應症混淆；正規的修法是把加權暴露的想法與邊際結構 Cox 模型／g-methods 結合（見 g-methods 與 CCW 分頁）。</p></div>
+  </section>
+
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
@@ -5962,11 +6108,14 @@ res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</co
       <li data-ref="tscan"><b data-en="Foundational">奠基</b> · Kulldorff, M., Fang, Z., &amp; Walsh, S. J. (2003). A tree-based scan statistic for database disease surveillance. <i>Biometrics, 59</i>(2), 323–331. https://doi.org/10.1111/1541-0420.00039. <span data-en="〔the tree-based scan statistic: scanning a hierarchy with a max-LLR and a permutation p — TreeScan tabs ①③〕">〔樹狀掃描統計：在階層上掃最大 LLR ＋排列 p —— TreeScan 分頁 ①③〕</span></li>
       <li data-ref="tscan">Kulldorff, M., et al. (2013). A tree-based scan statistic for database disease surveillance. <i>Statistics in Medicine</i>. · Maro, J. C., et al. (2014). Six methods for evaluating vaccine safety using the tree-based scan statistic. (FDA Sentinel / Mini-Sentinel). <span data-en="〔the self-controlled / conditional tree-temporal scan and its use in active drug- &amp; vaccine-safety surveillance — TreeScan tabs ④⑤〕">〔自我對照／條件型樹-時序掃描，及其在主動藥物與疫苗安全監測的應用 —— TreeScan 分頁 ④⑤〕</span></li>
       <li data-ref="tscan"><b data-en="Software / application">軟體／應用</b> · Wang, X., et al. (2023). TreeMineR: an R package for tree-based scan statistics. · The TreeScan™ software (treescan.org). <span data-en="〔open implementations used to run the scan in practice — TreeScan tab ⑦〕">〔實務上跑掃描用的開源實作 —— TreeScan 分頁 ⑦〕</span></li>
+      <li data-ref="wce"><b data-en="Foundational">奠基</b> · Sela, R. J., &amp; Abrahamowicz, M. (2009). Flexible modeling of the cumulative effects of time-dependent exposures on the hazard. <i>Statistics in Medicine, 28</i>(27), 3437–3453. https://doi.org/10.1002/sim.3701. <span data-en="〔the weighted cumulative exposure model: a spline weight function for time-since-exposure in a Cox model — WCE tabs ①③〕">〔加權累積暴露模型：在 Cox 模型裡用樣條權重函數刻畫「距離用藥的時間」—— WCE 分頁 ①③〕</span></li>
+      <li data-ref="wce">Abrahamowicz, M., Beauchamp, M.-E., &amp; Sylvestre, M.-P. (2012). Comparison of alternative models for linking drug exposure with adverse effects. <i>Statistics in Medicine, 31</i>(11–12), 1014–1030. · Sylvestre, M.-P., &amp; Abrahamowicz, M. The <code>WCE</code> R package. <span data-en="〔how the weighted-cumulative model compares with current-use / total-dose, and the software — WCE tabs ②③⑦〕">〔加權累積模型與「只看當下／總劑量」的比較，以及軟體 —— WCE 分頁 ②③⑦〕</span></li>
+      <li data-ref="wce"><b data-en="Time-varying confounding">時變混淆</b> · Hernán, M. A., &amp; Robins, J. M. (2020). <i>Causal Inference: What If</i>, Part III (time-varying treatments, marginal structural models). <span data-en="〔the frontier: combining weighted exposure with marginal structural Cox / g-methods — WCE tabs ④⑤⑥〕">〔前沿：把加權暴露與邊際結構 Cox／g-methods 結合 —— WCE 分頁 ④⑤⑥〕</span></li>
     </ul>
   </footer>
 </main>
 
-<script src="i18n.js?v=105"></script>
-<script src="app.js?v=105"></script>
+<script src="i18n.js?v=106"></script>
+<script src="app.js?v=106"></script>
 </body>
 </html>

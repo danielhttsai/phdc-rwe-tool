@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -51,6 +51,8 @@ const PANEL_INIT = {
   pssaassume: () => initPssaAssume(), pssaml: () => {},
   tscanlearn: () => initTscanLearn(), tscanplay: () => initTscanPlay(), tscananalyze: () => initTscanAnalyze(),
   tscanassume: () => initTscanAssume(), tscanml: () => {},
+  wcelearn: () => initWceLearn(), wceplay: () => initWcePlay(), wceanalyze: () => initWceAnalyze(),
+  wceassume: () => initWceAssume(), wceml: () => {},
   tmlelearn: () => initTmleLearn(), tmleplay: () => initTmlePlay(), tmleanalyze: () => initTmleAnalyze(),
   tmleassume: () => initTmleAssume(), tmleml: () => initTmleMl(),
   whatif: () => drawWhatifPair("iv"), rddwhatif: () => drawWhatifPair("rdd"), didwhatif: () => drawWhatifPair("did"),
@@ -61,6 +63,7 @@ const PANEL_INIT = {
   medwhatif: () => drawWhatifPair("med"), pswhatif: () => drawWhatifPair("ps"),
   tmlewhatif: () => drawWhatifPair("tmle"), gmwhatif: () => drawWhatifPair("gm"), tndwhatif: () => drawWhatifPair("tnd"),
   pssawhatif: () => drawWhatifPair("pssa"), tscanwhatif: () => drawWhatifPair("tscan"),
+  wcewhatif: () => drawWhatifPair("wce"),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -116,7 +119,7 @@ document.addEventListener("click", (e) => {
 // already-linked text. Re-run after each language switch (applyStatic wipes them).
 const _MLINK = { SCCS: "sccs", CCTC: "cctc", ACNU: "acnu", PNU: "pnu", CCW: "ccw",
   RDD: "rdd", DiD: "did", PERR: "perr", ITS: "its", TiT: "tit", Seq: "seq",
-  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle", "G-methods": "gm", TND: "tnd", PSSA: "pssa", TreeScan: "tscan" };
+  MED: "med", NC: "nc", CC: "cc", IV: "iv", PS: "ps", TMLE: "tmle", "G-methods": "gm", TND: "tnd", PSSA: "pssa", TreeScan: "tscan", WCE: "wce" };
 const _MTOKENS = Object.keys(_MLINK).sort((a, b) => b.length - a.length);
 const _MRE = new RegExp("\\b(" + _MTOKENS.join("|") + ")\\b", "g");
 function _panelMethod(id) {
@@ -1553,6 +1556,7 @@ const DNODES = {
       { l: { zh: "都不是，但我有<b>豐富的已測共變項</b>，只想把它們<b>平衡</b>掉（配對／加權）", en: "Neither, but I have <b>rich measured covariates</b> and just want to <b>balance</b> them (matching / weighting)" }, to: "rPS" },
       { l: { zh: "有已測共變項，且想要<b>雙重穩健</b>（兩張網其一對就好）＋可用 ML／效率最佳", en: "Measured covariates, and you want <b>double robustness</b> (two models, either right) + ML / efficiency" }, to: "rTMLE" },
       { l: { zh: "治療<b>分多個時點</b>給，且有<b>時變混淆</b>（被過去治療改變、又預測未來治療與結果）", en: "Treatment given at <b>several times</b>, with a <b>time-varying confounder</b> (changed by past treatment, predicts future treatment &amp; outcome)" }, to: "rGM" },
+      { l: { zh: "用藥逐月增減，且你想知道效果如何<b>隨用藥的時間與累積</b>變化（最近的劑量 vs 很久以前的）", en: "Dosing varies month to month and you want how the effect depends on the <b>timing &amp; accumulation</b> of doses (recent vs long-ago)" }, to: "rWCE" },
       { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
     ],
   },
@@ -1694,6 +1698,14 @@ const DNODES = {
                 en: "Drug / vaccine safety scenario: after one exposure, scan the whole adverse-event tree to find which event (or system) is in excess — FDA-Sentinel-style active surveillance (see the TreeScan tabs ①–⑦)." },
     watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>樹建得對</b>、各節點基準為常數、排列虛無有效（無未建模混淆）。被標出的節點要用控混淆的設計追蹤；想對混淆更穩健＝自我對照樹-時序掃描（見 ⑤）。它是 PSSA 的高通量表親。",
              en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a well-built tree, a constant baseline across nodes, and a valid permutation null (no unmodelled confounding). Flagged nodes need a confounder-controlled follow-up; for confounding robustness use a self-controlled tree-temporal scan (see ⑤). It is the high-throughput cousin of PSSA." } } },
+  rWCE: { rec: { kind: "toolbox", method: "wce", badge: "WCE ✓",
+    title: { zh: "最適合：加權累積暴露 WCE ✓（本工具）", en: "Best fit: Weighted Cumulative Exposure (WCE) ✓ (this tool)" },
+    why: { zh: "你的暴露是<b>逐月增減</b>的用藥史，而且你相信「一劑藥的影響會隨時間而變」——最近的劑量可能比很久以前的重要。與其用「現在有沒有用藥」或「總劑量等權加總」這兩種會把時間權重設錯的天真做法，<b>WCE</b> 直接從資料估出<b>權重函數</b> w(距離用藥的時間)，把過去每個月的劑量各乘上對應權重再加總，放進 Cox／風險模型。它<b>還原權重的形狀</b>（最近最重、隨時間衰減）與整體效果。",
+           en: "Your exposure is a <b>month-to-month dosing history</b>, and you believe a dose's effect changes over time — recent doses may matter more than long-ago ones. Rather than the naive 'current use?' or 'equally-weighted total dose' (both forcing a wrong time-weight), <b>WCE</b> estimates the <b>weight function</b> w(time-since-dose) directly from the data, multiplying each past month's dose by its weight and summing into a Cox/hazard model. It recovers the <b>shape of the weight</b> (recent doses weigh most, decaying) and the overall effect." },
+    scenario: { zh: "藥物安全情境：某長期用藥與某不良事件，效果集中在最近幾個月的用藥。用 WCE 估出權重曲線、看出「風險主要由近期暴露驅動」，並比天真的當下／總劑量模型更貼近真值（見「WCE」分頁 ①–⑦）。",
+                en: "Drug-safety scenario: a chronic drug and an adverse event whose effect concentrates in the last few months of use. WCE recovers the weight curve, shows the risk is driven mostly by recent exposure, and beats the naive current-use / total-dose models (see the WCE tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。需要<b>逐時間、準確的暴露史</b>與夠長的時間窗；事件要夠多（估整條曲線比估一個數字更吃資料）。最關鍵、不可檢的是<b>沒有時變的適應症混淆</b>——若病情同時驅動用藥與結果，要改用邊際結構 Cox／g-methods（見 ⑤、⑥）。",
+             en: "✓ Implemented in this toolbox. Needs a <b>time-resolved, accurate exposure history</b> and a long-enough window; enough events (estimating a whole curve is data-hungry). The key, untestable item is <b>no time-varying confounding by indication</b> — if disease state drives both dose and outcome, switch to a marginal structural Cox / g-methods (see ⑤, ⑥)." } } },
   // common / external designs (reference)
   rACC: { rec: { kind: "toolbox", method: "acnu", badge: "ACNU ✓",
     title: { zh: "建議：主動對照新使用者 ACNU ✓（本工具）", en: "Suggested: Active-Comparator, New-User (ACNU) ✓ (this tool)" },
@@ -1823,6 +1835,7 @@ const FULLMAP = {
                 { key: "rPS", cond: { zh: "有豐富已測共變項，配對／加權平衡（PS）", en: "rich measured covariates; balance by matching/weighting (PS)" }, tag: "PS ✓", kind: "tb" },
                 { key: "rTMLE", cond: { zh: "已測共變項，想雙重穩健＋ML／效率（TMLE）", en: "measured covariates; want double robustness + ML / efficiency (TMLE)" }, tag: "TMLE ✓", kind: "tb" },
                 { key: "rGM", cond: { zh: "多時點治療＋時變混淆回饋（g-formula／IPTW-MSM）", en: "multi-time treatment + time-varying confounding feedback (g-formula / IPTW-MSM)" }, tag: "G-methods ✓", kind: "tb" },
+                { key: "rWCE", cond: { zh: "逐月用藥史，想知道效果隨時間／累積怎麼變（權重函數）", en: "monthly dosing history; how the effect depends on timing/accumulation (weight function)" }, tag: "WCE ✓", kind: "tb" },
               ] },
             { edge: { zh: "急性、會反覆又會好、非致命 → 自身對照／趨勢", en: "acute, recurrent/resolving, non-fatal → self-control / trend" },
               leaves: [
@@ -2013,7 +2026,7 @@ const CHOOSE_FAMILIES = [
   { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC", 2.12, 0.94]] },
   { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
   { zh: "共變項校正／傾向分數／雙重穩健", en: "adjustment / propensity / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
-  { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97]] },
+  { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97], ["WCE", 0.58, 1.01]] },
   { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00], ["TreeScan", 3.00, 1.00]] },
 ];
 function drawChooseChart() {
@@ -2078,6 +2091,7 @@ const METHOD_REF = {
   tnd: { zh: "陰性檢驗設計 TND", en: "Test-Negative Design (TND)", src: "Jackson & Nelson (2013), Vaccine; Sullivan, Tchetgen Tchetgen & Cowling (2016); Schnitzer (2022), Epidemiology" },
   pssa: { zh: "處方順序對稱 PSSA", en: "Prescription Sequence Symmetry (PSSA)", src: "Hallas (1996), Epidemiology; Tsiropoulos, Andersen & Hallas (2009); Lai et al. (2017), Eur J Epidemiol" },
   tscan: { zh: "樹狀掃描統計 TreeScan", en: "Tree-based Scan Statistic (TreeScan)", src: "Kulldorff, Fang & Walsh (2003), Biometrics; Kulldorff et al. (2013), Stat Med; Maro et al. (2014), FDA Sentinel" },
+  wce: { zh: "加權累積暴露 WCE", en: "Weighted Cumulative Exposure (WCE)", src: "Sela & Abrahamowicz (2009), Stat Med; Abrahamowicz, Beauchamp & Sylvestre (2012); Sylvestre & Abrahamowicz, R WCE package" },
   db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai et al.)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
@@ -6441,6 +6455,174 @@ function renderTscanAssumptions(out) {
 }
 
 // ======================================================================
+// WCE — weighted cumulative exposure (22nd method)
+// estimate the time-since-exposure weight curve; naive current-use / total-dose biased
+// ======================================================================
+const wceState = { source: null };
+let wceLearnReady = false, wcePlayReady = false, wceAnalyzeReady = false, wceAssumeReady = false;
+
+// ① learn scene: the true weight curve (recent doses weigh most, decays)
+function drawSceneWce() {
+  if (!document.getElementById("wceScene")) return;
+  const tau = Array.from({ length: 24 }, (_, i) => i);
+  const w = tau.map((t) => Math.exp(-t / 8));
+  const s = w.reduce((a, b) => a + b, 0);
+  const wn = w.map((x) => x / s);
+  const flat = tau.map(() => 1 / 24);
+  Plotly.react("wceScene", [
+    { x: tau, y: wn, mode: "lines", type: "scatter", name: tr("真實權重（衰減）", "true weight (decay)"), line: { color: TEAL, width: 3 }, fill: "tozeroy", fillcolor: "rgba(63,130,104,.12)" },
+    { x: tau, y: flat, mode: "lines", type: "scatter", name: tr("天真：等權", "naive: equal weight"), line: { color: "#c0504d", width: 2, dash: "dash" } },
+    { x: [0], y: [wn[0]], mode: "markers", type: "scatter", name: tr("天真：只看當下", "naive: current only"), marker: { color: "#f59e0b", size: 11, symbol: "circle" } },
+  ], sceneLayout({
+    height: 300, margin: { t: 20, r: 16, b: 44, l: 50 },
+    xaxis: { title: tr("距離用藥的時間（月）", "months since the dose") },
+    yaxis: { title: tr("權重", "weight"), rangemode: "tozero" },
+    legend: { orientation: "h", y: 1.18, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
+}
+function initWceLearn() { if (wceLearnReady) return; wceLearnReady = true; drawSceneWce(); }
+
+// ② interactive — decay-scale slider
+const wceDecaySlider = document.getElementById("wceDecaySlider");
+let wcePlayTimer = null;
+function initWcePlay() { if (wcePlayReady) return; wcePlayReady = true; refreshWcePlay(); }
+function scheduleWcePlay() {
+  document.getElementById("wceDecayVal").textContent = Number(wceDecaySlider.value).toFixed(1);
+  clearTimeout(wcePlayTimer); wcePlayTimer = setTimeout(refreshWcePlay, 250);
+}
+if (wceDecaySlider) wceDecaySlider.addEventListener("input", scheduleWcePlay);
+async function refreshWcePlay() {
+  const d = wceDecaySlider ? Number(wceDecaySlider.value) : 8.0;
+  let r;
+  try { r = await getJSON(`${API}/api/wce_interactive?decay=${d}&lang=${lang()}`); } catch (e) { return; }
+  state.wcePlay = r;
+  setval("wceHrWce", r.hr_wce); setval("wceHrCur", r.hr_current); setval("wceHrCum", r.hr_cum); setval("wceHrTrue", r.hr_true);
+  const rd = document.getElementById("wcePlayReading"); if (rd) rd.innerHTML = r.reading;
+  drawWcePlay(r);
+}
+function setval(id, v) { const el = document.getElementById(id); if (el) el.textContent = fmt(v, 2); }
+function drawWcePlay(r) {
+  if (!document.getElementById("wcePlayChart")) return;
+  const g = r.grid;
+  Plotly.react("wcePlayChart", [
+    { x: g.decay, y: g.hr_wce, mode: "lines+markers", type: "scatter", name: "WCE", line: { color: TEAL, width: 3 }, marker: { size: 5 } },
+    { x: g.decay, y: g.hr_current, mode: "lines+markers", type: "scatter", name: tr("天真：只看當下", "naive: current"), line: { color: "#f59e0b", width: 2 }, marker: { size: 4 } },
+    { x: g.decay, y: g.hr_cum, mode: "lines+markers", type: "scatter", name: tr("天真：等權總劑量", "naive: total dose"), line: { color: "#c0504d", width: 2, dash: "dot" }, marker: { size: 4 } },
+    { x: [r.decay], y: [r.hr_wce], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
+  ], sceneLayout({
+    height: 320, margin: { t: 20, r: 16, b: 46, l: 48 },
+    xaxis: { title: tr("效果集中度（衰減尺度，月）", "effect concentration (decay, months)") },
+    yaxis: { title: tr("風險比 HR", "hazard ratio") },
+    shapes: [{ type: "line", x0: 6, x1: 16, y0: r.hr_true, y1: r.hr_true, line: { color: GREEN, width: 2, dash: "dash" } }],
+    legend: { orientation: "h", y: 1.16, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
+}
+
+// ③ data analysis — weight curve + HR comparison
+function initWceAnalyze() { if (wceAnalyzeReady) return; wceAnalyzeReady = true; document.getElementById("useWceExample").click(); }
+document.getElementById("useWceExample").addEventListener("click", async () => {
+  const st = document.getElementById("wceDataStatus");
+  try {
+    await getJSON(`${API}/api/wce_example`);
+    wceState.source = "example_wce";
+    st.textContent = tr("已載入內建世代範例", "Built-in cohort loaded");
+    runWceAnalyze();
+  } catch (e) { st.textContent = tr("載入失敗：", "Failed: ") + e.message; }
+});
+document.getElementById("wceFileInput").addEventListener("change", async (ev) => {
+  const f = ev.target.files[0]; if (!f) return;
+  const st = document.getElementById("wceDataStatus"); st.textContent = tr("上傳中…", "Uploading…");
+  try {
+    const fd = new FormData(); fd.append("file", f);
+    const d = await (await fetch(`${API}/api/upload`, { method: "POST", body: fd })).json();
+    wceState.source = d.token;
+    st.textContent = tr("已載入：", "Loaded: ") + f.name;
+    runWceAnalyze();
+  } catch (e) { st.textContent = tr("上傳失敗：", "Upload failed: ") + e.message; }
+});
+async function runWceAnalyze() {
+  if (!wceState.source) return;
+  try {
+    const a = await postJSON(`${API}/api/wce_analyze`, { source: wceState.source, lang: lang() });
+    renderWceAnalyze(a);
+    runWceAssumptions();
+  } catch (e) { /* ignore */ }
+}
+function renderWceAnalyze(a) {
+  document.getElementById("wceAnalyzeOut").classList.remove("hidden");
+  state.wceAnalyze = a;
+  drawWceWeight(a);
+  const cards = [
+    [tr("WCE 風險比（HR）", "WCE hazard ratio"), fmt(a.hr_wce, 2), a.interpretation, true],
+    [tr("天真：只看當下用藥", "naive: current use only"), fmt(a.hr_current, 2),
+      tr("忽略累積與衰減——通常低估。", "ignores accumulation/decay — usually under-states."), false],
+    [tr("天真：等權總劑量", "naive: equally-weighted total dose"), fmt(a.hr_cum, 2),
+      tr("把過去每劑當成一樣重——形狀錯。", "treats every past dose as equally important — wrong shape."), false],
+    [tr("真值 HR（持續用藥者）", "true HR (sustained user)"), fmt(a.hr_true, 2),
+      tr("事件數 ＝ " + a.n_events + "。", "events = " + a.n_events + "."), false],
+  ];
+  document.getElementById("wceAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
+    `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${v}</div><p>${desc}</p></div>`).join("");
+  drawWceAnalyze(a);
+}
+function drawWceWeight(a) {
+  if (!document.getElementById("wceWeightChart")) return;
+  Plotly.react("wceWeightChart", [
+    { x: a.tau, y: a.w_hat, mode: "lines", type: "scatter", name: tr("估出的權重", "estimated weight"), line: { color: TEAL, width: 3 }, fill: "tozeroy", fillcolor: "rgba(63,130,104,.12)" },
+    { x: a.tau, y: a.w_true, mode: "lines", type: "scatter", name: tr("真實權重", "true weight"), line: { color: INK, width: 2, dash: "dash" } },
+  ], sceneLayout({
+    height: 300, margin: { t: 18, r: 16, b: 44, l: 50 },
+    xaxis: { title: tr("距離用藥的時間（月）", "months since the dose") },
+    yaxis: { title: tr("權重", "weight"), rangemode: "tozero" },
+    legend: { orientation: "h", y: 1.18, x: 0.5, xanchor: "center" },
+  }), SCENE_CFG);
+}
+function drawWceAnalyze(a) {
+  if (!document.getElementById("wceAnalyzeChart")) return;
+  const labels = ["WCE", tr("只看當下", "current"), tr("等權總劑量", "total dose")];
+  const vals = [a.hr_wce, a.hr_current, a.hr_cum];
+  Plotly.react("wceAnalyzeChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: [TEAL, "#f59e0b", "#c0504d"] },
+    text: vals.map((v) => fmt(v, 2)), textposition: "outside",
+  }], sceneLayout({
+    height: 300, margin: { t: 22, r: 16, b: 40, l: 48 },
+    yaxis: { title: tr("風險比 HR", "hazard ratio"), rangemode: "tozero" },
+    shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: a.hr_true, y1: a.hr_true, line: { color: GREEN, width: 2, dash: "dash" } }],
+  }), SCENE_CFG);
+}
+
+// ④ assumptions C1–C5
+function initWceAssume() { if (wceAssumeReady) return; wceAssumeReady = true; runWceAssumptions(); }
+async function runWceAssumptions() {
+  const src = wceState.source || "example_wce";
+  let out;
+  try { out = await postJSON(`${API}/api/wce_assumptions`, { source: src, lang: lang() }); } catch (e) { return; }
+  state.wceDash = out;
+  renderWceAssumptions(out);
+}
+function renderWceAssumptions(out) {
+  const hint = document.getElementById("wceAssumeHint"); if (hint) hint.classList.add("hidden");
+  const ov = document.getElementById("wceOverall");
+  const worst = worstStatus(out.checks);
+  const head = {
+    green: tr("可測項目通過；WCE 的關鍵假設仍需領域判斷。", "Testable checks pass; the key WCE assumptions still need judgement."),
+    amber: tr("有項目需要留意，請展開卡片細看。", "Some items need attention — expand the cards."),
+    red: tr("有項目不符，結果要保守看待。", "Some items fail — interpret with caution."),
+    info: tr("多數核心假設關乎設計、不可檢驗。", "Most core assumptions are about design and untestable."),
+  }[worst];
+  ov.classList.remove("hidden"); ov.className = `overall st-${worst}`; ov.style.background = "#fff";
+  ov.innerHTML = `<span class="dot bg-${worst}"></span> ${head}`;
+  document.getElementById("wceAssumeCards").innerHTML = out.checks.map((c) => {
+    const metrics = c.metrics.map((m) => `<li>${m.name}<b>${m.value === null ? "–" : m.value}</b><span>${m.note || ""}</span></li>`).join("");
+    return `<div class="acard st-${c.status}"><h3><span class="dot bg-${c.status}"></span>${c.title}
+      <span class="badge bg-${c.status}">${statusText(c.status)}</span></h3>
+      <p class="headline"><b>${c.headline}</b></p><p class="plain">${c.plain}</p>
+      <ul class="metrics">${metrics}</ul>
+      <details class="term"><summary>${tr("看專有名詞解釋", "Show term explanation")}</summary><p>${c.term}</p></details></div>`;
+  }).join("");
+}
+
+// ======================================================================
 // ⑥ What if — every method in the language of counterfactuals
 // (original plain-language take on Hernán & Robins, Causal Inference: What If;
 //  no text is copied from the book). One small counterfactual-contrast diagram
@@ -6600,6 +6782,14 @@ const WHATIF = {
     edges: [{ a: "A", b: "Y", kind: "effect" },
             { a: "U", b: "A", kind: "bias" }, { a: "U", b: "Y", kind: "bias" }],
     note: { zh: "TreeScan 在<b>每個結果節點</b>問「暴露 A 是否抬高風險」，並用<b>打亂暴露標籤的排列虛無</b>模擬「藥到處都沒作用」的世界，拿真實的<b>最大 LLR</b> 跟它比——極端到不像虛無世界的節點才標出，這就一次控制了整棵樹的<b>族系錯誤率</b>。唯一的威脅是後門<b>混淆 U</b>（同時影響暴露與落在哪個節點）：它若存在，排列虛無就不對、訊號有偏（見 ④ C4）。", en: "TreeScan asks, at <b>each outcome node</b>, whether exposure A raises the risk, and uses the <b>label-permutation null</b> to simulate a world where the drug does nothing anywhere, comparing the real <b>max LLR</b> against it — only nodes too extreme to belong to that null world get flagged, which controls the <b>family-wise error</b> across the whole tree at once. The one threat is a back-door <b>confounder U</b> (driving both exposure and which node you land in): if present, the permutation null is wrong and the signals are biased (see ④, C4)." } },
+  wce: { nodes: [
+      { id: "A", x: 0.9, y: 1.4, role: "A", label: { zh: "加權暴露史 A", en: "weighted exposure A" } },
+      { id: "Y", x: 3.3, y: 1.4, role: "Y", label: { zh: "風險 Y", en: "hazard Y" } },
+      { id: "L", x: 2.1, y: 2.5, role: "L", label: { zh: "時變病情 Lₜ", en: "time-varying state Lₜ" } }],
+    edges: [{ a: "A", b: "Y", kind: "effect" },
+            { a: "L", b: "A", kind: "bias", label: { zh: "病重→改藥", en: "sicker→dose change" } },
+            { a: "L", b: "Y", kind: "bias" }],
+    note: { zh: "WCE 估的是「整段<b>加權暴露史 A</b>」對風險 Y 的效果——權重曲線說明過去每個月的劑量各算多重。它在風險模型裡校正已測共變項；可比成立的前提是「在這些之下，加權暴露近似隨機」。最大威脅是<b>時變病情 Lₜ</b>：病情惡化既讓你<b>改藥</b>（L→A）又<b>拉高風險</b>（L→Y），這是一條時變後門，單一基線校正修不了，要用邊際結構 Cox／g-methods（見 ④ C4）。", en: "WCE estimates the effect of the whole <b>weighted exposure history A</b> on the hazard Y — the weight curve says how much each past month's dose counts. It adjusts for measured covariates in the hazard model; comparability needs the weighted exposure to be as-good-as-random given those. The big threat is the <b>time-varying state Lₜ</b>: worsening disease both <b>changes the dose</b> (L→A) and <b>raises the hazard</b> (L→Y) — a time-varying back door a single baseline adjustment can't fix, needing a marginal structural Cox / g-methods (see ④, C4)." } },
 };
 
 const WHATIF_COL = { A: TEAL, Y: "#c0504d", U: "#5b7aa8", Z: "#f59e0b", X: "#b45309", T: "#64748b", L: "#7c5fae", S: "#94a3b8" };
@@ -6667,6 +6857,7 @@ const SWIG_META = {
   tmle: { split: "A", cf: "Yᵃ", note: { zh: "把接種設成 a → 反事實 Yᵃ。識別條件和 PS 相同（A ⫫ Yᵃ | X）。差別在估計：TMLE／AIPW 用結果模型<b>與</b>傾向分數兩張網，<b>其一</b>對就不偏（雙重穩健）；TMLE 的 targeting 步讓插入式估計達到半參數有效率。", en: "Set vaccination to a → counterfactual Yᵃ. Identification is the same as PS (A ⫫ Yᵃ | X). The difference is estimation: TMLE/AIPW use both an outcome model <b>and</b> a propensity score, unbiased if <b>either</b> is right (double robustness); TMLE's targeting step makes the plug-in semiparametric-efficient." } },
   gm:  { split: "A0", cf: "Yᵃ", note: { zh: "<b>兩個</b>治療都介入：把 A₀、A₁ 都設成策略值 a → 策略反事實 Yᵃ。識別靠<b>序列可交換</b>：每個時點，在過去史（含 Lₜ）之下被設定的治療與 Yᵃ 獨立。注意不能直接「條件在 L₁」（它是中介＋對撞）——要用標準化（g-formula）或反機率加權（IPTW）。", en: "Intervene on <b>both</b> treatments: set A₀ and A₁ to the regime values a → the regime counterfactual Yᵃ. Identification rests on <b>sequential exchangeability</b>: at each time, given the past history (including Lₜ), the set treatment is independent of Yᵃ. You cannot simply 'condition on L₁' (it's a mediator + collider) — use standardisation (g-formula) or inverse-probability weighting (IPTW)." } },
   tnd: { split: "V",  cf: "Yᵃ", note: { zh: "把接種設成 a → 目標感染的反事實 Yᵃ。TND 不是條件在共變項、而是<b>條件在「被檢驗 S」</b>這個選樣上：用陰性對照讓 S 相對接種<b>非差別</b>，於是在被檢驗者中 <b>V ⫫ Yᵃ</b>，勝算比＝VE。前提：對照疾病中性、檢驗準確、相同症狀下就醫無差別。", en: "Set vaccination to a → the counterfactual target infection Yᵃ. TND conditions not on covariates but on the <b>selection 'tested S'</b>: test-negative controls make S <b>non-differential</b> w.r.t. vaccination, so among the tested <b>V ⫫ Yᵃ</b> and the odds ratio gives VE. Provided: a neutral control disease, an accurate test, and no differential care-seeking given symptoms." } },
+  wce: { split: "A", cf: "Yᵃ", note: { zh: "把整段暴露史設成某型態 a → 反事實風險 Yᵃ。WCE 透過「加權暴露摘要」估這段歷史的效果，權重曲線由樣條從資料學出。可交換性靠校正已測共變項取得；最關鍵、不可檢的是<b>沒有時變的適應症混淆</b>——若病情同時驅動用藥與結果，得改用邊際結構 Cox／g-methods。", en: "Set the whole exposure history to a pattern a → counterfactual hazard Yᵃ. WCE estimates that history's effect through its weighted summary, with the weight curve learned from data by splines. Exchangeability comes from adjusting measured covariates; the key, untestable one is <b>no time-varying confounding by indication</b> — if disease state drives both dose and outcome, switch to a marginal structural Cox / g-methods." } },
   tscan: { split: "A", cf: "Yᵃ", note: { zh: "把暴露設成 a → 每個結果節點的反事實風險 Yᵃ。TreeScan 不是估單一效果，而是<b>篩</b>：當某節點觀察到的暴露超額，極端到不像「藥沒作用」世界裡最極端的節點時就標出。那個「藥沒作用」的世界＝<b>打亂暴露標籤的排列虛無</b>。前提：樹有意義、各節點基準為常數、無未建模混淆（否則排列虛無不對）。", en: "Set exposure to a → the counterfactual risk Yᵃ at each outcome node. TreeScan estimates no single effect — it <b>screens</b>: a node is flagged when its observed exposed excess is too extreme to belong to the most-extreme node of a 'drug does nothing' world. That no-effect world is the <b>label-permutation null</b>. Provided: a meaningful tree, a constant baseline across nodes, and no unmodelled confounding (else the permutation null is wrong)." } },
   pssa: { split: "A", cf: "Bᵃ", note: { zh: "把指標藥 A 設成 a → 反事實的標記藥起始 Bᵃ。PSSA 靠<b>自我對照</b>取得可交換：時間不變混淆在個人內自動相消，不必校正。剩下唯一要處理的是<b>日曆趨勢</b>——用 SRnull 除掉。於是「先後不對稱」辨識出 A→B 的瀑布（aSR＞1）。前提：瀑布方向合理、趨勢建模正確、新使用者、時間窗合適。", en: "Set the index drug A to a → the counterfactual marker-drug start Bᵃ. PSSA gets exchangeability from <b>self-control</b>: time-invariant confounders cancel within-person and need no adjustment. The only thing left to handle is the <b>calendar trend</b> — removed by SRnull. The order asymmetry then identifies the A→B cascade (aSR > 1). Provided: a plausible cascade direction, a correctly modelled trend, new users, and a sensible time window." } },
 };
@@ -7129,6 +7320,10 @@ window.addEventListener("iv-lang", async () => {
   if (tscanPlayReady) refreshTscanPlay();              // TreeScan ② interactive
   if (tscanAnalyzeReady) runTscanAnalyze();            // TreeScan ③ analysis + dashboard
   else if (tscanAssumeReady) runTscanAssumptions();
+  if (wceLearnReady) drawSceneWce();                   // WCE ① learn scene
+  if (wcePlayReady) refreshWcePlay();                  // WCE ② interactive
+  if (wceAnalyzeReady) runWceAnalyze();                // WCE ③ analysis + dashboard
+  else if (wceAssumeReady) runWceAssumptions();
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree

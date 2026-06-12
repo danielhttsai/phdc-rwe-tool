@@ -90,6 +90,9 @@ import pssa_assumptions
 import tscan_core
 import tscan_gen
 import tscan_assumptions
+import wce_core
+import wce_gen
+import wce_assumptions
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1584,6 +1587,47 @@ def tscan_assumptions_check(req: TscanRequest):
 @app.get("/api/tscan_interactive")
 def tscan_interactive(signal: float = 3.0, lang: str = "zh"):
     return _clean(tscan_core.tscan_interactive(float(np.clip(signal, 1.0, 4.0)), lang=lang))
+
+
+# --------------------------- WCE (weighted cumulative exposure) ---------------------------
+class WceRequest(BaseModel):
+    source: str = "example_wce"
+    lang: str = "zh"
+
+
+def _load_wce(source: str):
+    if source in ("example_wce", "example"):
+        return wce_gen.generate()
+    df = _UPLOADS.get(source)
+    if df is None:
+        raise HTTPException(404, "找不到資料，請重新上傳。")
+    return df
+
+
+@app.get("/api/wce_example")
+def wce_example():
+    d = wce_gen.generate()
+    preview = [{"pid": i, "months_on_drug": int(d["dose"][i].sum()),
+                "survived_to": int(d["surv"][i]), "event": int(d["event"][i])} for i in range(8)]
+    return _clean({"columns": ["pid", "monthly dose history", "surv", "event"], "defaults": {},
+                   "n": int(d["n"]), "synthetic": True, "disclaimer": DISCLAIMER, "preview": preview,
+                   "story": {"dose": "每人每月有沒有用藥（0/1）", "surv": "事件或設限的月份",
+                             "event": "是否觀察到事件"}})
+
+
+@app.post("/api/wce_analyze")
+def wce_analyze(req: WceRequest):
+    return _clean(wce_core.full_wce(_load_wce(req.source), lang=req.lang))
+
+
+@app.post("/api/wce_assumptions")
+def wce_assumptions_check(req: WceRequest):
+    return _clean(wce_assumptions.run_dashboard(_load_wce(req.source), lang=req.lang))
+
+
+@app.get("/api/wce_interactive")
+def wce_interactive(decay: float = 8.0, lang: str = "zh"):
+    return _clean(wce_core.wce_interactive(float(np.clip(decay, 6.0, 16.0)), lang=lang))
 
 
 @app.get("/api/tit_interactive")
