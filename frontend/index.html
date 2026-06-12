@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=110" />
+<link rel="stylesheet" href="/styles.css?v=111" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -4466,8 +4466,7 @@ quit;
       因果推論的核心是<b>兩個反事實的對比</b>：如果<b>大家都接種</b> vs 如果<b>大家都不接種</b>，結果會差多少？同一個人不可能同時看到兩個世界，所以要靠設計讓「接種與不接種的人<b>可比</b>」。IV 並<b>不</b>讓全體可比——而是借一個<b>近似隨機的推力</b>，把效果讀在<b>被這個推力推動的人</b>身上。
     </p>
     <div class="card scene"><h3 data-en="The causal DAG behind IV — the instrument as a clean side door">IV 的因果結構圖（DAG）——工具像一條乾淨的側門</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_iv" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_iv" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_iv" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_iv" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4493,8 +4492,7 @@ quit;
       我們要的是<b>Yᵃ⁼¹</b>（有資格）vs <b>Yᵃ⁼⁰</b>（沒資格）的對比——但資格由一條尖銳規則（年齡 ≥ 65）決定。<b>剛好在斷點</b>，差一點點沒過的人，幾乎就是差一點點過了的人的替身：像一個小型隨機實驗。
     </p>
     <div class="card scene"><h3 data-en="The causal DAG behind RDD — a jump that can only come from A">RDD 的因果結構圖（DAG）——跳階只能來自 A</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_rdd" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_rdd" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_rdd" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_rdd" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4520,8 +4518,7 @@ quit;
       對受處置組，我們要的是<b>Yᵃ⁼¹</b>（有政策）vs 他們自己的<b>Yᵃ⁼⁰</b>（政策從沒發生）。第二個看不到，於是借<b>對照組的變化</b>來頂替「受處置組沒政策本來會有的變化」。
     </p>
     <div class="card scene"><h3 data-en="The treated group's missing counterfactual">受處置組那個看不到的反事實</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_did" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the policy node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：政策節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_did" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_did" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the policy node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：政策節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_did" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4547,8 +4544,7 @@ quit;
       我們要受處置組的<b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>，但穩定的體質差異會混淆對比。PERR 的把戲：在<b>事前（未處置）期</b>也算一次率比、再相除，讓<b>時間不變、乘法型</b>的混淆相消。
     </p>
     <div class="card scene"><h3 data-en="Cancelling stable confounding by a ratio of ratios">用比值的比值消掉穩定混淆</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_perr" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the drug node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：用藥節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_perr" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_perr" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the drug node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：用藥節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_perr" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4574,8 +4570,7 @@ quit;
       這裡的反事實<b>Yᵃ⁼⁰</b>是一條投影：把介入前的趨勢外推，當作「如果沒介入會怎樣」。效果就是實際走勢偏離這條投影的幅度。
     </p>
     <div class="card scene"><h3 data-en="The counterfactual is the projected pre-trend">反事實＝投影出的介入前趨勢</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_its" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the intervention node splits into X∣x and the outcome becomes the counterfactual Yˣ">反事實介入圖（SWIG）：介入節點拆成 X∣x、結果變成反事實 Yˣ</p><div id="swigScene_its" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_its" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the intervention node splits into X∣x and the outcome becomes the counterfactual Yˣ">反事實介入圖（SWIG）：介入節點拆成 X∣x、結果變成反事實 Yˣ</p><div id="swigScene_its" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4601,8 +4596,7 @@ quit;
       如果一個藥真的致病，那在「採用率漲得快」的層，結果也該漲得快。TiT 比較不同採用速度的層之間的結果趨勢——這套反事實邏輯能扛住部分未測混淆。
     </p>
     <div class="card scene"><h3 data-en="Does the outcome trend track the exposure trend?">結果趨勢有沒有跟著暴露趨勢走？</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tit" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposure node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：暴露節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_tit" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tit" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposure node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：暴露節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_tit" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4628,8 +4622,7 @@ quit;
       問題是關於<b>持續策略</b>：如果大家都「早起始」（Yᵍ¹）vs 都「晚起始」（Yᵍ⁰）會怎樣？治療是隨時間展開的，直接分組會招來 immortal-time 偏誤。CCW 在時間零點把每個人複製到兩種策略、偏離就設限、再加權——就是 g-methods 的配方。
     </p>
     <div class="card scene"><h3 data-en="Counterfactual strategies, aligned at time zero">對齊時間零點的反事實策略</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_ccw" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A₁∣a and the outcome becomes the counterfactual Yᵍ (whole strategy ḡ)">反事實介入圖（SWIG）：治療節點拆成 A₁∣a、結果變成反事實 Yᵍ（整個策略 ḡ）</p><div id="swigScene_ccw" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_ccw" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A₁∣a and the outcome becomes the counterfactual Yᵍ (whole strategy ḡ)">反事實介入圖（SWIG）：治療節點拆成 A₁∣a、結果變成反事實 Yᵍ（整個策略 ḡ）</p><div id="swigScene_ccw" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4656,8 +4649,7 @@ quit;
       如果能把「做不到的隨機試驗」做出來呢？在每個資格時點模擬一場目標試驗：<b>當下啟動</b>（Yᵃ⁼¹）vs <b>先不啟動</b>（Yᵃ⁼⁰），把時鐘歸零、往前追蹤、再合併。這就是目標試驗模擬，並避開 immortal-time 偏誤。
     </p>
     <div class="card scene"><h3 data-en="One emulated trial per eligibility time, then pooled">每個資格時點一場模擬試驗，再合併</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_seq" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the initiation node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：啟動節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_seq" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_seq" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the initiation node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：啟動節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_seq" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4683,8 +4675,7 @@ quit;
       不比不同的人，而是讓<b>同一個人跟自己比</b>：事件前的危險窗暴露（Yᵃ⁼¹）有沒有比更早的參考窗（Yᵃ⁼⁰）多？自己當對照，消掉所有不隨時間變的東西。CCTC 再扣掉暴露的日曆時間趨勢。
     </p>
     <div class="card scene"><h3 data-en="The same person, hazard vs reference window">同一個人：危險窗 vs 參考窗</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_cctc" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposure node splits into X∣x and the outcome becomes the counterfactual Yˣ">反事實介入圖（SWIG）：暴露節點拆成 X∣x、結果變成反事實 Yˣ</p><div id="swigScene_cctc" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_cctc" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposure node splits into X∣x and the outcome becomes the counterfactual Yˣ">反事實介入圖（SWIG）：暴露節點拆成 X∣x、結果變成反事實 Yˣ</p><div id="swigScene_cctc" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4710,8 +4701,7 @@ quit;
       一個有效的病例對照，其實是對「模擬目標試驗的世代」做<b>有效率的抽樣</b>。反事實對比（Yᵃ⁼¹ vs Yᵃ⁼⁰）存在於來源族群；我們只在病例與一組有代表性的對照量暴露，就能省力地還原勝算比。
     </p>
     <div class="card scene"><h3 data-en="The causal DAG behind case-control — sampling on the outcome">病例對照的因果結構圖（DAG）——依結果抽樣</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_cc" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposure node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：暴露節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_cc" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_cc" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposure node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：暴露節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_cc" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4737,8 +4727,7 @@ quit;
       只用發生過事件的人，每個人當自己的對照：事件比較容易落在他的<b>暴露時段</b>（Yᵃ⁼¹）還是<b>非暴露時段</b>（Yᵃ⁼⁰）？這是個人內的前後比，<b>所有</b>不隨時間變的因子（基因、體質、社經）都自動相消。
     </p>
     <div class="card scene"><h3 data-en="The same person, exposed vs unexposed time">同一個人：暴露時段 vs 非暴露時段</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_sccs" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposed-time node splits into X∣x and the outcome becomes the counterfactual Yˣ">反事實介入圖（SWIG）：暴露時段節點拆成 X∣x、結果變成反事實 Yˣ</p><div id="swigScene_sccs" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_sccs" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the exposed-time node splits into X∣x and the outcome becomes the counterfactual Yˣ">反事實介入圖（SWIG）：暴露時段節點拆成 X∣x、結果變成反事實 Yˣ</p><div id="swigScene_sccs" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4764,8 +4753,7 @@ quit;
       如果大家都用藥 A（Yᵃ⁼¹）vs 都用對照藥 B（Yᵃ⁼⁰）會怎樣？拿用 A 的人和沒用藥的人比會失敗，因為嚴重度（適應症）開了後門、而沒用藥的人是更健康的族群。ACNU 靠<b>限制在有適應症的族群</b>（A 的新使用者 vs B 的新使用者）＋校正殘留嚴重度，把可比性救回來。
     </p>
     <div class="card scene"><h3 data-en="Confounding by indication, blocked by an active comparator">因適應症的混淆，用主動對照擋住</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_acnu" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_acnu" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_acnu" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_acnu" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4791,8 +4779,7 @@ quit;
       如果大家都用 A（Yᵃ⁼¹）vs 都用 B（Yᵃ⁼⁰）會怎樣？有盛行使用者時，可交換性在邊際上不成立：還在用 A 的是被耗竭的低風險存活者。PNU 靠<b>條件在距起始時間</b>（與體質）把它救回來——一個時間條件的比較。
     </p>
     <div class="card scene"><h3 data-en="Depletion via survival selection, blocked by time-conditional matching">由存活選擇造成的耗竭，用時間條件配對擋住</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pnu" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_pnu" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pnu" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_pnu" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4818,8 +4805,7 @@ quit;
       如果大家都接種（Yᵃ⁼¹）vs 都不接種（Yᵃ⁼⁰）會怎樣？一個未測的 U 讓 A 與 Yᵃ 不可交換，所以無法直接從資料讀出對比。陰性對照給了兩個 <b>U 的代理</b>；近端因果用它們在沒測到 U 的情況下辨識這個反事實對比。
     </p>
     <div class="card scene"><h3 data-en="Unmeasured U, with two negative-control proxies">未測的 U，加兩個陰性對照代理</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_nc" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_nc" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_nc" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_nc" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4845,8 +4831,7 @@ quit;
       中介分析問的是一個<b>巢狀反事實</b>：如果大家都接種，但抗體被固定在「<b>沒接種</b>會有的水準」——Yᵃ⁼¹˒ᴹ⁽⁰⁾——感染會怎樣？比較這種<b>跨世界</b>的量，正是把效果拆成<b>透過</b>中介（NIE）與<b>繞過</b>中介（NDE）的方法。
     </p>
     <div class="card scene"><h3 data-en="The mediation DAG: A → M → Y with a direct A → Y">中介 DAG：A → M → Y，外加直接 A → Y</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_med" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a; the outcome becomes the cross-world counterfactual Yᵃ˒ᴹ⁽ᵃ*⁾">反事實介入圖（SWIG）：治療節點拆成 A∣a；結果變成跨世界反事實 Yᵃ˒ᴹ⁽ᵃ*⁾</p><div id="swigScene_med" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_med" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a; the outcome becomes the cross-world counterfactual Yᵃ˒ᴹ⁽ᵃ*⁾">反事實介入圖（SWIG）：治療節點拆成 A∣a；結果變成跨世界反事實 Yᵃ˒ᴹ⁽ᵃ*⁾</p><div id="swigScene_med" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4873,8 +4858,7 @@ quit;
       所以原始比較被混淆。PS 方法把<b>經過 X 的後門擋住</b>——對分數做配對或加權，讓接種與未接種在 X 下可交換，校正後的對比就等於因果效果。
     </p>
     <div class="card scene"><h3 data-en="The PS DAG: X is a back-door confounder of A and Y">PS 的 DAG：X 是 A 與 Y 的後門混淆</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_ps" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_ps" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_ps" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_ps" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef">
@@ -4901,8 +4885,7 @@ quit;
       TMLE／AIPW 用<b>兩個</b>描述這個結構的模型——結果迴歸與傾向分數——所以<b>其一</b>對就不偏，而 TMLE 的 targeting 步讓插入式估計更有效率。
     </p>
     <div class="card scene"><h3 data-en="The TMLE DAG: X is a back-door confounder; two models, two chances">TMLE 的 DAG：X 是後門混淆；兩個模型、兩次機會</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tmle" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_tmle" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tmle" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_tmle" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
@@ -4926,8 +4909,7 @@ quit;
       g-methods 用標準化（g-formula）或加權（IPTW）取代「條件控制」，化解這個兩難。
     </p>
     <div class="card scene"><h3 data-en="The g-methods DAG: L₀→A₀→L₁→A₁→Y with treatment–confounder feedback">G-methods 的 DAG：L₀→A₀→L₁→A₁→Y 的治療↔混淆回饋</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_gm" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatments split into A₀∣a₀, A₁∣a₁ and the outcome becomes the regime counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A₀∣a₀、A₁∣a₁，結果變成策略反事實 Yᵃ</p><div id="swigScene_gm" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_gm" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatments split into A₀∣a₀, A₁∣a₁ and the outcome becomes the regime counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A₀∣a₀、A₁∣a₁，結果變成策略反事實 Yᵃ</p><div id="swigScene_gm" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
@@ -4950,8 +4932,7 @@ quit;
       對「被檢驗」抽樣本可能開啟偏誤——但選<b>檢驗陰性對照</b>（通過了同一道就醫濾網）讓這個選樣相對於接種是<b>非差別</b>的，勝算比因此仍辨識 VE。
     </p>
     <div class="card scene"><h3 data-en="The TND DAG: H (care-seeking) → vaccination &amp; testing; conditioning on 'tested' (a collider)">TND 的 DAG：就醫傾向 H → 接種與被檢驗；條件在「被檢驗」（對撞）上</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tnd" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set vaccination to a → counterfactual Yᵃ (target infection)">反事實介入圖（SWIG）：把接種設成 a → 反事實 Yᵃ（目標感染）</p><div id="swigScene_tnd" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tnd" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): set vaccination to a → counterfactual Yᵃ (target infection)">反事實介入圖（SWIG）：把接種設成 a → 反事實 Yᵃ（目標感染）</p><div id="swigScene_tnd" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
@@ -4973,8 +4954,7 @@ quit;
       PSSA 是<b>自我對照</b>的篩檢：每個用過兩種藥的人當自己的對照，所有<b>時間不變</b>的混淆（性別、基因、穩定體質）都相消——不需要讓不同人可比。它指向的反事實是「<b>若沒用 A，B 還會被開立嗎？</b>」自我對照唯一去不掉的是<b>時變</b>的力量——處方趨勢——而那正是 SRnull 除掉的東西。
     </p>
     <div class="card scene"><h3 data-en="The PSSA DAG: within-person, the trend (calendar time) is the only thing left to remove">PSSA 的 DAG：在個人內，趨勢（日曆時間）是唯一還要去掉的東西</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pssa" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set the index drug A to a → counterfactual marker-drug start Bᵃ">反事實介入圖（SWIG）：把指標藥 A 設成 a → 反事實的標記藥起始 Bᵃ</p><div id="swigScene_pssa" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pssa" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): set the index drug A to a → counterfactual marker-drug start Bᵃ">反事實介入圖（SWIG）：把指標藥 A 設成 a → 反事實的標記藥起始 Bᵃ</p><div id="swigScene_pssa" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
@@ -4996,8 +4976,7 @@ quit;
       TreeScan 本質上是<b>篩檢</b>機器、不是效果估計器——所以它真正的反事實問題很樸素：「<b>在哪個結果節點，暴露下的風險高於『沒用藥時會有的風險』？</b>」這裡更深的想法不是辨識單一效果，而是<b>把多重性控制好</b>：當你一次在數千個節點問這個問題，真正重要的反事實是<b>整個虛無世界</b>——若藥到處都沒作用，最極端的節點會長怎樣。排列法的最大 LLR <b>就是</b>那個被模擬出來的虛無世界。
     </p>
     <div class="card scene"><h3 data-en="The TreeScan DAG: exposure → outcome node; the permutation null answers 'what if the drug did nothing?'">TreeScan 的 DAG：暴露 → 結果節點；排列虛無回答「若藥沒作用會如何？」</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tscan" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set exposure to a → counterfactual outcome-node risk Yᵃ">反事實介入圖（SWIG）：把暴露設成 a → 反事實的結果節點風險 Yᵃ</p><div id="swigScene_tscan" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tscan" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): set exposure to a → counterfactual outcome-node risk Yᵃ">反事實介入圖（SWIG）：把暴露設成 a → 反事實的結果節點風險 Yᵃ</p><div id="swigScene_tscan" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
@@ -5019,8 +4998,7 @@ quit;
       WCE 指向的反事實很豐富：不是「有沒有治療」，而是「在<b>這整段加權暴露史</b>下、相對於另一段，你的風險會是多少？」權重曲線其實是在說「<i>過去哪一個版本的你</i>對今天的風險最重要」。誠實的陷阱和 g-methods 擔心的一樣：若你隨時間變化的<b>病情</b>既驅動你的用藥增減、又驅動結果，那麼比較不同暴露史就不是「拿同類比同類」——一個時變混淆卡在路徑上。
     </p>
     <div class="card scene"><h3 data-en="The WCE DAG: a time-varying confounder L (disease state) drives both dose changes and the outcome">WCE 的 DAG：時變混淆 L（病情）同時驅動用藥增減與結果</h3>
-      <p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_wce" class="chart"></div>
-      <p class="caption" data-en="Counterfactual intervention graph (SWIG): set the exposure history to a → counterfactual hazard Yᵃ">反事實介入圖（SWIG）：把暴露史設成 a → 反事實風險 Yᵃ</p><div id="swigScene_wce" class="chart"></div></div>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_wce" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): set the exposure history to a → counterfactual hazard Yᵃ">反事實介入圖（SWIG）：把暴露史設成 a → 反事實風險 Yᵃ</p><div id="swigScene_wce" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
@@ -6137,7 +6115,7 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
   </footer>
 </main>
 
-<script src="i18n.js?v=110"></script>
-<script src="app.js?v=110"></script>
+<script src="i18n.js?v=111"></script>
+<script src="app.js?v=111"></script>
 </body>
 </html>

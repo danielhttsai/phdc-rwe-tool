@@ -6863,6 +6863,22 @@ const WHATIF = {
 const WHATIF_COL = { A: TEAL, Y: "#c0504d", U: "#5b7aa8", Z: "#f59e0b", X: "#b45309", T: "#64748b", L: "#7c5fae", S: "#94a3b8" };
 const WHATIF_EDGE = { effect: { c: TEAL, w: 3.2 }, causal: { c: INK, w: 2.2 }, inst: { c: "#f59e0b", w: 2.8 }, bias: { c: "#c0504d", w: 2 }, cancel: { c: "#9aa6b2", w: 1.8 } };
 const whatifShown = new Set();
+// Render the long explanatory note as an HTML paragraph BELOW the chart (not as a
+// Plotly annotation inside it), so the graph itself fills the whole frame. Idempotent:
+// the <p> is created once right after the chart div and just updated on re-render /
+// language toggle. Lands inside the chart's own .whatif-col so it sits under its diagram.
+function setDiagNote(chartId, html) {
+  const host = document.getElementById(chartId);
+  if (!host) return;
+  let note = document.getElementById(chartId + "_note");
+  if (!note) {
+    note = document.createElement("p");
+    note.id = chartId + "_note";
+    note.className = "caption diagnote";
+    host.insertAdjacentElement("afterend", note);
+  }
+  note.innerHTML = html;
+}
 function drawWhatif(method) {
   const id = "whatifScene_" + method;
   if (!document.getElementById(id)) return;
@@ -6881,24 +6897,23 @@ function drawWhatif(method) {
       arrowhead: 3, arrowsize: 1.1, arrowwidth: s.w, arrowcolor: s.c, standoff: 22, startstandoff: 22, text: "" });
     if (e.label) {
       const mx = (ax + x) / 2, my = (ay + y) / 2 + (Math.abs(ay - y) < 0.4 ? 0.24 : 0.05);
-      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 8), { xanchor: "center" }));
+      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 9.5), { xanchor: "center" }));
     }
   });
   // node markers + ids inside; full label beside
   const traces = [{ x: cfg.nodes.map((n) => n.x), y: cfg.nodes.map((n) => n.y), mode: "markers+text", type: "scatter",
-    text: cfg.nodes.map((n) => n.id), textposition: "middle center", textfont: { color: "#fff", size: 14 },
-    marker: { color: cfg.nodes.map((n) => WHATIF_COL[n.role] || "#94a3b8"), size: 44, line: { color: "#fff", width: 1.5 } },
+    text: cfg.nodes.map((n) => n.id), textposition: "middle center", textfont: { color: "#fff", size: 16 },
+    marker: { color: cfg.nodes.map((n) => WHATIF_COL[n.role] || "#94a3b8"), size: 52, line: { color: "#fff", width: 1.5 } },
     hoverinfo: "none", showlegend: false }];
-  cfg.nodes.forEach((n) => anns.push(Object.assign(_lbl(n.x, n.y >= 1.8 ? n.y + 0.58 : n.y - 0.58, L(n.label), INK, 9.5), { xanchor: "center" })));
-  // wrap the note to the plot width so long text never overlaps the nodes/labels
-  anns.push(Object.assign(_lbl(1.95, -0.95, L(cfg.note), INK, 10.5),
-    { width: 720, align: "center", xanchor: "center", yanchor: "top" }));
+  cfg.nodes.forEach((n) => anns.push(Object.assign(_lbl(n.x, n.y >= 1.8 ? n.y + 0.58 : n.y - 0.58, L(n.label), INK, 11.5), { xanchor: "center" })));
+  // note now lives BELOW the chart (see setDiagNote) so the graph fills the whole frame
   Plotly.react(id, traces, schemaLayout({
-    height: 440, shapes, annotations: anns, showlegend: false,
-    xaxis: { visible: false, range: [-0.7, 4.9], fixedrange: true },
-    yaxis: { visible: false, range: [-2.9, 3.4] },
-    margin: { t: 12, r: 8, b: 10, l: 8 },
+    height: 360, shapes, annotations: anns, showlegend: false,
+    xaxis: { visible: false, range: [0.0, 4.7], fixedrange: true },
+    yaxis: { visible: false, range: [-1.0, 3.25] },
+    margin: { t: 10, r: 8, b: 8, l: 8 },
   }), SCENE_CFG);
+  setDiagNote(id, L(cfg.note));
 }
 
 // ----------------------------------------------------------------------
@@ -6944,7 +6959,7 @@ function drawSwig(method) {
   const setSym = (splitId[0] === "X") ? "x" : "a";       // intervention value label
   const L = (o) => (o == null ? "" : (typeof o === "string" ? o : (lang() === "en" ? o.en : o.zh)));
   const pos = {}; cfg.nodes.forEach((n) => { pos[n.id] = [n.x, n.y]; });
-  const HW = 0.56, HH = 0.38;                            // split-box half width / height
+  const HW = 0.60, HH = 0.42;                            // split-box half width / height
   const sp = pos[splitId];
   const shapes = [];
   // keep dashed "conditioned-on" boxes
@@ -6973,37 +6988,36 @@ function drawSwig(method) {
       standoff: (e.b === splitId ? 6 : 22), startstandoff: (e.a === splitId ? 6 : 22), text: "" });
     if (e.label) {
       const mx = (ax + x) / 2, my = (ay + y) / 2 + (Math.abs(ay - y) < 0.4 ? 0.24 : 0.05);
-      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 8), { xanchor: "center" }));
+      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 9.5), { xanchor: "center" }));
     }
   });
   // split-box inner labels  A | a
   if (sp) {
     const [sx, sy] = sp;
-    anns.push(Object.assign(_lbl(sx - HW / 2, sy, splitId, "#fff", 13), { xanchor: "center", yanchor: "middle" }));
-    anns.push(Object.assign(_lbl(sx + HW / 2, sy, setSym, TEAL, 13.5), { xanchor: "center", yanchor: "middle" }));
+    anns.push(Object.assign(_lbl(sx - HW / 2, sy, splitId, "#fff", 15), { xanchor: "center", yanchor: "middle" }));
+    anns.push(Object.assign(_lbl(sx + HW / 2, sy, setSym, TEAL, 15.5), { xanchor: "center", yanchor: "middle" }));
   }
   // other nodes drawn as markers; the outcome node is relabelled to the counterfactual symbol
   const others = cfg.nodes.filter((n) => n.id !== splitId);
   const traces = [{ x: others.map((n) => n.x), y: others.map((n) => n.y), mode: "markers+text", type: "scatter",
     text: others.map((n) => (n.role === "Y" ? cfSym : n.id)), textposition: "middle center",
-    textfont: { color: "#fff", size: 14 },
-    marker: { color: others.map((n) => WHATIF_COL[n.role] || "#94a3b8"), size: 44, line: { color: "#fff", width: 1.5 } },
+    textfont: { color: "#fff", size: 16 },
+    marker: { color: others.map((n) => WHATIF_COL[n.role] || "#94a3b8"), size: 52, line: { color: "#fff", width: 1.5 } },
     hoverinfo: "none", showlegend: false }];
   cfg.nodes.forEach((n) => {
     const lab = (n.id === splitId)
       ? (lang() === "en" ? "intervention node A∣a" : "介入節點 A∣a")
       : (n.role === "Y" ? cfSym + (lang() === "en" ? " (counterfactual)" : "（反事實）") : L(n.label));
-    anns.push(Object.assign(_lbl(n.x, n.y >= 1.8 ? n.y + 0.58 : n.y - 0.58, lab, INK, 9.5), { xanchor: "center" }));
+    anns.push(Object.assign(_lbl(n.x, n.y >= 1.8 ? n.y + 0.58 : n.y - 0.58, lab, INK, 11.5), { xanchor: "center" }));
   });
-  // wrap the note to the plot width so long text never overlaps the nodes/labels
-  anns.push(Object.assign(_lbl(1.95, -0.95, L(meta.note || cfg.note), INK, 10.5),
-    { width: 720, align: "center", xanchor: "center", yanchor: "top" }));
+  // note now lives BELOW the chart (see setDiagNote) so the graph fills the whole frame
   Plotly.react(id, traces, schemaLayout({
-    height: 440, shapes, annotations: anns, showlegend: false,
-    xaxis: { visible: false, range: [-0.7, 4.9], fixedrange: true },
-    yaxis: { visible: false, range: [-2.9, 3.4] },
-    margin: { t: 12, r: 8, b: 10, l: 8 },
+    height: 360, shapes, annotations: anns, showlegend: false,
+    xaxis: { visible: false, range: [0.0, 4.7], fixedrange: true },
+    yaxis: { visible: false, range: [-1.0, 3.25] },
+    margin: { t: 10, r: 8, b: 8, l: 8 },
   }), SCENE_CFG);
+  setDiagNote(id, L(meta.note || cfg.note));
 }
 
 // draw both the DAG and the SWIG for a method (used by PANEL_INIT + language re-render)

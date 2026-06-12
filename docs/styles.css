@@ -239,6 +239,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem; }
 /* scene mini-charts sit flush on the tinted card (no inner white box, shorter,
    so the data fills the frame instead of floating in a big empty grid) */
 .card.scene .chart { height: 280px; background: transparent; border: none; box-shadow: none; margin: .5rem 0 0; }
+/* ⑥ DAG ↔ SWIG side by side, each filling its half; the long note sits below each
+   diagram as readable text (.diagnote) instead of being squeezed inside the chart */
+.whatif-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+.whatif-col { min-width: 0; }
+.diagnote { margin: .4rem 0 .2rem; line-height: 1.6; }
+@media (max-width: 760px) { .whatif-pair { grid-template-columns: 1fr; } }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
 .cards .card { margin: 0; }
 
