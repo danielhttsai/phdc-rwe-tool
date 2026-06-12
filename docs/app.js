@@ -528,7 +528,7 @@ function drawDoublyRobust(elId) {
     };
   };
   const traces = [
-    pack((d) => d.ok, "#3f8268", "circle", tr("命中真值（不偏）", "on the truth (unbiased)")),
+    pack((d) => d.ok, "#3f8268", "circle", tr("命中真值（不偏）", "on truth (unbiased)")),
     pack((d) => !d.ok, "#f59e0b", "diamond", tr("偏掉", "biased")),
   ];
   const shapes = [
@@ -538,8 +538,10 @@ function drawDoublyRobust(elId) {
   const anns = rows.map((d) =>
     Object.assign(_lbl(0.45, d.y, d.label, d.ok ? "#2f6149" : "#9a3412", 10.5), { xanchor: "left" }));
   anns.push(Object.assign(_lbl(truth, 5.75, tr("真值", "truth"), GREEN, 10.5), { xanchor: "center" }));
-  anns.push(_lbl(truth, 0.05, tr("①傾向模型 或 ②結果模型，只要一個對 → 命中真值（雙重穩健）",
-                                 "① propensity OR ② outcome — if EITHER is right → on the truth (doubly robust)"), INK, 10));
+  anns.push(_lbl(truth, 0.35, tr(
+      "<b>綠</b>＝① 傾向模型 或 ② 結果模型「至少一個對」→ 雙重穩健命中真值<br><b>黃</b>＝兩個都沒對（或根本沒校正）→ 雙重穩健沒東西可靠，才會偏",
+      "<b>Green</b> = ① propensity OR ② outcome — at least one right → DR hits the truth<br><b>Yellow</b> = neither right (or no adjustment) → DR has nothing to lean on, so it's biased"),
+      INK, 9.5));
   Plotly.react(elId, traces, schemaLayout({
     height: 290, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.16 },
     xaxis: { visible: true, title: tr("估出的效果", "estimated effect"), range: [0.6, 3.8], fixedrange: true },
@@ -1085,10 +1087,16 @@ async function refreshRdd() {
     cwEl.style.color = isFinite(ciW) && ciW > 1.2 ? AMBER : TEAL;
   }
 
-  renderRddPlotInto("rddPlot", a.plot);
+  // ② interactive: pass the bandwidth (draw the window band) and a FIXED half-range
+  // (= slider max) so a narrower window visibly shrinks instead of the axis zooming in.
+  renderRddPlotInto("rddPlot", a.plot, a.h != null ? a.h : bw, 14.5);
 }
 
-function renderRddPlotInto(elId, plot) {
+// h = bandwidth actually used (draws a light window band [c-h, c+h]); the binned
+// dots and fitted lines already live only inside that window (backend-clipped), so
+// the band + a FIXED x-axis (fixedHalf) make a narrower window visibly shrink — the
+// line really does get shorter, instead of the axis just zooming in to hide it.
+function renderRddPlotInto(elId, plot, h, fixedHalf) {
   const c = plot.cutoff;
   const traces = [
     { x: plot.left.bx, y: plot.left.by, type: "scatter", mode: "markers",
@@ -1101,15 +1109,26 @@ function renderRddPlotInto(elId, plot) {
   if (plot.fit.right) traces.push({ x: plot.fit.right.x, y: plot.fit.right.y, type: "scatter",
     mode: "lines", name: tr("右側配適", "right fit"), line: { color: PURPLE, width: 3 }, showlegend: false });
 
+  const shapes = [{ type: "line", x0: c, x1: c, yref: "paper", y0: 0, y1: 1,
+                    line: { color: RED, dash: "dash", width: 1.5 } }];
+  const annotations = [{ x: c, yref: "paper", y: 1, text: tr(`斷點 ${c}`, `cutoff ${c}`),
+                    showarrow: false, font: { color: RED, size: 11 }, yshift: 10 }];
+  if (h && isFinite(h)) {
+    // shaded window band — shrinks as the bandwidth narrows
+    shapes.unshift({ type: "rect", xref: "x", yref: "paper", x0: c - h, x1: c + h, y0: 0, y1: 1,
+                     fillcolor: "rgba(63,125,98,0.10)", line: { color: "rgba(63,125,98,0.35)", width: 1, dash: "dot" }, layer: "below" });
+    annotations.push({ x: c + h, yref: "paper", y: 0.04, text: tr(`視窗 ±${fmt(h, 1)}`, `window ±${fmt(h, 1)}`),
+                       showarrow: false, font: { color: "#3f7d62", size: 10 }, xanchor: "right", yshift: 0 });
+  }
+  const xaxis = { title: tr("跑分變數", "Running variable") };
+  if (fixedHalf && isFinite(fixedHalf)) { xaxis.range = [c - fixedHalf, c + fixedHalf]; xaxis.autorange = false; }
+
   Plotly.react(elId, traces, sceneLayout({
     margin: { t: 24, r: 20, b: 45, l: 55 },
-    xaxis: { title: tr("跑分變數", "Running variable") },
+    xaxis,
     yaxis: { title: tr("結果", "Outcome") },
     legend: { orientation: "h", y: 1.14 },
-    shapes: [{ type: "line", x0: c, x1: c, yref: "paper", y0: 0, y1: 1,
-               line: { color: RED, dash: "dash", width: 1.5 } }],
-    annotations: [{ x: c, yref: "paper", y: 1, text: tr(`斷點 ${c}`, `cutoff ${c}`),
-               showarrow: false, font: { color: RED, size: 11 }, yshift: 10 }],
+    shapes, annotations,
   }), SCENE_CFG);
 }
 
@@ -1311,7 +1330,7 @@ function renderRddAnalyze(a) {
   document.getElementById("rddAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
     `<div class="rc ${hl ? "highlight" : ""}"><h3>${t}</h3><div class="big">${fmt(v, hl ? 3 : 2)}</div><p>${desc}</p></div>`
   ).join("");
-  if (a.plot) renderRddPlotInto("rddAnalyzePlot", a.plot);
+  if (a.plot) renderRddPlotInto("rddAnalyzePlot", a.plot, a.h);
 }
 
 function renderRddAnalyzeSurv(s) {
@@ -6646,7 +6665,7 @@ const WHATIF = {
       { id: "A", x: 2.1, y: 0.6, role: "A", label: { zh: "資格／治療", en: "eligible / treated A" } },
       { id: "Y", x: 3.7, y: 1.2, role: "Y", label: { zh: "結果", en: "outcome Y" } }],
     edges: [{ a: "R", b: "A", kind: "causal", label: { zh: "在斷點 65 跳變", en: "jumps at cutoff 65" } }, { a: "A", b: "Y", kind: "effect" }, { a: "R", b: "Y", kind: "causal", label: { zh: "連續、平滑", en: "continuous, smooth" } }],
-    note: { zh: "R 透過斷點決定 A，也可能<b>平滑</b>地直接影響 Y。但斷點附近 R 幾乎固定→A 近似隨機；R→Y 連續，所以「<b>跳階只能來自 A</b>」。", en: "R sets A via the cutoff and may also affect Y <b>smoothly</b>. But right at the cutoff R is nearly fixed → A is as-good-as-random; since R→Y is continuous, <b>any jump must come from A</b>." } },
+    note: { zh: "R 透過斷點決定 A，也可能<b>平滑</b>地直接影響 Y——<b>這條 R→Y 箭頭是允許的，不是違規</b>。RDD <b>不是 IV、不需要排除限制</b>：它靠的是「在斷點處不連續」，而不是「R 對 Y 沒有直接路徑」。斷點附近 R 幾乎固定→A 近似隨機；R→Y 既然<b>連續</b>，那一個<b>突然的跳階就只能來自 A</b>。", en: "R sets A via the cutoff and may also affect Y <b>smoothly</b> — <b>this R→Y arrow is allowed, not a violation</b>. RDD is <b>not IV and needs no exclusion restriction</b>: it relies on a <b>discontinuity at the cutoff</b>, not on R having no direct path to Y. Right at the cutoff R is nearly fixed → A is as-good-as-random; since R→Y is <b>continuous</b>, a <b>sudden jump can only come from A</b>." } },
   did: { nodes: [
       { id: "A", x: 2.1, y: 1.1, role: "A", label: { zh: "政策 A", en: "policy A" } },
       { id: "Y", x: 3.7, y: 1.1, role: "Y", label: { zh: "結果", en: "outcome Y" } },
@@ -6822,12 +6841,14 @@ function drawWhatif(method) {
     marker: { color: cfg.nodes.map((n) => WHATIF_COL[n.role] || "#94a3b8"), size: 34, line: { color: "#fff", width: 1.5 } },
     hoverinfo: "none", showlegend: false }];
   cfg.nodes.forEach((n) => anns.push(Object.assign(_lbl(n.x, n.y >= 1.8 ? n.y + 0.5 : n.y - 0.5, L(n.label), INK, 8), { xanchor: "center" })));
-  anns.push(_lbl(2.15, -1.2, L(cfg.note), INK, 9.5));
+  // wrap the note to the plot width so long text never overlaps the nodes/labels
+  anns.push(Object.assign(_lbl(2.1, -0.78, L(cfg.note), INK, 9.5),
+    { width: 560, align: "center", xanchor: "center", yanchor: "top" }));
   Plotly.react(id, traces, schemaLayout({
-    height: 320, shapes, annotations: anns, showlegend: false,
+    height: 360, shapes, annotations: anns, showlegend: false,
     xaxis: { visible: false, range: [-0.5, 4.7], fixedrange: true },
-    yaxis: { visible: false, range: [-1.7, 3.3] },
-    margin: { t: 16, r: 12, b: 14, l: 12 },
+    yaxis: { visible: false, range: [-2.7, 3.3] },
+    margin: { t: 16, r: 12, b: 16, l: 12 },
   }), SCENE_CFG);
 }
 
@@ -6839,7 +6860,7 @@ function drawWhatif(method) {
 // ----------------------------------------------------------------------
 const SWIG_META = {
   iv:   { split: "A",  cf: "Yᵃ", note: { zh: "把治療設成 a → 反事實 Yᵃ。IV 的關鍵：U 開了後門，<b>A ⫫ Yᵃ 不成立</b>；改用工具 Z（與 U 無關、只經 A）在順從者上辨識。", en: "Set treatment to a → counterfactual Yᵃ. The IV point: U opens a backdoor so <b>A ⫫ Yᵃ fails</b>; instead Z (independent of U, acting only via A) identifies the effect in compliers." } },
-  rdd:  { split: "A",  cf: "Yᵃ", note: { zh: "把資格／治療設成 a → 反事實 Yᵃ。<b>只在斷點處</b> R 近似固定→A ⫫ Yᵃ <b>局部</b>成立（局部隨機化）。", en: "Set eligibility/treatment to a → Yᵃ. <b>Only at the cutoff</b> R is nearly fixed, so A ⫫ Yᵃ holds <b>locally</b> (local randomization)." } },
+  rdd:  { split: "A",  cf: "Yᵃ", note: { zh: "把資格／治療設成 a → 反事實 Yᵃ。<b>只在斷點處</b> R 近似固定→A ⫫ Yᵃ <b>局部</b>成立（局部隨機化）。R 可以直接、平滑地影響 Y 也無妨——RDD 不靠排除限制（這不是 IV）。", en: "Set eligibility/treatment to a → Yᵃ. <b>Only at the cutoff</b> R is nearly fixed, so A ⫫ Yᵃ holds <b>locally</b> (local randomization). R may even affect Y directly and smoothly — that's fine, RDD does not rely on an exclusion restriction (this is not IV)." } },
   did:  { split: "A",  cf: "Yᵃ", note: { zh: "把政策設成 a → 反事實 Yᵃ。可交換性不直接成立，靠<b>平行趨勢</b>：受處置組『沒政策的 Yᵃ⁼⁰ 變化』＝對照組的變化。", en: "Set policy to a → Yᵃ. Exchangeability isn't direct; <b>parallel trends</b> supply it: the treated group's no-policy change in Yᵃ⁼⁰ equals the controls'." } },
   perr: { split: "A",  cf: "Yᵃ", note: { zh: "把用藥設成 a → 反事實 Yᵃ。穩定體質 U 開後門→A ⫫ Yᵃ 不成立；用<b>事前期比值相除</b>消掉時間不變的 U。", en: "Set drug to a → Yᵃ. Stable frailty U opens a backdoor so A ⫫ Yᵃ fails; the <b>prior-period ratio</b> divides out time-fixed U." } },
   its:  { split: "X",  cf: "Yˣ", note: { zh: "把介入設成 x → 反事實 Yˣ。沒有對照組；用介入前<b>趨勢外推</b>當 Yˣ⁼⁰，前提是同一時點沒有其他原因。", en: "Set intervention to x → Yˣ. No control group; the pre-trend <b>extrapolation</b> serves as Yˣ⁼⁰, assuming no co-occurring cause." } },
@@ -6925,12 +6946,14 @@ function drawSwig(method) {
       : (n.role === "Y" ? cfSym + (lang() === "en" ? " (counterfactual)" : "（反事實）") : L(n.label));
     anns.push(Object.assign(_lbl(n.x, n.y >= 1.8 ? n.y + 0.5 : n.y - 0.5, lab, INK, 8), { xanchor: "center" }));
   });
-  anns.push(_lbl(2.15, -1.2, L(meta.note || cfg.note), INK, 9.5));
+  // wrap the note to the plot width so long text never overlaps the nodes/labels
+  anns.push(Object.assign(_lbl(2.1, -0.78, L(meta.note || cfg.note), INK, 9.5),
+    { width: 560, align: "center", xanchor: "center", yanchor: "top" }));
   Plotly.react(id, traces, schemaLayout({
-    height: 320, shapes, annotations: anns, showlegend: false,
+    height: 360, shapes, annotations: anns, showlegend: false,
     xaxis: { visible: false, range: [-0.5, 4.7], fixedrange: true },
-    yaxis: { visible: false, range: [-1.7, 3.3] },
-    margin: { t: 16, r: 12, b: 14, l: 12 },
+    yaxis: { visible: false, range: [-2.7, 3.3] },
+    margin: { t: 16, r: 12, b: 16, l: 12 },
   }), SCENE_CFG);
 }
 

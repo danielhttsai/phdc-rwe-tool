@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=107" />
+<link rel="stylesheet" href="/styles.css?v=108" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -575,6 +575,17 @@
     </div>
 
     <div class="card info">
+      <h3 data-en="Sharp vs Fuzzy, in the trial language: ITT / PP / IV">用試驗的語言看 Sharp 與 Fuzzy：ITT／PP／IV</h3>
+      <p data-en="A randomised trial gives you three contrasts, and RDD lines up with them at the cutoff. (1) <b>ITT (intention-to-treat)</b> compares people <b>by the rule</b> — eligible vs not — no matter what they actually did; that is the <b>Sharp RD</b>. (2) <b>PP (per-protocol)</b> compares people <b>by what they actually took</b> — vaccinated vs not; but who takes up the vaccine is <b>self-selected</b> (the keener, healthier people cross over), so PP is <b>confounded and biased</b> — it is <b>not</b> a clean RDD answer. (3) <b>IV</b> rescues the treatment effect by using eligibility as an <b>instrument</b>: Fuzzy RD = (outcome jump) ÷ (take-up jump) = the <b>complier LATE</b>. So Fuzzy RDD is the IV fix for exactly the problem that sinks PP — it does not just compare the treated, it scales the ITT jump by how much treatment actually moved.">
+        一場隨機試驗會給你三種對比，RDD 在斷點處正好對得上。
+        (1) <b>ITT（意向治療，intention-to-treat）</b>＝<b>按規則</b>比：有資格 vs 沒資格，不管實際有沒有去打——這就是 <b>Sharp RD</b>。
+        (2) <b>PP（依方案，per-protocol）</b>＝<b>按實際接受治療</b>比：打了 vs 沒打；但「誰會去打」是<b>自我選擇</b>的（比較積極、比較健康的人才跨過去），所以 PP <b>被混淆、會偏</b>——它<b>不是</b>乾淨的 RDD 答案。
+        (3) <b>IV</b> 用「有沒有資格」當<b>工具</b>把治療效果救回來：Fuzzy RD ＝（結果跳幅）÷（接種率跳幅）＝<b>順從者 LATE</b>。
+        所以 <b>Fuzzy RDD 正是 PP 出問題時的 IV 解法</b>——它不是直接比「打了的人」，而是把 ITT 的跳幅，除以「治療實際被推動了多少」。
+      </p>
+    </div>
+
+    <div class="card info">
       <h3 data-en="How wide a window? And two ways to justify it: continuity vs local randomization">「視窗」要多寬？兩種講法：連續性 vs 局部隨機化</h3>
       <p data-en="RDD only looks at people <b>near</b> the cutoff — but how near is &quot;near&quot;? That range is the <b>window (bandwidth)</b>. Too narrow and there are too few people, so the estimate jumps around; too wide and you pull in people far from 65 who are <b>not really alike</b>, adding bias. So the same data can give different answers at different bandwidths — a good RDD should not hinge on one window.">
         RDD 只看斷點<b>附近</b>的人——但「附近」要畫多大？這個範圍就叫<b>視窗（頻寬，bandwidth）</b>。
@@ -600,8 +611,8 @@
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef">
         <h4>跑分變數與斷點 <span class="en">running variable &amp; cutoff</span></h4>
-        <p data-en="Lots of real-world rules switch on at a hard line drawn on one number: you get a free programme once you hit 65, a scholarship once your test score clears a bar, extra care once your risk index passes a value. That number you&#39;re measured on is the <b>running variable</b> (sometimes called the forcing or assignment variable), and the line itself is the <b>cutoff</b> <code>c</code>. The reason this is useful: someone aged 64 years 11 months and someone aged 65 years 1 month are basically the same kind of person — same health, same habits, same unmeasured luck — yet one just barely qualifies and the other just barely doesn&#39;t. So if the outcome takes a sudden step right at the line, that step can&#39;t be &quot;the two groups are different people&quot;, because they aren&#39;t; it has to be the programme. The one thing you must believe is <b>continuity</b>: that without the rule, the outcome would glide smoothly through age 65 and never jump there on its own (Hahn, Todd &amp; van der Klaauw 2001). You can sanity-check that by looking for no jump in background traits and no suspicious pile-up of people just on the lucky side of the line (a McCrary density check).">
-          很多真實世界的規則，都是在「某個數字畫的一條硬線」上突然啟動：滿 65 歲就有免費計畫、考試分數過某條線就有獎學金、風險指標超過某值就給加強照護。你被拿來衡量的那個數字，就叫<b>跑分變數</b>（有時也叫驅動或指派變數），那條線本身就是<b>斷點</b> <code>c</code>。它之所以好用：一個 64 歲 11 個月的人，和一個 65 歲 1 個月的人，基本上是同一種人——一樣的健康、一樣的習慣、一樣看不見的運氣——但一個剛好有資格、一個剛好沒有。所以若結果<i>正好</i>在這條線上突然跳一階，這一階不可能是「兩群是不同的人」，因為他們根本一樣；只能是那個計畫造成的。唯一需要相信的事叫<b>連續性</b>：如果沒有這條規則，結果會平順地滑過 65 歲、不會自己在那裡跳（Hahn, Todd &amp; van der Klaauw 2001）。你可以這樣檢查：看其他背景特徵在線上有沒有跳、以及線的「幸運那一側」有沒有可疑地擠了一堆人（McCrary 密度檢查）。
+        <p data-en="Lots of real-world rules switch on at a hard line drawn on one number: you get a free programme once you hit 65, a scholarship once your test score clears a bar, extra care once your risk index passes a value. That number you&#39;re measured on is the <b>running variable</b> — the same thing goes by several names in different papers: <b>running variable</b>, <b>forcing variable</b>, <b>assignment variable</b>, or simply the <b>score</b> (all four mean this one number) — and the line itself is the <b>cutoff</b> <code>c</code>. The reason this is useful: someone aged 64 years 11 months and someone aged 65 years 1 month are basically the same kind of person — same health, same habits, same unmeasured luck — yet one just barely qualifies and the other just barely doesn&#39;t. So if the outcome takes a sudden step right at the line, that step can&#39;t be &quot;the two groups are different people&quot;, because they aren&#39;t; it has to be the programme. The one thing you must believe is <b>continuity</b>: that without the rule, the outcome would glide smoothly through age 65 and never jump there on its own (Hahn, Todd &amp; van der Klaauw 2001). You can sanity-check that by looking for no jump in background traits and no suspicious pile-up of people just on the lucky side of the line (a McCrary density check).">
+          很多真實世界的規則，都是在「某個數字畫的一條硬線」上突然啟動：滿 65 歲就有免費計畫、考試分數過某條線就有獎學金、風險指標超過某值就給加強照護。你被拿來衡量的那個數字，就叫<b>跑分變數</b>——同一個東西在不同論文有好幾個名字：<b>running variable（跑分／驅動變數）</b>、<b>forcing variable（驅動變數）</b>、<b>assignment variable（指派變數）</b>，或乾脆叫 <b>score（分數）</b>，這四個講的都是這同一個數字——那條線本身就是<b>斷點</b> <code>c</code>。它之所以好用：一個 64 歲 11 個月的人，和一個 65 歲 1 個月的人，基本上是同一種人——一樣的健康、一樣的習慣、一樣看不見的運氣——但一個剛好有資格、一個剛好沒有。所以若結果<i>正好</i>在這條線上突然跳一階，這一階不可能是「兩群是不同的人」，因為他們根本一樣；只能是那個計畫造成的。唯一需要相信的事叫<b>連續性</b>：如果沒有這條規則，結果會平順地滑過 65 歲、不會自己在那裡跳（Hahn, Todd &amp; van der Klaauw 2001）。你可以這樣檢查：看其他背景特徵在線上有沒有跳、以及線的「幸運那一側」有沒有可疑地擠了一堆人（McCrary 密度檢查）。
         </p>
       </div>
       <div class="tdef">
@@ -642,16 +653,8 @@
     <h1 data-en="Interactive RDD: watch the jump as you change the window">互動式 RDD：拉動視窗，看「跳一下」怎麼變</h1>
     <p class="lead" data-en="Drag the bandwidth slider to change how many people near age 65 enter the local-linear fit, and watch the take-up jump, the Sharp RD and the Fuzzy RD update live. The two readouts under the plot let you SEE the bias–variance trade-off as you change the window.">
       拉動下面的頻寬滑桿，改變有多少 65 歲附近的人進入局部線性配適，
-      即時看「接種率跳幅」「銳利 RD」「模糊 RD」怎麼變。圖下方的兩個讀數，讓你親眼看見換視窗時的「偏差—變異」取捨。
+      即時看「接種率跳幅」「銳利 RD」「模糊 RD」怎麼變。<b>滑桿就在圖的正下方</b>，旁邊兩個讀數讓你一邊拉、一邊看見「偏差—變異」取捨。
     </p>
-
-    <div class="controls">
-      <label>
-        <span data-en="Observation window (bandwidth, years):">觀察視窗（頻寬，年）：</span><b id="rddBwVal">6.0</b>
-        <input type="range" id="rddBwSlider" min="2" max="14" value="6" step="0.5" />
-        <small data-en="RDD only uses people near 65. Narrow = fewer people, noisier; wide = more people but pulls in less-similar ages. Watch the estimates move.">RDD 只用 65 歲附近的人。視窗窄＝人少、雜訊大；視窗寬＝人多但會混入較不相似的年齡。看估計怎麼變。</small>
-      </label>
-    </div>
 
     <div class="play-grid">
       <div class="stat"><div class="stat-label" data-en="Take-up jump at 65">接種率在 65 歲的跳幅</div><div class="stat-num" id="rddTakeup">–</div><div class="stat-foot" data-en="the fuzzy first stage">模糊版的第一階段</div></div>
@@ -662,8 +665,17 @@
     <div id="rddPlot" class="chart"></div>
     <p class="caption" data-en="The dots are binned averages of the health-score change by age; the two fitted lines are the local-linear fits on each side. The vertical dashed line is the age-65 cutoff. The <b>vertical gap</b> at the line is the Sharp RD.">
       點是各年齡層「健康分數變化」的分組平均；兩條線是斷點兩側的局部線性配適；
-      垂直虛線是 65 歲斷點。線上的<b>垂直落差</b>就是銳利 RD。
+      垂直虛線是 65 歲斷點。線上的<b>垂直落差</b>就是銳利 RD。<b>淺色帶</b>就是目前的視窗（±h）；拉窄時帶會縮、配適線也只畫在帶內。
     </p>
+
+    <div class="controls">
+      <label>
+        <span data-en="Observation window (bandwidth, years):">觀察視窗（頻寬，年）：</span><b id="rddBwVal">6.0</b>
+        <input type="range" id="rddBwSlider" min="2" max="14" value="6" step="0.5" />
+        <small data-en="RDD only uses people near 65. Narrow = fewer people, noisier; wide = more people but pulls in less-similar ages. Watch the estimates — and the two readouts just below — move.">RDD 只用 65 歲附近的人。視窗窄＝人少、雜訊大；視窗寬＝人多但會混入較不相似的年齡。一邊拉、一邊看下面兩個讀數怎麼變。</small>
+      </label>
+    </div>
+
     <div class="bv-readout" id="rddBvReadout">
       <div class="bv-item">
         <span class="bv-k" data-en="People inside the window (±h)">視窗內人數（±h）</span>
@@ -849,10 +861,11 @@
     </div>
     <details class="term">
       <summary data-en="What exactly is &quot;DML&quot; (double machine learning)?">「DML（雙重機器學習）」到底是什麼？</summary>
-      <p data-en="We only want <b>one number</b> — the causal effect (here, the true 1.80). But to get it right we must first &quot;subtract out&quot; a pile of background nuisance (the age trend, other covariates). If we let plain <b>machine learning</b> do that subtraction, two traps appear: (1) the ML model's small regularization error <b>leaks into</b> the effect; (2) using the same rows to both <b>train</b> the model and <b>score</b> the effect lets it &quot;peek&quot;, so it looks too good.">
+      <p data-en="We only want <b>one number</b> — the causal effect (here, the true 1.80). But to get it right we must first &quot;subtract out&quot; a pile of background nuisance (the age trend, other covariates). If we let plain <b>machine learning</b> do that subtraction, two traps appear: (1) to avoid overfitting, ML models deliberately <b>shrink (regularize)</b> their fit — that introduces a small, <b>systematic</b> error in the background prediction, and because the effect is computed from those predictions, <b>that same systematic error carries straight through into the effect number</b> (it doesn't average out); (2) using the same rows to both <b>train</b> the model and <b>compute</b> the effect lets the model &quot;peek&quot; at the answers it is being graded on, so the result looks too good but doesn't hold up on fresh data.">
         我們要的其實只有<b>一個數字</b>——因果效果（這裡是真值 1.80）。但要算準它，得先「扣掉」一堆背景干擾（年齡趨勢、其他共變項）。
-        如果直接拿<b>機器學習</b>去扣，會踩到兩個坑：(1) ML 模型為了不過度配適的小偏差會<b>漏進</b>效果估計；
-        (2) 用同一批資料「又<b>訓練</b>模型、又拿來<b>算</b>效果」，等於讓它偷看，答案看似漂亮其實騙人。
+        如果直接拿<b>機器學習</b>去扣，會踩到兩個坑：
+        (1) ML 為了不<b>過度配適</b>，會刻意把模型<b>縮一點（正則化）</b>——這會讓背景預測帶一個小小的、<b>有方向性（系統性）</b>的誤差；而效果是「拿這些背景預測去算」出來的，所以<b>那個系統性誤差會原封不動跟著跑進效果數字裡</b>（不會自己抵消掉）。
+        (2) 用同一批資料「又<b>訓練</b>模型、又拿來<b>算</b>效果」，等於讓模型偷看它要被打分的答案，數字看似漂亮，換一批新資料就垮。
       </p>
       <p data-en="<b>DML = double / debiased machine learning</b> fixes both with two tricks:">
         <b>DML ＝ 雙重／去偏機器學習</b>，用兩招把這兩個坑補起來：
@@ -5746,11 +5759,11 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
         則邊際與條件效果<b>就算完全沒有混淆</b>也會不同，數字會單純因為你多放了共變項而漂移。
       </p>
       <ul>
-        <li data-en="<b>Collapsible</b> — risk/level difference (DiD, ITS), risk ratio &amp; rate ratio (PERR, SCCS, CCTC's IRR), and the <b>AFT acceleration factor</b> (RDD survival ③). The marginal number means what it says.">
-          <b>可塌縮</b>——風險差／水準差（DiD、ITS）、風險比與率比（PERR、SCCS、CCTC 的 IRR），以及 <b>AFT 加速因子</b>（RDD 存活 ③）。邊際數字所言即所是。
+        <li data-en="<b>Collapsible</b> — risk/level difference (DiD, ITS), risk ratio &amp; rate ratio (PERR, SCCS), and the <b>AFT acceleration factor</b> (RDD survival ③). The marginal number means what it says.">
+          <b>可塌縮</b>——風險差／水準差（DiD、ITS）、風險比與率比（PERR、SCCS），以及 <b>AFT 加速因子</b>（RDD 存活 ③）。邊際數字所言即所是。
         </li>
-        <li data-en="<b>Non-collapsible</b> — the <b>odds ratio</b> (CC, CCTC, Universal DiD) and the <b>hazard ratio</b> (CCW survival, RDD survival via Cox, ACNU / PNU). A move in the adjusted OR/HR can be a <b>scale artefact</b>, not proof that confounding was removed; the HR also carries a built-in selection over time (frailer people fail first).">
-          <b>不可塌縮</b>——<b>勝算比 OR</b>（CC、CCTC、Universal DiD）與<b>風險比 HR</b>（CCW 存活、RDD 經 Cox 的存活、ACNU／PNU）。校正後的 OR／HR 變動可能是<b>尺度的假象</b>，不一定代表混淆被修掉；HR 還內建隨時間的選擇（體質弱者先失敗）。
+        <li data-en="<b>Non-collapsible</b> — the <b>odds ratio</b> (CC, <b>TiT</b> — which targets a population-level causal odds ratio, Universal DiD, and CCTC — whose native estimate is a conditional OR, read as a rate ratio only under the rare-event approximation) and the <b>hazard ratio</b> (CCW survival, RDD survival via Cox, ACNU / PNU). A move in the adjusted OR/HR can be a <b>scale artefact</b>, not proof that confounding was removed; the HR also carries a built-in selection over time (frailer people fail first).">
+          <b>不可塌縮</b>——<b>勝算比 OR</b>（CC、<b>TiT</b>（估的是<b>母體層級的因果勝算比</b>）、Universal DiD，以及 CCTC——它原生估的是條件勝算比 OR，只有在<b>罕見事件</b>近似下才讀成率比）與<b>風險比 HR</b>（CCW 存活、RDD 經 Cox 的存活、ACNU／PNU）。校正後的 OR／HR 變動可能是<b>尺度的假象</b>，不一定代表混淆被修掉；HR 還內建隨時間的選擇（體質弱者先失敗）。
         </li>
         <li data-en="<b>Practical guidance</b> — (1) only compare estimates on the <b>same scale</b>; the ÷own-truth chart above sidesteps this by normalising each method. (2) Don't read &quot;the adjusted OR/HR changed&quot; as &quot;confounding handled&quot; — that inference only works for collapsible measures. (3) When you want a marginal, cleanly-interpretable causal effect for time-to-event, a <b>collapsible AFT acceleration factor</b> is attractive (Crowther, Royston &amp; Clements 2023) — see RDD ③.">
           <b>實務建議</b>——(1) 只比較<b>同尺度</b>的估計；上面那張「÷自己的真值」圖就是用正規化每個方法來迴避這問題。(2) 不要把「校正後 OR／HR 變了」直接讀成「混淆處理好了」——這個推論只對可塌縮的量成立。(3) 想要一個邊際、好解讀的 time-to-event 因果效果時，<b>可塌縮的 AFT 加速因子</b>很有吸引力（Crowther、Royston &amp; Clements 2023）——見 RDD ③。
@@ -5928,11 +5941,11 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
   <!-- ===================== 9. 資料庫 → 研究設計強項 ===================== -->
   <section id="dbpanel" class="panel">
     <h1 data-en="Which database do you have — and which designs it powers">資料庫：你手上的資料庫，撐得起哪些設計</h1>
-    <p class="lead" data-en="A study design is only as good as the data behind it. Real-world databases differ in <b>type</b> (claims, EHR, registry, biobank), <b>coverage</b> (a national near-census vs a sample), <b>linkage</b> (to deaths, hospital, lab, genomes) and <b>longitudinal traceability</b> — and those features decide which of the designs in this toolbox you can actually run. Below: how database features map to design strengths, then a directory of pharmacoepidemiology databases (from the AsPEN network).">設計再好，也只能跟得上背後的資料。真實世界資料庫差別在<b>類型</b>（理賠、EHR、登錄、生物資料庫）、<b>涵蓋</b>（全國近普查 vs 抽樣）、<b>連結</b>（死亡、住院、檢驗、基因）與<b>長期可追溯性</b>——這些特性決定你<b>實際能跑</b>工具箱裡哪些設計。以下先講「資料庫特性 → 設計強項」，再附一份藥物流行病學資料庫名錄（取自 AsPEN 網路）。</p>
+    <p class="lead" data-en="A study design is only as good as the data behind it. Real-world databases differ in <b>type</b> (claims, EHR, registry, biobank), <b>coverage</b> (a national near-census vs a sample), <b>linkage</b> (to deaths, hospital, lab, genomes) and <b>longitudinal traceability</b> — and those features decide which of the designs in this toolbox you can actually run. Below: how database features map to design strengths, then a directory of pharmacoepidemiology databases (from the AsPEN network).">設計再好，也只能跟得上背後的資料。真實世界資料庫差別在<b>類型</b>（理賠、EHR、登錄、生物資料庫）、<b>涵蓋</b>（近乎全民 vs 抽樣樣本）、<b>連結</b>（死亡、住院、檢驗、基因）與<b>長期可追溯性</b>——這些特性決定你<b>實際能跑</b>工具箱裡哪些設計。以下先講「資料庫特性 → 設計強項」，再附一份藥物流行病學資料庫名錄（取自 AsPEN 網路）。</p>
 
     <h2 data-en="Database features → which designs they power">資料庫特性 → 撐得起哪些設計</h2>
     <div class="cards">
-      <div class="card"><h3 data-en="Near-universal claims (national)">全國近普查理賠</h3><p data-en="A whole-population claims database (every dispensing + diagnosis) is ideal for <b>rare outcomes</b> and for <b>self-controlled</b> designs that need within-person exposure variation. <b>Powers:</b> cohort / case-control (rare events), SCCS &amp; CCTC, PERR, sequential trials. <b>Weak on:</b> lab values, clinical detail, the indication for prescribing.">全人口理賠（每筆給藥＋診斷）最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。<b>撐得起：</b>世代／病例對照（罕見事件）、SCCS 與 CCTC、PERR、序列試驗。<b>弱點：</b>檢驗值、臨床細節、處方的適應症。</p></div>
+      <div class="card"><h3 data-en="Near-universal claims (national)">近乎全民的全國理賠資料</h3><p data-en="A whole-population claims database (every dispensing + diagnosis) is ideal for <b>rare outcomes</b> and for <b>self-controlled</b> designs that need within-person exposure variation. <b>Powers:</b> cohort / case-control (rare events), SCCS &amp; CCTC, PERR, sequential trials. <b>Weak on:</b> lab values, clinical detail, the indication for prescribing.">全人口理賠（每筆給藥＋診斷）最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。<b>撐得起：</b>世代／病例對照（罕見事件）、SCCS 與 CCTC、PERR、序列試驗。<b>弱點：</b>檢驗值、臨床細節、處方的適應症。</p></div>
       <div class="card"><h3 data-en="EHR with labs &amp; diagnoses">含檢驗值與診斷的 EHR</h3><p data-en="Electronic health records carry lab values, severity, and richer diagnoses. <b>Powers:</b> adjustment for confounding by indication, <b>active-comparator new-user (ACNU)</b>, and <b>mediation</b> (you have a measured mediator/biomarker M). <b>Weak on:</b> completeness across providers, sample representativeness.">電子病歷帶檢驗值、嚴重度與更豐富的診斷。<b>撐得起：</b>校正適應症混淆、<b>主動對照新使用者（ACNU）</b>、<b>中介分析</b>（有量到的中介／生物標記 M）。<b>弱點：</b>跨院完整度、樣本代表性。</p></div>
       <div class="card"><h3 data-en="Long longitudinal traceability">長期可追溯</h3><p data-en="Databases that follow members for many years (e.g. up to ~20) support <b>new-user</b> and <b>prevalent new-user (PNU)</b> designs, <b>clone-censor-weight</b> sustained strategies, and long-term outcomes. <b>Weak on:</b> people who churn out of the database.">能追蹤成員多年（如達約 20 年）的資料庫，支援<b>新使用者</b>與<b>盛行新使用者（PNU）</b>設計、<b>複製-設限-加權</b>的持續策略、與長期結果。<b>弱點：</b>離開資料庫者的流失。</p></div>
       <div class="card"><h3 data-en="Linked deaths &amp; registries">連結死亡與登錄</h3><p data-en="Linkage to mortality and disease registries enables <b>survival</b> outcomes (survival RDD, CCW) and the <b>event-dependent observation</b> SCCS when the event is death. <b>Weak on:</b> outpatient drug detail unless pharmacy is also linked.">連結死亡與疾病登錄能做<b>存活</b>結果（存活型 RDD、CCW）與結果為死亡時的<b>事件相依觀察期</b> SCCS。<b>弱點：</b>除非也連藥局，否則門診用藥細節有限。</p></div>
@@ -6112,7 +6125,7 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
   </footer>
 </main>
 
-<script src="i18n.js?v=107"></script>
-<script src="app.js?v=107"></script>
+<script src="i18n.js?v=108"></script>
+<script src="app.js?v=108"></script>
 </body>
 </html>
