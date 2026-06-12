@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=112" />
+<link rel="stylesheet" href="/styles.css?v=113" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -5733,7 +5733,7 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
     </div>
 
     <div class="card scene">
-      <h3 data-en="All 15 methods correct their naive bias back to the truth (grouped by family; mediation recovers the true direct effect)">十五種方法，各自把「天真偏誤」修回真值（按家族分組；中介分析還原真正的直接效果）</h3>
+      <h3 data-en="All 22 methods correct their naive bias back to the truth (grouped by family; mediation recovers the true direct effect)">二十二種方法，各自把「天真偏誤」修回真值（按家族分組；中介分析還原真正的直接效果）</h3>
       <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling · proxies/negative controls · mechanism/mediation) — different ways of recovering the truth, all landing near 1.0.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
         <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝天真比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
@@ -5845,11 +5845,15 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
             <td data-en="Bring back people already vaccinated a while ago (prevalent users) by matching on time-since-vaccination">把已接種一段時間的人（盛行使用者）依「距接種時間」對齊納回來</td>
             <td data-en="Time-conditional matching + a time-conditional propensity score">時間條件配對＋時間條件傾向分數</td>
             <td data-en="Time-conditional exchangeability; the treatment-start history is available">時間條件可交換、且拿得到暴露起始史</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="Family · sampling design (efficient sampling of a target-trial cohort)">家族 · 抽樣設計（對目標試驗世代有效率抽樣）</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · sampling design / vaccine effectiveness (efficient outcome- or care-seeking-based sampling)">家族 · 抽樣設計／疫苗效力（依結果或求醫檢驗者做有效率抽樣）</td></tr>
           <tr><td>CC</td>
             <td data-en="Find people who had the event (cases) vs who didn't (controls), then look back at vaccination">找有事件的人（病例）vs 沒事件的人（對照），再回頭看接種史</td>
             <td data-en="Efficient sampling of a target-trial cohort by outcome, then adjust">依結果對「模擬目標試驗的世代」做有效率抽樣，再校正</td>
             <td data-en="Controls represent the source population; measured confounders adjusted">對照代表來源族群；已測混淆校正</td></tr>
+          <tr><td>TND</td>
+            <td data-en="Among people who seek care and get tested: target-pathogen positives are cases, negatives are controls; compare vaccination odds">求醫且接受檢驗的人之中：目標病原陽性為病例、陰性為對照，比兩者的接種勝算</td>
+            <td data-en="Conditioning on 'being tested' — test-negative controls make care-seeking non-differential w.r.t. vaccination">條件在「有來檢驗」這個選樣——陰性對照讓就醫傾向相對接種非差別</td>
+            <td data-en="A neutral control disease, an accurate test, and equal care-seeking given the same symptoms">對照疾病中性、檢驗準確、相同症狀下就醫無差別</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · proxies / negative controls (proximal causal inference)">家族 · 代理／陰性對照（近端因果）</td></tr>
           <tr><td>NC</td>
             <td data-en="Health-seeking (unmeasured) drives both vaccination and the outcome; you have a negative-control outcome (a pre-vaccination event) and a negative-control exposure">健康／就醫傾向（未測）同時影響接種與結果；你有陰性對照結果（接種前事件）與陰性對照暴露</td>
@@ -5860,6 +5864,33 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
             <td data-en="An effect is already known (vaccine → infection); you also measured a mediator M (antibody titer) on the path A → M → Y">已知有效果（疫苗 → 感染）；你還量了一個中介 M（抗體效價），位在 A → M → Y 的路徑上</td>
             <td data-en="Nothing — mediation is not a confounding-control design; it decomposes a known effect">不借——中介分析不是控制混淆的設計，而是把已知效果做分解</td>
             <td data-en="No unmeasured M–Y confounding (+ A–Y, A–M) and no exposure-induced M–Y confounder — untestable, not fixed by randomising A">無未測的 M–Y（＋A–Y、A–M）混淆、且無暴露誘發的 M–Y 混淆——不可檢，隨機化 A 也換不到</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · adjustment / propensity / doubly-robust (rich measured covariates)">家族 · 共變項校正／傾向分數／雙重穩健（已測共變項夠豐富）</td></tr>
+          <tr><td>PS</td>
+            <td data-en="Sicker people get vaccinated more (confounding by indication); model the probability of vaccination from measured covariates">病重者較易接種（適應症混淆）；用已測共變項建「接種機率」（傾向分數）</td>
+            <td data-en="No exogenous variation — rebalance on the measured covariates (matching / IPTW / overlap weights)">不借外生變異——在已測共變項上重建平衡（配對／IPTW／重疊加權）</td>
+            <td data-en="No unmeasured confounding + positivity (overlap) — the PS cannot fix what you didn't measure">無未測混淆＋正性（重疊）——傾向分數救不了沒量到的混淆</td></tr>
+          <tr><td>TMLE</td>
+            <td data-en="Same setting as PS, but you want more robustness — fit an outcome model AND a propensity score">同 PS 的情境，但你想更穩——同時配結果模型與傾向分數兩張網</td>
+            <td data-en="Same as PS (measured covariates); doubly-robust estimation (AIPW / TMLE) — unbiased if either model is right">同 PS（靠已測共變項）；估計上用雙重穩健（AIPW／TMLE），其一對就不偏</td>
+            <td data-en="No unmeasured confounding + positivity; and at least one nuisance model correct (a rich Super Learner library)">無未測混淆＋正性；且至少一個輔助模型正確（Super Learner 函式庫要夠）</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · time-varying treatment / g-methods (treatment–confounder feedback over time)">家族 · 時變治療／g-methods（治療與混淆隨時間互相回饋）</td></tr>
+          <tr><td>G-methods</td>
+            <td data-en="Treatment changes month to month; a time-varying confounder is affected by past treatment and also predicts future treatment & the outcome">治療逐期變動；時變混淆受過去治療影響、又預測未來治療與結果（治療-混淆回饋）</td>
+            <td data-en="No exogenous variation — sequential adjustment: standardisation (g-formula) or IP-weighting (MSM); you cannot just condition on Lₜ">不借外生變異——序列校正：標準化（g-formula）或反機率加權（MSM）；不能直接「條件在 Lₜ」</td>
+            <td data-en="Sequential exchangeability (no unmeasured time-varying confounding) + positivity at each time + correct models">序列可交換（無未測時變混淆）＋每時點正性＋模型正確</td></tr>
+          <tr><td>WCE</td>
+            <td data-en="Dosing varies month to month; how does the effect depend on the timing & accumulation of doses (recent vs long-ago)">用藥逐月增減；效果如何隨「用藥的時間與累積」變化（最近 vs 很久以前的劑量）</td>
+            <td data-en="No exogenous variation — summarise the exposure history with a weight curve learned from the data, then estimate">不借外生變異——把暴露史用「從資料學出的權重曲線」加權成摘要再估效果</td>
+            <td data-en="A well-measured exposure history, a wide-enough window, a correct hazard form, and — the key one — no time-varying confounding by indication">暴露史量得準、時間窗夠長、風險模型形式正確，且最關鍵——無時變的適應症混淆</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · signal detection (hypothesis-generating screening, not a single estimate)">家族 · 訊號偵測（產生假說的篩檢，不是單一估計）</td></tr>
+          <tr><td>PSSA</td>
+            <td data-en="Does an index drug trigger a later 'marker' drug (a prescribing cascade)? Look only at people who newly start both within a window">指標藥是否引發後續「標記藥」的起始（處方瀑布）？只看在一個時窗內兩種藥都新起始的人</td>
+            <td data-en="Self-controlled — time-invariant confounders cancel within-person; only the calendar trend needs removing (SRnull)">自我對照——時間不變混淆在個人內相消；只需用 SRnull 除掉日曆趨勢</td>
+            <td data-en="A plausible cascade direction, a correctly modelled trend, new users, and a sensible time window">瀑布方向合理、趨勢建模正確、新使用者、時間窗合適</td></tr>
+          <tr><td>TreeScan</td>
+            <td data-en="Screen one exposure against a whole hierarchy of outcomes — which outcome nodes show an excess too extreme for the 'drug does nothing' world">用一種暴露對「一整棵分層的結果」做篩檢——哪些結果節點的超額極端到不像「藥沒作用」的世界</td>
+            <td data-en="No single effect — a label-permutation null is the control; scan the whole tree for the most extreme node (multiplicity-controlled)">不估單一效果——用「打亂暴露標籤的排列虛無」當對照，掃描整棵樹找最極端節點（已控多重比較）</td>
+            <td data-en="A meaningful tree, a constant baseline across nodes, and no unmodelled confounding (else the permutation null is wrong)">樹有意義、各節點基準為常數、無未建模混淆（否則排列虛無不對）</td></tr>
         </tbody>
       </table>
     </div>
@@ -5890,18 +5921,28 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
           <tr><td colspan="3" class="famhdr" data-en="Family · active-comparator new-user cohort">家族 · 主動對照新使用者世代</td></tr>
           <tr><td>ACNU</td><td data-en="A new-user cohort of two drugs for the same indication, with covariates">同一適應症兩種藥的新使用者世代，含共變項</td><td data-en="A's effect relative to the active comparator B">A 相對於主動對照藥 B 的效應</td></tr>
           <tr><td>PNU</td><td data-en="A cohort including prevalent users, with time-since-start &amp; start history">含盛行使用者的世代，含距起始時間與起始史</td><td data-en="A-vs-B rate ratio in a population that includes prevalent users">含盛行使用者族群中 A vs B 的率比</td></tr>
-          <tr><td colspan="3" class="famhdr" data-en="Family · sampling design">家族 · 抽樣設計</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · sampling design / vaccine effectiveness">家族 · 抽樣設計／疫苗效力</td></tr>
           <tr><td>CC</td><td data-en="Cases + controls representing the source population, with exposure history">病例＋代表來源族群的對照，含暴露史</td><td data-en="An odds ratio (≈ relative risk when the outcome is rare)">勝算比（結果罕見時 ≈ 相對風險）</td></tr>
+          <tr><td>TND</td><td data-en="People who sought care and were tested, with the test result (target-pathogen +/−) and vaccination history">求醫且做了檢驗的人，含檢驗結果（目標病原陽／陰）與接種史</td><td data-en="Vaccine effectiveness, VE = 1 − odds ratio">疫苗效力 VE = 1 − 勝算比</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · proxies / negative controls">家族 · 代理／陰性對照（近端因果）</td></tr>
           <tr><td>NC</td><td data-en="Treatment, outcome, covariates + a negative-control outcome (NCO) and a negative-control exposure (NCE)">治療、結果、共變項＋一個陰性對照結果（NCO）與一個陰性對照暴露（NCE）</td><td data-en="The causal effect under unmeasured confounding (identified proximally via the NC pair)">在未測混淆下的因果效應（用陰性對照對近端辨識）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · mechanism (decomposition)">家族 · 機制（分解）</td></tr>
           <tr><td>MED</td><td data-en="Treatment A, a mediator M measured after A and before Y, outcome Y, covariates X (one row per person)">治療 A、量在 A 之後 Y 之前的中介 M、結果 Y、共變項 X（每人一列）</td><td data-en="The total effect split into natural direct (NDE) + natural indirect (NIE), and the proportion mediated">把總效果拆成自然直接 NDE ＋ 自然間接 NIE，以及被中介比例</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · adjustment / propensity / doubly-robust">家族 · 共變項校正／傾向分數／雙重穩健</td></tr>
+          <tr><td>PS</td><td data-en="Treatment, outcome, and a rich set of measured covariates (one row per person)">治療、結果、與一組夠豐富的已測共變項（每人一列）</td><td data-en="The average treatment effect under exchangeability given measured covariates (ATE / ATT / overlap)">在已測共變項可交換下的平均處置效果（ATE／ATT／重疊族群）</td></tr>
+          <tr><td>TMLE</td><td data-en="Same as PS (treatment, outcome, rich covariates); well suited to machine-learning nuisance models">同 PS（治療、結果、豐富共變項），適合搭機器學習輔助模型</td><td data-en="The average treatment effect, as a semiparametric-efficient (doubly-robust) estimate">平均處置效果（半參數有效率、雙重穩健的估計）</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · time-varying treatment / g-methods">家族 · 時變治療／g-methods</td></tr>
+          <tr><td>G-methods</td><td data-en="Individual-level longitudinal data with a time-varying treatment and time-varying covariates, event times">個體層、時變治療與時變共變項的縱貫資料、事件時間</td><td data-en="The counterfactual effect of a (sustained / dynamic) treatment strategy">一個（持續／動態）治療策略的反事實效果</td></tr>
+          <tr><td>WCE</td><td data-en="A counting-process (start, stop, event) history with the dose recorded at each interval">計數過程（start, stop, event）格式、每區間記錄劑量的逐時暴露史</td><td data-en="The effect of an exposure history (its time-shape) on the hazard, plus the weight curve">一段暴露史（含時間形狀）對風險的效果，外加權重曲線</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · signal detection (hypothesis-generating)">家族 · 訊號偵測（產生假說）</td></tr>
+          <tr><td>PSSA</td><td data-en="New-start dates of two drugs for the same people, within an observation window">同一群人兩種藥的新起始日期，一段觀察窗</td><td data-en="A trend-adjusted order-asymmetry ratio (aSR) as an A→B signal">校正趨勢後的「先後不對稱」比（aSR），作為 A→B 訊號</td></tr>
+          <tr><td>TreeScan</td><td data-en="Exposure vs not, plus many outcomes arranged on a hierarchical tree (e.g. ICD codes)">暴露 vs 否，以及落在一棵階層樹上的多種結果（如 ICD 碼）</td><td data-en="Not a single effect — which outcome nodes carry a signal (after controlling multiplicity)">不是單一效果，而是「哪些結果節點有訊號」（控制多重比較後）</td></tr>
         </tbody>
       </table>
     </div>
 
     <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
-    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 15 methods (14 designs + mediation) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 15 種方法（14 設計＋中介分析）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 22 methods (incl. mediation) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 22 種方法（含中介分析）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
     <div class="flow-legend">
       <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
@@ -6136,7 +6177,7 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
   </footer>
 </main>
 
-<script src="i18n.js?v=112"></script>
-<script src="app.js?v=112"></script>
+<script src="i18n.js?v=113"></script>
+<script src="app.js?v=113"></script>
 </body>
 </html>
