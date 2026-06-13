@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=116" />
+<link rel="stylesheet" href="/styles.css?v=117" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -6006,6 +6006,20 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
       <div class="card"><h3 data-en="Policy / eligibility cutoffs">政策／資格切點</h3><p data-en="When the database captures a <b>policy date</b>, a <b>reimbursement threshold</b>, or an <b>age-eligibility cutoff</b>, you can borrow a quasi-random structure: <b>RDD</b> (a sharp cutoff), <b>DiD</b> (policy + control group), <b>ITS</b> (a single series over time).">當資料庫記到<b>政策日</b>、<b>給付門檻</b>或<b>年齡資格切點</b>，就能借準隨機結構：<b>RDD</b>（明確切點）、<b>DiD</b>（政策＋對照組）、<b>ITS</b>（單一序列的時間趨勢）。</p></div>
     </div>
 
+    <h2 data-en="Different fields, different data sources → different methods">不同領域、不同資料來源 → 不同方法</h2>
+    <p class="lead" data-en="Pharmacoepidemiology is not the only game. Each field has its own signature data, and that data dictates which designs are even possible — aggregate sales data only supports ecological/time-series work, while patient-linked registries open up self-controlled and target-trial designs. A non-exhaustive map:">藥物流行病學不是唯一。每個領域都有自己的招牌資料，而那份資料決定了你「能不能」用某種設計——只有<b>彙總銷售</b>資料就只能做生態學／時間序列，<b>可連結個人</b>的登錄資料才打得開自我對照與目標試驗。一份（不完整的）對照：</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Drug exposure / sales (multinational)">藥物暴露／銷售（跨國）</h3><p data-en="<b>IQVIA MIDAS</b> (drug sales &amp; volumes across ~90 countries) and audit/utilization data are <b>aggregate, not patient-level</b>: you see how much was sold, not who took it. <b>Powers:</b> drug-utilization research, <b>ITS</b> on a policy's effect on prescribing, ecological / cross-country comparisons. <b>Weak on:</b> individual outcomes, confounding — no person-level causal contrast.">「<b>IQVIA MIDAS</b>」（涵蓋約 90 國的藥品銷售與用量）與稽核／用量資料是<b>彙總、非個人層級</b>：你看得到賣了多少、看不到誰吃了。<b>撐得起：</b>藥物使用研究、政策對處方影響的 <b>ITS</b>、生態學／跨國比較。<b>弱點：</b>個人結果、混淆——沒有人層級的因果對比。</p></div>
+      <div class="card"><h3 data-en="Antimicrobials / infectious disease">抗微生物藥物／感染科</h3><p data-en="<b>Point-prevalence surveys (Global-PPS)</b>, <b>ESAC-Net</b>, WHO <b>GLASS</b> capture antibiotic use and resistance. <b>Powers:</b> the <b>PPS</b> design itself (a snapshot of prevalence), <b>ITS</b> on stewardship interventions, ecological use-vs-resistance. <b>Weak on:</b> following individuals over time; causal effect of one patient's exposure.">「<b>點盛行率調查（Global-PPS）</b>」、「<b>ESAC-Net</b>」、WHO 的「<b>GLASS</b>」記錄抗生素使用與抗藥性。<b>撐得起：</b><b>PPS</b> 設計本身（盛行率快照）、抗生素管理介入的 <b>ITS</b>、使用 vs 抗藥性的生態學。<b>弱點：</b>追蹤個人隨時間；單一病人暴露的因果效果。</p></div>
+      <div class="card"><h3 data-en="Oncology / cancer registries">腫瘤／癌症登錄</h3><p data-en="<b>SEER</b>, national cancer registries (e.g. Taiwan Cancer Registry), often linked to claims (SEER-Medicare). Rich on stage, histology, survival. <b>Powers:</b> survival cohorts, <b>RDD</b> at stage/age treatment thresholds, mediation (biomarker on the path). <b>Weak on:</b> outpatient drugs unless linked, lead-time / detection bias.">「<b>SEER</b>」、各國癌症登錄（如台灣癌症登錄），常與理賠連結（SEER-Medicare）。期別、組織型、存活很豐富。<b>撐得起：</b>存活世代、依期別／年齡治療門檻的 <b>RDD</b>、中介（路徑上的生物標記）。<b>弱點：</b>未連結時的門診用藥、領先時間／偵測偏誤。</p></div>
+      <div class="card"><h3 data-en="Global burden / ecological">全球疾病負擔／生態</h3><p data-en="<b>GBD (IHME)</b>, WHO Global Health Observatory aggregate mortality &amp; risk-factor estimates by country-year. <b>Powers:</b> ecological / cross-country <b>DiD</b> and <b>ITS</b> on policies, comparative risk assessment. <b>Weak on:</b> the ecological fallacy — group-level associations need not hold for individuals.">「<b>GBD（IHME）</b>」、WHO 全球衛生觀測站彙總各國各年的死亡與風險因子估計。<b>撐得起：</b>政策的生態學／跨國 <b>DiD</b> 與 <b>ITS</b>、比較風險評估。<b>弱點：</b>生態謬誤——群體層級的關聯不必然適用於個人。</p></div>
+      <div class="card"><h3 data-en="Vaccine safety surveillance">疫苗安全監測</h3><p data-en="<b>VAERS</b> &amp; WHO <b>VigiBase</b> (spontaneous reports) and the linked <b>Vaccine Safety Datalink (VSD)</b>. <b>Powers:</b> <b>SCCS</b> and <b>TND</b>, <b>sequential</b> safety testing, and <b>TreeScan</b> across an outcome tree; disproportionality on spontaneous reports. <b>Weak on:</b> under-reporting &amp; stimulated reporting in spontaneous systems.">「<b>VAERS</b>」與 WHO「<b>VigiBase</b>」（自發通報），以及可連結的「<b>疫苗安全資料連結（VSD）</b>」。<b>撐得起：</b><b>SCCS</b> 與 <b>TND</b>、<b>序列</b>安全監測、對結果樹的 <b>TreeScan</b>；自發通報的不相稱性分析。<b>弱點：</b>自發系統的低報與被刺激通報。</p></div>
+      <div class="card"><h3 data-en="High-resolution ICU / critical care">重症／ICU 高解析</h3><p data-en="<b>MIMIC-IV</b>, <b>eICU</b>, AmsterdamUMCdb: dense, time-stamped vitals, labs, drips. <b>Powers:</b> <b>time-varying treatment</b> designs (g-methods / marginal structural models, CCW), <b>target-trial emulation</b> on minute-by-minute care. <b>Weak on:</b> single-centre selection, immortal-time traps if time zero is mishandled.">「<b>MIMIC-IV</b>」、「<b>eICU</b>」、AmsterdamUMCdb：密集、有時間戳的生命徵象、檢驗、點滴。<b>撐得起：</b><b>時變治療</b>設計（g-methods／邊際結構模型、CCW）、對逐分鐘照護的<b>目標試驗模擬</b>。<b>弱點：</b>單中心選擇、時間零點沒處理好就中 immortal-time。</p></div>
+      <div class="card"><h3 data-en="Maternal &amp; perinatal">母嬰／圍產</h3><p data-en="Birth / perinatal registries linking mother and baby across pregnancies. <b>Powers:</b> <b>sibling-controlled</b> comparisons (a within-family self-control for shared genetics/environment), <b>negative controls</b>, and target-trial emulation of pregnancy exposures. <b>Weak on:</b> confounding by indication for the maternal condition itself.">連結母親與嬰兒、跨懷孕的出生／圍產登錄。<b>撐得起：</b><b>手足對照</b>（家庭內自我對照，控掉共享的基因／環境）、<b>陰性對照</b>、孕期暴露的目標試驗模擬。<b>弱點：</b>母體疾病本身的適應症混淆。</p></div>
+      <div class="card"><h3 data-en="Spontaneous reporting / signals">自發通報／安全訊號</h3><p data-en="<b>FAERS</b> (US) &amp; WHO <b>VigiBase</b> — spontaneous adverse-event reports for any drug. <b>Powers:</b> hypothesis-generating signal detection: <b>disproportionality</b> (ROR/PRR), <b>TreeScan</b> across an event hierarchy, <b>PSSA</b> for prescribing cascades. <b>Weak on:</b> no denominator, reporting biases — signals need confirmation in a proper cohort.">「<b>FAERS</b>」（美國）與 WHO「<b>VigiBase</b>」——任何藥的自發不良事件通報。<b>撐得起：</b>產生假說的訊號偵測：<b>不相稱性</b>（ROR／PRR）、對事件階層的 <b>TreeScan</b>、處方瀑布的 <b>PSSA</b>。<b>弱點：</b>沒有分母、通報偏誤——訊號要在正規世代裡確認。</p></div>
+      <div class="card"><h3 data-en="Environmental / exposure">環境暴露</h3><p data-en="Air-pollution monitors, weather, and area-level exposures linked to health records by time and place. <b>Powers:</b> <b>ITS</b> and <b>case-crossover (CCTC)</b> for acute effects, <b>DiD</b> around a regulation, instrumental variables (wind / inversions). <b>Weak on:</b> exposure measurement error, spatial confounding.">空污監測、氣象與區域層級暴露，依時間與地點連到健康紀錄。<b>撐得起：</b>急性效應的 <b>ITS</b> 與<b>病例交叉（CCTC）</b>、法規前後的 <b>DiD</b>、工具變數（風／逆溫）。<b>弱點：</b>暴露測量誤差、空間混淆。</p></div>
+    </div>
+
     <h2 data-en="A directory of pharmacoepidemiology databases (AsPEN network &amp; partners)">藥物流行病學資料庫名錄（AsPEN 網路與夥伴）</h2>
     <p class="caption" data-en="Compiled from the AsPEN database directory (phd-center.github.io/AsPEN) and Sturkenboom &amp; Schink (2020). Coverage and strengths are approximate, for orientation.">整理自 AsPEN 資料庫名錄（phd-center.github.io/AsPEN）與 Sturkenboom &amp; Schink（2020）。涵蓋與強項為約略值，供定位用。</p>
     <div class="table-wrap">
@@ -6233,7 +6247,7 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
   </footer>
 </main>
 
-<script src="i18n.js?v=116"></script>
-<script src="app.js?v=116"></script>
+<script src="i18n.js?v=117"></script>
+<script src="app.js?v=117"></script>
 </body>
 </html>
