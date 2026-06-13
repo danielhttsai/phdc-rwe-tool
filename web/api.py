@@ -88,6 +88,7 @@ import missing_core
 import transport_core
 import transport_gen
 import transport_assumptions
+import srma_core
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1467,6 +1468,15 @@ def _transport_interactive(q: dict) -> dict:
     return transport_core.transport_interactive(mt, lang=q.get("lang", "zh"))
 
 
+def _srma_analyze(q: dict) -> dict:
+    return srma_core.full_srma(lang=q.get("lang", "zh"))
+
+
+def _srma_interactive(q: dict) -> dict:
+    tau = float(np.clip(float(q.get("tau", 0.20)), 0.0, 0.6))
+    return srma_core.srma_interactive(tau, lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1608,6 +1618,8 @@ _ROUTES = {
     ("POST", "/api/transport_analyze"): lambda q, b: _transport_analyze(b),
     ("POST", "/api/transport_assumptions"): lambda q, b: _transport_assumptions(b),
     ("GET", "/api/transport_interactive"): lambda q, b: _transport_interactive(q),
+    ("GET", "/api/srma_analyze"): lambda q, b: _srma_analyze(q),
+    ("GET", "/api/srma_interactive"): lambda q, b: _srma_interactive(q),
 }
 
 

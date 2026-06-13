@@ -75,6 +75,7 @@ const subtabBtns = [...document.querySelectorAll(".subtab")];
 const chooseTab = document.getElementById("chooseTab");
 const dataTab = document.getElementById("dataTab");
 const missTab = document.getElementById("missTab");
+const srmaTab = document.getElementById("srmaTab");
 
 function showPanel(panelId) {
   document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
@@ -87,6 +88,7 @@ function showMethodSub() {
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   if (missTab) missTab.classList.remove("active");
+  if (srmaTab) srmaTab.classList.remove("active");
   subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
   showPanel(METHOD_PREFIX[curMethod] + curSub);
   if (curSub === "analyze") renderDataPreview(curMethod);   // ③: show the real data rows on top
@@ -99,6 +101,7 @@ chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   if (dataTab) dataTab.classList.remove("active");
   if (missTab) missTab.classList.remove("active");
+  if (srmaTab) srmaTab.classList.remove("active");
   chooseTab.classList.add("active");
   showPanel("choose");
   if (typeof filterRefs === "function") filterRefs("choose");
@@ -107,6 +110,7 @@ if (dataTab) dataTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   chooseTab.classList.remove("active");
   if (missTab) missTab.classList.remove("active");
+  if (srmaTab) srmaTab.classList.remove("active");
   dataTab.classList.add("active");
   showPanel("dbpanel");
   if (typeof filterRefs === "function") filterRefs("db");
@@ -115,10 +119,21 @@ if (missTab) missTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
+  if (srmaTab) srmaTab.classList.remove("active");
   missTab.classList.add("active");
   showPanel("misspanel");
   initMiss();
   if (typeof filterRefs === "function") filterRefs("miss");
+});
+if (srmaTab) srmaTab.addEventListener("click", () => {
+  subtabBtns.forEach((x) => x.classList.remove("active"));
+  chooseTab.classList.remove("active");
+  if (dataTab) dataTab.classList.remove("active");
+  if (missTab) missTab.classList.remove("active");
+  srmaTab.classList.add("active");
+  showPanel("srmapanel");
+  initSrma();
+  if (typeof filterRefs === "function") filterRefs("srma");
 });
 // Delegated handler for in-content cross links (.xref) — survives i18n innerHTML swaps.
 // <a class="xref" data-m="sccs">SCCS</a> → go to that method; data-tab="db" → Databases tab.
@@ -129,6 +144,7 @@ document.addEventListener("click", (e) => {
   if (a.dataset.m) gotoMethod(a.dataset.m, "learn");
   else if (a.dataset.tab === "db" && dataTab) dataTab.click();
   else if (a.dataset.tab === "choose") chooseTab.click();
+  else if (a.dataset.tab === "srma" && srmaTab) srmaTab.click();
 });
 
 // Auto-link method abbreviations inside every panel's prose / tables, so the
@@ -339,6 +355,100 @@ function drawMissChart(r) {
     annotations: [{ x: 3.45, y: r.truth, xanchor: "right", yanchor: "bottom",
                     text: tr(`真值 ${r.truth.toFixed(2)}`, `truth ${r.truth.toFixed(2)}`),
                     showarrow: false, font: { color: GREEN, size: 11 } }],
+  }), SCENE_CFG);
+}
+
+// ----------------------------------------------------------------------
+// SR/MA tab — live meta-analysis: forest + funnel, fixed vs random effects,
+// heterogeneity slider (τ → I² and the random-effects interval grow).
+// ----------------------------------------------------------------------
+let srmaReady = false, srmaTimer = null;
+function initSrma() { if (srmaReady) return; srmaReady = true; refreshSrma(); }
+function scheduleSrma() {
+  const v = parseFloat(document.getElementById("srmaTauSlider").value);
+  const t = isNaN(v) ? 0.2 : v;
+  document.getElementById("srmaTauVal").textContent = t.toFixed(2);
+  clearTimeout(srmaTimer); srmaTimer = setTimeout(refreshSrma, 150);
+}
+{
+  const sl = document.getElementById("srmaTauSlider");
+  if (sl) sl.addEventListener("input", scheduleSrma);
+}
+async function refreshSrma() {
+  const tv = parseFloat(document.getElementById("srmaTauSlider").value);
+  const tau = isNaN(tv) ? 0.2 : tv;
+  let r;
+  try { r = await getJSON(`${API}/api/srma_interactive?tau=${tau}&lang=${lang()}`); } catch (e) { return; }
+  // per-study rows (for forest boxes + funnel) don't depend on τ — fetch once, cache per language.
+  let full = state.srmaFull;
+  if (!full || full._lang !== lang()) {
+    try { full = await getJSON(`${API}/api/srma_analyze?lang=${lang()}`); full._lang = lang(); } catch (e) { full = null; }
+  }
+  state.srma = r; state.srmaFull = full;
+  const f = (x) => x.toFixed(2);
+  const setHtml = (id, s) => { const e = document.getElementById(id); if (e) e.innerHTML = s; };
+  setHtml("srmaFe", `${f(r.fixed.rr)} [${f(r.fixed.lo)}, ${f(r.fixed.hi)}]`);
+  setHtml("srmaRe", `${f(r.random.rr)} [${f(r.random.lo)}, ${f(r.random.hi)}]`);
+  setHtml("srmaI2", `${r.I2.toFixed(0)}%`);
+  setHtml("srmaReading", r.reading);
+  if (full) setHtml("srmaEgger", full.egger_msg);
+  if (full) { drawSrmaForest(full, r); drawSrmaFunnel(full); }
+}
+function drawSrmaForest(full, slider) {
+  if (!document.getElementById("srmaForest")) return;
+  const st = full.studies;
+  const n = st.length;
+  // rows: studies top-to-bottom, then a gap, then FE and RE diamonds
+  const yPos = st.map((_, i) => n - i + 1);
+  const traces = [];
+  // per-study CI whiskers + boxes (box size ~ weight)
+  st.forEach((s, i) => {
+    traces.push({ x: [s.lo, s.hi], y: [yPos[i], yPos[i]], mode: "lines",
+      line: { color: SLATE, width: 1.4 }, hoverinfo: "skip", showlegend: false });
+  });
+  traces.push({ x: st.map((s) => s.rr), y: yPos, mode: "markers", hoverinfo: "text",
+    text: st.map((s) => `${s.label}: RR ${s.rr.toFixed(2)} [${s.lo.toFixed(2)}, ${s.hi.toFixed(2)}], w=${s.weight.toFixed(1)}%`),
+    marker: { color: INK, symbol: "square", size: st.map((s) => 8 + s.weight * 0.9) }, showlegend: false });
+  // pooled diamonds (use slider numbers so they react to τ)
+  const diamond = (yc, lo, mid, hi, col, label) => ({
+    x: [lo, mid, hi, mid, lo], y: [yc, yc + 0.32, yc, yc - 0.32, yc], mode: "lines", fill: "toself",
+    fillcolor: col, line: { color: col, width: 1 }, hoverinfo: "text",
+    text: `${label}: RR ${mid.toFixed(2)} [${lo.toFixed(2)}, ${hi.toFixed(2)}]`, showlegend: false });
+  traces.push(diamond(1.0, slider.fixed.lo, slider.fixed.rr, slider.fixed.hi, AMBER, tr("固定效果", "fixed effect")));
+  traces.push(diamond(0.2, slider.random.lo, slider.random.rr, slider.random.hi, TEAL, tr("隨機效果", "random effect")));
+  const ticks = yPos.concat([1.0, 0.2]);
+  const tickt = st.map((s) => s.label).concat([tr("固定效果", "fixed"), tr("隨機效果", "random")]);
+  Plotly.react("srmaForest", traces, sceneLayout({
+    height: 420, margin: { t: 14, r: 18, b: 42, l: 86 },
+    xaxis: { title: tr("風險比 RR（log 軸）", "risk ratio RR (log axis)"), type: "log",
+             zeroline: false, tickvals: [0.5, 0.7, 1, 1.4, 2], ticktext: ["0.5", "0.7", "1", "1.4", "2"] },
+    yaxis: { tickvals: ticks, ticktext: tickt, range: [-0.3, n + 2.2], showgrid: false },
+    shapes: [{ type: "line", x0: 1, x1: 1, y0: -0.3, y1: n + 1.6, line: { color: SLATE, dash: "dot", width: 1 } }],
+  }), SCENE_CFG);
+}
+function drawSrmaFunnel(full) {
+  if (!document.getElementById("srmaFunnel")) return;
+  const st = full.studies;
+  const center = full.fixed.logrr;          // funnel centred on the pooled log RR
+  const seMax = Math.max.apply(null, st.map((s) => s.si)) * 1.1;
+  // pseudo 95% CI funnel: x = center ± 1.96*se as se runs 0..seMax (y = se, inverted)
+  const ses = [0, seMax];
+  const leftX = ses.map((se) => Math.exp(center - 1.96 * se));
+  const rightX = ses.map((se) => Math.exp(center + 1.96 * se));
+  const traces = [
+    { x: leftX, y: ses, mode: "lines", line: { color: SLATE, dash: "dot", width: 1 }, hoverinfo: "skip", showlegend: false },
+    { x: rightX, y: ses, mode: "lines", line: { color: SLATE, dash: "dot", width: 1 }, hoverinfo: "skip", showlegend: false },
+    { x: st.map((s) => s.rr), y: st.map((s) => s.si), mode: "markers", hoverinfo: "text",
+      text: st.map((s) => `${s.label}: RR ${s.rr.toFixed(2)}, SE ${s.si.toFixed(2)}`),
+      marker: { color: TEAL, size: 9, line: { color: INK, width: 0.6 } }, showlegend: false },
+  ];
+  Plotly.react("srmaFunnel", traces, sceneLayout({
+    height: 420, margin: { t: 14, r: 16, b: 42, l: 52 },
+    xaxis: { title: tr("風險比 RR（log 軸）", "risk ratio RR (log axis)"), type: "log",
+             tickvals: [0.5, 0.7, 1, 1.4, 2], ticktext: ["0.5", "0.7", "1", "1.4", "2"] },
+    yaxis: { title: tr("標準誤（小研究在下）", "standard error (small studies low)"), autorange: "reversed" },
+    shapes: [{ type: "line", x0: Math.exp(center), x1: Math.exp(center), y0: 0, y1: seMax,
+               line: { color: AMBER, dash: "dash", width: 1.5 } }],
   }), SCENE_CFG);
 }
 
@@ -2276,6 +2386,8 @@ const METHOD_REF = {
   wce: { zh: "加權累積暴露 WCE", en: "Weighted Cumulative Exposure (WCE)", src: "Sela & Abrahamowicz (2009), Stat Med; Abrahamowicz, Beauchamp & Sylvestre (2012); Sylvestre & Abrahamowicz, R WCE package" },
   transport: { zh: "可轉移性／泛化", en: "Transportability / generalizability", src: "Adamson et al. (2026, ISPE); Westreich et al. (2017); Dahabreh et al. (2020); Bareinboim & Pearl (2016)" },
   db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai et al.)" },
+  miss: { zh: "缺失資料", en: "Missing data", src: "Rubin (1987); van Buuren (2018); Sterne et al. (2009), BMJ" },
+  srma: { zh: "系統性回顧與統合分析", en: "Systematic review & meta-analysis", src: "Cochrane Handbook (Higgins et al. 2024); PRISMA 2020; DerSimonian & Laird (1986); GRADE (Guyatt et al. 2008)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -7677,6 +7789,7 @@ window.addEventListener("iv-lang", async () => {
   if (curSub === "analyze") renderDataPreview(curMethod); // ③ data-preview table (re-translate header/caption)
   EVALUE_METHODS.forEach((m) => { const c = document.getElementById(METHOD_PREFIX[m] + "_evalue"); if (c) _evRecompute(c); }); // ④ E-value readings
   if (missReady) refreshMiss();                          // 缺失資料 demo (re-fetch + redraw in new lang)
+  if (srmaReady) refreshSrma();                          // SR/MA meta-analysis (re-fetch + redraw in new lang)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
   autolinkMethods();                                   // re-apply inline method cross-links (applyStatic wiped them)
 });

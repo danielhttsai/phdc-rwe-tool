@@ -97,6 +97,7 @@ import missing_core
 import transport_core
 import transport_assumptions
 import transport_gen
+import srma_core
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1662,6 +1663,16 @@ def transport_assumptions_route(req: dict = Body(...)):
 @app.get("/api/transport_interactive")
 def transport_interactive(mu_target: float = 0.5, lang: str = "zh"):
     return _clean(transport_core.transport_interactive(float(np.clip(mu_target, -0.6, 1.4)), lang=lang))
+
+
+@app.get("/api/srma_analyze")
+def srma_analyze(lang: str = "zh"):
+    return _clean(srma_core.full_srma(lang=lang))
+
+
+@app.get("/api/srma_interactive")
+def srma_interactive(tau: float = 0.20, lang: str = "zh"):
+    return _clean(srma_core.srma_interactive(float(np.clip(tau, 0.0, 0.6)), lang=lang))
 
 
 @app.get("/api/tit_interactive")

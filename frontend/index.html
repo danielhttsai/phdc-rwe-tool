@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=118" />
+<link rel="stylesheet" href="/styles.css?v=119" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -49,6 +49,7 @@
     <button class="tab tab-sep" id="chooseTab" data-en="Which one?">怎麼選</button>
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
     <button class="tab" id="missTab" data-en="Missing data">缺失資料</button>
+    <button class="tab" id="srmaTab" data-en="SR &amp; meta-analysis">系統性回顧</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -6211,6 +6212,81 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
       <p data-en="Missing data is a <b>second</b> identification problem stacked on top of confounding: even a perfect design (any method in this toolbox) can be undone by handling gaps badly. Under MAR, multiple imputation or inverse-probability-of-missingness weighting restores validity; under MNAR, report a sensitivity analysis. The imputation model should be at least as rich as your analysis model, and must include the outcome and the treatment.">缺失資料是疊在混淆之上的<b>第二個</b>辨識問題：再完美的設計（本工具箱任一方法）也可能因為亂補洞而前功盡棄。在 MAR 下，多重插補或「對缺失做反機率加權」可恢復有效性；在 MNAR 下，要附敏感度分析。插補模型至少要和你的分析模型一樣豐富，而且必須包含結果與治療。</p></div>
   </section>
 
+  <!-- ===================== 系統性回顧與統合分析 / SR & meta-analysis ===================== -->
+  <section id="srmapanel" class="panel">
+    <h1 data-en="Systematic review &amp; meta-analysis">系統性回顧與統合分析</h1>
+    <p class="lead" data-en="Every other tab in this toolbox produces <b>one</b> study's estimate. A systematic review sits one level up: it finds <b>all</b> the relevant studies with a pre-specified, reproducible method, appraises them, and — where it makes sense — statistically <b>pools</b> them into a meta-analysis. This page walks the Cochrane workflow, shows a live meta-analysis (fixed vs random effects, heterogeneity, funnel plot), explains how GRADE rates the certainty of the pooled answer, and is honest about where AI tools (Rayyan, machine-learning screening, LLMs) actually help.">本工具箱其他每個分頁都在產生<b>一篇</b>研究的估計。系統性回顧站在更上一層：用<b>事先寫好、可重現</b>的方法找出<b>所有</b>相關研究、評讀它們，並在適當時把它們統計地<b>合併</b>成統合分析。這一頁走過 Cochrane 的工作流程、示範一個即時的統合分析（固定 vs 隨機效果、異質性、漏斗圖）、說明 GRADE 怎麼評估這個合併答案的「證據強度」，並誠實交代 AI 工具（Rayyan、機器學習篩選、大型語言模型）到底幫得上什麼。</p>
+
+    <div class="card info"><h3 data-en="Where this sits relative to the rest of the toolbox">這在整個工具箱裡的位置</h3>
+      <p data-en="The 23 methods answer &quot;what does <b>this</b> dataset say?&quot; A systematic review answers &quot;what does <b>the whole evidence base</b> say?&quot; — and the quality of each included study (was it a good IV / RDD / cohort?) feeds straight into the review's risk-of-bias step. A meta-analysis is only as trustworthy as the studies in it: pooling biased studies just gives a precise wrong answer (&quot;garbage in, garbage out&quot;).">那 23 個方法回答「<b>這一份</b>資料說了什麼？」系統性回顧回答「<b>整個證據體</b>說了什麼？」——而每篇納入研究的品質（它是不是一個好的 IV／RDD／世代研究？）直接餵進回顧的「偏誤風險」步驟。統合分析的可信度，不會超過它納入的研究：把有偏的研究合併起來，只會得到一個很精確的錯答案（垃圾進、垃圾出）。</p></div>
+
+    <h2 data-en="The workflow (Cochrane Handbook)">工作流程（Cochrane Handbook）</h2>
+    <p class="lead" data-en="A systematic review is defined by its <b>method being fixed in advance</b> and documented, so anyone could repeat it. The canonical steps:">系統性回顧的定義，就是它的<b>方法事先固定</b>且有紀錄，任何人都能重做一次。經典步驟：</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="① Question &amp; protocol (PICO)">① 問題與計畫書（PICO）</h3><p data-en="Frame a precise question — <b>P</b>opulation, <b>I</b>ntervention, <b>C</b>omparator, <b>O</b>utcome — then write and <b>register a protocol</b> (e.g. PROSPERO) <i>before</i> you start, so the methods can't be bent to the results.">把問題寫精準——族群 <b>P</b>opulation、介入 <b>I</b>ntervention、對照 <b>C</b>omparator、結果 <b>O</b>utcome——然後在開始<i>之前</i>寫好並<b>登錄計畫書</b>（如 PROSPERO），讓方法不會被結果牽著走。</p></div>
+      <div class="card"><h3 data-en="② Search">② 搜尋</h3><p data-en="Build a comprehensive, documented search across multiple databases (PubMed/MEDLINE, Embase, CENTRAL…) plus grey literature and trial registries. Aim for high <b>recall</b> (miss nothing), accepting low precision (lots to screen).">在多個資料庫（PubMed/MEDLINE、Embase、CENTRAL……）外加灰色文獻與試驗登錄，建立全面、有紀錄的檢索式。目標是高<b>召回率</b>（不漏任何一篇），代價是精準度低（要篩很多）。</p></div>
+      <div class="card"><h3 data-en="③ Screening (dual reviewer)">③ 篩選（雙人）</h3><p data-en="<b>Two</b> reviewers independently screen titles/abstracts, then full texts, against the eligibility criteria; a third resolves disagreements. Record everything in a <b>PRISMA flow diagram</b> (identified → screened → included)."><b>兩位</b>審閱者各自獨立依納入條件篩標題／摘要、再篩全文；第三人仲裁分歧。全程記在 <b>PRISMA 流程圖</b>（找到 → 篩選 → 納入）。</p></div>
+      <div class="card"><h3 data-en="④ Data extraction">④ 資料萃取</h3><p data-en="Pull the effect estimates, sample sizes, and study characteristics into a structured form (ideally piloted &amp; duplicated). These become the rows of your meta-analysis.">把效果估計、樣本數、研究特徵抽進結構化的表單（最好先試做並重複萃取）。這些就是你統合分析的每一列。</p></div>
+      <div class="card"><h3 data-en="⑤ Risk of bias">⑤ 偏誤風險</h3><p data-en="Appraise each study with a domain tool: <b>RoB 2</b> for randomised trials, <b>ROBINS-I</b> for non-randomised studies (confounding, selection, classification, missing data, measurement, reporting). This is where your knowledge of IV/RDD/cohort designs pays off.">用領域式工具評讀每篇：隨機試驗用 <b>RoB 2</b>、非隨機研究用 <b>ROBINS-I</b>（混淆、選樣、分類、缺失、測量、報告）。你對 IV／RDD／世代設計的理解，在這一步派上用場。</p></div>
+      <div class="card"><h3 data-en="⑥ Synthesis &amp; GRADE">⑥ 合併與 GRADE</h3><p data-en="Synthesise — narratively, or with a <b>meta-analysis</b> if the studies are similar enough. Then rate the <b>certainty</b> of the body of evidence with GRADE, and report to PRISMA 2020.">做合併——可以是敘述式，或在研究夠相似時做<b>統合分析</b>。再用 GRADE 評估整體證據的<b>強度</b>，並依 PRISMA 2020 報告。</p></div>
+    </div>
+
+    <h2 data-en="Live meta-analysis: fixed vs random effects">即時統合分析：固定 vs 隨機效果</h2>
+    <p class="lead" data-en="12 synthetic vaccine trials, each a log risk ratio with its own precision. The <b>forest plot</b> shows each trial (box = estimate, box size = weight, whiskers = 95% CI) and two pooled diamonds. <b>Fixed-effect</b> assumes every trial estimates the identical effect and weights only by precision — a narrow, over-confident interval when trials truly differ. <b>Random-effects</b> (DerSimonian–Laird) adds the between-study variance τ², widening the interval honestly. Drag the slider to change how much the trials genuinely differ.">12 場合成的疫苗試驗，每場是一個帶自己精度的 log 風險比。<b>森林圖</b>顯示每場試驗（方塊＝估計、方塊大小＝權重、鬚＝95% CI）與兩個合併菱形。<b>固定效果</b>假設每場估的是相同效果、只用精度加權——當試驗其實有差異時，區間會窄而過度自信。<b>隨機效果</b>（DerSimonian–Laird）把研究間變異 τ² 加進去，誠實地把區間放寬。拖動滑桿改變試驗之間真正的差異程度。</p>
+    <div class="controls">
+      <label><span data-en="Between-study heterogeneity (τ):">研究間異質性（τ）：</span><b id="srmaTauVal">0.20</b>
+        <input type="range" id="srmaTauSlider" min="0" max="0.6" value="0.20" step="0.02" />
+      </label>
+    </div>
+    <div class="cards" style="grid-template-columns:1.3fr 1fr">
+      <div class="card scene"><h3 data-en="Forest plot">森林圖</h3><div id="srmaForest" class="chart"></div></div>
+      <div class="card scene"><h3 data-en="Funnel plot (small-study effects)">漏斗圖（小研究效應）</h3><div id="srmaFunnel" class="chart"></div></div>
+    </div>
+    <div class="rc">
+      <div class="big"><span class="rc-label" data-en="Fixed-effect pooled RR (95% CI)">固定效果合併 RR（95% CI）</span><span id="srmaFe" class="rc-val">–</span></div>
+      <div class="big highlight"><span class="rc-label" data-en="Random-effects pooled RR (95% CI)">隨機效果合併 RR（95% CI）</span><span id="srmaRe" class="rc-val">–</span></div>
+      <div class="big"><span class="rc-label" data-en="Heterogeneity I²">異質性 I²</span><span id="srmaI2" class="rc-val">–</span></div>
+    </div>
+    <p class="caption" id="srmaReading"></p>
+    <p class="caption" id="srmaEgger"></p>
+    <p class="caption" data-en="As you raise τ, I² climbs and the random-effects interval widens while the fixed-effect interval barely moves — the visible reason high heterogeneity demands a random-effects model (and a hunt for the cause), not a falsely narrow fixed-effect CI. Synthetic teaching data.">當你把 τ 拉高，I² 上升、隨機效果區間變寬，而固定效果區間幾乎不動——這就是高異質性為什麼需要隨機效果模型（並去找原因），而不是一個假性過窄的固定效果 CI。合成教學資料。</p>
+
+    <h2 data-en="Reading heterogeneity &amp; small-study effects">解讀異質性與小研究效應</h2>
+    <div class="cards cards-3">
+      <div class="card"><h3>I² &amp; τ²</h3><p data-en="<b>τ²</b> is the estimated variance of the true effects across studies; <b>I²</b> is the % of total variation that is real heterogeneity rather than sampling error. Rough bands: 0–40% maybe unimportant, 30–60% moderate, 50–90% substantial, 75–100% considerable. High I² ⇒ explore (subgroups, meta-regression), don't just pool."><b>τ²</b> 是各研究真實效果的估計變異；<b>I²</b> 是總變異中「真正異質」而非抽樣誤差的百分比。粗略分級：0–40% 可能不重要、30–60% 中度、50–90% 實質、75–100% 相當大。I² 高 ⇒ 去探究（次群、統合迴歸），不要只是合併。</p></div>
+      <div class="card"><h3 data-en="Funnel plot &amp; publication bias">漏斗圖與發表偏誤</h3><p data-en="Plot each study's effect against its precision. Symmetric inverted funnel = fine; a <b>gap in one bottom corner</b> hints small negative studies went unpublished (publication bias) or that small studies differ. <b>Egger's test</b> formalises the asymmetry — but it is low-powered with few studies, so read it cautiously.">把每篇的效果對其精度作圖。對稱的倒漏斗＝沒問題；<b>某個底角有缺口</b>暗示小型陰性研究沒被發表（發表偏誤）或小研究本就不同。<b>Egger 檢定</b>把不對稱量化——但研究少時檢定力低，要謹慎解讀。</p></div>
+      <div class="card"><h3 data-en="Fixed or random?">固定還是隨機？</h3><p data-en="Choose by the <b>question</b>, not the p-value: fixed-effect targets &quot;the one common effect&quot; (rarely true across diverse trials); random-effects targets &quot;the mean of a distribution of effects&quot;. Most clinical meta-analyses default to random-effects, and report a <b>prediction interval</b> for where a new study's effect might land.">用<b>問題</b>來選、不是用 p 值：固定效果瞄準「唯一的共同效果」（在多樣的試驗間很少成立）；隨機效果瞄準「一群效果分布的平均」。多數臨床統合分析預設用隨機效果，並報一個<b>預測區間</b>，指出未來一篇新研究的效果可能落在哪。</p></div>
+    </div>
+
+    <h2 data-en="GRADE: how certain is the pooled answer?">GRADE：這個合併答案有多確定？</h2>
+    <div class="card info">
+      <p data-en="A pooled estimate is not the end — GRADE rates the <b>certainty</b> (high / moderate / low / very low) of the evidence for each outcome. Bodies of evidence <b>start</b> high for randomised trials and low for observational studies, then move:">合併估計不是終點——GRADE 為每個結果評估證據的<b>強度</b>（高／中／低／極低）。整體證據對隨機試驗<b>起始</b>為高、觀察性研究起始為低，然後上下調整：</p>
+      <ul>
+        <li data-en="<b>Downgrade</b> for: risk of bias, inconsistency (high heterogeneity / unexplained I²), indirectness (the studies don't quite match your PICO), imprecision (wide pooled CI / few events), and publication bias (funnel asymmetry)."><b>降級</b>因素：偏誤風險、不一致（高異質／無法解釋的 I²）、間接性（研究和你的 PICO 不太對得上）、不精確（合併 CI 太寬／事件太少）、發表偏誤（漏斗不對稱）。</li>
+        <li data-en="<b>Upgrade</b> (mainly for observational evidence) for: a large effect, a dose–response gradient, or when all plausible confounding would only <b>weaken</b> the observed effect."><b>升級</b>（主要用於觀察性證據）因素：效果很大、有劑量反應梯度、或所有合理的混淆都只會<b>削弱</b>觀察到的效果。</li>
+      </ul>
+      <p data-en="The result is a Summary-of-Findings table: the pooled effect <i>plus</i> a transparent certainty rating that decision-makers can act on.">產出是「結果摘要表」：合併效果<i>加上</i>一個透明的證據強度評等，讓決策者能據以行動。</p>
+    </div>
+
+    <h2 data-en="AI &amp; automation — what actually helps (and its limits)">AI 與自動化 —— 真正幫得上什麼（與其限制）</h2>
+    <p class="lead" data-en="Screening thousands of titles is the most labour-intensive step, so it is where automation is furthest along. Honest reading of the evidence:">篩選數千筆標題是最耗人力的一步，所以自動化在這裡最成熟。對證據的誠實解讀：</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Rayyan &amp; active learning">Rayyan 與主動學習</h3><p data-en="Tools like <b>Rayyan</b> let two reviewers screen in parallel, blind to each other, and rank the unscreened pile by predicted relevance (active learning): you label a few, the model re-prioritises, and the relevant records surface early. It <b>accelerates</b> human screening — it does not replace the dual-reviewer judgement."><b>Rayyan</b> 之類的工具讓兩位審閱者平行、互盲地篩選，並用「預測相關性」把未篩的堆排序（主動學習）：你標一些、模型重新排序，相關的記錄就提早浮上來。它<b>加速</b>人工篩選——但不取代雙人審閱的判斷。</p></div>
+      <div class="card"><h3 data-en="Machine-learning classifiers">機器學習分類器</h3><p data-en="Trained on your labelled decisions, ML classifiers reach high recall (≈98% in a preclinical review) at the screening stage, and can even <b>flag likely human errors</b> by surfacing records where the model and the human disagree. You set a recall target (miss as few includes as possible) and accept the workload saved.">用你標好的決定訓練，ML 分類器在篩選階段可達高召回（某動物研究回顧約 98%），甚至能<b>標出可能的人為錯誤</b>——把「模型與人不一致」的記錄挑出來。你設定召回目標（盡量不漏該納入的），換取省下的工作量。</p></div>
+      <div class="card"><h3 data-en="Large language models (LLMs)">大型語言模型（LLM）</h3><p data-en="Recent studies test LLMs (GPT-class) to screen abstracts directly from the eligibility criteria, with promising sensitivity but variable precision — prompts and thresholds matter, and a human still adjudicates. The motivation is real: even <b>human</b> inter-reviewer agreement is imperfect, which is exactly why two reviewers + a tie-breaker exist.">近期研究測試用 LLM（GPT 級）直接依納入條件篩摘要，敏感度看好但精準度浮動——提示詞與門檻很關鍵，仍需人最終裁定。動機很實在：連<b>人類</b>審閱者之間的一致性都不完美，這正是要兩位審閱＋一位仲裁的原因。</p></div>
+    </div>
+    <div class="card"><h3 data-en="Do the meta-analysis (R) — the doing-meta.guide / meta &amp; metafor packages">實際做統合分析（R）—— doing-meta.guide／meta 與 metafor 套件</h3>
+      <pre class="sas"><code><span class="cm"># library(meta): inverse-variance meta-analysis with both models + I^2 + forest/funnel</span>
+m &lt;- metagen(TE = yi, seADTE = sei, studlab = trial,
+             sm = "RR", common = TRUE, random = TRUE)   <span class="cm"># common = fixed, random = DL</span>
+forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># forest, funnel, Egger</span>
+<span class="cm"># library(metafor): rma(yi, vi, method = "REML"); the doing-meta.guide book walks this end-to-end</span></code></pre>
+      <p data-en="Harrer et al.'s free guide &quot;Doing Meta-Analysis in R&quot; (doing-meta.guide) is a hands-on companion: effect sizes, pooling, heterogeneity, subgroups/meta-regression, publication bias, and risk-of-bias plots.">Harrer 等人的免費指南《Doing Meta-Analysis in R》（doing-meta.guide）是很實用的搭配：效果量、合併、異質性、次群／統合迴歸、發表偏誤與偏誤風險圖。</p></div>
+
+    <div class="card info"><h3 data-en="The honest bottom line">誠實的結論</h3>
+      <p data-en="A meta-analysis turns many studies into one number with a confidence (and prediction) interval — but its credibility rests entirely on a transparent, pre-registered method, a careful risk-of-bias appraisal, and a GRADE rating that doesn't oversell. AI speeds up the grind of screening; it doesn't supply the judgement. Pool comparable, well-conducted studies — and when they aren't comparable, say so and explore why rather than forcing a single number.">統合分析把許多研究變成一個帶信賴（與預測）區間的數字——但它的可信度完全取決於透明、事先登錄的方法、謹慎的偏誤風險評讀，以及一個不浮誇的 GRADE 評等。AI 加速篩選的苦工；它不提供判斷。合併的應是可比、執行良好的研究——當它們不可比時，就明說並去探究原因，而不是硬湊出一個數字。</p></div>
+  </section>
+
   <!-- ===================== 參考文獻 / References ===================== -->
   <footer class="refs">
     <h2 data-en="References &amp; citation">參考文獻與引用</h2>
@@ -6233,6 +6309,10 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
       <li data-ref="transport"><b data-en="Framework">框架</b> · Adamson, B., Liu, W., Duffield, S., et al. (2026). Transportability Analyses in Comparative Effectiveness Research: A Conceptual Framework and Methodological Principles Endorsed by the International Society for Pharmacoepidemiology (ISPE). <i>Pharmacoepidemiology and Drug Safety, 35</i>, e70396. · Inoue, K., &amp; Hsu, W. (2024). Transportability Analysis — A Tool for Extending Trial Results to a Representative Target Population (Invited Commentary, Oncology). <span data-en="〔ISPE framework + plain-language framing — Transportability tabs〕">〔ISPE 框架＋白話導讀 —— 可轉移性分頁〕</span></li>
       <li data-ref="transport"><b data-en="Estimators &amp; theory">估計與理論</b> · Westreich, D., Edwards, J. K., Lesko, C. R., Stuart, E., &amp; Cole, S. R. (2017). Transportability of Trial Results Using Inverse Odds of Sampling Weights. <i>American Journal of Epidemiology, 186</i>(8), 1010–1014. · Dahabreh, I. J., Robertson, S. E., Steingrimsson, J. A., Stuart, E. A., &amp; Hernán, M. A. (2020). Extending inferences from a randomized trial to a new target population. <i>Statistics in Medicine, 39</i>(14), 1999–2014. · Bareinboim, E., &amp; Pearl, J. (2016). Causal inference and the data-fusion problem. <i>PNAS, 113</i>(27), 7345–7352. · Zuo, S., Josey, K. P., Raghavan, S., Yang, F., Juárez-Colunga, E., &amp; Ghosh, D. (2022). Transportability Methods for Time-to-Event Outcomes. <i>JCO Clinical Cancer Informatics, 6</i>, e2200088. <span data-en="〔IOSW, standardisation, doubly-robust, survival transport〕">〔IOSW、標準化、雙重穩健、存活轉移〕</span></li>
       <li data-ref="transport"><b data-en="Transporting prediction models (⑤)">搬動預測模型（⑤）</b> · Song, X., Yu, A. S. L., Kellum, J. A., et al. (2020). Cross-site transportability of an explainable AI model for acute kidney injury prediction. <i>Nature Communications, 11</i>, 5668. · Zang, C., Hou, Y., Lyu, D., et al. (2024). Accuracy and transportability of machine learning models for adolescent suicide prediction. <i>Translational Psychiatry, 14</i>. <span data-en="〔model transportability across sites — Transportability ⑤〕">〔跨機構的模型可轉移性 —— 可轉移性 ⑤〕</span></li>
+      <li data-ref="srma"><b data-en="Methods &amp; reporting (SR &amp; meta-analysis tab)">方法與報告（系統性回顧分頁）</b> · Higgins, J. P. T., Thomas, J., Chandler, J., Cumpston, M., Li, T., Page, M. J., &amp; Welch, V. A. (Eds.) (2024). <i>Cochrane Handbook for Systematic Reviews of Interventions</i> (v6.5). Cochrane. <a href="https://www.cochrane.org/authors/handbooks-and-manuals/handbook" target="_blank" rel="noopener">cochrane.org/authors/handbooks-and-manuals</a>. · Page, M. J., McKenzie, J. E., Bossuyt, P. M., et al. (2021). The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. <i>BMJ, 372</i>, n71. <span data-en="〔workflow, PRISMA flow diagram, reporting — SR/MA tab steps ①–⑥〕">〔工作流程、PRISMA 流程圖、報告 —— 系統性回顧分頁步驟①–⑥〕</span></li>
+      <li data-ref="srma"><b data-en="Pooling &amp; heterogeneity">合併與異質性</b> · DerSimonian, R., &amp; Laird, N. (1986). Meta-analysis in clinical trials. <i>Controlled Clinical Trials, 7</i>(3), 177–188. · Higgins, J. P. T., Thompson, S. G., Deeks, J. J., &amp; Altman, D. G. (2003). Measuring inconsistency in meta-analyses. <i>BMJ, 327</i>, 557–560 (I²). · Egger, M., Davey Smith, G., Schneider, M., &amp; Minder, C. (1997). Bias in meta-analysis detected by a simple, graphical test. <i>BMJ, 315</i>, 629–634. · Harrer, M., Cuijpers, P., Furukawa, T. A., &amp; Ebert, D. D. (2021). <i>Doing Meta-Analysis with R: A Hands-On Guide.</i> CRC Press. <a href="https://doing-meta.guide/" target="_blank" rel="noopener">doing-meta.guide</a>. <span data-en="〔fixed vs random effects, I²/τ², funnel/Egger, R meta &amp; metafor — SR/MA interactive〕">〔固定 vs 隨機效果、I²/τ²、漏斗／Egger、R 的 meta 與 metafor —— 系統性回顧互動〕</span></li>
+      <li data-ref="srma"><b data-en="Certainty of evidence (GRADE)">證據強度（GRADE）</b> · Guyatt, G. H., Oxman, A. D., Vist, G. E., et al. (2008). GRADE: an emerging consensus on rating quality of evidence and strength of recommendations. <i>BMJ, 336</i>, 924–926. · Guyatt, G., Oxman, A. D., Akl, E. A., et al. (2011). GRADE guidelines: 1. Introduction. <i>Journal of Clinical Epidemiology, 64</i>(4), 383–394. <a href="https://www.gradeworkinggroup.org/" target="_blank" rel="noopener">gradeworkinggroup.org</a>. <span data-en="〔certainty rating, downgrade/upgrade, Summary-of-Findings — SR/MA GRADE section〕">〔證據強度評等、降級／升級、結果摘要表 —— 系統性回顧 GRADE 段落〕</span></li>
+      <li data-ref="srma"><b data-en="AI / automation for screening">AI／自動化篩選</b> · Ouzzani, M., Hammady, H., Fedorowicz, Z., &amp; Elmagarmid, A. (2016). Rayyan — a web and mobile app for systematic reviews. <i>Systematic Reviews, 5</i>, 210. <a href="https://www.rayyan.com/" target="_blank" rel="noopener">rayyan.com</a>. · Marshall, I. J., &amp; Wallace, B. C. (2019). Toward systematic review automation: a practical guide to using machine learning tools in research synthesis. <i>Systematic Reviews, 8</i>, 163. · Bannach-Brown, A., Przybyła, P., Thomas, J., et al. (2019). Machine learning algorithms for systematic review: reducing workload and human screening error. <i>Systematic Reviews, 8</i>, 23. · Hanegraaf, P., Wondimu, A., Mosselman, J. J., et al. (2024). Inter-reviewer reliability of human literature reviewing and implications for machine-assisted systematic reviews. <i>BMJ Open, 14</i>, e076912. · Guo, E., Gupta, M., Deng, J., et al. (2024). Automated paper screening for clinical reviews using large language models. <i>JMIR, 26</i>, e48996. <span data-en="〔Rayyan, ML active-learning screening, error detection, inter-reviewer reliability, LLM screening — SR/MA AI section〕">〔Rayyan、ML 主動學習篩選、錯誤偵測、審閱者間一致性、LLM 篩選 —— 系統性回顧 AI 段落〕</span></li>
       <li data-ref="iv">Homayra, F., Enns, B., Min, J. E., Kurz, M., Bach, P., Bruneau, J., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
@@ -6358,7 +6438,7 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
   </footer>
 </main>
 
-<script src="i18n.js?v=118"></script>
-<script src="app.js?v=118"></script>
+<script src="i18n.js?v=119"></script>
+<script src="app.js?v=119"></script>
 </body>
 </html>
