@@ -93,6 +93,7 @@ import tscan_assumptions
 import wce_core
 import wce_gen
 import wce_assumptions
+import missing_core
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1628,6 +1629,11 @@ def wce_assumptions_check(req: WceRequest):
 @app.get("/api/wce_interactive")
 def wce_interactive(decay: float = 8.0, lang: str = "zh"):
     return _clean(wce_core.wce_interactive(float(np.clip(decay, 6.0, 16.0)), lang=lang))
+
+
+@app.get("/api/missing_interactive")
+def missing_interactive(p: float = 0.4, mechanism: str = "MAR", lang: str = "zh"):
+    return _clean(missing_core.missing_interactive(float(np.clip(p, 0.05, 0.7)), mechanism, lang=lang))
 
 
 @app.get("/api/tit_interactive")

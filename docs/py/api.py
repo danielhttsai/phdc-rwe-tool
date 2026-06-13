@@ -84,6 +84,7 @@ import tscan_assumptions
 import wce_core
 import wce_gen
 import wce_assumptions
+import missing_core
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1432,6 +1433,12 @@ def _wce_interactive(q: dict) -> dict:
     return wce_core.wce_interactive(d, lang=q.get("lang", "zh"))
 
 
+def _missing_interactive(q: dict) -> dict:
+    p = float(np.clip(float(q.get("p", 0.4)), 0.05, 0.7))
+    mech = q.get("mechanism", "MAR")
+    return missing_core.missing_interactive(p, mech, lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1568,6 +1575,7 @@ _ROUTES = {
     ("POST", "/api/wce_analyze"): lambda q, b: _wce_analyze(b),
     ("POST", "/api/wce_assumptions"): lambda q, b: _wce_assumptions(b),
     ("GET", "/api/wce_interactive"): lambda q, b: _wce_interactive(q),
+    ("GET", "/api/missing_interactive"): lambda q, b: _missing_interactive(q),
 }
 
 

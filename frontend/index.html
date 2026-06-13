@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=115" />
+<link rel="stylesheet" href="/styles.css?v=116" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -47,6 +47,7 @@
     </div>
     <button class="tab tab-sep" id="chooseTab" data-en="Which one?">怎麼選</button>
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
+    <button class="tab" id="missTab" data-en="Missing data">缺失資料</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -6035,6 +6036,59 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
     <p class="caption" data-en="Cross-regional networks (e.g. AsPEN; NeuroGEN — Tsai et al.) run the <b>same protocol</b> across several of these databases and meta-analyse, trading single-database depth for breadth, generalisability and replication.">跨區域網路（如 AsPEN；NeuroGEN —— Tsai 等）會把<b>同一套協定</b>跑在上述多個資料庫上再做合併分析，以單一資料庫的深度換取廣度、可推論性與可重複性。</p>
   </section>
 
+  <!-- ===================== 缺失資料 / Missing data ===================== -->
+  <section id="misspanel" class="panel">
+    <h1 data-en="Missing data &amp; multiple imputation">缺失資料與多重插補</h1>
+    <p class="lead" data-en="Real-world data is full of holes — a lab value not ordered, a covariate not recorded. How you handle the gaps changes your causal estimate. The honest move is rarely to delete the incomplete rows. This page shows the three missingness mechanisms, the common strategies, and a live demo where deleting rows or filling with the mean goes wrong while <b>multiple imputation recovers the truth</b>.">真實世界的資料到處是洞——某個檢驗沒開、某個共變項沒記。你怎麼補這些洞，會改變你的因果估計。誠實的做法通常<b>不是</b>把不完整的列直接刪掉。這一頁講三種缺失機制、常見的處理策略，並用一個即時示範看：刪列或用平均值填，會錯；而<b>多重插補能把真值救回來</b>。</p>
+
+    <h2 data-en="Three kinds of missingness (Rubin)">三種缺失機制（Rubin）</h2>
+    <div class="cards cards-3">
+      <div class="card"><h3>MCAR <span class="en">missing completely at random</span></h3><p data-en="The gap is unrelated to anything — a tube broke at random. Deleting incomplete rows is unbiased (just wasteful); mean imputation still distorts associations.">完全隨機缺失：洞和任何事都無關——試管隨機破了。刪掉不完整的列不會偏（只是浪費資料）；但平均值插補仍會扭曲關聯。</p></div>
+      <div class="card"><h3>MAR <span class="en">missing at random</span></h3><p data-en="The gap depends on things you <b>did</b> observe (e.g. sicker patients, with higher outcomes, get tested more). Complete-case analysis is now biased; <b>multiple imputation</b> (or IPW) using the observed variables is valid.">隨機缺失：洞取決於你<b>有</b>觀察到的東西（如病重、結果較高的人較常被檢驗）。這時刪列分析會偏；用上觀察到的變數做<b>多重插補</b>（或反機率加權）才有效。</p></div>
+      <div class="card"><h3>MNAR <span class="en">missing not at random</span></h3><p data-en="The gap depends on the <b>unobserved</b> value itself (the sickest never come in). No method fixes this from the data alone — you need a sensitivity analysis and assumptions.">非隨機缺失：洞取決於那個<b>沒被觀察到</b>的值本身（最重的人根本沒來）。光靠資料沒有方法能修——需要敏感度分析與假設。</p></div>
+    </div>
+
+    <h2 data-en="Strategies — from worst to best">處理策略 —— 從最差到最好</h2>
+    <div class="card info">
+      <p data-en="<b>① Complete-case (listwise deletion)</b> — drop any row with a gap. Simple, but throws away data and is <b>biased under MAR</b>. <b>② Single imputation (mean / median / a single regression)</b> — fill each gap with one value. It <b>under-states uncertainty</b> (your CIs are too narrow) and mean-filling <b>flattens the variable</b>, leaving residual confounding. <b>③ Multiple imputation (MI / MICE)</b> — impute each gap <b>several times</b> from a model that includes the other variables <i>and the outcome</i>, analyse each completed dataset, then pool with Rubin's rules. Valid under MAR and it propagates the uncertainty. <b>④ Model-based (FIML, IPW for missingness)</b> — alternatives that also use the observed data honestly.">
+        <b>① 完整個案（整列刪除）</b>——只要有洞就把整列丟掉。簡單，但浪費資料、而且<b>在 MAR 下會偏</b>。<b>② 單一插補（平均／中位數／單次迴歸）</b>——每個洞只填一個值。它<b>低估了不確定性</b>（信賴區間太窄），而用平均值填會<b>把變數壓平</b>、留下殘留混淆。<b>③ 多重插補（MI／MICE）</b>——用一個<b>含其他變數、也含結果</b>的模型把每個洞填<b>很多次</b>，分別分析每份補完的資料，再用 Rubin 規則合併。在 MAR 下有效，且把不確定性也算進去。<b>④ 模型法（FIML、對缺失做 IPW）</b>——其他同樣誠實使用觀察資料的做法。
+      </p>
+    </div>
+
+    <h2 data-en="Live demo: a confounder X with missing values">即時示範：一個有缺失值的混淆 X</h2>
+    <p class="lead" data-en="A treatment A and outcome Y are confounded by X (you must adjust for X). The honest, full-data adjusted effect is 1.5; the unadjusted/naive estimate is ~2.3. Now knock out some of X and watch each strategy. Move the slider and switch the mechanism.">治療 A 與結果 Y 被 X 混淆（必須校正 X）。用上完整 X 的誠實校正效果是 1.5；不校正的天真估計約 2.3。現在把一部分 X 挖掉，看每個策略怎麼變。拖動滑桿、切換機制。</p>
+    <div class="controls">
+      <label><span data-en="Missingness mechanism">缺失機制</span>
+        <select id="missMech"><option value="MAR" data-en="MAR (depends on the outcome Y)">MAR（與結果 Y 有關）</option><option value="MCAR" data-en="MCAR (completely at random)">MCAR（完全隨機）</option></select>
+      </label>
+      <label><span data-en="Share of X missing:">X 缺失的比例：</span><b id="missPval">40%</b>
+        <input type="range" id="missSlider" min="5" max="70" value="40" step="5" />
+      </label>
+    </div>
+    <div id="missChart" class="chart"></div>
+    <p class="caption" id="missReading"></p>
+    <p class="caption" data-en="Bars: the adjusted A→Y effect each strategy estimates, vs the true 1.5 (green dashed) and the confounded naive value. Mean imputation drifts toward naive; complete-case is fine under MCAR but biased under MAR; multiple imputation tracks the truth. Synthetic teaching data.">長條：每個策略估出的校正 A→Y 效果，對比真值 1.5（綠虛線）與被混淆的天真值。平均值插補偏向天真；完整個案在 MCAR 下還好、MAR 下會偏；多重插補貼著真值。合成教學資料。</p>
+
+    <h2 data-en="How to actually do it (R &amp; Python)">實際怎麼做（R 與 Python）</h2>
+    <div class="card"><h3 data-en="R — the mice package (multiple imputation by chained equations)">R —— mice 套件（鏈式方程多重插補）</h3>
+      <pre class="sas"><code><span class="cm"># library(mice): impute m datasets, fit your model on each, pool by Rubin's rules</span>
+imp &lt;- mice(dat, m = 20, method = "pmm", seed = 1)   <span class="cm"># include the OUTCOME in dat</span>
+fit &lt;- with(imp, lm(Y ~ A + X))                      <span class="cm"># analyse each completed dataset</span>
+pool(fit)                                            <span class="cm"># combine estimates + CIs (Rubin)</span></code></pre>
+      <p data-en="Always put the outcome (and anything that predicts missingness) into the imputation model — leaving Y out biases the result.">插補模型一定要放進結果（以及任何能預測缺失的變數）——把 Y 漏掉會讓結果偏掉。</p></div>
+    <div class="card"><h3 data-en="Python — scikit-learn IterativeImputer / KNNImputer">Python —— scikit-learn 的 IterativeImputer／KNNImputer</h3>
+      <pre class="sas"><code><span class="cm"># IterativeImputer ≈ MICE; sample_posterior=True draws give proper multiple imputation</span>
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer, KNNImputer
+imp = IterativeImputer(sample_posterior=True, max_iter=10, random_state=0)
+X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include A and Y as predictors</span>
+<span class="cm"># KNNImputer(n_neighbors=5): fill from the k nearest complete rows (a single imputation)</span></code></pre>
+      <p data-en="Single sklearn imputers fill once (under-stating uncertainty); loop over several sample_posterior draws and pool to get true multiple imputation.">單次的 sklearn 插補只填一次（低估不確定性）；對 sample_posterior 抽樣多次再合併，才是真正的多重插補。</p></div>
+
+    <div class="card info"><h3 data-en="Where this sits in a causal analysis">這在因果分析裡的位置</h3>
+      <p data-en="Missing data is a <b>second</b> identification problem stacked on top of confounding: even a perfect design (any method in this toolbox) can be undone by handling gaps badly. Under MAR, multiple imputation or inverse-probability-of-missingness weighting restores validity; under MNAR, report a sensitivity analysis. The imputation model should be at least as rich as your analysis model, and must include the outcome and the treatment.">缺失資料是疊在混淆之上的<b>第二個</b>辨識問題：再完美的設計（本工具箱任一方法）也可能因為亂補洞而前功盡棄。在 MAR 下，多重插補或「對缺失做反機率加權」可恢復有效性；在 MNAR 下，要附敏感度分析。插補模型至少要和你的分析模型一樣豐富，而且必須包含結果與治療。</p></div>
+  </section>
+
   <!-- ===================== 參考文獻 / References ===================== -->
   <footer class="refs">
     <h2 data-en="References &amp; citation">參考文獻與引用</h2>
@@ -6052,6 +6106,8 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
       <li data-ref="all"><b data-en="Causal-inference foundations (tab ⑥)">因果推論基礎（分頁 ⑥）</b> · Hernán, M. A., &amp; Robins, J. M. (2020). <i>Causal Inference: What If.</i> Boca Raton: Chapman &amp; Hall/CRC. <span data-en="〔counterfactuals; exchangeability / positivity / consistency; g-methods; target trial — free book: hsph.harvard.edu/miguel-hernan/causal-inference-book〕">〔反事實；可交換性／正性／一致性；g-methods；目標試驗 —— 免費電子書：<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">hsph.harvard.edu/miguel-hernan/causal-inference-book</a>〕</span></li>
       <li data-ref="all"><b data-en="Causal machine learning (tab ⑤ framing)">因果機器學習（⑤ 框架）</b> · Feuerriegel, S., Frauen, D., Melnychuk, V., Schweisthal, J., Hess, K., Curth, A., Bauer, S., Kilbertus, N., Kohane, I. S., &amp; van der Schaar, M. (2024). Causal machine learning for predicting treatment outcomes. <i>Nature Medicine, 30</i>, 958–968. https://doi.org/10.1038/s41591-024-02902-1. · Kaddour, J., Lynch, A., Liu, Q., Kusner, M. J., &amp; Silva, R. (2022). Causal Machine Learning: A Survey and Open Problems. <i>arXiv</i>:2206.15475. · Li, S., &amp; Chu, Z. (Eds.) (2023). <i>Machine Learning for Causal Inference.</i> Springer. <span data-en="〔individualised effects (CATE), meta-learners (S/T/X/DR-learner), cautions for RWD — woven into every method's ⑤〕">〔個體化效果（CATE）、meta-learners（S/T/X/DR-learner）、對 RWD 的提醒 —— 織入每個方法的 ⑤〕</span></li>
       <li data-ref="db"><b data-en="Databases (Databases tab)">資料庫（資料庫分頁）</b> · AsPEN database directory (Asian Pharmacoepidemiology Network / PHD Center). <a href="https://phd-center.github.io/AsPEN/databases/" target="_blank" rel="noopener">phd-center.github.io/AsPEN/databases</a>. · Sturkenboom, M., &amp; Schink, T. (Eds.) (2020). <i>Databases for Pharmacoepidemiological Research.</i> Springer (Series on Epidemiology and Public Health). · Tsai, D. H-T., …, &amp; Lai, E. C-C. <i>Cross-Regional Data Initiative for the Assessment and Development of Treatment for Neurological and Mental Disorders (NeuroGEN).</i> <span data-en="〔database directory + how database features map to design strengths — Databases tab〕">〔資料庫名錄＋資料庫特性如何對應設計強項 —— 資料庫分頁〕</span></li>
+      <li data-ref="miss"><b data-en="Missing data (Missing-data tab)">缺失資料（缺失資料分頁）</b> · Rubin, D. B. (1987). <i>Multiple Imputation for Nonresponse in Surveys.</i> Wiley. · van Buuren, S. (2018). <i>Flexible Imputation of Missing Data</i> (2nd ed.). CRC Press (the <code>mice</code> package). · Sterne, J. A. C., White, I. R., Carlin, J. B., et al. (2009). Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. <i>BMJ, 338</i>, b2393. <span data-en="〔MCAR/MAR/MNAR, complete-case vs MI, Rubin's rules — Missing-data tab〕">〔MCAR／MAR／MNAR、刪列 vs 多重插補、Rubin 規則 —— 缺失資料分頁〕</span></li>
+      <li data-ref="miss"><b data-en="Teaching resources">教學資源</b> · Princeton DSS, <i>Missing Data &amp; R</i> (libguides.princeton.edu/R-Missingdata). · Columbia MailmanSPH, <i>Missing Data and Multiple Imputation</i> (publichealth.columbia.edu, Population Health Methods). · Brownlee, J. (2024). <i>Advanced Imputation Techniques in pandas &amp; scikit-learn</i> (machinelearningmastery.com — IterativeImputer / KNNImputer). <span data-en="〔hands-on imputation in R &amp; Python〕">〔R 與 Python 的實作插補〕</span></li>
       <li data-ref="iv">Homayra, F., Enns, B., Min, J. E., Kurz, M., Bach, P., Bruneau, J., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
@@ -6177,7 +6233,7 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
   </footer>
 </main>
 
-<script src="i18n.js?v=115"></script>
-<script src="app.js?v=115"></script>
+<script src="i18n.js?v=116"></script>
+<script src="app.js?v=116"></script>
 </body>
 </html>

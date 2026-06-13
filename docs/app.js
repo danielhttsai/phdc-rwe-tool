@@ -71,6 +71,7 @@ const methodSelect = document.getElementById("methodSelect");
 const subtabBtns = [...document.querySelectorAll(".subtab")];
 const chooseTab = document.getElementById("chooseTab");
 const dataTab = document.getElementById("dataTab");
+const missTab = document.getElementById("missTab");
 
 function showPanel(panelId) {
   document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
@@ -82,6 +83,7 @@ function showPanel(panelId) {
 function showMethodSub() {
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
+  if (missTab) missTab.classList.remove("active");
   subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
   showPanel(METHOD_PREFIX[curMethod] + curSub);
   if (curSub === "analyze") renderDataPreview(curMethod);   // ③: show the real data rows on top
@@ -93,6 +95,7 @@ subtabBtns.forEach((b) => b.addEventListener("click", () => { curSub = b.dataset
 chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   if (dataTab) dataTab.classList.remove("active");
+  if (missTab) missTab.classList.remove("active");
   chooseTab.classList.add("active");
   showPanel("choose");
   if (typeof filterRefs === "function") filterRefs("choose");
@@ -100,9 +103,19 @@ chooseTab.addEventListener("click", () => {
 if (dataTab) dataTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   chooseTab.classList.remove("active");
+  if (missTab) missTab.classList.remove("active");
   dataTab.classList.add("active");
   showPanel("dbpanel");
   if (typeof filterRefs === "function") filterRefs("db");
+});
+if (missTab) missTab.addEventListener("click", () => {
+  subtabBtns.forEach((x) => x.classList.remove("active"));
+  chooseTab.classList.remove("active");
+  if (dataTab) dataTab.classList.remove("active");
+  missTab.classList.add("active");
+  showPanel("misspanel");
+  initMiss();
+  if (typeof filterRefs === "function") filterRefs("miss");
 });
 // Delegated handler for in-content cross links (.xref) — survives i18n innerHTML swaps.
 // <a class="xref" data-m="sccs">SCCS</a> → go to that method; data-tab="db" → Databases tab.
@@ -280,6 +293,50 @@ function ensureEvalueCard(method) {
     card.querySelectorAll("input").forEach((inp) => inp.addEventListener("input", () => _evRecompute(card)));
   }
   _evRecompute(card);
+}
+
+// ----------------------------------------------------------------------
+// Missing-data tab — interactive demo: knock out a confounder X (MCAR / MAR) and
+// watch complete-case / mean / multiple imputation vs the truth.
+// ----------------------------------------------------------------------
+let missReady = false, missTimer = null;
+function initMiss() { if (missReady) return; missReady = true; refreshMiss(); }
+function scheduleMiss() {
+  const p = document.getElementById("missSlider").value;
+  document.getElementById("missPval").textContent = p + "%";
+  clearTimeout(missTimer); missTimer = setTimeout(refreshMiss, 150);
+}
+{
+  const sl = document.getElementById("missSlider"), mh = document.getElementById("missMech");
+  if (sl) sl.addEventListener("input", scheduleMiss);
+  if (mh) mh.addEventListener("change", refreshMiss);
+}
+async function refreshMiss() {
+  const p = (Number(document.getElementById("missSlider").value) || 40) / 100;
+  const mech = document.getElementById("missMech").value;
+  let r;
+  try { r = await getJSON(`${API}/api/missing_interactive?p=${p}&mechanism=${mech}&lang=${lang()}`); } catch (e) { return; }
+  state.miss = r;
+  const rd = document.getElementById("missReading"); if (rd) rd.innerHTML = r.reading;
+  drawMissChart(r);
+}
+function drawMissChart(r) {
+  if (!document.getElementById("missChart")) return;
+  const labels = [tr("天真（不校正）", "naive (unadjusted)"), tr("完整個案", "complete-case"),
+                  tr("平均值插補", "mean imputation"), tr("多重插補", "multiple imputation")];
+  const vals = [r.naive, r.complete_case, r.mean_impute, r.multiple_imputation];
+  const cols = vals.map((v) => Math.abs(v - r.truth) < 0.2 ? TEAL : AMBER);  // green = on truth, amber = biased
+  Plotly.react("missChart", [{
+    x: labels, y: vals, type: "bar", marker: { color: cols },
+    text: vals.map((v) => v.toFixed(2)), textposition: "outside", hoverinfo: "skip",
+  }], sceneLayout({
+    height: 330, margin: { t: 20, r: 16, b: 55, l: 55 },
+    yaxis: { title: tr("估出的 A→Y 效果", "estimated A→Y effect") },
+    shapes: [{ type: "line", x0: -0.5, x1: 3.5, y0: r.truth, y1: r.truth, line: { color: GREEN, dash: "dash", width: 2 } }],
+    annotations: [{ x: 3.45, y: r.truth, xanchor: "right", yanchor: "bottom",
+                    text: tr(`真值 ${r.truth.toFixed(2)}`, `truth ${r.truth.toFixed(2)}`),
+                    showarrow: false, font: { color: GREEN, size: 11 } }],
+  }), SCENE_CFG);
 }
 
 // ======================================================================
@@ -7517,6 +7574,7 @@ window.addEventListener("iv-lang", async () => {
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
   if (curSub === "analyze") renderDataPreview(curMethod); // ③ data-preview table (re-translate header/caption)
   EVALUE_METHODS.forEach((m) => { const c = document.getElementById(METHOD_PREFIX[m] + "_evalue"); if (c) _evRecompute(c); }); // ④ E-value readings
+  if (missReady) refreshMiss();                          // 缺失資料 demo (re-fetch + redraw in new lang)
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
   autolinkMethods();                                   // re-apply inline method cross-links (applyStatic wiped them)
 });
