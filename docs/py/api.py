@@ -85,6 +85,9 @@ import wce_core
 import wce_gen
 import wce_assumptions
 import missing_core
+import transport_core
+import transport_gen
+import transport_assumptions
 
 EXAMPLE_DEFAULTS = {
     "outcome": "health_score_change",
@@ -1439,6 +1442,31 @@ def _missing_interactive(q: dict) -> dict:
     return missing_core.missing_interactive(p, mech, lang=q.get("lang", "zh"))
 
 
+def _transport_example() -> dict:
+    d = transport_gen.generate()
+    rows = []
+    for i in range(4):
+        rows.append({"population": "study", "X": round(float(d["study_X"][i]), 2),
+                     "A": int(d["study_A"][i]), "Y": round(float(d["study_Y"][i]), 2)})
+    for i in range(2):
+        rows.append({"population": "target", "X": round(float(d["target_X"][i]), 2), "A": None, "Y": None})
+    return {"columns": ["population", "X", "A", "Y"], "preview": rows,
+            "n": int(len(d["study_X"]) + len(d["target_X"])), "synthetic": True}
+
+
+def _transport_analyze(b: dict) -> dict:
+    return transport_core.full_transport(lang=b.get("lang", "zh"))
+
+
+def _transport_assumptions(b: dict) -> dict:
+    return transport_assumptions.run_dashboard(lang=b.get("lang", "zh"))
+
+
+def _transport_interactive(q: dict) -> dict:
+    mt = float(np.clip(float(q.get("mu_target", 0.5)), -0.6, 1.4))
+    return transport_core.transport_interactive(mt, lang=q.get("lang", "zh"))
+
+
 def _tit_interactive(q: dict) -> dict:
     trend = float(np.clip(float(q.get("trend", 1.0)), 0.2, 1.5))
     df = tit_gen.generate(n=2500, trend=trend)   # smaller sample → snappy slider
@@ -1576,6 +1604,10 @@ _ROUTES = {
     ("POST", "/api/wce_assumptions"): lambda q, b: _wce_assumptions(b),
     ("GET", "/api/wce_interactive"): lambda q, b: _wce_interactive(q),
     ("GET", "/api/missing_interactive"): lambda q, b: _missing_interactive(q),
+    ("GET", "/api/transport_example"): lambda q, b: _transport_example(),
+    ("POST", "/api/transport_analyze"): lambda q, b: _transport_analyze(b),
+    ("POST", "/api/transport_assumptions"): lambda q, b: _transport_assumptions(b),
+    ("GET", "/api/transport_interactive"): lambda q, b: _transport_interactive(q),
 }
 
 

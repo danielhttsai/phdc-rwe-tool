@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="/styles.css?v=117" />
+<link rel="stylesheet" href="/styles.css?v=118" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 </head>
 <body>
@@ -35,6 +35,7 @@
         <option value="pssa" data-en="PSSA · Prescription sequence symmetry">PSSA · 處方順序對稱</option>
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
+        <option value="transport" data-en="Transportability · extend to a target population">可轉移性 · 搬到目標族群</option>
       </select>
     </label>
     <div class="subtabs">
@@ -5115,6 +5116,92 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
     </div>
   </section>
 
+  <!-- ===================== Transportability ① 是什麼 ===================== -->
+  <section id="transportlearn" class="panel">
+    <h1 data-en="Transportability: carry an effect from where you measured it to where you need it">可轉移性：把效果從「量到的地方」搬到「要用的地方」</h1>
+    <p class="lead" data-en="You estimated a treatment effect in a <b>study</b> (say a trial), but you need it for a <b>target</b> population that looks different. If the effect is <b>modified</b> by a characteristic X (it helps some people more than others) and X is distributed differently in the target, the study effect is the <b>wrong number</b> for the target. Transportability re-weights or re-standardises the study to the target's mix of effect modifiers.">你在一個<b>研究</b>（例如試驗）裡估到了治療效果，但你要用在一個長得不一樣的<b>目標</b>族群。如果效果會被某個特徵 X <b>修飾</b>（對某些人比較有效）、而 X 在目標族群的分布不同，那研究的效果對目標來說就是<b>錯的數字</b>。可轉移性把研究「重新加權／標準化」成目標的效果修飾子組成。</p>
+    <div class="card scene"><h3 data-en="Same treatment, two populations — the effect travels only if you adjust for who differs">同一個治療、兩個族群——效果要搬得動，得先校正「誰不一樣」</h3>
+      <div id="transportScene" class="chart"></div>
+      <p class="caption" data-en="The study (blue) is shifted on the effect modifier X; the target (orange) sits elsewhere. Because the effect grows with X, the study's average effect ≠ the target's. Synthetic teaching data.">研究（藍）在效果修飾子 X 上偏一邊；目標（橘）在另一邊。因為效果會隨 X 變大，研究的平均效果 ≠ 目標的。合成教學資料。</p></div>
+    <div class="card info"><h3 data-en="Transportability vs generalizability">可轉移性 vs 可推廣性</h3>
+      <p data-en="<b>Generalizability</b> = the target is a <b>subset</b> of the study population (you scale within). <b>Transportability</b> = the target is (partly) <b>outside</b> the study — a different population, country or time. Both rely on the same engine: model how the <b>effect modifiers</b> differ, then standardise or weight. (Adamson et al. 2026, ISPE framework; Inoue &amp; Hsu 2024; Bareinboim &amp; Pearl.)">"<b>可推廣性（generalizability）</b>＝目標是研究族群的<b>子集</b>（往內縮放）。<b>可轉移性（transportability）</b>＝目標（部分）<b>在研究之外</b>——不同族群、國家或年代。兩者引擎相同：把<b>效果修飾子</b>的差異建模，再標準化或加權。（Adamson 等 2026 ISPE 框架；Inoue &amp; Hsu 2024；Bareinboim &amp; Pearl。）</p></div>
+    <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>效果修飾子 <span class="en">effect modifier</span></h4><p data-en="A variable that changes the SIZE of the treatment effect — the drug helps younger patients more than older ones, say. It is different from a confounder (which biases the effect) and from a variable that only shifts the outcome level. Transportability is only needed when an effect modifier is distributed differently in the target than in the study.">一個會改變「治療效果<b>大小</b>」的變數——例如藥對年輕病人比對年長病人更有效。它和混淆因子（會讓效果偏掉）不同，也和「只改變結果水準」的變數不同。只有當效果修飾子在目標與研究的分布不同時，才需要可轉移性。</p></div>
+      <div class="tdef"><h4>選樣反機率加權 <span class="en">inverse odds of selection weighting (IOSW)</span></h4><p data-en="Weight each study subject by the odds of belonging to the target rather than the study, given their covariates. This makes the re-weighted study sample look like the target's covariate mix, so its average effect becomes the target's. The twin approach is standardisation: fit the effect surface and average it over the target's covariates.">用每個研究受試者「在共變項之下，屬於目標 vs 屬於研究」的勝算當權重。這讓重新加權後的研究樣本長得像目標的共變項組成，平均效果就變成目標的。孿生做法是標準化：配出效果曲面，再對目標的共變項取平均。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== Transportability ② 互動講解 ===================== -->
+  <section id="transportplay" class="panel">
+    <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
+    <h1 data-en="Interactive: slide the target's effect-modifier mean, watch the study effect go wrong and transport fix it">互動：拉動目標的效果修飾子平均，看研究效果歪掉、轉移把它救回</h1>
+    <p class="lead" data-en="The study population sits at a fixed mean on the effect modifier X. Drag the <b>target</b>'s mean. The study effect (naive) stays put — it does not know about the target — while <b>standardisation</b> and <b>inverse-odds weighting</b> track the target's true effect. The further apart the two populations, the bigger the naive error (and the more weighting strains).">研究族群在效果修飾子 X 上固定在某個平均。拖動<b>目標</b>的平均。研究效果（天真）不動——它根本不知道目標——而<b>標準化</b>與<b>選樣反機率加權</b>會跟著目標的真實效果跑。兩族群差越多，天真的誤差越大（加權也越吃力）。</p>
+    <div class="controls"><label><span data-en="Target's mean on the effect modifier X:">目標在效果修飾子 X 的平均：</span><b id="transportMtVal">0.5</b>
+      <input type="range" id="transportMtSlider" min="-0.6" max="1.4" value="0.5" step="0.1" /></label></div>
+    <div class="play-grid">
+      <div class="stat"><div class="stat-label" data-en="Target truth">目標真值</div><div class="stat-num" id="transportTruth">–</div><div class="stat-foot" data-en="the answer we want">我們要的答案</div></div>
+      <div class="stat"><div class="stat-label" data-en="Study effect (naive)">研究效果（天真）</div><div class="stat-num" id="transportNaive">–</div><div class="stat-foot" data-en="ignores the target">忽略目標</div></div>
+      <div class="stat"><div class="stat-label" data-en="Standardisation">標準化</div><div class="stat-num" id="transportStd">–</div><div class="stat-foot" data-en="recovers the target">救回目標</div></div>
+      <div class="stat"><div class="stat-label" data-en="IOSW">選樣反機率加權</div><div class="stat-num" id="transportIosw">–</div><div class="stat-foot" data-en="recovers the target">救回目標</div></div>
+    </div>
+    <div id="transportPlayChart" class="chart"></div>
+    <p class="caption" id="transportPlayReading"></p>
+  </section>
+
+  <!-- ===================== Transportability ③ 資料分析 ===================== -->
+  <section id="transportanalyze" class="panel">
+    <h1 data-en="Data analysis: transport the study effect to the target">資料分析：把研究效果搬到目標</h1>
+    <p class="lead" data-en="Load the built-in example (a randomised study + a target with only covariates), and the tool estimates the target effect three ways: the study's own effect (naive), standardisation (g-formula), and inverse-odds-of-selection weighting.">載入內建範例（一個隨機研究＋一個只有共變項的目標），工具用三種方式估目標效果：研究自己的效果（天真）、標準化（g-formula）、選樣反機率加權。</p>
+    <div class="datasource">
+      <button id="useTransportExample" class="btn primary" data-en="Load built-in example">載入內建範例</button>
+      <span id="transportDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
+    </div>
+    <div id="transportAnalyzeOut" class="hidden">
+      <h2 data-en="The target effect, three ways">目標效果，三種算法</h2>
+      <div id="transportAnalyzeChart" class="chart"></div>
+      <div class="result-cards" id="transportAnalyzeCards"></div>
+    </div>
+    <hr class="merge-sep" />
+    <h2 class="merge-sas" data-en="R / SAS code: the key steps for transportability">R／SAS 程式：可轉移性的關鍵步驟</h2>
+    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="Step 0 — stack study + target with a selection indicator S">步驟 0 — 把研究＋目標疊起來，加一個選樣指標 S</h3>
+      <pre class="sas"><code>data both; set study(in=a) target(in=b);
+   S = a;            <span class="cm">/* 1 = study (has A, Y), 0 = target (covariates only) */</span>
+run;</code></pre>
+      <p data-en="The target rows carry only the effect modifiers; the study rows carry treatment and outcome too.">目標的列只帶效果修飾子；研究的列另外帶治療與結果。</p></div>
+    <div class="card"><h3 data-en="Step 1 — IOSW: model selection, weight the study by the odds of being target">步驟 1 — IOSW：建選樣模型，用「屬於目標的勝算」加權研究</h3>
+      <pre class="sas"><code><span class="cm"># R: weights = (1-p)/p where p = P(S=1 | X)</span>
+sel &lt;- glm(S ~ X, family = binomial, data = both)
+p   &lt;- predict(sel, type = "response")[both$S == 1]
+w   &lt;- (1 - p) / p
+fit &lt;- lm(Y ~ A, data = study, weights = w)   <span class="cm"># coefficient on A = target effect</span></code></pre>
+      <p data-en="The weights bend the study sample's covariate distribution onto the target's, so the weighted treatment contrast estimates the target effect.">權重把研究樣本的共變項分布扳成目標的，於是加權後的治療對比估的就是目標效果。</p></div>
+    <div class="card"><h3 data-en="Step 2 — standardisation (g-formula): fit the effect surface, average over the target">步驟 2 — 標準化（g-formula）：配效果曲面，對目標取平均</h3>
+      <pre class="sas"><code><span class="cm"># R: outcome model with A×X, then average the A=1−A=0 gap over target X</span>
+out &lt;- lm(Y ~ A * X, data = study)
+d1  &lt;- predict(out, transform(target, A = 1))
+d0  &lt;- predict(out, transform(target, A = 0))
+mean(d1 - d0)                                  <span class="cm"># transported target effect</span></code></pre>
+      <p data-en="Doubly-robust transport combines both (e.g. R packages: <code>causaleffect</code>, <code>genRCT</code>, <code>transportr</code>); only one of the two models needs to be right.">雙重穩健轉移把兩者合起來（如 R 套件 <code>genRCT</code>、<code>transportr</code>）；兩個模型只要一個對就不偏。</p></div>
+  </section>
+
+  <!-- ===================== Transportability ④ 假設檢驗 ===================== -->
+  <section id="transportassume" class="panel">
+    <h1 data-en="Can we trust this transport? Five checks">這個轉移可不可信？五道體檢</h1>
+    <p class="lead" data-en="Transportability rests on assumptions that are mostly <b>not testable from data</b> (blue). The key one: no unmeasured effect modifier that is distributed differently across the populations. What you CAN check: positivity (the target lies inside the study's covariate support) and how far apart the populations are. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">可轉移性建立在大多<b>無法用資料檢驗</b>的假設上（藍卡）。最關鍵的：沒有未測量、且在兩族群分布不同的效果修飾子。可以檢的是：正性（目標落在研究的共變項支持內）、以及兩族群差多遠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。</p>
+    <div id="transportOverall" class="overall hidden"></div>
+    <div id="transportAssumeCards" class="assume-cards"></div>
+    <p id="transportAssumeHint" class="muted" data-en="Loading…">載入中…</p>
+  </section>
+
+  <!-- ===================== Transportability ⑤ 用 AI 強化 ===================== -->
+  <section id="transportml" class="panel">
+    <h1 data-en="Boost with AI: flexible models &amp; transporting prediction models">用 AI 強化：彈性模型，以及「搬動預測模型」</h1>
+    <p class="lead" data-en="Causal ML sharpens both transport steps; and there is a whole parallel literature on transporting <b>prediction</b> models (not just effects) across sites.">因果機器學習能把兩個轉移步驟都磨利；另外還有一整條平行文獻在討論把<b>預測</b>模型（不只效果）跨機構搬動。</p>
+    <div class="card info"><h3 data-en="① Flexible nuisance models, doubly-robust transport">① 彈性輔助模型、雙重穩健轉移</h3><p data-en="Replace the logistic selection model and the linear outcome model with gradient boosting / Super Learner, inside a doubly-robust transport estimator — so the transported effect stays valid if <b>either</b> the selection or the outcome model is right, and you capture non-linear effect modification.">把選樣的 logistic 模型與結果的線性模型換成梯度提升／Super Learner，放進雙重穩健的轉移估計式——這樣只要選樣或結果模型<b>其一</b>對，轉移就有效，也能抓到非線性的效果修飾。</p></div>
+    <div class="card info"><h3 data-en="② Transporting prediction models across sites">② 跨機構搬動預測模型</h3><p data-en="A risk model trained at hospital A often degrades at hospital B (different case-mix, coding, equipment). Work on <b>model transportability</b> studies when and how a model holds up, and uses explainable-AI to diagnose the shift — e.g. acute-kidney-injury prediction across sites (Song et al. 2020, Nat Commun) and adolescent-suicide prediction (Zang et al. 2024). This is about transporting a <b>predictor</b>, a cousin of transporting an <b>effect</b>.">在 A 醫院訓練的風險模型，到 B 醫院常常變差（病人組成、編碼、儀器不同）。<b>模型可轉移性</b>研究模型何時／如何撐得住，並用可解釋 AI 診斷偏移——例如跨機構的急性腎損傷預測（Song 等 2020, Nat Commun）與青少年自殺預測（Zang 等 2024）。這是搬動<b>預測模型</b>，與搬動<b>效果</b>是表親。</p></div>
+  </section>
+
   <!-- ===================== ⑥ What if（每法一個面板）===================== -->
   <!-- 內容為原創白話改寫的因果推論概念，標註出處《Causal Inference: What If》(Hernán & Robins 2020)，未照抄原文。 -->
 
@@ -5672,6 +5759,20 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
     </div>
   </section>
 
+  <section id="transportwhatif" class="panel">
+    <h1 data-en="⑥ What if…? Transportability in the language of counterfactuals">⑥ 如果……？用反事實的語言看「可轉移性」</h1>
+    <p class="lead" data-en="The target's counterfactual contrast Yᵃ⁼¹ − Yᵃ⁼⁰ is what you want, but you only saw it in the study. A <b>selection</b> node S (study vs target) sits over the effect modifier X; as long as S is independent of the counterfactual <b>given X</b> (no unmeasured, differentially-distributed modifier), you can recover the target effect by standardising or weighting over X.">你要的是目標族群的反事實對比 Yᵃ⁼¹ − Yᵃ⁼⁰，但你只在研究裡看到它。一個<b>選樣</b>節點 S（研究 vs 目標）壓在效果修飾子 X 上；只要在<b>給定 X</b> 下 S 與反事實獨立（沒有未測、且分布不同的修飾子），就能用對 X 標準化／加權把目標效果救回來。</p>
+    <div class="card scene"><h3 data-en="The transportability DAG / SWIG — selection over the effect modifier">可轉移性的 DAG／SWIG —— 選樣壓在效果修飾子上</h3>
+      <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_transport" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): set treatment to a → counterfactual Yᵃ in the target">反事實介入圖（SWIG）：把治療設成 a → 目標的反事實 Yᵃ</p><div id="swigScene_transport" class="chart"></div></div></div>
+    </div>
+    <div class="cards">
+      <div class="card"><h3 data-en="① Counterfactual &amp; estimand">① 反事實與估計目標</h3><p data-en="The target population's average effect E_target[Yᵃ⁼¹ − Yᵃ⁼⁰] — not the study's.">目標族群的平均效果 E_target[Yᵃ⁼¹ − Yᵃ⁼⁰]——不是研究的。</p></div>
+      <div class="card"><h3 data-en="② Identification conditions">② 辨識條件</h3><p data-en="Exchangeability over selection given X (S ⫫ Yᵃ | X), positivity of selection (target ⊆ study support), consistency, and effect modifiers measured in both.">在 X 下對選樣可交換（S ⫫ Yᵃ | X）、選樣正性（目標 ⊆ 研究支持）、一致性、效果修飾子兩邊都量到。</p></div>
+      <div class="card"><h3 data-en="③ Where exchangeability comes from">③ 可交換性從哪借</h3><p data-en="From measuring every effect modifier whose distribution differs across populations — then standardising / weighting removes the difference.">來自「量到每一個在兩族群分布不同的效果修飾子」——標準化／加權再把差異消掉。</p></div>
+      <div class="card"><h3 data-en="④ In the literature">④ 對應文獻</h3><p data-en="Adamson et al. 2026 (ISPE framework); Inoue &amp; Hsu 2024; Westreich/Edwards/Lesko; Dahabreh et al.; Bareinboim &amp; Pearl. Free book: Hernán &amp; Robins, <i>What If</i>.">Adamson 等 2026（ISPE 框架）；Inoue &amp; Hsu 2024；Westreich／Edwards／Lesko；Dahabreh 等；Bareinboim &amp; Pearl。免費書：Hernán &amp; Robins, <i>What If</i>。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== ⑦ SAS 程式（每法一個面板，關鍵步驟）===================== -->
   <!-- 教學用關鍵步驟示意；SAS PROC 語法為示範，非可直接執行的完整程式。 -->
 
@@ -5734,7 +5835,7 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
     </div>
 
     <div class="card scene">
-      <h3 data-en="All 22 methods correct their naive bias back to the truth (grouped by family; mediation recovers the true direct effect)">二十二種方法，各自把「天真偏誤」修回真值（按家族分組；中介分析還原真正的直接效果）</h3>
+      <h3 data-en="All 23 methods correct their naive bias back to the truth (grouped by family; mediation recovers the true direct effect, transportability the target-population effect)">二十三種方法，各自把「天真偏誤」修回真值（按家族分組；中介分析還原真正的直接效果，可轉移性還原目標族群的效果）</h3>
       <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling · proxies/negative controls · mechanism/mediation) — different ways of recovering the truth, all landing near 1.0.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
         <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝天真比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
@@ -5892,6 +5993,11 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
             <td data-en="Screen one vaccine against a whole hierarchy of adverse events (an ICD tree) — which outcome nodes show an excess too extreme for the 'vaccine does nothing' world">用一劑疫苗對「一整棵分層的不良事件（ICD 樹）」做安全性篩檢——哪些結果節點的超額極端到不像「疫苗沒作用」的世界</td>
             <td data-en="No single effect — a label-permutation null is the control; scan the whole tree for the most extreme node (multiplicity-controlled)">不估單一效果——用「打亂暴露標籤的排列虛無」當對照，掃描整棵樹找最極端節點（已控多重比較）</td>
             <td data-en="A meaningful tree, a constant baseline across nodes, and no unmodelled confounding (else the permutation null is wrong)">樹有意義、各節點基準為常數、無未建模混淆（否則排列虛無不對）</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · transportability / generalizability (carry an effect to a different target population)">家族 · 可轉移性／泛化（把效果搬到不同的目標族群）</td></tr>
+          <tr><td>Transport</td>
+            <td data-en="A vaccine's efficacy was measured in a (randomised) study in one population, but your target population has a different mix of effect modifiers (e.g. older, more comorbid)">疫苗效力是在某個族群的（隨機）研究裡量到的，但你的目標族群效果修飾子分布不同（例如更年長、共病更多）</td>
+            <td data-en="Not for confounding — the study is already unbiased; you borrow the measured effect-modifier distribution to re-weight / standardise to the target">不是用來校混淆——研究本身已無偏；借的是已測效果修飾子的分布，用來把效果加權／標準化到目標族群</td>
+            <td data-en="Conditional transportability: every effect modifier that differs between the two populations is measured, plus overlap of their distributions">條件可轉移性：兩族群間有差異的效果修飾子全部都測得到，且兩者分布有重疊</td></tr>
         </tbody>
       </table>
     </div>
@@ -5938,12 +6044,14 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
           <tr><td colspan="3" class="famhdr" data-en="Family · signal detection (hypothesis-generating)">家族 · 訊號偵測（產生假說）</td></tr>
           <tr><td>PSSA</td><td data-en="New-start dates of two drugs for the same people, within an observation window">同一群人兩種藥的新起始日期，一段觀察窗</td><td data-en="A trend-adjusted order-asymmetry ratio (aSR) as an A→B signal">校正趨勢後的「先後不對稱」比（aSR），作為 A→B 訊號</td></tr>
           <tr><td>TreeScan</td><td data-en="Exposure vs not, plus many outcomes arranged on a hierarchical tree (e.g. ICD codes)">暴露 vs 否，以及落在一棵階層樹上的多種結果（如 ICD 碼）</td><td data-en="Not a single effect — which outcome nodes carry a signal (after controlling multiplicity)">不是單一效果，而是「哪些結果節點有訊號」（控制多重比較後）</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · transportability / generalizability">家族 · 可轉移性／泛化</td></tr>
+          <tr><td>Transport</td><td data-en="Individual-level study data (treatment, outcome, effect modifiers) + the effect-modifier distribution of the target population">研究的個體層資料（治療、結果、效果修飾子）＋目標族群的效果修飾子分布</td><td data-en="The effect in the target population (standardise / inverse-odds-of-selection weighting)">目標族群裡的效果（用標準化／反選樣勝算加權）</td></tr>
         </tbody>
       </table>
     </div>
 
     <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
-    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 22 methods (incl. mediation) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 22 種方法（含中介分析）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 23 methods (incl. mediation &amp; transportability) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 23 種方法（含中介分析與可轉移性）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
     <div class="flow-legend">
       <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
@@ -6122,6 +6230,9 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
       <li data-ref="db"><b data-en="Databases (Databases tab)">資料庫（資料庫分頁）</b> · AsPEN database directory (Asian Pharmacoepidemiology Network / PHD Center). <a href="https://phd-center.github.io/AsPEN/databases/" target="_blank" rel="noopener">phd-center.github.io/AsPEN/databases</a>. · Sturkenboom, M., &amp; Schink, T. (Eds.) (2020). <i>Databases for Pharmacoepidemiological Research.</i> Springer (Series on Epidemiology and Public Health). · Tsai, D. H-T., …, &amp; Lai, E. C-C. <i>Cross-Regional Data Initiative for the Assessment and Development of Treatment for Neurological and Mental Disorders (NeuroGEN).</i> <span data-en="〔database directory + how database features map to design strengths — Databases tab〕">〔資料庫名錄＋資料庫特性如何對應設計強項 —— 資料庫分頁〕</span></li>
       <li data-ref="miss"><b data-en="Missing data (Missing-data tab)">缺失資料（缺失資料分頁）</b> · Rubin, D. B. (1987). <i>Multiple Imputation for Nonresponse in Surveys.</i> Wiley. · van Buuren, S. (2018). <i>Flexible Imputation of Missing Data</i> (2nd ed.). CRC Press (the <code>mice</code> package). · Sterne, J. A. C., White, I. R., Carlin, J. B., et al. (2009). Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. <i>BMJ, 338</i>, b2393. <span data-en="〔MCAR/MAR/MNAR, complete-case vs MI, Rubin's rules — Missing-data tab〕">〔MCAR／MAR／MNAR、刪列 vs 多重插補、Rubin 規則 —— 缺失資料分頁〕</span></li>
       <li data-ref="miss"><b data-en="Teaching resources">教學資源</b> · Princeton DSS, <i>Missing Data &amp; R</i> (libguides.princeton.edu/R-Missingdata). · Columbia MailmanSPH, <i>Missing Data and Multiple Imputation</i> (publichealth.columbia.edu, Population Health Methods). · Brownlee, J. (2024). <i>Advanced Imputation Techniques in pandas &amp; scikit-learn</i> (machinelearningmastery.com — IterativeImputer / KNNImputer). <span data-en="〔hands-on imputation in R &amp; Python〕">〔R 與 Python 的實作插補〕</span></li>
+      <li data-ref="transport"><b data-en="Framework">框架</b> · Adamson, B., Liu, W., Duffield, S., et al. (2026). Transportability Analyses in Comparative Effectiveness Research: A Conceptual Framework and Methodological Principles Endorsed by the International Society for Pharmacoepidemiology (ISPE). <i>Pharmacoepidemiology and Drug Safety, 35</i>, e70396. · Inoue, K., &amp; Hsu, W. (2024). Transportability Analysis — A Tool for Extending Trial Results to a Representative Target Population (Invited Commentary, Oncology). <span data-en="〔ISPE framework + plain-language framing — Transportability tabs〕">〔ISPE 框架＋白話導讀 —— 可轉移性分頁〕</span></li>
+      <li data-ref="transport"><b data-en="Estimators &amp; theory">估計與理論</b> · Westreich, D., Edwards, J. K., Lesko, C. R., Stuart, E., &amp; Cole, S. R. (2017). Transportability of Trial Results Using Inverse Odds of Sampling Weights. <i>American Journal of Epidemiology, 186</i>(8), 1010–1014. · Dahabreh, I. J., Robertson, S. E., Steingrimsson, J. A., Stuart, E. A., &amp; Hernán, M. A. (2020). Extending inferences from a randomized trial to a new target population. <i>Statistics in Medicine, 39</i>(14), 1999–2014. · Bareinboim, E., &amp; Pearl, J. (2016). Causal inference and the data-fusion problem. <i>PNAS, 113</i>(27), 7345–7352. · Zuo, S., Josey, K. P., Raghavan, S., Yang, F., Juárez-Colunga, E., &amp; Ghosh, D. (2022). Transportability Methods for Time-to-Event Outcomes. <i>JCO Clinical Cancer Informatics, 6</i>, e2200088. <span data-en="〔IOSW, standardisation, doubly-robust, survival transport〕">〔IOSW、標準化、雙重穩健、存活轉移〕</span></li>
+      <li data-ref="transport"><b data-en="Transporting prediction models (⑤)">搬動預測模型（⑤）</b> · Song, X., Yu, A. S. L., Kellum, J. A., et al. (2020). Cross-site transportability of an explainable AI model for acute kidney injury prediction. <i>Nature Communications, 11</i>, 5668. · Zang, C., Hou, Y., Lyu, D., et al. (2024). Accuracy and transportability of machine learning models for adolescent suicide prediction. <i>Translational Psychiatry, 14</i>. <span data-en="〔model transportability across sites — Transportability ⑤〕">〔跨機構的模型可轉移性 —— 可轉移性 ⑤〕</span></li>
       <li data-ref="iv">Homayra, F., Enns, B., Min, J. E., Kurz, M., Bach, P., Bruneau, J., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
@@ -6247,7 +6358,7 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
   </footer>
 </main>
 
-<script src="i18n.js?v=117"></script>
-<script src="app.js?v=117"></script>
+<script src="i18n.js?v=118"></script>
+<script src="app.js?v=118"></script>
 </body>
 </html>

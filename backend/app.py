@@ -11,7 +11,7 @@ import uuid
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import Body, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -94,6 +94,9 @@ import wce_core
 import wce_gen
 import wce_assumptions
 import missing_core
+import transport_core
+import transport_assumptions
+import transport_gen
 import seq_core
 import seq_gen
 import seq_assumptions
@@ -1634,6 +1637,31 @@ def wce_interactive(decay: float = 8.0, lang: str = "zh"):
 @app.get("/api/missing_interactive")
 def missing_interactive(p: float = 0.4, mechanism: str = "MAR", lang: str = "zh"):
     return _clean(missing_core.missing_interactive(float(np.clip(p, 0.05, 0.7)), mechanism, lang=lang))
+
+
+@app.get("/api/transport_example")
+def transport_example():
+    d = transport_gen.generate()
+    rows = ([{"population": "study", "X": round(float(d["study_X"][i]), 2),
+              "A": int(d["study_A"][i]), "Y": round(float(d["study_Y"][i]), 2)} for i in range(4)]
+            + [{"population": "target", "X": round(float(d["target_X"][i]), 2), "A": None, "Y": None} for i in range(2)])
+    return {"columns": ["population", "X", "A", "Y"], "preview": rows,
+            "n": int(len(d["study_X"]) + len(d["target_X"])), "synthetic": True}
+
+
+@app.post("/api/transport_analyze")
+def transport_analyze(req: dict = Body(...)):
+    return _clean(transport_core.full_transport(lang=req.get("lang", "zh")))
+
+
+@app.post("/api/transport_assumptions")
+def transport_assumptions_route(req: dict = Body(...)):
+    return _clean(transport_assumptions.run_dashboard(lang=req.get("lang", "zh")))
+
+
+@app.get("/api/transport_interactive")
+def transport_interactive(mu_target: float = 0.5, lang: str = "zh"):
+    return _clean(transport_core.transport_interactive(float(np.clip(mu_target, -0.6, 1.4)), lang=lang))
 
 
 @app.get("/api/tit_interactive")
