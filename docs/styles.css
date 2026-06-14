@@ -488,6 +488,11 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .home-card:active { transform: translateY(1px); }
 .home-card .hc-abbr { font-weight: 800; color: var(--z); }
 .home-card .hc-name { font-size: .86rem; color: var(--muted); }
+/* Glossary: auto-collected term definitions. */
+.gloss-item { border: 1px solid var(--line); border-radius: 10px; padding: .6rem .85rem; margin: .5rem 0; background: var(--card); box-shadow: var(--shadow); }
+.gloss-item h4 { margin: 0 0 .25rem; color: var(--z); font-size: 1rem; }
+.gloss-item .en { color: var(--muted); font-weight: 500; font-size: .85rem; }
+.gloss-item p { margin: 0; font-size: .9rem; line-height: 1.6; }
 
 /* In-page section nav (chips) for the long single-page topics (SR-MA, NMA). */
 .page-toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: .2rem 0 1.2rem; }

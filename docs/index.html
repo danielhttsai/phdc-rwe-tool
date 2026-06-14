@@ -58,6 +58,7 @@
     </div>
     <button class="tab tab-sep" id="chooseTab" data-en="Which one?">怎麼選</button>
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
+    <button class="tab" id="glossaryTab" data-en="Glossary">名詞表</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
   <button id="themeToggle" class="icon-btn" type="button" title="切換深色／淺色 · Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
@@ -71,6 +72,14 @@
     <input id="homeSearch" class="home-search" type="search" placeholder="搜尋方法… / Search methods…" aria-label="Search methods" />
     <div id="homeGrid" class="home-grid"></div>
     <p class="caption" data-en="⚠ All built-in data is purely fictional synthetic demo data, for teaching only.">⚠ 本工具所有內建資料皆為純屬虛構的合成示範資料，僅供教學展示。</p>
+  </section>
+
+  <!-- ===================== 名詞表 / Glossary ===================== -->
+  <section id="glossary" class="panel">
+    <h1 data-en="Glossary">名詞表</h1>
+    <p class="lead" data-en="Every key term defined across the toolbox, collected in one place. Search to jump to a definition; each is shown in the language you've selected.">把工具箱各處的重要名詞集中在一頁。用搜尋直接找到定義；內容會跟著你選的語言顯示。</p>
+    <input id="glossarySearch" class="home-search" type="search" placeholder="搜尋名詞… / Search terms…" aria-label="Search glossary" />
+    <div id="glossaryList"></div>
   </section>
 
   <!-- ===================== 1. 教學 ===================== -->

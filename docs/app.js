@@ -72,7 +72,7 @@ const PANEL_INIT = {
   extctrlwhatif: () => drawWhatifPair("extctrl"),
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
-  home: () => initHome(),
+  home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -82,6 +82,7 @@ const subtabsRow = document.querySelector(".subtabs");
 const chooseTab = document.getElementById("chooseTab");
 const dataTab = document.getElementById("dataTab");
 const homeTab = document.getElementById("homeTab");
+const glossaryTab = document.getElementById("glossaryTab");
 // The ①–⑥ sub-tabs only apply to the 24 per-method panels. Hide them on the
 // standalone pages (topics, 怎麼選, 資料庫) so a stray click can't jump to a method.
 function setSubtabs(show) { if (subtabsRow) subtabsRow.style.display = show ? "" : "none"; }
@@ -131,6 +132,7 @@ function applyHash() {
   _suppressHash = true;
   try {
     if (raw === "home") { showHome(); return true; }
+    if (raw === "glossary") { showGlossary(); return true; }
     if (raw === "choose") { chooseTab.click(); return true; }
     if (raw === "db") { if (dataTab) { dataTab.click(); return true; } return false; }
     const p = new URLSearchParams(raw);
@@ -169,12 +171,50 @@ function showHome() {
   setSubtabs(false);
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.remove("active");
   if (homeTab) homeTab.classList.add("active");
   showPanel("home");
   if (typeof filterRefs === "function") filterRefs("choose");   // hide the per-method refs/citation block
   setHash("");
 }
 if (homeTab) homeTab.addEventListener("click", showHome);
+
+// Glossary: one page collecting every .tdef term definition across the toolbox
+// (deduped by term, sorted, searchable). Rebuilt on language toggle.
+function initGlossary() {
+  const list = document.getElementById("glossaryList"); if (!list) return;
+  const seen = new Set(), items = [];
+  document.querySelectorAll(".tdef").forEach((d) => {
+    const h4 = d.querySelector("h4"), p = d.querySelector("p");
+    if (!h4 || !p) return;
+    const en = h4.querySelector(".en");
+    const term = (en ? h4.textContent.replace(en.textContent, "") : h4.textContent).trim();
+    const sub = en ? en.textContent.trim() : "";
+    const key = term.toLowerCase();
+    if (!term || seen.has(key)) return; seen.add(key);
+    items.push({ term, sub, def: p.textContent.trim() });
+  });
+  items.sort((a, b) => a.term.localeCompare(b.term, "zh-Hant"));
+  list.innerHTML = items.map((it) =>
+    `<div class="gloss-item" data-search="${(it.term + " " + it.sub + " " + it.def).toLowerCase().replace(/"/g, "")}">` +
+    `<h4>${it.term}${it.sub ? ` <span class="en">${it.sub}</span>` : ""}</h4><p>${it.def}</p></div>`).join("");
+  const inp = document.getElementById("glossarySearch");
+  if (inp) { const apply = () => { const q = inp.value.trim().toLowerCase();
+    list.querySelectorAll(".gloss-item").forEach((x) => { x.style.display = x.dataset.search.includes(q) ? "" : "none"; }); };
+    inp.oninput = apply; apply(); }
+}
+function showGlossary() {
+  subtabBtns.forEach((x) => x.classList.remove("active"));
+  setSubtabs(false);
+  chooseTab.classList.remove("active");
+  if (dataTab) dataTab.classList.remove("active");
+  if (homeTab) homeTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.add("active");
+  showPanel("glossary");
+  if (typeof filterRefs === "function") filterRefs("choose");
+  setHash("#glossary");
+}
+if (glossaryTab) glossaryTab.addEventListener("click", showGlossary);
 
 // Dark-mode toggle. <html data-theme> is set pre-paint by an inline <head> script;
 // here we wire the button, persist the choice, and re-render charts in the new
@@ -198,6 +238,7 @@ function setTheme(t) {
 function openTopic(key) {
   const t = TOPICS[key]; if (!t) return;
   if (homeTab) homeTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.remove("active");
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
   chooseTab.classList.remove("active");
@@ -212,6 +253,7 @@ function showMethodSub() {
   if (methodSelect.value !== curMethod) methodSelect.value = curMethod;  // resync dropdown if we came from a topic panel
   setSubtabs(true);
   if (homeTab) homeTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.remove("active");
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
@@ -234,6 +276,7 @@ chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
   if (homeTab) homeTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   chooseTab.classList.add("active");
   showPanel("choose");
@@ -244,6 +287,7 @@ if (dataTab) dataTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
   if (homeTab) homeTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.remove("active");
   chooseTab.classList.remove("active");
   dataTab.classList.add("active");
   showPanel("dbpanel");
@@ -8230,6 +8274,7 @@ function drawSeqDemo(s) {
 window.addEventListener("iv-lang", async () => {
   filterRefs(refsContext);                         // re-scope refs + citation in new language
   initHome();                                      // rebuild the home grid in the new language
+  initGlossary();                                  // rebuild the glossary in the new language
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };
