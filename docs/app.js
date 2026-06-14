@@ -80,6 +80,7 @@ const dataTab = document.getElementById("dataTab");
 // Standalone teaching topics that live in the method dropdown but open their own
 // full-page panel (no ①–⑥ sub-tabs): missing data, SR/MA, network meta-analysis.
 const TOPICS = {
+  causalml: { panel: "causalmlpanel", ref: "causalml", init: () => initCausalml() },
   miss: { panel: "misspanel", ref: "miss", init: () => initMiss() },
   srma: { panel: "srmapanel", ref: "srma", init: () => initSrma() },
   nma:  { panel: "nmapanel",  ref: "nma",  init: () => initNma() },
@@ -520,6 +521,80 @@ function drawNmaBars(direct, col) {
       yaxis: { title: tr("A vs B（log 風險比）", "A vs B (log risk ratio)"), range: [-0.7, 0.4], zeroline: true },
       shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: NMA_INDIRECT, y1: NMA_INDIRECT, line: { color: SLATE, dash: "dash", width: 1.5 } }],
     }), SCENE_CFG);
+}
+
+// ----------------------------------------------------------------------
+// Causal ML tab — a genuine in-browser T-learner CATE demo. Two quadratic
+// least-squares fits (treated arm, control arm); their difference estimates the
+// CATE, which a single ATE (a flat line) cannot. Closed-form, exact, no backend.
+// ----------------------------------------------------------------------
+const CML_N = 240, CML_BASE = 1.0;               // sample size; effect at X = 0
+let cmlReady = false, cmlTimer = null;
+function initCausalml() { if (cmlReady) return; cmlReady = true; refreshCausalml(); }
+{
+  const sl = document.getElementById("cmlHetSlider");
+  if (sl) sl.addEventListener("input", () => {
+    document.getElementById("cmlHetVal").textContent = Number(sl.value).toFixed(2);
+    clearTimeout(cmlTimer); cmlTimer = setTimeout(refreshCausalml, 60);
+  });
+}
+function _mul32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function _randn(rng) { let u = 0, v = 0; while (u === 0) u = rng(); while (v === 0) v = rng(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+// quadratic least squares: returns [b0,b1,b2] for y ≈ b0 + b1 x + b2 x²
+function _quadfit(xs, ys) {
+  let S0 = xs.length, S1 = 0, S2 = 0, S3 = 0, S4 = 0, T0 = 0, T1 = 0, T2 = 0;
+  for (let i = 0; i < xs.length; i++) { const x = xs[i], y = ys[i], x2 = x * x;
+    S1 += x; S2 += x2; S3 += x2 * x; S4 += x2 * x2; T0 += y; T1 += x * y; T2 += x2 * y; }
+  // solve the 3×3 normal-equation system by Gaussian elimination
+  const M = [[S0, S1, S2, T0], [S1, S2, S3, T1], [S2, S3, S4, T2]];
+  for (let c = 0; c < 3; c++) {
+    let p = c; for (let r = c + 1; r < 3; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r;
+    [M[c], M[p]] = [M[p], M[c]];
+    for (let r = 0; r < 3; r++) if (r !== c) { const f = M[r][c] / M[c][c]; for (let k = c; k < 4; k++) M[r][k] -= f * M[c][k]; }
+  }
+  return [M[0][3] / M[0][0], M[1][3] / M[1][1], M[2][3] / M[2][2]];
+}
+function refreshCausalml() {
+  const sl = document.getElementById("cmlHetSlider");
+  const slope = sl ? parseFloat(sl.value) : 0.8;        // effect heterogeneity: tau(X) = BASE + slope*X
+  const rng = _mul32(20260614);
+  const xs = [], a = [], y = [], x1 = [], y1 = [], x0 = [], y0 = [];
+  let harmed = 0;
+  for (let i = 0; i < CML_N; i++) {
+    const x = -2 + 4 * rng();                            // X ~ U(−2, 2)
+    const tau = CML_BASE + slope * x;                    // true CATE at x
+    if (tau < 0) harmed++;
+    const g = 0.5 * x;                                   // baseline outcome surface
+    const ai = rng() < 0.5 ? 1 : 0;
+    const yi = g + (ai ? tau : 0) + 0.5 * _randn(rng);
+    xs.push(x); a.push(ai); y.push(yi);
+    if (ai) { x1.push(x); y1.push(yi); } else { x0.push(x); y0.push(yi); }
+  }
+  const m1 = _quadfit(x1, y1), m0 = _quadfit(x0, y0);    // T-learner: one curve per arm
+  const pred = (b, x) => b[0] + b[1] * x + b[2] * x * x;
+  const ate = (y1.reduce((s, v) => s + v, 0) / y1.length) - (y0.reduce((s, v) => s + v, 0) / y0.length);
+  const grid = []; for (let i = 0; i <= 40; i++) grid.push(-2 + 4 * i / 40);
+  const trueC = grid.map((x) => CML_BASE + slope * x);
+  const hatC = grid.map((x) => pred(m1, x) - pred(m0, x));
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.innerHTML = v; };
+  set("cmlAte", ate.toFixed(2));
+  set("cmlRange", `${(CML_BASE - slope * 2).toFixed(2)} → ${(CML_BASE + slope * 2).toFixed(2)}`);
+  set("cmlHarm", `${Math.round(100 * harmed / CML_N)}%`);
+  set("cmlReading", slope < 0.15
+    ? tr(`效果幾乎不隨 X 變（CATE 大致是常數 ${CML_BASE.toFixed(1)}）——此時單一 ATE（${ate.toFixed(2)}）就足以代表所有人。`,
+         `The effect barely varies with X (CATE ≈ constant ${CML_BASE.toFixed(1)}) — here the single ATE (${ate.toFixed(2)}) represents everyone well.`)
+    : tr(`效果隨 X 從 ${(CML_BASE - slope * 2).toFixed(2)} 變到 ${(CML_BASE + slope * 2).toFixed(2)}：單一 ATE（${ate.toFixed(2)}）對兩端的人都是錯的，且約 ${Math.round(100 * harmed / CML_N)}% 的人其實<b>被傷害</b>（CATE<0）卻被「平均有效」蓋過去。T-learner 把這條變化的 CATE 還原出來。`,
+         `The effect runs from ${(CML_BASE - slope * 2).toFixed(2)} to ${(CML_BASE + slope * 2).toFixed(2)} across X: the single ATE (${ate.toFixed(2)}) is wrong at both ends, and about ${Math.round(100 * harmed / CML_N)}% of patients are actually <b>harmed</b> (CATE<0) yet hidden under "works on average". The T-learner recovers that varying CATE.`));
+  if (!document.getElementById("causalmlChart")) return;
+  Plotly.react("causalmlChart", [
+    { x: grid, y: trueC, mode: "lines", name: tr("真實 CATE", "true CATE"), line: { color: GREEN, width: 3 } },
+    { x: grid, y: hatC, mode: "lines", name: tr("T-learner 估計", "T-learner estimate"), line: { color: TEAL, width: 2.5, dash: "dot" } },
+    { x: [-2, 2], y: [ate, ate], mode: "lines", name: tr("單一 ATE", "single ATE"), line: { color: AMBER, width: 2, dash: "dash" } },
+  ], sceneLayout({ height: 380, margin: { t: 16, r: 16, b: 44, l: 52 }, legend: { orientation: "h", y: 1.12 },
+    xaxis: { title: tr("共變項 X（如疾病嚴重度）", "covariate X (e.g. disease severity)") },
+    yaxis: { title: tr("治療效果", "treatment effect"), range: [-1.8, 2.6], zeroline: true },
+    shapes: [{ type: "line", x0: -2, x1: 2, y0: 0, y1: 0, line: { color: SLATE, dash: "dot", width: 1 } }],
+  }), SCENE_CFG);
 }
 
 // ======================================================================
@@ -2462,6 +2537,7 @@ const METHOD_REF = {
   miss: { zh: "缺失資料", en: "Missing data", src: "Rubin (1987); van Buuren (2018); Sterne et al. (2009), BMJ" },
   srma: { zh: "系統性回顧與統合分析", en: "Systematic review & meta-analysis", src: "Cochrane Handbook (Higgins et al. 2024); PRISMA 2020; DerSimonian & Laird (1986); GRADE (Guyatt et al. 2008)" },
   nma: { zh: "網絡統合分析", en: "Network meta-analysis", src: "Cochrane NMA Toolkit; Harrer et al. (doing-meta.guide/netwma); Salanti (2012); Bucher et al. (1997); Rücker & Schwarzer (2015)" },
+  causalml: { zh: "因果機器學習", en: "Causal machine learning", src: "Feuerriegel et al. (2024, Nat Med); Künzel et al. (2019, PNAS); Wager & Athey (2018); Chernozhukov et al. (2018, DML); Nie & Wager (2021)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -7961,6 +8037,7 @@ window.addEventListener("iv-lang", async () => {
   if (missReady) refreshMiss();                          // 缺失資料 demo (re-fetch + redraw in new lang)
   if (srmaReady) refreshSrma();                          // SR/MA meta-analysis (re-fetch + redraw in new lang)
   if (nmaReady) refreshNma();                            // NMA network + indirect-comparison demo
+  if (cmlReady) refreshCausalml();                       // Causal ML — T-learner CATE demo
   if (chooseReady) { drawChooseChart(); renderDtree(); } // six-method chart + decision tree
   autolinkMethods();                                   // re-apply inline method cross-links (applyStatic wiped them)
 });
