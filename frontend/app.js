@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -71,6 +71,7 @@ const PANEL_INIT = {
   extctrlassume: () => initExtctrlAssume(), extctrlml: () => {},
   extctrlwhatif: () => drawWhatifPair("extctrl"),
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
+  missplay: () => initMiss(), causalmlplay: () => initCausalml(),
   home: () => initHome(),
   choose: () => initChoose(),
 };
@@ -84,12 +85,10 @@ const homeTab = document.getElementById("homeTab");
 // The ①–⑥ sub-tabs only apply to the 24 per-method panels. Hide them on the
 // standalone pages (topics, 怎麼選, 資料庫) so a stray click can't jump to a method.
 function setSubtabs(show) { if (subtabsRow) subtabsRow.style.display = show ? "" : "none"; }
-// Standalone teaching topics that live in the method dropdown but open their own
-// full-page panel (no ①–⑥ sub-tabs): missing data, SR/MA, network meta-analysis.
-const TOPICS = {
-  causalml: { panel: "causalmlpanel", ref: "causalml", init: () => initCausalml() },
-  miss: { panel: "misspanel", ref: "miss", init: () => initMiss() },
-};
+// No standalone single-page topics remain — every dropdown entry is now a full
+// method with the ①–⑥ sub-tabs. TOPICS is kept (empty) so the legacy openTopic /
+// #topic= paths stay harmless no-ops.
+const TOPICS = {};
 
 function showPanel(panelId) {
   document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));

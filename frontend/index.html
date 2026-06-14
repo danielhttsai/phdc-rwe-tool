@@ -6294,7 +6294,7 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
   </section>
 
   <!-- ===================== 缺失資料 / Missing data ===================== -->
-  <section id="misspanel" class="panel">
+  <section id="misslearn" class="panel">
     <h1 data-en="Missing data &amp; multiple imputation">缺失資料與多重插補</h1>
     <p class="lead" data-en="Real-world data is full of holes — a lab value not ordered, a covariate not recorded. How you handle the gaps changes your causal estimate. The honest move is rarely to delete the incomplete rows. This page shows the three missingness mechanisms, the common strategies, and a live demo where deleting rows or filling with the mean goes wrong while <b>multiple imputation recovers the truth</b>.">真實世界的資料到處是洞——某個檢驗沒開、某個共變項沒記。你怎麼補這些洞，會改變你的因果估計。誠實的做法通常<b>不是</b>把不完整的列直接刪掉。這一頁講三種缺失機制、常見的處理策略，並用一個即時示範看：刪列或用平均值填，會錯；而<b>多重插補能把真值救回來</b>。</p>
 
@@ -6312,6 +6312,10 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
       </p>
     </div>
 
+  </section>
+
+  <section id="missplay" class="panel">
+    <h1 data-en="② Interactive: watch each strategy under missingness">② 互動：在缺失下看各策略</h1>
     <h2 data-en="Live demo: a confounder X with missing values">即時示範：一個有缺失值的混淆 X</h2>
     <p class="lead" data-en="A treatment A and outcome Y are confounded by X (you must adjust for X). The honest, full-data adjusted effect is 1.5; the unadjusted/naive estimate is ~2.3. Now knock out some of X and watch each strategy. Move the slider and switch the mechanism.">治療 A 與結果 Y 被 X 混淆（必須校正 X）。用上完整 X 的誠實校正效果是 1.5；不校正的天真估計約 2.3。現在把一部分 X 挖掉，看每個策略怎麼變。拖動滑桿、切換機制。</p>
     <div class="controls">
@@ -6326,6 +6330,10 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
     <p class="caption" id="missReading"></p>
     <p class="caption" data-en="Bars: the adjusted A→Y effect each strategy estimates, vs the true 1.5 (green dashed) and the confounded naive value. Mean imputation drifts toward naive; complete-case is fine under MCAR but biased under MAR; multiple imputation tracks the truth. Synthetic teaching data.">長條：每個策略估出的校正 A→Y 效果，對比真值 1.5（綠虛線）與被混淆的天真值。平均值插補偏向天真；完整個案在 MCAR 下還好、MAR 下會偏；多重插補貼著真值。合成教學資料。</p>
 
+  </section>
+
+  <section id="missanalyze" class="panel">
+    <h1 data-en="③ Data analysis: run multiple imputation">③ 資料分析：實際跑多重插補</h1>
     <h2 data-en="How to actually do it (R &amp; Python)">實際怎麼做（R 與 Python）</h2>
     <div class="card"><h3 data-en="R — the mice package (multiple imputation by chained equations)">R —— mice 套件（鏈式方程多重插補）</h3>
       <pre class="sas"><code><span class="cm"># library(mice): impute m datasets, fit your model on each, pool by Rubin's rules</span>
@@ -6342,8 +6350,38 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
 <span class="cm"># KNNImputer(n_neighbors=5): fill from the k nearest complete rows (a single imputation)</span></code></pre>
       <p data-en="Single sklearn imputers fill once (under-stating uncertainty); loop over several sample_posterior draws and pool to get true multiple imputation.">單次的 sklearn 插補只填一次（低估不確定性）；對 sample_posterior 抽樣多次再合併，才是真正的多重插補。</p></div>
 
+  </section>
+
+  <section id="missassume" class="panel">
+    <h1 data-en="④ Assumptions: which missingness can you defend?">④ 假設檢驗：你能站得住哪種缺失機制？</h1>
+    <p class="lead" data-en="Every imputation method is valid only under an assumption about <b>why</b> the data are missing. The hard truth: the difference that matters most — MAR vs MNAR — <b>cannot be tested from the observed data</b>. You defend it with design knowledge and probe what you can.">每一種插補方法，都只在某個關於「資料<b>為什麼</b>缺失」的假設下才有效。殘酷的事實：最關鍵的分野——MAR vs MNAR——<b>無法用觀察到的資料檢驗</b>。你只能用設計知識去論證，並盡量檢查能檢查的。</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="MCAR — partly testable">MCAR —— 部分可檢驗</h3><p data-en="You <b>can</b> probe MCAR: compare observed vs missing rows on the variables you <i>did</i> record (e.g. Little's MCAR test, or t-tests/standardised differences). If they differ, MCAR is rejected — but failing to reject is not proof.">MCAR <b>可以</b>檢查：拿「有值」與「缺值」的列，在你<i>有</i>記到的變數上比較（如 Little's MCAR 檢定，或 t 檢定／標準化差異）。若有差異，MCAR 被否定——但「沒被否定」不等於成立。</p></div>
+      <div class="card"><h3 data-en="MAR — assumed, not proved">MAR —— 用假設、無法證明</h3><p data-en="MAR says the gap depends only on <b>observed</b> variables. It is the workhorse assumption behind valid multiple imputation / IPW — but it is <b>untestable</b>. You make it more plausible by <b>including rich predictors</b> of both the value and its missingness (especially the outcome) in the imputation model.">MAR 說洞只取決於<b>觀察到的</b>變數。它是「多重插補／IPW 有效」背後的主力假設——但<b>無法檢驗</b>。讓它更可信的方法：在插補模型裡<b>放進大量能預測該值與其缺失</b>的變數（尤其是結果）。</p></div>
+      <div class="card"><h3 data-en="MNAR — needs a sensitivity analysis">MNAR —— 需要敏感度分析</h3><p data-en="If missingness depends on the <b>unseen</b> value, no completion of the data is correct on its own. The only honest response is to assume a <b>departure</b> from MAR and see how much the answer moves (the ⑥ tab) — not to trust a single imputed number.">若缺失取決於<b>沒被看到</b>的值，任何把資料補完的做法本身都不對。唯一誠實的回應是假設一個<b>偏離 MAR</b> 的程度、看答案會移動多少（⑥ 分頁）——而不是相信單一個補出來的數字。</p></div>
+    </div>
     <div class="card info"><h3 data-en="Where this sits in a causal analysis">這在因果分析裡的位置</h3>
       <p data-en="Missing data is a <b>second</b> identification problem stacked on top of confounding: even a perfect design (any method in this toolbox) can be undone by handling gaps badly. Under MAR, multiple imputation or inverse-probability-of-missingness weighting restores validity; under MNAR, report a sensitivity analysis. The imputation model should be at least as rich as your analysis model, and must include the outcome and the treatment.">缺失資料是疊在混淆之上的<b>第二個</b>辨識問題：再完美的設計（本工具箱任一方法）也可能因為亂補洞而前功盡棄。在 MAR 下，多重插補或「對缺失做反機率加權」可恢復有效性；在 MNAR 下，要附敏感度分析。插補模型至少要和你的分析模型一樣豐富，而且必須包含結果與治療。</p></div>
+  </section>
+
+  <section id="missml" class="panel">
+    <h1 data-en="⑤ Boost with AI / ML: flexible imputation">⑤ 用 AI／ML 強化：更有彈性的插補</h1>
+    <p class="lead" data-en="The imputation model is just a prediction problem, so machine learning slots in naturally — useful when relationships are non-linear or there are many interacting variables. It changes the <b>engine</b>, not the assumption: ML imputation is still only valid under MAR.">插補模型本質上就是個預測問題，所以機器學習能自然套進來——當關係是非線性、或變數多且互相牽連時特別有用。它換的是<b>引擎</b>、不是假設：ML 插補一樣只在 MAR 下才有效。</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Tree-based: missForest / RF-MICE">樹模型：missForest／RF-MICE</h3><p data-en="Use random forests as the per-variable imputer (R <code>missForest</code>, or <code>mice</code> with <code>method='rf'</code>; Python <code>IterativeImputer(estimator=ExtraTrees…)</code>). Captures non-linearities and interactions with little tuning — a strong default for mixed-type data.">用隨機森林當每個變數的插補器（R 的 <code>missForest</code>，或 <code>mice</code> 設 <code>method='rf'</code>；Python 的 <code>IterativeImputer(estimator=ExtraTrees…)</code>）。幾乎不用調參就能抓非線性與交互——混合型資料的好預設。</p></div>
+      <div class="card"><h3 data-en="Neighbours &amp; deep models">鄰居法與深度模型</h3><p data-en="<b>KNN imputation</b> fills from similar complete rows (simple, single). <b>Denoising autoencoders / GAIN</b> learn the joint distribution and can shine on large, high-dimensional data — but need lots of data and care, and rarely beat MICE on tabular clinical datasets."><b>KNN 插補</b>用相似的完整列來填（簡單、單次）。<b>去雜訊自編碼器／GAIN</b> 學整體聯合分布，在大型高維資料上可能出色——但需要大量資料與細心，在表格式臨床資料上很少贏過 MICE。</p></div>
+      <div class="card"><h3 data-en="The catch: still need proper MI">陷阱：仍要做「真正的」多重插補</h3><p data-en="A single ML fill <b>under-states uncertainty</b> exactly like mean imputation. To get valid inference you still need <b>multiple</b> draws (e.g. predictive-mean matching on the ML predictions, or several posterior samples) pooled by Rubin's rules. ML also can't rescue MNAR or a model that omits the outcome.">單次 ML 填值和平均值插補一樣<b>低估不確定性</b>。要得到有效推論，仍需<b>多次</b>抽樣（如對 ML 預測做 predictive-mean matching，或多份後驗樣本）再用 Rubin 規則合併。ML 也救不了 MNAR、或漏掉結果的模型。</p></div>
+    </div>
+  </section>
+
+  <section id="misswhatif" class="panel">
+    <h1 data-en="⑥ What if…? Stress-testing MNAR">⑥ 如果……？對 MNAR 做壓力測試</h1>
+    <p class="lead" data-en="Because MAR is untestable, the honest question is the counterfactual one: <b>what if</b> the missingness is informative (MNAR) after all? You can't prove it isn't — so you quantify how much it would have to bite to change your conclusion.">因為 MAR 無法檢驗，誠實的問題是反事實的：<b>如果</b>缺失其實是有訊息的（MNAR）呢？你無法證明它不是——所以改去量化「它要嚴重到什麼程度，才會改變你的結論」。</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Delta / tipping-point analysis">Delta／臨界點分析</h3><p data-en="Shift the imputed values by a penalty δ (e.g. assume the missing were systematically worse) and re-run. The <b>tipping point</b> is the δ at which the conclusion flips — if it takes an implausibly large δ, your finding is robust to MNAR.">把補出來的值平移一個 δ（例如假設缺失者系統性地更差）再重跑。<b>臨界點</b>就是讓結論翻盤的那個 δ——若需要大到不合理的 δ，代表你的結論對 MNAR 穩健。</p></div>
+      <div class="card"><h3 data-en="Pattern-mixture &amp; selection models">型態混合與選擇模型</h3><p data-en="<b>Pattern-mixture</b> models fit the outcome separately by missingness pattern and combine under explicit MNAR assumptions; <b>selection models</b> model the missingness mechanism jointly. Both make the untestable assumption <i>visible and adjustable</i> rather than hidden."><b>型態混合</b>模型依缺失型態分別配適結果再合併，假設明白寫出；<b>選擇模型</b>把缺失機制一起建模。兩者都把那個無法檢驗的假設<i>攤開、可調</i>，而不是藏起來。</p></div>
+      <div class="card"><h3 data-en="Report the range, not one number">報範圍，不是單一數字</h3><p data-en="The deliverable under possible MNAR is not a point estimate but a <b>range of conclusions</b> across plausible departures from MAR, plus a clear statement of the assumption each rests on. A result that survives reasonable MNAR scenarios is far more credible.">在可能 MNAR 下，要交出的不是一個點估計，而是「在各種合理偏離 MAR 下的<b>結論範圍</b>」，加上每個結論所依賴的假設。能在合理 MNAR 情境下存活的結果，可信度高得多。</p></div>
+    </div>
   </section>
 
   <!-- ===================== 系統性回顧與統合分析 / SR & meta-analysis ===================== -->
@@ -6674,13 +6712,17 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
   </section>
 
   <!-- ===================== 因果機器學習 / Causal machine learning ===================== -->
-  <section id="causalmlpanel" class="panel">
+  <section id="causalmllearn" class="panel">
     <h1 data-en="Causal machine learning">因果機器學習</h1>
     <p class="lead" data-en="Every method in this toolbox targets one <b>average</b> treatment effect (ATE). But the same treatment can help some people and harm others. <b>Causal machine learning</b> goes further: it estimates the <b>conditional average treatment effect (CATE)</b> — the effect <i>given who you are</i> (age, severity, biomarkers) — by plugging flexible ML into the moving parts. Crucially it <b>does not weaken the assumptions</b>: identification still needs no unmeasured confounding, overlap and consistency, exactly as the designs in this toolbox provide. ML reduces <b>modelling</b> bias; it cannot manufacture a causal effect from a good prediction.">本工具箱每個方法估的都是一個<b>平均</b>處置效果（ATE）。但同一個治療可能對某些人有益、對另一些人有害。<b>因果機器學習</b>更進一步：估<b>條件平均處置效果（CATE）</b>——<i>看你是誰</i>（年齡、嚴重度、生物標記）而定的效果——做法是把彈性 ML 放進可動的零件。關鍵是它<b>不會讓假設變鬆</b>：識別仍需無未測混淆、重疊與一致性，正是本工具箱各設計所提供的。ML 減少的是<b>建模</b>偏誤；它無法把「預測得準」變出一個因果效果。</p>
 
     <div class="card info"><h3 data-en="From ATE to CATE — and why it's not just prediction">從 ATE 到 CATE —— 以及為何它不只是預測</h3>
       <p data-en="A predictive model learns E[Y | X] — what outcome to expect. A causal model learns E[Y¹ − Y⁰ | X] — how the outcome would <b>change</b> if you intervened, for each profile X. The two can point in opposite directions: a marker that <b>predicts</b> a bad outcome may sit on a subgroup the treatment helps <b>most</b>. CATE is the basis of individualised treatment rules and policy learning — but a wrong causal model is more dangerous than a wrong predictor, because someone acts on it.">預測模型學的是 E[Y | X]——預期會出現什麼結果。因果模型學的是 E[Y¹ − Y⁰ | X]——若你介入，對每個輪廓 X 結果會<b>改變</b>多少。兩者可能方向相反：一個<b>預測</b>壞結果的標記，可能正落在治療<b>最</b>有幫助的次群上。CATE 是個體化治療規則與政策學習的基礎——但錯的因果模型比錯的預測模型更危險，因為有人會照它行動。</p></div>
 
+  </section>
+
+  <section id="causalmlplay" class="panel">
+    <h1 data-en="② Interactive: a single ATE hides who benefits">② 互動：單一 ATE 藏住「誰受益」</h1>
     <h2 data-en="Live demo: a single ATE hides who benefits; a meta-learner recovers it">即時示範：單一 ATE 藏住「誰受益」；meta-learner 把它找回來</h2>
     <p class="lead" data-en="240 synthetic patients; the true effect varies with a covariate X (drag the heterogeneity). The <b>amber dashed line</b> is the single ATE — one number for everyone. The <b>teal line</b> is a real <b>T-learner</b> run live in your browser: fit a flexible curve to the treated and to the controls, then subtract — its difference tracks the <b>true CATE</b> (green). At zero heterogeneity the ATE is enough; turn it up and the ATE badly misrepresents the people at the ends.">240 位合成病人；真實效果隨共變項 X 變化（拖動異質性）。<b>琥珀虛線</b>是單一 ATE——所有人一個數字。<b>青線</b>是在你瀏覽器裡即時跑的真 <b>T-learner</b>：對治療組與對照組各配一條彈性曲線、再相減——它的差就追著<b>真實 CATE</b>（綠）。異質性為零時 ATE 就夠；調高後，ATE 嚴重誤判兩端的人。</p>
     <div class="controls"><label><span data-en="Effect heterogeneity (how much the effect varies with X):">效果異質性（效果隨 X 變化多少）：</span><b id="cmlHetVal">0.8</b>
@@ -6694,6 +6736,10 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
     <p class="caption" id="cmlReading"></p>
     <p class="caption" data-en="The T-learner is genuine (two least-squares curves, differenced) — not a mock-up. When heterogeneity is high, reporting only the ATE would tell harmed patients the treatment &quot;works on average&quot;. Synthetic teaching data.">這個 T-learner 是真的（兩條最小平方曲線相減）——不是替身。異質性高時，只報 ATE 會對被傷害的病人說治療「平均有效」。合成教學資料。</p>
 
+  </section>
+
+  <section id="causalmlanalyze" class="panel">
+    <h1 data-en="③ Data analysis: estimating the CATE">③ 資料分析：估計 CATE</h1>
     <h2 data-en="The meta-learner toolbox">Meta-learner 工具箱</h2>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="S- and T-learners">S-／T-learner</h3><p data-en="<b>S-learner</b>: one model with treatment as a feature; predict at A=1 and A=0 and subtract. <b>T-learner</b> (the demo): two separate models, one per arm. Simple and model-agnostic, but can be noisy where one arm is thin."><b>S-learner</b>：一個模型把治療當特徵，分別預測 A=1、A=0 再相減。<b>T-learner</b>（本頁示範）：兩個分開的模型，每臂一個。簡單、model-agnostic，但在某臂資料少時會吵雜。</p></div>
@@ -6701,6 +6747,10 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
       <div class="card"><h3 data-en="Causal forests &amp; R-learner">因果森林與 R-learner</h3><p data-en="<b>Causal forests</b> (Wager &amp; Athey 2018; grf) grow trees that split on effect <b>heterogeneity</b> and give CATE with honest confidence intervals. The <b>R-learner</b> (Nie &amp; Wager 2021) and <b>double/debiased ML</b> (Chernozhukov 2018) orthogonalise out the nuisances with cross-fitting — the same DML idea already used in this toolbox's ⑤ panels."><b>因果森林</b>（Wager &amp; Athey 2018；grf）讓樹依效果<b>異質性</b>分裂，給出帶誠實信賴區間的 CATE。<b>R-learner</b>（Nie &amp; Wager 2021）與<b>雙重／去偏 ML</b>（Chernozhukov 2018）用交叉擬合把輔助部分正交掉——正是本工具箱 ⑤ 已用的 DML 想法。</p></div>
     </div>
 
+  </section>
+
+  <section id="causalmlassume" class="panel">
+    <h1 data-en="④ Assumptions: what ML changes — and what it doesn't">④ 假設檢驗：ML 改變了什麼、沒改變什麼</h1>
     <h2 data-en="What ML changes — and what it doesn't">ML 改變了什麼、沒改變什麼</h2>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="Same identifying assumptions">同樣的識別假設</h3><p data-en="No unmeasured confounding, overlap/positivity and consistency are still required — they come from the <b>design</b>, not the algorithm. Causal ML on a biased design just gives you a <b>precise, heterogeneous</b> wrong answer.">無未測混淆、重疊／正性、一致性仍是必要的——它們來自<b>設計</b>、不是演算法。把因果 ML 用在有偏的設計上，只會給你一個<b>精確、有異質性</b>的錯答案。</p></div>
@@ -6708,11 +6758,26 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
       <div class="card"><h3 data-en="Cautions for real-world data">真實世界資料的提醒</h3><p data-en="On EHRs / registries, Feuerriegel et al. (Nature Medicine 2024) warn: rich features tempt you to trust a good predictor as a causal effect, overlap can fail in subgroups, and selection / missingness bite harder at the individual level. Validate against a trial benchmark when you can.">在 EHR／登錄上，Feuerriegel 等（Nature Medicine 2024）提醒：豐富特徵會誘你把好預測當因果效果、次群可能沒有重疊、選樣／缺失在個體層級咬得更兇。能對試驗基準驗證就驗證。</p></div>
     </div>
 
+  </section>
+
+  <section id="causalmlml" class="panel">
+    <h1 data-en="⑤ Boost with AI / ML: software &amp; how it scales">⑤ 用 AI／ML 強化：軟體與如何擴展</h1>
+    <p class="lead" data-en="Causal ML <i>is</i> the AI layer — the meta-learners and forests above are the “boost”. Here is the tooling that runs them at scale, and how it connects to the rest of this toolbox.">因果機器學習本身<i>就是</i>那層 AI——上面的 meta-learners 與森林就是「強化」。這裡是把它們跑起來、擴展到實務規模的工具，以及它和本工具箱其他部分的銜接。</p>
     <div class="card"><h3 data-en="Run it: software">動手做：軟體</h3>
       <p data-en="<b>Python</b> — <code>EconML</code> (Microsoft; meta-learners, DML, causal forests, policy learning), <code>causalml</code> (Uber), <code>DoubleML</code>. <b>R</b> — <code>grf</code> (generalized random forests / causal forest), <code>DoubleML</code>, <code>rlearner</code>. The ⑤ &quot;Boost with AI&quot; tab on several methods here already runs a real DML / flexible-nuisance instance of these ideas."><b>Python</b>——<code>EconML</code>（Microsoft；meta-learners、DML、因果森林、政策學習）、<code>causalml</code>（Uber）、<code>DoubleML</code>。<b>R</b>——<code>grf</code>（廣義隨機森林／因果森林）、<code>DoubleML</code>、<code>rlearner</code>。本工具箱多個方法的 ⑤「用 AI 強化」分頁，已經在跑這些想法的真實 DML／彈性輔助實例。</p></div>
 
     <div class="card info"><h3 data-en="The bottom line">結論</h3>
       <p data-en="Causal ML is the natural next layer on top of this toolbox: keep a <b>credible design</b> for identification, then let flexible ML estimate <b>who</b> benefits and by how much — with honesty, cross-fitting and overlap checks. It earns its keep when effects are genuinely heterogeneous and you have enough data and overlap. It is <b>not</b> a way to get causal answers from messy data without a design.">因果機器學習是疊在本工具箱之上的自然下一層：先用一個<b>可信的設計</b>做識別，再讓彈性 ML 估<b>誰</b>受益、受益多少——配上誠實切分、交叉擬合與重疊檢查。當效果真的有異質、且你有足夠資料與重疊時，它才划算。它<b>不是</b>一條「不用設計、就能從髒資料得到因果答案」的捷徑。</p></div>
+  </section>
+
+  <section id="causalmlwhatif" class="panel">
+    <h1 data-en="⑥ What if…? Is the heterogeneity real?">⑥ 如果……？這個異質性是真的嗎</h1>
+    <p class="lead" data-en="A CATE model will always paint a picture of “who benefits more”. The counterfactual to keep asking: <b>what if</b> there is no real heterogeneity — or what if the whole effect is just leftover confounding the ML estimated very precisely?">CATE 模型一定會畫出一幅「誰受益更多」的圖。要一直問的反事實是：<b>如果</b>其實沒有真正的異質性呢——或者整個效果只是 ML 估得很精準的殘留混淆呢？</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="What if there's no real heterogeneity?">如果根本沒有異質性？</h3><p data-en="Flexible learners can manufacture heterogeneity from noise. Check it: a <b>best-linear-projection</b> of the CATE on covariates, a <b>calibration / RATE</b> curve, or simply whether the same subgroups re-appear on a held-out split. If the “winners” don't replicate, treat the flat ATE as the honest answer.">彈性學習器會把雜訊變成假異質性。檢查：把 CATE 對共變項做<b>最佳線性投影</b>、畫<b>校準／RATE</b> 曲線、或單純看同樣的次群在保留樣本上會不會再出現。若「受益者」無法重現，就把平的 ATE 當成誠實答案。</p></div>
+      <div class="card"><h3 data-en="What if confounding remains?">如果還有殘留混淆？</h3><p data-en="ML sharpens precision, not identification — leftover confounding becomes a confident, detailed wrong CATE. Stress it with the same sensitivity tools as a single effect (e.g. an E-value on the ATE, negative-control checks). A finding that dissolves under modest unmeasured confounding isn't real.">ML 提升的是精度、不是識別——殘留混淆會變成一個有信心、有細節的錯 CATE。用和單一效果相同的敏感度工具去壓它（如對 ATE 算 E-value、陰性對照檢查）。在輕微未測混淆下就瓦解的發現，不是真的。</p></div>
+      <div class="card"><h3 data-en="What if you act on it?">如果照它行動？</h3><p data-en="The point of a CATE is usually a <b>policy</b> (treat the predicted gainers). Evaluate that policy honestly — <b>policy value</b> / uplift on a held-out set, against the “treat-all” and “treat-none” baselines — before trusting individual-level targeting. Good average prediction does not guarantee good decisions.">估 CATE 通常是為了一個<b>政策</b>（治療被預測會獲益的人）。在相信個體層級的精準分配前，先誠實評估那個政策——在保留樣本上算<b>政策價值</b>／uplift，對照「全部治療」與「全部不治療」基準。平均預測準，不保證決策好。</p></div>
+    </div>
   </section>
 
   <!-- ===================== 參考文獻 / References ===================== -->
