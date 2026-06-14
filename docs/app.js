@@ -96,6 +96,36 @@ function showPanel(panelId) {
   if (PANEL_INIT[panelId]) PANEL_INIT[panelId]();
   window.scrollTo(0, 0);
 }
+// ---- Deep-linking ----------------------------------------------------------
+// Reflect the active view in the URL hash so it is shareable and survives a
+// reload. Forms: #m=ccw&t=assume (method + sub-tab), #topic=miss, #choose, #db.
+// replaceState keeps the back-stack clean; _suppressHash guards the
+// read → navigate → write loop. The initial applyHash() runs at end of file,
+// after every module-level const (EVALUE_METHODS, gotoMethod, …) is initialised.
+const HASH_SUBS = ["learn", "play", "analyze", "assume", "ml", "whatif"];
+let _suppressHash = false;
+function setHash(h) {
+  if (_suppressHash) return;
+  if (location.hash === h) return;
+  try { history.replaceState(null, "", h || (location.pathname + location.search)); }
+  catch (e) { /* file:// or sandbox — ignore */ }
+}
+function applyHash() {
+  const raw = (location.hash || "").replace(/^#/, "");
+  if (!raw) return false;
+  _suppressHash = true;
+  try {
+    if (raw === "choose") { chooseTab.click(); return true; }
+    if (raw === "db") { if (dataTab) { dataTab.click(); return true; } return false; }
+    const p = new URLSearchParams(raw);
+    if (p.has("topic") && TOPICS[p.get("topic")]) { openTopic(p.get("topic")); return true; }
+    if (p.has("m") && METHOD_PREFIX[p.get("m")] !== undefined) {
+      const t = p.get("t"); gotoMethod(p.get("m"), HASH_SUBS.includes(t) ? t : "learn"); return true;
+    }
+  } finally { _suppressHash = false; }
+  return false;
+}
+
 function openTopic(key) {
   const t = TOPICS[key]; if (!t) return;
   subtabBtns.forEach((x) => x.classList.remove("active"));
@@ -106,6 +136,7 @@ function openTopic(key) {
   showPanel(t.panel);
   if (t.init) t.init();
   if (typeof filterRefs === "function") filterRefs(t.ref);
+  setHash("#topic=" + key);
 }
 function showMethodSub() {
   if (methodSelect.value !== curMethod) methodSelect.value = curMethod;  // resync dropdown if we came from a topic panel
@@ -117,6 +148,7 @@ function showMethodSub() {
   if (curSub === "analyze") renderDataPreview(curMethod);   // ③: show the real data rows on top
   if (curSub === "assume" && EVALUE_METHODS.includes(curMethod)) ensureEvalueCard(curMethod);  // ④: E-value sensitivity
   if (typeof filterRefs === "function") filterRefs(curMethod);
+  setHash("#m=" + curMethod + "&t=" + curSub);
 }
 methodSelect.addEventListener("change", () => {
   const v = methodSelect.value;
@@ -134,6 +166,7 @@ chooseTab.addEventListener("click", () => {
   chooseTab.classList.add("active");
   showPanel("choose");
   if (typeof filterRefs === "function") filterRefs("choose");
+  setHash("#choose");
 });
 if (dataTab) dataTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
@@ -142,7 +175,9 @@ if (dataTab) dataTab.addEventListener("click", () => {
   dataTab.classList.add("active");
   showPanel("dbpanel");
   if (typeof filterRefs === "function") filterRefs("db");
+  setHash("#db");
 });
+window.addEventListener("hashchange", applyHash);
 // Delegated handler for in-content cross links (.xref) — survives i18n innerHTML swaps.
 // <a class="xref" data-m="sccs">SCCS</a> → go to that method; data-tab="db" → Databases tab.
 document.addEventListener("click", (e) => {
@@ -8272,3 +8307,8 @@ window.addEventListener("iv-lang", async () => {
 
 // initial render of interactive tab data
 refreshPlay();
+
+// Honour a deep link on first load (e.g. #m=ccw&t=assume). No/invalid hash →
+// leave the default IV ① view that the HTML already shows. Runs last, after every
+// module-level const and function above is initialised.
+applyHash();
