@@ -6119,7 +6119,7 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
             <td data-en="A vaccine's efficacy was measured in a (randomised) study in one population, but your target population has a different mix of effect modifiers (e.g. older, more comorbid)">疫苗效力是在某個族群的（隨機）研究裡量到的，但你的目標族群效果修飾子分布不同（例如更年長、共病更多）</td>
             <td data-en="Not for confounding — the study is already unbiased; you borrow the measured effect-modifier distribution to re-weight / standardise to the target">不是用來校混淆——研究本身已無偏；借的是已測效果修飾子的分布，用來把效果加權／標準化到目標族群</td>
             <td data-en="Conditional transportability: every effect modifier that differs between the two populations is measured, plus overlap of their distributions">條件可轉移性：兩族群間有差異的效果修飾子全部都測得到，且兩者分布有重疊</td></tr>
-          <tr><td>External control</td>
+          <tr><td><a class="xref" data-m="extctrl">External control</a></td>
             <td data-en="A single-arm vaccine study (everyone vaccinated, no concurrent controls); you borrow an external/historical untreated cohort as the control arm">單臂疫苗研究（全部接種、沒有同期對照）；你借一個外部／歷史的未接種世代當對照臂</td>
             <td data-en="Borrow a whole control arm — then standardise / propensity-weight the external controls to match the trial's covariates">借的是整個對照臂——再用標準化／傾向加權把外部對照校到試驗的共變項分布</td>
             <td data-en="The external controls are exchangeable given measured covariates, with no era/source drift and consistent outcomes, plus overlap">扣掉已測共變項後外部對照可交換、無時代／來源漂移、結果定義一致，且有重疊</td></tr>
@@ -6171,7 +6171,7 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
           <tr><td>TreeScan</td><td data-en="Exposure vs not, plus many outcomes arranged on a hierarchical tree (e.g. ICD codes)">暴露 vs 否，以及落在一棵階層樹上的多種結果（如 ICD 碼）</td><td data-en="Not a single effect — which outcome nodes carry a signal (after controlling multiplicity)">不是單一效果，而是「哪些結果節點有訊號」（控制多重比較後）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · transportability / external control">家族 · 可轉移性／外部對照</td></tr>
           <tr><td>Transportability</td><td data-en="Individual-level study data (treatment, outcome, effect modifiers) + the effect-modifier distribution of the target population">研究的個體層資料（治療、結果、效果修飾子）＋目標族群的效果修飾子分布</td><td data-en="The effect in the target population (standardise / inverse-odds-of-selection weighting)">目標族群裡的效果（用標準化／反選樣勝算加權）</td></tr>
-          <tr><td>External control</td><td data-en="A single treated (single-arm) cohort + an external untreated cohort, with shared prognostic covariates">一個治療的（單臂）世代＋一個外部未治療世代，含共同的預後共變項</td><td data-en="The treatment effect for the trial population (standardisation / IPSW; Bayesian dynamic borrowing)">試驗族群的治療效果（標準化／IPSW；貝氏動態借用）</td></tr>
+          <tr><td><a class="xref" data-m="extctrl">External control</a></td><td data-en="A single treated (single-arm) cohort + an external untreated cohort, with shared prognostic covariates">一個治療的（單臂）世代＋一個外部未治療世代，含共同的預後共變項</td><td data-en="The treatment effect for the trial population (standardisation / IPSW; Bayesian dynamic borrowing)">試驗族群的治療效果（標準化／IPSW；貝氏動態借用）</td></tr>
         </tbody>
       </table>
     </div>
