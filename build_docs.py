@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import re
 import shutil
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FRONTEND = os.path.join(HERE, "frontend")
@@ -99,6 +100,13 @@ def _copy_assets():
 
 
 def main():
+    # The success report below prints Chinese; on a cp950/Big5 Windows console
+    # that would raise UnicodeEncodeError and exit non-zero even though the build
+    # succeeded. Force UTF-8 output (and degrade gracefully if unavailable).
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     _clean_docs()
     _build_index()
     _copy_assets()

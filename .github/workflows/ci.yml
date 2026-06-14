@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  structure:
+    # Fast, dependency-free guard on the frontend wiring + a clean docs build.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Frontend structural tests (no deps)
+        run: python -m pytest backend/test_frontend_structure.py -q
+      - name: Build docs (must exit 0)
+        run: python build_docs.py
+      - name: Verify docs were generated
+        run: test -f docs/index.html && test -f docs/app.js
+
+  backend:
+    # Full Python compute test suite.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run backend tests
+        run: python -m pytest backend/ -q

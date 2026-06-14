@@ -1,0 +1,17 @@
+# Normalize line endings: store LF in the repo, check out native.
+# Stops the "LF will be replaced by CRLF" warning churn on Windows commits.
+* text=auto eol=lf
+
+# Explicitly treat binary assets as binary (never normalize / diff as text).
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.xlsx binary
+*.xls  binary
+*.zip  binary
+*.docx binary
+*.woff  binary
+*.woff2 binary

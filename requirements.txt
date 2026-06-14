@@ -1,0 +1,11 @@
+# Runtime + dev dependencies for the backend (local FastAPI dev server, the
+# Python compute behind each method, and the test suite).
+fastapi
+pydantic
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+uvicorn
+pytest
