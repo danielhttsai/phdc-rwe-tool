@@ -436,6 +436,25 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
   table.cmp th, table.cmp td { font-size: .82rem; padding: .5rem .55rem; }
 }
 
+/* Home / overview landing page: search box + clickable method grid. */
+.home-search {
+  width: 100%; max-width: 520px; margin: .4rem 0 1.2rem; padding: .6rem .9rem;
+  font: inherit; font-size: 1rem; border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; color: var(--ink);
+}
+.home-search:focus { outline: none; border-color: var(--z); box-shadow: 0 0 0 2px rgba(63,130,104,.18); }
+.home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .7rem; }
+.home-card {
+  text-align: left; display: flex; flex-direction: column; gap: .2rem;
+  padding: .7rem .85rem; border: 1px solid var(--line); border-radius: 12px;
+  background: #fff; color: var(--ink); cursor: pointer; font: inherit;
+  transition: border-color .15s, box-shadow .15s, transform .05s;
+}
+.home-card:hover { border-color: var(--z); box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.home-card:active { transform: translateY(1px); }
+.home-card .hc-abbr { font-weight: 800; color: var(--z); }
+.home-card .hc-name { font-size: .86rem; color: var(--muted); }
+
 /* In-page section nav (chips) for the long single-page topics (SR-MA, NMA). */
 .page-toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: .2rem 0 1.2rem; }
 .page-toc .toc-link {

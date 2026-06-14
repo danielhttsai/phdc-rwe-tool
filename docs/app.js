@@ -71,6 +71,7 @@ const PANEL_INIT = {
   extctrlassume: () => initExtctrlAssume(), extctrlml: () => {},
   extctrlwhatif: () => drawWhatifPair("extctrl"),
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
+  home: () => initHome(),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -79,6 +80,7 @@ const subtabBtns = [...document.querySelectorAll(".subtab")];
 const subtabsRow = document.querySelector(".subtabs");
 const chooseTab = document.getElementById("chooseTab");
 const dataTab = document.getElementById("dataTab");
+const homeTab = document.getElementById("homeTab");
 // The ①–⑥ sub-tabs only apply to the 24 per-method panels. Hide them on the
 // standalone pages (topics, 怎麼選, 資料庫) so a stray click can't jump to a method.
 function setSubtabs(show) { if (subtabsRow) subtabsRow.style.display = show ? "" : "none"; }
@@ -115,6 +117,7 @@ function applyHash() {
   if (!raw) return false;
   _suppressHash = true;
   try {
+    if (raw === "home") { showHome(); return true; }
     if (raw === "choose") { chooseTab.click(); return true; }
     if (raw === "db") { if (dataTab) { dataTab.click(); return true; } return false; }
     const p = new URLSearchParams(raw);
@@ -126,8 +129,43 @@ function applyHash() {
   return false;
 }
 
+// Home / overview landing page: a searchable grid of every method (built from
+// the dropdown <option>s, so it stays in sync). Doubles as method search.
+function initHome() {
+  const grid = document.getElementById("homeGrid");
+  if (!grid || !methodSelect) return;
+  grid.innerHTML = [...methodSelect.options].map((o) => {
+    const txt = o.textContent.trim();
+    const sep = txt.indexOf("·");
+    const abbr = sep >= 0 ? txt.slice(0, sep).trim() : txt;
+    const name = sep >= 0 ? txt.slice(sep + 1).trim() : "";
+    const search = (o.value + " " + txt + " " + (o.dataset.en || "")).toLowerCase();
+    return `<button class="home-card" data-m="${o.value}" data-search="${search.replace(/"/g, "")}">` +
+           `<span class="hc-abbr">${abbr}</span><span class="hc-name">${name}</span></button>`;
+  }).join("");
+  grid.onclick = (e) => { const c = e.target.closest(".home-card"); if (c) gotoMethod(c.dataset.m); };
+  const inp = document.getElementById("homeSearch");
+  if (inp) {
+    const apply = () => { const q = inp.value.trim().toLowerCase();
+      grid.querySelectorAll(".home-card").forEach((c) => { c.style.display = c.dataset.search.includes(q) ? "" : "none"; }); };
+    inp.oninput = apply; apply();
+  }
+}
+function showHome() {
+  subtabBtns.forEach((x) => x.classList.remove("active"));
+  setSubtabs(false);
+  chooseTab.classList.remove("active");
+  if (dataTab) dataTab.classList.remove("active");
+  if (homeTab) homeTab.classList.add("active");
+  showPanel("home");
+  if (typeof filterRefs === "function") filterRefs("choose");   // hide the per-method refs/citation block
+  setHash("");
+}
+if (homeTab) homeTab.addEventListener("click", showHome);
+
 function openTopic(key) {
   const t = TOPICS[key]; if (!t) return;
+  if (homeTab) homeTab.classList.remove("active");
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
   chooseTab.classList.remove("active");
@@ -141,6 +179,7 @@ function openTopic(key) {
 function showMethodSub() {
   if (methodSelect.value !== curMethod) methodSelect.value = curMethod;  // resync dropdown if we came from a topic panel
   setSubtabs(true);
+  if (homeTab) homeTab.classList.remove("active");
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
@@ -162,6 +201,7 @@ subtabBtns.forEach((b) => b.addEventListener("click", () => {
 chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
+  if (homeTab) homeTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   chooseTab.classList.add("active");
   showPanel("choose");
@@ -171,6 +211,7 @@ chooseTab.addEventListener("click", () => {
 if (dataTab) dataTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
+  if (homeTab) homeTab.classList.remove("active");
   chooseTab.classList.remove("active");
   dataTab.classList.add("active");
   showPanel("dbpanel");
@@ -8148,6 +8189,7 @@ function drawSeqDemo(s) {
 // ======================================================================
 window.addEventListener("iv-lang", async () => {
   filterRefs(refsContext);                         // re-scope refs + citation in new language
+  initHome();                                      // rebuild the home grid in the new language
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };
@@ -8308,7 +8350,7 @@ window.addEventListener("iv-lang", async () => {
 // initial render of interactive tab data
 refreshPlay();
 
-// Honour a deep link on first load (e.g. #m=ccw&t=assume). No/invalid hash →
-// leave the default IV ① view that the HTML already shows. Runs last, after every
-// module-level const and function above is initialised.
-applyHash();
+// Honour a deep link on first load (e.g. #m=ccw&t=assume); with no/invalid hash
+// land on the Home overview. Runs last, after every module-level const and
+// function above is initialised.
+if (!applyHash()) showHome();

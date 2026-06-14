@@ -13,6 +13,7 @@
 <header class="topbar">
   <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span></div>
   <nav class="tabs">
+    <button class="tab" id="homeTab" data-en="Home">首頁</button>
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
         <option value="acnu" data-en="ACNU · Active-comparator new-user">ACNU · 主動對照新使用者</option>
@@ -61,8 +62,17 @@
 </header>
 
 <main>
+  <!-- ===================== 首頁 / Home ===================== -->
+  <section id="home" class="panel active">
+    <h1 data-en="RWE &amp; Quasi-experimental Toolbox">真實世界證據與準實驗工具箱</h1>
+    <p class="lead" data-en="An interactive teaching toolbox for real-world-evidence and quasi-experimental methods. Every method has six layers — ① what it is · ② an interactive demo · ③ data analysis · ④ assumption checks · ⑤ AI/ML boosts · ⑥ a counterfactual “what if”. Pick a method below, search it by name, or use “Which one?” for a guided decision tree.">一個真實世界證據與準實驗方法的互動教學工具箱。每個方法都有六層——① 是什麼 · ② 互動講解 · ③ 資料分析 · ④ 假設檢驗 · ⑤ 用 AI 強化 · ⑥ 如果……？。在下面挑一個方法、用名稱搜尋，或用「怎麼選」走一遍決策樹。</p>
+    <input id="homeSearch" class="home-search" type="search" placeholder="搜尋方法… / Search methods…" aria-label="Search methods" />
+    <div id="homeGrid" class="home-grid"></div>
+    <p class="caption" data-en="⚠ All built-in data is purely fictional synthetic demo data, for teaching only.">⚠ 本工具所有內建資料皆為純屬虛構的合成示範資料，僅供教學展示。</p>
+  </section>
+
   <!-- ===================== 1. 教學 ===================== -->
-  <section id="learn" class="panel active">
+  <section id="learn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Understanding instrumental variables through a &quot;random vaccination reminder&quot; story">用「隨機接種提醒」的故事看懂工具變數</h1>
     <p class="lead" data-en="We want to answer a causal question: <b>does getting vaccinated really improve health?</b> The most intuitive approach — &quot;just compare vaccinated people with unvaccinated people&quot; — is misleading.">
