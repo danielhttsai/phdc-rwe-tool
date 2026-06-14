@@ -2330,10 +2330,10 @@ const CHOOSE_FAMILIES = [
   { zh: "抽樣設計／疫苗效力", en: "sampling design / vaccine effectiveness", members: [["CC", 1.66, 1.00], ["TND", 0.50, 0.98]] },
   { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC", 2.12, 0.94]] },
   { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
-  { zh: "共變項校正／傾向分數／雙重穩健", en: "adjustment / propensity / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
+  { zh: "校正／傾向分數／雙重穩健", en: "adjustment / PS / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
   { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97], ["WCE", 0.58, 1.01]] },
   { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00], ["TreeScan", 3.00, 1.00]] },
-  { zh: "可轉移性／泛化・外部對照", en: "transportability / external control", members: [["Transportability", 0.39, 0.91], ["External control", 1.52, 1.02]] },
+  { zh: "可轉移性・外部對照", en: "transport / external control", members: [["Transportability", 0.39, 0.91], ["External control", 1.52, 1.02]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -2344,20 +2344,22 @@ function drawChooseChart() {
   const corr = { x, y: M.map((r) => r[2]), type: "bar", name: tr("該方法校正後", "method (corrected)"),
     marker: { color: TEAL }, text: M.map((r) => r[2].toFixed(2)), textposition: "outside", cliponaxis: false };
   // alternating family bands + family labels
+  const TOP = 4.0;  // headroom above the tallest bar (~3.0) for the two-row family labels
   const shapes = [{ type: "line", x0: -0.5, x1: x.length - 0.5, y0: 1, y1: 1, line: { color: GREEN, width: 2, dash: "dash" } }];
   const anns = [{ x: x.length - 1, y: 1, text: tr("真值＝1.0", "truth = 1.0"), showarrow: false, yshift: 10, font: { size: 11, color: GREEN } }];
   let i = 0;
   CHOOSE_FAMILIES.forEach((f, fi) => {
     const x0 = i - 0.5, x1 = i + f.members.length - 0.5;
-    if (fi % 2 === 1) shapes.push({ type: "rect", x0, x1, y0: 0, y1: 3.2, yref: "y", fillcolor: "rgba(20,40,60,.045)", line: { width: 0 }, layer: "below" });
-    anns.push({ x: (x0 + x1) / 2, y: 3.18, yref: "y", text: tr(f.zh, f.en), showarrow: false, font: { size: 9.5, color: SLATE }, xanchor: "center" });
+    if (fi % 2 === 1) shapes.push({ type: "rect", x0, x1, y0: 0, y1: TOP, yref: "y", fillcolor: "rgba(20,40,60,.045)", line: { width: 0 }, layer: "below" });
+    // stagger labels into two rows so adjacent (long) family names don't overlap
+    anns.push({ x: (x0 + x1) / 2, y: fi % 2 === 0 ? TOP - 0.12 : TOP - 0.42, yref: "y", text: tr(f.zh, f.en), showarrow: false, font: { size: 9, color: SLATE }, xanchor: "center" });
     i += f.members.length;
   });
   Plotly.react("chooseChart", [naive, corr], sceneLayout({
-    height: 340, barmode: "group", showlegend: true, legend: { orientation: "h", y: 1.1 },
-    margin: { t: 36, r: 14, b: 40, l: 56 },
+    height: 360, barmode: "group", showlegend: true, legend: { orientation: "h", y: 1.08 },
+    margin: { t: 30, r: 14, b: 40, l: 56 },
     xaxis: { tickfont: { size: 10 } },
-    yaxis: { title: tr("估計 ÷ 各自真值（1.0＝命中）", "estimate ÷ own truth (1.0 = on target)"), range: [0, 3.3] },
+    yaxis: { title: tr("估計 ÷ 各自真值（1.0＝命中）", "estimate ÷ own truth (1.0 = on target)"), range: [0, TOP] },
     shapes, annotations: anns,
   }), SCENE_CFG);
 }
@@ -7751,6 +7753,8 @@ function drawSeqDemo(s) {
 window.addEventListener("iv-lang", async () => {
   const tg = document.getElementById("topicGroup");
   if (tg) tg.label = tr("跨方法主題", "Cross-method topics");  // <optgroup> label (data-en can't reach it)
+  const sg = document.getElementById("synthGroup");
+  if (sg) sg.label = tr("證據合成（跨研究）", "Evidence synthesis (across studies)");
   filterRefs(refsContext);                         // re-scope refs + citation in new language
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
@@ -7909,4 +7913,5 @@ window.addEventListener("iv-lang", async () => {
 
 // initial render of interactive tab data
 refreshPlay();
-{ const tg = document.getElementById("topicGroup"); if (tg) tg.label = tr("跨方法主題", "Cross-method topics"); }  // initial <optgroup> label
+{ const tg = document.getElementById("topicGroup"); if (tg) tg.label = tr("跨方法主題", "Cross-method topics");
+  const sg = document.getElementById("synthGroup"); if (sg) sg.label = tr("證據合成（跨研究）", "Evidence synthesis (across studies)"); }  // initial <optgroup> labels
