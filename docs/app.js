@@ -95,7 +95,21 @@ function showPanel(panelId) {
   const el = document.getElementById(panelId);
   if (el) el.classList.add("active");
   if (PANEL_INIT[panelId]) PANEL_INIT[panelId]();
+  if (el) labelCharts(el);
   window.scrollTo(0, 0);
+}
+// Accessibility: give each chart container a screen-reader label drawn from its
+// caption / nearest heading (charts are otherwise opaque <div>s to assistive tech).
+function labelCharts(panel) {
+  panel.querySelectorAll(".chart").forEach((c) => {
+    let label = "";
+    const cap = c.nextElementSibling;
+    if (cap && cap.classList && cap.classList.contains("caption")) label = cap.textContent.trim();
+    if (!label) { let p = c.previousElementSibling; while (p && !/^H[1-4]$/.test(p.tagName || "")) p = p.previousElementSibling; if (p) label = p.textContent.trim(); }
+    if (!label) { const h = panel.querySelector("h1"); if (h) label = h.textContent.trim(); }
+    c.setAttribute("role", "img");
+    if (label) c.setAttribute("aria-label", label.slice(0, 160));
+  });
 }
 // ---- Deep-linking ----------------------------------------------------------
 // Reflect the active view in the URL hash so it is shareable and survives a
@@ -161,6 +175,25 @@ function showHome() {
   setHash("");
 }
 if (homeTab) homeTab.addEventListener("click", showHome);
+
+// Dark-mode toggle. <html data-theme> is set pre-paint by an inline <head> script;
+// here we wire the button, persist the choice, and re-render charts in the new
+// palette by reusing the language re-render path (covers every chart already drawn).
+function setTheme(t) {
+  const theme = t === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = theme;
+  try { localStorage.setItem("iv-theme", theme); } catch (e) { /* ignore */ }
+  const tb = document.getElementById("themeToggle");
+  if (tb) tb.textContent = theme === "dark" ? "☀️" : "🌙";
+  window.dispatchEvent(new CustomEvent("iv-lang", { detail: { lang: lang() } }));
+}
+{
+  const tb = document.getElementById("themeToggle");
+  if (tb) {
+    tb.textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙";
+    tb.addEventListener("click", () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
+  }
+}
 
 function openTopic(key) {
   const t = TOPICS[key]; if (!t) return;
@@ -1084,20 +1117,28 @@ const SCENE_CFG = { displayModeBar: false, responsive: true };
 // ---------------------------------------------------------------------------
 const CHART_FONT = "system-ui, 'Noto Sans TC', 'Segoe UI', sans-serif";
 const GRIDC = "#e6ebf1", ZLINEC = "#c3cedb", TICKC = "#475569";
-const axisBase = () => ({
-  gridcolor: GRIDC, zerolinecolor: ZLINEC, linecolor: ZLINEC,
-  titlefont: { family: CHART_FONT, size: 12.5, color: INK },
-  tickfont: { family: CHART_FONT, size: 11, color: TICKC }, automargin: true,
-});
+// Theme-aware chart colours: dark mode needs light text/grid so axes & fonts stay
+// readable on a dark panel. Read live so a re-render after a theme toggle updates.
+function _chartTheme() {
+  return document.documentElement.dataset.theme === "dark"
+    ? { ink: "#e6edf3", grid: "#2a3a48", zline: "#3a4a58", tick: "#9aa7b4" }
+    : { ink: INK, grid: GRIDC, zline: ZLINEC, tick: TICKC };
+}
+const axisBase = () => { const c = _chartTheme(); return {
+  gridcolor: c.grid, zerolinecolor: c.zline, linecolor: c.zline,
+  titlefont: { family: CHART_FONT, size: 12.5, color: c.ink },
+  tickfont: { family: CHART_FONT, size: 11, color: c.tick }, automargin: true,
+}; };
 function sceneLayout(extra) {
   extra = extra || {};
+  const _ink = _chartTheme().ink;
   const base = {
     height: 300, margin: { t: 30, r: 18, b: 46, l: 56 }, showlegend: false,
-    font: { family: CHART_FONT, size: 12, color: INK },
+    font: { family: CHART_FONT, size: 12, color: _ink },
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
     hoverlabel: { font: { family: CHART_FONT, size: 12 } },
     legend: { orientation: "h", y: 1.16, x: 0,
-      font: { family: CHART_FONT, size: 11.5, color: INK }, bgcolor: "rgba(0,0,0,0)" },
+      font: { family: CHART_FONT, size: 11.5, color: _ink }, bgcolor: "rgba(0,0,0,0)" },
     xaxis: axisBase(), yaxis: axisBase(),
   };
   const out = Object.assign({}, base, extra);
