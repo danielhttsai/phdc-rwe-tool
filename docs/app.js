@@ -88,6 +88,7 @@ const TOPICS = {
   miss: { panel: "misspanel", ref: "miss", init: () => initMiss() },
   srma: { panel: "srmapanel", ref: "srma", init: () => initSrma() },
   nma:  { panel: "nmapanel",  ref: "nma",  init: () => initNma() },
+  gbtm: { panel: "gbtmpanel", ref: "gbtm", init: () => initGbtm() },
 };
 
 function showPanel(panelId) {
@@ -541,6 +542,177 @@ function drawNmaBars(direct, col) {
       yaxis: { title: tr("A vs B（log 風險比）", "A vs B (log risk ratio)"), range: [-0.7, 0.4], zeroline: true },
       shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: NMA_INDIRECT, y1: NMA_INDIRECT, line: { color: SLATE, dash: "dash", width: 1.5 } }],
     }), SCENE_CFG);
+}
+
+// ----------------------------------------------------------------------
+// GBTM tab — a genuine in-browser group-based trajectory model. We fit an EM
+// mixture of quadratic-in-time trajectories (shared variance ≈ Nagin's CNORM
+// without the censoring) to a synthetic 3-group adherence cohort, for K = 1..6,
+// and report BIC + average posterior probability so model selection is visible.
+// Pure JS, no backend.
+// ----------------------------------------------------------------------
+const GBTM_N = 300, GBTM_T = 12;                 // patients; monthly follow-up points
+const GBTM_X = Array.from({ length: GBTM_T }, (_, t) => t / (GBTM_T - 1));   // time scaled to [0,1]
+// design matrix rows [1, x, x^2] and the projector M = (XᵀX)⁻¹Xᵀ (3×T), so a
+// weighted group mean trajectory ȳ_k(t) maps to its polynomial coefs by M·ȳ_k.
+const GBTM_DESIGN = GBTM_X.map((x) => [1, x, x * x]);
+function _matInv3(A) {
+  const [a, b, c] = A[0], [d, e, f] = A[1], [g, h, i] = A[2];
+  const det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+  const inv = [
+    [(e * i - f * h), (c * h - b * i), (b * f - c * e)],
+    [(f * g - d * i), (a * i - c * g), (c * d - a * f)],
+    [(d * h - e * g), (b * g - a * h), (a * e - b * d)],
+  ];
+  return inv.map((r) => r.map((v) => v / det));
+}
+const GBTM_M = (() => {
+  const XtX = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+  for (const r of GBTM_DESIGN) for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) XtX[a][b] += r[a] * r[b];
+  const inv = _matInv3(XtX);
+  // M[a][t] = sum_b inv[a][b] * X[t][b]
+  return [0, 1, 2].map((a) => GBTM_X.map((_, t) => [0, 1, 2].reduce((s, b) => s + inv[a][b] * GBTM_DESIGN[t][b], 0)));
+})();
+const _gbtmEval = (beta, t) => beta[0] + beta[1] * GBTM_X[t] + beta[2] * GBTM_X[t] * GBTM_X[t];
+const _normPdf = (y, mu, sig) => Math.exp(-0.5 * ((y - mu) / sig) ** 2) / (sig * 2.5066282746310002);
+// true generative groups (adherence 0–1): persistent-high, gradual-decline, early-drop
+const GBTM_TRUE = [
+  { p: 0.40, b: [0.90, 0.02, -0.04] },
+  { p: 0.33, b: [0.88, -0.15, -0.45] },
+  { p: 0.27, b: [0.72, -1.55, 1.00] },
+];
+function _gbtmSample() {
+  const Y = [];
+  for (let i = 0; i < GBTM_N; i++) {
+    let u = Math.random(), gi = 0, acc = 0;
+    for (let k = 0; k < GBTM_TRUE.length; k++) { acc += GBTM_TRUE[k].p; if (u <= acc) { gi = k; break; } }
+    const b = GBTM_TRUE[gi].b;
+    const row = GBTM_X.map((x) => {
+      let v = b[0] + b[1] * x + b[2] * x * x + (Math.random() + Math.random() + Math.random() - 1.5) * 0.16;
+      return Math.max(0, Math.min(1, v));                       // CNORM-style censoring at [0,1]
+    });
+    Y.push(row);
+  }
+  return Y;
+}
+// EM for a K-group mixture of quadratic trajectories with shared variance.
+function _gbtmFit(Y, K) {
+  const n = Y.length, T = GBTM_T;
+  // init: order individuals by mean level, split into K seed groups
+  const order = Y.map((row, i) => [row.reduce((s, v) => s + v, 0) / T, i]).sort((a, b) => a[0] - b[0]);
+  let beta = [], pi = new Array(K).fill(1 / K);
+  for (let k = 0; k < K; k++) {
+    const seg = order.slice(Math.floor(k * n / K), Math.floor((k + 1) * n / K)).map((o) => o[1]);
+    const ybar = GBTM_X.map((_, t) => seg.reduce((s, i) => s + Y[i][t], 0) / seg.length);
+    beta.push(GBTM_M.map((mt) => mt.reduce((s, m, t) => s + m * ybar[t], 0)));
+  }
+  let sig = 0.16, resp = Array.from({ length: n }, () => new Array(K).fill(0)), ll = 0;
+  for (let iter = 0; iter < 80; iter++) {
+    // E-step (log-domain), accumulate log-likelihood
+    ll = 0;
+    const mu = beta.map((b) => GBTM_X.map((_, t) => _gbtmEval(b, t)));
+    for (let i = 0; i < n; i++) {
+      const logp = new Array(K);
+      for (let k = 0; k < K; k++) {
+        let lp = Math.log(Math.max(pi[k], 1e-12));
+        for (let t = 0; t < T; t++) lp += Math.log(Math.max(_normPdf(Y[i][t], mu[k][t], sig), 1e-300));
+        logp[k] = lp;
+      }
+      const mx = Math.max(...logp);
+      let den = 0; for (let k = 0; k < K; k++) den += Math.exp(logp[k] - mx);
+      ll += mx + Math.log(den);
+      for (let k = 0; k < K; k++) resp[i][k] = Math.exp(logp[k] - mx) / den;
+    }
+    // M-step
+    let ssq = 0, wtot = 0;
+    for (let k = 0; k < K; k++) {
+      let Wk = 0; const ybar = new Array(T).fill(0);
+      for (let i = 0; i < n; i++) { Wk += resp[i][k]; for (let t = 0; t < T; t++) ybar[t] += resp[i][k] * Y[i][t]; }
+      pi[k] = Wk / n;
+      if (Wk > 1e-9) { for (let t = 0; t < T; t++) ybar[t] /= Wk; beta[k] = GBTM_M.map((mt) => mt.reduce((s, m, t) => s + m * ybar[t], 0)); }
+    }
+    const mu2 = beta.map((b) => GBTM_X.map((_, t) => _gbtmEval(b, t)));
+    for (let i = 0; i < n; i++) for (let k = 0; k < K; k++) { for (let t = 0; t < T; t++) ssq += resp[i][k] * (Y[i][t] - mu2[k][t]) ** 2; wtot += resp[i][k] * T; }
+    sig = Math.sqrt(Math.max(ssq / wtot, 1e-4));
+  }
+  // assignments, diagnostics
+  const assign = resp.map((r) => r.indexOf(Math.max(...r)));
+  const nParam = K * 3 + (K - 1) + 1;                          // betas + free pis + variance
+  const bic = -2 * ll + nParam * Math.log(n * GBTM_T);
+  const sizes = new Array(K).fill(0), ppsum = new Array(K).fill(0);
+  assign.forEach((k, i) => { sizes[k]++; ppsum[k] += resp[i][k]; });
+  const avepp = sizes.reduce((s, c, k) => s + (c ? ppsum[k] : 0), 0) / n;   // overall mean max-posterior
+  const order2 = beta.map((b, k) => [b[0] + 0.5 * b[1] + 0.25 * b[2], k]).sort((a, b) => b[0] - a[0]).map((o) => o[1]);
+  return { beta, pi, sig, resp, assign, bic, avepp, sizes, K, order: order2 };
+}
+const GBTM_COLS = ["#3f8268", "#7c3aed", "#f59e0b", "#0ea5e9", "#ef4444", "#65a30d"];
+let gbtmReady = false, gbtmData = null, gbtmFits = null;
+function initGbtm() {
+  if (!document.getElementById("gbtmTraj")) return;
+  if (!gbtmReady) {
+    gbtmReady = true;
+    const sl = document.getElementById("gbtmKSlider");
+    if (sl) sl.addEventListener("input", () => { document.getElementById("gbtmKVal").textContent = sl.value; drawGbtm(); });
+    const rs = document.getElementById("gbtmResample");
+    if (rs) rs.addEventListener("click", () => { _gbtmRun(); drawGbtm(); });
+    _gbtmRun();
+  }
+  drawGbtm();
+}
+function _gbtmRun() {
+  gbtmData = _gbtmSample();
+  gbtmFits = {}; for (let k = 1; k <= 6; k++) gbtmFits[k] = _gbtmFit(gbtmData, k);
+}
+function _gbtmBestK() {
+  let best = 1, bv = Infinity;
+  for (let k = 1; k <= 6; k++) if (gbtmFits[k].bic < bv) { bv = gbtmFits[k].bic; best = k; }
+  return best;
+}
+function drawGbtm() {
+  if (!gbtmFits) return;
+  const K = parseInt(document.getElementById("gbtmKSlider").value, 10);
+  const fit = gbtmFits[K], bestK = _gbtmBestK();
+  const months = GBTM_X.map((_, t) => t);
+  // map fit groups to a stable colour order (high → low overall level)
+  const colOf = {}; fit.order.forEach((k, idx) => { colOf[k] = GBTM_COLS[idx % GBTM_COLS.length]; });
+  const traces = [];
+  const show = Math.min(GBTM_N, 90);                          // thin the spaghetti for speed
+  for (let i = 0; i < show; i++) {
+    traces.push({ x: months, y: gbtmData[i], mode: "lines", line: { color: colOf[fit.assign[i]], width: 0.6 },
+      opacity: 0.22, hoverinfo: "skip", showlegend: false });
+  }
+  fit.order.forEach((k, idx) => {
+    traces.push({ x: months, y: months.map((_, t) => _gbtmEval(fit.beta[k], t)), mode: "lines",
+      line: { color: colOf[k], width: 4 }, name: tr(`群組 ${idx + 1}（${(fit.pi[k] * 100).toFixed(0)}%）`, `Group ${idx + 1} (${(fit.pi[k] * 100).toFixed(0)}%)`) });
+  });
+  Plotly.react("gbtmTraj", traces, sceneLayout({
+    height: 430, showlegend: true, margin: { t: 28, r: 16, b: 44, l: 52 },
+    xaxis: { title: tr("月", "month"), dtick: 2, range: [-0.3, GBTM_T - 0.7] },
+    yaxis: { title: tr("順從度", "adherence"), range: [-0.05, 1.05] },
+  }), SCENE_CFG);
+  // BIC by K
+  const ks = [1, 2, 3, 4, 5, 6], bics = ks.map((k) => gbtmFits[k].bic);
+  Plotly.react("gbtmBic", [
+    { x: ks, y: bics, mode: "lines+markers", line: { color: SLATE, width: 2 },
+      marker: { size: ks.map((k) => (k === K ? 13 : 8)), color: ks.map((k) => (k === bestK ? GREEN : (k === K ? INK : SLATE))) },
+      hovertemplate: "K=%{x}<br>BIC=%{y:.0f}<extra></extra>", showlegend: false },
+  ], sceneLayout({
+    height: 430, margin: { t: 28, r: 16, b: 44, l: 64 },
+    xaxis: { title: tr("群組數 K", "number of groups K"), dtick: 1 },
+    yaxis: { title: "BIC" },
+    annotations: [{ x: bestK, y: gbtmFits[bestK].bic, ay: 28, ax: 0, text: tr("最低 BIC", "lowest BIC"), font: { size: 10, color: GREEN }, arrowcolor: GREEN }],
+  }), SCENE_CFG);
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.innerHTML = v; };
+  set("gbtmBicVal", fit.bic.toFixed(0));
+  set("gbtmAvepp", `<span style="color:${fit.avepp >= 0.7 ? GREEN : AMBER}">${fit.avepp.toFixed(2)}</span>`);
+  set("gbtmSizes", fit.order.map((k, idx) => `${tr("組", "G")}${idx + 1}: ${(100 * fit.sizes[k] / GBTM_N).toFixed(0)}%`).join(" · "));
+  const tiny = Math.min(...fit.sizes.map((c) => 100 * c / GBTM_N));
+  const reading = K < 3
+    ? tr(`K = ${K} 太少：不同形狀被迫共用一條曲線，BIC 偏高。試著增加到 3。`, `K = ${K} is too few: distinct shapes are forced to share a curve and BIC stays high. Try increasing to 3.`)
+    : (K === 3
+      ? tr("K = 3：BIC 觸底、AvePP 高、三組大小合理——和真相相符。", "K = 3: BIC bottoms out, AvePP is high, group sizes are reasonable — this matches the truth.")
+      : tr(`K = ${K}：BIC 幾乎沒再降，卻把真實群組拆開（最小一組僅 ${tiny.toFixed(0)}%），AvePP 下降——過度抽取。`, `K = ${K}: BIC barely improves but a real group gets split (smallest group only ${tiny.toFixed(0)}%) and AvePP drops — over-extraction.`));
+  set("gbtmReading", reading);
 }
 
 // ----------------------------------------------------------------------
@@ -2578,6 +2750,7 @@ const METHOD_REF = {
   ps:   { zh: "傾向分數 PS", en: "Propensity Score (PS)", src: "Rosenbaum & Rubin (1983), Biometrika; Austin (2011); Li, Morgan & Zaslavsky (2018)" },
   tmle: { zh: "TMLE／雙重穩健", en: "TMLE / doubly-robust (AIPW)", src: "van der Laan & Rubin (2006); van der Laan & Rose (2011); Luque-Fernandez et al. (2018), Stat Med" },
   gm: { zh: "G-methods（時變混淆）", en: "G-methods (time-varying confounding)", src: "Robins, Hernán & Brumback (2000); Naimi, Cole & Kennedy (2017), IJE; Daniel et al. (2013), Stat Med" },
+  gbtm: { zh: "群組軌跡模型 GBTM", en: "Group-based trajectory model (GBTM)", src: "Nagin (1999, 2005); Nagin & Odgers (2010), Annu Rev Clin Psychol; Jones & Nagin (2007, PROC TRAJ); Nagin & Tremblay (2005)" },
   tnd: { zh: "陰性檢驗設計 TND", en: "Test-Negative Design (TND)", src: "Jackson & Nelson (2013), Vaccine; Sullivan, Tchetgen Tchetgen & Cowling (2016); Schnitzer (2022), Epidemiology" },
   pssa: { zh: "處方順序對稱 PSSA", en: "Prescription Sequence Symmetry (PSSA)", src: "Hallas (1996), Epidemiology; Tsiropoulos, Andersen & Hallas (2009); Lai et al. (2017), Eur J Epidemiol" },
   tscan: { zh: "樹狀掃描統計 TreeScan", en: "Tree-based Scan Statistic (TreeScan)", src: "Kulldorff, Fang & Walsh (2003), Biometrics; Kulldorff et al. (2013), Stat Med; Maro et al. (2014), FDA Sentinel" },
