@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -70,6 +70,7 @@ const PANEL_INIT = {
   extctrllearn: () => initExtctrlLearn(), extctrlplay: () => initExtctrlPlay(), extctrlanalyze: () => initExtctrlAnalyze(),
   extctrlassume: () => initExtctrlAssume(), extctrlml: () => {},
   extctrlwhatif: () => drawWhatifPair("extctrl"),
+  srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   choose: () => initChoose(),
 };
 let curMethod = "iv", curSub = "learn";
@@ -86,9 +87,6 @@ function setSubtabs(show) { if (subtabsRow) subtabsRow.style.display = show ? ""
 const TOPICS = {
   causalml: { panel: "causalmlpanel", ref: "causalml", init: () => initCausalml() },
   miss: { panel: "misspanel", ref: "miss", init: () => initMiss() },
-  srma: { panel: "srmapanel", ref: "srma", init: () => initSrma() },
-  nma:  { panel: "nmapanel",  ref: "nma",  init: () => initNma() },
-  gbtm: { panel: "gbtmpanel", ref: "gbtm", init: () => initGbtm() },
 };
 
 function showPanel(panelId) {
@@ -2121,7 +2119,7 @@ function initChoose() {
 // merged into one clickable anchor-based tree. Click through → best-fit advice.
 // ----------------------------------------------------------------------
 function gotoMethod(m, sub) {
-  if (TOPICS[m]) { openTopic(m); return; }   // standalone topics (srma / nma / miss / causalml) have no ①–⑥ sub-tabs
+  if (TOPICS[m]) { openTopic(m); return; }   // standalone topics (miss / causalml) have no ①–⑥ sub-tabs
   curMethod = m;
   curSub = sub || "learn";
   methodSelect.value = m;
