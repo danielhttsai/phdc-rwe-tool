@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=122" />
+<link rel="stylesheet" href="styles.css?v=123" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="pyodide-bridge.js?v=49"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
@@ -30,18 +30,18 @@
         <option value="pnu" data-en="PNU · Prevalent new-user">PNU · 盛行新使用者</option>
         <option value="nc" data-en="NC · Negative control &amp; proximal">NC · 陰性對照與近端因果</option>
         <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
-        <option value="ps" data-en="PS · Propensity score">PS · 傾向分數</option>
         <option value="tmle" data-en="TMLE · Doubly-robust / targeted ML">TMLE · 雙重穩健／目標式</option>
         <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
         <option value="tnd" data-en="TND · Test-negative design">TND · 陰性檢驗設計</option>
         <option value="pssa" data-en="PSSA · Prescription sequence symmetry">PSSA · 處方順序對稱</option>
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
-        <option value="transport" data-en="Transportability · extend to a target population">可轉移性 · 搬到目標族群</option>
-        <option value="extctrl" data-en="External control · borrow a control arm">外部對照 · 借一個對照組</option>
+        <option value="transport" data-en="Transportability · extend to a target population">Transportability · 可轉移性（搬到目標族群）</option>
+        <option value="extctrl" data-en="External control · borrow a control arm">External control · 外部對照（借一個對照組）</option>
         <optgroup id="topicGroup" label="跨方法主題">
-          <option value="miss" data-en="Missing data &amp; imputation">缺失資料與多重插補</option>
-          <option value="srma" data-en="SR &amp; meta-analysis">系統性回顧與統合分析</option>
+          <option value="ps" data-en="PS · Propensity score">PS · 傾向分數</option>
+          <option value="miss" data-en="Missing data · multiple imputation">Missing data · 缺失資料與多重插補</option>
+          <option value="srma" data-en="SR/MA · systematic review &amp; meta-analysis">SR/MA · 系統性回顧與統合分析</option>
         </optgroup>
       </select>
     </label>
@@ -6604,7 +6604,7 @@ forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># fore
   </footer>
 </main>
 
-<script src="i18n.js?v=122"></script>
-<script src="app.js?v=122"></script>
+<script src="i18n.js?v=123"></script>
+<script src="app.js?v=123"></script>
 </body>
 </html>
