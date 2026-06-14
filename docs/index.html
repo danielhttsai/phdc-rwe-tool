@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>真實世界證據與準實驗工具箱 RWE and Quasi-experimental Toolbox</title>
-<link rel="stylesheet" href="styles.css?v=127" />
+<link rel="stylesheet" href="styles.css?v=128" />
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
 <script src="pyodide-bridge.js?v=50"></script>
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
@@ -27,7 +27,7 @@
         <option value="iv" data-en="IV · Instrumental variables" selected>IV · 工具變數</option>
         <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
         <option value="miss" data-en="Missing data · multiple imputation">Missing data · 缺失資料與多重插補</option>
-        <option value="nc" data-en="NC · Negative control &amp; proximal">NC · 陰性對照與近端因果</option>
+        <option value="nc" data-en="NC/PCI · Negative control &amp; proximal causal inference">NC/PCI · 陰性對照與近端因果</option>
         <option value="nma" data-en="NMA · network meta-analysis">NMA · 網絡統合分析</option>
         <option value="perr" data-en="PERR · Prior event rate ratio">PERR · 事前事件率比</option>
         <option value="pnu" data-en="PNU · Prevalent new-user">PNU · 盛行新使用者</option>
@@ -6078,7 +6078,7 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
             <td data-en="Conditioning on 'being tested' — test-negative controls make care-seeking non-differential w.r.t. vaccination">條件在「有來檢驗」這個選樣——陰性對照讓就醫傾向相對接種非差別</td>
             <td data-en="A neutral control disease, an accurate test, and equal care-seeking given the same symptoms">對照疾病中性、檢驗準確、相同症狀下就醫無差別</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · proxies / negative controls (proximal causal inference)">家族 · 代理／陰性對照（近端因果）</td></tr>
-          <tr><td>NC</td>
+          <tr><td>NC/PCI</td>
             <td data-en="Health-seeking (unmeasured) drives both vaccination and the outcome; you have a negative-control outcome (a pre-vaccination event) and a negative-control exposure">健康／就醫傾向（未測）同時影響接種與結果；你有陰性對照結果（接種前事件）與陰性對照暴露</td>
             <td data-en="A pair of negative controls — proxies of the unmeasured confounder (no A→W, no Z→Y)">一對陰性對照——未測混淆的代理（A 不影響 W、Z 不影響 Y）</td>
             <td data-en="The negative controls' 'no causal effect' + a confounding bridge / completeness">陰性對照的「無因果」＋混淆橋／完備性</td></tr>
@@ -6157,7 +6157,7 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
           <tr><td>CC</td><td data-en="Cases + controls representing the source population, with exposure history">病例＋代表來源族群的對照，含暴露史</td><td data-en="An odds ratio (≈ relative risk when the outcome is rare)">勝算比（結果罕見時 ≈ 相對風險）</td></tr>
           <tr><td>TND</td><td data-en="People who sought care and were tested, with the test result (target-pathogen +/−) and vaccination history">求醫且做了檢驗的人，含檢驗結果（目標病原陽／陰）與接種史</td><td data-en="Vaccine effectiveness, VE = 1 − odds ratio">疫苗效力 VE = 1 − 勝算比</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · proxies / negative controls">家族 · 代理／陰性對照（近端因果）</td></tr>
-          <tr><td>NC</td><td data-en="Treatment, outcome, covariates + a negative-control outcome (NCO) and a negative-control exposure (NCE)">治療、結果、共變項＋一個陰性對照結果（NCO）與一個陰性對照暴露（NCE）</td><td data-en="The causal effect under unmeasured confounding (identified proximally via the NC pair)">在未測混淆下的因果效應（用陰性對照對近端辨識）</td></tr>
+          <tr><td>NC/PCI</td><td data-en="Treatment, outcome, covariates + a negative-control outcome (NCO) and a negative-control exposure (NCE)">治療、結果、共變項＋一個陰性對照結果（NCO）與一個陰性對照暴露（NCE）</td><td data-en="The causal effect under unmeasured confounding (identified proximally via the NC pair)">在未測混淆下的因果效應（用陰性對照對近端辨識）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · mechanism (decomposition)">家族 · 機制（分解）</td></tr>
           <tr><td>MED</td><td data-en="Treatment A, a mediator M measured after A and before Y, outcome Y, covariates X (one row per person)">治療 A、量在 A 之後 Y 之前的中介 M、結果 Y、共變項 X（每人一列）</td><td data-en="The total effect split into natural direct (NDE) + natural indirect (NIE), and the proportion mediated">把總效果拆成自然直接 NDE ＋ 自然間接 NIE，以及被中介比例</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · adjustment / propensity / doubly-robust">家族 · 共變項校正／傾向分數／雙重穩健</td></tr>
@@ -6177,7 +6177,7 @@ mean(trial$Y) - mean(y0)                        <span class="cm"># treatment eff
     </div>
 
     <h2 data-en="Decision tree: click through to your best-fit design">決策樹：點一點，挑出最適合的設計</h2>
-    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 24 methods (incl. mediation, transportability &amp; external control) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 24 種方法（含中介分析、可轉移性與外部對照）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。</p>
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and this toolbox's 24 methods (incl. mediation, transportability &amp; external control) in <b>one clickable tree</b>. Answer each question about your study and it lands on the best-fit recommendation. <b>✓</b> = implemented here (jump straight to it); <b>↗</b> = related design, for reference. This tree is for choosing a <b>single study's design</b>; the cross-study / cross-method topics (Causal ML, missing data, systematic review &amp; meta-analysis, network meta-analysis) are a separate layer and are not leaves here — pick them from the method dropdown.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>本工具箱的 24 種方法（含中介分析、可轉移性與外部對照）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議。<b>✓</b>＝本工具箱已實作（可直接前往）；<b>↗</b>＝延伸設計，供參考。這棵樹是用來選<b>單一研究的設計</b>；跨研究／跨方法的主題（因果機器學習、缺失資料、系統性回顧與統合分析、網絡統合分析）屬於另一層、不在這棵樹上——請從方法下拉選單選取。</p>
     <div class="flow-legend">
       <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
@@ -6572,7 +6572,9 @@ forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># fore
     <ul class="reflist" id="refsList">
       <li data-ref="all"><b data-en="Causal-inference foundations (tab ⑥)">因果推論基礎（分頁 ⑥）</b> · Hernán, M. A., &amp; Robins, J. M. (2020). <i>Causal Inference: What If.</i> Boca Raton: Chapman &amp; Hall/CRC. <span data-en="〔counterfactuals; exchangeability / positivity / consistency; g-methods; target trial — free book: hsph.harvard.edu/miguel-hernan/causal-inference-book〕">〔反事實；可交換性／正性／一致性；g-methods；目標試驗 —— 免費電子書：<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">hsph.harvard.edu/miguel-hernan/causal-inference-book</a>〕</span></li>
       <li data-ref="all"><b data-en="Causal machine learning (tab ⑤ framing)">因果機器學習（⑤ 框架）</b> · Feuerriegel, S., Frauen, D., Melnychuk, V., Schweisthal, J., Hess, K., Curth, A., Bauer, S., Kilbertus, N., Kohane, I. S., &amp; van der Schaar, M. (2024). Causal machine learning for predicting treatment outcomes. <i>Nature Medicine, 30</i>, 958–968. https://doi.org/10.1038/s41591-024-02902-1. · Kaddour, J., Lynch, A., Liu, Q., Kusner, M. J., &amp; Silva, R. (2022). Causal Machine Learning: A Survey and Open Problems. <i>arXiv</i>:2206.15475. · Li, S., &amp; Chu, Z. (Eds.) (2023). <i>Machine Learning for Causal Inference.</i> Springer. <span data-en="〔individualised effects (CATE), meta-learners (S/T/X/DR-learner), cautions for RWD — woven into every method's ⑤〕">〔個體化效果（CATE）、meta-learners（S/T/X/DR-learner）、對 RWD 的提醒 —— 織入每個方法的 ⑤〕</span></li>
-      <li data-ref="db"><b data-en="Databases (Databases tab)">資料庫（資料庫分頁）</b> · AsPEN database directory (Asian Pharmacoepidemiology Network / PHD Center). <a href="https://phd-center.github.io/AsPEN/databases/" target="_blank" rel="noopener">phd-center.github.io/AsPEN/databases</a>. · Sturkenboom, M., &amp; Schink, T. (Eds.) (2020). <i>Databases for Pharmacoepidemiological Research.</i> Springer (Series on Epidemiology and Public Health). · Tsai, D. H-T., …, &amp; Lai, E. C-C. <i>Cross-Regional Data Initiative for the Assessment and Development of Treatment for Neurological and Mental Disorders (NeuroGEN).</i> <span data-en="〔database directory + how database features map to design strengths — Databases tab〕">〔資料庫名錄＋資料庫特性如何對應設計強項 —— 資料庫分頁〕</span></li>
+      <li data-ref="db"><b data-en="Databases (Databases tab)">資料庫（資料庫分頁）</b> · Asian Pharmacoepidemiology Network (AsPEN), Population Health Data Center. <i>AsPEN database directory.</i> <a href="https://phd-center.github.io/AsPEN/databases/" target="_blank" rel="noopener">phd-center.github.io/AsPEN/databases</a>. <span data-en="〔directory of pharmacoepidemiology databases — Databases tab〕">〔藥物流行病學資料庫名錄 —— 資料庫分頁〕</span></li>
+      <li data-ref="db">Sturkenboom, M., &amp; Schink, T. (Eds.). (2020). <i>Databases for Pharmacoepidemiological Research.</i> Cham: Springer (Series on Epidemiology and Public Health). https://doi.org/10.1007/978-3-030-51455-6. <span data-en="〔how database features map to design strengths — Databases tab〕">〔資料庫特性如何對應設計強項 —— 資料庫分頁〕</span></li>
+      <li data-ref="db">Tsai, D. H-T., Lai, E. C-C., et al. <i>Cross-Regional Data Initiative for the Assessment and Development of Treatment for Neurological and Mental Disorders (NeuroGEN).</i> <span data-en="〔cross-regional common-protocol network across multiple databases — Databases tab〕">〔跨區域、共同協定、跨多個資料庫的網路 —— 資料庫分頁〕</span></li>
       <li data-ref="miss"><b data-en="Missing data (Missing-data tab)">缺失資料（缺失資料分頁）</b> · Rubin, D. B. (1987). <i>Multiple Imputation for Nonresponse in Surveys.</i> Wiley. · van Buuren, S. (2018). <i>Flexible Imputation of Missing Data</i> (2nd ed.). CRC Press (the <code>mice</code> package). · Sterne, J. A. C., White, I. R., Carlin, J. B., et al. (2009). Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. <i>BMJ, 338</i>, b2393. <span data-en="〔MCAR/MAR/MNAR, complete-case vs MI, Rubin's rules — Missing-data tab〕">〔MCAR／MAR／MNAR、刪列 vs 多重插補、Rubin 規則 —— 缺失資料分頁〕</span></li>
       <li data-ref="miss"><b data-en="Teaching resources">教學資源</b> · Princeton DSS, <i>Missing Data &amp; R</i> (libguides.princeton.edu/R-Missingdata). · Columbia MailmanSPH, <i>Missing Data and Multiple Imputation</i> (publichealth.columbia.edu, Population Health Methods). · Brownlee, J. (2024). <i>Advanced Imputation Techniques in pandas &amp; scikit-learn</i> (machinelearningmastery.com — IterativeImputer / KNNImputer). <span data-en="〔hands-on imputation in R &amp; Python〕">〔R 與 Python 的實作插補〕</span></li>
       <li data-ref="transport"><b data-en="Framework">框架</b> · Adamson, B., Liu, W., Duffield, S., et al. (2026). Transportability Analyses in Comparative Effectiveness Research: A Conceptual Framework and Methodological Principles Endorsed by the International Society for Pharmacoepidemiology (ISPE). <i>Pharmacoepidemiology and Drug Safety, 35</i>, e70396. · Inoue, K., &amp; Hsu, W. (2024). Transportability Analysis — A Tool for Extending Trial Results to a Representative Target Population (Invited Commentary, Oncology). <span data-en="〔ISPE framework + plain-language framing — Transportability tabs〕">〔ISPE 框架＋白話導讀 —— 可轉移性分頁〕</span></li>
@@ -6711,7 +6713,7 @@ forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># fore
   </footer>
 </main>
 
-<script src="i18n.js?v=127"></script>
-<script src="app.js?v=127"></script>
+<script src="i18n.js?v=128"></script>
+<script src="app.js?v=128"></script>
 </body>
 </html>

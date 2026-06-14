@@ -2470,7 +2470,7 @@ const CHOOSE_FAMILIES = [
   { zh: "主動對照新使用者", en: "active-comparator new-user", members: [
       ["ACNU", 2.53, 0.99], ["PNU", 0.69, 1.03]] },
   { zh: "抽樣設計／疫苗效力", en: "sampling design / vaccine effectiveness", members: [["CC", 1.66, 1.00], ["TND", 0.50, 0.98]] },
-  { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC", 2.12, 0.94]] },
+  { zh: "代理／陰性對照", en: "proxies / negative controls", members: [["NC/PCI", 2.12, 0.94]] },
   { zh: "機制／中介", en: "mechanism / mediation", members: [["MED", 1.15, 0.94]] },
   { zh: "校正／傾向分數／雙重穩健", en: "adjustment / PS / doubly-robust", members: [["PS", 1.52, 1.01], ["TMLE", 1.46, 1.02]] },
   { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97], ["WCE", 0.58, 1.01]] },
@@ -2533,7 +2533,7 @@ const METHOD_REF = {
   sccs: { zh: "自身對照病例系列 SCCS", en: "Self-controlled case series (SCCS)", src: "Whitaker, Farrington & Musonda (2006); Petersen, Douglas & Whitaker (2016); sccs-studies.info" },
   acnu: { zh: "主動對照新使用者 ACNU", en: "Active-Comparator, New-User (ACNU)", src: "Lund, Richardson & Stürmer (2015); Ray (2003); Yoshida, Solomon & Kim (2015)" },
   pnu:  { zh: "盛行新使用者 PNU", en: "Prevalent New-User (PNU)", src: "Suissa, Moodie & Dell'Aniello (2017), Pharmacoepidemiol Drug Saf" },
-  nc:   { zh: "陰性對照與近端因果 NC", en: "Negative Control & Proximal (NC)", src: "Lipsitch, Tchetgen Tchetgen & Cohen (2010); Miao, Geng & Tchetgen Tchetgen (2018); Schuemie et al. (2014/2018)" },
+  nc:   { zh: "陰性對照與近端因果 NC/PCI", en: "Negative Control & Proximal Causal Inference (NC/PCI)", src: "Lipsitch, Tchetgen Tchetgen & Cohen (2010); Miao, Geng & Tchetgen Tchetgen (2018); Schuemie et al. (2014/2018)" },
   med:  { zh: "中介分析 Mediation", en: "Mediation analysis (MED)", src: "Imai, Keele & Yamamoto (2010); Tingley et al. (2014), JSS; VanderWeele (2015)" },
   ps:   { zh: "傾向分數 PS", en: "Propensity Score (PS)", src: "Rosenbaum & Rubin (1983), Biometrika; Austin (2011); Li, Morgan & Zaslavsky (2018)" },
   tmle: { zh: "TMLE／雙重穩健", en: "TMLE / doubly-robust (AIPW)", src: "van der Laan & Rubin (2006); van der Laan & Rose (2011); Luque-Fernandez et al. (2018), Stat Med" },
@@ -7516,8 +7516,11 @@ function drawWhatif(method) {
     anns.push({ x, y, ax, ay, xref: "x", yref: "y", axref: "x", ayref: "y", showarrow: true,
       arrowhead: 3, arrowsize: 1.1, arrowwidth: s.w, arrowcolor: s.c, standoff: 22, startstandoff: 22, text: "" });
     if (e.label) {
-      const mx = (ax + x) / 2, my = (ay + y) / 2 + (Math.abs(ay - y) < 0.4 ? 0.24 : 0.05);
-      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 9.5), { xanchor: "center" }));
+      const vert = Math.abs(ax - x) < 0.4;            // vertical edge → push label aside, not onto the line
+      const horiz = Math.abs(ay - y) < 0.4;
+      const mx = (ax + x) / 2 + (vert ? 0.62 : 0);
+      const my = (ay + y) / 2 + (vert ? 0 : (horiz ? 0.24 : 0.05));
+      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 9.5), { xanchor: vert ? "left" : "center" }));
     }
   });
   // node markers + ids inside; full label beside
@@ -7609,8 +7612,11 @@ function drawSwig(method) {
       arrowhead: 3, arrowsize: 1.1, arrowwidth: s.w, arrowcolor: s.c,
       standoff: (e.b === splitId ? 6 : 22), startstandoff: (e.a === splitId ? 6 : 22), text: "" });
     if (e.label) {
-      const mx = (ax + x) / 2, my = (ay + y) / 2 + (Math.abs(ay - y) < 0.4 ? 0.24 : 0.05);
-      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 9.5), { xanchor: "center" }));
+      const vert = Math.abs(ax - x) < 0.4;            // vertical edge → push label aside, not onto the line
+      const horiz = Math.abs(ay - y) < 0.4;
+      const mx = (ax + x) / 2 + (vert ? 0.62 : 0);
+      const my = (ay + y) / 2 + (vert ? 0 : (horiz ? 0.24 : 0.05));
+      anns.push(Object.assign(_lbl(mx, my, L(e.label), s.c, 9.5), { xanchor: vert ? "left" : "center" }));
     }
   });
   // split-box inner labels  A | a
