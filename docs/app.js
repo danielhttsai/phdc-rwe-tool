@@ -216,25 +216,6 @@ function showGlossary() {
 }
 if (glossaryTab) glossaryTab.addEventListener("click", showGlossary);
 
-// Dark-mode toggle. <html data-theme> is set pre-paint by an inline <head> script;
-// here we wire the button, persist the choice, and re-render charts in the new
-// palette by reusing the language re-render path (covers every chart already drawn).
-function setTheme(t) {
-  const theme = t === "dark" ? "dark" : "light";
-  document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem("iv-theme", theme); } catch (e) { /* ignore */ }
-  const tb = document.getElementById("themeToggle");
-  if (tb) tb.textContent = theme === "dark" ? "☀️" : "🌙";
-  window.dispatchEvent(new CustomEvent("iv-lang", { detail: { lang: lang() } }));
-}
-{
-  const tb = document.getElementById("themeToggle");
-  if (tb) {
-    tb.textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙";
-    tb.addEventListener("click", () => setTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
-  }
-}
-
 function openTopic(key) {
   const t = TOPICS[key]; if (!t) return;
   if (homeTab) homeTab.classList.remove("active");
@@ -1161,21 +1142,14 @@ const SCENE_CFG = { displayModeBar: false, responsive: true };
 // ---------------------------------------------------------------------------
 const CHART_FONT = "system-ui, 'Noto Sans TC', 'Segoe UI', sans-serif";
 const GRIDC = "#e6ebf1", ZLINEC = "#c3cedb", TICKC = "#475569";
-// Theme-aware chart colours: dark mode needs light text/grid so axes & fonts stay
-// readable on a dark panel. Read live so a re-render after a theme toggle updates.
-function _chartTheme() {
-  return document.documentElement.dataset.theme === "dark"
-    ? { ink: "#e6edf3", grid: "#2a3a48", zline: "#3a4a58", tick: "#9aa7b4" }
-    : { ink: INK, grid: GRIDC, zline: ZLINEC, tick: TICKC };
-}
-const axisBase = () => { const c = _chartTheme(); return {
-  gridcolor: c.grid, zerolinecolor: c.zline, linecolor: c.zline,
-  titlefont: { family: CHART_FONT, size: 12.5, color: c.ink },
-  tickfont: { family: CHART_FONT, size: 11, color: c.tick }, automargin: true,
-}; };
+const axisBase = () => ({
+  gridcolor: GRIDC, zerolinecolor: ZLINEC, linecolor: ZLINEC,
+  titlefont: { family: CHART_FONT, size: 12.5, color: INK },
+  tickfont: { family: CHART_FONT, size: 11, color: TICKC }, automargin: true,
+});
 function sceneLayout(extra) {
   extra = extra || {};
-  const _ink = _chartTheme().ink;
+  const _ink = INK;
   const base = {
     height: 300, margin: { t: 30, r: 18, b: 46, l: 56 }, showlegend: false,
     font: { family: CHART_FONT, size: 12, color: _ink },
