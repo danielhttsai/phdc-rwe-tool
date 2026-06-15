@@ -15,6 +15,21 @@
   --shadow: 0 1px 3px rgba(20, 40, 60, .07), 0 6px 20px rgba(20, 40, 60, .05);
 }
 * { box-sizing: border-box; }
+/* ---- Accessibility ---- */
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 1000;
+  background: var(--z); color: #fff; padding: .55rem 1rem; border-radius: 0 0 8px 0;
+  font-weight: 700; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+:focus-visible { outline: 2px solid var(--z); outline-offset: 2px; }
+.tab:focus-visible, .home-card:focus-visible, .gloss-item:focus-visible, .toc-link:focus-visible,
+.btn:focus-visible, select:focus-visible, input:focus-visible, .lang-toggle:focus-visible {
+  outline: 2px solid var(--z); outline-offset: 2px; border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
 body {
   margin: 0;
   font-family: "Segoe UI", "Microsoft JhengHei", system-ui, sans-serif;

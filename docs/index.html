@@ -23,6 +23,7 @@
 <!-- 本檔由 build_docs.py 產生,請勿手改;來源為 frontend/index.html -->
 </head>
 <body>
+<a href="#main" class="skip-link" data-en="Skip to content">跳到主要內容</a>
 <header class="topbar">
   <div class="brand"><img class="brand-logo" src="assets/phdc-logo.png" alt="PHDc · Population Health Data Center" title="Population Health Data Center" /><span data-en="RWE &amp; Quasi-experimental toolbox">真實世界證據與準實驗工具箱</span></div>
   <nav class="tabs">
@@ -60,13 +61,13 @@
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
       </select>
     </label>
-    <div class="subtabs">
-      <button class="tab subtab active" data-sub="learn" data-en="① What is it">① 是什麼</button>
-      <button class="tab subtab" data-sub="play" data-en="② Interactive">② 互動講解</button>
-      <button class="tab subtab" data-sub="analyze" data-en="③ Analyse data">③ 資料分析</button>
-      <button class="tab subtab" data-sub="assume" data-en="④ Assumptions">④ 假設檢驗</button>
-      <button class="tab subtab" data-sub="ml" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
-      <button class="tab subtab" data-sub="whatif" data-en="⑥ What if">⑥ 如果……？</button>
+    <div class="subtabs" role="tablist" aria-label="方法的六層 · the six layers of each method">
+      <button class="tab subtab active" data-sub="learn" role="tab" aria-selected="true" data-en="① What is it">① 是什麼</button>
+      <button class="tab subtab" data-sub="play" role="tab" aria-selected="false" data-en="② Interactive">② 互動講解</button>
+      <button class="tab subtab" data-sub="analyze" role="tab" aria-selected="false" data-en="③ Analyse data">③ 資料分析</button>
+      <button class="tab subtab" data-sub="assume" role="tab" aria-selected="false" data-en="④ Assumptions">④ 假設檢驗</button>
+      <button class="tab subtab" data-sub="ml" role="tab" aria-selected="false" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
+      <button class="tab subtab" data-sub="whatif" role="tab" aria-selected="false" data-en="⑥ What if">⑥ 如果……？</button>
     </div>
     <button class="tab tab-sep" id="chooseTab" data-en="Which one?">怎麼選</button>
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
@@ -75,7 +76,7 @@
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
   <!-- ===================== 首頁 / Home ===================== -->
   <section id="home" class="panel active">
     <h1 data-en="RWE &amp; Quasi-experimental Toolbox">真實世界證據與準實驗工具箱</h1>

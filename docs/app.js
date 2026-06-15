@@ -237,7 +237,7 @@ function showMethodSub() {
   if (glossaryTab) glossaryTab.classList.remove("active");
   chooseTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
-  subtabBtns.forEach((b) => b.classList.toggle("active", b.dataset.sub === curSub));
+  subtabBtns.forEach((b) => { const on = b.dataset.sub === curSub; b.classList.toggle("active", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
   showPanel(METHOD_PREFIX[curMethod] + curSub);
   if (curSub === "analyze") renderDataPreview(curMethod);   // ③: show the real data rows on top
   if (curSub === "assume" && EVALUE_METHODS.includes(curMethod)) ensureEvalueCard(curMethod);  // ④: E-value sensitivity
@@ -285,7 +285,8 @@ document.addEventListener("click", (e) => {
   if (toc) {
     e.preventDefault();
     const t = document.getElementById((toc.getAttribute("href") || "").slice(1));
-    if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+    const _rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (t) t.scrollIntoView({ behavior: _rm ? "auto" : "smooth", block: "start" });
     return;
   }
   const a = e.target.closest && e.target.closest("a.xref");
