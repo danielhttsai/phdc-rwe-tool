@@ -216,6 +216,64 @@ function showGlossary() {
 }
 if (glossaryTab) glossaryTab.addEventListener("click", showGlossary);
 
+// ---- Self-check quiz ----------------------------------------------------------
+// Data-driven multiple-choice questions, rendered as a collapsible card at the end
+// of a method's ① learn panel. Extensible: add a QUIZ[method] entry for any method.
+const QUIZ = {
+  iv: [{ q: { zh: "工具變數最關鍵、<b>無法用資料檢驗</b>的假設是哪一個？", en: "Which is IV's key assumption that <b>cannot be tested from data</b>?" },
+    options: [{ zh: "排除限制（工具只透過暴露影響結果）", en: "Exclusion (the instrument affects the outcome only through the exposure)" },
+              { zh: "工具與暴露相關", en: "The instrument is correlated with the exposure" },
+              { zh: "樣本要夠大", en: "A large enough sample" }],
+    answer: 0, explain: { zh: "排除限制無法檢驗；工具強度（與暴露相關）反而可檢——看第一階段 F>10。", en: "Exclusion is untestable; instrument strength (correlation with exposure) IS checkable via the first-stage F>10." } }],
+  rdd: [{ q: { zh: "RDD 的因果效果是在<b>哪裡</b>被識別的？", en: "<b>Where</b> does RDD identify the causal effect?" },
+    options: [{ zh: "整個族群", en: "The whole population" }, { zh: "切點附近", en: "Right around the cutoff" }, { zh: "分數最高的人", en: "The highest-scoring people" }],
+    answer: 1, explain: { zh: "RDD 只在切點附近識別 LATE；離切點越遠越靠外推、越不可信。", en: "RDD identifies a LATE only near the cutoff; away from it you are extrapolating." } }],
+  did: [{ q: { zh: "DiD 最關鍵、事後不可檢驗的假設是？", en: "DiD's key (post-period untestable) assumption is?" },
+    options: [{ zh: "平行趨勢", en: "Parallel trends" }, { zh: "隨機分派", en: "Randomisation" }, { zh: "無測量誤差", en: "No measurement error" }],
+    answer: 0, explain: { zh: "平行趨勢——沒政策時兩組會一起變；用事前趨勢（事件研究）佐證但無法證明。", en: "Parallel trends — absent the policy the groups move together; supported by pre-trends but not provable." } }],
+  its: [{ q: { zh: "單組 ITS 把<b>什麼</b>當作反事實？", en: "What does a single-group ITS use as the counterfactual?" },
+    options: [{ zh: "介入前趨勢的外推", en: "The extrapolated pre-intervention trend" }, { zh: "一個對照組", en: "A control group" }, { zh: "隨機化", en: "Randomisation" }],
+    answer: 0, explain: { zh: "用介入前趨勢外推當「沒介入會怎樣」；要小心同時發生的其他事件。", en: "It extrapolates the pre-trend as 'what if no intervention'; beware coincident events." } }],
+  ps: [{ q: { zh: "傾向分數<b>平衡得好不好</b>，應該看？", en: "How do you judge whether a propensity score <b>balanced</b> the groups?" },
+    options: [{ zh: "共變項的標準化差異 SMD（<0.1）", en: "The covariates' standardized mean difference (SMD < 0.1)" },
+              { zh: "PS 模型的判別力 AUC", en: "The PS model's discrimination (AUC)" },
+              { zh: "p 值", en: "The p-value" }],
+    answer: 0, explain: { zh: "看校正後共變項的 SMD，不是 PS 預測得準不準；高 AUC 不代表平衡好。", en: "Check covariate SMD after weighting, not how well the PS predicts treatment; high AUC ≠ good balance." } }],
+  sccs: [{ q: { zh: "SCCS 用<b>什麼</b>當對照？", en: "What serves as the control in SCCS?" },
+    options: [{ zh: "同一個人的其他時間", en: "The same person's other time" }, { zh: "別的人", en: "Other people" }, { zh: "隨機分組", en: "A randomised group" }],
+    answer: 0, explain: { zh: "自身對照——條件在「人」，所有時間不變因子相消；需事件不改變後續暴露機率。", en: "Person-as-own-control — conditioning on the person cancels all time-fixed factors; needs events not to change later exposure." } }],
+  tnd: [{ q: { zh: "陰性檢驗設計（TND）主要想消除哪種偏誤？", en: "Which bias does the test-negative design mainly remove?" },
+    options: [{ zh: "就醫／檢驗傾向", en: "Care-seeking / testing propensity" }, { zh: "回憶偏誤", en: "Recall bias" }, { zh: "發表偏誤", en: "Publication bias" }],
+    answer: 0, explain: { zh: "對照取「來檢驗卻陰性」者，讓就醫傾向相對接種非差別；VE = 1 − OR。", en: "Tested-but-negative controls make care-seeking non-differential w.r.t. vaccination; VE = 1 − OR." } }],
+  ccw: [{ q: { zh: "Clone-censor-weight 主要解決什麼問題？", en: "What problem does clone-censor-weight mainly solve?" },
+    options: [{ zh: "不死時間偏誤（immortal-time）", en: "Immortal-time bias" }, { zh: "缺失資料", en: "Missing data" }, { zh: "多重比較", en: "Multiple comparisons" }],
+    answer: 0, explain: { zh: "把每人複製到各策略臂、對人為設限做 IPCW、對齊時間零點，避免 immortal-time bias。", en: "Clone into each strategy arm, IPCW the artificial censoring, align time zero — avoiding immortal-time bias." } }],
+};
+function renderQuiz(method) {
+  const panel = document.getElementById((METHOD_PREFIX[method] || "") + "learn");
+  if (!panel) return;
+  const old = panel.querySelector(".quiz"); if (old) old.remove();   // rebuild (e.g. after a language switch)
+  const qs = QUIZ[method]; if (!qs || !qs.length) return;
+  const card = document.createElement("div");
+  card.className = "quiz card";
+  card.innerHTML = `<h3>${tr("自我測驗", "Self-check")}</h3>` + qs.map((it) =>
+    `<div class="quiz-q" data-a="${it.answer}">` +
+    `<p class="quiz-prompt">${tr(it.q.zh, it.q.en)}</p>` +
+    `<div class="quiz-opts">` + it.options.map((o, i) =>
+      `<button type="button" class="quiz-opt" data-i="${i}">${tr(o.zh, o.en)}</button>`).join("") + `</div>` +
+    `<p class="quiz-explain" hidden>${tr(it.explain.zh, it.explain.en)}</p></div>`).join("");
+  card.addEventListener("click", (e) => {
+    const opt = e.target.closest(".quiz-opt"); if (!opt) return;
+    const q = opt.closest(".quiz-q"); const ans = +q.dataset.a, i = +opt.dataset.i;
+    q.querySelectorAll(".quiz-opt").forEach((b, j) => {
+      if (j === ans) b.classList.add("correct");
+      if (j === i && i !== ans) b.classList.add("wrong");
+    });
+    const ex = q.querySelector(".quiz-explain"); if (ex) ex.hidden = false;
+  });
+  panel.appendChild(card);
+}
+
 function openTopic(key) {
   const t = TOPICS[key]; if (!t) return;
   if (homeTab) homeTab.classList.remove("active");
@@ -239,6 +297,7 @@ function showMethodSub() {
   if (dataTab) dataTab.classList.remove("active");
   subtabBtns.forEach((b) => { const on = b.dataset.sub === curSub; b.classList.toggle("active", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
   showPanel(METHOD_PREFIX[curMethod] + curSub);
+  if (curSub === "learn") renderQuiz(curMethod);            // ①: optional self-check quiz
   if (curSub === "analyze") renderDataPreview(curMethod);   // ③: show the real data rows on top
   if (curSub === "assume" && EVALUE_METHODS.includes(curMethod)) ensureEvalueCard(curMethod);  // ④: E-value sensitivity
   if (typeof filterRefs === "function") filterRefs(curMethod);
@@ -8250,6 +8309,7 @@ window.addEventListener("iv-lang", async () => {
   filterRefs(refsContext);                         // re-scope refs + citation in new language
   initHome();                                      // rebuild the home grid in the new language
   initGlossary();                                  // rebuild the glossary in the new language
+  if (curSub === "learn") renderQuiz(curMethod);   // rebuild the quiz in the new language
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };

@@ -92,6 +92,23 @@ def test_topic_panels_and_options_exist(html, topic_keys, appjs):
         assert f'value="{key}"' in html, f"topic {key} has no <option>"
 
 
+def test_quiz_keys_are_real_methods(appjs, method_prefix):
+    body = _obj_body(appjs, "QUIZ")
+    # keep only depth-0 characters so nested keys like `options:` are excluded
+    depth, top = 0, []
+    for ch in body:
+        if ch in "{[(":
+            depth += 1
+        elif ch in "}])":
+            depth -= 1
+        elif depth == 0:
+            top.append(ch)
+    keys = set(re.findall(r"(\w+)\s*:", "".join(top)))
+    assert keys, "QUIZ registry is empty"
+    bad = keys - set(method_prefix)
+    assert not bad, f"QUIZ keys that are not methods: {bad}"
+
+
 def test_subtab_buttons_match_the_six_subs(html):
     found = set(re.findall(r'class="tab subtab[^"]*"\s+data-sub="(\w+)"', html))
     found |= set(re.findall(r'data-sub="(\w+)"', html))

@@ -483,6 +483,20 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .home-card:active { transform: translateY(1px); }
 .home-card .hc-abbr { font-weight: 800; color: var(--z); }
 .home-card .hc-name { font-size: .86rem; color: var(--muted); }
+/* Self-check quiz (collapsible card at the end of a method's ① learn panel). */
+.quiz { margin-top: 1.6rem; }
+.quiz h3::before { content: "📝 "; }
+.quiz-q { margin: .7rem 0 1.1rem; }
+.quiz-prompt { font-weight: 600; margin: 0 0 .55rem; }
+.quiz-opts { display: flex; flex-direction: column; gap: .4rem; }
+.quiz-opt { text-align: left; padding: .5rem .8rem; border: 1.5px solid var(--line); border-radius: 10px;
+  background: var(--card); color: var(--ink); cursor: pointer; font: inherit; transition: .12s; }
+.quiz-opt:hover { border-color: var(--z); }
+.quiz-opt.correct { border-color: #16a34a; background: #ecfdf5; font-weight: 600; }
+.quiz-opt.wrong { border-color: #dc2626; background: #fef2f2; }
+.quiz-explain { margin: .55rem 0 0; font-size: .9rem; line-height: 1.6;
+  background: #f1f5f9; border-left: 3px solid var(--z); border-radius: 8px; padding: .5rem .75rem; }
+
 /* Glossary: auto-collected term definitions. */
 .gloss-item { border: 1px solid var(--line); border-radius: 10px; padding: .6rem .85rem; margin: .5rem 0; background: var(--card); box-shadow: var(--shadow); }
 .gloss-item h4 { margin: 0 0 .25rem; color: var(--z); font-size: 1rem; }
