@@ -2751,10 +2751,16 @@ function initDtree() {
   if (!document.getElementById("dtreeStage")) return;
   const back = document.getElementById("dtreeBack");
   const restart = document.getElementById("dtreeRestart");
+  const fullmap = document.getElementById("dtreeFullmap");
   if (back && !back.dataset.wired) {
     back.dataset.wired = "1";
     back.addEventListener("click", () => { if (dtreeStack.length > 1) { dtreeStack.pop(); renderDtree(); } });
     restart.addEventListener("click", () => { dtreeStack = [{ id: "n1", ans: null }]; renderDtree(); });
+    if (fullmap) fullmap.addEventListener("click", () => {
+      const box = document.getElementById("dtreeMap");
+      if (box && !box.hidden) { box.hidden = true; return; }   // toggle off if already showing
+      renderFullMap(null);                                     // whole tree, no endpoint highlighted
+    });
   }
   renderDtree();
 }

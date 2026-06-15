@@ -193,9 +193,9 @@ b { color: #0b1020; }
   width: 100%; flex-wrap: wrap; }
 .fc-lane { flex: 1 1 300px; max-width: 460px; display: flex; flex-direction: column; align-items: stretch; }
 /* vertical connector with an arrowhead, optional branch label */
-.fc-link { width: 2px; min-height: 22px; background: #c3cedb; margin: 3px auto; position: relative; }
+.fc-link { width: 2px; min-height: 22px; background: #94a3b8; margin: 3px auto; position: relative; }
 .fc-link::after { content: ""; position: absolute; bottom: 0; left: 50%;
-  transform: translate(-50%, 55%); border: 5px solid transparent; border-top-color: #c3cedb; }
+  transform: translate(-50%, 55%); border: 5px solid transparent; border-top-color: #94a3b8; }
 .fc-elabel { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); white-space: nowrap;
   background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px;
   font-size: .72rem; color: var(--muted); line-height: 1.6; }
@@ -211,7 +211,12 @@ a.xref:hover { color: #2c5b47; border-bottom-style: solid; }
 .fc-q { background: var(--card); border: 2px solid #94a3b8; border-radius: 12px; padding: .55rem .8rem;
   font-weight: 700; text-align: center; box-shadow: var(--shadow); }
 .fc-q::before { content: "◇ "; color: #94a3b8; }
-.fc-leaves { display: flex; flex-direction: column; gap: .4rem; }
+/* leaves under a question fan out as tree branches: a vertical spine on the left
+   with a horizontal elbow into each leaf (org-chart / file-tree look) */
+.fc-leaves { display: flex; flex-direction: column; gap: .5rem; position: relative; padding-left: 22px; }
+.fc-leaves::before { content: ""; position: absolute; left: 8px; top: -10px; bottom: 18px; width: 2px; background: #94a3b8; }
+.fc-leaves .fc-leaf { position: relative; }
+.fc-leaves .fc-leaf::before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 2px; background: #94a3b8; }
 .fc-leaf { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
   background: var(--card); border: 1px solid var(--line); border-left-width: 5px; border-radius: 10px;
   padding: .5rem .7rem; font-size: .88rem; }
