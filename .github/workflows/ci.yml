@@ -8,14 +8,16 @@ on:
 
 jobs:
   structure:
-    # Fast, dependency-free guard on the frontend wiring + a clean docs build.
+    # Fast guard on the frontend wiring + a clean docs build (only needs pytest).
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Frontend structural tests (no deps)
+      - name: Install pytest
+        run: pip install pytest
+      - name: Frontend structural tests (stdlib only)
         run: python -m pytest backend/test_frontend_structure.py -q
       - name: Build docs (must exit 0)
         run: python build_docs.py
