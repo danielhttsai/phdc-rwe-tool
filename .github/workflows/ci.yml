@@ -35,3 +35,21 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run backend tests
         run: python -m pytest backend/ -q
+
+  e2e:
+    # Browser smoke test of the built docs/ (catches runtime/console errors).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Playwright
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+      - name: Run smoke tests (serves docs/ via http.server)
+        run: npx playwright test

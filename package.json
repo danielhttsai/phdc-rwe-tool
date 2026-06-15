@@ -1,0 +1,12 @@
+{
+  "name": "phdc-rwe-tool-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright smoke tests for the built static site (docs/).",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0"
+  }
+}
