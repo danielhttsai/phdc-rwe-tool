@@ -3439,20 +3439,27 @@ function initTitLearn() {
   drawSceneTitFan();
 }
 function drawSceneTitFan() {
-  if (!document.getElementById("sceneTitFan")) return;
+  if (!document.getElementById("sceneTitExpo")) return;
   const rng = mulberry32(717);
   const P = Array.from({ length: 10 }, (_, i) => i), K = 5;
+  const q0 = 0.012, beta = 0.06;                  // baseline event rate; causal effect of exposure on outcome
   const strata = [];
   for (let g = 0; g < K; g++) {
     const slope = 0.05 + 0.12 * g;
-    const p = P.map((tp) => {
+    const p = P.map((tp) => {                     // exposure (vaccination) prevalence trend
       const lo = -4.0 + slope * tp;
       const pr = 1 / (1 + Math.exp(-lo));
       return Math.max(0, pr + (rng() - 0.5) * 0.012);
     });
-    strata.push({ g, p });
+    // outcome (event) rate TRACKS the exposure prevalence: q = q0 + β·p. Strata
+    // whose uptake fans out steeply show the outcome fanning out the same way —
+    // that co-movement IS the trend-in-trend signal.
+    const q = p.map((pp) => Math.max(0, q0 + beta * pp + (rng() - 0.5) * 0.004));
+    strata.push({ g, p, q });
   }
-  titCurvesInto("sceneTitFan", { periods: P, strata }, "p", tr("接種率", "vaccination rate"), true);
+  const data = { periods: P, strata };
+  titCurvesInto("sceneTitExpo", data, "p", tr("接種率", "vaccination rate"), true);
+  titCurvesInto("sceneTitOut", data, "q", tr("事件率", "event rate"), true);
 }
 
 // ---- ② interactive ----

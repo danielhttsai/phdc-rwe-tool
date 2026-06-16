@@ -1453,13 +1453,14 @@ run;</code></pre>
     </div>
 
     <div class="card scene">
-      <h3 data-en="What does the data look like? Uptake fans out across strata over time">資料長什麼樣子？各層的接種率隨時間「扇形」散開</h3>
-      <p data-en="Each line is one CPE stratum's vaccine-uptake rate over calendar time. They all start low, then fan out — the high-propensity strata (teal) climb steeply, the low ones (grey) stay flat. Trend-in-trend reads the causal effect from whether the outcome rate fans out in the SAME pattern. The whole method needs this fanning-out to be strong; a flat, non-trending vaccine gives it nothing to work with.">
-        每條線是一個 CPE 層的接種率隨日曆時間的變化。它們都從低點出發，然後<b>扇形</b>散開——高傾向層（青色）
-        陡升、低傾向層（灰色）幾乎不動。趨勢中的趨勢就看『結果率是否以<b>相同的扇形</b>散開』來讀因果效果。
-        整個方法都需要這個扇形夠明顯；一支平平、沒有趨勢的疫苗，它就無從下手。
+      <h3 data-en="The two trends side by side: does the outcome trend follow the exposure trend?">把兩個趨勢並排看：結果趨勢有沒有跟著暴露趨勢走？</h3>
+      <p data-en="Trend-in-trend reads the causal effect from <b>the outcome trend within the exposure trend</b>. <b>Left</b>: each line is one CPE stratum's vaccine-uptake (exposure) rate over calendar time — they fan out, high-propensity strata (teal) climbing steeply, low ones (grey) staying flat. <b>Right</b>: the event (outcome) rate for the same strata. If the exposure causes the outcome, the right fan <b>mirrors the left one</b> — the strata that take up the vaccine fastest are exactly the ones whose event rate climbs fastest. That co-movement is the signal; a flat, non-trending exposure gives the method nothing to work with.">
+        趨勢中的趨勢是從<b>「暴露趨勢裡的結果趨勢」</b>讀出因果效果。<b>左圖</b>：每條線是一個 CPE 層的接種率（暴露）隨日曆時間的變化——它們<b>扇形</b>散開，高傾向層（青色）陡升、低傾向層（灰色）幾乎不動。<b>右圖</b>：同樣這些層的事件率（結果）。若暴露真的造成結果，右邊的扇形會<b>跟左邊一模一樣</b>——接種上升最快的層，正是事件率上升最快的層。這個<b>同步</b>就是訊號；一支平平、沒有趨勢的暴露，這個方法就無從下手。
       </p>
-      <div id="sceneTitFan" class="chart"></div>
+      <div class="rdd-twocol">
+        <div><h4 data-en="① Exposure trend (vaccination rate)">① 暴露趨勢（接種率）</h4><div id="sceneTitExpo" class="chart" style="height:300px"></div></div>
+        <div><h4 data-en="② Outcome trend (event rate) — follows the exposure fan">② 結果趨勢（事件率）—— 跟著暴露的扇形走</h4><div id="sceneTitOut" class="chart" style="height:300px"></div></div>
+      </div>
     </div>
 
     <div class="rdd-twocol">
