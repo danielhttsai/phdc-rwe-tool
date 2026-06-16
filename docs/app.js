@@ -5118,42 +5118,47 @@ let sccsLearnReady = false, sccsPlayReady = false, sccsAnalyzeReady = false,
 // (for most) or baseline. Each person is their own control; time-fixed factors cancel.
 function drawSceneSccs() {
   if (!document.getElementById("sccsScene")) return;
-  const RISK = "#f59e0b", RISKEDGE = "#b45309", BASEFILL = "rgba(100,116,139,.16)", BASEEDGE = "#94a3b8";
+  // BMJ-style SCCS schematic in the PHDc green palette: control person-time = green
+  // band, the post-dose risk window = amber, within each case's own timeline.
+  const GREEN = "#3f8268", GREENFILL = "rgba(63,130,104,.16)", GREENDK = "#1f5135";
+  const RISK = "#f59e0b", RISKEDGE = "#b45309", RED = "#ef4444";
   const OBS = 200, RW = 28;                                   // observation length; risk window = days 1..28 after dose
   // top row = an "anatomy of one case" key; rows below = four example cases.
   const rows = [
-    { y: 5, v: 60, e: 74, lbl: tr("一個 case 的剖析", "anatomy of one case"), anat: true },
+    { y: 5, v: 60, e: 74, lbl: tr("一個 case 的剖析", "anatomy of one case") },
     { y: 4, v: 40, e: 52, lbl: tr("病人甲", "case A") },
     { y: 3, v: 95, e: 106, lbl: tr("病人乙", "case B") },
-    { y: 2, v: 120, e: 178, lbl: tr("病人丙（事件落控制期）", "case C (event in control)") },
+    { y: 2, v: 120, e: 178, lbl: tr("病人丙（落控制期）", "case C (in control)") },
     { y: 1, v: 60, e: 72, lbl: tr("病人丁", "case D") },
   ];
   const shapes = [], anns = [], pillX = [], pillY = [], evX = [], evY = [];
   rows.forEach((r) => {
-    // whole observation = the person's own CONTROL person-time (grey band) ...
-    shapes.push({ type: "rect", x0: 0, x1: OBS, y0: r.y - 0.17, y1: r.y + 0.17, fillcolor: BASEFILL, line: { color: BASEEDGE, width: 1 } });
-    // ... except the RISK WINDOW after the dose = exposed person-time (orange)
-    shapes.push({ type: "rect", x0: r.v + 1, x1: r.v + RW, y0: r.y - 0.2, y1: r.y + 0.2, fillcolor: "rgba(245,158,11,.6)", line: { color: RISKEDGE, width: 1.5 } });
+    // whole observation = the person's own CONTROL person-time (green band) ...
+    shapes.push({ type: "rect", x0: 0, x1: OBS, y0: r.y - 0.16, y1: r.y + 0.16, fillcolor: GREENFILL, line: { color: GREEN, width: 1 } });
+    // ... except the RISK WINDOW after the dose = exposed person-time (amber)
+    shapes.push({ type: "rect", x0: r.v + 1, x1: r.v + RW, y0: r.y - 0.2, y1: r.y + 0.2, fillcolor: "rgba(245,158,11,.65)", line: { color: RISKEDGE, width: 1.5 } });
     pillX.push(r.v); pillY.push(r.y); evX.push(r.e); evY.push(r.y);
-    anns.push(Object.assign(_lbl(-6, r.y, r.lbl, INK, 9), { xanchor: "right" }));
+    anns.push(Object.assign(_lbl(-8, r.y, r.lbl, INK, 9), { xanchor: "right" }));
   });
   // segment labels on the anatomy row (control | risk window | control)
   const A = rows[0];
-  anns.push(_lbl(A.v / 2, A.y + 0.46, tr("控制期", "control"), SLATE, 9));
+  anns.push(_lbl(A.v / 2, A.y + 0.44, tr("控制期", "control"), GREENDK, 9));
   anns.push(_lbl(A.v + RW / 2, A.y + 0.46, tr("危險窗", "risk window"), RISKEDGE, 9.5));
-  anns.push(_lbl((A.v + RW + OBS) / 2, A.y + 0.46, tr("控制期", "control"), SLATE, 9));
-  anns.push(_lbl(A.v + RW / 2, A.y - 0.5, tr(`接種後 1–${RW} 天`, `days 1–${RW}`), RISKEDGE, 8));
+  anns.push(_lbl((A.v + RW + OBS) / 2, A.y + 0.44, tr("控制期", "control"), GREENDK, 9));
+  anns.push(_lbl(A.v + RW / 2, A.y - 0.46, tr(`接種後 1–${RW} 天`, `days 1–${RW}`), RISKEDGE, 8));
+  // compact inline key (replaces the wrapping legend that overflowed the box)
+  anns.push(Object.assign(_lbl(0, 6.0, tr("▲ 接種日", "▲ vaccination"), GREENDK, 9.5), { xanchor: "left" }));
+  anns.push(Object.assign(_lbl(70, 6.0, tr("● 急性事件", "● acute event"), RED, 9.5), { xanchor: "left" }));
+  anns.push(Object.assign(_lbl(150, 6.0, tr("■ 危險窗 / ■ 控制期", "■ risk / ■ control"), RISKEDGE, 9), { xanchor: "left" }));
   const traces = [
-    { x: pillX, y: pillY, mode: "markers", type: "scatter", name: tr("接種日", "vaccination"), marker: { color: RISKEDGE, size: 14, symbol: "triangle-up", line: { color: "#fff", width: 1 } } },
+    { x: pillX, y: pillY, mode: "markers", type: "scatter", name: tr("接種日", "vaccination"), marker: { color: GREENDK, size: 14, symbol: "triangle-up", line: { color: "#fff", width: 1 } } },
     { x: evX, y: evY, mode: "markers", type: "scatter", name: tr("急性事件", "acute event"), marker: { color: RED, size: 13, line: { color: "#fff", width: 1.2 } } },
-    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("危險窗＝暴露人時", "risk window = exposed time"), marker: { color: RISK, size: 13, symbol: "square" } },
-    { x: [null], y: [null], mode: "markers", type: "scatter", name: tr("控制期＝自身基線人時", "control = own baseline time"), marker: { color: "#cbd5e1", size: 13, symbol: "square" } },
   ];
   Plotly.react("sccsScene", traces, schemaLayout({
-    height: 360, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.13 },
-    xaxis: { visible: true, title: tr("觀察期天數", "days of observation"), range: [-40, OBS + 4], fixedrange: true, dtick: 50 },
-    yaxis: { visible: false, range: [0.3, 6.05] },
-    margin: { t: 30, r: 16, b: 38, l: 70 },
+    height: 380, shapes, annotations: anns, showlegend: false,
+    xaxis: { visible: true, title: tr("觀察期天數", "days of observation"), range: [-44, OBS + 4], fixedrange: true, dtick: 50 },
+    yaxis: { visible: false, range: [0.35, 6.4] },
+    margin: { t: 16, r: 16, b: 40, l: 84 },
   }), SCENE_CFG);
 }
 function initSccsLearn() { if (sccsLearnReady) return; sccsLearnReady = true; drawSceneSccs(); }
