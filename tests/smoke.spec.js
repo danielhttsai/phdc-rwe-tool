@@ -19,7 +19,10 @@ test("home loads with the full method grid and no errors", async ({ page }) => {
   const errors = trackErrors(page);
   await page.goto("/");
   await expect(page.locator("#home")).toHaveClass(/active/);
-  await expect(page.locator("#homeGrid .home-card")).toHaveCount(29);
+  // one card per dropdown method (dynamic, so adding a method never breaks this)
+  const methodCount = await page.locator("#methodSelect option").count();
+  await expect(page.locator("#homeGrid .home-card")).toHaveCount(methodCount);
+  expect(methodCount).toBeGreaterThanOrEqual(29);
   expect(errors, errors.join("\n")).toEqual([]);
 });
 
