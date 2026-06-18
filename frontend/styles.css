@@ -379,6 +379,12 @@ select { padding: .45rem; border: 1px solid var(--line); border-radius: 8px; fon
 .st-amber { border-left-color: var(--amber); } .bg-amber { background: var(--amber); }
 .st-red   { border-left-color: var(--red); }   .bg-red   { background: var(--red); }
 .st-info  { border-left-color: var(--info); }  .bg-info  { background: var(--info); }
+/* status badges: soft tinted pills (calmer than solid saturated chips); the
+   dots keep the solid .bg-* colour, so only the .badge.bg-* pairing is restyled */
+.badge.bg-green { background: #e7f6ee; color: #0f7a45; border: 1px solid #bce8d0; }
+.badge.bg-amber { background: #fdf1de; color: #97610e; border: 1px solid #f2d6a3; }
+.badge.bg-red   { background: #fdeaea; color: #c0322b; border: 1px solid #f2c0bc; }
+.badge.bg-info  { background: #eef2f7; color: #44607f; border: 1px solid #cfdbe9; }
 .metrics { list-style: none; padding: 0; margin: .6rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: .4rem; }
 .metrics li { background: #f7f9fd; border: 1px solid var(--line); border-radius: 8px; padding: .4rem .6rem; font-size: .85rem; }
 .metrics b { display: block; font-size: 1.05rem; }
