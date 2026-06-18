@@ -34,6 +34,7 @@
         <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
         <option value="ccw" data-en="CCW · Clone-censor-weight">CCW · 複製-設限-加權</option>
         <option value="did" data-en="DiD · Difference-in-differences">DiD · 差異中的差異</option>
+        <option value="evalue" data-en="E-value · unmeasured-confounding sensitivity">E-value · 未測混淆敏感度</option>
         <option value="extctrl" data-en="External control · borrow a control arm">External control · 外部對照</option>
         <option value="gbtm" data-en="GBTM · Group-based trajectory model">GBTM · 群組軌跡模型</option>
         <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
@@ -5256,6 +5257,92 @@ mean(d1 - d0)                                  <span class="cm"># transported ta
     <div class="card warn"><h3 data-en="③ What ML can't rescue">③ 機器學習救不了什麼</h3><p data-en="Flexible models sharpen the <b>estimation</b>, never the <b>identification</b>. Transport still needs every effect modifier that differs between the populations to be <b>measured</b>, and <b>overlap</b> (common support) on them — no learner can reweight onto a modifier you didn't record, and all of them <b>extrapolate dangerously</b> where the target population has no comparable study units. Diagnose overlap first; a confident transported number from non-overlapping populations is worse than admitting the trial doesn't reach them.">彈性模型磨利的是<b>估計</b>、絕不是<b>識別</b>。轉移仍然需要：兩族群間有差異的效果修飾子<b>全部都測得到</b>，而且在這些修飾子上有<b>重疊（共同支持）</b>——沒有學習器能對「你沒記到的修飾子」重新加權，而且在目標族群沒有可比單位的地方，所有模型都會<b>危險地外推</b>。先診斷重疊；從不重疊的族群硬轉出一個有信心的數字，比承認「這個試驗搆不到他們」更糟。</p></div>
   </section>
 
+  <!-- ===================== E-value ① 是什麼 ===================== -->
+  <section id="evaluelearn" class="panel">
+    <h1 data-en="E-value: how strong would unmeasured confounding have to be?">E-value：未測混淆要多強，才能推翻你的結果？</h1>
+    <p class="lead" data-en="Every observational design in this toolbox leans on one assumption it cannot test: <b>no unmeasured confounding</b>. The E-value doesn't test it either — it <b>quantifies how strong</b> an unmeasured confounder would have to be to explain your result away. It is a single, transparent number you can report next to any effect estimate, whatever design produced it.">本工具箱裡每一個觀察性設計，都靠一個自己無法檢驗的假設：<b>沒有未測混淆</b>。E-value 也不檢驗它——它把「未測混淆<b>要多強</b>才能把你的結果解釋掉」量化成一個數字。不管哪個設計算出來的效果，你都能在它旁邊報一個這樣透明的數字。</p>
+    <div class="card info"><h3 data-en="The idea in one sentence">一句話的核心</h3>
+      <p data-en="To fully explain away your effect, an unmeasured confounder would need to be associated with <b>both</b> the exposure <b>and</b> the outcome by at least a certain risk ratio — that minimum strength (on both arms) is the <b>E-value</b>. A <b>large</b> E-value means only an implausibly strong hidden confounder could overturn the finding (robust); a <b>small</b> one (just above 1) means even a weak confounder could (fragile).">要把你的效果<b>完全</b>解釋掉，一個未測混淆必須<b>同時</b>和暴露、又和結果各關聯到至少某個風險比——那個（兩端都要達到的）最小強度，就是 <b>E-value</b>。E-value <b>大</b>＝只有強到不合理的隱藏混淆才翻得動（穩健）；E-value <b>小</b>（只比 1 大一點）＝連一個弱混淆都可能翻盤（脆弱）。</p></div>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Intuition">直覺</h3><p data-en="A confounder only creates spurious effect if it is linked to <b>both</b> sides. The E-value asks the smallest "both-sides" association that could account for the <i>entire</i> observed effect — so it converts a vague worry ("but maybe confounding…") into a concrete benchmark you can argue about.">混淆要造成假效果，必須<b>兩邊</b>都有牽連。E-value 問的是「能解釋掉<i>整個</i>觀察效果」所需的最小『兩邊關聯』——把「會不會有混淆？」這種模糊擔憂，變成一個可以拿來討論的具體門檻。</p></div>
+      <div class="card"><h3 data-en="The formula">公式</h3><p data-en="For a risk ratio RR (use the value &gt; 1; protective effects are symmetric, invert them): <b>E-value = RR + √(RR×(RR−1))</b>. Compute it for the point estimate <i>and</i> for the confidence-interval limit nearest 1 — the latter tells you what could erase statistical significance.">對風險比 RR（取 &gt; 1 的值；保護效果對稱，取倒數）：<b>E-value ＝ RR ＋ √(RR×(RR−1))</b>。對「點估計」和「信賴區間靠近 1 的那端」各算一個——後者告訴你「多強的混淆會抹掉顯著性」。</p></div>
+      <div class="card"><h3 data-en="How to read it">怎麼讀</h3><p data-en="Compare the E-value to confounders you actually know about. If a measured risk factor in your field has RR ≈ 2–3 with the outcome, an E-value of 1.3 is weak reassurance, while an E-value of 5 is strong. It is a <b>floor</b>, not a guarantee: it says nothing about whether such a confounder really exists.">把 E-value 拿來和你<b>真的知道</b>的混淆比。如果你領域裡某個已測風險因子和結果的 RR ≈ 2–3，那 E-value＝1.3 幾乎不算安心、E-value＝5 才算穩。它是<b>下限</b>、不是保證：它不告訴你「這種混淆是否真的存在」。</p></div>
+    </div>
+    <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
+      <div class="tdef"><h4>E-value <span class="en">E-value</span></h4><p data-en="Introduced by VanderWeele &amp; Ding (2017): the minimum strength of association, on the risk-ratio scale, that an unmeasured confounder would need with both the exposure and the outcome — above and beyond the measured covariates — to fully explain away an observed exposure–outcome association. Derived from the Ding–VanderWeele bounding factor B = (RR_EU·RR_UD)/(RR_EU+RR_UD−1).">由 VanderWeele &amp; Ding（2017）提出：在風險比尺度上，一個未測混淆（在已測共變項之外）必須<b>同時</b>和暴露、結果關聯到的最小強度，才足以把觀察到的暴露–結果關聯完全解釋掉。源自 Ding–VanderWeele 偏誤因子 B ＝ (RR_EU·RR_UD)／(RR_EU＋RR_UD−1)。</p></div>
+    </details>
+  </section>
+
+  <!-- ===================== E-value ② 互動講解 ===================== -->
+  <section id="evalueplay" class="panel">
+    <h1 data-en="② Interactive: compute the E-value &amp; test a hypothetical confounder">② 互動：算 E-value，並測試一個假想混淆</h1>
+    <p class="lead" data-en="Type in the effect you got (as a risk ratio) and the CI limit nearest 1. The curve shows every confounder strength (associated with exposure on the x-axis, with the outcome on the y-axis) that would be <b>just strong enough</b> to push your estimate — or your CI — to the null. The E-value ◆ is where that curve meets the diagonal. Then drag the sliders to drop a hypothetical confounder onto the plot and see if it lands above the line (overturns) or below (your result survives).">把你算到的效果（風險比 RR）與信賴區間靠近 1 的那端填進去。曲線畫出「剛好強到能把你的估計（或 CI）推到虛無」的所有混淆強度（與暴露的關聯在 x 軸、與結果的關聯在 y 軸）。E-value ◆ 就在曲線與對角線相交處。再拖滑桿放一個假想混淆到圖上，看它落在線上方（翻盤）還是下方（結果存活）。</p>
+    <div class="card scene evalue-card" id="evalueCard">
+      <div class="ev-inputs">
+        <label data-en="Observed effect (risk ratio)">觀察到的效果（風險比 RR）<input type="number" class="ev-rr" step="0.05" min="0.05" value="2.0"></label>
+        <label data-en="CI limit nearest 1">信賴區間靠近 1 的那端<input type="number" class="ev-ci" step="0.05" min="0.05" value="1.4"></label>
+      </div>
+      <p class="ev-out"></p>
+      <div id="evalueChart" class="chart" style="height:360px"></div>
+      <h4 data-en="Try it: a hypothetical unmeasured confounder">試試看：一個假想的未測混淆</h4>
+      <div class="ev-sliders">
+        <label data-en="Confounder ↔ exposure (RR_EU)">混淆 ↔ 暴露（RR_EU）<input type="range" class="ev-eu" min="1" max="6" step="0.1" value="2"> <b class="ev-euv">2.0</b></label>
+        <label data-en="Confounder ↔ outcome (RR_UD)">混淆 ↔ 結果（RR_UD）<input type="range" class="ev-ud" min="1" max="6" step="0.1" value="2"> <b class="ev-udv">2.0</b></label>
+      </div>
+      <p class="ev-verdict"></p>
+      <p class="caption" data-en="E-value = RR + √(RR×(RR−1)); bounding factor B = (RR_EU·RR_UD)/(RR_EU+RR_UD−1). VanderWeele &amp; Ding (2017), Ann Intern Med.">E-value ＝ RR ＋ √(RR×(RR−1))；偏誤因子 B ＝ (RR_EU·RR_UD)／(RR_EU＋RR_UD−1)。VanderWeele &amp; Ding（2017），Ann Intern Med。</p>
+    </div>
+  </section>
+
+  <!-- ===================== E-value ③ 資料分析 ===================== -->
+  <section id="evalueanalyze" class="panel">
+    <h1 data-en="③ Compute it from your own results">③ 從你自己的結果算出來</h1>
+    <p class="lead" data-en="The E-value needs nothing but your reported effect and its confidence interval — no raw data. Report both the point-estimate E-value and the CI-limit E-value.">E-value 不需要原始資料，只要你報告的效果與信賴區間就能算——把「點估計的 E-value」和「CI 端點的 E-value」都報出來。</p>
+    <div class="card"><h3 data-en="R — the EValue package">R —— EValue 套件</h3>
+      <pre class="sas"><code><span class="cm"># install.packages("EValue")</span>
+library(EValue)
+<span class="cm"># a rate/risk ratio of 2.0 with 95% CI 1.4–2.9</span>
+evalues.RR(est = 2.0, lo = 1.4, hi = 2.9)
+<span class="cm"># -> E-value for the estimate (= 3.41) and for the CI limit nearest 1 (= 2.18)</span>
+<span class="cm"># OR/HR of a rare outcome ~ RR; for common outcomes use evalues.OR(..., rare = FALSE)</span></code></pre>
+      <p data-en="For an odds ratio or hazard ratio of a <b>rare</b> outcome, treat it as an approximate RR. For a <b>common</b> outcome, an OR overstates the RR — use the dedicated <code>evalues.OR</code> / <code>evalues.HR</code> with the square-root correction.">罕見結果的勝算比或風險比可近似當 RR；常見結果的 OR 會高估 RR——改用 <code>evalues.OR</code>／<code>evalues.HR</code>（含平方根校正）。</p></div>
+    <div class="card info"><h3 data-en="Worked example">範例</h3>
+      <p data-en="Observed RR = 2.0 (95% CI 1.4–2.9). E-value for the estimate = 2.0 + √(2.0×1.0) = <b>3.41</b>: a confounder would need RR ≥ 3.41 with both exposure and outcome to fully explain it away. E-value for the lower CI limit (1.4) = <b>2.18</b>: weaker confounding (≥ 2.18 on both) could already erase significance. Report it as: &quot;the result is robust to unmeasured confounders unless one is associated with both exposure and outcome by RR ≥ 3.4.&quot;">觀察 RR ＝ 2.0（95% CI 1.4–2.9）。點估計 E-value ＝ 2.0 ＋ √(2.0×1.0) ＝ <b>3.41</b>：混淆要和暴露、結果各 RR ≥ 3.41 才解釋得掉。CI 下端（1.4）E-value ＝ <b>2.18</b>：較弱的混淆（兩端各 ≥ 2.18）就能抹掉顯著性。報告寫法：「除非有未測混淆和暴露、結果各關聯到 RR ≥ 3.4，否則結果穩健。」</p></div>
+  </section>
+
+  <!-- ===================== E-value ④ 假設檢驗 ===================== -->
+  <section id="evalueassume" class="panel">
+    <h1 data-en="④ What the E-value does — and does not — cover">④ E-value 管得到、管不到什麼</h1>
+    <p class="lead" data-en="The E-value is a sharp answer to one narrow question. Read these limits before leaning on it.">E-value 對「一個很窄的問題」給出明確答案。靠它之前，先看清這些界線。</p>
+    <div class="cards cards-3">
+      <div class="card warn"><h3 data-en="It is a floor, not proof of safety">它是下限，不是「沒問題」的證明</h3><p data-en="A large E-value means confounding would have to be <b>strong</b> to overturn the result — it does <b>not</b> say no such confounder exists. If a well-known strong risk factor was left unmeasured, a big E-value is cold comfort.">E-value 大，代表混淆要<b>很強</b>才翻得動——但它<b>不</b>表示這種混淆不存在。如果有一個眾所周知的強風險因子沒被測到，再大的 E-value 也安慰不了人。</p></div>
+      <div class="card warn"><h3 data-en="Only unmeasured confounding">只處理未測混淆</h3><p data-en="The E-value addresses <b>unmeasured confounding only</b>. It says nothing about <b>selection bias</b>, <b>measurement error / misclassification</b>, missing data, or a broken design (immortal time, collider stratification). Those need their own bias analyses.">E-value <b>只</b>處理未測混淆。它對<b>選樣偏誤</b>、<b>測量誤差／錯分類</b>、缺失資料、或壞掉的設計（immortal time、對撞分層）<b>一概不管</b>——那些要各自做偏誤分析。</p></div>
+      <div class="card"><h3 data-en="The 'both arms equally' framing">「兩端等強」的設定</h3><p data-en="The headline E-value reports the strength needed if the confounder–exposure and confounder–outcome associations were <b>equal</b>. A confounder can still explain the effect with an unequal split (e.g. weak on one arm, very strong on the other) — the ② plot's curve shows those trade-off pairs, not just the diagonal point.">頭條 E-value 報的是「混淆–暴露」與「混淆–結果」兩個關聯<b>相等</b>時所需的強度。混淆也可能用不對稱的組合（一端弱、另一端很強）解釋掉效果——②的曲線畫的就是這些取捨配對，不只對角線那一點。</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== E-value ⑤ 用 AI 強化 ===================== -->
+  <section id="evalueml" class="panel">
+    <h1 data-en="⑤ Beyond the E-value: a fuller bias analysis">⑤ 不只 E-value：更完整的偏誤分析</h1>
+    <p class="lead" data-en="The E-value is the quickest sensitivity analysis, not the only one. Where the stakes are high, pair it with richer, often computational, bias analyses.">E-value 是最快的敏感度分析，不是唯一的。賭注大時，再搭配更豐富、常是計算式的偏誤分析。</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Quantitative bias analysis (QBA)">量化偏誤分析（QBA）</h3><p data-en="Instead of one summary number, specify plausible distributions for the confounder's prevalence and its associations, then propagate them (Monte-Carlo) to a bias-adjusted estimate with an interval. Tools: the R <code>episensr</code> package; Lash, Fox &amp; Fink's <i>Applying Quantitative Bias Analysis</i>.">不用單一摘要數字，而是替混淆的盛行率與關聯指定合理的分布，再用蒙地卡羅傳遞到「校正偏誤後的估計＋區間」。工具：R 的 <code>episensr</code>；Lash、Fox &amp; Fink《Applying Quantitative Bias Analysis》。</p></div>
+      <div class="card"><h3 data-en="Negative controls &amp; proximal CI">陰性對照與近端因果</h3><p data-en="A negative-control outcome (known to have no causal link to the exposure) can <b>detect</b> residual confounding, and proximal causal inference can partly <b>correct</b> it — a data-driven complement to the E-value's what-if. See the NC/PCI method here.">一個（已知與暴露無因果的）陰性對照結果能<b>偵測</b>殘留混淆；近端因果還能部分<b>校正</b>它——是 E-value「假設式」之外、用資料驅動的互補。見本工具的 NC/PCI 方法。</p></div>
+      <div class="card"><h3 data-en="Other sensitivity frameworks">其他敏感度框架</h3><p data-en="<b>Rosenbaum bounds</b> for matched designs, the <b>array/bias-formula</b> approach, and tipping-point analyses all probe the same question from different angles. The E-value is the easiest to report; these add realism when a single number is too blunt.">配對設計的 <b>Rosenbaum bounds</b>、<b>array／偏誤公式</b>法、臨界點分析，都是從不同角度問同一件事。E-value 最好報告；當單一數字太粗時，這些補上現實感。</p></div>
+    </div>
+  </section>
+
+  <!-- ===================== E-value ⑥ 如果……？ ===================== -->
+  <section id="evaluewhatif" class="panel">
+    <h1 data-en="⑥ What if…? Benchmark against real confounders">⑥ 如果……？拿真實混淆來對照</h1>
+    <p class="lead" data-en="An E-value only means something once you compare it to confounders that plausibly exist in your setting. The counterfactual question is concrete: <b>is there a real, unmeasured factor that could hit this strength on both arms?</b>">E-value 要拿來和「你情境裡可能真的存在的混淆」比，才有意義。反事實問題很具體：<b>有沒有一個真實、未測到的因子，能在兩端都達到這個強度？</b></p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="What if a known strong confounder is unmeasured?">如果有個已知的強混淆沒測到？</h3><p data-en="Smoking, for instance, is associated with many exposures and outcomes by RR ≈ 2–3. If your E-value is below that and smoking wasn't adjusted, the finding is genuinely fragile — the E-value made that explicit rather than letting you hand-wave it away.">例如吸菸與許多暴露、結果的 RR ≈ 2–3。若你的 E-value 比這小、又沒校正吸菸，那結果是真的脆弱——E-value 把這件事攤開講，而不是讓你含糊帶過。</p></div>
+      <div class="card"><h3 data-en="What if the E-value is huge?">如果 E-value 很大？</h3><p data-en="An E-value of, say, 6 means only a confounder stronger than almost any known risk factor could overturn the result. That is strong (not absolute) reassurance — provided you really did measure the obvious confounders, so the only candidates left are exotic ones.">E-value 若達到例如 6，代表只有「強過幾乎所有已知風險因子」的混淆才翻得動——這是強（非絕對）的安心，前提是你真的已測掉明顯的混淆，只剩罕見候選。</p></div>
+      <div class="card"><h3 data-en="What it can never tell you">它永遠不會告訴你的事</h3><p data-en="The E-value quantifies <b>required strength</b>, never <b>existence</b>. Two studies with the same E-value can be worlds apart in credibility depending on how thoroughly each measured the real confounders. Always pair the number with a substantive argument about what is plausibly left out.">E-value 量的是「<b>所需強度</b>」，永遠不是「<b>是否存在</b>」。兩個 E-value 相同的研究，可信度可能天差地遠，取決於各自把真實混淆量得多徹底。永遠要把這個數字配上「實質上還可能漏了什麼」的論證。</p></div>
+    </div>
+  </section>
+
   <!-- ===================== External control ① 是什麼 ===================== -->
   <section id="extctrllearn" class="panel">
     <h1 data-en="External control: a single-arm study borrows a comparator arm">外部對照：單臂研究借一個對照組</h1>
@@ -6926,6 +7013,7 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
       <li data-ref="pnu"><b data-en="Design">方法</b> · Suissa, S., Moodie, E. E. M., &amp; Dell'Aniello, S. (2017). Prevalent new-user cohort designs for comparative drug effect studies by time-conditional propensity scores. <i>Pharmacoepidemiology and Drug Safety, 26</i>(4), 459–468. <span data-en="〔the canonical PNU design — PNU tabs ①–④〕">〔PNU 設計經典 —— PNU 分頁 ①–④〕</span></li>
       <li data-ref="pnu">Suissa, S. (2008). Immortal time bias in pharmacoepidemiology. <i>American Journal of Epidemiology, 167</i>(4), 492–499. · <span data-en="on depletion of susceptibles &amp; prevalent-user bias">關於易感者耗竭與既有使用者偏誤</span></li>
       <li data-ref="pnu"><b data-en="AI / machine learning">AI／機器學習</b> · Schneeweiss, S., Rassen, J. A., Glynn, R. J., Avorn, J., Mogun, H., &amp; Brookhart, M. A. (2009). High-dimensional propensity score. <i>Epidemiology, 20</i>(4), 512–522. · Lee, B. K., Lessler, J., &amp; Stuart, E. A. (2010). Improving propensity score weighting using machine learning. <i>Statistics in Medicine, 29</i>(3), 337–346. <span data-en="〔ML time-conditional propensity score — PNU tab ⑤〕">〔機器學習時間條件傾向分數 —— PNU 分頁 ⑤〕</span></li>
+      <li data-ref="evalue"><b data-en="E-value (E-value tab)">E-value（E-value 分頁）</b> · VanderWeele, T. J., &amp; Ding, P. (2017). Sensitivity analysis in observational research: introducing the E-value. <i>Annals of Internal Medicine, 167</i>(4), 268–274. · Ding, P., &amp; VanderWeele, T. J. (2016). Sensitivity analysis without assumptions. <i>Epidemiology, 27</i>(3), 368–377 (the bounding factor). · Haneuse, S., VanderWeele, T. J., &amp; Arterburn, D. (2019). Using the E-value to assess the potential effect of unmeasured confounding in observational studies. <i>JAMA, 321</i>(6), 602–603. · Mathur, M. B., Ding, P., Riddell, C. A., &amp; VanderWeele, T. J. (2018). R package <code>EValue</code>. · VanderWeele &amp; Mathur (2020). Commentary on the E-value's proper use and limits, <i>Epidemiology</i>. <span data-en="〔E-value formula + bounding factor, EValue R package, scope &amp; cautions — E-value tabs〕">〔E-value 公式＋偏誤因子、EValue 套件、適用範圍與限制 —— E-value 分頁〕</span></li>
       <li data-ref="nc"><b data-en="Concept">概念</b> · Lipsitch, M., Tchetgen Tchetgen, E., &amp; Cohen, T. (2010). Negative controls: a tool for detecting confounding and bias in observational studies. <i>Epidemiology, 21</i>(3), 383–388. <span data-en="〔the canonical negative-control idea — NC tabs ①②〕">〔陰性對照經典——NC 分頁 ①②〕</span></li>
       <li data-ref="nc"><b data-en="Proximal correction">近端校正</b> · Miao, W., Geng, Z., &amp; Tchetgen Tchetgen, E. J. (2018). Identifying causal effects with proxy variables of an unmeasured confounder. <i>Biometrika, 105</i>(4), 987–993. · Tchetgen Tchetgen, E. J., Ying, A., Cui, Y., Shi, X., &amp; Miao, W. (2024). An introduction to proximal causal inference. <i>Statistical Science.</i> · regression-based proximal causal inference (<i>Epidemiology</i>, 2025). <span data-en="〔double negative control / P2SLS — NC tabs ②③〕">〔雙陰性對照／P2SLS——NC 分頁 ②③〕</span></li>
       <li data-ref="nc"><b data-en="AI / calibration">AI／校準</b> · Schuemie, M. J., Ryan, P. B., DuMouchel, W., Suchard, M. A., &amp; Madigan, D. (2014). Interpreting observational studies: why empirical calibration is needed to correct p-values. <i>Statistics in Medicine, 33</i>(2), 209–218. · Schuemie, M. J., Hripcsak, G., Ryan, P. B., Madigan, D., &amp; Suchard, M. A. (2018). Empirical confidence interval calibration for population-level effect estimation studies in observational healthcare data. <i>PNAS, 115</i>(11), 2571–2577. <span data-en="〔CI calibration via negative + positive controls; effect-size-dependent systematic error; restores 95% coverage — NC tab ⑤〕">〔以陰性＋陽性對照校準信賴區間、系統誤差隨真效應變化、把 95% 涵蓋率拉回 —— NC 分頁 ⑤〕</span></li>

@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -72,6 +72,7 @@ const PANEL_INIT = {
   extctrlwhatif: () => drawWhatifPair("extctrl"),
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
+  evalueplay: () => initEvaluePlay(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
@@ -471,7 +472,10 @@ async function renderDataPreview(method) {
 // (associated with BOTH treatment and outcome) to explain away the result?
 // Closed-form, pure JS (VanderWeele & Ding 2017; Haneuse et al. 2019, JAMA).
 // ----------------------------------------------------------------------
-const EVALUE_METHODS = ["ps", "tmle", "gm", "acnu", "pnu", "med", "ccw", "seq", "nc", "wce"];
+// E-value now lives in its own standalone method (the "evalue" panels), so it is
+// no longer auto-injected into each method's ④ assume tab. Kept as an empty list
+// so the existing guards/loops harmlessly no-op.
+const EVALUE_METHODS = [];
 function _evalue(rr) {                       // E-value of a risk ratio
   rr = (rr > 0 && rr < 1) ? 1 / rr : rr;     // E-value is symmetric: invert protective effects
   if (!(rr > 1)) return 1;
@@ -494,6 +498,43 @@ function _evRecompute(card) {
       (overturned ? `<b style="color:#b91c1c">足以推翻（跨過 1）</b>` : `<b style="color:#1d6f57">仍在 1 的同側，結果存活</b>`),
     `Confounding this strong (bias factor B = ${B.toFixed(2)}) can move the RR from ${rr} only as far as <b>${adj.toFixed(2)}</b> → ` +
       (overturned ? `<b style="color:#b91c1c">enough to overturn it (crosses 1)</b>` : `<b style="color:#1d6f57">still on the same side of 1 — the result survives</b>`));
+}
+// Standalone E-value method (② interactive). The "explain-away" plot: for a target
+// risk ratio R, the (RR_EU, RR_UD) confounder pairs that just push the effect to the
+// null satisfy the bounding factor B = R, i.e. RR_UD = R(a−1)/(a−R) for a > R. The
+// E-value is where that curve meets the diagonal (RR_EU = RR_UD).
+let evaluePlayReady = false;
+function drawEvalueChart(card) {
+  const el = document.getElementById("evalueChart"); if (!el) return;
+  const num = (s, d) => { const v = parseFloat(card.querySelector(s).value); return isFinite(v) ? v : d; };
+  let rr = num(".ev-rr", 2), ci = num(".ev-ci", 1.4);
+  rr = (rr > 0 && rr < 1) ? 1 / rr : rr;                 // E-value is symmetric
+  ci = (ci > 0 && ci < 1) ? 1 / ci : ci;
+  const eu = num(".ev-eu", 2), ud = num(".ev-ud", 2);
+  const AMAX = Math.max(8, Math.ceil(_evalue(rr)) + 2);
+  const curve = (R) => { const x = [], y = []; if (!(R > 1)) return { x, y };
+    for (let a = R + 0.02; a <= AMAX; a += 0.04) { const b = R * (a - 1) / (a - R); if (b > 0 && b <= AMAX) { x.push(a); y.push(b); } } return { x, y }; };
+  const cRR = curve(rr), cCI = curve(ci), E = _evalue(rr);
+  const B = (eu * ud) / (eu + ud - 1), overturns = (rr >= 1) ? (rr / B <= 1) : (rr * B >= 1);
+  const traces = [
+    { x: cRR.x, y: cRR.y, mode: "lines", name: tr("把估計推到 1 的門檻", "pushes estimate to 1"), line: { color: "#b91c1c", width: 2.5 } },
+  ];
+  if (cCI.x.length) traces.push({ x: cCI.x, y: cCI.y, mode: "lines", name: tr("把 CI 推到 1", "pushes CI to 1"), line: { color: "#d97706", width: 2, dash: "dot" } });
+  traces.push({ x: [E], y: [E], mode: "markers+text", name: "E-value", text: [` E=${E.toFixed(2)}`], textposition: "top right", textfont: { color: "#b91c1c" }, marker: { color: "#b91c1c", size: 11, symbol: "diamond" } });
+  traces.push({ x: [eu], y: [ud], mode: "markers", name: tr("你設的混淆", "your confounder"), marker: { color: overturns ? "#b91c1c" : "#1d6f57", size: 14, line: { color: "#fff", width: 1.5 } } });
+  Plotly.react(el, traces, sceneLayout({
+    height: 360, showlegend: true, legend: { orientation: "h", y: 1.13 },
+    xaxis: { title: tr("混淆 ↔ 暴露（RR_EU）", "confounder ↔ exposure (RR_EU)"), range: [1, AMAX], dtick: 1 },
+    yaxis: { title: tr("混淆 ↔ 結果（RR_UD）", "confounder ↔ outcome (RR_UD)"), range: [1, AMAX], dtick: 1 },
+  }), SCENE_CFG);
+}
+function initEvaluePlay() {
+  const card = document.getElementById("evalueCard"); if (!card) return;
+  if (!evaluePlayReady) {
+    evaluePlayReady = true;
+    card.querySelectorAll("input").forEach((inp) => inp.addEventListener("input", () => { _evRecompute(card); drawEvalueChart(card); }));
+  }
+  _evRecompute(card); drawEvalueChart(card);
 }
 function ensureEvalueCard(method) {
   const prefix = METHOD_PREFIX[method];
@@ -2949,6 +2990,7 @@ const METHOD_REF = {
   tmle: { zh: "TMLE／雙重穩健", en: "TMLE / doubly-robust (AIPW)", src: "van der Laan & Rubin (2006); van der Laan & Rose (2011); Luque-Fernandez et al. (2018), Stat Med" },
   gm: { zh: "G-methods（時變混淆）", en: "G-methods (time-varying confounding)", src: "Robins, Hernán & Brumback (2000); Naimi, Cole & Kennedy (2017), IJE; Daniel et al. (2013), Stat Med" },
   gbtm: { zh: "群組軌跡模型 GBTM", en: "Group-based trajectory model (GBTM)", src: "Nagin (1999, 2005); Nagin & Odgers (2010), Annu Rev Clin Psychol; Jones & Nagin (2007, PROC TRAJ); Nagin & Tremblay (2005)" },
+  evalue: { zh: "E-value 敏感度分析", en: "E-value sensitivity analysis", src: "VanderWeele & Ding (2017), Ann Intern Med; Haneuse, VanderWeele & Arterburn (2019), JAMA; Ding & VanderWeele (2016), Epidemiology" },
   tnd: { zh: "陰性檢驗設計 TND", en: "Test-Negative Design (TND)", src: "Jackson & Nelson (2013), Vaccine; Sullivan, Tchetgen Tchetgen & Cowling (2016); Schnitzer (2022), Epidemiology" },
   pssa: { zh: "處方順序對稱 PSSA", en: "Prescription Sequence Symmetry (PSSA)", src: "Hallas (1996), Epidemiology; Tsiropoulos, Andersen & Hallas (2009); Lai et al. (2017), Eur J Epidemiol" },
   tscan: { zh: "樹狀掃描統計 TreeScan", en: "Tree-based Scan Statistic (TreeScan)", src: "Kulldorff, Fang & Walsh (2003), Biometrics; Kulldorff et al. (2013), Stat Med; Maro et al. (2014), FDA Sentinel" },
@@ -8333,6 +8375,7 @@ window.addEventListener("iv-lang", async () => {
   initHome();                                      // rebuild the home grid in the new language
   initGlossary();                                  // rebuild the glossary in the new language
   if (curSub === "learn") renderQuiz(curMethod);   // rebuild the quiz in the new language
+  { const ec = document.getElementById("evalueCard"); if (ec) { _evRecompute(ec); drawEvalueChart(ec); } } // E-value ② re-render
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };
