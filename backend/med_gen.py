@@ -23,7 +23,7 @@ import pandas as pd
 
 SEED = 67
 N = 6000
-# mediator model：疫苗對抗體 a；基線抗體 m0（≠0，使天真直接效果 ≠ NDE）
+# mediator model：疫苗對抗體 a；基線抗體 m0（≠0，使未校正直接效果 ≠ NDE）
 M0, M_A, M_X = 0.5, 0.8, 0.3
 # outcome model：直接 d、中介 b、暴露×中介交互 g、共變項 yX
 Y0, Y_A, Y_M, Y_AM, Y_X = 0.0, -0.4, -0.5, -0.3, 0.4

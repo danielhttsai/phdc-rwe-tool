@@ -3,11 +3,11 @@
 Fully fictional teaching scenario — NOT real data:
 
     情境：想估「疫苗 A 對某健康結果 Y 的因果效應」。麻煩在於有一個<b>沒測到的混淆 U</b>
-          （健康／就醫傾向，healthy-vaccinee）——它同時影響「會不會接種」與「結果」，天真比較就被它偏掉。
+          （健康／就醫傾向，healthy-vaccinee）——它同時影響「會不會接種」與「結果」，未校正比較就被它偏掉。
           我們手上多了兩個<b>陰性對照（negative controls）</b>：
             ・<b>陰性對照結果 NCO（W）</b>：疫苗<b>不可能</b>影響、但與 U 相關的結果（如接種前就量過的事件）。
             ・<b>陰性對照暴露 NCE（Z）</b>：<b>不可能</b>影響 Y、但與 U 相關的暴露代理。
-          (1) <b>偵測</b>：天真估「A → W」本應為 0；若 ≠0，就是未測混淆的警訊（Lipsitch 2010）。
+          (1) <b>偵測</b>：未校正估「A → W」本應為 0；若 ≠0，就是未測混淆的警訊（Lipsitch 2010）。
           (2) <b>校正</b>：W、Z 都是 U 的代理，用<b>近端因果／雙陰性對照</b>（proximal two-stage least squares,
               P2SLS；Miao 2018、regression-based PCI 2025）把 U 的效應扣掉，在有 U 下仍還原真值。
 

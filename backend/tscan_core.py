@@ -99,7 +99,7 @@ def full_tscan(df, lang="zh", alpha=0.05):
         lang,
         f"掃描 {len(labels)} 個節點：最強訊號在「<b>{best['label']}</b>」（LLR {best['llr']}、"
         f"接種率 {best['rate']:.0%} vs 基準 {s['p0']:.0%}），排列法校正後 p ＝ {best['p']:.3g}。"
-        f"<b>天真</b>未校正會標出 <b>{n_naive}</b> 個節點（多為假警報）；<b>TreeScan</b> 控制整體錯誤後只標 <b>{n_tscan}</b> 個"
+        f"<b>未校正</b>未校正會標出 <b>{n_naive}</b> 個節點（多為假警報）；<b>TreeScan</b> 控制整體錯誤後只標 <b>{n_tscan}</b> 個"
         + ("，正好就是真正有超額的那一個。" if target_hit and n_tscan <= 2 else "。"),
         f"Scanning {len(labels)} nodes: the strongest signal is at '<b>{best['label']}</b>' (LLR {best['llr']}, "
         f"exposed rate {best['rate']:.0%} vs baseline {s['p0']:.0%}), permutation-adjusted p = {best['p']:.3g}. "
@@ -143,7 +143,7 @@ def tscan_interactive(signal: float, lang="zh"):
     reading = t(
         lang,
         f"訊號強度 {g['sig'][i]:.1f}：最強節點 LLR ＝ {g['llr'][i]:.0f}、校正後 p ＝ {g['p'][i]:.3g}。"
-        f"天真未校正標 {g['naive'][i]} 個節點、TreeScan 只標 {g['tscan'][i]} 個"
+        f"未校正未校正標 {g['naive'][i]} 個節點、TreeScan 只標 {g['tscan'][i]} 個"
         + ("（強度 1＝純虛無，TreeScan 正確地一個都不標）。" if g['sig'][i] == 1.0 else "。"),
         f"Signal strength {g['sig'][i]:.1f}: strongest node LLR = {g['llr'][i]:.0f}, adjusted p = {g['p'][i]:.3g}. "
         f"The naive uncorrected scan flags {g['naive'][i]} nodes; TreeScan flags only {g['tscan'][i]}"

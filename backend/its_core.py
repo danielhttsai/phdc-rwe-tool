@@ -3,7 +3,7 @@ standard errors, in pure numpy/scipy so it runs in Pyodide.
 
 白話：在已知的介入時點前後，配一條「介入前趨勢」當反事實（沒介入會怎樣），
 效果＝介入當下的『水準跳變』（β2）＋介入後的『斜率改變』（β3）。時間序列的殘差
-通常自相關，會讓天真 OLS 的標準誤過窄，所以用 Newey–West（HAC）穩健標準誤校正。
+通常自相關，會讓未校正 OLS 的標準誤過窄，所以用 Newey–West（HAC）穩健標準誤校正。
 
 Model:  Y_t = β0 + β1·t + β2·post_t + β3·t_since_t + e_t
   β0 baseline level, β1 pre-trend slope, β2 immediate LEVEL change,

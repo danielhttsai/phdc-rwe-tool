@@ -47,7 +47,7 @@ def full_perr(df, group="group", events_prior="events_prior", pt_prior="pt_prior
     interp = t(
         lang,
         f"事前事件率比（PERR）估計因果率比 RR ≈ {perr:.2f}（95% 信賴區間 {lo:.2f}～{hi:.2f}）。"
-        f"對照：只看事後期的天真率比約 {rr_post:.2f}——被適應症混淆（體弱者較易用藥也較易發病）"
+        f"對照：只看事後期的未校正率比約 {rr_post:.2f}——被適應症混淆（體弱者較易用藥也較易發病）"
         f"嚴重拉偏，幾乎看不出藥效。事前期率比 {rr_prior:.2f} 正是這個混淆的「指紋」；"
         f"把它從事後期率比中除掉，就還原出真效果（真值 RR={true_rr:.2f}）。",
         f"The prior event rate ratio (PERR) estimates a causal rate ratio of RR ≈ {perr:.2f} "

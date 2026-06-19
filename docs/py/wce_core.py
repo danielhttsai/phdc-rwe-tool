@@ -107,8 +107,8 @@ def full_wce(data, lang="zh"):
         lang,
         f"WCE 估到的<b>權重曲線</b>把「最近的劑量權重最高、越久以前越低」這個真實形狀抓了出來，"
         f"加總起來的整體效果 ≈ <b>HR {np.exp(eff_wce):.2f}</b>（真值 {np.exp(true_eff):.2f}）。"
-        f"相對地，只看「當月有沒有用藥」的天真模型給 HR {np.exp(eff_current):.2f}、把過去劑量"
-        f"<b>等權</b>加總的天真模型給 HR {np.exp(eff_cum):.2f}——兩者都因為把時間權重設錯而偏。",
+        f"相對地，只看「當月有沒有用藥」的未校正模型給 HR {np.exp(eff_current):.2f}、把過去劑量"
+        f"<b>等權</b>加總的未校正模型給 HR {np.exp(eff_cum):.2f}——兩者都因為把時間權重設錯而偏。",
         f"WCE recovers the <b>weight curve</b> — recent doses matter most and the weight decays with "
         f"time since exposure — and its total effect is about <b>HR {np.exp(eff_wce):.2f}</b> "
         f"(truth {np.exp(true_eff):.2f}). The naive 'current use only' model gives HR "
@@ -166,8 +166,8 @@ def wce_interactive(decay: float, lang="zh"):
     i = int(np.argmin([abs(decay - d) for d in g["decay"]]))
     reading = t(
         lang,
-        f"當效果<b>越集中在最近的劑量</b>（衰減越快），天真「只看當月用藥」越會低估、"
-        f"天真「等權總劑量」越會高估；WCE 不論形狀都貼近真值 HR {g['hr_true'][i]:.2f}。",
+        f"當效果<b>越集中在最近的劑量</b>（衰減越快），未校正「只看當月用藥」越會低估、"
+        f"未校正「等權總劑量」越會高估；WCE 不論形狀都貼近真值 HR {g['hr_true'][i]:.2f}。",
         f"The more the effect is <b>concentrated on recent doses</b> (faster decay), the more the naive "
         f"'current use' model under-states and the 'equally-weighted total' over-states it; WCE stays on "
         f"the truth (HR {g['hr_true'][i]:.2f}) whatever the shape.",

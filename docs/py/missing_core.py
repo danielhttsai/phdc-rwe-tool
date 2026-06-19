@@ -92,7 +92,7 @@ def full_missing(p=0.4, mechanism="MAR", lang="zh", seed=SEED):
         lang,
         f"真值（用上完整 X 的校正效果）＝<b>{truth:.2f}</b>。在 {mech_zh}、缺失率約 {rate*100:.0f}% 下："
         f"<b>完整個案</b>＝{cc:.2f}、<b>平均值插補</b>＝{me:.2f}、<b>多重插補</b>＝{mi:.2f}。"
-        + ("平均值插補把 X 壓平、殘留混淆 → 偏向天真值；多重插補把不確定性也補回來 → 貼回真值。"
+        + ("平均值插補把 X 壓平、殘留混淆 → 偏向未校正值；多重插補把不確定性也補回來 → 貼回真值。"
            if mechanism == "MCAR" else
            "缺失與 Y 相關時，完整個案是「對結果選樣」→ 偏；平均值插補也偏；多重插補因為把 Y 放進插補模型 → 救回真值。"),
         f"Truth (the adjusted effect using the full X) = <b>{truth:.2f}</b>. Under {mech_en} at ~{rate*100:.0f}% missing: "

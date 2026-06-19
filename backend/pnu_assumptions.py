@@ -124,18 +124,18 @@ def _c4_depletion(res, lang="zh"):
          "value": f"{depl:.2f}",
          "note": t(lang, "盛行使用者體質越低＝易感者耗竭越強（存活下來的是低風險群）",
                    "lower frailty in prevalent users = stronger depletion of susceptibles (survivors are lower-risk)")},
-        {"name": t(lang, "天真盛行 → PNU", "naive prevalent → PNU"),
+        {"name": t(lang, "未校正盛行 → PNU", "naive prevalent → PNU"),
          "value": f"{res['naive_hr']:.2f} → {res['pnu_hr']:.2f}",
-         "note": t(lang, "天真比被耗竭往無效值拉；PNU 校正回真值", "the naive contrast is pulled to the null by depletion; PNU corrects it back to the truth")},
+         "note": t(lang, "未校正比被耗竭往無效值拉；PNU 校正回真值", "the naive contrast is pulled to the null by depletion; PNU corrects it back to the truth")},
     ]
     if depl < 0.15:
         status, head = "green", t(lang, "盛行與新使用者體質接近——耗竭很弱，盛行使用者大致可直接用。",
                                   "Prevalent and new users are similar in frailty — weak depletion; prevalent users are largely usable directly.")
     elif depl < 0.6:
-        status, head = "amber", t(lang, "盛行使用者明顯較低風險（易感者耗竭）——天真比會低估，需用 PNU 的時間條件校正。",
+        status, head = "amber", t(lang, "盛行使用者明顯較低風險（易感者耗竭）——未校正比會低估，需用 PNU 的時間條件校正。",
                                   "Prevalent users are clearly lower-risk (depletion of susceptibles) — a naive comparison underestimates; use PNU's time-conditional adjustment.")
     else:
-        status, head = "red", t(lang, "易感者耗竭很強——天真把盛行使用者直接比會嚴重偏，務必用 PNU 或純新使用者。",
+        status, head = "red", t(lang, "易感者耗竭很強——未經校正就把盛行使用者直接比會嚴重偏，務必用 PNU 或純新使用者。",
                                 "Strong depletion of susceptibles — naively pooling prevalent users is badly biased; use PNU or the new-user-only design.")
     return {
         "id": "C4",
@@ -145,7 +145,7 @@ def _c4_depletion(res, lang="zh"):
         "plain": t(
             lang,
             "<b>易感者耗竭</b>＝容易出事的人早就出事、退出了，所以還在用 A 的<b>盛行使用者</b>是存活下來的低風險族群。"
-            "上面的指標看盛行使用者的體質比新使用者低多少——差越大，<b>天真</b>把盛行使用者直接和新起始者比就偏越多"
+            "上面的指標看盛行使用者的體質比新使用者低多少——差越大，<b>未校正</b>把盛行使用者直接和新起始者比就偏越多"
             "（被拉向無效值）。PNU 用時間條件把這個偏誤校正回來。",
             "<b>Depletion of susceptibles</b> means the people prone to the event have already had it and left, so the prevalent "
             "users still on A are the lower-risk survivors. The metric shows how much lower their frailty is than new users' — "

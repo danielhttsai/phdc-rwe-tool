@@ -113,7 +113,7 @@ def _c4_residual(res, lang="zh"):
                    "the residual severity gap after restricting to new users + active comparator (smaller is better)")},
         {"name": t(lang, "嚴重度差：A vs 沒用藥（對比）", "Severity gap: A vs non-users (for contrast)"),
          "value": f"{gap_An:.2f}",
-         "note": t(lang, "天真對照的嚴重度差——通常大得多，這就是天真比較偏很多的原因",
+         "note": t(lang, "未校正對照的嚴重度差——通常大得多，這就是未校正比較偏很多的原因",
                    "the naive contrast's gap — usually much larger, which is why the naive comparison is so biased")},
         {"name": t(lang, "粗 ACNU → 校正後", "crude ACNU → adjusted"),
          "value": f"{res['crude_irr']:.2f} → {res['adj_irr']:.2f}",
@@ -140,7 +140,7 @@ def _c4_residual(res, lang="zh"):
             lang,
             "主動對照＋新使用者把<b>大部分</b>因適應症的混淆削掉，但 A 與 B 之間通常還有<b>殘留</b>的嚴重度差"
             "（這裡 A vs B 的差比 A vs 沒用藥小很多）。把這個殘留用<b>傾向分數或共變項校正</b>補掉，速率比就會從"
-            "粗估移向真值。上面三個指標就是在看：殘留差有多大、天真對照差多大、校正前後差多少。",
+            "粗估移向真值。上面三個指標就是在看：殘留差有多大、未校正對照差多大、校正前後差多少。",
             "The active comparator + new-user design removes <b>most</b> confounding by indication, but A and B usually still "
             "differ a little in severity (here the A-vs-B gap is much smaller than A-vs-non-users). Mopping up that residual "
             "with a <b>propensity score or covariate adjustment</b> moves the rate ratio from the crude estimate toward the "
@@ -180,7 +180,7 @@ def _c5_events(res, lang="zh"):
         "plain": t(
             lang,
             "ACNU 的速率比由各臂的<b>事件數</b>決定精確度。主動對照雖然削掉偏誤，但因為只比『用 A vs 用 B』、"
-            "捨棄了沒用藥的人，<b>樣本與事件數會比天真比較少</b>。事件太少時，信賴區間會很寬，要小心別把雜訊當訊號。",
+            "捨棄了沒用藥的人，<b>樣本與事件數會比未校正比較少</b>。事件太少時，信賴區間會很寬，要小心別把雜訊當訊號。",
             "The precision of the ACNU rate ratio is driven by the <b>event counts</b> in each arm. The active comparator "
             "removes bias, but because it compares only 'A vs B' and discards non-users, the <b>sample and event counts are "
             "smaller</b> than in the naive comparison. With few events the CI is wide — be careful not to read noise as signal.",

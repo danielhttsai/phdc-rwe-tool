@@ -8,7 +8,7 @@
   ・<b>校正順序比 aSR ＝ cSR ÷ SRnull</b>；aSR 的 95% CI 由不一致對的二項變異（1/a+1/b）來。
     aSR &gt; 1 且 CI 不含 1 ＝ 訊號。
 
-這是訊號偵測（假說生成）：cSR 是被趨勢污染的天真訊號，aSR 把趨勢除掉、還原真訊號。
+這是訊號偵測（假說生成）：cSR 是被趨勢污染的未校正訊號，aSR 把趨勢除掉、還原真訊號。
 Reimplements Hallas (1996), Tsiropoulos et al. (2009) and the Hendrix et al. (2024) guide. Synthetic data only.
 """
 from __future__ import annotations

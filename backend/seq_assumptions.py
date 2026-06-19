@@ -29,7 +29,7 @@ def run_dashboard(df, init_time="init_month", event="event", futime="futime",
 
 
 def _c1_confounding(res, lang="zh"):
-    metrics = [{"name": t(lang, "天真 vs 序列估計的差距", "Gap between naive and sequential"),
+    metrics = [{"name": t(lang, "未校正 vs 序列估計的差距", "Gap between naive and sequential"),
                 "value": f"{res['naive']:+.2f} vs {res['seq_rd']:+.2f}",
                 "note": t(lang, "差距大＝immortal-time／混淆的校正幅度大",
                           "a large gap means a large correction for immortal time / confounding")}]
@@ -136,7 +136,7 @@ def _c4_carryover(lang="zh"):
         "plain": t(
             lang,
             "序列試驗的威力之一是『同一個人可在多個資格月被重複納入』，放大有效樣本。但這也代表這些列<b>不是獨立的</b>，"
-            "天真的標準誤會太窄。正確做法是用<b>個人叢集</b>的穩健標準誤（或對 pid 自助重抽），本工具的信賴區間"
+            "未校正的標準誤會太窄。正確做法是用<b>個人叢集</b>的穩健標準誤（或對 pid 自助重抽），本工具的信賴區間"
             "即可選用個人叢集自助。",
             "A strength of sequential trials is that a person can re-enter at several eligibility months, boosting the "
             "effective sample. But those rows are <b>not independent</b>, so naive standard errors are too narrow. The "

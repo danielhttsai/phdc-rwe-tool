@@ -1312,7 +1312,7 @@ def _tnd_example() -> dict:
             "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
             "story": {"vaccinated": "接種 1／否 0", "tested": "是否因症狀就醫檢驗",
                       "case": "檢驗陽性＝目標病原 1／陰性＝其他病原 0（僅 tested 者）",
-                      "infected": "真的得到目標病原（供天真世代對照）"}}
+                      "infected": "真的得到目標病原（供未校正世代對照）"}}
 
 
 def _tnd_analyze(req: dict) -> dict:

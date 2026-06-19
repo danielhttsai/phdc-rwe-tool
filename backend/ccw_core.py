@@ -11,7 +11,7 @@ pure numpy/scipy, Pyodide-safe.
   3. 加權（weight）：人為設限不是隨機的（和體弱有關），用反設限機率加權（IPCW）補回來。
 
 設限＋加權後，對每個策略臂做**加權 Kaplan–Meier**，得到各策略到第 T 月的累積發生率，相減＝因果
-風險差。對照天真「照實際 early/late 分組」的比較會中 immortal-time bias。
+風險差。對照未校正「照實際 early/late 分組」的比較會中 immortal-time bias。
 
 NOTE — teaching reconstruction. The IPC weights use a pooled-logistic censoring model
 with covariates X = (standardized age, frailty). The grace / early-vs-late strategies use
@@ -293,7 +293,7 @@ def _ccw_interp(scenario, ccw, naive, truth, horizon, lo, hi, lang):
         return t(lang,
             f"複製-設限-加權（CCW）估計『早啟動 vs 晚啟動』的因果風險差 ≈ {ccw:+.2f}{ci_zh}，貼近真值 {truth:+.2f}。"
             f"因為兩組<b>最終都會用藥（適應症相同）</b>，confounding by indication 大幅相消，效果只剩『提早幾個月』"
-            f"帶來的<b>較小</b>但真實的好處。對照：天真照『實際早／晚』分組比約 {naive:+.2f}，仍被 immortal-time bias "
+            f"帶來的<b>較小</b>但真實的好處。對照：未校正照『實際早／晚』分組比約 {naive:+.2f}，仍被 immortal-time bias "
             f"放大（早啟動者必須先活著、沒事件才被看到）。",
             f"Clone-censor-weight estimates the 'early vs late initiation' risk difference ≈ {ccw:+.2f}{ci_en}, close to "
             f"the truth {truth:+.2f}. Because <b>both groups end up treated</b> (same indication), confounding by "
@@ -304,7 +304,7 @@ def _ccw_interp(scenario, ccw, naive, truth, horizon, lo, hi, lang):
             f"複製-設限-加權（CCW）估計『持續用藥 vs 停藥』的因果風險差 ≈ {ccw:+.2f}{ci_zh}，貼近真值 {truth:+.2f}"
             f"（負值＝持續用藥讓 {horizon} 個月內發生事件的機率更低）。治療是<b>時變的</b>（可中途停），CCW 把每個人複製"
             f"到『持續』與『停藥』兩策略、偏離就設限、再用反設限機率加權處理時變遵循（此處用 <b>unstabilized</b> 權重＝"
-            f"1/未設限機率＋截斷，搭配無母數加權 KM——sustained 策略的標準作法）。對照：天真只比『完成者（從不停藥）"
+            f"1/未設限機率＋截斷，搭配無母數加權 KM——sustained 策略的標準作法）。對照：未校正只比『完成者（從不停藥）"
             f"vs 停藥者』約 {naive:+.2f}，被<b>選擇偏誤</b>扭曲（體弱者較易停藥也較易發病）。",
             f"Clone-censor-weight estimates the 'stay-on vs discontinue' risk difference ≈ {ccw:+.2f}{ci_en}, close to "
             f"the truth {truth:+.2f} (negative = staying on lowers the {horizon}-month event risk). Treatment is "
@@ -316,7 +316,7 @@ def _ccw_interp(scenario, ccw, naive, truth, horizon, lo, hi, lang):
             f"discontinue more and have the event more).")
     return t(lang,   # grace
         f"複製-設限-加權（CCW）估計『早接種 vs 晚接種』的因果風險差 ≈ {ccw:+.2f}{ci_zh}，貼近真值 {truth:+.2f}"
-        f"（負值＝早接種讓 {horizon} 個月內發生事件的機率更低）。對照：天真照『實際早／晚接種』直接比約 {naive:+.2f}"
+        f"（負值＝早接種讓 {horizon} 個月內發生事件的機率更低）。對照：未校正照『實際早／晚接種』直接比約 {naive:+.2f}"
         f"——被 immortal-time bias 與適應症混淆扭曲。CCW 用複製＋偏離設限＋反設限加權去掉這個偏誤。",
         f"Clone-censor-weight estimates the 'early vs late vaccination' risk difference ≈ {ccw:+.2f}{ci_en}, close to "
         f"the truth {truth:+.2f} (negative = starting early lowers the {horizon}-month event risk). Naively comparing "
@@ -355,7 +355,7 @@ def grace_demo(seed=0, scenario="grace", lang="zh"):
         lang,
         f"把寬限期 g 從 1 拉到 5 個月，CCW 估計從 {ccw_vals[0]:+.2f} 變到 {ccw_vals[-1]:+.2f}"
         f"（變動約 {spread:.2f}）。這不是誤差，而是<b>定義改變</b>：g 越長，「早接種」這個策略越寬鬆、"
-        f"和「晚接種」越像，效果自然被稀釋。天真比較（受 immortal-time 汙染）則整條都明顯偏離。"
+        f"和「晚接種」越像，效果自然被稀釋。未校正比較（受 immortal-time 汙染）則整條都明顯偏離。"
         f"因此 g 一定要事先講清楚，並像這樣做敏感度分析（Hernán 2018；Gaber 等人 2024）。",
         f"As the grace period g goes from 1 to 5 months, the CCW estimate moves from {ccw_vals[0]:+.2f} to "
         f"{ccw_vals[-1]:+.2f} (a swing of about {spread:.2f}). This is not noise — it is the <b>estimand changing</b>: "

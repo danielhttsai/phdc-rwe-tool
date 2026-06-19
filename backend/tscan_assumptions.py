@@ -159,7 +159,7 @@ def _c5_multiplicity(top, n_tscan, n_naive, lang="zh"):
         status, head = "amber", t(lang, "最強節點剛好過校正門檻——值得追蹤但別過度解讀。",
                                   "The strongest node just clears the correction — worth following up, don't over-read.")
     else:
-        status, head = "red", t(lang, "校正後沒有節點顯著——多半是雜訊，別把天真未校正的警報當真。",
+        status, head = "red", t(lang, "校正後沒有節點顯著——多半是雜訊，別把未校正未校正的警報當真。",
                                 "No node is significant after correction — likely noise; don't trust the naive uncorrected alarms.")
     return {
         "id": "C5",
@@ -169,16 +169,16 @@ def _c5_multiplicity(top, n_tscan, n_naive, lang="zh"):
         "plain": t(
             lang,
             "整棵樹有很多節點，<b>每個都測一次</b>就會累積假陽性。TreeScan 用<b>最大 LLR 的排列分布</b>把這件事一次校正掉，"
-            "得到族系錯誤率受控的 p。對照：天真未校正會標出更多節點。看最強節點的校正後 p，以及天真 vs TreeScan 的標記數。",
+            "得到族系錯誤率受控的 p。對照：未校正未校正會標出更多節點。看最強節點的校正後 p，以及未校正 vs TreeScan 的標記數。",
             "A whole tree has many nodes, and <b>testing each one</b> piles up false positives. TreeScan corrects for this in one "
             "shot via the <b>permutation distribution of the maximum LLR</b>, giving a family-wise-error-controlled p. Contrast: a "
             "naive uncorrected scan flags more nodes. Look at the strongest node's adjusted p and the naive-vs-TreeScan flag counts.",
         ),
-        "term": t(lang, "族系錯誤率＝整棵樹有很多節點，每個都測一次就會累積錯誤，這是「至少誤標一個」的總機率，必須整體壓低而不是逐一看。最大統計量校正＝每次打亂資料只記下「最強的那個節點分數」，用這些最強分數當門檻；唯有比純運氣最好的情況還強，才算數，一次擺平多重比較。假陽性＝其實沒有問題卻被標成有訊號的誤報；節點越多越容易冒出，這也是天真未校正會標出一堆節點的原因。",
+        "term": t(lang, "族系錯誤率＝整棵樹有很多節點，每個都測一次就會累積錯誤，這是「至少誤標一個」的總機率，必須整體壓低而不是逐一看。最大統計量校正＝每次打亂資料只記下「最強的那個節點分數」，用這些最強分數當門檻；唯有比純運氣最好的情況還強，才算數，一次擺平多重比較。假陽性＝其實沒有問題卻被標成有訊號的誤報；節點越多越容易冒出，這也是未校正未校正會標出一堆節點的原因。",
                   "Family-wise error rate = a whole tree has many nodes, and testing each one piles up errors, so this is the overall chance of at least one false flag — it must be held down as a whole, not judged node by node. Max-statistic correction = each reshuffle records only the single strongest node score, and those strongest scores set the bar; only beating luck's best case counts, settling all the multiple comparisons at once. False positive = a false alarm where nothing is actually wrong yet a node gets flagged; more nodes make them likelier, which is why a naive uncorrected scan flags so many."),
         "metrics": [
             {"name": t(lang, "最強節點校正後 p", "strongest node adjusted p"), "value": f"{top['p']:.3g}", "note": ""},
-            {"name": t(lang, "天真標記數 / TreeScan 標記數", "naive flags / TreeScan flags"),
-             "value": f"{n_naive} / {n_tscan}", "note": t(lang, "天真多為假警報", "naive ones are mostly false alarms")},
+            {"name": t(lang, "未校正標記數 / TreeScan 標記數", "naive flags / TreeScan flags"),
+             "value": f"{n_naive} / {n_tscan}", "note": t(lang, "未校正多為假警報", "naive ones are mostly false alarms")},
         ],
     }

@@ -270,7 +270,7 @@ def full_rdd(df, x_name, y_name, d_name, c, h=None, lang="zh"):
             lang,
             f"斷點附近真正因資格而去接種的人（complier），疫苗讓健康分數變化約 "
             f"{fuzzy['estimate']:+.2f} 分；接種率在斷點跳升約 {takeup['estimate']*100:.0f} 個百分點。"
-            f"（對照：直接比較有無接種的天真差異約 {naive:+.2f} 分，被健康意識等干擾因子放大。）",
+            f"（對照：直接比較有無接種的未校正差異約 {naive:+.2f} 分，被健康意識等干擾因子放大。）",
             f"For compliers near the cutoff, vaccination changes the health score by about "
             f"{fuzzy['estimate']:+.2f}; uptake jumps ~{takeup['estimate']*100:.0f} percentage points at 65. "
             f"(Contrast: the naive treated-vs-untreated difference is about {naive:+.2f}, "

@@ -2,7 +2,7 @@
 
 白話：想估疫苗對<b>目標病原</b>的效力 VE。麻煩是<b>就醫傾向</b>是未測混淆（愛就醫的人較常接種、也較常被檢驗）。
 
-  ・<b>天真病例對照（一般族群對照）</b>：case＝檢驗陽性、control＝一般族群未感染者。被就醫傾向偏掉。
+  ・<b>未校正病例對照（一般族群對照）</b>：case＝檢驗陽性、control＝一般族群未感染者。被就醫傾向偏掉。
   ・<b>TND</b>：只在「有來檢驗」的人裡比——case＝目標病原陽性、control＝檢驗陰性（其他病原）。
     兩組都來檢驗過，就醫傾向被「條件在有檢驗」抵銷 → 接種勝算比 OR、<b>VE ＝ 1 − OR</b>。
 
@@ -66,7 +66,7 @@ def full_tnd(df, ve=None, lang="zh"):
 
     interp = t(
         lang,
-        f"真實疫苗效力 VE ＝ {ve*100:.0f}%。用「一般族群」當對照的<b>天真病例對照 VE ≈ {ve_naive*100:.0f}%</b>，"
+        f"真實疫苗效力 VE ＝ {ve*100:.0f}%。用「一般族群」當對照的<b>未校正病例對照 VE ≈ {ve_naive*100:.0f}%</b>，"
         f"被<b>就醫傾向</b>嚴重偏掉（愛就醫者較常接種、其感染也較常被檢驗發現）。<b>陰性檢驗設計</b>只在來檢驗的人裡比："
         f"接種勝算比 OR ≈ {or_t:.2f} → <b>VE ＝ 1 − OR ≈ {ve_tnd*100:.0f}%</b>（95% CI {lo_t*100:.0f}%～{hi_t*100:.0f}%）——"
         f"貼回真值 {ve*100:.0f}%。因為 case 與 control 都<b>來檢驗過</b>，就醫傾向被條件掉了。",
@@ -121,7 +121,7 @@ def tnd_interactive(cseek=1.0, lang="zh"):
     tnd = float(np.interp(x, g["cs"], g["tnd"]))
     reading = t(
         lang,
-        f"就醫傾向混淆強度 {x:.2f}：<b>天真病例對照 VE ≈ {naive*100:.0f}%</b> 隨就醫傾向越偏越低（低估保護）；"
+        f"就醫傾向混淆強度 {x:.2f}：<b>未校正病例對照 VE ≈ {naive*100:.0f}%</b> 隨就醫傾向越偏越低（低估保護）；"
         f"而 <b>TND VE ≈ {tnd*100:.0f}%</b> 不管就醫傾向多強都穩在真值 {g['true']*100:.0f}%。為 0 時兩者一致。",
         f"Care-seeking confounding strength {x:.2f}: the <b>naive case-control VE ≈ {naive*100:.0f}%</b> sinks further as "
         f"care-seeking grows (under-stating protection); the <b>TND VE ≈ {tnd*100:.0f}%</b> stays on the truth "

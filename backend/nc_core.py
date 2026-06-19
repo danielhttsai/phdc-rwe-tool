@@ -1,13 +1,13 @@
 """Negative Control & Proximal Causal Inference (NC) core — pure numpy.
 
-白話：要估「疫苗 A → 結果 Y」的因果效應，但有個<b>沒測到的混淆 U</b>（健康／就醫傾向），天真比較會被它偏掉。
+白話：要估「疫苗 A → 結果 Y」的因果效應，但有個<b>沒測到的混淆 U</b>（健康／就醫傾向），未校正比較會被它偏掉。
 我們用兩個<b>陰性對照</b>：NCO（W，疫苗不可能影響、但與 U 相關）、NCE（Z，不可能影響 Y、但與 U 相關）。
 
-  ① 偵測（Lipsitch 2010）：天真估 <b>A → W</b> 本應為 0；若 ≠0，就是<b>殘留／未測混淆</b>的警訊。
+  ① 偵測（Lipsitch 2010）：未校正估 <b>A → W</b> 本應為 0；若 ≠0，就是<b>殘留／未測混淆</b>的警訊。
   ② ③ 校正（雙陰性對照／近端因果，P2SLS — Miao et al. 2018；regression-based PCI 2025）：
        第一階段： W ~ A + Z + X        → Ŵ        （用 NCE Z 把 W 中「U 的部分」抓出來）
        第二階段： Y ~ A + Ŵ + X        → A 的係數＝因果效應（在有 U 下仍還原真值）
-     對照：天真 Y ~ A + X 被 U 偏掉。
+     對照：未校正 Y ~ A + X 被 U 偏掉。
 
 NOTE — faithful teaching re-implementation (Lipsitch, Tchetgen Tchetgen & Cohen
 2010, Epidemiology; Miao, Geng & Tchetgen Tchetgen 2018, Biometrika; Tchetgen Tchetgen et al.
@@ -79,8 +79,8 @@ def full_nc(df, treat="A", outcome="Y", cov="X", nco="W", nce="Z",
 
     interp = t(
         lang,
-        f"天真地估『A → Y』得 ≈ <b>{naive:.2f}</b>（95% CI {ci_naive[0]:.2f}～{ci_naive[1]:.2f}），被未測混淆 U 偏掉"
-        f"（真值 {true_tau:.2f}）。<b>偵測</b>：疫苗不可能影響陰性對照結果 W，但天真估『A → W』≈ <b>{detect:+.2f}</b>"
+        f"未經校正地估『A → Y』得 ≈ <b>{naive:.2f}</b>（95% CI {ci_naive[0]:.2f}～{ci_naive[1]:.2f}），被未測混淆 U 偏掉"
+        f"（真值 {true_tau:.2f}）。<b>偵測</b>：疫苗不可能影響陰性對照結果 W，但未校正估『A → W』≈ <b>{detect:+.2f}</b>"
         f"（離 0 達 {abs(detect_z):.1f} 個標準誤）——這就是<b>未測混淆的警訊</b>。<b>校正</b>：用陰性對照暴露 Z 與結果 W 當 U 的代理，"
         f"做<b>近端因果 P2SLS</b>（W~A+Z+X→Ŵ；Y~A+Ŵ+X），得 ≈ <b>{prox:.2f}</b>"
         + (f"（95% 自助 CI {lo:.2f}～{hi:.2f}）" if lo is not None else "") + f"——還原真值 {true_tau:.2f}。",
@@ -139,7 +139,7 @@ def nc_interactive(conf=1.0, lang="zh"):
     prox = float(np.interp(xc, g["conf"], g["proximal"]))
     reading = t(
         lang,
-        f"未測混淆強度 {xc:.2f}：天真『A → Y』≈ {naive:.2f} 被 U 越推越偏；同時陰性對照『A → W』≈ {detect:+.2f}"
+        f"未測混淆強度 {xc:.2f}：未校正『A → Y』≈ {naive:.2f} 被 U 越推越偏；同時陰性對照『A → W』≈ {detect:+.2f}"
         f"（本應為 0）也跟著放大——這就是<b>偵測訊號</b>，越偏代表混淆越強。<b>近端因果 P2SLS ≈ {prox:.2f}</b>，"
         f"不管混淆多強都穩在真值 {g['true_tau']:.1f}。偵測（A→W≠0）與校正（P2SLS）用的是同一對陰性對照。",
         f"Unmeasured-confounding strength {xc:.2f}: the naive 'A → Y' ≈ {naive:.2f} is pushed ever further off by U; in lockstep "

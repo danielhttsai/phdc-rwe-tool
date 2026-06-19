@@ -40,7 +40,7 @@ def _c1_nco(res, lang="zh"):
                       "The NCO must be 'something the vaccine cannot affect, yet driven by the same unmeasured U'. Choose wrong and both detection and correction fail."),
         "plain": t(
             lang,
-            "<b>陰性對照結果（NCO，本工具的 W）</b>必須滿足兩件事：(1) 暴露 A 對它<b>沒有因果效應</b>（所以天真估 A→W 的"
+            "<b>陰性對照結果（NCO，本工具的 W）</b>必須滿足兩件事：(1) 暴露 A 對它<b>沒有因果效應</b>（所以未校正估 A→W 的"
             "『真值』是 0）；(2) 它和產生偏誤的<b>未測混淆 U 相關</b>（所以能當 U 的代理）。常見選擇：接種<b>之前</b>就量到的"
             "結果、或一個機轉上不可能被疫苗影響、卻同樣反映健康／就醫傾向的事件。第 (1) 點是設計假設、無法用資料證明；選錯 NCO"
             "（其實會被暴露影響）會讓偵測誤判、校正引入新偏誤。",
@@ -53,7 +53,7 @@ def _c1_nco(res, lang="zh"):
         "term": t(lang, "陰性對照結果（NCO）＝一個暴露「不可能」真的影響、卻同樣受未測混淆牽動的結果（例如接種前就量到的指標）；因為真效應理應是 0，它能當混淆的探照燈。偽陽性查核＝故意拿這個「答案應該是 0」的結果去跑模型；如果跑出非 0，代表偏誤確實存在、不是真效果。Lipsitch 2010 是把這套陰性對照查核法引進流行病學的經典文獻。",
                   "Negative-control outcome (NCO) = a result the exposure cannot truly affect yet that is still moved by the same unmeasured confounding (e.g. a measure taken before vaccination); since its true effect should be 0, it acts as a flashlight for confounding. Falsification check = deliberately running the model on this 'answer should be 0' outcome; if it comes back non-zero, real bias exists rather than a true effect. Lipsitch 2010 is the classic paper that brought this negative-control approach into epidemiology."),
         "metrics": [
-            {"name": t(lang, "天真 A → W（本應 0）", "naive A → W (should be 0)"),
+            {"name": t(lang, "未校正 A → W（本應 0）", "naive A → W (should be 0)"),
              "value": f"{res['detect']:+.2f}",
              "note": t(lang, "離 0 越遠＝未測混淆越強（偵測訊號）", "the further from 0, the stronger the unmeasured confounding (the detection signal)")},
         ],
@@ -162,13 +162,13 @@ def _c5_data(res, lang="zh"):
         "status": status, "headline": head,
         "plain": t(
             lang,
-            "近端因果是<b>兩階段</b>估計（第一階段配 Ŵ、第二階段估效應），每一階段的雜訊都會往下傳，所以對<b>樣本量</b>比天真單階段"
+            "近端因果是<b>兩階段</b>估計（第一階段配 Ŵ、第二階段估效應），每一階段的雜訊都會往下傳，所以對<b>樣本量</b>比未校正單階段"
             "更敏感。樣本太少時信賴區間會很寬、甚至不穩；務必看自助信賴區間，別只看點估計。",
             "Proximal inference is a <b>two-stage</b> estimator (fit Ŵ first, then estimate the effect), and noise from each stage "
             "propagates, so it is more sensitive to <b>sample size</b> than a naive one-stage analysis. With too few observations the CI is "
             "wide or unstable — always read the bootstrap CI, not just the point estimate.",
         ),
-        "term": t(lang, "兩階段估計＝先用第一階段配出 Ŵ，再拿它去跑第二階段估真正的效應；要分兩步走才能扣掉未測混淆。誤差傳遞＝第一階段的雜訊不會消失，會一路傳到第二階段、層層放大，所以這方法比天真的一步到位更吃樣本量。自助信賴區間（bootstrap CI）＝把資料反覆重抽、重算很多次，看估計值散得多開，藉此誠實量出不確定性；樣本少時務必看它，別只信單一點估計。",
+        "term": t(lang, "兩階段估計＝先用第一階段配出 Ŵ，再拿它去跑第二階段估真正的效應；要分兩步走才能扣掉未測混淆。誤差傳遞＝第一階段的雜訊不會消失，會一路傳到第二階段、層層放大，所以這方法比未校正的一步到位更吃樣本量。自助信賴區間（bootstrap CI）＝把資料反覆重抽、重算很多次，看估計值散得多開，藉此誠實量出不確定性；樣本少時務必看它，別只信單一點估計。",
                   "Two-stage estimation = first fit Ŵ in stage one, then feed it into stage two to estimate the real effect; the two steps are what let you subtract out the unmeasured confounding. Error propagation = stage-one noise does not vanish — it carries into stage two and gets amplified, so this method is hungrier for sample size than a naive one-step analysis. Bootstrap CI = resample and recompute the data many times to see how widely the estimate scatters, giving an honest measure of uncertainty; with a small sample always read it rather than trusting the single point estimate."),
         "metrics": [
             {"name": t(lang, "樣本數", "sample size"), "value": f"{n}",

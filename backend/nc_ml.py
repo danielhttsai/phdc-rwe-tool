@@ -4,7 +4,7 @@
 （真效應＝0）去估計分析的<b>系統誤差分布</b>，再用它把觀察到的 p 值／信賴區間<b>校準</b>回誠實的水準
 （Stat Med 2014 校 p 值；PNAS 2018 校信賴區間；Stat Med 2023 加序列監測）。
 
-教學重點：天真分析假設「只有抽樣誤差」，於是連<b>真效應為 0 的陰性對照</b>都被判為「顯著」——這證明 p 值被
+教學重點：未校正分析假設「只有抽樣誤差」，於是連<b>真效應為 0 的陰性對照</b>都被判為「顯著」——這證明 p 值被
 <b>系統誤差</b>汙染。把這批陰性對照的估計擬合成經驗虛無 Normal(μ,σ)，校準後：陰性對照回到該有的 ~5% 偽陽性，
 主結果的 p 值／CI 也誠實了。
 
@@ -113,22 +113,22 @@ def calibration_demo(seed=67, lang="zh"):
         # --- PNAS 2018 CI-calibration block ---
         "k_pos": Kp, "err_intercept": round(a_hat, 3), "err_slope": round(b_hat, 3), "err_sd": round(tau, 3),
         "cov_naive": round(cov_naive, 3), "cov_cal": round(cov_cal, 3),
-        "bars": {"labels": [t(lang, "天真（假設只有抽樣誤差）", "naive (sampling error only)"),
+        "bars": {"labels": [t(lang, "未校正（假設只有抽樣誤差）", "naive (sampling error only)"),
                             t(lang, "實證校準後", "after empirical calibration")],
                  "values": [round(t1_naive * 100, 1), round(t1_cal * 100, 1)]},
-        "cov_bars": {"labels": [t(lang, "天真 95% CI", "naive 95% CI"),
+        "cov_bars": {"labels": [t(lang, "未校正 95% CI", "naive 95% CI"),
                                 t(lang, "校準後 95% CI", "calibrated 95% CI")],
                      "values": [round(cov_naive * 100, 1), round(cov_cal * 100, 1)]},
         "plain": t(
             lang,
-            "天真的 p 值／信賴區間只假設<b>抽樣誤差</b>。但在觀察性資料裡還有<b>系統誤差</b>（未測混淆等），於是連<b>真效應為 0 的"
-            "陰性對照</b>都會被一堆判為「顯著」——上圖左：天真下，這 50 個本該虛無的陰性對照有<b>很高比例</b> p<0.05，遠超過該有的 5%。"
+            "未校正的 p 值／信賴區間只假設<b>抽樣誤差</b>。但在觀察性資料裡還有<b>系統誤差</b>（未測混淆等），於是連<b>真效應為 0 的"
+            "陰性對照</b>都會被一堆判為「顯著」——上圖左：未校正下，這 50 個本該虛無的陰性對照有<b>很高比例</b> p<0.05，遠超過該有的 5%。"
             "<b>① p 值校準（Schuemie 2014，Stat Med）</b>：把這批陰性對照擬合成<b>經驗虛無 Normal(μ,σ)</b>，量出系統誤差再重算 p 值——"
             "陰性對照回到 ~5%（右）。<br>"
             "<b>② 信賴區間校準（Schuemie 2018，PNAS）</b>：光靠陰性對照只知道「真值 0 時」的偏誤；PNAS 這篇再加進一批"
             "<b>陽性對照</b>（<b>已知非零</b>的真效應，通常用「注入額外結果事件」合成），讓系統誤差的<b>大小可以隨真效應 θ 變化</b>"
             "（擬合 觀察值−θ ~ Normal(a＋b·θ, √(τ²＋se²))）。校準後的 95% CI＝「在這個誤差模型下不會讓觀察值顯得意外」的那段 θ。"
-            "PNAS 最震撼的實證結果：<b>天真 95% CI 涵蓋真值的比例遠低於 95%</b>（下圖左，常掉到一半上下）；<b>校準後拉回 ~95%</b>（下圖右）。"
+            "PNAS 最震撼的實證結果：<b>未校正 95% CI 涵蓋真值的比例遠低於 95%</b>（下圖左，常掉到一半上下）；<b>校準後拉回 ~95%</b>（下圖右）。"
             "<br>這是<b>資料驅動的校準</b>，不是 ML 本身（ML 前沿見下方註）。",
             "Naive p-values / CIs assume <b>sampling error only</b>. But observational data also carry <b>systematic error</b> "
             "(unmeasured confounding, etc.), so even <b>negative controls with a true effect of 0</b> are flagged 'significant' en masse — "
@@ -144,11 +144,11 @@ def calibration_demo(seed=67, lang="zh"):
         ),
         "reading": t(
             lang,
-            f"<b>① p 值（負對照）</b>：經驗虛無 ≈ Normal(μ={mu:.2f}, σ={sigma:.2f})；陰性對照偽陽性率 天真 {t1_naive*100:.0f}% → 校準後 {t1_cal*100:.0f}%（應 ~5%）。"
-            f"主結果 估計 {main_est:.2f}，天真 p={pmain_naive:.3f}（假顯著）→ 校準後 p={pmain_cal:.3f}；"
+            f"<b>① p 值（負對照）</b>：經驗虛無 ≈ Normal(μ={mu:.2f}, σ={sigma:.2f})；陰性對照偽陽性率 未校正 {t1_naive*100:.0f}% → 校準後 {t1_cal*100:.0f}%（應 ~5%）。"
+            f"主結果 估計 {main_est:.2f}，未校正 p={pmain_naive:.3f}（假顯著）→ 校準後 p={pmain_cal:.3f}；"
             f"CI {ci_naive[0]:.2f}～{ci_naive[1]:.2f} → 校準後 {ci_cal[0]:.2f}～{ci_cal[1]:.2f}。<br>"
             f"<b>② 信賴區間（PNAS，加 {Kp} 個陽性對照）</b>：系統誤差模型 ≈ a＋b·θ = {a_hat:.2f}＋{b_hat:.2f}·θ，殘差 SD τ={tau:.2f}（b≠0 表示偏誤隨真效應放大）。"
-            f"95% CI 涵蓋真值的比例：天真 {cov_naive*100:.0f}% → 校準後 {cov_cal*100:.0f}%（應 ~95%）。",
+            f"95% CI 涵蓋真值的比例：未校正 {cov_naive*100:.0f}% → 校準後 {cov_cal*100:.0f}%（應 ~95%）。",
             f"<b>① p-values (negative controls)</b>: empirical null ≈ Normal(μ={mu:.2f}, σ={sigma:.2f}); neg-control false-positive rate "
             f"naive {t1_naive*100:.0f}% → calibrated {t1_cal*100:.0f}% (should be ~5%). Main result estimate {main_est:.2f}, naive p={pmain_naive:.3f} "
             f"(falsely significant) → calibrated p={pmain_cal:.3f}; CI {ci_naive[0]:.2f}–{ci_naive[1]:.2f} → calibrated {ci_cal[0]:.2f}–{ci_cal[1]:.2f}.<br>"

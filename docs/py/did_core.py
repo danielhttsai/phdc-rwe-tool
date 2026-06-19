@@ -193,7 +193,7 @@ def full_did(df, unit, period, group, outcome, t0, covariates=None, lang="zh"):
         f"（95% 信賴區間 {reg['ci'][0]:+.2f} ～ {reg['ci'][1]:+.2f}）。"
         f"也就是：介入組前→後變化 {m['treated_post']-m['treated_pre']:+.2f}，"
         f"減掉對照組前→後變化 {m['control_post']-m['control_pre']:+.2f}。"
-        f"（對照：只看後期『介入減對照』的天真差異約 {naive:+.2f} 分，被各組固定差異汙染。）",
+        f"（對照：只看後期『介入減對照』的未校正差異約 {naive:+.2f} 分，被各組固定差異汙染。）",
         f"The difference-in-differences estimate of the policy effect is about "
         f"{reg['estimate']:+.2f} (95% CI {reg['ci'][0]:+.2f} to {reg['ci'][1]:+.2f}): "
         f"the treated before→after change ({m['treated_post']-m['treated_pre']:+.2f}) "

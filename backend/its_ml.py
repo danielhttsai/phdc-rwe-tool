@@ -47,7 +47,7 @@ def hac_demo(seed=7, lang="zh"):
         "series": {"time": time.tolist(), "y": y.round(2).tolist(), "t0": t0},
         "plain": t(
             lang,
-            "情境：時間序列相鄰月份彼此相關（自相關）。點估計沒問題，但<b>天真 OLS 的信賴區間會太窄</b>"
+            "情境：時間序列相鄰月份彼此相關（自相關）。點估計沒問題，但<b>未校正 OLS 的信賴區間會太窄</b>"
             "——它假設每個月互相獨立，於是低估了不確定性、p 值太漂亮。Newey–West（HAC）穩健標準誤"
             "把這種相關納入，給出<b>較寬、較誠實</b>的區間。",
             "Scenario: adjacent months in a time series are correlated (autocorrelation). The point estimate is fine, "
@@ -57,7 +57,7 @@ def hac_demo(seed=7, lang="zh"):
         ),
         "reading": t(
             lang,
-            f"水準變化點估計 ≈ {lev:.1f}（真值 {true_level:.0f}）。天真 OLS 標準誤 {se_ols:.2f} vs "
+            f"水準變化點估計 ≈ {lev:.1f}（真值 {true_level:.0f}）。未校正 OLS 標準誤 {se_ols:.2f} vs "
             f"HAC 標準誤 {se_hac:.2f}——忽略自相關會讓區間假性變窄。",
             f"Level-change point estimate ≈ {lev:.1f} (truth {true_level:.0f}). Naive OLS SE {se_ols:.2f} vs "
             f"HAC SE {se_hac:.2f} — ignoring autocorrelation makes the interval spuriously narrow.",
@@ -145,7 +145,7 @@ def mlcf_demo(seed=5, lang="zh"):
     return {
         "key": "mlcf", "title": t(lang, "ML 兩階段反事實預測（真的跑 ML）", "ML two-stage counterfactual (real ML)"),
         "true_level": true_level, "naive": float(naive_level), "linear": lin_level, "ml": ml_level,
-        "bars": {"labels": [t(lang, "真值", "Truth"), t(lang, "天真 ITS", "Naive ITS"),
+        "bars": {"labels": [t(lang, "真值", "Truth"), t(lang, "未校正 ITS", "Naive ITS"),
                             t(lang, "線性反事實", "Linear CF"), t(lang, "ML 反事實", "ML CF")],
                  "values": [true_level, float(naive_level), lin_level, ml_level]},
         "series": {"time": time.tolist(), "y": y.round(2).tolist(),
@@ -169,7 +169,7 @@ def mlcf_demo(seed=5, lang="zh"):
         ),
         "reading": t(
             lang,
-            f"天真 ITS 水準變化 ≈ {naive_level:.1f}（被共變項變化汙染）；線性反事實 ≈ {lin_level:.1f}（漏掉交互作用、仍偏）；"
+            f"未校正 ITS 水準變化 ≈ {naive_level:.1f}（被共變項變化汙染）；線性反事實 ≈ {lin_level:.1f}（漏掉交互作用、仍偏）；"
             f"ML 反事實 ≈ {ml_level:.1f}，貼回真值 {true_level:.0f}。",
             f"Naive ITS level change ≈ {naive_level:.1f} (contaminated by the covariate shift); linear counterfactual "
             f"≈ {lin_level:.1f} (misses the interaction, still biased); ML counterfactual ≈ {ml_level:.1f}, back at the "

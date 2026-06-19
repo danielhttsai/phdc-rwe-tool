@@ -108,7 +108,7 @@ def _c3_am(lang="zh"):
 
 def _c4_interaction(inter_t, res, lang="zh"):
     if inter_t >= 3:
-        status, head = "amber", t(lang, "暴露×中介交互明顯——務必用含交互的分解，天真『Y~A+M』的直接效果會偏。",
+        status, head = "amber", t(lang, "暴露×中介交互明顯——務必用含交互的分解，未校正『Y~A+M』的直接效果會偏。",
                                   "Clear exposure-mediator interaction — use the interaction-aware decomposition; the naive 'Y~A+M' direct effect is biased.")
     elif inter_t >= 1.5:
         status, head = "amber", t(lang, "可能有交互——含交互的分解較保險。",
@@ -135,7 +135,7 @@ def _c4_interaction(inter_t, res, lang="zh"):
                   "Exposure-mediator interaction = how protective the antibodies are 'depends on whether the person was vaccinated' — the same antibody level works better in someone who got the vaccine. When this interaction exists you cannot just read the vaccine coefficient from a single Y~A+M model, or the direct effect comes out biased. Four-way decomposition (VanderWeele) = splits the total effect into four pieces: pure direct, pure indirect (through antibodies), pure interaction, and interaction that also runs through antibodies; this way the interaction's contribution is not buried and you can see exactly where the effect comes from."),
         "metrics": [
             {"name": t(lang, "交互項 A×M（t 值）", "interaction A×M (t-stat)"), "value": f"{inter_t:.1f}",
-             "note": t(lang, "≳2 就應納入交互；天真直接效果會偏", "≳2 means include the interaction; the naive direct effect is biased")},
+             "note": t(lang, "≳2 就應納入交互；未校正直接效果會偏", "≳2 means include the interaction; the naive direct effect is biased")},
         ],
     }
 

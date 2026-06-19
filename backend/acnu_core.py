@@ -1,6 +1,6 @@
 """Active-Comparator, New-User (ACNU) core — pure numpy.
 
-白話：要問「新藥 A 會不會提高某結果的風險」，天真地拿<b>用 A 的人 vs 沒用藥的人</b>比會中兩種偏誤：
+白話：要問「新藥 A 會不會提高某結果的風險」，未經校正地拿<b>用 A 的人 vs 沒用藥的人</b>比會中兩種偏誤：
 (1) <b>因適應症而生的混淆</b>——病情重的人才會被開 A；(2) <b>healthy-user</b>——沒用藥的人通常比較健康。
 兩者都讓 A 看起來比實際更有害。
 
@@ -9,7 +9,7 @@ A 的新使用者 vs B 的新使用者。兩組都有這個病、都剛起始、
 healthy-user／immortal-time 偏誤大幅相消</b>。A 與 B 之間若還有殘留的嚴重度差，再用<b>傾向分數／
 共變項校正</b>補掉，就能還原真實的速率比。
 
-  naive IRR   = (事件_A / 人時_A) ÷ (事件_none / 人時_none)        天真：A vs 沒用藥（偏）
+  naive IRR   = (事件_A / 人時_A) ÷ (事件_none / 人時_none)        未校正：A vs 沒用藥（偏）
   ACNU crude  = (事件_A / 人時_A) ÷ (事件_B    / 人時_B)           限制在新使用者＋主動對照（較不偏）
   ACNU adj    = exp(β_A)  from a Poisson rate model on A∪B         再校正殘留嚴重度 → ≈ 真值
                 (offset = log person-time, covariates = severity, comorbidity)
@@ -90,13 +90,13 @@ def full_acnu(df, drug="drug", event="event", futime="futime",
 
     interp = t(
         lang,
-        f"天真地比『用 A vs 沒用藥』得速率比 ≈ <b>{naive:.2f}</b>（95% CI {ci_naive[0]:.2f}～{ci_naive[1]:.2f}）"
+        f"未經校正地比『用 A vs 沒用藥』得速率比 ≈ <b>{naive:.2f}</b>（95% CI {ci_naive[0]:.2f}～{ci_naive[1]:.2f}）"
         f"——嚴重看高。因為用 A 的人嚴重度平均 {bal['A']:+.2f}、沒用藥的只有 {bal['none']:+.2f}（healthy-user＋"
         f"因適應症的混淆）。改用 <b>ACNU</b>：A 的新使用者 vs <b>主動對照藥 B</b> 的新使用者，粗速率比降到 "
         f"≈ {crude:.2f}（兩組都有這病、嚴重度 {bal['A']:+.2f} vs {bal['B']:+.2f}，差距小很多）；再<b>校正嚴重度</b>"
         f"後 ≈ <b>{adj:.2f}</b>（95% CI {ci_adj[0]:.2f}～{ci_adj[1]:.2f}）——貼近真值 {true_hr:.2f}。"
         if bal else
-        f"天真 IRR ≈ {naive:.2f}；ACNU 粗 ≈ {crude:.2f}；校正後 ≈ {adj:.2f}（真值 {true_hr:.2f}）。",
+        f"未校正 IRR ≈ {naive:.2f}；ACNU 粗 ≈ {crude:.2f}；校正後 ≈ {adj:.2f}（真值 {true_hr:.2f}）。",
         f"Naively comparing 'A vs non-users' gives a rate ratio ≈ <b>{naive:.2f}</b> (95% CI {ci_naive[0]:.2f}–"
         f"{ci_naive[1]:.2f}) — badly inflated, because A users average severity {bal['A']:+.2f} vs {bal['none']:+.2f} for "
         f"non-users (healthy-user + confounding by indication). Switching to <b>ACNU</b> — new users of A vs new users of the "
@@ -157,7 +157,7 @@ def acnu_interactive(conf=1.0, lang="zh"):
     adj = float(np.interp(xc, g["conf"], g["adj"]))
     reading = t(
         lang,
-        f"因適應症的混淆強度 {xc:.2f}（嚴重度左右『拿 A 還是 B』的程度）：天真『A vs 沒用藥』≈ {naive:.2f}、"
+        f"因適應症的混淆強度 {xc:.2f}（嚴重度左右『拿 A 還是 B』的程度）：未校正『A vs 沒用藥』≈ {naive:.2f}、"
         f"ACNU 粗『A vs B』≈ {crude:.2f}，都被嚴重度推離真值；<b>校正嚴重度後的 ACNU ≈ {adj:.2f}</b>，"
         f"穩定停在真值 {g['true_hr']:.1f}。注意：主動對照（A vs B）一開始就比『A vs 沒用藥』少偏很多——"
         f"因為兩組都有這個病；剩下的殘留混淆再靠校正補掉。",

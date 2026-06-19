@@ -3,7 +3,7 @@
 Fully fictional teaching scenario — NOT real data:
 
     情境：想知道某個<b>新藥 A</b>會不會提高某個<b>結果</b>（這裡借用「心血管事件」）的風險。
-          天真的做法是拿「用 A 的人 vs 沒用藥的人」比——但會用 A 的人本來病情就比較重
+          未校正的做法是拿「用 A 的人 vs 沒用藥的人」比——但會用 A 的人本來病情就比較重
           （<b>因適應症而生的混淆</b>，confounding by indication），而沒用藥的人通常比較健康
           （<b>healthy-user</b>）。把這兩群直接比，A 會被冤枉成有害。
           ACNU 的解法：只比<b>新使用者</b>——把 A 的<b>新使用者</b>拿來和一個<b>主動對照藥 B</b>

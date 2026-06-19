@@ -4,7 +4,7 @@ align time-zero, pool. Pure numpy, Pyodide-safe.
 白話：點治療「當下治療 vs 不治療」。病人在不同月份陸續符合資格 → 每個資格月 k 開一場 mini-trial：
 時間零點＝月 k，比較「當月啟動 vs 當月不啟動」的合格者，用基線共變項做傾向＋反機率加權（IPTW），
 得到該場的風險差 RD_k；再以反變異把各場合併。同一個人可在多場以「未啟動」身分重複納入（放大有效
-樣本）。對照天真「曾治療 vs 從未治療」會中 immortal-time bias。
+樣本）。對照未校正「曾治療 vs 從未治療」會中 immortal-time bias。
 
   RD_k    = riskW(該月啟動者) − riskW(該月未啟動者)，到 horizon 的事件風險
   RD_pool = Σ_k (RD_k / Var_k) / Σ_k (1/Var_k)     （反變異合併）
@@ -134,7 +134,7 @@ def full_seq(df, init_time="init_month", event="event", futime="futime",
         f"序列（巢式）試驗合併估計『當下治療 vs 不治療』的因果風險差 ≈ {seq_rd:+.2f}"
         f"（95% 區間 {lo:+.2f} ～ {hi:+.2f}），貼近真值 {true_rd:+.2f}（負值＝治療讓事件風險更低）。"
         f"做法：在 {len(per)} 個資格月各開一場 mini-trial、對齊時間零點、用基線共變項 IPTW，再反變異合併。"
-        f"對照：天真比『曾治療 vs 從未治療』約 {naive_rd:+.2f}——被 immortal-time bias 與混淆扭曲"
+        f"對照：未校正比『曾治療 vs 從未治療』約 {naive_rd:+.2f}——被 immortal-time bias 與混淆扭曲"
         f"（曾治療者必須先活著、撐到治療那刻）。",
         f"Sequential (nested) trials pool an estimate of the 'treat-now vs not' causal risk difference ≈ {seq_rd:+.2f} "
         f"(95% interval {lo:+.2f} to {hi:+.2f}), close to the truth {true_rd:+.2f} (negative = treatment lowers the "
@@ -161,7 +161,7 @@ def seq_demo(seed=0, lang="zh"):
     d = _SEQ_DEMO
     reading = t(
         lang,
-        f"真值 {d['true_rd']:+.2f}。天真『曾 vs 從未治療』{d['naive']:+.2f}——嚴重中 immortal-time bias（曾治療者必須"
+        f"真值 {d['true_rd']:+.2f}。未校正『曾 vs 從未治療』{d['naive']:+.2f}——嚴重中 immortal-time bias（曾治療者必須"
         f"先活著、撐到治療那刻，於是治療看起來假性超級保護）。只用『第 0 月那一場 trial』{d['single']:+.2f}：已經無偏，"
         f"但只用得到第 0 月的合格者、有效樣本小、區間較寬。<b>合併所有巢式 trial</b> {d['pooled']:+.2f}：用到每個資格"
         f"時點的人（同一人可重複收案）→ 更有效率、區間更窄，同樣貼近真值。",

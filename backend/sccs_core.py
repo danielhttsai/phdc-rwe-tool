@@ -105,7 +105,7 @@ def sccs_interactive(hv=1.0, lang="zh"):
     sccs = float(np.interp(x, g["hv"], g["sccs"]))
     reading = t(
         lang,
-        f"健康接種者選擇強度 {x:.2f}：在「人與人之間」比較（接種者 vs 未接種者）的<b>天真速率比 ≈ {naive:.2f}</b>，"
+        f"健康接種者選擇強度 {x:.2f}：在「人與人之間」比較（接種者 vs 未接種者）的<b>未校正速率比 ≈ {naive:.2f}</b>，"
         f"被『會去接種的人本來就比較健康』拉偏；而<b>同一個人前後比的 SCCS IRR ≈ {sccs:.2f}</b>，<b>不動如山</b>、"
         f"停在真值 {g['true_irr']:.1f}。這就是 SCCS 對<b>不隨時間變的混淆</b>免疫的威力。",
         f"Healthy-vaccinee selection strength {x:.2f}: the between-person <b>naive rate ratio ≈ {naive:.2f}</b> is dragged "

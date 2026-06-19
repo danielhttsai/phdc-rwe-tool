@@ -9,7 +9,7 @@
     NDE = d + g·E[M(0)]           （把暴露設 0→1，中介固定在「沒接種會有的水準」）
     NIE = (b + g)·a               （暴露設 1，中介從 M(0)→M(1) 的搬移）
     TE  = NDE + NIE ；  proportion mediated = NIE / TE
-  對照：<b>天真直接效果</b>＝只放 Y ~ A + M（無交互）的 A 係數——有交互或基線中介≠0 時，它<b>不等於</b> NDE。
+  對照：<b>未校正直接效果</b>＝只放 Y ~ A + M（無交互）的 A 係數——有交互或基線中介≠0 時，它<b>不等於</b> NDE。
 
 NOTE — faithful teaching re-implementation (Baron & Kenny 1986; Imai, Keele, Tingley
 & Yamamoto; Tingley et al. `mediation` R package, JSS 2014; VanderWeele & Valeri 2013 SAS/SPSS

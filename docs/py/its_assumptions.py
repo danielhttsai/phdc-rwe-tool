@@ -167,7 +167,7 @@ def _i4_autocorr(fit, lang="zh"):
                  "Moderate residual autocorrelation; corrected with Newey–West, but consider ARIMA too.")
     else:
         status = "red"
-        head = t(lang, "殘差自相關很強，天真標準誤會嚴重低估；務必用 HAC/ARIMA（見 ⑤）。",
+        head = t(lang, "殘差自相關很強，未校正標準誤會嚴重低估；務必用 HAC/ARIMA（見 ⑤）。",
                  "Strong residual autocorrelation — naive SEs badly understate uncertainty; use HAC/ARIMA (see ⑤).")
     return {
         "id": "I4",
@@ -176,7 +176,7 @@ def _i4_autocorr(fit, lang="zh"):
         "plain": t(
             lang,
             "時間序列相鄰的點通常彼此相關（這個月高、下個月也容易高）。如果忽略這種自相關，"
-            "天真的迴歸標準誤會過窄、信賴區間太樂觀、p 值太漂亮。我們用 Durbin–Watson 與 lag-1 自相關"
+            "未校正的迴歸標準誤會過窄、信賴區間太樂觀、p 值太漂亮。我們用 Durbin–Watson 與 lag-1 自相關"
             "檢查殘差，並用 Newey–West（HAC）標準誤校正；自相關很強時可進一步用 ARIMA。",
             "Adjacent points in a time series are usually correlated (a high month tends to be followed by another high "
             "month). Ignore this autocorrelation and the naive regression SEs are too narrow, the CIs too optimistic, the "

@@ -1,6 +1,6 @@
 """DiD ⑤『用 AI／進階方法強化』—— 四個輕量教學 demo（小 N、固定種子）。
 
-每個 demo 都鋪一個「天真 DiD 會在這裡出錯 → 進階方法把它救回來」的故事，回傳
+每個 demo 都鋪一個「未校正 DiD 會在這裡出錯 → 進階方法把它救回來」的故事，回傳
 比較數字＋一點點圖資料＋雙語白話。全部用 numpy/scipy 從頭實作，可在 Pyodide 跑。
 
 對應四篇/四類文獻：
@@ -96,7 +96,7 @@ def dml_demo(seed=7, lang="zh"):
         "key": "dml",
         "title": t(lang, "雙重機器學習 DiD（真的跑 ML）", "Double machine-learning DiD (real ML)"),
         "true_att": true_att, "naive": naive, "linear": lin, "ml": mlv,
-        "bars": {"labels": [t(lang, "真值", "Truth"), t(lang, "天真 DiD", "Naive DiD"),
+        "bars": {"labels": [t(lang, "真值", "Truth"), t(lang, "未校正 DiD", "Naive DiD"),
                             t(lang, "線性雙重穩健", "Linear DR"), t(lang, "DML（梯度提升）", "DML (boosting)")],
                  "values": [true_att, naive, lin, mlv]},
         "plain": t(
@@ -115,7 +115,7 @@ def dml_demo(seed=7, lang="zh"):
         ),
         "reading": t(
             lang,
-            f"天真 DiD ≈ {naive:.2f}；用線性模型的雙重穩健 ≈ {lin:.2f}（非線性設定錯、仍偏）；"
+            f"未校正 DiD ≈ {naive:.2f}；用線性模型的雙重穩健 ≈ {lin:.2f}（非線性設定錯、仍偏）；"
             f"用梯度提升的 DML ≈ {mlv:.2f}，貼回真值 {true_att:.2f}。",
             f"Naive DiD ≈ {naive:.2f}; linear-model DR ≈ {lin:.2f} (still biased — misspecified on non-linearity); "
             f"gradient-boosting DML ≈ {mlv:.2f}, back at the truth {true_att:.2f}.",

@@ -1,7 +1,7 @@
 """Prevalent New-User (PNU) core — pure numpy.
 
 白話：要比較藥 A vs 對照藥 B。「<b>新使用者</b>設計」只比 A 的新起始者 vs B 的新起始者——乾淨、但
-<b>丟掉所有盛行（既有）使用者</b>，樣本小、代表性差。若<b>天真</b>地把盛行 A 使用者直接和 B 新起始者一起比，
+<b>丟掉所有盛行（既有）使用者</b>，樣本小、代表性差。若<b>未校正</b>地把盛行 A 使用者直接和 B 新起始者一起比，
 會中<b>易感者耗竭</b>偏誤：留到現在還在用 A 的盛行使用者是「存活下來的低風險族群」、又過了起始後的高風險期
 →把 A 的風險低估。PNU（Suissa 2017）用<b>時間條件</b>把盛行使用者<b>納回來</b>：依「距起始時間」對齊、
 並用時間條件傾向分數／共變項校正，既不偏、又用上盛行使用者（樣本變大、更精確）。
@@ -85,7 +85,7 @@ def full_pnu(df, drug="drug", event="event", futime="futime", prevalent="prevale
     interp = t(
         lang,
         f"只用<b>新使用者</b>（A 新 vs B 新，校正體質）得速率比 ≈ <b>{nu:.2f}</b>（95% CI {ci_nu[0]:.2f}～{ci_nu[1]:.2f}）"
-        f"——乾淨、貼近真值 {true_hr:.2f}，但<b>丟掉了 {n_prev} 位盛行使用者</b>。若<b>天真</b>把盛行 A 使用者也一起比"
+        f"——乾淨、貼近真值 {true_hr:.2f}，但<b>丟掉了 {n_prev} 位盛行使用者</b>。若<b>未校正</b>把盛行 A 使用者也一起比"
         f"（A 全部 vs B 新）≈ {naive:.2f}——被<b>易感者耗竭</b>嚴重低估（盛行 A 使用者體質 {bal['A_prev']:+.2f} 比新使用者 "
         f"{bal['A_new']:+.2f} 低、又過了高風險期）。<b>PNU</b> 用<b>時間條件</b>（校正體質＋距起始時間）把盛行使用者納回來，"
         f"速率比 ≈ <b>{pnu:.2f}</b>（95% CI {ci_pnu[0]:.2f}～{ci_pnu[1]:.2f}）——還原真值、又用上全部 {n_prev} 位盛行使用者。",
@@ -147,7 +147,7 @@ def pnu_interactive(depletion=1.0, lang="zh"):
     pnu = float(np.interp(xd, g["depl"], g["pnu"]))
     reading = t(
         lang,
-        f"易感者耗竭強度 {xd:.2f}：天真把盛行使用者直接比 ≈ {naive:.2f}，被耗竭往<b>無效值（1）</b>方向拉得越來越偏；"
+        f"易感者耗竭強度 {xd:.2f}：未經校正就把盛行使用者直接比 ≈ {naive:.2f}，被耗竭往<b>無效值（1）</b>方向拉得越來越偏；"
         f"<b>純新使用者</b> ≈ {nu:.2f} 與 <b>PNU</b> ≈ {pnu:.2f} 都穩在真值 {g['true_hr']:.1f}。差別是：純新使用者<b>丟掉</b>"
         f"盛行使用者（樣本小），PNU 用時間條件把他們<b>納回來</b>（一樣不偏、但更有效率、更有代表性）。",
         f"Depletion-of-susceptibles strength {xd:.2f}: naively pooling prevalent users ≈ {naive:.2f} is dragged ever further "

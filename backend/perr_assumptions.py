@@ -36,7 +36,7 @@ def _p1_time_invariant(res, lang="zh"):
          "value": round(rr_prior, 2),
          "note": t(lang, "偏離 1 越多，代表混淆越強、PERR 校正越多",
                    "the further from 1, the stronger the confounding PERR removes")},
-        {"name": t(lang, "PERR 與天真事後率比的差距", "Gap between PERR and the naive post ratio"),
+        {"name": t(lang, "PERR 與未校正事後率比的差距", "Gap between PERR and the naive post ratio"),
          "value": f"{perr:.2f} vs {naive:.2f}",
          "note": t(lang, "差距大代表校正幅度大——也代表更依賴這條假設",
                    "a large gap means a large correction — and heavier reliance on this assumption")},

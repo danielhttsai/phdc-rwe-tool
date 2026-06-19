@@ -9,7 +9,7 @@ treatment TIMING after a diagnosis, in the same vaccine spirit used elsewhere:
           事件」的風險下降。我們想比較兩種**策略**：
               早接種（early）：在寬限期 g 個月內接種
               晚接種／延後（late）：寬限期內先不接種
-          天真地「照實際分組比」會中 immortal-time bias（被歸到 early 的人，必須先活著、沒發生
+          未經校正地「照實際分組比」會中 immortal-time bias（被歸到 early 的人，必須先活著、沒發生
           事件，才有機會早接種 → early 組看起來假性更健康）。Clone-censor-weight 把每個人
           『複製』到兩個策略、在『偏離指派策略』時設限、再用反設限機率加權，去掉這個偏誤。
 
@@ -19,7 +19,7 @@ treatment TIMING after a diagnosis, in the same vaccine spirit used elsewhere:
     事件     event（追蹤期內是否發生重大健康事件）、futime（事件或追蹤結束的月份）
 
 真實策略效應（風險差）由「強制策略」的大樣本蒙地卡羅算出，存成 TRUE_RD（早 − 晚，負值＝早接
-種較保護）。這是 CCW 應該還原、而天真比較會偏離的目標。
+種較保護）。這是 CCW 應該還原、而未校正比較會偏離的目標。
 """
 from __future__ import annotations
 

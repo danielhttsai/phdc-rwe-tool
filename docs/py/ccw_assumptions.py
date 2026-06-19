@@ -42,7 +42,7 @@ def run_dashboard(df, vacc_time=None, event="event", futime="futime",
 def _c1_exchangeability(res, lang="zh"):
     naive, ccw = res["naive"], res["ccw"]
     metrics = [
-        {"name": t(lang, "天真 vs CCW 的差距", "Gap between naive and CCW"),
+        {"name": t(lang, "未校正 vs CCW 的差距", "Gap between naive and CCW"),
          "value": f"{naive:+.2f} vs {ccw:+.2f}",
          "note": t(lang, "差距大代表混淆／immortal-time 的校正幅度大",
                    "a large gap means a large correction for confounding / immortal time")},
@@ -243,9 +243,9 @@ def _c5_alignment(res, lang="zh"):
     naive, ccw = res["naive"], res["ccw"]
     gap = naive - ccw
     metrics = [
-        {"name": t(lang, "天真 − CCW（immortal-time 的指紋）", "Naive − CCW (the immortal-time fingerprint)"),
+        {"name": t(lang, "未校正 − CCW（immortal-time 的指紋）", "Naive − CCW (the immortal-time fingerprint)"),
          "value": f"{gap:+.2f}",
-         "note": t(lang, "不為 0 代表天真分組確實受 immortal-time／混淆汙染",
+         "note": t(lang, "不為 0 代表未校正分組確實受 immortal-time／混淆汙染",
                    "non-zero means the naive grouping really was contaminated by immortal time / confounding")},
     ]
     return {
@@ -260,7 +260,7 @@ def _c5_alignment(res, lang="zh"):
             "immortal-time bias 來自『用未來資訊（最後是早接種還是晚接種）回頭分組』，被歸到早接種的人必須先活著"
             "沒事件，看起來假性更健康。CCW 的解法是：在<b>時間零點（診斷當下）</b>就把每個人複製到兩個策略、"
             "並在偏離時才設限——『死掉或先發生事件的人不會偏離被指派的策略』（Hernán 2018）。上面的"
-            "『天真 − CCW』差距，正是這份 immortal-time／混淆被校正掉的證據。前提是設計上正確對齊"
+            "『未校正 − CCW』差距，正是這份 immortal-time／混淆被校正掉的證據。前提是設計上正確對齊"
             "<b>時間零點、資格條件、策略指派</b>三者。",
             "Immortal-time bias comes from grouping people using future information (whether they ended up early or "
             "late); those labelled 'early' had to survive event-free first, so they look spuriously healthier. CCW's fix "

@@ -205,7 +205,7 @@ def full_tit(df, covariates=("x1", "x2"), K=5, lang="zh"):
         lang,
         f"趨勢中的趨勢（trend-in-trend）估計因果勝算比 OR ≈ {or_hat:.2f}"
         + (f"（95% 信賴區間 {lo:.2f}～{hi:.2f}）" if lo else "")
-        + f"。對照：直接比較用藥與未用藥的天真世代勝算比約 {nv:.2f}，被未測混淆（體質／就醫傾向）高估。"
+        + f"。對照：直接比較用藥與未用藥的未校正世代勝算比約 {nv:.2f}，被未測混淆（體質／就醫傾向）高估。"
         f"整體結果發生率 {out_rate*100:.1f}%（夠罕見），暴露盛行率在觀察期內從 {expo_overall[0]*100:.0f}% "
         f"升到 {expo_overall[-1]*100:.0f}%（有足夠的時間趨勢可用）。",
         f"The trend-in-trend estimate of the causal odds ratio is OR ≈ {or_hat:.2f}"
