@@ -593,7 +593,7 @@ async function refreshMiss() {
 }
 function drawMissChart(r) {
   if (!document.getElementById("missChart")) return;
-  const labels = [tr("天真（不校正）", "naive (unadjusted)"), tr("完整個案", "complete-case"),
+  const labels = [tr("未校正（不校正）", "naive (unadjusted)"), tr("完整個案", "complete-case"),
                   tr("平均值插補", "mean imputation"), tr("多重插補", "multiple imputation")];
   const vals = [r.naive, r.complete_case, r.mean_impute, r.multiple_imputation];
   const cols = vals.map((v) => Math.abs(v - r.truth) < 0.2 ? TEAL : AMBER);  // green = on truth, amber = biased
@@ -1354,7 +1354,7 @@ function drawDoublyRobust(elId) {
   if (!document.getElementById(elId)) return;
   const truth = 2.0;
   const rows = [
-    { y: 5, label: tr("天真：兩個都沒校正", "naive: neither adjusted"), est: 3.15, ci: 0.30, ok: false },
+    { y: 5, label: tr("未校正：兩個都沒校正", "naive: neither adjusted"), est: 3.15, ci: 0.30, ok: false },
     { y: 4, label: tr("只有 ① 傾向模型對", "only ① propensity right"), est: 2.05, ci: 0.34, ok: true },
     { y: 3, label: tr("只有 ② 結果模型對", "only ② outcome right"), est: 1.94, ci: 0.33, ok: true },
     { y: 2, label: tr("兩個都對", "both right"), est: 2.0, ci: 0.26, ok: true },
@@ -2165,7 +2165,7 @@ function renderRddAnalyze(a) {
   document.getElementById("rddAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("接種率跳幅（第一階段）", "Take-up jump (first stage)"), a.takeup.estimate, a.takeup.interpretation, false],
-    [tr("天真差異（有偏）", "Naive difference (biased)"), a.naive_difference, tr("直接比較有／無處置者，被干擾因子汙染。", "Direct treated-vs-untreated comparison, confounded."), false],
+    [tr("未校正差異（有偏）", "Naive difference (biased)"), a.naive_difference, tr("直接比較有／無處置者，被干擾因子汙染。", "Direct treated-vs-untreated comparison, confounded."), false],
     [tr("銳利 RD（資格效果）", "Sharp RD (eligibility)"), a.sharp.estimate, a.sharp.interpretation, false],
     [tr("模糊 RD（斷點順從者）", "Fuzzy RD (compliers)"), a.fuzzy ? a.fuzzy.estimate : null, a.fuzzy ? a.fuzzy.interpretation : "", true],
   ];
@@ -2382,10 +2382,10 @@ const DNODES = {
   // ================= D · evidence-anchored (cross-study synthesis) =================
   synth: {
     step: { zh: "證據合併", en: "Evidence synthesis" },
-    q: { zh: "你要一次比較幾個治療？（這層決定做一般統合分析還是網絡統合分析）", en: "How many treatments are you comparing at once? (this decides ordinary vs network meta-analysis)" },
+    q: { zh: "你要一次比較幾個治療？（這層決定做一般統合分析還是網路統合分析）", en: "How many treatments are you comparing at once? (this decides ordinary vs network meta-analysis)" },
     opts: [
       { l: { zh: "兩個的正面對決（或一個介入 vs 對照）——先系統性回顧找出所有研究，再做統合分析", en: "Two, head-to-head (or one intervention vs a control) — systematically review all studies, then meta-analyse" }, to: "rSRMA" },
-      { l: { zh: "三個以上、而且很少有試驗直接兩兩比過——用直接＋間接證據連成網絡", en: "Three or more, with few head-to-head trials — connect direct + indirect evidence into a network" }, to: "rNMA" },
+      { l: { zh: "三個以上、而且很少有試驗直接兩兩比過——用直接＋間接證據連成網路", en: "Three or more, with few head-to-head trials — connect direct + indirect evidence into a network" }, to: "rNMA" },
     ],
   },
   // ================= A · exposure-anchored =================
@@ -2572,9 +2572,9 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a well-built tree, a constant baseline across nodes, and a valid permutation null (no unmodelled confounding). Flagged nodes need a confounder-controlled follow-up; for confounding robustness use a self-controlled tree-temporal scan (see ⑤). It is the high-throughput cousin of PSSA." } } },
   rWCE: { rec: { kind: "toolbox", method: "wce", badge: "WCE ✓",
     title: { zh: "最適合：加權累積暴露 WCE ✓（本工具）", en: "Best fit: Weighted Cumulative Exposure (WCE) ✓ (this tool)" },
-    why: { zh: "你的暴露是<b>逐月增減</b>的用藥史，而且你相信「一劑藥的影響會隨時間而變」——最近的劑量可能比很久以前的重要。與其用「現在有沒有用藥」或「總劑量等權加總」這兩種會把時間權重設錯的天真做法，<b>WCE</b> 直接從資料估出<b>權重函數</b> w(距離用藥的時間)，把過去每個月的劑量各乘上對應權重再加總，放進 Cox／風險模型。它<b>還原權重的形狀</b>（最近最重、隨時間衰減）與整體效果。",
+    why: { zh: "你的暴露是<b>逐月增減</b>的用藥史，而且你相信「一劑藥的影響會隨時間而變」——最近的劑量可能比很久以前的重要。與其用「現在有沒有用藥」或「總劑量等權加總」這兩種會把時間權重設錯的未校正做法，<b>WCE</b> 直接從資料估出<b>權重函數</b> w(距離用藥的時間)，把過去每個月的劑量各乘上對應權重再加總，放進 Cox／風險模型。它<b>還原權重的形狀</b>（最近最重、隨時間衰減）與整體效果。",
            en: "Your exposure is a <b>month-to-month dosing history</b>, and you believe a dose's effect changes over time — recent doses may matter more than long-ago ones. Rather than the naive 'current use?' or 'equally-weighted total dose' (both forcing a wrong time-weight), <b>WCE</b> estimates the <b>weight function</b> w(time-since-dose) directly from the data, multiplying each past month's dose by its weight and summing into a Cox/hazard model. It recovers the <b>shape of the weight</b> (recent doses weigh most, decaying) and the overall effect." },
-    scenario: { zh: "藥物安全情境：某長期用藥與某不良事件，效果集中在最近幾個月的用藥。用 WCE 估出權重曲線、看出「風險主要由近期暴露驅動」，並比天真的當下／總劑量模型更貼近真值（見「WCE」分頁 ①–⑦）。",
+    scenario: { zh: "藥物安全情境：某長期用藥與某不良事件，效果集中在最近幾個月的用藥。用 WCE 估出權重曲線、看出「風險主要由近期暴露驅動」，並比未校正的當下／總劑量模型更貼近真值（見「WCE」分頁 ①–⑦）。",
                 en: "Drug-safety scenario: a chronic drug and an adverse event whose effect concentrates in the last few months of use. WCE recovers the weight curve, shows the risk is driven mostly by recent exposure, and beats the naive current-use / total-dose models (see the WCE tabs ①–⑦)." },
     watch: { zh: "✓ 本工具箱已實作。需要<b>逐時間、準確的暴露史</b>與夠長的時間窗；事件要夠多（估整條曲線比估一個數字更吃資料）。最關鍵、不可檢的是<b>沒有時變的適應症混淆</b>——若病情同時驅動用藥與結果，要改用邊際結構 Cox／g-methods（見 ⑤、⑥）。",
              en: "✓ Implemented in this toolbox. Needs a <b>time-resolved, accurate exposure history</b> and a long-enough window; enough events (estimating a whole curve is data-hungry). The key, untestable item is <b>no time-varying confounding by indication</b> — if disease state drives both dose and outcome, switch to a marginal structural Cox / g-methods (see ⑤, ⑥)." } } },
@@ -2589,7 +2589,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. Needs a comparator that shares the indication and is <b>neutral for the outcome</b>; you estimate A's effect <b>relative to B</b>. Often combined with <b>target trial emulation</b>." } } },
   rPNU: { rec: { kind: "toolbox", method: "pnu", badge: "PNU ✓",
     title: { zh: "建議：盛行新使用者 PNU ✓（本工具）", en: "Suggested: Prevalent New-User (PNU) ✓ (this tool)" },
-    why: { zh: "純新使用者設計會<b>丟掉所有既有（盛行）使用者</b>，樣本小、代表性差；但天真把盛行使用者直接和新起始者比會中<b>易感者耗竭</b>偏誤（留下來的是低風險存活者）。PNU 用<b>時間條件配對</b>（依距起始時間對齊＋時間條件傾向分數）把盛行使用者<b>納回來</b>，既不偏、又用上他們。",
+    why: { zh: "純新使用者設計會<b>丟掉所有既有（盛行）使用者</b>，樣本小、代表性差；但未經校正就把盛行使用者直接和新起始者比會中<b>易感者耗竭</b>偏誤（留下來的是低風險存活者）。PNU 用<b>時間條件配對</b>（依距起始時間對齊＋時間條件傾向分數）把盛行使用者<b>納回來</b>，既不偏、又用上他們。",
            en: "A new-user-only design <b>discards all prevalent users</b> (small, less representative); but naively pooling prevalent users with new starters suffers <b>depletion of susceptibles</b> (the survivors are lower-risk). PNU uses <b>time-conditional matching</b> (align on time-since-start + a time-conditional propensity score) to <b>bring prevalent users back</b> — unbiased and using them." },
     scenario: { zh: "疫苗情境：很多人已經接種過一段時間（盛行使用者）；只用「剛接種者」會丟掉他們，PNU 依「距接種時間」把他們對齊納回來（見「PNU」分頁 ①–⑥）。",
                 en: "Vaccine scenario: many people were vaccinated a while ago (prevalent users); using only fresh recipients discards them — PNU realigns them by time-since-vaccination and brings them back (see the PNU tabs ①–⑥)." },
@@ -2677,12 +2677,12 @@ const DNODES = {
     watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：合併的可信度不會超過納入的研究（垃圾進、垃圾出）——透明的事前方法、偏誤風險評讀、處理異質性與發表偏誤，缺一不可。",
              en: "✓ Implemented in this toolbox. <b>Key</b>: the pool is only as trustworthy as the studies in it (garbage in, garbage out) — a transparent pre-specified method, risk-of-bias appraisal, and handling of heterogeneity & publication bias are all essential." } } },
   rNMA: { rec: { kind: "toolbox", method: "nma", badge: "NMA ✓",
-    title: { zh: "最適合：網絡統合分析 ✓（本工具）—— 一次比較三個以上治療", en: "Best fit: Network meta-analysis ✓ (this tool) — compare three or more treatments at once" },
-    why: { zh: "臨床上要在<b>很多種</b>治療之間選擇，但很少有試驗直接兩兩比過。網絡統合分析把所有治療連成一個<b>網絡</b>，結合<b>直接</b>證據（真的比過的試驗）與<b>間接</b>證據（透過共同對照推得），一次估出每一對的對比、甚至排名。代價是多一個大假設——<b>可遞移性</b>——以及直接 vs 間接的<b>一致性</b>檢查。",
+    title: { zh: "最適合：網路統合分析 ✓（本工具）—— 一次比較三個以上治療", en: "Best fit: Network meta-analysis ✓ (this tool) — compare three or more treatments at once" },
+    why: { zh: "臨床上要在<b>很多種</b>治療之間選擇，但很少有試驗直接兩兩比過。網路統合分析把所有治療連成一個<b>網路</b>，結合<b>直接</b>證據（真的比過的試驗）與<b>間接</b>證據（透過共同對照推得），一次估出每一對的對比、甚至排名。代價是多一個大假設——<b>可遞移性</b>——以及直接 vs 間接的<b>一致性</b>檢查。",
            en: "Clinicians must choose among <b>many</b> treatments, but few trials compare every pair head-to-head. Network meta-analysis connects all treatments into one <b>network</b>, combining <b>direct</b> evidence (trials that compared the two) with <b>indirect</b> evidence (via a common comparator), to estimate every pairwise contrast at once — even a ranking. The price is one big extra assumption — <b>transitivity</b> — plus a direct-vs-indirect <b>coherence</b> check." },
-    scenario: { zh: "疫苗情境：有 A vs 安慰劑、B vs 安慰劑的試驗，但沒人直接做 A vs B。用安慰劑當共同對照間接估 A vs B，並在有直接試驗時合併成混合估計（見「網絡統合分析」分頁）。",
+    scenario: { zh: "疫苗情境：有 A vs 安慰劑、B vs 安慰劑的試驗，但沒人直接做 A vs B。用安慰劑當共同對照間接估 A vs B，並在有直接試驗時合併成混合估計（見「網路統合分析」分頁）。",
                 en: "Vaccine scenario: trials of A vs placebo and B vs placebo exist, but nobody ran A vs B directly. Use placebo as the common comparator to estimate A vs B indirectly, pooling with any direct trial into a mixed estimate (see the NMA page)." },
-    watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：可遞移性（各比較的網絡彼此可比）與一致性（直接與間接相符）——信任排名前務必檢查這兩者。",
+    watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：可遞移性（各比較的網路彼此可比）與一致性（直接與間接相符）——信任排名前務必檢查這兩者。",
              en: "✓ Implemented in this toolbox. <b>Key</b>: transitivity (the compared networks are comparable) and coherence (direct and indirect agree) — check both before trusting a ranking." } } },
 };
 
@@ -2771,7 +2771,7 @@ const FULLMAP = {
             { edge: { zh: "兩個正面對決（或介入 vs 對照）", en: "two, head-to-head (or vs control)" },
               leaves: [{ key: "rSRMA", cond: { zh: "系統性回顧找出所有研究，再合併（固定／隨機效果、I²、GRADE）", en: "systematically find all studies, then pool (fixed/random effects, I², GRADE)" }, tag: "SR-MA ✓", kind: "tb", method: "srma" }] },
             { edge: { zh: "三個以上、少有直接對決", en: "three or more, few head-to-head" },
-              leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網絡（可遞移性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
+              leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網路（可遞移性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
           ] },
       ],
     },
@@ -2932,7 +2932,7 @@ function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
   const M = CHOOSE_FAMILIES.flatMap((f) => f.members);
   const x = M.map((r) => r[0]);
-  const naive = { x, y: M.map((r) => r[1]), type: "bar", name: tr("天真比較（被混淆帶偏）", "naive (confounded)"),
+  const naive = { x, y: M.map((r) => r[1]), type: "bar", name: tr("未校正比較（被混淆帶偏）", "naive (confounded)"),
     marker: { color: AMBER }, text: M.map((r) => r[1].toFixed(2)), textposition: "outside", cliponaxis: false };
   const corr = { x, y: M.map((r) => r[2]), type: "bar", name: tr("該方法校正後", "method (corrected)"),
     marker: { color: TEAL }, text: M.map((r) => r[2].toFixed(2)), textposition: "outside", cliponaxis: false };
@@ -3000,7 +3000,7 @@ const METHOD_REF = {
   db:   { zh: "資料庫", en: "Databases", src: "AsPEN database directory; Sturkenboom & Schink (2020); NeuroGEN (Tsai DH-T, Bell JS, Abtahi S, Baak BN, Bazelier MT, Brauer R, Chan AYL, Chan EW, Chen H, Chui CSL, Cook S, Crystal S, Gandhi P, Hartikainen S, Ho FK, Hsu ST, Ilomäki J, Kim JH, Klungel OH, Koponen M, Lau WCY, Lau KK, Lum TYS, Luo H, Man KKC, Pell JP, Setoguchi S, Shao SC, Shen CY, Shin JY, Souverein PC, Tolppanen AM, Wei L, Wong ICK, Lai EC-C. Clin Epidemiol. 2023;15:1241-1252. doi:10.2147/CLEP.S426485)" },
   miss: { zh: "缺失資料", en: "Missing data", src: "Rubin (1987); van Buuren (2018); Sterne et al. (2009), BMJ" },
   srma: { zh: "系統性回顧與統合分析", en: "Systematic review & meta-analysis", src: "Cochrane Handbook (Higgins et al. 2024); PRISMA 2020; DerSimonian & Laird (1986); GRADE (Guyatt et al. 2008)" },
-  nma: { zh: "網絡統合分析", en: "Network meta-analysis", src: "Cochrane NMA Toolkit; Harrer et al. (doing-meta.guide/netwma); Salanti (2012); Bucher et al. (1997); Rücker & Schwarzer (2015)" },
+  nma: { zh: "網路統合分析", en: "Network meta-analysis", src: "Cochrane NMA Toolkit; Harrer et al. (doing-meta.guide/netwma); Salanti (2012); Bucher et al. (1997); Rücker & Schwarzer (2015)" },
   causalml: { zh: "因果機器學習", en: "Causal machine learning", src: "Feuerriegel et al. (2024, Nat Med); Künzel et al. (2019, PNAS); Wager & Athey (2018); Chernozhukov et al. (2018, DML); Nie & Wager (2021)" },
 };
 let refsContext = "iv";   // which page's references/citation to show
@@ -3318,7 +3318,7 @@ function renderDidAnalyze(a) {
     [tr("DiD（政策效果，ATT）", "DiD (policy effect, ATT)"), a.did.estimate, a.did.interpretation, true],
     [tr("2×2 點估計", "2×2 point estimate"), a.two_by_two.did,
       tr("四格平均的（後−前）−（後−前）。", "(after−before)−(after−before) of the four cell means."), false],
-    [tr("天真：只看後期差（有偏）", "Naive: post-only gap (biased)"), a.naive_difference,
+    [tr("未校正：只看後期差（有偏）", "Naive: post-only gap (biased)"), a.naive_difference,
       tr("被各組固定落差汙染。", "contaminated by fixed group differences."), false],
   ];
   document.getElementById("didAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
@@ -3593,7 +3593,7 @@ function renderTitAnalyze(a) {
   document.getElementById("titAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("趨勢中的趨勢 OR（因果）", "Trend-in-trend OR (causal)"), a.or, a.interpretation, true],
-    [tr("天真世代 OR（有偏）", "Naive cohort OR (biased)"), a.naive_or,
+    [tr("未校正世代 OR（有偏）", "Naive cohort OR (biased)"), a.naive_or,
       tr("直接比較接種與未接種，被適應症混淆。", "Direct vaccinated-vs-unvaccinated comparison, confounded by indication."), false],
     [tr("CPE 分層品質（AUC）", "CPE stratification quality (AUC)"), a.cpe_auc,
       tr("越高代表分層越能拉開暴露趨勢。", "Higher = strata separate the exposure trends better."), false],
@@ -3623,7 +3623,7 @@ function drawTitReal(s) {
   const err = (ci[0] != null) ? { type: "data", symmetric: false, array: [ci[1] - s.or], arrayminus: [s.or - ci[0]], color: INK, thickness: 1.5, width: 8 } : undefined;
   if (document.getElementById("titRealChart")) {
     Plotly.react("titRealChart", [{
-      x: [tr("發表版 cell-MLE", "published cell-MLE"), tr("天真世代", "naive cohort")],
+      x: [tr("發表版 cell-MLE", "published cell-MLE"), tr("未校正世代", "naive cohort")],
       y: [s.or, s.naive_or], type: "bar", marker: { color: [TEAL, AMBER] },
       error_y: err ? { ...err, array: [ci[1] - s.or, 0], arrayminus: [s.or - ci[0], 0] } : undefined,
       text: [s.or.toFixed(2), s.naive_or.toFixed(2)], textposition: "outside",
@@ -3993,7 +3993,7 @@ function perrRatesInto(elId, rates) {
 }
 function perrRatioBars(elId, d) {
   if (!document.getElementById(elId)) return;
-  const labels = [tr("事前率比", "RR prior"), tr("天真事後", "naive post"), tr("PERR", "PERR")];
+  const labels = [tr("事前率比", "RR prior"), tr("未校正事後", "naive post"), tr("PERR", "PERR")];
   const vals = [d.rr_prior, d.naive_rr, d.perr];
   Plotly.react(elId, [{ x: labels, y: vals, type: "bar",
     marker: { color: ["#9aa6b2", AMBER, TEAL] },
@@ -4110,7 +4110,7 @@ function renderPerrAnalyze(a) {
   document.getElementById("perrAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("PERR（因果率比）", "PERR (causal rate ratio)"), a.perr, a.interpretation, true],
-    [tr("天真事後率比（有偏）", "Naive post ratio (biased)"), a.naive_rr,
+    [tr("未校正事後率比（有偏）", "Naive post ratio (biased)"), a.naive_rr,
       tr("只看事後期，被適應症混淆掩蓋了效果。", "Post-only — confounding by indication hides the effect."), false],
     [tr("事前期率比（混淆指紋）", "Prior ratio (confounding fingerprint)"), a.rr_prior,
       tr(`PERR 95% 區間 ${fmt(a.ci[0], 2)}～${fmt(a.ci[1], 2)}。`,
@@ -4529,7 +4529,7 @@ function renderCcwAnalyze(a) {
   document.getElementById("ccwAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("CCW（因果風險差）", "CCW (causal risk difference)"), a.ccw, a.interpretation, true],
-    [tr("天真比較（immortal-time 偏誤）", "Naive contrast (immortal-time bias)"), a.naive,
+    [tr("未校正比較（immortal-time 偏誤）", "Naive contrast (immortal-time bias)"), a.naive,
       tr("照實際早／晚分組直接比，被 immortal-time 與混淆扭曲。", "Comparing realized early/late groups — distorted by immortal time and confounding."), false],
     [tr("真值（估計目標）", "Truth (the estimand target)"), a.true_rd,
       tr("CCW 應該還原的風險差（負值＝早接種較保護）。", "The risk difference CCW should recover (negative = early is protective)."), false],
@@ -4656,7 +4656,7 @@ function drawCcwGrace(s) {
     { x: s.graces, y: s.ccw, mode: "lines+markers", type: "scatter", line: { color: TEAL, width: 3 },
       marker: { size: 7 }, name: tr("CCW（複製-設限-加權）", "CCW") },
     { x: s.graces, y: s.naive, mode: "lines+markers", type: "scatter", line: { color: AMBER, width: 3 },
-      marker: { size: 7 }, name: tr("天真（immortal-time）", "naive (immortal time)") },
+      marker: { size: 7 }, name: tr("未校正（immortal-time）", "naive (immortal time)") },
   ], sceneLayout({
     height: 300, legend: { orientation: "h", y: 1.16 }, margin: { t: 28, r: 18, b: 42, l: 54 },
     xaxis: { title: tr("寬限期 g（月）", "grace period g (months)"), dtick: 1 },
@@ -5235,7 +5235,7 @@ function drawSccsPlay(d) {
   if (!document.getElementById("sccsPlayChart")) return;
   const g = d.grid;
   Plotly.react("sccsPlayChart", [
-    { x: g.hv, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("天真人際速率比", "naive between-person RR"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.hv, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("未校正人際速率比", "naive between-person RR"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.hv, y: g.sccs, mode: "lines+markers", type: "scatter", name: tr("SCCS IRR（個人內）", "SCCS IRR (within-person)"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.hv], y: [d.naive], mode: "markers", type: "scatter", name: tr("目前", "current"), marker: { color: RED, size: 11, symbol: "x" }, showlegend: false },
   ], sceneLayout({
@@ -5424,7 +5424,7 @@ function drawSceneAcnu() {
     annotations: [{ x: 0.33, y: 2, xref: "x", yref: "y", ax: -0.51, ay: 0, axref: "x", ayref: "y",
       showarrow: true, arrowhead: 3, arrowcolor: "#c0504d", arrowwidth: 2, text: "" },
       { x: -0.3, y: 2.42, xref: "x", yref: "y", showarrow: false, font: { color: "#c0504d", size: 9.5 },
-        text: tr("天真：A vs 沒用藥（差距大→偏）", "naive: A vs non-users (big gap → biased)") },
+        text: tr("未校正：A vs 沒用藥（差距大→偏）", "naive: A vs non-users (big gap → biased)") },
       { x: 0.33, y: 1.55, xref: "x", yref: "y", showarrow: false, font: { color: TEAL, size: 9.5 },
         text: tr("ACNU：A vs B（差距小→較不偏）", "ACNU: A vs B (small gap → less biased)") }],
   }), SCENE_CFG);
@@ -5456,7 +5456,7 @@ function drawAcnuPlay(d) {
   if (!document.getElementById("acnuPlayChart")) return;
   const g = d.grid;
   Plotly.react("acnuPlayChart", [
-    { x: g.conf, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("天真：A vs 沒用藥", "naive: A vs non-users"), line: { color: RED, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("未校正：A vs 沒用藥", "naive: A vs non-users"), line: { color: RED, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("ACNU 粗：A vs B", "crude ACNU: A vs B"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.adj, mode: "lines+markers", type: "scatter", name: tr("ACNU 校正後", "adjusted ACNU"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.conf], y: [d.crude_irr], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -5525,7 +5525,7 @@ function renderAcnuAnalyze(a) {
   document.getElementById("acnuAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("ACNU 校正後（A vs B，因果）", "adjusted ACNU (A vs B, causal)"), a.adj_irr, a.interpretation, true],
-    [tr("天真：A vs 沒用藥（偏）", "naive: A vs non-users (biased)"), a.naive_irr,
+    [tr("未校正：A vs 沒用藥（偏）", "naive: A vs non-users (biased)"), a.naive_irr,
       tr("被 healthy-user 與因適應症的混淆嚴重撐大。", "badly inflated by healthy-user + confounding by indication."), false],
     [tr("真值（A 相對 B 的速率比）", "Truth (A-vs-B rate ratio)"), a.true_hr,
       tr("主動對照＋新使用者＋傾向分數校正應還原它。", "active comparator + new-user + PS adjustment should recover it."), false],
@@ -5537,7 +5537,7 @@ function renderAcnuAnalyze(a) {
 }
 function drawAcnuAnalyze(a) {
   if (!document.getElementById("acnuAnalyzeChart")) return;
-  const labels = [tr("天真<br>A vs 沒用藥", "naive<br>A vs none"), tr("ACNU 粗<br>A vs B", "crude ACNU<br>A vs B"),
+  const labels = [tr("未校正<br>A vs 沒用藥", "naive<br>A vs none"), tr("ACNU 粗<br>A vs B", "crude ACNU<br>A vs B"),
     tr("ACNU 校正<br>A vs B", "adjusted ACNU<br>A vs B"), tr("真值", "truth")];
   const vals = [a.naive_irr, a.crude_irr, a.adj_irr, a.true_hr];
   Plotly.react("acnuAnalyzeChart", [{
@@ -5638,7 +5638,7 @@ function drawScenePnu() {
     yaxis: { visible: true, automargin: true },
     margin: { t: 16, r: 18, b: 44, l: 12 },
     annotations: [{ x: -0.47, y: 2.45, xref: "x", yref: "y", showarrow: false, font: { color: "#c0504d", size: 9.5 },
-      text: tr("盛行 A 使用者被「易感者耗竭」選成低風險 → 天真比會低估", "prevalent A users selected low-risk by depletion → naive comparison underestimates") }],
+      text: tr("盛行 A 使用者被「易感者耗竭」選成低風險 → 未校正比會低估", "prevalent A users selected low-risk by depletion → naive comparison underestimates") }],
   }), SCENE_CFG);
 }
 function initPnuLearn() { if (pnuLearnReady) return; pnuLearnReady = true; drawScenePnu(); }
@@ -5668,7 +5668,7 @@ function drawPnuPlay(d) {
   if (!document.getElementById("pnuPlayChart")) return;
   const g = d.grid;
   Plotly.react("pnuPlayChart", [
-    { x: g.depl, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("天真盛行（A 全部 vs B 新）", "naive prevalent (A-all vs B-new)"), line: { color: RED, width: 3 }, marker: { size: 5 } },
+    { x: g.depl, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("未校正盛行（A 全部 vs B 新）", "naive prevalent (A-all vs B-new)"), line: { color: RED, width: 3 }, marker: { size: 5 } },
     { x: g.depl, y: g.newuser, mode: "lines+markers", type: "scatter", name: tr("純新使用者", "new-user-only"), line: { color: AMBER, width: 3, dash: "dot" }, marker: { size: 5 } },
     { x: g.depl, y: g.pnu, mode: "lines+markers", type: "scatter", name: tr("PNU（時間條件）", "PNU (time-conditional)"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.depletion], y: [d.naive_hr], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -5739,7 +5739,7 @@ function renderPnuAnalyze(a) {
     [tr("PNU（時間條件，含盛行使用者）", "PNU (time-conditional, incl. prevalent)"), a.pnu_hr, a.interpretation, true],
     [tr("純新使用者（無偏但樣本小）", "new-user-only (unbiased but small)"), a.newuser_hr,
       tr(`乾淨的標竿，但丟掉 ${a.n_prevalent} 位盛行使用者。`, `the clean benchmark, but discards ${a.n_prevalent} prevalent users.`), false],
-    [tr("天真盛行（易感者耗竭，偏）", "naive prevalent (depletion, biased)"), a.naive_hr,
+    [tr("未校正盛行（易感者耗竭，偏）", "naive prevalent (depletion, biased)"), a.naive_hr,
       tr("把盛行使用者直接和新起始者比，被耗竭往無效值拉。", "pooling prevalent users with new starters — dragged to the null by depletion."), false],
     [tr("真值", "Truth"), a.true_hr,
       tr("PNU 與純新使用者都應還原它。", "both PNU and new-user-only should recover it."), false],
@@ -5751,7 +5751,7 @@ function renderPnuAnalyze(a) {
 }
 function drawPnuAnalyze(a) {
   if (!document.getElementById("pnuAnalyzeChart")) return;
-  const labels = [tr("天真盛行", "naive prevalent"), tr("純新使用者", "new-user-only"), tr("PNU", "PNU"), tr("真值", "truth")];
+  const labels = [tr("未校正盛行", "naive prevalent"), tr("純新使用者", "new-user-only"), tr("PNU", "PNU"), tr("真值", "truth")];
   const vals = [a.naive_hr, a.newuser_hr, a.pnu_hr, a.true_hr];
   Plotly.react("pnuAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [RED, AMBER, TEAL, GREEN] },
@@ -5835,7 +5835,7 @@ let ncLearnReady = false, ncPlayReady = false, ncAnalyzeReady = false,
 // ① learn scene: the detection + correction story in three bars (representative demo numbers)
 function drawSceneNc() {
   if (!document.getElementById("ncScene")) return;
-  const labels = [tr("天真 A→Y<br>（被 U 偏）", "naive A→Y<br>(biased by U)"),
+  const labels = [tr("未校正 A→Y<br>（被 U 偏）", "naive A→Y<br>(biased by U)"),
     tr("偵測 A→W<br>（本應 0）", "detect A→W<br>(should be 0)"),
     tr("近端 P2SLS<br>（校正後）", "proximal P2SLS<br>(corrected)"), tr("真值", "truth")];
   const vals = [2.12, 1.06, 0.94, 1.0];
@@ -5878,7 +5878,7 @@ function drawNcPlay(d) {
   if (!document.getElementById("ncPlayChart")) return;
   const g = d.grid;
   Plotly.react("ncPlayChart", [
-    { x: g.conf, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("天真 A→Y", "naive A→Y"), line: { color: RED, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("未校正 A→Y", "naive A→Y"), line: { color: RED, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.detect, mode: "lines+markers", type: "scatter", name: tr("偵測 A→W（應 0）", "detect A→W (should be 0)"), line: { color: AMBER, width: 3, dash: "dot" }, marker: { size: 5 } },
     { x: g.conf, y: g.proximal, mode: "lines+markers", type: "scatter", name: tr("近端 P2SLS", "proximal P2SLS"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.conf], y: [d.naive], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -5949,7 +5949,7 @@ function renderNcAnalyze(a) {
   const ci = a.ci_proximal && a.ci_proximal[0] != null ? ` (95% CI ${fmt(a.ci_proximal[0],2)}–${fmt(a.ci_proximal[1],2)})` : "";
   const cards = [
     [tr("近端因果 P2SLS（校正後）", "proximal P2SLS (corrected)"), a.proximal, a.interpretation, true],
-    [tr("天真 A→Y（被未測混淆偏）", "naive A→Y (biased by unmeasured U)"), a.naive,
+    [tr("未校正 A→Y（被未測混淆偏）", "naive A→Y (biased by unmeasured U)"), a.naive,
       tr("用未測混淆 U 推離真值。", "pushed off the truth by the unmeasured U."), false],
     [tr("偵測 A→W（陰性對照，應 0）", "detect A→W (negative control, should be 0)"), a.detect,
       tr(`離 0 達 ${fmt(Math.abs(a.detect_z),1)} 個標準誤＝偏誤訊號。`, `${fmt(Math.abs(a.detect_z),1)} SEs from 0 = the bias signal.`), false],
@@ -5962,7 +5962,7 @@ function renderNcAnalyze(a) {
 }
 function drawNcAnalyze(a) {
   if (!document.getElementById("ncAnalyzeChart")) return;
-  const labels = [tr("天真 A→Y", "naive A→Y"), tr("偵測 A→W", "detect A→W"), tr("近端 P2SLS", "proximal P2SLS"), tr("真值", "truth")];
+  const labels = [tr("未校正 A→Y", "naive A→Y"), tr("偵測 A→W", "detect A→W"), tr("近端 P2SLS", "proximal P2SLS"), tr("真值", "truth")];
   const vals = [a.naive, a.detect, a.proximal, a.true_tau];
   Plotly.react("ncAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [RED, AMBER, TEAL, GREEN] },
@@ -6172,7 +6172,7 @@ function renderMedAnalyze(a) {
       tr("固定中介在沒接種的值、只動暴露。", "holds the mediator at its no-treatment value, moves only exposure.") + ciD, false],
     [tr("總效果 TE = NDE + NIE", "total effect TE = NDE + NIE"), a.te,
       tr(`被中介比例 ≈ ${(a.pm*100).toFixed(0)}%。`, `proportion mediated ≈ ${(a.pm*100).toFixed(0)}%.`) + ciN, false],
-    [tr("天真直接（Y~A+M，偏）", "naive direct (Y~A+M, biased)"), a.naive_direct,
+    [tr("未校正直接（Y~A+M，偏）", "naive direct (Y~A+M, biased)"), a.naive_direct,
       tr("忽略暴露×中介交互，≠ 真正的 NDE。", "ignores the exposure-mediator interaction, ≠ the true NDE."), false],
   ];
   document.getElementById("medAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
@@ -6182,7 +6182,7 @@ function renderMedAnalyze(a) {
 }
 function drawMedAnalyze(a) {
   if (!document.getElementById("medAnalyzeChart")) return;
-  const labels = [tr("總效果 TE", "total TE"), tr("直接 NDE", "direct NDE"), tr("間接 NIE", "indirect NIE"), tr("天真直接", "naive direct")];
+  const labels = [tr("總效果 TE", "total TE"), tr("直接 NDE", "direct NDE"), tr("間接 NIE", "indirect NIE"), tr("未校正直接", "naive direct")];
   const vals = [a.te, a.nde, a.nie, a.naive_direct];
   Plotly.react("medAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [INK, TEAL, PURPLE, AMBER] },
@@ -6939,7 +6939,7 @@ function drawTndPlay(d) {
   const g = d.grid;
   Plotly.react("tndPlayChart", [
     { x: g.cs, y: g.cs.map(() => g.true), mode: "lines", type: "scatter", name: tr("真值 VE", "true VE"), line: { color: GREEN, width: 2, dash: "dash" } },
-    { x: g.cs, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("天真 VE", "naive VE"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.cs, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("未校正 VE", "naive VE"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.cs, y: g.tnd, mode: "lines+markers", type: "scatter", name: "TND VE", line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.cseek], y: [d.tnd], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
   ], sceneLayout({
@@ -6986,7 +6986,7 @@ function renderTndAnalyze(a) {
   const pct = (v) => (v * 100).toFixed(0) + "%";
   const ci = a.ci_tnd && a.ci_tnd[0] != null ? ` (95% CI ${pct(a.ci_tnd[0])}–${pct(a.ci_tnd[1])})` : "";
   const cards = [
-    [tr("天真病例對照 VE（偏）", "naive case-control VE (biased)"), pct(a.ve_naive),
+    [tr("未校正病例對照 VE（偏）", "naive case-control VE (biased)"), pct(a.ve_naive),
       tr("一般族群對照——被就醫傾向往下偏、低估保護。", "population controls — biased down by care-seeking, under-stating protection."), false],
     [tr("TND VE ＝ 1 − OR", "TND VE = 1 − OR"), pct(a.ve_tnd), a.interpretation + ci, true],
     [tr("接種勝算比 OR", "vaccination odds ratio OR"), fmt(a.or_tnd, 2),
@@ -7001,7 +7001,7 @@ function renderTndAnalyze(a) {
 }
 function drawTndAnalyze(a) {
   if (!document.getElementById("tndAnalyzeChart")) return;
-  const labels = [tr("天真 VE", "naive VE"), "TND VE"];
+  const labels = [tr("未校正 VE", "naive VE"), "TND VE"];
   const vals = [a.ve_naive, a.ve_tnd];
   Plotly.react("tndAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [AMBER, TEAL] },
@@ -7309,7 +7309,7 @@ function drawTscanPlay(d) {
   if (!document.getElementById("tscanPlayChart")) return;
   const g = d.grid;
   Plotly.react("tscanPlayChart", [
-    { x: g.sig, y: g.naive, type: "bar", name: tr("天真標記", "naive flags"), marker: { color: "#f0b6b2" } },
+    { x: g.sig, y: g.naive, type: "bar", name: tr("未校正標記", "naive flags"), marker: { color: "#f0b6b2" } },
     { x: g.sig, y: g.tscan, type: "bar", name: tr("TreeScan 標記", "TreeScan flags"), marker: { color: TEAL } },
     { x: g.sig, y: g.llr, mode: "lines+markers", type: "scatter", name: tr("最大 LLR", "max LLR"), yaxis: "y2", line: { color: INK, width: 2.5 }, marker: { size: 5 } },
     { x: [d.signal], y: [d.llr], mode: "markers", type: "scatter", yaxis: "y2", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -7357,7 +7357,7 @@ function renderTscanAnalyze(a) {
   state.tscanAnalyze = a;
   const cards = [
     [tr("TreeScan 標記數（控 FWER）", "TreeScan flags (FWER-controlled)"), String(a.n_tscan_flags), a.interpretation, true],
-    [tr("天真標記數（未校正）", "naive flags (uncorrected)"), String(a.n_naive_flags),
+    [tr("未校正標記數（未校正）", "naive flags (uncorrected)"), String(a.n_naive_flags),
       tr("逐節點未校正會標出更多——多出來的是假警報。", "An uncorrected per-node scan flags more — the extras are false alarms."), false],
     [tr("掃描節點數", "nodes scanned"), String(a.n_nodes),
       tr("葉節點＋系統節點都一起掃，同享一份錯誤率預算。", "Leaves and system nodes scanned together under one error budget."), false],
@@ -7446,8 +7446,8 @@ function drawSceneWce() {
   const flat = tau.map(() => 1 / 24);
   Plotly.react("wceScene", [
     { x: tau, y: wn, mode: "lines", type: "scatter", name: tr("真實權重（衰減）", "true weight (decay)"), line: { color: TEAL, width: 3 }, fill: "tozeroy", fillcolor: "rgba(63,130,104,.12)" },
-    { x: tau, y: flat, mode: "lines", type: "scatter", name: tr("天真：等權", "naive: equal weight"), line: { color: "#c0504d", width: 2, dash: "dash" } },
-    { x: [0], y: [wn[0]], mode: "markers", type: "scatter", name: tr("天真：只看當下", "naive: current only"), marker: { color: "#f59e0b", size: 11, symbol: "circle" } },
+    { x: tau, y: flat, mode: "lines", type: "scatter", name: tr("未校正：等權", "naive: equal weight"), line: { color: "#c0504d", width: 2, dash: "dash" } },
+    { x: [0], y: [wn[0]], mode: "markers", type: "scatter", name: tr("未校正：只看當下", "naive: current only"), marker: { color: "#f59e0b", size: 11, symbol: "circle" } },
   ], sceneLayout({
     height: 300, margin: { t: 20, r: 16, b: 44, l: 50 },
     xaxis: { title: tr("距離用藥的時間（月）", "months since the dose") },
@@ -7481,8 +7481,8 @@ function drawWcePlay(r) {
   const g = r.grid;
   Plotly.react("wcePlayChart", [
     { x: g.decay, y: g.hr_wce, mode: "lines+markers", type: "scatter", name: "WCE", line: { color: TEAL, width: 3 }, marker: { size: 5 } },
-    { x: g.decay, y: g.hr_current, mode: "lines+markers", type: "scatter", name: tr("天真：只看當下", "naive: current"), line: { color: "#f59e0b", width: 2 }, marker: { size: 4 } },
-    { x: g.decay, y: g.hr_cum, mode: "lines+markers", type: "scatter", name: tr("天真：等權總劑量", "naive: total dose"), line: { color: "#c0504d", width: 2, dash: "dot" }, marker: { size: 4 } },
+    { x: g.decay, y: g.hr_current, mode: "lines+markers", type: "scatter", name: tr("未校正：只看當下", "naive: current"), line: { color: "#f59e0b", width: 2 }, marker: { size: 4 } },
+    { x: g.decay, y: g.hr_cum, mode: "lines+markers", type: "scatter", name: tr("未校正：等權總劑量", "naive: total dose"), line: { color: "#c0504d", width: 2, dash: "dot" }, marker: { size: 4 } },
     { x: [r.decay], y: [r.hr_wce], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
   ], sceneLayout({
     height: 320, margin: { t: 20, r: 16, b: 46, l: 48 },
@@ -7529,9 +7529,9 @@ function renderWceAnalyze(a) {
   drawWceWeight(a);
   const cards = [
     [tr("WCE 風險比（HR）", "WCE hazard ratio"), fmt(a.hr_wce, 2), a.interpretation, true],
-    [tr("天真：只看當下用藥", "naive: current use only"), fmt(a.hr_current, 2),
+    [tr("未校正：只看當下用藥", "naive: current use only"), fmt(a.hr_current, 2),
       tr("忽略累積與衰減——通常低估。", "ignores accumulation/decay — usually under-states."), false],
-    [tr("天真：等權總劑量", "naive: equally-weighted total dose"), fmt(a.hr_cum, 2),
+    [tr("未校正：等權總劑量", "naive: equally-weighted total dose"), fmt(a.hr_cum, 2),
       tr("把過去每劑當成一樣重——形狀錯。", "treats every past dose as equally important — wrong shape."), false],
     [tr("真值 HR（持續用藥者）", "true HR (sustained user)"), fmt(a.hr_true, 2),
       tr("事件數 ＝ " + a.n_events + "。", "events = " + a.n_events + "."), false],
@@ -7631,7 +7631,7 @@ async function refreshTransportPlay() {
 }
 function _drawTransportBars(elId, r) {
   if (!document.getElementById(elId)) return;
-  const labels = [tr("研究（天真）", "study (naive)"), tr("標準化", "standardise"), tr("IOSW", "IOSW")];
+  const labels = [tr("研究（未校正）", "study (naive)"), tr("標準化", "standardise"), tr("IOSW", "IOSW")];
   const vals = [r.naive, r.standardize, r.iosw];
   const cols = vals.map((v) => Math.abs(v - r.truth) < 0.2 ? TEAL : AMBER);
   Plotly.react(elId, [{ x: labels, y: vals, type: "bar", marker: { color: cols }, text: vals.map((v) => v.toFixed(2)), textposition: "outside", hoverinfo: "skip" }],
@@ -7657,7 +7657,7 @@ function renderTransportAnalyze(a) {
   document.getElementById("transportAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("目標真值", "target truth"), a.truth, tr("用上完整資訊的目標效果。", "the target effect with full info."), false],
-    [tr("研究效果（天真）", "study effect (naive)"), a.naive, tr("直接拿研究的效果、忽略目標分布 → 偏。", "the study's own effect, ignoring the target → biased."), false],
+    [tr("研究效果（未校正）", "study effect (naive)"), a.naive, tr("直接拿研究的效果、忽略目標分布 → 偏。", "the study's own effect, ignoring the target → biased."), false],
     [tr("標準化", "standardisation"), a.standardize, tr("配效果曲面、對目標取平均 → 救回。", "fit the effect surface, average over the target → recovered."), true],
     [tr("選樣反機率加權 IOSW", "IOSW"), a.iosw, tr("把研究重新加權成目標的組成 → 救回。", "reweight the study to the target's mix → recovered."), true],
   ];
@@ -7713,7 +7713,7 @@ async function refreshExtctrlPlay() {
 }
 function _drawExtctrlBars(elId, r) {
   if (!document.getElementById(elId)) return;
-  const labels = [tr("天真（兩臂直接差）", "naive (raw arm diff)"), tr("標準化", "standardise"), tr("IPSW", "IPSW")];
+  const labels = [tr("未校正（兩臂直接差）", "naive (raw arm diff)"), tr("標準化", "standardise"), tr("IPSW", "IPSW")];
   const vals = [r.naive, r.standardize, r.ipsw];
   const cols = vals.map((v) => Math.abs(v - r.truth) < 0.2 ? TEAL : AMBER);
   Plotly.react(elId, [{ x: labels, y: vals, type: "bar", marker: { color: cols }, text: vals.map((v) => v.toFixed(2)), textposition: "outside", hoverinfo: "skip" }],
@@ -7739,7 +7739,7 @@ function renderExtctrlAnalyze(a) {
   document.getElementById("extctrlAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("真實效果", "true effect"), a.truth, tr("我們要救回的治療效果。", "the treatment effect we want to recover."), false],
-    [tr("天真（兩臂直接差）", "naive (raw arm diff)"), a.naive, tr("直接比兩臂、忽略共變項不平衡 → 偏。", "compare the arms directly, ignoring imbalance → biased."), false],
+    [tr("未校正（兩臂直接差）", "naive (raw arm diff)"), a.naive, tr("直接比兩臂、忽略共變項不平衡 → 偏。", "compare the arms directly, ignoring imbalance → biased."), false],
     [tr("標準化", "standardisation"), a.standardize, tr("把未治療結果建模、預測到試驗 X → 救回。", "model the untreated outcome, predict at the trial's X → recovered."), true],
     [tr("選樣反機率加權 IPSW", "IPSW"), a.ipsw, tr("把外部對照加權成試驗的組成 → 救回。", "reweight the external controls to the trial's mix → recovered."), true],
   ];
@@ -8138,7 +8138,7 @@ function seqPerTrialInto(elId, d) {
     { x: xs, y: ys, mode: "markers", type: "scatter", name: tr("每場試驗的風險差", "per-trial risk diff"),
       marker: { color: SLATE, size: 9 } },
     { x: xr, y: [d.seq_rd, d.seq_rd], mode: "lines", type: "scatter", name: tr("合併（序列）", "pooled (sequential)"), line: { color: TEAL, width: 3 } },
-    { x: xr, y: [d.naive, d.naive], mode: "lines", type: "scatter", name: tr("天真（曾 vs 從未）", "naive (ever vs never)"), line: { color: AMBER, width: 3, dash: "dot" } },
+    { x: xr, y: [d.naive, d.naive], mode: "lines", type: "scatter", name: tr("未校正（曾 vs 從未）", "naive (ever vs never)"), line: { color: AMBER, width: 3, dash: "dot" } },
   ];
   Plotly.react(elId, traces, sceneLayout({
     height: 300, legend: { orientation: "h", y: 1.16 }, margin: { t: 28, r: 18, b: 42, l: 54 },
@@ -8201,7 +8201,7 @@ function drawSceneSeq() {
     anns.push(Object.assign(_lbl(7.05, (yT + yC) / 2, "RD" + ["₀", "₁", "₂"][k], "#64748b", 9), { xanchor: "center" }));
   });
   anns.push(_lbl(4.5, 0.3, tr(
-    "天真「曾治療 vs 從未」把所有時間混在一起：曾治療者必須<b>活到能治療</b>＝immortal time，會高估治療。序列試驗在<b>每個資格月各開一場</b>、把<b>時間零點歸零</b>後比「當下啟動 vs 未啟動」、再<b>反變異合併</b>，就避開這個偏誤；同一人未啟動可重複收案（橘圈），啟動後退出。",
+    "未校正「曾治療 vs 從未」把所有時間混在一起：曾治療者必須<b>活到能治療</b>＝immortal time，會高估治療。序列試驗在<b>每個資格月各開一場</b>、把<b>時間零點歸零</b>後比「當下啟動 vs 未啟動」、再<b>反變異合併</b>，就避開這個偏誤；同一人未啟動可重複收案（橘圈），啟動後退出。",
     "Naive 'ever vs never' lumps all time together: the ever-treated had to <b>survive long enough to treat</b> = immortal time, overstating the effect. Sequential trials open <b>one trial per eligibility month</b>, <b>reset time-zero</b>, compare 'initiate-now vs not', and <b>inverse-variance pool</b> — avoiding the bias. The same person can re-enter as a control (amber) until they initiate, then exits."), INK, 9.5));
   Plotly.react("seqScene", traces, schemaLayout({
     height: 340, shapes, annotations: anns, showlegend: true, legend: { orientation: "h", y: 1.14 },
@@ -8293,7 +8293,7 @@ function renderSeqAnalyze(a) {
   document.getElementById("seqAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("序列合併（因果風險差）", "Sequential pooled (causal risk diff)"), a.seq_rd, a.interpretation, true],
-    [tr("天真（曾 vs 從未治療）", "Naive (ever vs never treated)"), a.naive,
+    [tr("未校正（曾 vs 從未治療）", "Naive (ever vs never treated)"), a.naive,
       tr("被 immortal-time bias 與混淆扭曲。", "Distorted by immortal-time bias and confounding."), false],
     [tr("真值（點治療效應）", "Truth (point-treatment effect)"), a.true_rd,
       tr(`合併了 ${a.n_trials} 場序列試驗；95% 區間 ${fmt(a.ci[0], 2)}～${fmt(a.ci[1], 2)}。`,
@@ -8354,7 +8354,7 @@ async function refreshSeqDemo() {
 }
 function drawSeqDemo(s) {
   if (!document.getElementById("seqDemoChart")) return;
-  const labels = [tr("天真（曾 vs 從未）", "naive (ever vs never)"), tr("只用第 0 月那場", "month-0 trial only"), tr("合併所有序列試驗", "pooled (all trials)")];
+  const labels = [tr("未校正（曾 vs 從未）", "naive (ever vs never)"), tr("只用第 0 月那場", "month-0 trial only"), tr("合併所有序列試驗", "pooled (all trials)")];
   const vals = [s.naive, s.single, s.pooled];
   Plotly.react("seqDemoChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [RED, SLATE, TEAL] },
