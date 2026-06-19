@@ -34,7 +34,7 @@
         <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
         <option value="ccw" data-en="CCW · Clone-censor-weight">CCW · 複製-設限-加權</option>
         <option value="did" data-en="DiD · Difference-in-differences">DiD · 差異中的差異</option>
-        <option value="evalue" data-en="E-value · unmeasured-confounding sensitivity">E-value · 未測混淆敏感度</option>
+        <option value="evalue" data-en="QBA · Quantitative bias analysis (E-value)">QBA · 量化偏誤分析（E-value）</option>
         <option value="extctrl" data-en="External control · borrow a control arm">External control · 外部對照</option>
         <option value="gbtm" data-en="GBTM · Group-based trajectory model">GBTM · 群組軌跡模型</option>
         <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
@@ -5259,8 +5259,8 @@ mean(d1 - d0)                                  <span class="cm"># transported ta
 
   <!-- ===================== E-value ① 是什麼 ===================== -->
   <section id="evaluelearn" class="panel">
-    <h1 data-en="E-value: how strong would unmeasured confounding have to be?">E-value：未測混淆要多強，才能推翻你的結果？</h1>
-    <p class="lead" data-en="Every observational design in this toolbox leans on one assumption it cannot test: <b>no unmeasured confounding</b>. The E-value doesn't test it either — it <b>quantifies how strong</b> an unmeasured confounder would have to be to explain your result away. It is a single, transparent number you can report next to any effect estimate, whatever design produced it.">本工具箱裡每一個觀察性設計，都靠一個自己無法檢驗的假設：<b>沒有未測混淆</b>。E-value 也不檢驗它——它把「未測混淆<b>要多強</b>才能把你的結果解釋掉」量化成一個數字。不管哪個設計算出來的效果，你都能在它旁邊報一個這樣透明的數字。</p>
+    <h1 data-en="Quantitative bias analysis (QBA): how strong would unmeasured confounding have to be?">量化偏誤分析（QBA）：未測混淆要多強，才能推翻你的結果？</h1>
+    <p class="lead" data-en="Every observational design in this toolbox leans on one assumption it cannot test: <b>no unmeasured confounding</b>. <b>Quantitative bias analysis (QBA)</b> doesn't test it either — it <b>quantifies how much bias</b> would be needed to explain your result away. This page focuses on QBA's quickest, most-reported summary, the <b>E-value</b>: a single transparent number you can put next to any effect estimate, whatever design produced it (tab ⑤ covers fuller, probabilistic QBA).">本工具箱裡每一個觀察性設計，都靠一個自己無法檢驗的假設：<b>沒有未測混淆</b>。<b>量化偏誤分析（QBA）</b>也不檢驗它——它把「需要<b>多強的偏誤</b>才能把你的結果解釋掉」量化出來。這一頁聚焦 QBA 最快、最常被報告的摘要——<b>E-value</b>：一個透明的數字，不管哪個設計算出來的效果，都能擺在它旁邊一起報（更完整、機率式的 QBA 見 ⑤ 分頁）。</p>
     <div class="card info"><h3 data-en="The idea in one sentence">一句話的核心</h3>
       <p data-en="To fully explain away your effect, an unmeasured confounder would need to be associated with <b>both</b> the exposure <b>and</b> the outcome by at least a certain risk ratio — that minimum strength (on both arms) is the <b>E-value</b>. A <b>large</b> E-value means only an implausibly strong hidden confounder could overturn the finding (robust); a <b>small</b> one (just above 1) means even a weak confounder could (fragile).">要把你的效果<b>完全</b>解釋掉，一個未測混淆必須<b>同時</b>和暴露、又和結果各關聯到至少某個風險比——那個（兩端都要達到的）最小強度，就是 <b>E-value</b>。E-value <b>大</b>＝只有強到不合理的隱藏混淆才翻得動（穩健）；E-value <b>小</b>（只比 1 大一點）＝連一個弱混淆都可能翻盤（脆弱）。</p></div>
     <div class="cards cards-3">
