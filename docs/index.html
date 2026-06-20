@@ -4482,6 +4482,45 @@ run;</code></pre>
    model Y = A W X;              <span class="cm">/* coef of A = causal effect despite unmeasured U */</span>
 run;</code></pre>
       <p data-en="Stage 1 regresses W on A+Z+X; stage 2 puts the fitted W into the outcome model, and the coefficient on A is the proximally-identified causal effect. Empirical calibration of many negative controls uses the OHDSI <code>EmpiricalCalibration</code> package (R).">第一階段 W~A+Z+X；第二階段把配適的 W 放進結果模型，A 的係數即近端辨識的因果效應。多個陰性對照的實證校準可用 OHDSI <code>EmpiricalCalibration</code>（R）套件。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (glm falsification + pci2s two-stage proximal)">R 版本 —— 同樣步驟（glm 偽陽性查核 + pci2s 兩階段近端）</h3>
+      <pre class="sas"><code><span class="cm"># R — negative control / proximal</span>
+<span class="cm"># nc has: A (exposure), Y (outcome), X (covariate), W (NC outcome), Z (NC exposure)</span>
+
+<span class="cm"># Step 1 — detection: A on the NC outcome W should be ~0</span>
+fit_nco &lt;- glm(W ~ A + X, family = binomial, data = nc)
+summary(fit_nco)            <span class="cm"># nonzero coef on A = residual-confounding signal</span>
+
+<span class="cm"># Step 2 — proximal two-stage least squares (P2SLS)</span>
+<span class="cm"># install.packages("pci2s")  # proximal causal inference, two stages</span>
+library(pci2s)
+<span class="cm"># stage 1: bridge/confounding function W ~ A + Z + X ; stage 2: Y ~ A + What + X</span>
+fit_p2sls &lt;- p2sls.lm(
+   Y = nc$Y, A = nc$A,
+   W = nc$W,                 <span class="cm"># NC outcome proxy (endogenous with U)</span>
+   Z = nc$Z,                 <span class="cm"># NC exposure = proxy instrument</span>
+   X = nc$X)
+summary(fit_p2sls)          <span class="cm"># coef on A = proximally-identified causal effect</span>
+
+<span class="cm"># empirical calibration across many negative controls (OHDSI)</span>
+<span class="cm"># library(EmpiricalCalibration); calibrateP(logRr, seLogRr)</span>
+</code></pre>
+      <p data-en="Same two steps as SAS: a glm falsification test (A→W should be null) flags residual confounding, then pci2s fits the stage-1 bridge function on the negative-control pair (W~A+Z+X) and a stage-2 corrected outcome model whose coefficient on A is the proximally-identified effect.">與 SAS 相同的兩步：先用 glm 做偽陽性查核（A→W 應為 0）以偵測殘餘混淆，再以 pci2s 在陰性對照對上配適第一階段橋函數（W~A+Z+X）與第二階段校正後的結果模型，A 的係數即近端辨識的因果效應。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (glm falsification + two-stage proximal via ivregress)">Stata 版本 —— 同樣步驟（glm 偽陽性查核 + ivregress 兩階段近端）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — negative control / proximal</span>
+<span class="cm">* nc has: A (exposure) Y (outcome) X (covariate) W (NC outcome) Z (NC exposure)</span>
+
+<span class="cm">* Step 1 — detection: A on the NC outcome W should be ~0</span>
+glm W A X, family(binomial) link(logit)
+<span class="cm">* a nonzero coefficient on A signals residual confounding</span>
+
+<span class="cm">* Step 2 — proximal two-stage least squares (P2SLS)</span>
+<span class="cm">* endogenous proxy W instrumented by the NC exposure Z (+ A X)</span>
+ivregress 2sls Y A X (W = Z)
+<span class="cm">* stage 1: W ~ A + Z + X ; stage 2: Y ~ A + What + X</span>
+<span class="cm">* coefficient on A = proximally-identified causal effect despite unmeasured U</span>
+estat firststage          <span class="cm">* check proxy (Z) strength</span>
+</code></pre>
+      <p data-en="Mirrors the SAS flow: glm runs the negative-control falsification (A→W should be null) to detect residual confounding, then ivregress 2sls performs the proximal two-stage estimator — the NC outcome W is the endogenous proxy instrumented by the NC exposure Z (with A and X), and the coefficient on A is the corrected causal effect.">對應 SAS 流程：先用 glm 做陰性對照偽陽性檢定（A→W 應為 0）以偵測殘餘混淆，再用 ivregress 2sls 執行近端兩階段估計——陰性對照結果 W 為內生代理、由陰性對照暴露 Z（加上 A、X）作為工具，A 的係數即校正後的因果效應。</p></div>
   </section>
 
   <!-- ===================== NC ④ 假設檢驗 ===================== -->
@@ -4672,6 +4711,29 @@ run;
 <span class="cm">/* Stata:  mediate (Y) (M) (A), … ; estat … (NDE/NIE/CDE, multiple outcome/mediator types) */</span>
 </code></pre>
       <p data-en="Because no-unmeasured-M–Y-confounding cannot be tested, always pair the estimate with a sensitivity analysis (R's medsens varies a correlation ρ to see how strong hidden confounding must be to overturn the result). R's mediation package and Stata's mediate give the same decomposition.">因為「M–Y 無未測混淆」無法檢驗，務必配敏感度分析（R 的 medsens 用相關 ρ 看隱藏混淆要多強才會翻盤）。R 的 mediation 套件與 Stata 的 mediate 給出同一套分解。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (mediation::mediate)">R 版本 —— 同樣步驟（mediation::mediate）</h3>
+      <pre class="sas"><code><span class="cm"># R — mediation analysis</span>
+library(mediation)
+
+<span class="cm"># Step 1 — fit the mediator and outcome models on the same 'med' data frame</span>
+<span class="cm">#          (A=exposure, M=mediator, Y=outcome, X=baseline covariate)</span>
+med.fit &lt;- lm(M ~ A + X, data = med)                 <span class="cm"># mediator model</span>
+out.fit &lt;- glm(Y ~ A + M + A:M + X, data = med,      <span class="cm"># outcome model WITH A*M interaction</span>
+               family = binomial)
+
+<span class="cm"># Step 2 — decompose the total effect into natural direct / indirect effects</span>
+<span class="cm">#          with bootstrap CIs (boot=TRUE, sims = number of replicates)</span>
+m &lt;- mediate(med.fit, out.fit, treat = "A", mediator = "M",
+             boot = TRUE, sims = 1000)
+summary(m)        <span class="cm"># ACME (=NIE), ADE (=NDE), total effect, proportion mediated</span>
+
+<span class="cm"># Step 3 — sensitivity to unmeasured M–Y confounding (correlation rho)</span>
+medsens(m)
+
+<span class="cm"># For the full causal / 4-way decomposition (mediation + interaction),</span>
+<span class="cm"># use CMAverse::cmest() or regmedint::regmedint() instead.</span>
+</code></pre>
+      <p data-en="R mirrors the SAS/Stata workflow: fit a mediator model (M ~ A + X) and an outcome model with the A*M interaction (Y ~ A + M + A:M + X), then mediate() decomposes the total effect into the natural indirect (ACME) and natural direct (ADE) effects with bootstrap CIs; medsens() probes M–Y confounding. For VanderWeele's 4-way decomposition use CMAverse or regmedint.">R 重現 SAS／Stata 的流程：先配中介模型（M ~ A + X）與含 A*M 交互的結果模型（Y ~ A + M + A:M + X），再用 mediate() 把總效果分解成自然間接（ACME）與自然直接（ADE）效果並附自助法信賴區間；medsens() 探測 M–Y 混淆。若要 VanderWeele 的四向分解，改用 CMAverse 或 regmedint。</p></div>
   </section>
 
   <!-- ===================== MED ④ 假設檢驗 ===================== -->
@@ -4846,6 +4908,41 @@ run;</code></pre>
    model Y = X;                       <span class="cm">/* outcome model (used by AIPW)  */</span>
 run;   <span class="cm">/* reports the ATE with a robust SE; overlap weights via a weighted PROC GENMOD */</span></code></pre>
       <p data-en="PROC CAUSALTRT gives the IPTW ATE directly (method=ipw), or the doubly-robust AIPW (method=aipw) — unbiased if EITHER the PS or the outcome model is correct. For overlap weights (ATO), build w = A(1−PS)+(1−A)PS and run a weighted PROC GENMOD.">CAUSALTRT 直接給 IPTW 的 ATE（method=ipw），或雙重穩健 AIPW（method=aipw）——只要 PS 或結果模型其一對就不偏。要重疊權重（ATO），自建 w = A(1−PS)+(1−A)PS 再跑加權的 <code>PROC GENMOD</code>。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (MatchIt / WeightIt)">R 版本 —— 同樣步驟（MatchIt / WeightIt）</h3>
+      <pre class="sas"><code><span class="cm"># R — propensity scores</span>
+library(MatchIt); library(WeightIt); library(cobalt); library(survey)
+
+<span class="cm"># Step 1 — PS + 1:1 nearest-neighbour matching (ATT) via MatchIt</span>
+m &lt;- matchit(A ~ X, data = ps, method = "nearest", distance = "glm")  <span class="cm"># logistic PS</span>
+love.plot(m, stats = "mean.diffs", thresholds = .1)   <span class="cm"># SMD balance: target &lt; 0.1</span>
+md &lt;- match.data(m)                                    <span class="cm"># matched set</span>
+
+<span class="cm"># Step 2 — IPTW (ATE) via WeightIt; check balance with cobalt</span>
+w  &lt;- weightit(A ~ X, data = ps, method = "ps", estimand = "ATE")
+bal.tab(w, stats = "mean.diffs", thresholds = .1)     <span class="cm"># weighted SMD</span>
+
+<span class="cm"># Step 3 — outcome model with robust SE (weighted / on matched data)</span>
+des &lt;- svydesign(ids = ~1, weights = ~w$weights, data = ps)
+svyglm(Y ~ A, design = des, family = quasibinomial())  <span class="cm"># IPTW effect, robust SE</span>
+glm(Y ~ A, data = md, weights = weights, family = binomial())  <span class="cm"># matched estimate</span>
+</code></pre>
+      <p data-en="MatchIt fits the logistic PS and matches 1:1 (the ATT); cobalt's love.plot / bal.tab report the standardized mean difference (SMD &lt; 0.1) before vs after — the balance check that decides the PS model. WeightIt builds the IPTW weights for the ATE, then svyglm gives the weighted outcome effect with a robust SE.">MatchIt 配 logistic PS 並做 1:1 配對（ATT）；cobalt 的 <code>love.plot</code>／<code>bal.tab</code> 回報配對／加權前後的標準化差異（SMD &lt; 0.1）——這就是判斷 PS 模型的平衡檢查。WeightIt 算出 ATE 的 IPTW 權重，再用 <code>svyglm</code> 給加權結果效應與穩健 SE。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (teffects / psmatch2)">Stata 版本 —— 同樣步驟（teffects / psmatch2）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — propensity scores</span>
+<span class="cm">* Step 1 — PS + 1:1 nearest-neighbour matching (ATT) via psmatch2</span>
+psmatch2 A X, outcome(Y) logit neighbor(1)   <span class="cm">// logistic PS, 1:1 NN match</span>
+pstest X, both                               <span class="cm">// standardized %bias before/after (target &lt; 10)</span>
+
+<span class="cm">* Step 2 — IPTW (ATE) via teffects ipw</span>
+teffects ipw (Y) (A X, logit)                <span class="cm">// logistic PS -&gt; IPTW ATE, robust SE</span>
+tebalance summarize                          <span class="cm">// weighted standardized differences</span>
+
+<span class="cm">* Step 3 — weighted outcome model (manual IPTW, robust SE)</span>
+predict double pscore, ps                    <span class="cm">// propensity score</span>
+gen double wt = cond(A==1, 1/pscore, 1/(1-pscore))   <span class="cm">// ATE weights</span>
+glm Y A [pw=wt], family(binomial) vce(robust)        <span class="cm">// weighted outcome effect</span>
+</code></pre>
+      <p data-en="psmatch2 fits the logistic PS and matches 1:1 (the ATT), and pstest reports the standardized %bias before vs after (target &lt; 10) — the balance check for the PS model. teffects ipw gives the IPTW ATE directly with a robust SE, and tebalance checks weighted balance; the manual weights reproduce the weighted outcome model.">psmatch2 配 logistic PS 並做 1:1 配對（ATT），<code>pstest</code> 回報配對前後的標準化 %bias（目標 &lt; 10）——這就是 PS 模型的平衡檢查。<code>teffects ipw</code> 直接給 IPTW 的 ATE 與穩健 SE，<code>tebalance</code> 檢查加權平衡；手動權重則重現加權的結果模型。</p></div>
   </section>
 
   <!-- ===================== PS ④ 假設檢驗 ===================== -->
@@ -5010,6 +5107,21 @@ fit &lt;- tmle(Y = Y, A = A, W = X,
 fit$estimates$ATE        <span class="cm"># targeted, doubly-robust, efficient ATE + influence-curve CI</span>
 <span class="cm"># ltmle::ltmle() extends this to time-varying treatments (g-methods territory)</span></code></pre>
       <p data-en="R's tmle adds the targeting step on top of a Super Learner for both Q and g; ltmle generalises it to longitudinal / time-varying treatments. Always cross-fit when the learners are flexible.">R 的 tmle 在 Q 與 g 兩個 Super Learner 上加上 targeting 步；ltmle 把它推廣到縱貫／時變治療。學習器彈性時務必交叉擬合。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (eltmle / teffects aipw)">Stata 版本 —— 同樣步驟（eltmle / teffects aipw）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — TMLE / AIPW (doubly robust)</span>
+<span class="cm">* one analysis row per person; A = vaccinated, Y = infection, X = severity (pre-treatment)</span>
+
+<span class="cm">* --- Step 1: doubly-robust AIPW (teffects aipw) ---</span>
+teffects aipw (Y X c.X#c.X) (A X c.X#c.X)   <span class="cm">// (outcome model) (propensity model)</span>
+<span class="cm">// ATE with a robust SE; unbiased if EITHER the outcome OR the propensity model is right</span>
+<span class="cm">// flexible terms (here X^2) help at least one model capture the non-linearity</span>
+
+<span class="cm">* --- Step 2: full TMLE with a Super Learner (eltmle) ---</span>
+ssc install eltmle           <span class="cm">// Luque-Fernandez / Karim TMLE wrapper</span>
+eltmle Y A X, tmle           <span class="cm">// targeting + SuperLearner ensembles for BOTH nuisances (Q and g)</span>
+<span class="cm">// returns the targeted, doubly-robust, efficient ATE + influence-curve CI</span>
+<span class="cm">// eltmle Y A X, tmlebgam  -&gt; richer ML library (GBM, GAM) for Q and g</span></code></pre>
+      <p data-en="Stata's teffects aipw is the built-in doubly-robust estimator (unbiased if either model is right); eltmle adds the TMLE targeting step on top of a SuperLearner for both Q and g, mirroring R's tmle. Keep X strictly pre-treatment and add flexible terms so at least one nuisance model is well specified.">Stata 的 <code>teffects aipw</code> 是內建的雙重穩健估計（傾向或結果模型其一對就不偏）；<code>eltmle</code> 在 Q 與 g 兩個 SuperLearner 上再加 targeting 步，對應 R 的 <code>tmle</code>。X 須嚴格為治療前變項，並放入彈性項，讓至少一個 nuisance 模型設定正確。</p></div>
   </section>
 
   <!-- ===================== TMLE ④ 假設檢驗 ===================== -->
@@ -5154,6 +5266,42 @@ gformula(obs_data = long, id = "pid", time_var = "t",
                               list(c(static, rep(0,K)))))    <span class="cm"># never treat</span>
 <span class="cm"># ltmle::ltmle() gives the doubly-robust longitudinal TMLE version</span></code></pre>
       <p data-en="The g-formula fits how Lₜ evolves and how Y depends on history, then Monte-Carlo simulates the 'always' and 'never' regimes and contrasts the standardised means. ltmle adds double robustness + Super Learner.">g-formula 配「Lₜ 怎麼演變、Y 怎麼依賴史」，再蒙地卡羅模擬 always 與 never 兩個策略、對比標準化後的平均。ltmle 再加上雙重穩健＋Super Learner。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (gformula / IPW-MSM)">Stata 版本 —— 同樣步驟（gformula / IPW-MSM）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — g-methods (g-formula / MSM)</span>
+<span class="cm">* Step 0 — person-time long form: id t L A lag_A lag_L Y, then xtset / stset</span>
+reshape long L A, i(pid) j(t)
+sort pid t
+by pid: gen lag_A = A[_n-1]
+by pid: gen lag_L = L[_n-1]
+xtset pid t
+
+<span class="cm">* Step 1 — stabilized IPTW weights for the MSM (pooled logistic models)</span>
+<span class="cm">* numerator P(A_t | past A); denominator P(A_t | past A, L_t)</span>
+logit A lag_A
+predict pn, pr
+logit A lag_A L
+predict pd, pr
+<span class="cm">* per-time contribution; cumulate over time within person; sw = prod(num/den)</span>
+gen num_t = cond(A==1, pn, 1-pn)
+gen den_t = cond(A==1, pd, 1-pd)
+sort pid t
+by pid: gen sw = num_t/den_t if _n==1
+by pid: replace sw = sw[_n-1]*(num_t/den_t) if _n&gt;1
+
+<span class="cm">* weighted MSM: regress Y on cumulative A, robust SE clustered on id</span>
+gen cumA = sum(A)
+glm Y cumA [pweight=sw], family(binomial) link(logit) vce(cluster pid)
+<span class="cm">* survival MSM alternative: stset time, failure(Y); stcox cumA [pw=sw], vce(cluster pid)</span>
+
+<span class="cm">* Step 2 — parametric g-formula (Daniel/De Stavola): simulate always vs never</span>
+gformula Y A L, ///
+   commands(L "regress L lag_L lag_A" A "logit A lag_A L") ///
+   equations(L "lag_L lag_A" A "lag_A L") ///
+   id(pid) time(t) outcome(Y) ///
+   moreMC samples(500) seed(1) ///
+   interventions(always "set A 1" never "set A 0")
+<span class="cm">* contrast standardised E[Y] under always-treat vs never-treat = the effect</span></code></pre>
+      <p data-en="In Stata the same two engines: stabilized IPTW weights (numerator/denominator pooled-logistic models, cumulated within person) feed a weighted MSM fit with vce(cluster pid); and Daniel &amp; De Stavola's gformula command models how Lₜ and Y evolve, then Monte-Carlo simulates the always- vs never-treat regimes and contrasts the standardised outcomes.">在 Stata 用同樣兩套引擎：穩定化 IPTW 權重（分子／分母用 pooled logistic 配適、在每人內累乘）餵進以 vce(cluster pid) 配適的加權 MSM；以及 Daniel 與 De Stavola 的 gformula 指令，先建模 Lₜ 與 Y 如何演變，再蒙地卡羅模擬 always 與 never 兩種策略、對比標準化後的結果。</p></div>
   </section>
 
   <!-- ===================== GM ④ 假設檢驗 ===================== -->
@@ -5289,6 +5437,30 @@ proc genmod data=w;  class pid;
    weight iptw;  <span class="cm">/* VE = 1 - exp(beta_vaccinated) ; ML/Super-Learner PS = the ⑤ demo */</span>
 run;</code></pre>
       <p data-en="For a causal TND (Schnitzer 2022), weight by an inverse propensity score for vaccination (optionally an ML / Super-Learner PS, as in ⑤), then take the weighted OR → VE. R: logistic + survey/ipw, or the tnd / DR-TND packages.">因果 TND（Schnitzer 2022）用接種的反傾向分數加權（PS 可用 ML／Super Learner，如 ⑤），再取加權 OR → VE。R：logistic ＋ survey/ipw，或 DR-TND 套件。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (glm logistic → VE)">R 版本 —— 同樣步驟（glm logistic → VE）</h3>
+      <pre class="sas"><code><span class="cm"># R — test-negative design</span>
+<span class="cm"># Step 0 — keep only the tested; define case &amp; control</span>
+tnd &lt;- subset(encounters, eligible_symptoms &amp; tested)
+tnd$case &lt;- as.integer(tnd$target_positive == 1)   <span class="cm"># 1 = test-positive case, 0 = test-negative control</span>
+
+<span class="cm"># Step 1 — adjusted logistic of vaccination on case status; VE = 1 - OR</span>
+fit &lt;- glm(case ~ vaccinated + factor(agegrp) + factor(calendar_month),
+           family = binomial, data = tnd)
+OR &lt;- exp(coef(fit)["vaccinated"])                 <span class="cm"># OR for 'vaccinated'</span>
+VE &lt;- 1 - OR                                       <span class="cm"># e.g. OR 0.40 -&gt; VE = 60%</span>
+ci &lt;- 1 - exp(rev(confint(fit)["vaccinated", ]))   <span class="cm"># 95% CI for VE = 1 - OR's CI</span></code></pre>
+      <p data-en="Same logic as SAS: <code>glm(family=binomial)</code> regresses <code>case</code> on <code>vaccinated</code> plus confounders; the exponentiated coefficient is the OR and VE = 1 − exp(coef). For a causal TND, weight the glm by an IPT weight (e.g. <code>survey</code>/<code>ipw</code>).">與 SAS 同理：<code>glm(family=binomial)</code> 把 <code>case</code> 對 <code>vaccinated</code> 加混淆做迴歸；係數取指數即 OR，VE ＝ 1 − exp(coef)。因果 TND 可對 glm 加 IPT 權重（如 <code>survey</code>／<code>ipw</code>）。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (logistic → VE)">Stata 版本 —— 同樣步驟（logistic → VE）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — test-negative design</span>
+<span class="cm">* Step 0 — keep only the tested; define case &amp; control</span>
+keep if eligible_symptoms &amp; tested
+gen case = (target_positive == 1)        <span class="cm">// 1 = test-positive case, 0 = test-negative control</span>
+
+<span class="cm">* Step 1 — adjusted logistic of vaccination on case status; VE = 1 - OR</span>
+logistic case i.vaccinated i.agegrp i.calendar_month   <span class="cm">// reports OR for 'vaccinated'</span>
+nlcom 1 - exp(_b[1.vaccinated])          <span class="cm">// VE = 1 - OR, with 95% CI (delta method)</span>
+<span class="cm">* or after 'logit': lincom 1.vaccinated, or  then  VE = 1 - OR  (e.g. OR 0.40 -&gt; VE = 60%)</span></code></pre>
+      <p data-en="Identical steps in Stata: <code>logistic</code> regresses <code>case</code> on <code>vaccinated</code> plus confounders and reports the OR directly; <code>nlcom</code>/<code>lincom</code> turns the OR into VE = 1 − OR with a confidence interval. Add an IPT weight (<code>pweight</code>) for a causal TND.">Stata 步驟相同：<code>logistic</code> 把 <code>case</code> 對 <code>vaccinated</code> 加混淆做迴歸並直接給出 OR；<code>nlcom</code>／<code>lincom</code> 把 OR 轉成 VE ＝ 1 − OR 並附信賴區間。因果 TND 可加 IPT 權重（<code>pweight</code>）。</p></div>
   </section>
 
   <!-- ===================== TND ④ 假設檢驗 ===================== -->
@@ -5422,6 +5594,56 @@ quit;
 <span class="cm">/* use a tree-based scan statistic (Bernoulli LLR over an outcome hierarchy,  */</span>
 <span class="cm">/* Monte-Carlo permutation p). R: TreeScan / TreeMineR.  See the TreeScan tabs. */</span></code></pre>
       <p data-en="When you want to screen a whole drug or outcome hierarchy at once, move from the pairwise SSA to the tree-based scan statistic (TreeScan / TreeMineR) — its own full method in this toolbox.">當你想一次篩整個藥物或結果階層，就從成對的 SSA 走到樹狀掃描統計（TreeScan／TreeMineR）——本工具箱另設為完整方法。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (sequence ratio)">R 版本 —— 同樣步驟（序列比）</h3>
+      <pre class="sas"><code><span class="cm"># R — prescription sequence symmetry analysis</span>
+library(dplyr)
+<span class="cm"># incident (new) use of BOTH drugs, with a washout before each first dispensing.</span>
+pairs &lt;- new_user_rx %&gt;%
+  group_by(pid) %&gt;%
+  summarise(
+    tA = min(rx_date[drug == "A"]),   <span class="cm"># first-ever index drug A</span>
+    tB = min(rx_date[drug == "B"])    <span class="cm"># first-ever marker drug B</span>
+  ) %&gt;%
+  filter(!is.na(tA), !is.na(tB),       <span class="cm"># keep only the 'both' pairs</span>
+         abs(tB - tA) &lt;= 365)          <span class="cm"># time window, e.g. 12 months</span>
+
+<span class="cm"># orderings within the window: a = A-then-B, b = B-then-A</span>
+c  &lt;- pairs %&gt;% mutate(aThenB = as.integer(tA &lt; tB))
+a  &lt;- sum(c$aThenB)
+b  &lt;- sum(1 - c$aThenB)
+
+<span class="cm"># crude SR = a/b ; SRnull from the empirical timing CDFs (trend only) ; aSR = cSR/SRnull</span>
+cSR   &lt;- a / b
+aSR   &lt;- cSR / SRnull                  <span class="cm"># SRnull = null-expected ratio under trend alone</span>
+se    &lt;- sqrt(1/a + 1/b)              <span class="cm"># Var(log aSR) = 1/a + 1/b</span>
+ci    &lt;- aSR * exp(c(-1, 1) * 1.96 * se)   <span class="cm"># aSR&gt;1 &amp; CI excl. 1 = signal</span>
+</code></pre>
+      <p data-en="Same steps in dplyr: collapse to one row per person with first-ever tA and tB, keep discordant pairs inside the window, count the two orderings, then crude SR = a ÷ b and aSR = cSR ÷ SRnull with a log-scale CI. Dedicated <code>SSA</code> / <code>SSAcox</code> packages wrap this.">dplyr 同樣步驟：每人收成一列、取首次 tA 與 tB，留下窗內不一致對，數兩種順序，粗 SR ＝ a ÷ b、aSR ＝ cSR ÷ SRnull 並附 log 尺度 CI。專用 <code>SSA</code>／<code>SSAcox</code> 套件即封裝此流程。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (sequence ratio)">Stata 版本 —— 同樣步驟（序列比）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — prescription sequence symmetry analysis</span>
+<span class="cm">* incident (new) use of BOTH drugs: first-ever start date per drug per person</span>
+collapse (min) rx_date, by(pid drug)
+reshape wide rx_date, i(pid) j(drug) string   <span class="cm">// -&gt; rx_dateA = tA, rx_dateB = tB</span>
+rename rx_dateA tA                             <span class="cm">// first-ever index drug A</span>
+rename rx_dateB tB                             <span class="cm">// first-ever marker drug B</span>
+keep if !missing(tA) &amp; !missing(tB) &amp; abs(tB - tA) &lt;= 365   <span class="cm">// 'both' pairs, 12-mo window</span>
+
+<span class="cm">* orderings: aThenB = A-then-B, else B-then-A</span>
+gen byte aThenB = (tA &lt; tB)
+count if aThenB == 1
+scalar a = r(N)                               <span class="cm">// a = A-then-B</span>
+count if aThenB == 0
+scalar b = r(N)                               <span class="cm">// b = B-then-A</span>
+
+<span class="cm">* crude SR = a/b ; aSR = cSR/SRnull (SRnull = trend-only null ratio)</span>
+scalar cSR = a / b
+scalar aSR = cSR / SRnull
+scalar se  = sqrt(1/a + 1/b)                  <span class="cm">// Var(log aSR) = 1/a + 1/b</span>
+scalar lo  = aSR * exp(-1.96 * se)            <span class="cm">// aSR&gt;1 &amp; CI excl. 1 = signal</span>
+scalar hi  = aSR * exp( 1.96 * se)
+di "aSR=" aSR "  95% CI " lo ", " hi
+</code></pre>
+      <p data-en="Same steps in Stata: collapse to first-ever start dates, reshape to one row per person (tA, tB), keep discordant pairs in the window, count the two orderings into scalars a and b, then crude SR = a ÷ b and aSR = cSR ÷ SRnull with a log-scale 95% CI.">Stata 同樣步驟：collapse 取首次起始日、reshape 成每人一列（tA、tB），留窗內不一致對，把兩種順序計入純量 a 與 b，粗 SR ＝ a ÷ b、aSR ＝ cSR ÷ SRnull 並附 log 尺度 95% CI。</p></div>
   </section>
 
   <!-- ===================== PSSA ④ 假設檢驗 ===================== -->
@@ -5547,6 +5769,62 @@ subset(res, p_value &lt; 0.05)               <span class="cm"># the FWER-control
 <span class="cm"># scaled over a tree.  model = "poisson" / conditional, with a time dimension. </span>
 res2 &lt;- treescan(cases_time, tree, model = "poisson", conditional = TRUE)</code></pre>
       <p data-en="For confounding robustness, switch to a conditional, self-controlled tree-temporal scan (Kulldorff et al.; Maro et al. 2014, FDA Sentinel) — the frontier described in ⑤.">想對混淆更穩健，就改用條件型、自我對照的樹-時序掃描（Kulldorff 等；Maro 等 2014, FDA Sentinel）——即 ⑤ 描述的前沿。</p></div>
+    <div class="card"><h3 data-en="SAS version — prepare files &amp; call TreeScan">SAS 版本 —— 準備檔案並呼叫 TreeScan</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — tree-based scan statistic: TreeScan runs in Kulldorff's standalone */</span>
+<span class="cm">/* engine; SAS only writes the tree/case/population files and calls the batch. */</span>
+<span class="cm">/* Step 0 — export the hierarchy as the tree (cut) file: leaf, parent.        */</span>
+proc export data=tree
+     outfile="C:\ts\tree.cut" dbms=csv replace;   <span class="cm">/* leaf_id, system_id (parent) */</span>
+run;
+
+<span class="cm">/* Step 1 — export the case + population count file: one row per node.        */</span>
+<span class="cm">/* cases = exposed count, population = exposed+control at that node.           */</span>
+proc summary data=cases nway;
+  class node;
+  var exposed;
+  output out=counts(drop=_type_) sum=cases n=population;
+run;
+proc export data=counts
+     outfile="C:\ts\cases.cas" dbms=csv replace;
+run;
+
+<span class="cm">/* Step 2 — invoke the TreeScan batch with a .prm parameter file. The .prm    */</span>
+<span class="cm">/* names tree.cut / cases.cas, the model (unconditional Bernoulli or Poisson) */</span>
+<span class="cm">/* and the Monte-Carlo replications (9999) that give the FWER-controlled p.    */</span>
+systask command "treescan.exe C:\ts\scan.prm" wait taskname=ts;
+waitfor ts;
+
+<span class="cm">/* Step 3 — read the cluster output back: node, LLR, permutation-adjusted p.   */</span>
+proc import datafile="C:\ts\scan.col.txt"
+     out=res dbms=csv replace;
+run;
+proc print data=res(where=(p_value &lt; 0.05));   <span class="cm">/* the FWER-controlled signals */</span>
+run;
+</code></pre>
+      <p data-en="SAS does the data plumbing, not the scan: <code>proc export</code> writes the tree (cut) file and the per-node case+population count file, then <code>systask</code>/<code>x</code> shells out to <code>treescan.exe</code> with a <code>.prm</code> (which fixes the model and the 9999 permutations). The cluster output is read back with <code>proc import</code>; <code>p_value &lt; 0.05</code> already pays for the multiplicity over the whole tree.">SAS 負責資料搬運、不做掃描：<code>proc export</code> 寫出樹（節點）檔與每節點的「案例＋人口」計數檔，再用 <code>systask</code>／<code>x</code> 呼叫 <code>treescan.exe</code> 並帶入 <code>.prm</code>（在裡面固定模型與 9999 次排列）。叢集輸出用 <code>proc import</code> 讀回；<code>p_value &lt; 0.05</code> 已就整棵樹的多重性付清。</p></div>
+    <div class="card"><h3 data-en="Stata version — prepare files &amp; call TreeScan">Stata 版本 —— 準備檔案並呼叫 TreeScan</h3>
+      <pre class="sas"><code><span class="cm">// Stata — tree-based scan statistic: the scan lives in Kulldorff's standalone</span>
+<span class="cm">// TreeScan engine; Stata writes the input files and automates the batch call.</span>
+<span class="cm">// Step 0 — write the hierarchy as the tree (cut) file: leaf, parent.</span>
+export delimited leaf_id system_id using "C:/ts/tree.cut", ///
+    novarnames replace                              <span class="cm">// leaf, parent (system)</span>
+
+<span class="cm">// Step 1 — collapse to one row per node, then write the case+population file.</span>
+<span class="cm">// cases = exposed count, population = exposed+control at that node.</span>
+collapse (sum) cases=exposed (count) population=exposed, by(node)
+export delimited node cases population using "C:/ts/cases.cas", ///
+    novarnames replace
+
+<span class="cm">// Step 2 — call the TreeScan batch with a .prm parameter file. The .prm names</span>
+<span class="cm">// tree.cut / cases.cas, the model (unconditional Bernoulli or Poisson) and the</span>
+<span class="cm">// 9999 Monte-Carlo replications that calibrate the FWER-controlled p.</span>
+shell treescan.exe "C:/ts/scan.prm"                 <span class="cm">// or: winexec treescan.exe ...</span>
+
+<span class="cm">// Step 3 — import the cluster output: node, LLR, permutation-adjusted p.</span>
+import delimited "C:/ts/scan.col.txt", clear varnames(1)
+list node llr p_value if p_value &lt; 0.05            <span class="cm">// the FWER-controlled signals</span>
+</code></pre>
+      <p data-en="Stata mirrors the same sequence without running the scan itself: <code>export delimited</code> writes the tree (cut) file and the per-node case+population count file, <code>shell</code> (or <code>winexec</code>) launches <code>treescan.exe</code> with the <code>.prm</code> that fixes the model and the 9999 permutations, and <code>import delimited</code> pulls the cluster table back. A node clearing <code>p_value &lt; 0.05</code> has already paid for the multiplicity over the whole tree.">Stata 用相同步驟、但掃描本身不在 Stata 跑：<code>export delimited</code> 寫出樹（節點）檔與每節點的「案例＋人口」計數檔，<code>shell</code>（或 <code>winexec</code>）帶著固定模型與 9999 次排列的 <code>.prm</code> 啟動 <code>treescan.exe</code>，再用 <code>import delimited</code> 讀回叢集表。過了 <code>p_value &lt; 0.05</code> 的節點已就整棵樹的多重性付清。</p></div>
   </section>
 
   <!-- ===================== TreeScan ④ 假設檢驗 ===================== -->
@@ -5668,6 +5946,58 @@ HR.WCE(fit, vecnum = rep(1,24), vecdenom = rep(0,24))   <span class="cm"># HR: s
 <span class="cm"># inverse-probability weights and fit a marginal structural Cox (g-methods). </span>
 <span class="cm"># R: ipw + coxph(... , weights = sw), or the gfoRmula / WCE-in-MSM combination.</span></code></pre>
       <p data-en="The key threat is time-varying confounding by indication; the principled fix combines the weighted-exposure idea with a marginal structural Cox model / g-methods (see the g-methods and CCW tabs).">關鍵威脅是時變適應症混淆；正規的修法是把加權暴露的想法與邊際結構 Cox 模型／g-methods 結合（見 g-methods 與 CCW 分頁）。</p></div>
+    <div class="card"><h3 data-en="SAS version — the same steps (proc phreg, time-dependent)">SAS 版本 —— 同樣步驟（proc phreg, 時間相依）</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — weighted cumulative exposure */</span>
+<span class="cm">/* Step 0: long person-time table pt — one row per id per interval, with the dose */</span>
+<span class="cm">/* expand so every (id, time unit) carries its full past-dose history doseHist[1..24] */</span>
+proc sort data=pt; by id stop; run;
+
+<span class="cm">/* Step 1: spline basis for the weight function over time-since-dose (0..cutoff=24) */</span>
+proc gam data=tsd;                 <span class="cm">/* tsd: one row per lag u=1..24 */</span>
+   model d = spline(u, df=4);      <span class="cm">/* cubic spline basis B1..Bp in u = time-since-dose */</span>
+   output out=basis predicted;
+run;
+
+<span class="cm">/* Step 2: time-dependent Cox — build cumulative exposure as spline-weighted past doses */</span>
+proc phreg data=pt;
+   class sex;
+   model (start, stop)*event(0) = wce1-wce4 age sex;
+   <span class="cm">/* at each risk time, sum over the window: dose(t-u) * B_k(u), k=1..4 */</span>
+   array dh{24} doseHist1-doseHist24;   <span class="cm">/* past doses, lag 1..24 */</span>
+   array bk{24,4} _temporary_ ( <span class="cm">/* spline basis B_k(u) from Step 1 */</span> );
+   wce1=0; wce2=0; wce3=0; wce4=0;
+   do u=1 to 24;
+      wce1 + dh{u}*bk{u,1};  wce2 + dh{u}*bk{u,2};
+      wce3 + dh{u}*bk{u,3};  wce4 + dh{u}*bk{u,4};
+   end;
+run;
+<span class="cm">/* w(u) = sum_k beta_k * B_k(u): the estimated weight curve; */</span>
+<span class="cm">/* contrast a sustained-recent-use history vs none for the HR (ESTIMATE / contrast). */</span>
+</code></pre>
+      <p data-en="SAS has no <code>WCE</code> package, so the weight function is built by hand: make a cubic-spline basis in time-since-dose (<code>proc gam</code> / <code>effect spline</code>), then inside <code>proc phreg</code> form the time-dependent covariates as the spline-weighted sum of past doses over the window. The fitted <code>beta_k</code> combine into the weight curve w(u); a history contrast gives the HR.">SAS 沒有 <code>WCE</code> 套件，所以權重函數要自己建：先對「距今時間」做三次樣條基底（<code>proc gam</code>／<code>effect spline</code>），再在 <code>proc phreg</code> 裡把時間相依共變量寫成「窗內過去劑量的樣條加權和」。配出的 <code>beta_k</code> 組成權重曲線 w(u)；用暴露史對比得到 HR。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (stcox, time-varying)">Stata 版本 —— 同樣步驟（stcox, 時間相依）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — weighted cumulative exposure</span>
+<span class="cm">* Step 0: declare survival and split into one row per person per time unit</span>
+stset stop, id(id) failure(event) origin(time start)
+stsplit u, at(1(1)24)            <span class="cm">// expand to per-time-unit rows; u indexes the window</span>
+
+<span class="cm">* Step 1: spline basis for the weight function over time-since-dose (cutoff = 24)</span>
+mkspline bk = u, cubic nknots(4)  <span class="cm">// or: bspline, knots(...) — basis bk1..bk4 in lag u</span>
+
+<span class="cm">* Step 2: build spline-weighted cumulative exposure from the past-dose history</span>
+forvalues k = 1/4 {              <span class="cm">// wce_k = sum over window of dose(t-u) * bk_k(u)</span>
+    gen wce`k' = 0
+    forvalues u = 1/24 {
+        replace wce`k' = wce`k' + doseHist`u' * bk`k'_at`u''
+    }
+}
+
+<span class="cm">* Step 3: time-varying Cox on the weighted-exposure covariates</span>
+stcox wce1 wce2 wce3 wce4 age i.sex
+<span class="cm">* w(u) = sum_k _b[wce`k'] * bk_k(u): the estimated weight curve (recent doses weigh most)</span>
+<span class="cm">* lincom over a sustained-vs-none history gives the HR.</span>
+</code></pre>
+      <p data-en="Stata mirrors the same recipe: <code>stset</code> + <code>stsplit</code> expand to one row per person per time unit, <code>mkspline</code>/<code>bspline</code> build a cubic-spline basis in time-since-dose, and the time-varying covariates are the spline-weighted sums of past doses fed to <code>stcox</code>. Combining <code>_b[wce*]</code> with the basis reconstructs the weight curve; a <code>lincom</code> history contrast gives the HR.">Stata 用同一套做法：<code>stset</code> + <code>stsplit</code> 展開成「每人每時間單位一列」，<code>mkspline</code>／<code>bspline</code> 對「距今時間」建三次樣條基底，時間相依共變量就是窗內過去劑量的樣條加權和，餵給 <code>stcox</code>。把 <code>_b[wce*]</code> 與基底組合即還原權重曲線；用 <code>lincom</code> 做暴露史對比得到 HR。</p></div>
   </section>
 
   <!-- ===================== WCE ④ 假設檢驗 ===================== -->
@@ -5769,6 +6099,19 @@ d1  &lt;- predict(out, transform(target, A = 1))
 d0  &lt;- predict(out, transform(target, A = 0))
 mean(d1 - d0)                                  <span class="cm"># transported target effect</span></code></pre>
       <p data-en="Doubly-robust transport combines both (e.g. R packages: <code>causaleffect</code>, <code>genRCT</code>, <code>transportr</code>); only one of the two models needs to be right.">雙重穩健轉移把兩者合起來（如 R 套件 <code>genRCT</code>、<code>transportr</code>）；兩個模型只要一個對就不偏。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (IOSW)">Stata 版本 —— 同樣步驟（IOSW）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — transportability (inverse-odds-of-sampling weights)</span>
+<span class="cm">* both = study + target stacked; S = 1 study, 0 target; in_trial alias</span>
+gen in_trial = S
+<span class="cm">* model probability of being in the trial vs the target population</span>
+logit in_trial X
+predict p, pr
+<span class="cm">* IOSW = (1-p)/p, kept only among trial members</span>
+gen iosw = (1 - p) / p if in_trial == 1
+<span class="cm">* weighted outcome model; coefficient on A = transported target effect</span>
+regress Y A [pweight = iosw] if in_trial == 1, vce(robust)
+<span class="cm">// or: glm Y A [pweight=iosw] if in_trial==1, vce(robust)</span></code></pre>
+      <p data-en="Same logic as R/SAS: <code>logit</code> models selection, the inverse-odds weights bend the trial's covariate distribution onto the target, and <code>[pweight=]</code> with <code>vce(robust)</code> gives the transported effect with a correct standard error.">與 R／SAS 同理：<code>logit</code> 建選樣模型，逆勝算權重把試驗的共變項分布扳成目標母體的，<code>[pweight=]</code> 搭配 <code>vce(robust)</code> 便得到帶正確標準誤的轉移效果。</p></div>
   </section>
 
   <!-- ===================== Transportability ④ 假設檢驗 ===================== -->
@@ -6138,6 +6481,29 @@ y0   &lt;- predict(out, newdata = trial)
 mean(trial$Y) - mean(y0)                        <span class="cm"># treatment effect</span>
 <span class="cm"># Hybrid / Bayesian dynamic borrowing: R packages psborrow2, RBesT (power / commensurate priors)</span></code></pre>
       <p data-en="A doubly-robust version combines both; Bayesian dynamic borrowing (psborrow2, RBesT) down-weights the external arm when it conflicts with any concurrent controls.">雙重穩健版把兩者合起來；貝氏動態借用（psborrow2、RBesT）會在外部臂與同期對照衝突時降權。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (PS-weighted external control)">Stata 版本 —— 同樣步驟（PS 加權外部對照）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — external-control analysis</span>
+<span class="cm">* Step 0: stack the single-arm trial + external pool, add an arm indicator</span>
+use trial, clear
+gen inTrial = 1                 <span class="cm">// 1 = single-arm trial (treated)</span>
+append using external
+replace inTrial = 0 if missing(inTrial)   <span class="cm">// 0 = external control (untreated)</span>
+
+<span class="cm">* Step 1: selection / propensity score for trial-vs-external on covariates X</span>
+logit inTrial X                 <span class="cm">// P(inTrial = 1 | X)</span>
+predict p, pr
+
+<span class="cm">* Balance via IPTW (IPSW): weight external controls toward the trial; or psmatch2</span>
+gen w = cond(inTrial==1, 1, p/(1-p))      <span class="cm">// IPSW weights on the external arm</span>
+<span class="cm">// ssc install psmatch2 ; psmatch2 inTrial X, outcome(Y)  // matching alternative</span>
+
+<span class="cm">* Step 2: weighted outcome model with robust SEs (survival or risk contrast)</span>
+stset time, failure(event)
+stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or glm Y inTrial [pw=w], vce(robust)</span>
+
+<span class="cm">* Bayesian dynamic borrowing alternative: MAP / power prior down-weights the external arm</span>
+<span class="cm">// bayesmh Y inTrial X, likelihood(normal({var})) prior(...)  // power / commensurate prior</span></code></pre>
+      <p data-en="Same recipe in Stata: pool both sources, fit logit to get the trial-vs-external score, balance with IPSW weights (or psmatch2), then a weighted stcox / glm with vce(robust); bayesmh gives a meta-analytic-predictive / power-prior version that borrows the external arm dynamically.">Stata 同套作法：把兩邊資料疊起來，用 logit 估「試驗 vs 外部」分數，以 IPSW 權重（或 psmatch2）做平衡，再跑加權的 stcox／glm 並加 vce(robust)；bayesmh 則提供 meta-analytic-predictive／power prior 版本，對外部臂做動態借用。</p></div>
   </section>
 
   <!-- ===================== External control ④ 假設檢驗 ===================== -->
