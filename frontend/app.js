@@ -570,7 +570,7 @@ function refreshEvalueArray() {
   const gone = adj <= 1;
   const el = document.getElementById("evalueArrayChart");
   if (el) Plotly.react(el, [{
-    x: [tr("觀察 RR", "observed RR"), tr("校正後 RR", "adjusted RR")], y: [rr, adj], type: "bar",
+    x: [tr("觀察 ARR", "apparent ARR"), tr("校正後 RRadj", "adjusted RRadj")], y: [rr, adj], type: "bar",
     marker: { color: [SLATE, gone ? "#b91c1c" : TEAL] }, text: [rr.toFixed(2), adj.toFixed(2)],
     textposition: "outside", hoverinfo: "skip",
   }], sceneLayout({
@@ -579,9 +579,9 @@ function refreshEvalueArray() {
     shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: 1, y1: 1, line: { color: "#94a3b8", dash: "dash", width: 1.5 } }],
   }), SCENE_CFG);
   card.querySelector(".ea-out").innerHTML = tr(
-    `偏誤因子 BF＝<b>${bf.toFixed(2)}</b>，把觀察 RR ${rr.toFixed(2)} 校正成 <b>${adj.toFixed(2)}</b> → ` +
+    `偏誤因子 BF＝<b>${bf.toFixed(2)}</b>，把 ARR ${rr.toFixed(2)} 校正成 RRadj＝<b>${adj.toFixed(2)}</b> → ` +
       (gone ? `<b style="color:#b91c1c">這個混淆足以把效果解釋掉（跨過 1）</b>` : `<b style="color:#1d6f57">仍在 1 的同側，效果存活</b>`),
-    `Bias factor BF = <b>${bf.toFixed(2)}</b> moves the observed RR ${rr.toFixed(2)} to <b>${adj.toFixed(2)}</b> → ` +
+    `Bias factor BF = <b>${bf.toFixed(2)}</b> moves ARR ${rr.toFixed(2)} to RRadj = <b>${adj.toFixed(2)}</b> → ` +
       (gone ? `<b style="color:#b91c1c">this confounder is enough to explain it away (crosses 1)</b>` : `<b style="color:#1d6f57">still on the same side of 1 — the effect survives</b>`));
 }
 function initEvalueArray() {
