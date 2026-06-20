@@ -6172,15 +6172,21 @@ regress Y A [pweight = iosw] if in_trial == 1, vce(robust)
     <div class="card scene evalue-card" id="evalueCard">
       <h3 data-en="B · The E-value — how strong would a confounder have to be?">B · E-value：混淆要多強才推翻得了？</h3>
       <div class="ev-inputs">
-        <label data-en="Effect measure">效果量類型
+        <label data-en="Outcome type">結果（效果量）類型
           <select class="ev-measure">
-            <option value="rr" data-en="RR / rare-outcome OR or HR">RR／罕見結果的 OR·HR</option>
-            <option value="or" data-en="OR (common outcome)">OR（常見結果）</option>
-            <option value="hr" data-en="HR (common outcome)">HR（常見結果）</option>
+            <option value="rr" data-en="Relative risk / rate ratio">相對風險／率比 RR</option>
+            <option value="or_rare" data-en="Odds ratio (outcome prevalence &lt;15%)">勝算比 OR（結果盛行率 &lt;15%）</option>
+            <option value="or_common" data-en="Odds ratio (outcome prevalence &gt;15%)">勝算比 OR（結果盛行率 &gt;15%）</option>
+            <option value="hr_rare" data-en="Hazard ratio (outcome prevalence &lt;15%)">風險比 HR（結果盛行率 &lt;15%）</option>
+            <option value="hr_common" data-en="Hazard ratio (outcome prevalence &gt;15%)">風險比 HR（結果盛行率 &gt;15%）</option>
+            <option value="smd" data-en="Standardized mean difference (d)">標準化平均差 d</option>
+            <option value="rd" data-en="Risk difference">風險差 RD</option>
+            <option value="ols" data-en="Linear regression coefficient">線性迴歸係數</option>
           </select>
         </label>
-        <label data-en="Observed effect">觀察到的效果<input type="number" class="ev-rr" step="0.05" min="0.05" value="2.0"></label>
-        <label data-en="CI limit nearest 1">信賴區間靠近 1 的那端<input type="number" class="ev-ci" step="0.05" min="0.05" value="1.4"></label>
+        <label data-en="Point estimate">點估計值<input type="number" class="ev-rr" step="0.05" value="2.0"></label>
+        <label data-en="CI limit nearest the null">信賴區間靠近虛無值的那端<input type="number" class="ev-ci" step="0.05" value="1.4"></label>
+        <label class="ev-extra-wrap" style="display:none"><span class="ev-extra-label" data-en="extra">extra</span><input type="number" class="ev-extra" step="0.01" value="0.1"></label>
       </div>
       <p class="ev-out"></p>
       <div id="evalueChart" class="chart" style="height:360px"></div>

@@ -538,20 +538,46 @@ function _evalue(rr) {                       // E-value of a risk ratio
   return rr + Math.sqrt(rr * (rr - 1));
 }
 // Convert a reported effect to the approximate risk-ratio scale the E-value uses
-// (VanderWeele & Ding 2017): RR / rare OR / rare HR ≈ as-is; OR(common)→√OR;
-// HR(common)→(1−0.5^√HR)/(1−0.5^√(1∕HR)).
-function _toRR(v, measure) {
-  if (!(v > 0)) return v;
-  if (measure === "or") return Math.sqrt(v);
-  if (measure === "hr") return (1 - Math.pow(0.5, Math.sqrt(v))) / (1 - Math.pow(0.5, Math.sqrt(1 / v)));
-  return v;
+// (VanderWeele & Ding 2017; Mathur et al. EValue package). Ratio measures:
+// RR / rare OR / rare HR ≈ as-is; OR(common)→√OR; HR(common)→(1−0.5^√HR)/(1−0.5^√(1∕HR)).
+// Difference measures need one extra input: SMD d→exp(0.91·d); OLS coef→exp(0.91·coef/SD);
+// RD→(p0+RD)/p0 using the baseline (unexposed) risk p0.
+function _hrToRR(v) { return (1 - Math.pow(0.5, Math.sqrt(v))) / (1 - Math.pow(0.5, Math.sqrt(1 / v))); }
+function _toRR(v, measure, extra) {
+  switch (measure) {
+    case "smd": return Math.exp(0.91 * v);                       // standardized mean diff (d)
+    case "ols": { const sd = (extra > 0) ? extra : 1; return Math.exp(0.91 * (v / sd)); }
+    case "rd":  { const p0 = (extra > 0 && extra < 1) ? extra : 0.1; const re = p0 + v; return re > 0 ? re / p0 : 1e-4; }
+  }
+  if (!(v > 0)) return v;                                        // ratio measures below
+  if (measure === "or_common" || measure === "or") return Math.sqrt(v);
+  if (measure === "hr_common" || measure === "hr") return _hrToRR(v);
+  return v;                                                      // rr, or_rare, hr_rare
 }
 function _evMeasure(card) { const s = card.querySelector(".ev-measure"); return s ? s.value : "rr"; }
+function _evExtra(card) { const e = card.querySelector(".ev-extra"); const v = e ? parseFloat(e.value) : NaN; return isFinite(v) ? v : 0; }
+// Difference measures need an extra field; show it with the right label, hide otherwise.
+function _evSyncExtra(card) {
+  const wrap = card.querySelector(".ev-extra-wrap"); if (!wrap) return;
+  const m = _evMeasure(card), lab = wrap.querySelector(".ev-extra-label");
+  const cfg = {
+    rd:  { zh: "未暴露組的基準風險 P₀", en: "Baseline risk in the unexposed (P₀)", val: "0.1" },
+    ols: { zh: "結果的標準差 SD", en: "SD of the outcome", val: "1" },
+  }[m];
+  if (cfg) {
+    wrap.style.display = "";
+    if (lab) { lab.textContent = cfg.zh; lab.setAttribute("data-en", cfg.en); }
+    const inp = card.querySelector(".ev-extra");
+    if (inp && (m === "rd") !== (inp.dataset.kind === "rd")) { inp.value = cfg.val; inp.dataset.kind = m; }
+  } else {
+    wrap.style.display = "none";
+  }
+}
 function _evRecompute(card) {
   const num = (sel, d) => { const v = parseFloat(card.querySelector(sel).value); return isFinite(v) ? v : d; };
   const rawRr = num(".ev-rr", 2), rawCi = num(".ev-ci", 1.4), eu = num(".ev-eu", 2), ud = num(".ev-ud", 2);
-  const m = _evMeasure(card);
-  const rr = _toRR(rawRr, m), ci = _toRR(rawCi, m);   // convert OR/HR to the approximate RR scale
+  const m = _evMeasure(card), ex = _evExtra(card);
+  const rr = _toRR(rawRr, m, ex), ci = _toRR(rawCi, m, ex);   // convert to the approximate RR scale
   card.querySelector(".ev-euv").textContent = eu.toFixed(1);
   card.querySelector(".ev-udv").textContent = ud.toFixed(1);
   const ev = _evalue(rr).toFixed(2), evci = _evalue(ci).toFixed(2);
@@ -575,8 +601,8 @@ let evaluePlayReady = false;
 function drawEvalueChart(card) {
   const el = document.getElementById("evalueChart"); if (!el) return;
   const num = (s, d) => { const v = parseFloat(card.querySelector(s).value); return isFinite(v) ? v : d; };
-  const m = _evMeasure(card);
-  let rr = _toRR(num(".ev-rr", 2), m), ci = _toRR(num(".ev-ci", 1.4), m);   // OR/HR → approx RR
+  const m = _evMeasure(card), ex = _evExtra(card);
+  let rr = _toRR(num(".ev-rr", 2), m, ex), ci = _toRR(num(".ev-ci", 1.4), m, ex);   // → approx RR scale
   rr = (rr > 0 && rr < 1) ? 1 / rr : rr;                 // E-value is symmetric
   ci = (ci > 0 && ci < 1) ? 1 / ci : ci;
   const eu = num(".ev-eu", 2), ud = num(".ev-ud", 2);
@@ -602,11 +628,11 @@ function initEvaluePlay() {
   if (!evaluePlayReady) {
     evaluePlayReady = true;
     card.querySelectorAll("input, select").forEach((inp) => {
-      const redraw = () => { _evRecompute(card); drawEvalueChart(card); };
+      const redraw = () => { _evSyncExtra(card); _evRecompute(card); drawEvalueChart(card); };
       inp.addEventListener("input", redraw); inp.addEventListener("change", redraw);
     });
   }
-  _evRecompute(card); drawEvalueChart(card);
+  _evSyncExtra(card); _evRecompute(card); drawEvalueChart(card);
 }
 // ⑤ array approach (Schneeweiss 2006): a single binary unmeasured confounder with
 // prevalence P1 (exposed) / P0 (unexposed) and outcome RR_CD biases the RR by the
