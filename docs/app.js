@@ -481,9 +481,21 @@ function _evalue(rr) {                       // E-value of a risk ratio
   if (!(rr > 1)) return 1;
   return rr + Math.sqrt(rr * (rr - 1));
 }
+// Convert a reported effect to the approximate risk-ratio scale the E-value uses
+// (VanderWeele & Ding 2017): RR / rare OR / rare HR ≈ as-is; OR(common)→√OR;
+// HR(common)→(1−0.5^√HR)/(1−0.5^√(1∕HR)).
+function _toRR(v, measure) {
+  if (!(v > 0)) return v;
+  if (measure === "or") return Math.sqrt(v);
+  if (measure === "hr") return (1 - Math.pow(0.5, Math.sqrt(v))) / (1 - Math.pow(0.5, Math.sqrt(1 / v)));
+  return v;
+}
+function _evMeasure(card) { const s = card.querySelector(".ev-measure"); return s ? s.value : "rr"; }
 function _evRecompute(card) {
   const num = (sel, d) => { const v = parseFloat(card.querySelector(sel).value); return isFinite(v) ? v : d; };
-  const rr = num(".ev-rr", 2), ci = num(".ev-ci", 1.4), eu = num(".ev-eu", 2), ud = num(".ev-ud", 2);
+  const rawRr = num(".ev-rr", 2), rawCi = num(".ev-ci", 1.4), eu = num(".ev-eu", 2), ud = num(".ev-ud", 2);
+  const m = _evMeasure(card);
+  const rr = _toRR(rawRr, m), ci = _toRR(rawCi, m);   // convert OR/HR to the approximate RR scale
   card.querySelector(".ev-euv").textContent = eu.toFixed(1);
   card.querySelector(".ev-udv").textContent = ud.toFixed(1);
   const ev = _evalue(rr).toFixed(2), evci = _evalue(ci).toFixed(2);
@@ -507,7 +519,8 @@ let evaluePlayReady = false;
 function drawEvalueChart(card) {
   const el = document.getElementById("evalueChart"); if (!el) return;
   const num = (s, d) => { const v = parseFloat(card.querySelector(s).value); return isFinite(v) ? v : d; };
-  let rr = num(".ev-rr", 2), ci = num(".ev-ci", 1.4);
+  const m = _evMeasure(card);
+  let rr = _toRR(num(".ev-rr", 2), m), ci = _toRR(num(".ev-ci", 1.4), m);   // OR/HR → approx RR
   rr = (rr > 0 && rr < 1) ? 1 / rr : rr;                 // E-value is symmetric
   ci = (ci > 0 && ci < 1) ? 1 / ci : ci;
   const eu = num(".ev-eu", 2), ud = num(".ev-ud", 2);
@@ -532,7 +545,10 @@ function initEvaluePlay() {
   const card = document.getElementById("evalueCard"); if (!card) return;
   if (!evaluePlayReady) {
     evaluePlayReady = true;
-    card.querySelectorAll("input").forEach((inp) => inp.addEventListener("input", () => { _evRecompute(card); drawEvalueChart(card); }));
+    card.querySelectorAll("input, select").forEach((inp) => {
+      const redraw = () => { _evRecompute(card); drawEvalueChart(card); };
+      inp.addEventListener("input", redraw); inp.addEventListener("change", redraw);
+    });
   }
   _evRecompute(card); drawEvalueChart(card);
 }

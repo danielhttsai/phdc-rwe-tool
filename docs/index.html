@@ -5278,10 +5278,17 @@ mean(d1 - d0)                                  <span class="cm"># transported ta
   <!-- ===================== E-value ② 互動講解 ===================== -->
   <section id="evalueplay" class="panel">
     <h1 data-en="② Interactive: compute the E-value &amp; test a hypothetical confounder">② 互動：算 E-value，並測試一個假想混淆</h1>
-    <p class="lead" data-en="Type in the effect you got (as a risk ratio) and the CI limit nearest 1. The curve shows every confounder strength (associated with exposure on the x-axis, with the outcome on the y-axis) that would be <b>just strong enough</b> to push your estimate — or your CI — to the null. The E-value ◆ is where that curve meets the diagonal. Then drag the sliders to drop a hypothetical confounder onto the plot and see if it lands above the line (overturns) or below (your result survives).">把你算到的效果（風險比 RR）與信賴區間靠近 1 的那端填進去。曲線畫出「剛好強到能把你的估計（或 CI）推到虛無」的所有混淆強度（與暴露的關聯在 x 軸、與結果的關聯在 y 軸）。E-value ◆ 就在曲線與對角線相交處。再拖滑桿放一個假想混淆到圖上，看它落在線上方（翻盤）還是下方（結果存活）。</p>
+    <p class="lead" data-en="Pick your effect measure (RR, or an OR/HR — rare- vs common-outcome handled for you), then type in the effect and the CI limit nearest 1. The curve shows every confounder strength (associated with exposure on the x-axis, with the outcome on the y-axis) that would be <b>just strong enough</b> to push your estimate — or your CI — to the null. The E-value ◆ is where that curve meets the diagonal. Then drag the sliders to drop a hypothetical confounder onto the plot and see if it lands above the line (overturns) or below (your result survives).">先選效果量類型（RR，或 OR／HR——常見／罕見結果會自動換算），再把你算到的效果與信賴區間靠近 1 的那端填進去。曲線畫出「剛好強到能把你的估計（或 CI）推到虛無」的所有混淆強度（與暴露的關聯在 x 軸、與結果的關聯在 y 軸）。E-value ◆ 就在曲線與對角線相交處。再拖滑桿放一個假想混淆到圖上，看它落在線上方（翻盤）還是下方（結果存活）。</p>
     <div class="card scene evalue-card" id="evalueCard">
       <div class="ev-inputs">
-        <label data-en="Observed effect (risk ratio)">觀察到的效果（風險比 RR）<input type="number" class="ev-rr" step="0.05" min="0.05" value="2.0"></label>
+        <label data-en="Effect measure">效果量類型
+          <select class="ev-measure">
+            <option value="rr" data-en="RR / rare-outcome OR or HR">RR／罕見結果的 OR·HR</option>
+            <option value="or" data-en="OR (common outcome)">OR（常見結果）</option>
+            <option value="hr" data-en="HR (common outcome)">HR（常見結果）</option>
+          </select>
+        </label>
+        <label data-en="Observed effect">觀察到的效果<input type="number" class="ev-rr" step="0.05" min="0.05" value="2.0"></label>
         <label data-en="CI limit nearest 1">信賴區間靠近 1 的那端<input type="number" class="ev-ci" step="0.05" min="0.05" value="1.4"></label>
       </div>
       <p class="ev-out"></p>
