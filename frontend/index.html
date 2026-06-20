@@ -300,6 +300,7 @@
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for IV (2SLS)">程式（SAS · R · Stata）：工具變數 IV（2SLS）的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Angrist, Imbens &amp; Rubin (1996); package/proc: SAS <code>PROC SYSLIN</code>, R <code>AER::ivreg</code> (Kleiber &amp; Zeileis 2008), Stata <code>ivregress</code>. See the References tab; cross-checked against Harvard Causalab.">出處 — 方法：Angrist、Imbens &amp; Rubin（1996）；套件／程序：SAS <code>PROC SYSLIN</code>、R <code>AER::ivreg</code>（Kleiber &amp; Zeileis 2008）、Stata <code>ivregress</code>。詳見參考文獻分頁；並對照 Harvard Causalab。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=AER" target="_blank" rel="noopener">AER</a> · <a href="https://hsph.harvard.edu/research/causalab/software-2/" target="_blank" rel="noopener">Harvard Causalab</a></p>
     <p class="lead" data-en="Two procedures do the work: check the instrument is strong, then run two-stage least squares with the instrument standing in for the treatment.">兩個程序就夠：先確認工具夠強，再用兩階段最小平方（2SLS）讓工具頂替治療。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to analysis-ready">步驟 0 — 從縱貫（長格式）資料整理成可分析格式</h3>
@@ -893,6 +894,7 @@ estat endogenous                         <span class="cm">// Wu–Hausman test</
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for RDD">程式（SAS · R · Stata）：斷點回歸 RDD 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Imbens &amp; Lemieux (2008); Cattaneo, Idrobo &amp; Titiunik (2020) practical guide; package: <code>rdrobust</code> (Calonico, Cattaneo &amp; Titiunik 2014/2017) in R &amp; Stata.">出處 — 方法：Imbens &amp; Lemieux（2008）；Cattaneo、Idrobo &amp; Titiunik（2020）實作指南；套件：R 與 Stata 的 <code>rdrobust</code>（Calonico、Cattaneo &amp; Titiunik 2014/2017）。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=rdrobust" target="_blank" rel="noopener">rdrobust</a></p>
     <p class="lead" data-en="Restrict to a window around the cutoff, centre the running variable, and fit a local linear regression with an interaction; the jump at the cutoff is the effect.">把資料限制在斷點附近的視窗、把跑分變數置中，再配帶交互作用的局部線性迴歸；斷點處的跳幅就是效應。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to analysis-ready">步驟 0 — 從縱貫（長格式）資料整理成可分析格式</h3>
@@ -1403,6 +1405,7 @@ rdrobust Y age, c(65) fuzzy(D)
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for DiD">程式（SAS · R · Stata）：差異中的差異 DiD 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Callaway &amp; Sant'Anna (2021) for staggered adoption; packages: R <code>fixest</code> (Bergé 2018) &amp; <code>did</code>, Stata <code>didregress</code> / two-way FE.">出處 — 方法：Callaway &amp; Sant'Anna（2021，交錯採用）；套件：R 的 <code>fixest</code>（Bergé 2018）與 <code>did</code>、Stata 的 <code>didregress</code>／雙向固定效果。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=fixest" target="_blank" rel="noopener">fixest</a> · <a href="https://cran.r-project.org/package=did" target="_blank" rel="noopener">did</a></p>
     <p class="lead" data-en="One regression with a treat×post interaction gives the DiD/ATT; cluster-robust standard errors by unit; an event study checks parallel trends.">一條帶 treat×post 交互作用的迴歸就給出 DiD／ATT；用單位做群集穩健標準誤；事件研究檢查平行趨勢。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to analysis-ready">步驟 0 — 從縱貫（長格式）資料整理成可分析格式</h3>
@@ -1715,6 +1718,7 @@ marginsplot
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Trend-in-Trend">程式（SAS · R · Stata）：趨勢中的趨勢 TiT 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Ji, Small, et al. — the trend-in-trend design; package: R <code>TrendInTrend</code>; SAS <code>PROC NLMIXED</code> for the exposure-conditional likelihood.">出處 — 方法：Ji、Small 等提出的 trend-in-trend 設計；套件：R 的 <code>TrendInTrend</code>；SAS 以 <code>PROC NLMIXED</code> 配適暴露條件概似。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=TrendInTrend" target="_blank" rel="noopener">TrendInTrend</a></p>
     <p class="lead" data-en="There is no canned SAS procedure: aggregate to time × CPE-stratum cells, then maximise a binomial likelihood with PROC NLMIXED; the causal odds ratio is exp(β₁).">SAS 沒有現成程序：先把資料聚合成「時間 × 累積暴露機率層」的細格，再用 PROC NLMIXED 最大化二項概似；因果勝算比＝exp(β₁)。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b> only — TiT has no built-in SAS proc; NLMIXED maximises the likelihood by hand.">僅<b>關鍵步驟</b>示意，TiT 沒有內建 SAS 程序，靠 NLMIXED 自行最大化概似。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to analysis-ready">步驟 0 — 從縱貫（長格式）資料整理成可分析格式</h3>
@@ -2044,6 +2048,7 @@ glm n_out i.cpe_stratum period, family(binomial n) link(logit) eform
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for ITS">程式（SAS · R · Stata）：中斷時間序列 ITS 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Wagner et al. (2002) segmented regression; Bernal, Cummins &amp; Gasparrini (2017); tools: SAS <code>PROC AUTOREG</code>, R <code>nlme::gls</code> (AR1), Stata <code>itsa</code> (Linden 2015) / <code>prais</code>.">出處 — 方法：Wagner 等（2002）分段迴歸；Bernal、Cummins &amp; Gasparrini（2017）；工具：SAS <code>PROC AUTOREG</code>、R <code>nlme::gls</code>（AR1）、Stata <code>itsa</code>（Linden 2015）／<code>prais</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=nlme" target="_blank" rel="noopener">nlme</a></p>
     <p class="lead" data-en="Build a step and a post-slope term, then fit a segmented regression that models residual autocorrelation (PROC AUTOREG).">做出「水準階」與「介入後斜率」兩個項，再用能處理殘差自相關的分段迴歸（PROC AUTOREG）。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to analysis-ready">步驟 0 — 從縱貫（長格式）資料整理成可分析格式</h3>
@@ -2630,6 +2635,7 @@ lincom 1.group#1.period, irr        // PERR with 95% CI
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Clone-Censor-Weight">程式（SAS · R · Stata）：複製-設限-加權 CCW 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Hernán &amp; Robins target-trial emulation; Maringe et al. (2020) clone-censor-weight tutorial; IPCW via pooled logistic. Cross-checked against Harvard Causalab.">出處 — 方法：Hernán &amp; Robins 目標試驗模擬；Maringe 等（2020）clone-censor-weight 教學；以 pooled logistic 計算 IPCW。並對照 Harvard Causalab。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://hsph.harvard.edu/research/causalab/software-2/" target="_blank" rel="noopener">Harvard Causalab</a></p>
     <p class="lead" data-en="Clone each person into both strategy arms, censor a clone when it deviates, fit a pooled-logistic IPCW model for that artificial censoring, then a weighted survival analysis.">把每個人複製到兩個策略臂、偏離時設限、用 pooled-logistic 配 IPCW，再做加權存活分析。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal dispensings to one row per person">步驟 0 — 從縱貫的領藥紀錄整理成每人一列</h3>
@@ -2906,6 +2912,7 @@ stcox i.arm, vce(cluster pid)
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for case-crossover / CCTC">程式（SAS · R · Stata）：案例交叉與時間對照 CCTC 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Maclure (1991) case-crossover; Suissa (1995) case-time-control; estimation: conditional logistic (R <code>survival::clogit</code>, Stata <code>clogit</code>).">出處 — 方法：Maclure（1991）案例交叉；Suissa（1995）案例-時間-對照；估計：條件邏輯斯（R <code>survival::clogit</code>、Stata <code>clogit</code>）。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">survival</a></p>
     <p class="lead" data-en="Conditional logistic with each person as their own stratum gives the case-crossover OR; dividing by a control series' OR removes the exposure time trend (CCTC).">以「每個人一個分層」的條件 logistic 得到案例交叉 OR；再除以對照序列的 OR 扣掉暴露的時間趨勢（CCTC）。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to within-person windows">步驟 0 — 從縱貫資料整理成個人內的時窗</h3>
@@ -3116,6 +3123,7 @@ clogit y exposed if !case, group(pid)
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Sequential trials">程式（SAS · R · Stata）：序列試驗 Seq 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Hernán et al. / Danaei et al. (2013) sequential trial emulation; estimation: pooled / stratified survival with person-cluster-robust SE.">出處 — 方法：Hernán 等／Danaei 等（2013）序列試驗模擬；估計：合併／分層存活，個人群集穩健標準誤。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">survival</a></p>
     <p class="lead" data-en="Stack one emulated trial per eligibility time (resetting time zero), then fit a stratified survival model with person-cluster-robust SEs (people re-enter several trials).">每個資格時點堆疊一場模擬試驗（時間零點歸零），再配分層存活模型、用個人叢集穩健標準誤（同一人可重複收案）。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to one row per person">步驟 0 — 從縱貫資料整理成每人一列</h3>
@@ -3349,6 +3357,7 @@ stcox initiate age frailty, strata(trial) vce(cluster pid)
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Case-control">程式（SAS · R · Stata）：病例對照 CC 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Breslow &amp; Day (1980); estimation: conditional logistic for matched, unconditional logistic otherwise (R <code>clogit</code>/<code>glm</code>, Stata <code>clogit</code>/<code>logistic</code>).">出處 — 方法：Breslow &amp; Day（1980）；估計：配對用條件邏輯斯、否則一般邏輯斯（R <code>clogit</code>/<code>glm</code>、Stata <code>clogit</code>/<code>logistic</code>）。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">survival</a></p>
     <p class="lead" data-en="For a matched study, conditional logistic (stratified by matched set) gives the adjusted odds ratio; unmatched, plain logistic with covariates.">配對研究用條件 logistic（以配對組分層）得校正勝算比；非配對則用帶共變項的一般 logistic。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to cases + controls">步驟 0 — 從縱貫資料整理成病例＋對照</h3>
@@ -3805,6 +3814,7 @@ quit;
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for SCCS">程式（SAS · R · Stata）：自身對照病例系列 SCCS 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method &amp; package: Farrington, Whitaker &amp; Ghebremichael-Weldeselassie — the R <code>SCCS</code> package &amp; Whitaker et al. (2006) tutorial; conditional Poisson via <code>gnm</code> / Stata <code>xtpoisson, fe</code>.">出處 — 方法與套件：Farrington、Whitaker &amp; Ghebremichael-Weldeselassie 的 R <code>SCCS</code> 套件與 Whitaker 等（2006）教學；條件 Poisson 用 <code>gnm</code>／Stata <code>xtpoisson, fe</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=SCCS" target="_blank" rel="noopener">SCCS</a> · <a href="https://cran.r-project.org/package=gnm" target="_blank" rel="noopener">gnm</a></p>
     <p class="lead" data-en="Split each case's follow-up into exposure and age intervals, then fit a conditional Poisson with the person as the stratum; the exposure-group coefficient is the incidence rate ratio.">把每個 case 的追蹤切成暴露與年齡分段，再以「人」為分層配條件 Poisson；暴露組係數即相對速率（IRR）。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b> — the official SCCS.sas / Poisreg.sas macros (sccs-studies.info) implement this fully."><b>關鍵步驟</b>示意，官方 SCCS.sas／Poisreg.sas 巨集（sccs-studies.info）有完整實作。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal records to cases with key day-numbers">步驟 0 — 從縱貫紀錄整理成「帶關鍵天數」的 case</h3>
@@ -4023,6 +4033,7 @@ clogit nevents i.expgr i.agegr, group(pid) offset(loginterval)
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for ACNU">程式（SAS · R · Stata）：主動對照新使用者 ACNU 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Lund, Richardson &amp; Stürmer (2015) active-comparator new-user; packages: R <code>MatchIt</code>/<code>WeightIt</code>, Stata <code>teffects</code>/<code>psmatch2</code>.">出處 — 方法：Lund、Richardson &amp; Stürmer（2015）主動對照新使用者；套件：R <code>MatchIt</code>/<code>WeightIt</code>、Stata <code>teffects</code>/<code>psmatch2</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=MatchIt" target="_blank" rel="noopener">MatchIt</a> · <a href="https://cran.r-project.org/package=WeightIt" target="_blank" rel="noopener">WeightIt</a></p>
     <p class="lead" data-en="Restrict to new users of A vs an active comparator B, estimate a propensity score, then weight (or match) and fit the outcome model for the A-vs-B effect.">限制在 A 的新使用者 vs 主動對照藥 B 的新使用者，估傾向分數，再加權（或配對）配結果模型，得 A 相對 B 的效應。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal claims to a new-user cohort">步驟 0 — 從縱貫處方紀錄整理成新使用者世代</h3>
@@ -4234,6 +4245,7 @@ stcox drugA [pweight=iptw], vce(robust)  <span class="cm">// IPTW-weighted hazar
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for PNU">程式（SAS · R · Stata）：盛行新使用者 PNU 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Suissa, Moodie &amp; Dell'Aniello (2017) prevalent new-user; time-conditional PS + matching (R <code>MatchIt</code>, Stata <code>teffects</code>).">出處 — 方法：Suissa、Moodie &amp; Dell'Aniello（2017）盛行新使用者；時間條件 PS＋配對（R <code>MatchIt</code>、Stata <code>teffects</code>）。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=MatchIt" target="_blank" rel="noopener">MatchIt</a></p>
     <p class="lead" data-en="Bring prevalent users back by matching on time-since-start: a time-conditional propensity score, then match within time-since-start bands, then the outcome model.">用「距起始時間」把盛行使用者納回來：算時間條件傾向分數，在距起始時間分層內配對，再配結果模型。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal claims to time-since-start">步驟 0 — 從縱貫處方算出「距起始時間」</h3>
@@ -4464,6 +4476,7 @@ stcox drugA, strata(tss_band)                             // A-vs-B HR, time-con
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Negative Control / Proximal">程式（SAS · R · Stata）：陰性對照與近端因果 NC 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Lipsitch, Tchetgen Tchetgen &amp; Cohen (2010) negative controls; Tchetgen Tchetgen et al. proximal causal inference; package: R <code>pci2s</code>.">出處 — 方法：Lipsitch、Tchetgen Tchetgen &amp; Cohen（2010）陰性對照；Tchetgen Tchetgen 等的近端因果；套件：R <code>pci2s</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=pci2s" target="_blank" rel="noopener">pci2s</a></p>
     <p class="lead" data-en="First a falsification regression (A on the negative-control outcome should be ~0); then proximal two-stage least squares using the negative-control pair to correct for unmeasured confounding.">先做偽陽性查核（A 對陰性對照結果應 ~0）；再用陰性對照對做近端兩階段最小平方（P2SLS）校正未測混淆。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal records to one analysis row per person">步驟 0 — 從縱貫紀錄整理成每人一列</h3>
@@ -4689,6 +4702,7 @@ estat firststage          <span class="cm">* check proxy (Z) strength</span>
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for mediation analysis">程式（SAS · R · Stata）：中介分析的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: VanderWeele (2015); Valeri &amp; VanderWeele (2013) SAS/SPSS macro; packages: R <code>mediation</code> (Tingley et al. 2014), <code>CMAverse</code>/<code>regmedint</code>.">出處 — 方法：VanderWeele（2015）；Valeri &amp; VanderWeele（2013）SAS/SPSS 巨集；套件：R <code>mediation</code>（Tingley 等 2014）、<code>CMAverse</code>/<code>regmedint</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=mediation" target="_blank" rel="noopener">mediation</a> · <a href="https://bs1125.github.io/CMAverse/" target="_blank" rel="noopener">CMAverse</a></p>
     <p class="lead" data-en="SAS has a built-in causal mediation procedure (PROC CAUSALMED) that fits the mediator and outcome models, handles the exposure-mediator interaction, and reports the natural direct/indirect effects and proportion mediated.">SAS 內建因果中介程序 <code>PROC CAUSALMED</code>，會配中介與結果模型、處理暴露–中介交互，並回報自然直接／間接效果與被中介比例。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal records to one analysis row per person">步驟 0 — 從縱貫紀錄整理成每人一列</h3>
@@ -4891,6 +4905,7 @@ medsens(m)
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for propensity scores">程式（SAS · R · Stata）：傾向分數的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Rosenbaum &amp; Rubin (1983); packages: R <code>MatchIt</code> (Ho et al.), <code>WeightIt</code>, <code>cobalt</code> (Greifer), Stata <code>teffects</code>/<code>psmatch2</code> (Leuven &amp; Sianesi). Also Nancy Cook's BWH SAS/R macros.">出處 — 方法：Rosenbaum &amp; Rubin（1983）；套件：R <code>MatchIt</code>（Ho 等）、<code>WeightIt</code>、<code>cobalt</code>（Greifer）、Stata <code>teffects</code>/<code>psmatch2</code>（Leuven &amp; Sianesi）。另參 Nancy Cook（BWH）SAS/R 巨集。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=MatchIt" target="_blank" rel="noopener">MatchIt</a> · <a href="https://cran.r-project.org/package=WeightIt" target="_blank" rel="noopener">WeightIt</a> · <a href="https://cran.r-project.org/package=cobalt" target="_blank" rel="noopener">cobalt</a> · <a href="http://ncook.bwh.harvard.edu/sas-macros.html" target="_blank" rel="noopener">Cook BWH macros</a></p>
     <p class="lead" data-en="SAS has two built-in procedures: PROC PSMATCH estimates the propensity score and does matching / weighting / balance diagnostics; PROC CAUSALTRT gives the IPTW (or doubly-robust) treatment effect directly.">SAS 內建兩個程序：<code>PROC PSMATCH</code> 估傾向分數並做配對／加權／平衡診斷；<code>PROC CAUSALTRT</code> 直接給 IPTW（或雙重穩健）的處置效應。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal records to one analysis row per person">步驟 0 — 從縱貫紀錄整理成每人一列</h3>
@@ -5096,6 +5111,7 @@ glm Y A [pw=wt], family(binomial) vce(robust)        <span class="cm">// weighte
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="SAS / R code: the key steps for TMLE &amp; AIPW">程式（SAS · R · Stata）：TMLE 與 AIPW 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: van der Laan &amp; Rose (Targeted Learning); packages: R <code>tmle</code>/<code>AIPW</code> + <code>SuperLearner</code>, Stata <code>eltmle</code> (Luque-Fernandez) / <code>teffects aipw</code>.">出處 — 方法：van der Laan &amp; Rose（Targeted Learning）；套件：R <code>tmle</code>/<code>AIPW</code>＋<code>SuperLearner</code>、Stata <code>eltmle</code>（Luque-Fernandez）／<code>teffects aipw</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=tmle" target="_blank" rel="noopener">tmle</a> · <a href="https://cran.r-project.org/package=AIPW" target="_blank" rel="noopener">AIPW</a> · <a href="https://cran.r-project.org/package=SuperLearner" target="_blank" rel="noopener">SuperLearner</a></p>
     <p class="lead" data-en="SAS's PROC CAUSALTRT gives the doubly-robust AIPW estimate directly; full TMLE with a Super Learner is most idiomatic in R's tmle / ltmle packages.">SAS 的 <code>PROC CAUSALTRT</code> 直接給雙重穩健 AIPW；完整的 TMLE＋Super Learner 在 R 的 <code>tmle</code>／<code>ltmle</code> 套件最道地。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — one analysis row per person (pre-treatment covariates)">步驟 0 — 每人一列（治療前共變項）</h3>
@@ -5253,6 +5269,7 @@ eltmle Y A X, tmle           <span class="cm">// targeting + SuperLearner ensemb
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="SAS / R code: the key steps for g-methods">程式（SAS · R · Stata）：g-methods 的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Robins; Hernán &amp; Robins <i>Causal Inference: What If</i>; packages: R <code>gfoRmula</code>/<code>ipw</code>, Stata <code>gformula</code> (Daniel &amp; De Stavola). Cross-checked against Harvard Causalab.">出處 — 方法：Robins；Hernán &amp; Robins《Causal Inference: What If》；套件：R <code>gfoRmula</code>/<code>ipw</code>、Stata <code>gformula</code>（Daniel &amp; De Stavola）。並對照 Harvard Causalab。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=gfoRmula" target="_blank" rel="noopener">gfoRmula</a> · <a href="https://cran.r-project.org/package=ipw" target="_blank" rel="noopener">ipw</a> · <a href="https://hsph.harvard.edu/research/causalab/software-2/" target="_blank" rel="noopener">Harvard Causalab</a></p>
     <p class="lead" data-en="g-methods need data in LONG form (one row per person-time). SAS has the %gformula macro and PROC CAUSALTRT for IPTW; R's ipw + survey fit a marginal structural model, and gfoRmula / ltmle do the g-formula and longitudinal TMLE.">g-methods 需要<b>長表</b>（每人每時點一列）。SAS 有 <code>%gformula</code> 巨集與 <code>PROC CAUSALTRT</code>（IPTW）；R 的 <code>ipw</code>＋<code>survey</code> 配邊際結構模型，<code>gfoRmula</code>／<code>ltmle</code> 做 g-formula 與縱貫 TMLE。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — reshape to person-time long form">步驟 0 — 整理成「每人每時點」長表</h3>
@@ -5584,6 +5601,7 @@ nlcom 1 - exp(_b[1.vaccinated])          <span class="cm">// VE = 1 - OR, with 9
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="SAS / R code: the key steps for sequence symmetry analysis">程式（SAS · R · Stata）：處方順序對稱分析的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method: Hallas (1996) sequence symmetry; Pratt et al. (2018) tutorial; package: R <code>SSA</code> / <code>SSAcox</code>.">出處 — 方法：Hallas（1996）序列對稱；Pratt 等（2018）教學；套件：R <code>SSA</code>／<code>SSAcox</code>。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=SSA" target="_blank" rel="noopener">SSA</a></p>
     <p class="lead" data-en="PSSA is mostly counting: among new users of <b>both</b> drugs, count A-then-B vs B-then-A, then divide the crude SR by a trend-only SRnull. The estimator is a ratio, so the &quot;code&quot; is data-step counting plus a closed-form CI.">PSSA 主要是計數：在<b>兩種藥都首次使用</b>的人裡，數「先 A 後 B」與「先 B 後 A」，再把未校正 SR 除以「只有趨勢」的 SRnull。估計式是個比值，所以「程式」就是資料步驟的計數加上閉式 CI。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — new users of both drugs; first-ever start dates">步驟 0 — 兩藥的新使用者；各自首次起始日</h3>
@@ -5766,6 +5784,7 @@ di "aSR=" aSR "  95% CI " lo ", " hi
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for the tree-based scan statistic">程式（SAS · R · Stata）：樹狀掃描統計的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — software: Kulldorff's <i>TreeScan</i> (Kulldorff et al. 2003); SAS/Stata only prepare the tree/case files &amp; call the batch — verify against the TreeScan user guide.">出處 — 軟體：Kulldorff 的 <i>TreeScan</i>（Kulldorff 等 2003）；SAS/Stata 僅負責準備樹／案例檔並呼叫批次——請對照 TreeScan 使用手冊。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://www.treescan.org/" target="_blank" rel="noopener">TreeScan</a></p>
     <p class="lead" data-en="TreeScan is most naturally run from R (the <code>TreeScan</code> engine, or the <code>TreeMineR</code> package): define the outcome tree, supply per-subject node + exposure, and let the scan compute the max-LLR with a Monte-Carlo permutation p. The mechanics are a likelihood-ratio scan over nodes plus a permutation null.">TreeScan 最自然是從 R 跑（<code>TreeScan</code> 引擎，或 <code>TreeMineR</code> 套件）：定義結果樹、給每個個體的節點＋暴露，讓掃描算出最大 LLR 與蒙地卡羅排列 p。機制就是「節點上的概似比掃描＋排列虛無」。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own tree / dataset.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；樹／資料集請換成你自己的。</div>
     <div data-lang="r" class="card"><h3 data-en="Step 0 — define the outcome tree (cuts) and the case file">步驟 0 — 定義結果樹（節點階層）與案例檔</h3>
@@ -5946,6 +5965,7 @@ list node llr p_value if p_value &lt; 0.05            <span class="cm">// the FW
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for weighted cumulative exposure">程式（SAS · R · Stata）：加權累積暴露的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — method &amp; package: Sylvestre &amp; Abrahamowicz (2009) — the R <code>WCE</code> package; SAS/Stata reproduce it with spline-weighted time-dependent Cox (<code>PROC PHREG</code> / <code>stcox</code>).">出處 — 方法與套件：Sylvestre &amp; Abrahamowicz（2009）的 R <code>WCE</code> 套件；SAS/Stata 以樣條加權的時間相依 Cox（<code>PROC PHREG</code>／<code>stcox</code>）重現。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=WCE" target="_blank" rel="noopener">WCE</a></p>
     <p class="lead" data-en="WCE is run most naturally from R with the <code>WCE</code> package (Sylvestre &amp; Abrahamowicz): supply a long, person-time table with the time-varying dose, and it fits a Cox model whose weight function is a B-spline, returning the estimated weight curve and the effect.">WCE 最自然是從 R 用 <code>WCE</code> 套件（Sylvestre &amp; Abrahamowicz）跑：給一張長格式的「人 × 時間」表、帶時變劑量，它就配一個權重函數為 B-樣條的 Cox 模型，回傳估出的權重曲線與效果。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="r" class="card"><h3 data-en="Step 0 — long person-time data with the time-varying dose">步驟 0 — 帶時變劑量的長格式人-時間資料</h3>
@@ -6234,6 +6254,7 @@ regress Y A [pweight = iosw] if in_trial == 1, vce(robust)
     <h1 data-en="③ Compute it from your own results">③ 從你自己的結果算出來</h1>
     <p class="lead" data-en="The E-value needs nothing but your reported effect and its confidence interval — no raw data. Report both the point-estimate E-value and the CI-limit E-value.">E-value 不需要原始資料，只要你報告的效果與信賴區間就能算，把「點估計的 E-value」和「CI 端點的 E-value」都報出來。</p>
     <p class="code-src" data-en="Sources — method: VanderWeele &amp; Ding (2017) E-value, Schneeweiss (2006) array approach; package: R <code>EValue</code> (Mathur et al.); the official evalue-calculator.com.">出處 — 方法：VanderWeele &amp; Ding（2017）E-value、Schneeweiss（2006）array approach；套件：R <code>EValue</code>（Mathur 等）；官方 evalue-calculator.com。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=EValue" target="_blank" rel="noopener">EValue</a> · <a href="https://www.evalue-calculator.com/evalue/" target="_blank" rel="noopener">E-value calculator</a></p>
     <div data-lang="r" class="card"><h3 data-en="R — the EValue package">R：EValue 套件</h3>
       <pre class="sas"><code><span class="cm"># install.packages("EValue")</span>
 library(EValue)
@@ -6511,6 +6532,7 @@ list alt closeness rank_topsis wsum rank_wsum, noobs sep(0)</code></pre>
     <h1 data-en="③ Doing it: calibrate, truth table, minimise">③ 實際做：校準、真值表、最小化</h1>
     <div class="card info"><h3 data-en="Steps">步驟</h3><p data-en="Choose conditions from theory; <b>calibrate</b> each (direct method: set the three anchors — 0.95 / 0.5 / 0.05); build the <b>truth table</b>; set a <b>consistency threshold</b> (commonly ≥ 0.8, with a frequency cutoff for case count); <b>logically minimise</b> to the conservative / intermediate / parsimonious solutions; report consistency &amp; coverage for each path; run robustness checks on the calibration and thresholds.">從理論挑條件；對每個<b>校準</b>（直接法：設三個錨點，0.95／0.5／0.05）；建<b>真值表</b>；設<b>一致性門檻</b>（常 ≥ 0.8，並對案例數設頻次門檻）；<b>布林最小化</b>得到保守／中間／精簡解；對每條路徑報一致性與覆蓋率；對校準與門檻做穩健性檢查。</p></div>
     <p class="code-src" data-en="Sources — method: Ragin (2008); packages: R <code>QCA</code> (Dusa 2019), Stata <code>fuzzy</code> (Longest &amp; Vaisey 2008), the fsQCA software (Ragin &amp; Davey).">出處 — 方法：Ragin（2008）；套件：R <code>QCA</code>（Dusa 2019）、Stata <code>fuzzy</code>（Longest &amp; Vaisey 2008）、fsQCA 軟體（Ragin &amp; Davey）。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=QCA" target="_blank" rel="noopener">QCA</a></p>
     <div data-lang="r" class="card"><h3 data-en="Software">軟體</h3>
       <pre class="sas"><code><span class="cm"># R: the QCA package (Dusa) + SetMethods for robustness</span>
 library(QCA)
@@ -6635,6 +6657,7 @@ fuzzy fzA fzB fzC, outcome(fzY) ncut(1) consol(0.8) ///
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="R / SAS code: the key steps for an external-control analysis">程式（SAS · R · Stata）：外部對照分析的關鍵步驟</h2>
     <p class="code-src" data-en="Sources — guidance: ICH E10; methods: Pocock (1976), Schmidli et al. (2014) MAP prior; packages: R <code>RBesT</code> (Bayesian borrowing), PS-weighting.">出處 — 指引：ICH E10；方法：Pocock（1976）、Schmidli 等（2014）MAP prior；套件：R <code>RBesT</code>（貝氏借用）、PS 加權。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=RBesT" target="_blank" rel="noopener">RBesT</a></p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — stack the trial + external pool with an arm indicator">步驟 0 — 把試驗＋外部池疊起來，加一個臂別指標</h3>
       <pre class="sas"><code>data both; set trial(in=a) external(in=b);
@@ -7704,7 +7727,7 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
         <li data-en="<b>MAR</b> — sicker patients (higher <i>recorded</i> severity) get tested more, so missingness depends only on <i>observed</i> variables. MI is valid here — but only because you <i>assume</i> MAR holds."><b>MAR</b>：病重（<i>已記錄</i>的嚴重度較高）的人較常被檢驗，缺失只取決於<i>已觀察</i>的變數。此時 MI 有效，但前提是你<i>假設</i> MAR 成立。</li>
         <li data-en="<b>MNAR</b> — the sickest patients never come in, so whether a value is missing depends on the <i>unobserved</i> value itself. MI is now biased, and the M-value asks: how strong would this MNAR mechanism have to be to change the answer?"><b>MNAR</b>：最重的病人根本沒來，是否缺失取決於<i>沒被觀察到</i>的值本身。此時 MI 會偏；M-value 就問：這種 MNAR 機制要多強，才會改變答案？</li>
       </ul>
-      <p data-en="Why it matters: exactly like the E-value for unmeasured confounding, the M-value lets you keep using observational data rigorously while being explicit about an assumption you cannot verify (MAR). Report it next to your imputed estimate so a reader can judge how much work the MAR assumption is doing — rather than presenting a single imputed number as if missingness were solved. (Mathur 2023; see also discussion by Chou.)">為什麼重要：就像未測混淆的 E-value，M-value 讓你能嚴謹地繼續使用觀察資料，同時把一個無法驗證的假設（MAR）講清楚。把它和插補後的估計一起報，讀者就能判斷 MAR 假設到底承擔了多少，而不是把單一插補數字當成「缺失已解決」。（Mathur 2023；另見 Chou 的相關討論。）</p></div>
+      <p data-en="Why it matters: exactly like the E-value for unmeasured confounding, the M-value lets you keep using observational data rigorously while being explicit about an assumption you cannot verify (MAR). Report it next to your imputed estimate so a reader can judge how much work the MAR assumption is doing — rather than presenting a single imputed number as if missingness were solved. (Method: Mathur 2023; for an applied example, Chou et al. used the M-value in a study of SGLT2 inhibitors and liver outcomes.)">為什麼重要：就像未測混淆的 E-value，M-value 讓你能嚴謹地繼續使用觀察資料，同時把一個無法驗證的假設（MAR）講清楚。把它和插補後的估計一起報，讀者就能判斷 MAR 假設到底承擔了多少，而不是把單一插補數字當成「缺失已解決」。（方法：Mathur 2023；應用實例：Chou 等在 SGLT2i 與肝臟結局的研究中使用 M-value。）</p></div>
 
   </section>
 
@@ -7747,6 +7770,7 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code: multiple imputation (Rubin's rules)">程式：多重插補（Rubin 規則）</h2>
     <p class="code-src" data-en="Sources — method: Rubin (1987); van Buuren (2018); packages: SAS <code>PROC MI</code>/<code>MIANALYZE</code>, R <code>mice</code>, Stata <code>mi impute</code>; sensitivity: Mathur (2023) M-value.">出處 — 方法：Rubin（1987）；van Buuren（2018）；套件：SAS <code>PROC MI</code>/<code>MIANALYZE</code>、R <code>mice</code>、Stata <code>mi impute</code>；敏感度：Mathur（2023）M-value。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=mice" target="_blank" rel="noopener">mice</a></p>
     <p class="lead" data-en="The same three-step recipe — impute m≈20 datasets under MAR, analyse each, pool with Rubin's rules — in SAS, R and Stata.">同一套三步驟流程，在 MAR 下插補約 20 份資料集、各自分析、再用 Rubin 規則合併，分別用 SAS、R、Stata 寫出。</p>
     <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — PROC MI / MIANALYZE">SAS：PROC MI / MIANALYZE</h3>
@@ -7903,6 +7927,7 @@ mi estimate: regress Y A X
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code: random-effects meta-analysis">程式：隨機效果統合分析</h2>
     <p class="code-src" data-en="Sources — Cochrane Handbook (Higgins et al.); packages: R <code>metafor</code> (Viechtbauer 2010) / <code>meta</code>, Stata <code>meta</code>; SAS <code>PROC GLIMMIX</code> random-effects.">出處 — Cochrane Handbook（Higgins 等）；套件：R <code>metafor</code>（Viechtbauer 2010）／<code>meta</code>、Stata <code>meta</code>；SAS <code>PROC GLIMMIX</code> 隨機效果。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=metafor" target="_blank" rel="noopener">metafor</a> · <a href="https://cran.r-project.org/package=meta" target="_blank" rel="noopener">meta</a></p>
     <p class="lead" data-en="Pool log risk ratios across trials with a random-effects model, then quantify heterogeneity (I²/τ²) and probe small-study effects with a funnel plot and Egger's test.">用隨機效果模型把各試驗的 log 風險比合併，再量化異質性（I²／τ²），並用漏斗圖與 Egger 檢定檢查小研究效應。</p>
     <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — PROC GLIMMIX (random effects)">SAS：PROC GLIMMIX（隨機效果）</h3>
@@ -8104,6 +8129,7 @@ forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># fore
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code: network meta-analysis">程式：網路統合分析</h2>
     <p class="code-src" data-en="Sources — method: Salanti (2012); packages: R <code>netmeta</code> (Rücker &amp; Schwarzer) / <code>gemtc</code> / <code>BUGSnet</code>, Stata <code>network</code> (White); ranking via SUCRA / P-score.">出處 — 方法：Salanti（2012）；套件：R <code>netmeta</code>（Rücker &amp; Schwarzer）／<code>gemtc</code>／<code>BUGSnet</code>、Stata <code>network</code>（White）；排名用 SUCRA／P-score。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=netmeta" target="_blank" rel="noopener">netmeta</a> · <a href="https://cran.r-project.org/package=gemtc" target="_blank" rel="noopener">gemtc</a> · <a href="https://bugsnetsoftware.github.io/" target="_blank" rel="noopener">BUGSnet</a></p>
     <p class="lead" data-en="Build contrast/arm data, fit the network, check consistency (node-splitting), then rank treatments (P-score / SUCRA) — frequentist in R/Stata, Bayesian in SAS.">建立對比／臂別資料、配適網路、檢查一致性（node-splitting），再對治療排名（P-score／SUCRA），R／Stata 走頻率學派，SAS 走貝氏。</p>
     <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — PROC MCMC (Bayesian NMA)">SAS：PROC MCMC（貝氏 NMA）</h3>
@@ -8415,6 +8441,7 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code: estimating CATE with causal ML">程式：用因果機器學習估計 CATE</h2>
     <p class="code-src" data-en="Sources — packages: R <code>grf</code> (Athey, Tibshirani &amp; Wager 2019), Python <code>econml</code>/<code>causalml</code>, Stata <code>ddml</code> (Ahrens et al.); SAS has no first-class causal-ML library.">出處 — 套件：R <code>grf</code>（Athey、Tibshirani &amp; Wager 2019）、Python <code>econml</code>/<code>causalml</code>、Stata <code>ddml</code>（Ahrens 等）；SAS 無一線因果 ML 套件。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=grf" target="_blank" rel="noopener">grf</a> · <a href="https://econml.azurewebsites.net/" target="_blank" rel="noopener">EconML</a> · <a href="https://causalml.readthedocs.io/" target="_blank" rel="noopener">causalml</a> · <a href="https://statalasso.github.io/docs/ddml/" target="_blank" rel="noopener">ddml</a></p>
     <p class="lead" data-en="Cross-fit ML nuisances, then estimate heterogeneous effects (CATE) and a doubly-robust ATE — in R (grf/DoubleML), Python (econml/causalml) and Stata (ddml).">交叉擬合 ML 輔助模型，再估計異質效果（CATE）與雙重穩健 ATE，以 R（grf／DoubleML）、Python（econml／causalml）與 Stata（ddml）示範。</p>
     <div class="sas-note" data-en="Illustrative key steps — causal ML's native tools are R &amp; Python; Stata's ddml covers double-ML. SAS has no first-class causal-ML library, so it is omitted here.">教學用的關鍵步驟示意；因果 ML 的原生工具是 R 與 Python，Stata 以 ddml 支援雙重機器學習。SAS 沒有第一線的因果 ML 套件，故此處不列。</div>
     <div data-lang="r" class="card"><h3 data-en="R — grf / DoubleML">R：grf / DoubleML</h3>
