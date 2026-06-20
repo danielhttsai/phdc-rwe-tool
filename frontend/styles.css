@@ -275,6 +275,20 @@ main { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem; }
 .dp-table th { background: #f3f6fb; color: #334155; font-weight: 600; position: sticky; top: 0; }
 .dp-table tbody tr:nth-child(even) { background: #fafcff; }
 .dp-table td:first-child, .dp-table th:first-child { text-align: left; color: var(--muted); }
+/* ③ download the built-in sample dataset as CSV */
+.dl-csv { margin-top: .6rem; padding: .45rem .9rem; font-size: .88rem; font-weight: 600;
+  color: #fff; background: var(--teal, #1d6f57); border: none; border-radius: 8px; cursor: pointer; }
+.dl-csv:hover { filter: brightness(1.08); }
+.dl-csv:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }
+/* code-language switcher (SAS / R / Stata) above each ③ code section */
+.clang-switch { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem;
+  margin: .8rem 0 .9rem; }
+.clang-label { font-size: .9rem; color: var(--muted); margin-right: .2rem; }
+.clang-btn { padding: .32rem .9rem; font-size: .9rem; font-weight: 600; font-family: inherit;
+  color: #334155; background: #f3f6fb; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.clang-btn:hover { background: #e7eef9; }
+.clang-btn[aria-pressed="true"] { color: #fff; background: var(--teal, #1d6f57); border-color: var(--teal, #1d6f57); }
+.clang-btn:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }
 /* ④ E-value sensitivity card */
 .evalue-card { margin-top: 1.2rem; }
 .evalue-card h4 { margin: .8rem 0 .3rem; }

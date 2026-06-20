@@ -233,6 +233,7 @@ def _example() -> dict:
         "synthetic": True,
         "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "instrument": "vaccine_reminder（住在被隨機抽中、收到免費接種提醒的社區）",
             "treatment": "vaccinated（是否接種疫苗）",
@@ -257,6 +258,7 @@ def _upload(text: str) -> dict:
         "numeric_columns": numeric,
         "n": len(df),
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
     }
 
 
@@ -349,6 +351,7 @@ def _rdd_example() -> dict:
         "synthetic": True,
         "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "running": "age（年齡，跑分變數）",
             "cutoff": "65（滿 65 歲才有免費接種計畫資格）",
@@ -446,6 +449,7 @@ def _did_example() -> dict:
         "synthetic": True,
         "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "unit": "unit（社區／診區，固定追蹤的面板單位）",
             "period": "period（0–5 期，第 3 期起為政策後）",
@@ -521,6 +525,7 @@ def _tit_example() -> dict:
         "synthetic": True,
         "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "pid": "pid（個體 id，跨期追蹤）",
             "period": "period（0–9 季，新藥逐漸普及）",
@@ -561,6 +566,7 @@ def _its_example() -> dict:
         "columns": list(df.columns), "defaults": ITS_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "time": "time（期序，等間隔的月）",
             "post": "post（1＝介入後）",
@@ -618,6 +624,7 @@ def _perr_example() -> dict:
         "columns": list(df.columns), "defaults": PERR_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "group": "group（1＝之後用藥的處置組，0＝對照組）",
             "events_prior": "events_prior（事前期事件數）／pt_prior（人時）",
@@ -689,6 +696,7 @@ def _ccw_example(q: dict) -> dict:
         "columns": list(df.columns), "defaults": defaults, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": _CCW_STORY.get(sc, _CCW_STORY["grace"]),
     }
 
@@ -750,6 +758,7 @@ def _cctc_example() -> dict:
         "columns": list(df.columns), "defaults": CCTC_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "group": "group（1＝case 有急性事件，0＝對照族群）",
             "x_hazard": "x_hazard（事件前危險窗 W1 是否暴露）／x_ref（更早參考窗 W0 是否暴露）",
@@ -807,6 +816,7 @@ def _seq_example() -> dict:
         "columns": list(df.columns), "defaults": SEQ_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "init_month": "init_month（第幾個月啟動治療；空白＝追蹤期內未啟動）",
             "event": "event（是否發生事件）／futime（事件或追蹤結束月份）",
@@ -863,6 +873,7 @@ def _cc_example() -> dict:
         "columns": list(df.columns), "defaults": CC_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "case": "case（1＝病例 有結果，0＝對照 無結果）",
             "exposed": "exposed（過去是否有暴露）",
@@ -922,6 +933,7 @@ def _sccs_example() -> dict:
                      "event_day": "event_day", "risk_days": sccs_gen.RISK_DAYS},
         "n": len(df), "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "vacc_day": "vacc_day（接種日；危險窗＝其後 1–%d 天）" % sccs_gen.RISK_DAYS,
             "event_day": "event_day（急性事件發生日；只收有事件的 case）",
@@ -973,6 +985,7 @@ def _acnu_example() -> dict:
         "columns": list(df.columns), "defaults": ACNU_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "drug": "drug（A＝研究藥／B＝主動對照藥／none＝沒用藥）",
             "severity": "severity（疾病嚴重度；混淆因子）／comorbidity",
@@ -1026,6 +1039,7 @@ def _pnu_example() -> dict:
         "columns": list(df.columns), "defaults": PNU_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "drug": "drug（A＝研究藥／B＝對照藥）；prevalent（A 是否盛行使用者）",
             "time_since_start": "time_since_start（進入世代時的距起始月）／frailty（體質）",
@@ -1077,6 +1091,7 @@ def _nc_example() -> dict:
         "columns": list(df.columns), "defaults": NC_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "A": "A（接種 1／否 0）；Y（健康結果，連續）",
             "W": "W＝陰性對照結果 NCO（疫苗不可能影響、但與未測混淆 U 相關）",
@@ -1127,6 +1142,7 @@ def _med_example() -> dict:
         "columns": list(df.columns), "defaults": MED_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "A": "A（接種 1／否 0）；Y（感染風險分數，連續）",
             "M": "M＝中介（抗體效價）；疫苗的保護有多少透過 M？",
@@ -1179,6 +1195,7 @@ def _ps_example() -> dict:
         "columns": list(df.columns), "defaults": PS_DEFAULTS, "n": len(df),
         "synthetic": True, "disclaimer": DISCLAIMER,
         "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
         "story": {
             "A": "A（接種 1／否 0）",
             "Y": "Y（結果分數，連續）",
@@ -1228,6 +1245,7 @@ def _tmle_example() -> dict:
     df = tmle_gen.generate()
     return {"columns": list(df.columns), "defaults": TMLE_DEFAULTS, "n": len(df),
             "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
             "story": {"A": "A（接種 1／否 0）", "Y": "Y（結果分數，連續）",
                       "X": "X＝已測共變項（嚴重度）；對 Y 的影響為非線性（含 X²）＝適應症混淆＋模型設定挑戰"}}
 
@@ -1270,6 +1288,7 @@ def _gm_example() -> dict:
     df = gm_gen.generate()
     return {"columns": list(df.columns), "defaults": {}, "n": len(df),
             "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
             "story": {"A0/A1": "A₀、A₁（兩期是否用藥）", "L0/L1": "L₀、L₁（時變混淆：疾病活動度；L₁ 受 A₀ 影響）",
                       "Y": "Y（結果，連續；越高越糟）"}}
 
@@ -1310,6 +1329,7 @@ def _tnd_example() -> dict:
     df = tnd_gen.generate()
     return {"columns": list(df.columns), "defaults": {}, "n": len(df),
             "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
             "story": {"vaccinated": "接種 1／否 0", "tested": "是否因症狀就醫檢驗",
                       "case": "檢驗陽性＝目標病原 1／陰性＝其他病原 0（僅 tested 者）",
                       "infected": "真的得到目標病原（供未校正世代對照）"}}
@@ -1351,6 +1371,7 @@ def _pssa_example() -> dict:
     df = pssa_gen.generate()
     return {"columns": list(df.columns), "defaults": {}, "n": len(df),
             "synthetic": True, "disclaimer": DISCLAIMER, "preview": df.head(8).to_dict(orient="records"),
+        "csv": df.head(2000).to_csv(index=False),
             "story": {"t_index": "指標藥 A 起始月", "t_marker": "標記藥 B 起始月",
                       "index_first": "先 A 後 B＝1（不一致對的方向）"}}
 

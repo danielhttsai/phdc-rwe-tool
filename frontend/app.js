@@ -412,6 +412,50 @@ function autolinkMethods() {
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", autolinkMethods);
 else autolinkMethods();
 
+// ----------------------------------------------------------------------
+// Code-language switcher (SAS / R / Stata / Python). Every ③ code card is
+// tagged data-lang in index.html; this injects a per-section toggle bar above
+// the first code card and shows only the chosen language (with a graceful
+// fallback: if a section has no card for that language, all its code shows).
+// ----------------------------------------------------------------------
+const CLANG_LABELS = { sas: "SAS", r: "R", stata: "Stata", python: "Python" };
+const CLANG_ORDER = ["sas", "r", "stata", "python"];
+function applyCodeLang(lang) {
+  try { localStorage.setItem("phdc-clang", lang); } catch (e) {}
+  document.querySelectorAll(".clang-btn").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  document.querySelectorAll(".panel, section").forEach((sec) => {
+    const cards = sec.querySelectorAll(".card[data-lang]");
+    if (!cards.length) return;
+    const present = new Set(Array.from(cards, (c) => c.dataset.lang));
+    const has = present.has(lang);
+    cards.forEach((c) => { c.style.display = (!has || c.dataset.lang === lang) ? "" : "none"; });
+  });
+}
+function initCodeSwitchers() {
+  let saved = "sas";
+  try { saved = localStorage.getItem("phdc-clang") || "sas"; } catch (e) {}
+  document.querySelectorAll(".panel, section").forEach((sec) => {
+    const first = sec.querySelector(".card[data-lang]");
+    if (!first || sec.querySelector(".clang-switch")) return;
+    const present = new Set(Array.from(sec.querySelectorAll(".card[data-lang]"), (c) => c.dataset.lang));
+    if (present.size < 2) return;                       // only one language here — no toggle needed
+    const bar = document.createElement("div");
+    bar.className = "clang-switch";
+    bar.innerHTML =
+      `<span class="clang-label" data-en="Code language:">程式語言：</span>` +
+      CLANG_ORDER.filter((k) => present.has(k))
+        .map((k) => `<button type="button" class="clang-btn" data-lang="${k}">${CLANG_LABELS[k]}</button>`)
+        .join("");
+    first.parentNode.insertBefore(bar, first);
+    bar.querySelectorAll(".clang-btn").forEach((b) =>
+      b.addEventListener("click", () => applyCodeLang(b.dataset.lang)));
+  });
+  applyCodeLang(saved);
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initCodeSwitchers);
+else initCodeSwitchers();
+
 async function getJSON(url) {
   const r = await fetch(url);
   if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
@@ -464,7 +508,17 @@ async function renderDataPreview(method) {
   box.innerHTML =
     `<h3 class="dp-title">${tr("實際資料長什麼樣子（內建範例的前幾列）", "What the actual data looks like (first rows of the built-in example)")}</h3>` +
     `<div class="dp-scroll"><table class="dp-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>` +
-    `<p class="caption">${tr("每一列是一個觀測（人／人-時段）；下面就用這份資料跑分析。純屬合成的示範資料。", "Each row is one observation (person / person-period); the analysis below runs on exactly this data. Purely synthetic demo data.")}</p>`;
+    `<p class="caption">${tr("每一列是一個觀測（人／人-時段）；下面就用這份資料跑分析。純屬合成的示範資料。", "Each row is one observation (person / person-period); the analysis below runs on exactly this data. Purely synthetic demo data.")}</p>` +
+    (data.csv ? `<button type="button" class="dl-csv">⬇ ${tr("下載這份範例資料（CSV）", "Download this sample data (CSV)")}</button>` : "");
+  const dl = box.querySelector(".dl-csv");
+  if (dl) dl.addEventListener("click", () => {
+    const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `${method}_sample.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
 }
 
 // ----------------------------------------------------------------------
