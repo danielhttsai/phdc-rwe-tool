@@ -280,6 +280,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem; }
   color: #fff; background: var(--teal, #1d6f57); border: none; border-radius: 8px; cursor: pointer; }
 .dl-csv:hover { filter: brightness(1.08); }
 .dl-csv:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }
+/* provenance line under each ③ code header — cite the package/method so the code is trustworthy */
+.code-src { font-size: .82rem; line-height: 1.6; color: var(--muted); background: #f7f9fd;
+  border-left: 3px solid var(--teal, #1d6f57); border-radius: 0 6px 6px 0; padding: .5rem .75rem; margin: .2rem 0 .9rem; }
+.code-src code { font-size: .8em; }
 /* code-language switcher (SAS / R / Stata) above each ③ code section */
 .clang-switch { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem;
   margin: .8rem 0 .9rem; }
