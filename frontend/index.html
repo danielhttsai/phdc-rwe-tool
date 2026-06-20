@@ -6205,6 +6205,38 @@ evalues.RR(est = 2.0, lo = 1.4, hi = 2.9)
       <p data-en="For an odds ratio or hazard ratio of a <b>rare</b> outcome, treat it as an approximate RR. For a <b>common</b> outcome, an OR overstates the RR — use the dedicated <code>evalues.OR</code> / <code>evalues.HR</code> with the square-root correction.">罕見結果的勝算比或風險比可近似當 RR；常見結果的 OR 會高估 RR——改用 <code>evalues.OR</code>／<code>evalues.HR</code>（含平方根校正）。</p></div>
     <div class="card info"><h3 data-en="Worked example">範例</h3>
       <p data-en="Observed RR = 2.0 (95% CI 1.4–2.9). E-value for the estimate = 2.0 + √(2.0×1.0) = <b>3.41</b>: a confounder would need RR ≥ 3.41 with both exposure and outcome to fully explain it away. E-value for the lower CI limit (1.4) = <b>2.18</b>: weaker confounding (≥ 2.18 on both) could already erase significance. Report it as: &quot;the result is robust to unmeasured confounders unless one is associated with both exposure and outcome by RR ≥ 3.4.&quot;">觀察 RR ＝ 2.0（95% CI 1.4–2.9）。點估計 E-value ＝ 2.0 ＋ √(2.0×1.0) ＝ <b>3.41</b>：混淆要和暴露、結果各 RR ≥ 3.41 才解釋得掉。CI 下端（1.4）E-value ＝ <b>2.18</b>：較弱的混淆（兩端各 ≥ 2.18）就能抹掉顯著性。報告寫法：「除非有未測混淆和暴露、結果各關聯到 RR ≥ 3.4，否則結果穩健。」</p></div>
+    <div class="card"><h3 data-en="SAS — E-value &amp; array bias factor">SAS —— E-value 與 array 偏誤因子</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — QBA: E-value and Schneeweiss array adjustment */</span>
+DATA qba;
+  <span class="cm">/* observed RR and CI limit nearest 1 */</span>
+  RR = 2.0; RRci = 1.4;
+  <span class="cm">/* (a) E-value: E = RR + sqrt(RR*(RR-1)) */</span>
+  Eval   = RR   + sqrt(RR  *(RR  -1));
+  Evalci = RRci + sqrt(RRci*(RRci-1));
+  <span class="cm">/* (b) Schneeweiss array approach */</span>
+  ARR = 2.0; RRCD = 3.0; PC1 = 0.50; PC0 = 0.20;   <span class="cm">/* adj RR, confounder-disease RR, prev in exposed/unexposed */</span>
+  BF    = (1 + PC1*(RRCD-1)) / (1 + PC0*(RRCD-1));
+  RRadj = ARR / BF;
+RUN;
+PROC PRINT DATA=qba; VAR Eval Evalci BF RRadj; RUN;</code></pre>
+      <p data-en="A single DATA step: the E-value transform is applied to both the point estimate and the CI limit nearest the null; <code>BF</code> is the array-approach bias factor from confounder prevalences <code>PC1</code>/<code>PC0</code> and strength <code>RRCD</code>, and <code>RRadj = ARR / BF</code> is the bias-adjusted estimate.">一個 DATA step：E-value 變換同時套在點估計與最靠近虛無的 CI 端點上；<code>BF</code> 是由混淆盛行率 <code>PC1</code>／<code>PC0</code> 與強度 <code>RRCD</code> 算出的 array 偏誤因子，<code>RRadj = ARR / BF</code> 即校正後估計。</p></div>
+    <div class="card"><h3 data-en="Stata — E-value &amp; array bias factor">Stata —— E-value 與 array 偏誤因子</h3>
+      <pre class="sas"><code><span class="cm">* Stata — QBA: E-value and Schneeweiss array adjustment</span>
+* (a) E-value: E = RR + sqrt(RR*(RR-1))
+scalar RR   = 2.0
+scalar RRci = 1.4
+scalar Eval   = RR   + sqrt(RR  *(RR  -1))
+scalar Evalci = RRci + sqrt(RRci*(RRci-1))
+display "E-value est = " Eval "  CI = " Evalci
+* (b) Schneeweiss array approach
+scalar ARR = 2.0          // adjusted RR
+scalar RRCD = 3.0         // confounder-disease RR
+scalar PC1 = 0.50         // confounder prevalence in exposed
+scalar PC0 = 0.20         // confounder prevalence in unexposed
+scalar BF    = (1 + PC1*(RRCD-1)) / (1 + PC0*(RRCD-1))
+scalar RRadj = ARR / BF
+display "BF = " BF "  RRadj = " RRadj</code></pre>
+      <p data-en="Scalars and <code>display</code>: the E-value transform on the point estimate and the CI limit nearest 1, then the array-approach bias factor <code>BF</code> from <code>PC1</code>/<code>PC0</code> and <code>RRCD</code>, dividing <code>ARR</code> by <code>BF</code> to get <code>RRadj</code>.">用 scalar 與 <code>display</code>：先對點估計與最靠近 1 的 CI 端點做 E-value 變換，再由 <code>PC1</code>／<code>PC0</code> 與 <code>RRCD</code> 算出 array 偏誤因子 <code>BF</code>，以 <code>ARR</code> 除以 <code>BF</code> 得 <code>RRadj</code>。</p></div>
   </section>
 
   <!-- ===================== E-value ④ 假設檢驗 ===================== -->
@@ -6294,7 +6326,76 @@ library(MCDA)        <span class="cm"># weighted sum, TOPSIS, ELECTRE, PROMETHEE
 import pymcdm        <span class="cm"># pymcdm: TOPSIS, PROMETHEE, VIKOR, weighting methods</span>
 <span class="cm"># scikit-criteria is another well-documented Python option</span></code></pre>
       <p data-en="A worked, code-first example combining TOPSIS / PROMETHEE / ELECTRE with machine-learning inputs is the NTUA notebook collection (see references).">一個以程式為主、把 TOPSIS／PROMETHEE／ELECTRE 與機器學習輸入結合的完整範例，是 NTUA 的 notebook 集（見參考文獻）。</p></div>
-  </section>
+      <div class="card"><h3 data-en="SAS — weighted-sum / TOPSIS by hand">SAS —— 加權總和／TOPSIS 手算</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — MCDA: normalise, weight, rank */</span>
+<span class="cm">/* perf: rows = alternatives, cols = criteria (here all "benefit" criteria) */</span>
+<span class="cm">/* MCDA has no native SAS proc — this just reproduces the arithmetic in IML. */</span>
+PROC IML;
+  use perf;  read all var _NUM_ into X[colname=crit rowname=alt];  close perf;
+  w = {0.4 0.35 0.25};                          <span class="cm">/* criterion weights, sum to 1 */</span>
+  w = w / sum(w);
+
+  <span class="cm">/* --- vector normalisation: r_ij = x_ij / sqrt(sum_i x_ij^2) --- */</span>
+  norm = sqrt(X[##,]);                           <span class="cm">/* column-wise sqrt of sum of squares */</span>
+  R = X / norm;                                  <span class="cm">/* row-wise division (broadcast) */</span>
+  V = R # w;                                     <span class="cm">/* weighted normalised matrix */</span>
+
+  <span class="cm">/* --- TOPSIS ideal (best) and anti-ideal (worst) per criterion --- */</span>
+  Aplus  = V[&lt;:&gt;,];                              <span class="cm">/* column maxima (all benefit) */</span>
+  Aminus = V[&gt;:&lt;,];                              <span class="cm">/* column minima */</span>
+  dplus  = sqrt( ((V - Aplus )##2)[,+] );        <span class="cm">/* distance to ideal */</span>
+  dminus = sqrt( ((V - Aminus)##2)[,+] );        <span class="cm">/* distance to anti-ideal */</span>
+  C = dminus / (dplus + dminus);                 <span class="cm">/* closeness coefficient in [0,1] */</span>
+
+  ws = V[,+];                                    <span class="cm">/* simple weighted-sum score, for comparison */</span>
+  create scores var{alt C ws};  append;  close scores;
+QUIT;
+
+PROC RANK data=scores out=ranked descending ties=low;
+  var C ws;  ranks C_rank ws_rank;              <span class="cm">/* rank 1 = best */</span>
+RUN;
+PROC SORT data=ranked;  by C_rank;  RUN;
+PROC PRINT data=ranked;  RUN;</code></pre>
+      <p data-en="MCDA's native ecosystem is R/Python — SAS only reproduces the arithmetic. PROC IML does the matrix work: vector-normalise the performance matrix, multiply by the weights, then take either the weighted-sum score or the TOPSIS closeness coefficient (distance to the ideal vs anti-ideal); PROC RANK orders the alternatives. Cost-type criteria would be flipped (or their max/min swapped) beforehand.">MCDA 的原生生態系在 R／Python——SAS 只是重現算術。PROC IML 負責矩陣運算：把績效矩陣做向量正規化、乘上權重，再取加權總和分數、或 TOPSIS 接近度係數（到理想解與反理想解的距離）；PROC RANK 對選項排名。成本型準則要先反向（或交換其 max／min）。</p></div>
+    <div class="card"><h3 data-en="Stata — weighted-sum / TOPSIS by hand">Stata —— 加權總和／TOPSIS 手算</h3>
+      <pre class="sas"><code><span class="cm">* Stata — MCDA: normalise, weight, rank</span>
+<span class="cm">* No official MCDA command — done by hand. Data: one row per alternative,</span>
+<span class="cm">* string id `alt`, benefit criteria c1 c2 c3.</span>
+local crit "c1 c2 c3"
+matrix W = (0.40, 0.35, 0.25)               <span class="cm">// weights, sum to 1</span>
+
+<span class="cm">* --- vector normalisation: divide each column by sqrt(sum of squares) ---</span>
+local i = 0
+foreach v of local crit {
+    local ++i
+    quietly egen double ss_`v' = total(`v'^2)
+    quietly gen double r_`v' = `v' / sqrt(ss_`v')
+    local wgt = W[1,`i']
+    quietly gen double vv_`v' = r_`v' * `wgt'   <span class="cm">// weighted normalised value</span>
+}
+
+<span class="cm">* --- weighted-sum score ---</span>
+quietly egen double wsum = rowtotal(vv_*)
+
+<span class="cm">* --- TOPSIS: ideal (max) &amp; anti-ideal (min) of each weighted column ---</span>
+quietly gen double dplus  = 0
+quietly gen double dminus = 0
+foreach v of local crit {
+    quietly summarize vv_`v', meanonly
+    quietly replace dplus  = dplus  + (vv_`v' - r(max))^2
+    quietly replace dminus = dminus + (vv_`v' - r(min))^2
+}
+quietly replace dplus  = sqrt(dplus)
+quietly replace dminus = sqrt(dminus)
+gen double closeness = dminus / (dplus + dminus)   <span class="cm">// in [0,1]</span>
+
+<span class="cm">* --- rank: 1 = best (highest closeness / score) ---</span>
+egen rank_topsis = rank(-closeness)
+egen rank_wsum   = rank(-wsum)
+gsort rank_topsis
+list alt closeness rank_topsis wsum rank_wsum, noobs sep(0)</code></pre>
+      <p data-en="There is no official Stata MCDA command, so this is hand-rolled: egen total() supplies each criterion's normalising constant, weights live in a matrix, egen rowtotal() forms the weighted sum, and the TOPSIS closeness is built column by column from summarize r(max)/r(min). egen rank(-x) ranks alternatives with 1 = best. The real MCDA toolbox still lives in R/Python.">Stata 沒有官方 MCDA 指令，所以全靠手算：egen total() 提供每個準則的正規化常數、權重放在矩陣裡、egen rowtotal() 算加權總和，TOPSIS 接近度則逐欄用 summarize 的 r(max)／r(min) 建出。egen rank(-x) 讓 1＝最佳。真正的 MCDA 工具集仍在 R／Python。</p></div>
+</section>
 
   <!-- ===================== MCDA ④ 假設檢驗 ===================== -->
   <section id="mcdaassume" class="panel">
@@ -6377,6 +6478,40 @@ tt  &lt;- truthTable(data, outcome = "Y", conditions = "A,B,C", incl.cut = 0.8)
 minimize(tt, details = TRUE, include = "?")   <span class="cm"># intermediate solution</span>
 <span class="cm"># Also: the standalone fsQCA software (Ragin &amp; Davey); the Excel fsQCA add-in (qca-addin.net)</span></code></pre>
       <p data-en="No raw individual data is needed beyond the calibrated condition/outcome memberships per case.">除了每個案例校準後的條件／結果隸屬度，不需要其他原始個體資料。</p></div>
+    <div class="card"><h3 data-en="SAS — direct-method calibration">SAS —— 直接法校準</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — fsQCA calibration (minimisation in fsQCA software / R / Stata) */</span>
+<span class="cm">/* SAS has no native fsQCA procedure: do the direct-method calibration here, */</span>
+<span class="cm">/* then minimise in the standalone fsQCA software, R's QCA, or Stata's fuzzy. */</span>
+data calibrated;
+  set raw;
+  <span class="cm">/* three anchors: full-in 0.95, crossover 0.5, full-out 0.05 */</span>
+  full_in = 0.95; crossover = 0.5; full_out = 0.05;
+  <span class="cm">/* direct method (Ragin): log-odds metric, scaled by the two slopes */</span>
+  if x &gt;= crossover then
+    dev = (x - crossover) * (log(0.95/0.05) / (full_in - crossover));
+  else
+    dev = (x - crossover) * (log(0.95/0.05) / (crossover - full_out));
+  fz_x = exp(dev) / (1 + exp(dev));   <span class="cm">/* calibrated fuzzy membership in [0,1] */</span>
+run;
+<span class="cm">/* consistency of a configuration as a subset of Y (cutoff &gt;= 0.8): */</span>
+proc sql;
+  select sum(min(fz_x, fz_y)) / sum(fz_x) as consistency
+  from calibrated;   <span class="cm">/* keep configurations with consistency &gt;= 0.8 */</span>
+quit;</code></pre>
+      <p data-en="SAS handles the per-case direct-method calibration (0.95 / 0.5 / 0.05 anchors) and can compute subset consistency, but Boolean minimisation to conservative / intermediate / parsimonious solutions must be done in the fsQCA software, R's QCA, or Stata's fuzzy.">SAS 負責逐案例的直接法校準（0.95／0.5／0.05 錨點），也能算子集一致性，但要得到保守／中間／精簡解的布林最小化，必須在 fsQCA 軟體、R 的 QCA 或 Stata 的 fuzzy 裡做。</p></div>
+    <div class="card"><h3 data-en="Stata — fuzzy">Stata —— fuzzy</h3>
+      <pre class="sas"><code><span class="cm">* Stata — fuzzy-set QCA (fuzzy command)</span>
+<span class="cm">* community command by Longest &amp; Vaisey (Stata Journal): calibrate -&gt; truth table -&gt; minimise</span>
+ssc install fuzzy
+<span class="cm">* direct-method calibration of each condition with the three anchors</span>
+calibrate A, generate(fzA) method(direct) thresholds(0.05 0.5 0.95)
+calibrate B, generate(fzB) method(direct) thresholds(0.05 0.5 0.95)
+calibrate C, generate(fzC) method(direct) thresholds(0.05 0.5 0.95)
+calibrate Y, generate(fzY) method(direct) thresholds(0.05 0.5 0.95)
+<span class="cm">* build the truth table and minimise at consistency cutoff &gt;= 0.8</span>
+fuzzy fzA fzB fzC, outcome(fzY) ncut(1) consol(0.8) ///
+      test(fzA fzB fzC) ucol(0.8)   <span class="cm">// reports consistency &amp; coverage per path</span></code></pre>
+      <p data-en="Stata's community fuzzy command runs the full fsQCA pipeline — direct-method calibration with the 0.95 / 0.5 / 0.05 anchors, the truth table, and minimisation at the 0.8 consistency cutoff, reporting consistency and coverage for each sufficient path.">Stata 社群的 fuzzy 指令可跑完整的 fsQCA 流程——以 0.95／0.5／0.05 錨點做直接法校準、建真值表、在一致性切點 0.8 做最小化，並對每條充分路徑報一致性與覆蓋率。</p></div>
   </section>
 
   <!-- ===================== fsQCA ④ 假設檢驗 ===================== -->
@@ -7556,6 +7691,59 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
 <span class="cm"># KNNImputer(n_neighbors=5): fill from the k nearest complete rows (a single imputation)</span></code></pre>
       <p data-en="Single sklearn imputers fill once (under-stating uncertainty); loop over several sample_posterior draws and pool to get true multiple imputation.">單次的 sklearn 插補只填一次（低估不確定性）；對 sample_posterior 抽樣多次再合併，才是真正的多重插補。</p></div>
 
+    <hr class="merge-sep" />
+    <h2 class="merge-sas" data-en="Code: multiple imputation (Rubin's rules)">程式：多重插補（Rubin 規則）</h2>
+    <p class="lead" data-en="The same three-step recipe — impute m≈20 datasets under MAR, analyse each, pool with Rubin's rules — in SAS, R and Stata.">同一套三步驟流程——在 MAR 下插補約 20 份資料集、各自分析、再用 Rubin 規則合併——分別用 SAS、R、Stata 寫出。</p>
+    <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="SAS — PROC MI / MIANALYZE">SAS —— PROC MI / MIANALYZE</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — multiple imputation */</span>
+<span class="cm">/* 1. impute m=20 datasets under MAR (FCS = chained equations) */</span>
+proc mi data=dat nimpute=20 seed=1 out=imp;
+  class A;
+  fcs reg(Y X) logistic(A);   <span class="cm">/* include the OUTCOME Y in the imputation model */</span>
+  var A X Y;
+run;
+
+<span class="cm">/* 2. analyse EACH completed dataset, sorted BY the imputation index */</span>
+proc sort data=imp; by _Imputation_; run;
+proc reg data=imp outest=ests covout noprint;
+  by _Imputation_;
+  model Y = A X;
+run;
+
+<span class="cm">/* 3. pool the m estimates with Rubin's rules */</span>
+proc mianalyze data=ests;
+  modeleffects Intercept A X;
+run;
+</code></pre>
+      <p data-en="PROC MI writes one stacked dataset indexed by _Imputation_; run your analysis BY that index, then PROC MIANALYZE applies Rubin's rules to the per-dataset estimates and covariances.">PROC MI 會輸出一份以 _Imputation_ 標記的堆疊資料；用該索引做 BY 分析後，PROC MIANALYZE 再對每份的估計與共變數套用 Rubin 規則合併。</p></div>
+    <div class="card"><h3 data-en="R — mice">R —— mice</h3>
+      <pre class="sas"><code><span class="cm"># R — multiple imputation (mice)</span>
+library(mice)
+
+<span class="cm"># 1. impute m=20 datasets under MAR (pmm = predictive mean matching)</span>
+imp &lt;- mice(dat, m = 20, method = "pmm", seed = 1)   <span class="cm"># keep the OUTCOME Y in dat</span>
+
+<span class="cm"># 2. analyse each completed dataset</span>
+fit &lt;- with(imp, lm(Y ~ A + X))
+
+<span class="cm"># 3. pool with Rubin's rules</span>
+pool(fit)
+summary(pool(fit), conf.int = TRUE)                 <span class="cm"># pooled estimates + 95% CIs</span>
+</code></pre>
+      <p data-en="mice() builds the m datasets, with() fits your model on each, and pool() combines them by Rubin's rules — always include the outcome (and predictors of missingness) in the imputation model.">mice() 生成 m 份資料、with() 在每份上配適你的模型、pool() 用 Rubin 規則合併——插補模型務必放進結果（與能預測缺失的變數）。</p></div>
+    <div class="card"><h3 data-en="Stata — mi impute chained">Stata —— mi impute chained</h3>
+      <pre class="sas"><code><span class="cm">* Stata — multiple imputation</span>
+* 1. declare the mi structure, then impute m=20 datasets under MAR
+mi set wide
+mi register imputed A X Y
+mi impute chained (regress) X Y (logit) A = , add(20) rseed(1)
+
+* 2-3. estimate on each dataset AND pool with Rubin's rules (one command)
+mi estimate: regress Y A X
+</code></pre>
+      <p data-en="mi set / mi register declare the data, mi impute chained builds m=20 imputations by chained equations, and mi estimate: fits the model on every dataset and pools by Rubin's rules in one step.">mi set／mi register 宣告資料，mi impute chained 用鏈式方程生成 20 份插補，mi estimate: 則一步完成「對每份配適並用 Rubin 規則合併」。</p></div>
+
   </section>
 
   <section id="missassume" class="panel">
@@ -7657,6 +7845,60 @@ X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include 
       <div class="card"><h3 data-en="RoB 2 — randomised trials (Ch 8)">RoB 2 —— 隨機試驗（第 8 章）</h3><p data-en="Five domains, each rated low / some-concerns / high, then an overall judgement: ① the <b>randomisation</b> process, ② deviations from intended interventions, ③ <b>missing outcome data</b>, ④ measurement of the outcome, ⑤ <b>selective reporting</b> of the result. Per-outcome, not per-study.">五個領域，各評低／有疑慮／高，再給整體判斷：① <b>隨機分派</b>過程、② 偏離預定介入、③ <b>結果資料缺失</b>、④ 結果的測量、⑤ 結果的<b>選擇性報告</b>。是逐結果、不是逐研究。</p></div>
       <div class="card"><h3 data-en="ROBINS-I — non-randomised studies (Ch 25)">ROBINS-I —— 非隨機研究（第 25 章）</h3><p data-en="Seven domains, benchmarked against a hypothetical target trial: ① <b>confounding</b>, ② selection of participants, ③ classification of interventions, ④ deviations from intended interventions, ⑤ missing data, ⑥ measurement of outcomes, ⑦ selective reporting. This is exactly where your IV / RDD / cohort knowledge does the work.">七個領域，以一個假想的目標試驗為基準：① <b>混淆</b>、② 參與者選擇、③ 介入分類、④ 偏離預定介入、⑤ 資料缺失、⑥ 結果測量、⑦ 選擇性報告。這正是你的 IV／RDD／世代知識派上用場的地方。</p></div>
     </div>
+
+    <hr class="merge-sep" />
+    <h2 class="merge-sas" data-en="Code: random-effects meta-analysis">程式：隨機效果統合分析</h2>
+    <p class="lead" data-en="Pool log risk ratios across trials with a random-effects model, then quantify heterogeneity (I²/τ²) and probe small-study effects with a funnel plot and Egger's test.">用隨機效果模型把各試驗的 log 風險比合併，再量化異質性（I²／τ²），並用漏斗圖與 Egger 檢定檢查小研究效應。</p>
+    <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="SAS — PROC GLIMMIX (random effects)">SAS —— PROC GLIMMIX（隨機效果）</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — random-effects meta-analysis */</span>
+<span class="cm">/* data trials: study, ai bi ci di = 2x2 cells (event/no-event, trt/ctrl) */</span>
+data es;
+  set trials;
+  yi  = log((ai/bi)/(ci/di));                 <span class="cm">/* log risk ratio */</span>
+  vi  = 1/ai - 1/(ai+bi) + 1/ci - 1/(ci+di);  <span class="cm">/* its variance */</span>
+  wt  = 1/vi;
+run;
+
+<span class="cm">/* REML random-effects pool: random intercept = between-study tau^2 */</span>
+proc glimmix data=es method=mmpl;
+  class study;
+  model yi = / solution cl ddf=1000;
+  random intercept / subject=study;          <span class="cm">/* tau^2 */</span>
+  weight wt;                                  <span class="cm">/* inverse-variance within-study */</span>
+run;
+<span class="cm">/* exp(estimate) = pooled RR; covtest gives tau^2.            */</span>
+<span class="cm">/* Or use the %metaanal macro for DL pooling, I^2 and Egger. */</span>
+</code></pre>
+      <p data-en="GLIMMIX fits a one-stage random-effects model (random study intercept = τ²); exponentiate the fixed intercept for the pooled RR. SAS has no built-in I²/Egger, so compute Q from the weights or use the %metaanal macro.">GLIMMIX 以一階段隨機效果模型擬合（隨機研究截距＝τ²）；把固定截距取指數即得合併 RR。SAS 沒有內建 I²／Egger，可由權重算 Q 統計量，或改用 %metaanal 巨集。</p></div>
+    <div class="card"><h3 data-en="R — metafor">R —— metafor</h3>
+      <pre class="sas"><code><span class="cm"># R — random-effects meta-analysis (metafor)</span>
+library(metafor)
+<span class="cm"># escalc: 2x2 counts -&gt; log RR (yi) and its variance (vi)</span>
+dat &lt;- escalc(measure = "RR", ai = ai, bi = bi, ci = ci, di = di,
+              data = trials, slab = study)
+<span class="cm"># REML random-effects (use method = "DL" for DerSimonian-Laird)</span>
+res &lt;- rma(yi, vi, data = dat, method = "REML")
+summary(res)                       <span class="cm"># pooled estimate, tau^2, I^2, Q</span>
+forest(res, atransf = exp)         <span class="cm"># forest plot on the RR scale</span>
+funnel(res)                        <span class="cm"># funnel plot for small-study effects</span>
+regtest(res, model = "lm")         <span class="cm"># Egger's regression test for asymmetry</span>
+</code></pre>
+      <p data-en="escalc → rma → forest/funnel/regtest is the canonical metafor pipeline; summary() reports τ², I² and Q in one call. The meta package (metabin/metagen + forest/funnel/metabias) is an equivalent alternative.">escalc → rma → forest／funnel／regtest 是 metafor 的標準流程；summary() 一次給出 τ²、I² 與 Q。meta 套件（metabin／metagen ＋ forest／funnel／metabias）是等價替代。</p></div>
+    <div class="card"><h3 data-en="Stata — meta">Stata —— meta</h3>
+      <pre class="sas"><code><span class="cm">* Stata — random-effects meta-analysis</span>
+* declare the data: log RR with its standard error
+gen yi = log((ai/bi)/(ci/di))
+gen sei = sqrt(1/ai - 1/(ai+bi) + 1/ci - 1/(ci+di))
+meta set yi sei, studylabel(study) eform(RR)   <span class="cm">// report on RR scale</span>
+
+meta summarize, random(reml)        <span class="cm">// REML pool + I^2, tau^2, Q</span>
+meta forestplot                     <span class="cm">// forest plot</span>
+meta funnelplot                     <span class="cm">// funnel plot</span>
+meta bias, egger                    <span class="cm">// Egger's test for small-study effects</span>
+<span class="cm">* Classic alternative: metan ai bi ci di, rr random  /  metabias yi sei, egger</span>
+</code></pre>
+      <p data-en="meta set declares the effects once, then summarize/forestplot/funnelplot/bias all reuse it; random(reml) gives REML (use random(dlaird) for DerSimonian–Laird). The older metan + metabias commands do the same in one step each.">meta set 宣告效果一次，summarize／forestplot／funnelplot／bias 即共用它；random(reml) 為 REML（random(dlaird) 則為 DerSimonian–Laird）。舊版 metan ＋ metabias 各以一行達成相同目的。</p></div>
 
   </section>
 
@@ -7804,6 +8046,104 @@ forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># fore
 
     <div class="card info"><h3 data-en="The bottom line">結論</h3>
       <p data-en="NMA is powerful — it answers &quot;which of these works best?&quot; even without head-to-head trials — but it stacks an extra, largely untestable assumption (transitivity) on top of everything a pairwise meta-analysis already needs. Draw the network, justify transitivity clinically, test coherence where loops exist, read rankings alongside effect sizes, and rate certainty with CINeMA. A confident-looking ranking from an incoherent or imbalanced network is worse than a plain &quot;we can't tell&quot;.">NMA 很強——即使沒有正面對決試驗，也能回答「這些之中哪個最好？」——但它在一般成對統合分析已需要的一切之上，再疊一個大多無法檢驗的假設（可遞移性）。先畫網路、用臨床理由論證可遞移性、在有迴圈的地方檢驗連貫、把排名與效果量並排讀、用 CINeMA 評強度。一個來自不一致或不平衡網路、看起來很有信心的排名，比直接說「分不出來」更糟。</p></div>
+    <hr class="merge-sep" />
+    <h2 class="merge-sas" data-en="Code: network meta-analysis">程式：網路統合分析</h2>
+    <p class="lead" data-en="Build contrast/arm data, fit the network, check consistency (node-splitting), then rank treatments (P-score / SUCRA) — frequentist in R/Stata, Bayesian in SAS.">建立對比／臂別資料、配適網路、檢查一致性（node-splitting），再對治療排名（P-score／SUCRA）——R／Stata 走頻率學派，SAS 走貝氏。</p>
+    <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="SAS — PROC MCMC (Bayesian NMA)">SAS —— PROC MCMC（貝氏 NMA）</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — network meta-analysis */</span>
+<span class="cm">/* Arm-level binomial data: study treat r n, with a baseline arm per study (b=1) */</span>
+<span class="cm">/* Random-effects consistency model; logOR for each treatment vs reference t=1   */</span>
+PROC MCMC data=arms nbi=10000 nmc=100000 thin=10 seed=24
+           outpost=post statistics=summary diagnostics=all;
+  array d[5];                       <span class="cm">/* d[1]=0 reference; d[2..K]=basic params (logOR vs ref) */</span>
+  array mu[20];                     <span class="cm">/* one study-specific baseline per trial            */</span>
+  array delta[20,5];                <span class="cm">/* random study-by-arm effect                        */</span>
+
+  parms d2-d5 0;                    <span class="cm">/* basic contrasts to estimate          */</span>
+  parms mu1-mu20 0;                 <span class="cm">/* study baselines (nuisance)           */</span>
+  parms tau 0.5;                    <span class="cm">/* between-study SD of contrasts        */</span>
+
+  prior d2-d5 ~ normal(0, var=1e4);
+  prior mu1-mu20 ~ normal(0, var=1e4);
+  prior tau ~ uniform(0, 5);        <span class="cm">/* heterogeneity prior                  */</span>
+  d[1] = 0;                         <span class="cm">/* fix reference contrast to 0          */</span>
+
+  <span class="cm">/* mean treatment effect for this arm relative to its study baseline */</span>
+  if treat = base then md = mu[study];
+  else md = mu[study] + (d[treat] - d[base]);
+  random delta[study,treat] ~ normal(md, sd=tau) subject=study;
+
+  p = logistic(delta[study,treat]); <span class="cm">/* arm probability      */</span>
+  model r ~ binomial(n, p);
+
+  <span class="cm">/* derived quantities: pairwise ORs, ranking probabilities, SUCRA */</span>
+  beginnodata;
+    OR21 = exp(d2); OR31 = exp(d3); OR41 = exp(d4); OR51 = exp(d5);
+  endnodata;
+RUN;
+<span class="cm">/* Post-process 'post' for rank probabilities / SUCRA across MCMC draws.       */</span>
+<span class="cm">/* Alternative arm-based contrast model: PROC GLIMMIX with random study slopes */</span>
+<span class="cm">/* and a treatment fixed effect (frequentist) — handy when MCMC is overkill.   */</span>
+</code></pre>
+      <p data-en="Fully Bayesian random-effects NMA: study baselines (mu) are nuisance parameters and the basic contrasts d2..d5 are logORs vs the reference; tau is between-study heterogeneity. Read posteriors of the ORs, derive rank probabilities and SUCRA from the saved draws, and check convergence (trace plots, ESS, Gelman–Rubin via diagnostics=all). PROC GLIMMIX gives a quick frequentist arm-based alternative.">完整的貝氏隨機效果 NMA：研究基線（mu）是干擾參數，基本對比 d2..d5 是相對參考治療的 logOR；tau 是研究間異質性。讀各 OR 的後驗、用存下的抽樣導出排名機率與 SUCRA，並檢查收斂（trace plot、ESS、用 diagnostics=all 看 Gelman–Rubin）。PROC GLIMMIX 提供快速的頻率學派臂別替代法。</p></div>
+    <div class="card"><h3 data-en="R — netmeta">R —— netmeta</h3>
+      <pre class="sas"><code><span class="cm"># R — network meta-analysis (netmeta)</span>
+library(netmeta)
+
+<span class="cm"># 1) From arm-level data, build pairwise contrasts (all within-study comparisons)</span>
+<span class="cm">#    arms: studlab, treat, event, n  (binary outcome)</span>
+p &lt;- pairwise(treat = treat, event = event, n = n,
+              studlab = studlab, data = arms, sm = "OR")
+
+<span class="cm"># 2) Fit the frequentist (graph-theoretical) random-effects network model</span>
+net &lt;- netmeta(p, sm = "OR", reference.group = "placebo",
+               common = FALSE, random = TRUE)
+summary(net)                       <span class="cm"># network estimates, I^2, tau^2</span>
+netleague(net)                     <span class="cm"># league table of all pairwise ORs</span>
+
+<span class="cm"># 3) Consistency check: node-splitting (direct vs indirect on each comparison)</span>
+ns &lt;- netsplit(net); print(ns)     <span class="cm"># look at p-values / |direct - indirect|</span>
+netheat(net)                       <span class="cm"># net-heat plot flags inconsistent loops</span>
+
+<span class="cm"># 4) Rank treatments with P-scores (frequentist analogue of SUCRA)</span>
+nr &lt;- netrank(net, small.values = "desirable")
+print(nr)
+
+<span class="cm"># 5) Report</span>
+forest(net, reference.group = "placebo", sortvar = -Pscore)
+netgraph(net)                      <span class="cm"># draw the evidence network</span>
+
+<span class="cm"># Bayesian alternatives (full posteriors, SUCRA, rankograms):</span>
+<span class="cm">#   library(gemtc)  -> mtc.network() |&gt; mtc.model() |&gt; mtc.run(); rank.probability()</span>
+<span class="cm">#   library(BUGSnet) -> data.prep() |&gt; nma.model() |&gt; nma.run(); nma.rank()/sucra.plot()</span>
+</code></pre>
+      <p data-en="pairwise() turns arm-level data into the contrast format netmeta needs; netmeta() fits the whole network by weighted least squares. Use netsplit()/netheat() to test consistency, netrank() for P-scores, and forest()/netgraph() to report. Switch to gemtc or BUGSnet when you want a Bayesian fit with full posteriors and SUCRA.">pairwise() 把臂別資料轉成 netmeta 需要的對比格式；netmeta() 用加權最小平方擬合整個網路。用 netsplit()／netheat() 檢驗一致性、netrank() 算 P-score、forest()／netgraph() 報告。想要有完整後驗與 SUCRA 的貝氏配適時，改用 gemtc 或 BUGSnet。</p></div>
+    <div class="card"><h3 data-en="Stata — network / mvmeta">Stata —— network / mvmeta</h3>
+      <pre class="sas"><code><span class="cm">* Stata — network meta-analysis (White's network suite, on top of mvmeta)</span>
+<span class="cm">* net install network, from(http://www.homepages.ucl.ac.uk/~rmjwiww/stata/)</span>
+
+<span class="cm">* 1) Set up the network from arm-level data (events r out of n per arm)</span>
+network setup r n, studyvar(study) trtvar(treat) ref(placebo) or
+network map                         <span class="cm">* draw the evidence network</span>
+
+<span class="cm">* 2) Fit the consistency (random-effects) model via mvmeta</span>
+network meta consistency
+<span class="cm">* equivalently: network mvmeta  (multivariate REML over the contrasts)</span>
+
+<span class="cm">* 3) Check consistency: design-by-treatment / inconsistency model + node-splitting</span>
+network meta inconsistency          <span class="cm">* global incoherence test (Wald)</span>
+network sidesplit all               <span class="cm">* node-splitting: direct vs indirect</span>
+
+<span class="cm">* 4) Rank treatments — SUCRA &amp; rankograms</span>
+network rank min, all sucra(sucra_results)   <span class="cm">* min = smaller OR is better</span>
+sucra _est_*                        <span class="cm">* Chaimani's mvmeta-based ranking</span>
+
+<span class="cm">* 5) Report</span>
+network forest                      <span class="cm">* forest plot vs reference</span>
+intervalplot                        <span class="cm">* predictive / league-style intervals</span>
+</code></pre>
+      <p data-en="The network suite (Ian White) wraps mvmeta: network setup builds the contrast data, network meta consistency fits the model, network meta inconsistency and network sidesplit test coherence, and network rank / sucra (Chaimani) give SUCRA and rankograms. network forest and intervalplot produce the reports.">network 套件（Ian White）包住 mvmeta：network setup 建立對比資料、network meta consistency 配適模型、network meta inconsistency 與 network sidesplit 檢驗連貫、network rank／sucra（Chaimani）給 SUCRA 與 rankogram。network forest 與 intervalplot 產生報告。</p></div>
   </section>
 
   <section id="nmaml" class="panel">
@@ -7868,6 +8208,68 @@ forest(m); funnel(m); metabias(m, method = "linreg")     <span class="cm"># fore
       <div class="card"><h3 data-en="OCC, group size &amp; calibration">OCC、組大小與校準</h3><p data-en="<b>Odds of correct classification (OCC) &gt; 5</b> per group; each group big enough to be useful (a common rule of thumb is <b>≥ 5%</b>); and the <b>estimated</b> membership probability πₖ should match the <b>assigned</b> proportion. A group that is tiny, has low OCC, or fails to replicate is probably a statistical artefact.">每組<b>正確分類勝算（OCC）&gt; 5</b>；每組大到有用（常見經驗法則是 <b>≥ 5%</b>）；而且<b>估計的</b>成員機率 πₖ 要和<b>指派的</b>比例相符。一個很小、OCC 低、或無法重現的群組，多半是統計假象。</p></div>
     </div>
 
+    <hr class="merge-sep" />
+    <h2 class="merge-sas" data-en="Code: fitting a group-based trajectory model">程式：配適群組軌跡模型</h2>
+    <p class="lead" data-en="Fit competing K, pick by BIC, set a polynomial order per group, then read AvePP and group shares.">配適不同 K、用 BIC 選組數、為每組設多項式階數，再讀 AvePP 與各組比例。</p>
+    <div class="sas-note" data-en="Illustrative key steps — swap in your own dataset / variable names.">教學用的關鍵步驟示意；資料集／變數名稱請換成你自己的。</div>
+    <div class="card"><h3 data-en="SAS — PROC TRAJ">SAS —— PROC TRAJ</h3>
+      <pre class="sas"><code><span class="cm">/* SAS — group-based trajectory model (PROC TRAJ) */</span>
+<span class="cm">/* Data are WIDE: one row per subject, repeated measures y1..y5 at times t1..t5. */</span>
+
+<span class="cm">/* Step 1 — pick #groups by BIC: fit K = 2,3,4 and compare the printed BIC. */</span>
+<span class="cm">/*          Re-run with NGROUPS=2, then 3, then 4 and read BIC each time.    */</span>
+PROC TRAJ DATA=adh OUTPLOT=op OUTSTAT=os OUT=of OUTEST=oe;
+  VAR    y1-y5;                 <span class="cm">/* outcome at each visit            */</span>
+  INDEP  t1-t5;                 <span class="cm">/* time (e.g. months) at each visit */</span>
+  MODEL  CNORM; MIN 0; MAX 100; <span class="cm">/* censored normal, 0..100 scale    */</span>
+  NGROUPS 3;                    <span class="cm">/* K chosen after the BIC scan      */</span>
+  <span class="cm">/* Step 2 — one polynomial ORDER per group (0=flat 1=linear 2=quadratic) */</span>
+  ORDER  2 2 1;
+RUN;
+
+<span class="cm">/* Step 3 — diagnostics: AvePP per group (want &gt;= 0.7) and group shares.   */</span>
+<span class="cm">/*          OUTSTAT carries AvePP / OCC; %TRAJPLOT draws the fitted curves. */</span>
+%TRAJPLOT(op, os, "Adherence trajectories", "CNORM", "Month", "Adherence");
+PROC PRINT DATA=os; RUN;        <span class="cm">/* group %, AvePP, OCC              */</span>
+</code></pre>
+      <p data-en="PROC TRAJ is the original Jones &amp; Nagin implementation; ORDER sets the per-group polynomial and OUTSTAT reports AvePP, OCC and the estimated vs assigned group sizes.">PROC TRAJ 是 Jones &amp; Nagin 的原始實作；ORDER 設定每組的多項式階數，OUTSTAT 會報告 AvePP、OCC，以及估計與指派的組大小。</p></div>
+    <div class="card"><h3 data-en="R — lcmm / gbmt">R —— lcmm / gbmt</h3>
+      <pre class="sas"><code><span class="cm"># R — group-based trajectory model</span>
+<span class="cm"># Data are LONG: one row per subject-visit (id, month, adherence).</span>
+library(lcmm)
+
+<span class="cm"># Step 1 — fit K = 1..4 and pick the smallest BIC (with grid starts for stability)</span>
+m1 &lt;- hlme(adherence ~ month + I(month^2), subject = "id", ng = 1, data = long)
+fits &lt;- lapply(2:4, function(k)
+  gridsearch(rep = 30, maxiter = 15, minit = m1,
+    hlme(adherence ~ month + I(month^2), subject = "id",
+         <span class="cm"># Step 2 — mixture = which terms differ by group (the polynomial order)</span>
+         ng = k, mixture = ~ month + I(month^2), data = long)))
+sapply(c(list(m1), fits), function(m) m$BIC)   <span class="cm"># compare BIC; lower is better</span>
+
+m3 &lt;- fits[[2]]                                 <span class="cm"># say K = 3 wins</span>
+summary(m3)                                     <span class="cm"># class proportions (group shares)</span>
+
+<span class="cm"># Step 3 — AvePP per class: want every diagonal entry &gt;= 0.7</span>
+postprob(m3)
+<span class="cm"># Alternative: gbmt::gbmt() for multivariate trajectories (set ng, degree per indicator).</span>
+</code></pre>
+      <p data-en="hlme fits LCGA/GBTM; mixture = specifies the per-group polynomial, summary() gives BIC and group shares, and postprob() returns the average posterior probabilities to check the 0.7 rule.">hlme 配適 LCGA/GBTM；mixture = 指定每組的多項式，summary() 給出 BIC 與各組比例，postprob() 回傳平均後驗機率以檢查 0.7 準則。</p></div>
+    <div class="card"><h3 data-en="Stata — traj">Stata —— traj</h3>
+      <pre class="sas"><code><span class="cm">* Stata — group-based trajectory model (traj)</span>
+<span class="cm">* Data are WIDE: y1..y5 at t1..t5; install via -ssc install traj-.</span>
+
+<span class="cm">* Step 1 — pick #groups by BIC: re-run varying the count of order() terms.</span>
+<span class="cm">* Step 2 — order() gives ONE polynomial order per group (here 2 2 1 -&gt; K = 3).</span>
+traj, var(y1-y5) indep(t1-t5) model(cnorm) min(0) max(100) order(2 2 1)
+
+<span class="cm">* trajfit reports BIC; lower is better across competing K.</span>
+trajfit, n(3)
+
+<span class="cm">* Step 3 — AvePP (want &gt;= 0.7) and group shares; trajplot draws the curves.</span>
+trajplotnew, xtitle("Month") ytitle("Adherence")   // group %% + AvePP in output
+</code></pre>
+      <p data-en="The Stata traj plugin mirrors PROC TRAJ: order() sets each group's polynomial, trajfit prints the BIC for model selection, and the post-estimation output lists AvePP, OCC and group sizes.">Stata 的 traj 外掛對應 PROC TRAJ：order() 設定每組的多項式，trajfit 印出用於選模的 BIC，後估計輸出列出 AvePP、OCC 與組大小。</p></div>
   </section>
 
   <section id="gbtmassume" class="panel">
@@ -7952,6 +8354,90 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
       <div class="card"><h3 data-en="X- and DR-learners">X-／DR-learner</h3><p data-en="<b>X-learner</b> (Künzel 2019) imputes each unit's missing counterfactual and cross-fits — strong when arms are imbalanced. <b>DR-learner</b> uses a doubly-robust pseudo-outcome, so the CATE stays valid if either nuisance model is right. Both are more efficient than the T-learner."><b>X-learner</b>（Künzel 2019）為每個個體補上缺失的反事實再交叉擬合——臂不平衡時很強。<b>DR-learner</b> 用雙重穩健的擬結果，只要兩個輔助模型其一對，CATE 就有效。兩者都比 T-learner 更有效率。</p></div>
       <div class="card"><h3 data-en="Causal forests &amp; R-learner">因果森林與 R-learner</h3><p data-en="<b>Causal forests</b> (Wager &amp; Athey 2018; grf) grow trees that split on effect <b>heterogeneity</b> and give CATE with honest confidence intervals. The <b>R-learner</b> (Nie &amp; Wager 2021) and <b>double/debiased ML</b> (Chernozhukov 2018) orthogonalise out the nuisances with cross-fitting — the same DML idea already used in this toolbox's ⑤ panels."><b>因果森林</b>（Wager &amp; Athey 2018；grf）讓樹依效果<b>異質性</b>分裂，給出帶誠實信賴區間的 CATE。<b>R-learner</b>（Nie &amp; Wager 2021）與<b>雙重／去偏 ML</b>（Chernozhukov 2018）用交叉擬合把輔助部分正交掉——正是本工具箱 ⑤ 已用的 DML 想法。</p></div>
     </div>
+
+    <hr class="merge-sep" />
+    <h2 class="merge-sas" data-en="Code: estimating CATE with causal ML">程式：用因果機器學習估計 CATE</h2>
+    <p class="lead" data-en="Cross-fit ML nuisances, then estimate heterogeneous effects (CATE) and a doubly-robust ATE — in R (grf/DoubleML), Python (econml/causalml) and Stata (ddml).">交叉擬合 ML 輔助模型，再估計異質效果（CATE）與雙重穩健 ATE——以 R（grf／DoubleML）、Python（econml／causalml）與 Stata（ddml）示範。</p>
+    <div class="sas-note" data-en="Illustrative key steps — causal ML's native tools are R &amp; Python; Stata's ddml covers double-ML. SAS has no first-class causal-ML library, so it is omitted here.">教學用的關鍵步驟示意；因果 ML 的原生工具是 R 與 Python，Stata 以 ddml 支援雙重機器學習。SAS 沒有第一線的因果 ML 套件，故此處不列。</div>
+    <div class="card"><h3 data-en="R — grf / DoubleML">R —— grf / DoubleML</h3>
+      <pre class="sas"><code><span class="cm"># R — CATE via causal forest</span>
+library(grf)
+
+<span class="cm"># X = covariates, W = treatment (0/1), Y = outcome</span>
+cf &lt;- causal_forest(X, Y, W,
+                    num.trees = 4000,
+                    honesty   = TRUE,      <span class="cm"># honest splitting (sample-split)</span>
+                    tune.parameters = "all")
+
+<span class="cm"># CATE: out-of-bag (cross-fitted) per-unit estimates</span>
+tau.hat &lt;- predict(cf)$predictions
+
+<span class="cm"># Doubly-robust ATE with valid CI (AIPW)</span>
+average_treatment_effect(cf, target.sample = "all")
+
+<span class="cm"># Which covariates drive heterogeneity?</span>
+variable_importance(cf)
+
+<span class="cm"># Best linear projection of CATE on covariates (is it real?)</span>
+best_linear_projection(cf, X)
+
+<span class="cm"># ----- Alternative: DoubleML (R6) for a debiased ATE -----</span>
+library(DoubleML); library(mlr3); library(mlr3learners)
+dml_dat &lt;- double_ml_data_from_matrix(X = X, y = Y, d = W)
+dml &lt;- DoubleMLPLR$new(dml_dat,
+        ml_l = lrn("regr.ranger"),    <span class="cm"># nuisance: E[Y|X]</span>
+        ml_m = lrn("classif.ranger", predict_type = "prob"), <span class="cm"># E[W|X]</span>
+        n_folds = 5)                  <span class="cm"># 5-fold cross-fitting</span>
+dml$fit(); dml$summary()
+</code></pre>
+      <p data-en="grf grows honest trees that split on effect heterogeneity, gives an AIPW (doubly-robust) ATE, and ranks variables. DoubleML cross-fits flexible nuisances for a debiased ATE.">grf 用誠實樹依效果異質性分裂，給出 AIPW（雙重穩健）ATE 並排序變數；DoubleML 以交叉擬合的彈性輔助模型估去偏 ATE。</p></div>
+    <div class="card"><h3 data-en="Python — econml / causalml">Python —— econml / causalml</h3>
+      <pre class="sas"><code><span class="cm"># Python — CATE via econml</span>
+import numpy as np
+from econml.dml import CausalForestDML
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+
+<span class="cm"># X = effect-modifiers, W = controls, T = treatment, Y = outcome</span>
+est = CausalForestDML(
+        model_y = RandomForestRegressor(),     <span class="cm"># nuisance E[Y|X]</span>
+        model_t = RandomForestClassifier(),    <span class="cm"># nuisance E[T|X]</span>
+        discrete_treatment = True,
+        cv = 5)                                <span class="cm"># 5-fold cross-fitting</span>
+est.fit(Y, T, X=X, W=W)
+
+tau = est.effect(X)                            <span class="cm"># per-unit CATE</span>
+print(est.ate(X), est.ate_interval(X))         <span class="cm"># doubly-robust ATE + CI</span>
+print(est.summary())                           <span class="cm"># BLP / coef summary</span>
+imp = est.feature_importances_                 <span class="cm"># heterogeneity drivers</span>
+
+<span class="cm"># ----- Alternative: causalml meta-learners (T-/X-learner) -----</span>
+from causalml.inference.meta import BaseXRegressor
+xl = BaseXRegressor(learner=RandomForestRegressor())
+xl.fit(X=X, treatment=T, y=Y)
+cate_x = xl.predict(X=X)                        <span class="cm"># X-learner CATE</span>
+ate, lb, ub = xl.estimate_ate(X=X, treatment=T, y=Y)
+</code></pre>
+      <p data-en="EconML's CausalForestDML cross-fits ML nuisances and returns CATE plus a doubly-robust ATE with intervals; causalml supplies S/T/X/DR meta-learners with the same API.">EconML 的 CausalForestDML 交叉擬合 ML 輔助模型，回傳 CATE 與帶區間的雙重穩健 ATE；causalml 以相同 API 提供 S／T／X／DR meta-learners。</p></div>
+    <div class="card"><h3 data-en="Stata — ddml (double/debiased ML)">Stata —— ddml（雙重機器學習）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — double/debiased ML (ddml), Ahrens et al.</span>
+ssc install ddml
+ssc install pystacked    <span class="cm">* ML backend (stacking) for nuisances</span>
+
+<span class="cm">* Interactive model gives the ATE under unconfoundedness</span>
+ddml init interactive, kfolds(5)        <span class="cm">* 5-fold cross-fitting</span>
+
+<span class="cm">* Nuisance E[Y|X,D]: learners for the outcome</span>
+ddml E[Y|X,D]: pystacked y c.x*, type(reg)
+<span class="cm">* Nuisance E[D|X]: propensity score</span>
+ddml E[D|X]:   pystacked d c.x*, type(class)
+
+ddml crossfit                           <span class="cm">* fit nuisances out-of-sample</span>
+ddml estimate, robust                   <span class="cm">* AIPW doubly-robust ATE + CI</span>
+
+<span class="cm">* // CATE: run subgroup / linear-projection ATEs by effect-modifier,</span>
+<span class="cm">* // or use the partially-linear (vars) model for heterogeneity.</span>
+</code></pre>
+      <p data-en="ddml (Ahrens, Hansen, Schaffer, Wiemann) cross-fits any ML learner via pystacked and returns a doubly-robust ATE; subgroup/linear-projection runs approximate the CATE in Stata.">ddml（Ahrens 等）透過 pystacked 交叉擬合任意 ML 學習器，回傳雙重穩健 ATE；以次群／線性投影近似 Stata 中的 CATE。</p></div>
 
   </section>
 
