@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mcda: "mcda" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -73,6 +73,7 @@ const PANEL_INIT = {
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
   evalueplay: () => initEvaluePlay(), evalueassume: () => initEvalueArray(),
+  mcdaplay: () => initMcda(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
@@ -589,6 +590,60 @@ function initEvalueArray() {
     card.querySelectorAll("input").forEach((i) => i.addEventListener("input", refreshEvalueArray));
   }
   refreshEvalueArray();
+}
+// ---- MCDA: weighted-scoring (MAVT / simple additive weighting) ranking demo ----
+// A fixed performance matrix (treatments × criteria); drag the criterion weights
+// and the alternatives re-rank. Criteria are min-max normalised to 0–1 (cost
+// inverted), then a weighted sum gives each option's overall score.
+const MCDA_CRIT = [
+  { key: "eff", zh: "療效", en: "efficacy", dir: 1 },
+  { key: "saf", zh: "安全", en: "safety", dir: 1 },
+  { key: "cost", zh: "成本", en: "cost", dir: -1 },     // lower is better
+  { key: "conv", zh: "方便性", en: "convenience", dir: 1 },
+];
+const MCDA_ALT = [
+  { zh: "新藥 A", en: "new drug A", v: [90, 60, 80, 70] },
+  { zh: "老藥 B", en: "old drug B", v: [65, 85, 20, 80] },
+  { zh: "生物製劑 C", en: "biologic C", v: [95, 70, 95, 40] },
+  { zh: "學名藥 D", en: "generic D", v: [60, 80, 10, 90] },
+];
+let mcdaReady = false;
+function _mcdaScores(weights) {
+  const n = MCDA_CRIT.length;
+  const norm = [];
+  for (let j = 0; j < n; j++) {                          // min-max normalise each criterion
+    const col = MCDA_ALT.map((a) => a.v[j]); const lo = Math.min(...col), hi = Math.max(...col);
+    norm.push(col.map((x) => { const s = hi > lo ? (x - lo) / (hi - lo) : 0.5; return MCDA_CRIT[j].dir > 0 ? s : 1 - s; }));
+  }
+  const wsum = weights.reduce((s, w) => s + w, 0) || 1;
+  return MCDA_ALT.map((a, i) => { let sc = 0; for (let j = 0; j < n; j++) sc += (weights[j] / wsum) * norm[j][i]; return { alt: a, score: sc }; });
+}
+function refreshMcda() {
+  const card = document.getElementById("mcdaCard"); if (!card) return;
+  const num = (s, d) => { const v = parseFloat(card.querySelector(s).value); return isFinite(v) ? v : d; };
+  const w = MCDA_CRIT.map((c) => num(".mw-" + c.key, 5));
+  MCDA_CRIT.forEach((c, j) => { const b = card.querySelector(".mwv-" + c.key); if (b) b.textContent = w[j].toFixed(0); });
+  const scored = _mcdaScores(w).sort((a, b) => b.score - a.score);
+  const el = document.getElementById("mcdaChart");
+  if (el) Plotly.react(el, [{
+    type: "bar", orientation: "h",
+    y: scored.map((s) => tr(s.alt.zh, s.alt.en)).reverse(),
+    x: scored.map((s) => s.score).reverse(),
+    marker: { color: scored.map((s, i) => (i === 0 ? TEAL : "#cbd5e1")).reverse() },
+    text: scored.map((s) => s.score.toFixed(2)).reverse(), textposition: "outside", hoverinfo: "skip",
+  }], sceneLayout({
+    height: 300, margin: { t: 16, r: 26, b: 36, l: 96 },
+    xaxis: { title: tr("加權總分（0–1）", "weighted score (0–1)"), range: [0, 1.05] }, yaxis: { automargin: true },
+  }), SCENE_CFG);
+  const win = scored[0];
+  card.querySelector(".mcda-out").innerHTML = tr(
+    `目前權重下，<b>${win.alt.zh}</b> 排第一（總分 ${win.score.toFixed(2)}）。把某個準則的權重拉高，排名就會改變——這正是 MCDA 把「價值判斷」攤開、可以討論的地方。`,
+    `Under these weights, <b>${win.alt.en}</b> ranks first (score ${win.score.toFixed(2)}). Drag any criterion's weight and the ranking shifts — exactly where MCDA makes the value judgement explicit and debatable.`);
+}
+function initMcda() {
+  const card = document.getElementById("mcdaCard"); if (!card) return;
+  if (!mcdaReady) { mcdaReady = true; card.querySelectorAll("input").forEach((i) => i.addEventListener("input", refreshMcda)); }
+  refreshMcda();
 }
 function ensureEvalueCard(method) {
   const prefix = METHOD_PREFIX[method];
@@ -3045,6 +3100,7 @@ const METHOD_REF = {
   gm: { zh: "G-methods（時變混淆）", en: "G-methods (time-varying confounding)", src: "Robins, Hernán & Brumback (2000); Naimi, Cole & Kennedy (2017), IJE; Daniel et al. (2013), Stat Med" },
   gbtm: { zh: "群組軌跡模型 GBTM", en: "Group-based trajectory model (GBTM)", src: "Nagin (1999, 2005); Nagin & Odgers (2010), Annu Rev Clin Psychol; Jones & Nagin (2007, PROC TRAJ); Nagin & Tremblay (2005)" },
   evalue: { zh: "量化偏誤分析 QBA（E-value）", en: "Quantitative bias analysis (QBA / E-value)", src: "VanderWeele & Ding (2017), Ann Intern Med; Haneuse, VanderWeele & Arterburn (2019), JAMA; Ding & VanderWeele (2016), Epidemiology; Lash, Fox & Fink (2009), Applying QBA" },
+  mcda: { zh: "多準則決策分析 MCDA", en: "Multi-criteria decision analysis (MCDA)", src: "Thokala et al. (2016) & Marsh et al. (2016), ISPOR MCDA Task Force, Value in Health; Belton & Stewart (2002); Mussen, Salek & Walker (2007)" },
   tnd: { zh: "陰性檢驗設計 TND", en: "Test-Negative Design (TND)", src: "Jackson & Nelson (2013), Vaccine; Sullivan, Tchetgen Tchetgen & Cowling (2016); Schnitzer (2022), Epidemiology" },
   pssa: { zh: "處方順序對稱 PSSA", en: "Prescription Sequence Symmetry (PSSA)", src: "Hallas (1996), Epidemiology; Tsiropoulos, Andersen & Hallas (2009); Lai et al. (2017), Eur J Epidemiol" },
   tscan: { zh: "樹狀掃描統計 TreeScan", en: "Tree-based Scan Statistic (TreeScan)", src: "Kulldorff, Fang & Walsh (2003), Biometrics; Kulldorff et al. (2013), Stat Med; Maro et al. (2014), FDA Sentinel" },
@@ -8430,7 +8486,8 @@ window.addEventListener("iv-lang", async () => {
   initGlossary();                                  // rebuild the glossary in the new language
   if (curSub === "learn") renderQuiz(curMethod);   // rebuild the quiz in the new language
   { const ec = document.getElementById("evalueCard"); if (ec) { _evRecompute(ec); drawEvalueChart(ec); } } // E-value ② re-render
-  if (evalueArrayReady) refreshEvalueArray();           // QBA ⑤ array-approach re-render
+  if (evalueArrayReady) refreshEvalueArray();           // QBA ④ array-approach re-render
+  if (mcdaReady) refreshMcda();                         // MCDA ② ranking re-render
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };
