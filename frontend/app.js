@@ -72,7 +72,7 @@ const PANEL_INIT = {
   extctrlwhatif: () => drawWhatifPair("extctrl"),
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
-  evalueplay: () => initEvaluePlay(), evalueml: () => initEvalueArray(),
+  evalueplay: () => initEvaluePlay(), evalueassume: () => initEvalueArray(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
