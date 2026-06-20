@@ -72,7 +72,7 @@ const PANEL_INIT = {
   extctrlwhatif: () => drawWhatifPair("extctrl"),
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
-  evalueplay: () => initEvaluePlay(),
+  evalueplay: () => initEvaluePlay(), evalueml: () => initEvalueArray(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
@@ -551,6 +551,44 @@ function initEvaluePlay() {
     });
   }
   _evRecompute(card); drawEvalueChart(card);
+}
+// ⑤ array approach (Schneeweiss 2006): a single binary unmeasured confounder with
+// prevalence P1 (exposed) / P0 (unexposed) and outcome RR_CD biases the RR by the
+// factor BF = (1+P1(RR_CD−1)) / (1+P0(RR_CD−1)); adjusted RR = observed / BF.
+let evalueArrayReady = false;
+function refreshEvalueArray() {
+  const card = document.getElementById("evalueArrayCard"); if (!card) return;
+  const num = (s, d) => { const v = parseFloat(card.querySelector(s).value); return isFinite(v) ? v : d; };
+  const rr = num(".ea-rr", 2), p1 = num(".ea-p1", 0.5), p0 = num(".ea-p0", 0.2), cd = num(".ea-cd", 2.5);
+  card.querySelector(".ea-rrv").textContent = rr.toFixed(2);
+  card.querySelector(".ea-p1v").textContent = p1.toFixed(2);
+  card.querySelector(".ea-p0v").textContent = p0.toFixed(2);
+  card.querySelector(".ea-cdv").textContent = cd.toFixed(1);
+  const bf = (1 + p1 * (cd - 1)) / (1 + p0 * (cd - 1)), adj = rr / bf;
+  const gone = adj <= 1;
+  const el = document.getElementById("evalueArrayChart");
+  if (el) Plotly.react(el, [{
+    x: [tr("觀察 RR", "observed RR"), tr("校正後 RR", "adjusted RR")], y: [rr, adj], type: "bar",
+    marker: { color: [SLATE, gone ? "#b91c1c" : TEAL] }, text: [rr.toFixed(2), adj.toFixed(2)],
+    textposition: "outside", hoverinfo: "skip",
+  }], sceneLayout({
+    height: 300, margin: { t: 16, r: 16, b: 34, l: 52 },
+    yaxis: { title: tr("風險比", "risk ratio"), range: [0, Math.max(rr, adj, 2.2) + 0.5] },
+    shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: 1, y1: 1, line: { color: "#94a3b8", dash: "dash", width: 1.5 } }],
+  }), SCENE_CFG);
+  card.querySelector(".ea-out").innerHTML = tr(
+    `偏誤因子 BF＝<b>${bf.toFixed(2)}</b>，把觀察 RR ${rr.toFixed(2)} 校正成 <b>${adj.toFixed(2)}</b> → ` +
+      (gone ? `<b style="color:#b91c1c">這個混淆足以把效果解釋掉（跨過 1）</b>` : `<b style="color:#1d6f57">仍在 1 的同側，效果存活</b>`),
+    `Bias factor BF = <b>${bf.toFixed(2)}</b> moves the observed RR ${rr.toFixed(2)} to <b>${adj.toFixed(2)}</b> → ` +
+      (gone ? `<b style="color:#b91c1c">this confounder is enough to explain it away (crosses 1)</b>` : `<b style="color:#1d6f57">still on the same side of 1 — the effect survives</b>`));
+}
+function initEvalueArray() {
+  const card = document.getElementById("evalueArrayCard"); if (!card) return;
+  if (!evalueArrayReady) {
+    evalueArrayReady = true;
+    card.querySelectorAll("input").forEach((i) => i.addEventListener("input", refreshEvalueArray));
+  }
+  refreshEvalueArray();
 }
 function ensureEvalueCard(method) {
   const prefix = METHOD_PREFIX[method];
@@ -8392,6 +8430,7 @@ window.addEventListener("iv-lang", async () => {
   initGlossary();                                  // rebuild the glossary in the new language
   if (curSub === "learn") renderQuiz(curMethod);   // rebuild the quiz in the new language
   { const ec = document.getElementById("evalueCard"); if (ec) { _evRecompute(ec); drawEvalueChart(ec); } } // E-value ② re-render
+  if (evalueArrayReady) refreshEvalueArray();           // QBA ⑤ array-approach re-render
   refreshPlay();                                   // interactive tab
   if (state.lastReq) {                             // analysis + dashboard
     const req = { ...state.lastReq, lang: lang() };
