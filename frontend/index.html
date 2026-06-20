@@ -341,6 +341,19 @@ summary(lm(A ~ Z + age + sex, data = iv))        <span class="cm"># read the F f
 <span class="cm"># Step 2: 2SLS — coefficient on A is the (complier) LATE</span>
 summary(ivreg(Y ~ A + age + sex | Z + age + sex, data = iv), diagnostics = TRUE)</code></pre>
       <p data-en="In <code>ivreg</code> the structural model goes before the <code>|</code> and the instruments after it; <code>diagnostics=TRUE</code> prints the weak-instrument and Wu–Hausman tests."><code>ivreg</code> 公式：<code>|</code> 前是結構模型、後是工具；<code>diagnostics=TRUE</code> 會印出弱工具與 Wu–Hausman 檢定。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (ivregress 2sls)">Stata 版本 —— 同樣步驟（ivregress 2sls）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — IV / two-stage least squares (2SLS)</span>
+<span class="cm">* Step 0: collapse person-visits to ONE row per person</span>
+collapse (max) Z A (first) age sex (first) y0=y (last) yT=y, by(pid)
+gen Y = yT - y0                          <span class="cm">// baseline → last change</span>
+<span class="cm">* Step 1: first-stage strength — want F &gt; 10 on the instrument Z</span>
+regress A Z age sex
+test Z                                    <span class="cm">// the instrument F-statistic</span>
+<span class="cm">* Step 2: 2SLS — coefficient on A is the (complier) LATE</span>
+ivregress 2sls Y age sex (A = Z), first  <span class="cm">// (endogenous = instruments)</span>
+estat firststage                         <span class="cm">// weak-instrument diagnostics</span>
+estat endogenous                         <span class="cm">// Wu–Hausman test</span></code></pre>
+      <p data-en="In <code>ivregress</code> the exogenous covariates are listed plainly and the endogenous treatment goes in parentheses with its instruments: <code>(A = Z)</code>; <code>estat firststage</code> gives the weak-instrument F."><code>ivregress</code> 把外生共變項直接列出，被混淆的治療放在括號內連同工具：<code>(A = Z)</code>；<code>estat firststage</code> 給出弱工具 F。</p></div>
   </section>
 
   <!-- ===================== 4. 儀表板 ===================== -->
