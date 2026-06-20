@@ -2819,7 +2819,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. Key, mostly untestable: an accurate test, the <b>vaccine not affecting the control illness</b>, and no differential care-seeking given symptoms. Other <b>measured</b> confounders (age, calendar time) still need adjustment (a causal TND / ML, see ⑤)." } } },
   rPSSA: { rec: { kind: "toolbox", method: "pssa", badge: "PSSA ✓",
     title: { zh: "最適合：處方順序對稱分析 PSSA ✓（本工具）", en: "Best fit: Prescription Sequence Symmetry Analysis (PSSA) ✓ (this tool)" },
-    why: { zh: "你想<b>快速、自我對照地篩</b>出「藥 A 引起某症狀、症狀又被藥 B 處理」的<b>處方瀑布</b>。在兩種藥都用過的人裡數「先 A 後 B」（a）與「先 B 後 A」（b）：粗順序比 cSR ＝ a ÷ b 會被<b>處方趨勢</b>灌成假訊號，除以「只有趨勢」的 SRnull 得 <b>aSR ＝ cSR ÷ SRnull</b>；aSR＞1 且 CI 不含 1 ＝訊號。這是<b>產生假說</b>的篩檢，不是效果估計。",
+    why: { zh: "你想<b>快速、自我對照地篩</b>出「藥 A 引起某症狀、症狀又被藥 B 處理」的<b>處方瀑布</b>。在兩種藥都用過的人裡數「先 A 後 B」（a）與「先 B 後 A」（b）：未校正順序比 cSR ＝ a ÷ b 會被<b>處方趨勢</b>灌成假訊號，除以「只有趨勢」的 SRnull 得 <b>aSR ＝ cSR ÷ SRnull</b>；aSR＞1 且 CI 不含 1 ＝訊號。這是<b>產生假說</b>的篩檢，不是效果估計。",
            en: "You want a <b>fast, self-controlled screen</b> for a <b>prescribing cascade</b> ('drug A causes a symptom, treated with drug B'). Among people who used both, count A-then-B (a) and B-then-A (b): the crude SR = a ÷ b is inflated into a false signal by the <b>prescribing trend</b>; dividing by the trend-only SRnull gives <b>aSR = cSR ÷ SRnull</b>; aSR > 1 with a CI excluding 1 = a signal. This is a <b>hypothesis-generating</b> screen, not an effect estimate." },
     scenario: { zh: "藥物安全情境：新藥 A 上市後逐年普及；想知道 A 是否引發某不良反應、進而被 B 處理。用 PSSA 快速標出候選配對，再用控混淆的設計（世代／SCCS／主動對照）追下去（見「PSSA」分頁 ①–⑦）。",
                 en: "Drug-safety scenario: a new drug A diffuses over calendar time; you want to flag whether A triggers an adverse event that gets treated with B. PSSA quickly flags candidate pairs, to follow up with a confounder-controlled design (cohort / SCCS / active comparator) — see the PSSA tabs ①–⑦." },
@@ -5203,7 +5203,7 @@ function drawSceneCc() {
     Object.assign(_lbl(0.2, yCo, tr("對照", "controls"), TEAL, 10), { xanchor: "left" }),
     Object.assign(_lbl(6.2, yCa + 0.45, tr("← 回頭比較過去的暴露", "← look back at past exposure"), "#64748b", 9.5), { xanchor: "center" }),
     _lbl(5.0, 0.18, tr(
-      "勝算比 OR＝病例暴露勝算 ÷ 對照暴露勝算＝(a·d)/(b·c)。年齡同時影響暴露與結果（混淆）→ 粗 OR 會偏，需校正／配對。",
+      "勝算比 OR＝病例暴露勝算 ÷ 對照暴露勝算＝(a·d)/(b·c)。年齡同時影響暴露與結果（混淆）→ 未校正 OR 會偏，需校正／配對。",
       "Odds ratio OR = exposure odds in cases ÷ in controls = (a·d)/(b·c). Age drives both exposure and outcome (confounding) → the crude OR is biased; adjust / match."), INK, 9.5),
   ];
   Plotly.react("ccScene", traces, schemaLayout({
@@ -5238,7 +5238,7 @@ function drawCcPlay(d) {
   if (!document.getElementById("ccPlayChart")) return;
   const g = d.grid;
   Plotly.react("ccPlayChart", [
-    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("粗 OR", "crude OR"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("未校正 OR", "crude OR"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.adj, mode: "lines+markers", type: "scatter", name: tr("校正 OR", "adjusted OR"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.conf], y: [d.crude_or], mode: "markers", type: "scatter", name: tr("目前", "current"), marker: { color: RED, size: 11, symbol: "x" }, showlegend: false },
   ], sceneLayout({
@@ -5307,7 +5307,7 @@ function renderCcAnalyze(a) {
     `Cases avg ${fmt(bal_v(a, "case"), 0)} yrs, controls ${fmt(bal_v(a, "control"), 0)} yrs.`) : "";
   const cards = [
     [tr("校正年齡 OR（≈ 因果）", "Age-adjusted OR (≈ causal)"), a.adj_or, a.interpretation, true],
-    [tr("粗 OR（被年齡混淆）", "Crude OR (age-confounded)"), a.crude_or,
+    [tr("未校正 OR（被年齡混淆）", "Crude OR (age-confounded)"), a.crude_or,
       tr(`95% CI ${fmt(a.ci_crude[0], 2)}～${fmt(a.ci_crude[1], 2)}。${bal}`, `95% CI ${fmt(a.ci_crude[0], 2)}–${fmt(a.ci_crude[1], 2)}. ${bal}`), false],
     [tr("Mantel–Haenszel OR（分層）", "Mantel–Haenszel OR (stratified)"), a.mh_or,
       tr("按年齡層×性別分層合併，應與校正 OR 一致。", "Stratified by age band × sex; should agree with the adjusted OR."), false],
@@ -5320,7 +5320,7 @@ function renderCcAnalyze(a) {
 function bal_v(a, k) { return a.age_balance ? a.age_balance[k] : 0; }
 function drawCcAnalyze(a) {
   if (!document.getElementById("ccAnalyzeChart")) return;
-  const labels = [tr("粗 OR", "crude"), tr("校正 OR", "adjusted"), tr("M–H OR", "M–H")];
+  const labels = [tr("未校正 OR", "crude"), tr("校正 OR", "adjusted"), tr("M–H OR", "M–H")];
   const vals = [a.crude_or, a.adj_or, a.mh_or];
   Plotly.react("ccAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [AMBER, TEAL, TEAL] },
@@ -5722,7 +5722,7 @@ function drawAcnuPlay(d) {
   const g = d.grid;
   Plotly.react("acnuPlayChart", [
     { x: g.conf, y: g.naive, mode: "lines+markers", type: "scatter", name: tr("未校正：A vs 沒用藥", "naive: A vs non-users"), line: { color: RED, width: 3 }, marker: { size: 5 } },
-    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("ACNU 粗：A vs B", "crude ACNU: A vs B"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("ACNU 未校正：A vs B", "crude ACNU: A vs B"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.adj, mode: "lines+markers", type: "scatter", name: tr("ACNU 校正後", "adjusted ACNU"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.conf], y: [d.crude_irr], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
   ], sceneLayout({
@@ -6582,7 +6582,7 @@ function drawPsPlay(d) {
   if (!document.getElementById("psPlayChart")) return;
   const g = d.grid;
   Plotly.react("psPlayChart", [
-    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("粗估", "crude"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("未校正", "crude"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.iptw, mode: "lines+markers", type: "scatter", name: tr("IPTW", "IPTW"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.overlap, mode: "lines+markers", type: "scatter", name: tr("重疊權重", "overlap"), line: { color: PURPLE, width: 3, dash: "dot" }, marker: { size: 5 } },
     { x: [d.conf], y: [d.crude], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -6650,7 +6650,7 @@ function renderPsAnalyze(a) {
   document.getElementById("psAnalyzeOut").classList.remove("hidden");
   const ci = a.ci_iptw && a.ci_iptw[0] != null ? ` (95% CI ${fmt(a.ci_iptw[0],2)}–${fmt(a.ci_iptw[1],2)})` : "";
   const cards = [
-    [tr("粗估差異（偏）", "crude difference (biased)"), a.crude,
+    [tr("未校正差異（偏）", "crude difference (biased)"), a.crude,
       tr("直接比接種 vs 未接種，被適應症混淆撐高。", "vaccinated vs unvaccinated directly — inflated by confounding by indication."), false],
     [tr("IPTW（ATE）", "IPTW (ATE)"), a.iptw, a.interpretation + ci, true],
     [tr("重疊權重（ATO）", "overlap weighting (ATO)"), a.overlap,
@@ -6666,7 +6666,7 @@ function renderPsAnalyze(a) {
 }
 function drawPsAnalyze(a) {
   if (!document.getElementById("psAnalyzeChart")) return;
-  const labels = [tr("粗估", "crude"), tr("迴歸校正", "regression adj."), tr("IPTW", "IPTW"), tr("重疊權重", "overlap"), tr("PS 配對", "PS matching")];
+  const labels = [tr("未校正", "crude"), tr("迴歸校正", "regression adj."), tr("IPTW", "IPTW"), tr("重疊權重", "overlap"), tr("PS 配對", "PS matching")];
   const vals = [a.crude, a.adjust, a.iptw, a.overlap, a.att];
   Plotly.react("psAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [AMBER, "#7c8aa0", TEAL, PURPLE, "#3f8a6a"] },
@@ -6793,7 +6793,7 @@ function drawTmlePlay(d) {
   if (!document.getElementById("tmlePlayChart")) return;
   const g = d.grid;
   Plotly.react("tmlePlayChart", [
-    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("粗估", "crude"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
+    { x: g.conf, y: g.crude, mode: "lines+markers", type: "scatter", name: tr("未校正", "crude"), line: { color: AMBER, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.aipw, mode: "lines+markers", type: "scatter", name: tr("AIPW", "AIPW"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: g.conf, y: g.tmle, mode: "lines+markers", type: "scatter", name: tr("TMLE", "TMLE"), line: { color: PURPLE, width: 3, dash: "dot" }, marker: { size: 5 } },
     { x: [d.conf], y: [d.crude], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -6860,7 +6860,7 @@ function renderTmleAnalyze(a) {
   document.getElementById("tmleAnalyzeOut").classList.remove("hidden");
   const ci = a.ci && a.ci[0] != null ? ` (95% CI ${fmt(a.ci[0],2)}–${fmt(a.ci[1],2)})` : "";
   const cards = [
-    [tr("粗估差異（偏）", "crude difference (biased)"), a.crude,
+    [tr("未校正差異（偏）", "crude difference (biased)"), a.crude,
       tr("直接比接種 vs 未接種，被適應症混淆＋非線性 X 撐高。", "vaccinated vs unvaccinated directly — inflated by confounding and the non-linear X."), false],
     [tr("TMLE（targeting）", "TMLE (targeted)"), a.tmle, a.interpretation + ci, true],
     [tr("雙重穩健 AIPW", "doubly-robust AIPW"), a.aipw,
@@ -6876,7 +6876,7 @@ function renderTmleAnalyze(a) {
 }
 function drawTmleAnalyze(a) {
   if (!document.getElementById("tmleAnalyzeChart")) return;
-  const labels = [tr("粗估", "crude"), tr("g-comp", "g-comp"), tr("IPTW", "IPTW"), tr("AIPW", "AIPW"), tr("TMLE", "TMLE")];
+  const labels = [tr("未校正", "crude"), tr("g-comp", "g-comp"), tr("IPTW", "IPTW"), tr("AIPW", "AIPW"), tr("TMLE", "TMLE")];
   const vals = [a.crude, a.gcomp, a.iptw, a.aipw, a.tmle];
   Plotly.react("tmleAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [AMBER, "#7c8aa0", "#3f8a6a", TEAL, PURPLE] },
@@ -7397,7 +7397,7 @@ function drawPssaPlay(d) {
   if (!document.getElementById("pssaPlayChart")) return;
   const g = d.grid;
   Plotly.react("pssaPlayChart", [
-    { x: g.casc, y: g.csr, mode: "lines+markers", type: "scatter", name: tr("粗 SR", "crude SR"), line: { color: RED, width: 3 }, marker: { size: 5 } },
+    { x: g.casc, y: g.csr, mode: "lines+markers", type: "scatter", name: tr("未校正 SR", "crude SR"), line: { color: RED, width: 3 }, marker: { size: 5 } },
     { x: g.casc, y: g.srnull, mode: "lines+markers", type: "scatter", name: "SRnull", line: { color: SLATE, width: 2, dash: "dot" }, marker: { size: 4 } },
     { x: g.casc, y: g.asr, mode: "lines+markers", type: "scatter", name: tr("校正 SR", "adjusted SR"), line: { color: TEAL, width: 3 }, marker: { size: 5 } },
     { x: [d.cascade], y: [d.asr], mode: "markers", type: "scatter", marker: { color: INK, size: 11, symbol: "x" }, showlegend: false },
@@ -7447,7 +7447,7 @@ function renderPssaAnalyze(a) {
   const sig = a.signal ? tr("✔ 標為訊號", "✔ flagged as a signal") : tr("✘ 未達訊號", "✘ no signal");
   const cards = [
     [tr("校正順序比 aSR ＝ cSR ÷ SRnull", "adjusted SR (aSR = cSR ÷ SRnull)"), fmt(a.asr, 2), a.interpretation + ci, true],
-    [tr("粗順序比 cSR（趨勢偏）", "crude SR (trend-biased)"), fmt(a.csr, 2),
+    [tr("未校正順序比 cSR（趨勢偏）", "crude SR (trend-biased)"), fmt(a.csr, 2),
       tr("先 A 後 B vs 先 B 後 A，未除趨勢，被處方趨勢抬高。", "A-then-B vs B-then-A, trend not removed — lifted by the prescribing trend."), false],
     [tr("無效果順序比 SRnull", "null SR (SRnull)"), fmt(a.srnull, 2),
       tr("「只有趨勢」時 cSR 的期望；越遠離 1 趨勢越強。", "the cSR expected under the trend alone; the further from 1, the stronger the trend."), false],
@@ -7461,7 +7461,7 @@ function renderPssaAnalyze(a) {
 }
 function drawPssaAnalyze(a) {
   if (!document.getElementById("pssaAnalyzeChart")) return;
-  const labels = [tr("粗 SR", "crude SR"), "SRnull", tr("校正 SR", "adjusted SR")];
+  const labels = [tr("未校正 SR", "crude SR"), "SRnull", tr("校正 SR", "adjusted SR")];
   const vals = [a.csr, a.srnull, a.asr];
   Plotly.react("pssaAnalyzeChart", [{
     x: labels, y: vals, type: "bar", marker: { color: [RED, SLATE, TEAL] },

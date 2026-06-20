@@ -3230,7 +3230,7 @@ stcox initiate age frailty, strata(trial) vce(cluster pid)
     <p class="lead" data-en="A cohort follows a big group forward for years. A <b>case-control</b> study works backwards: find people <b>with</b> the outcome (cases) and people <b>without</b> it (controls), then compare their past exposure — measured by the <b>odds ratio</b>. It is very efficient for a <b>rare</b> outcome. The danger is confounding: here <b>age</b> drives both exposure and outcome, so the crude OR is biased; adjusting (or matching on) age recovers the truth. Modern view (Dickerman &amp; Hernán): a valid case-control = <b>case-control sampling of a cohort that emulates a target trial</b>.">
       世代研究要往前追蹤一大群人很多年。<b>病例對照</b>反過來做：找到<b>有</b>結果的人（病例）與<b>沒有</b>結果的人（對照），
       再比較兩組過去的暴露，用<b>勝算比（OR）</b>衡量。對<b>罕見</b>結果特別有效率。危險在於混淆：這裡<b>年齡</b>同時推動
-      暴露與結果，所以粗 OR 會偏；<b>校正</b>（或<b>配對</b>）年齡就能還原真相。現代視角（Dickerman &amp; Hernán）：一個有效的
+      暴露與結果，所以未校正 OR 會偏；<b>校正</b>（或<b>配對</b>）年齡就能還原真相。現代視角（Dickerman &amp; Hernán）：一個有效的
       病例對照，等於對「<b>模擬目標試驗的世代</b>」做病例對照抽樣。
     </p>
 
@@ -3250,7 +3250,7 @@ stcox initiate age frailty, strata(trial) vce(cluster pid)
       <div class="tdef">
         <h4>混淆 <span class="en">confounding</span></h4>
         <p data-en="Sometimes the exposure and the disease look linked only because a third thing is secretly behind both. Here that thing is age: older people are both more likely to be exposed and more likely to get sick anyway. So when you compare raw exposure between cases and controls, part of the gap isn't caused by the exposure at all — it's just that cases happen to be older. That's why the crude (unadjusted) OR is too big and isn't yet the real causal effect. The fix is to compare like with like on that third factor: adjust for age in a logistic model, split into age strata and pool with Mantel–Haenszel, or match controls to cases on age. Caveat — this only cleans up confounders you actually measured; an unmeasured one (say, smoking) can still bias the answer.">
-          有時候暴露和疾病看起來有關，其實只是因為背後偷偷有第三個東西同時影響兩邊。這裡那個東西是年齡：年長者本來就既較常暴露、又較容易生病。所以你直接比較病例與對照的暴露時，那段差距有一部分根本不是暴露造成的，只是病例剛好比較老。這就是為什麼「粗 OR（沒校正的）」會偏大、還不是真正的因果效應。修法是讓兩組在那個第三因子上條件相同：用 logistic 模型校正年齡、切成年齡分層再以 Mantel–Haenszel 合併、或把對照按年齡配對到病例。要注意，這只能清掉你真的量到的混淆；若有沒量到的（例如吸菸），答案仍可能偏掉。
+          有時候暴露和疾病看起來有關，其實只是因為背後偷偷有第三個東西同時影響兩邊。這裡那個東西是年齡：年長者本來就既較常暴露、又較容易生病。所以你直接比較病例與對照的暴露時，那段差距有一部分根本不是暴露造成的，只是病例剛好比較老。這就是為什麼「未校正 OR（沒校正的）」會偏大、還不是真正的因果效應。修法是讓兩組在那個第三因子上條件相同：用 logistic 模型校正年齡、切成年齡分層再以 Mantel–Haenszel 合併、或把對照按年齡配對到病例。要注意，這只能清掉你真的量到的混淆；若有沒量到的（例如吸菸），答案仍可能偏掉。
         </p>
       </div>
       <div class="tdef">
@@ -3265,38 +3265,38 @@ stcox initiate age frailty, strata(trial) vce(cluster pid)
   <!-- ===================== Case-control ② 互動講解 ===================== -->
   <section id="ccplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive: watch confounding push the crude OR around">互動：看混淆怎麼把粗 OR 推來推去</h1>
+    <h1 data-en="Interactive: watch confounding push the crude OR around">互動：看混淆怎麼把未校正 OR 推來推去</h1>
     <p class="lead" data-en="Drag the slider to change how strongly <b>age</b> drives exposure (the confounding strength). At <b>0</b> there is no confounding and the crude OR already equals the truth. Turn it up and the <b>crude OR climbs away</b> from the truth, while the <b>age-adjusted OR stays put</b>. Adjustment fixes a <b>measured</b> confounder.">
-      拉動滑桿，改變<b>年齡</b>對暴露的影響有多強（混淆強度）。在 <b>0</b> 時沒有混淆，粗 OR 本身就等於真值；
-      往上調，<b>粗 OR 一路爬離</b>真值，而<b>校正年齡後的 OR 穩住不動</b>。校正能修掉<b>量得到</b>的混淆。
+      拉動滑桿，改變<b>年齡</b>對暴露的影響有多強（混淆強度）。在 <b>0</b> 時沒有混淆，未校正 OR 本身就等於真值；
+      往上調，<b>未校正 OR 一路爬離</b>真值，而<b>校正年齡後的 OR 穩住不動</b>。校正能修掉<b>量得到</b>的混淆。
     </p>
 
     <div class="controls">
       <label>
         <span data-en="Confounding strength (age → exposure):">混淆強度（年齡 → 暴露）：</span><b id="ccConfVal">1.0</b>
         <input type="range" id="ccConfSlider" min="0" max="1.5" value="1" step="0.05" />
-        <small data-en="0 = no confounding (crude OR unbiased). Larger = age drives exposure more, so cases (older) look more exposed — the crude OR inflates, adjustment corrects.">0＝無混淆（粗 OR 無偏）。越大＝年齡越能推動暴露，病例（較年長）看起來更常暴露，粗 OR 變大、校正修回。</small>
+        <small data-en="0 = no confounding (crude OR unbiased). Larger = age drives exposure more, so cases (older) look more exposed — the crude OR inflates, adjustment corrects.">0＝無混淆（未校正 OR 無偏）。越大＝年齡越能推動暴露，病例（較年長）看起來更常暴露，未校正 OR 變大、校正修回。</small>
       </label>
     </div>
 
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Crude OR">粗 OR</div><div class="stat-num" id="ccCrude">–</div><div class="stat-foot" data-en="confounded by age">被年齡混淆</div></div>
+      <div class="stat"><div class="stat-label" data-en="Crude OR">未校正 OR</div><div class="stat-num" id="ccCrude">–</div><div class="stat-foot" data-en="confounded by age">被年齡混淆</div></div>
       <div class="stat"><div class="stat-label" data-en="Age-adjusted OR">校正年齡 OR</div><div class="stat-num" id="ccAdj">–</div><div class="stat-foot" data-en="should hug the truth 2.0">應緊貼真值 2.0</div></div>
       <div class="stat"><div class="stat-label" data-en="Truth">真值</div><div class="stat-num small" id="ccTrue">2.0</div><div class="stat-foot" data-en="the causal OR">真實因果 OR</div></div>
     </div>
 
     <div id="ccPlayChart" class="chart"></div>
     <p class="caption" data-en="Crude vs adjusted OR across confounding strength. As you raise it, the crude OR (amber) slopes up and away from the truth, while the adjusted OR (teal) stays on the dashed truth line.">
-      粗 OR 與校正 OR 隨混淆強度的變化。調越大，粗 OR（琥珀）越爬離真值，校正 OR（青）穩停在虛線真值上。
+      未校正 OR 與校正 OR 隨混淆強度的變化。調越大，未校正 OR（琥珀）越爬離真值，校正 OR（青）穩停在虛線真值上。
     </p>
   </section>
 
   <!-- ===================== Case-control ③ 資料分析 ===================== -->
   <section id="ccanalyze" class="panel">
-    <h1 data-en="Data analysis: crude vs adjusted vs stratified OR">資料分析：粗 vs 校正 vs 分層 OR</h1>
+    <h1 data-en="Data analysis: crude vs adjusted vs stratified OR">資料分析：未校正 vs 校正 vs 分層 OR</h1>
     <p class="lead" data-en="Load the built-in case-control example (one row per person: a case/control flag, exposure, and covariates incl. age). The tool computes the crude OR, the age/sex/comorbidity-adjusted logistic OR, and the Mantel–Haenszel OR stratified by age band × sex — and shows the age imbalance that makes the crude OR wrong.">
-      載入內建病例對照範例（每列一個人：case/對照旗標、暴露、共變項含年齡）。工具會算粗 OR、校正
-      年齡/性別/共病的 logistic OR，以及按年齡層×性別分層的 Mantel–Haenszel OR，並顯示讓粗 OR 出錯的年齡不平衡。
+      載入內建病例對照範例（每列一個人：case/對照旗標、暴露、共變項含年齡）。工具會算未校正 OR、校正
+      年齡/性別/共病的 logistic OR，以及按年齡層×性別分層的 Mantel–Haenszel OR，並顯示讓未校正 OR 出錯的年齡不平衡。
     </p>
 
     <div class="datasource">
@@ -3313,11 +3313,11 @@ stcox initiate age frailty, strata(trial) vce(cluster pid)
     </div>
 
     <div id="ccAnalyzeOut" class="hidden">
-      <h2 data-en="Crude vs adjusted vs Mantel–Haenszel">粗 vs 校正 vs Mantel–Haenszel</h2>
+      <h2 data-en="Crude vs adjusted vs Mantel–Haenszel">未校正 vs 校正 vs Mantel–Haenszel</h2>
       <div class="result-cards" id="ccAnalyzeCards"></div>
       <div id="ccAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="The crude OR is confounded upward because cases are older; adjustment and stratification both bring it back to the truth.">
-        粗 OR 因為病例較年長而被往上推；校正與分層都把它拉回真值。
+        未校正 OR 因為病例較年長而被往上推；校正與分層都把它拉回真值。
       </p>
 
       <h2 data-en="Advanced variants (not AI) — extensions of the design">進階變形（非 AI 的延伸設計）</h2>
@@ -3406,7 +3406,7 @@ logistic case exposed age sex comorbidity
     <h1 data-en="Can we trust this case-control? Five checks">這個病例對照可不可信？五道體檢</h1>
     <p class="lead" data-en="The core assumptions are mostly about study <b>design</b> and untestable from data alone (blue cards): controls represent the source population, exposure is measured equally, matching/time-zero are set right. The testable ones are how far the crude OR is confounded and whether the cells are well-populated. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
       核心假設大多關於研究<b>設計</b>、無法只用資料檢驗（藍卡）：對照能代表來源族群、暴露兩組量得一樣準、配對與
-      時間零點設對。可檢的是粗 OR 被混淆多少、以及各格人數夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+      時間零點設對。可檢的是未校正 OR 被混淆多少、以及各格人數夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="ccOverall" class="overall hidden"></div>
     <div id="ccAssumeCards" class="assume-cards"></div>
@@ -3957,20 +3957,20 @@ clogit nevents i.expgr i.agegr, group(pid) offset(loginterval)
     <h1 data-en="Interactive: the active comparator starts far less biased">互動：主動對照一開始就少偏很多</h1>
     <p class="lead" data-en="Drag the slider for how strongly disease <b>severity</b> drives the choice of A vs B (confounding by indication). The <b>naive A-vs-non-user</b> rate ratio is badly inflated even at zero (healthy-user gap); the <b>crude ACNU A-vs-B</b> contrast starts much closer and drifts up only as confounding grows; the <b>severity-adjusted ACNU</b> stays on the truth.">
       拉動滑桿改變疾病<b>嚴重度</b>左右「拿 A 還是 B」的程度（因適應症的混淆）。<b>未校正的 A vs 沒用藥</b>速率比就算在零也已經
-      嚴重偏高（healthy-user 差距）；<b>ACNU 粗 A vs B</b> 一開始就近很多、只隨混淆變強才漂；<b>校正嚴重度後的 ACNU</b> 穩在真值。
+      嚴重偏高（healthy-user 差距）；<b>ACNU 未校正 A vs B</b> 一開始就近很多、只隨混淆變強才漂；<b>校正嚴重度後的 ACNU</b> 穩在真值。
     </p>
 
     <div class="controls">
       <label>
         <span data-en="Confounding-by-indication strength:">因適應症的混淆強度：</span><b id="acnuConfVal">1.0</b>
         <input type="range" id="acnuConfSlider" min="0" max="1.5" value="1" step="0.05" />
-        <small data-en="0 = severity doesn't affect the A-vs-B choice. Larger = sicker patients get A, so naive and crude ACNU drift up — while the adjusted ACNU stays on the truth.">0＝嚴重度不影響 A/B 選擇。越大＝病重者更拿 A，未校正與粗 ACNU 往上漂，而校正後的 ACNU 停在真值。</small>
+        <small data-en="0 = severity doesn't affect the A-vs-B choice. Larger = sicker patients get A, so naive and crude ACNU drift up — while the adjusted ACNU stays on the truth.">0＝嚴重度不影響 A/B 選擇。越大＝病重者更拿 A，未校正與 ACNU 兩種比較都往上漂，而校正後的 ACNU 停在真值。</small>
       </label>
     </div>
 
     <div class="play-grid">
       <div class="stat"><div class="stat-label" data-en="Naive: A vs non-users">未校正：A vs 沒用藥</div><div class="stat-num" id="acnuNaive">–</div><div class="stat-foot" data-en="indication + healthy-user bias">適應症＋healthy-user 偏誤</div></div>
-      <div class="stat"><div class="stat-label" data-en="Crude ACNU: A vs B">ACNU 粗：A vs B</div><div class="stat-num" id="acnuCrude">–</div><div class="stat-foot" data-en="less biased (both indicated)">較不偏（都有病）</div></div>
+      <div class="stat"><div class="stat-label" data-en="Crude ACNU: A vs B">ACNU 未校正：A vs B</div><div class="stat-num" id="acnuCrude">–</div><div class="stat-foot" data-en="less biased (both indicated)">較不偏（都有病）</div></div>
       <div class="stat"><div class="stat-label" data-en="Adjusted ACNU">ACNU 校正後</div><div class="stat-num" id="acnuAdj">–</div><div class="stat-foot" data-en="should hug the truth 1.6">應緊貼真值 1.6</div></div>
     </div>
 
@@ -3983,7 +3983,7 @@ clogit nevents i.expgr i.agegr, group(pid) offset(loginterval)
     <h1 data-en="Data analysis: run an ACNU (rate ratio, A vs active comparator B)">資料分析：跑一次 ACNU（速率比，A vs 主動對照藥 B）</h1>
     <p class="lead" data-en="Load the built-in cohort (one row per person: drug = A / B / none, disease severity, follow-up time, event). The tool computes the naive 'A vs non-users' rate ratio, the crude ACNU 'A vs B' rate ratio, and the severity-adjusted ACNU (a Poisson rate model), each with a 95% interval.">
       載入內建世代（每列一個人：drug＝A／B／none、疾病嚴重度、追蹤人時、是否發生事件）。工具會算未校正的「A vs 沒用藥」速率比、
-      ACNU 粗的「A vs B」速率比，以及校正嚴重度後的 ACNU（Poisson 速率模型），各附 95% 區間。
+      ACNU 未校正的「A vs B」速率比，以及校正嚴重度後的 ACNU（Poisson 速率模型），各附 95% 區間。
     </p>
 
     <div class="datasource">
@@ -4818,22 +4818,22 @@ medsens(m)
   <!-- ===================== PS ② 互動講解 ===================== -->
   <section id="psplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive: strengthen the confounding, watch the crude estimate drift but PS hold">互動：加強混淆，看粗估漂掉、PS 卻穩住</h1>
+    <h1 data-en="Interactive: strengthen the confounding, watch the crude estimate drift but PS hold">互動：加強混淆，看未校正漂掉、PS 卻穩住</h1>
     <p class="lead" data-en="Drag the slider for the strength of <b>confounding by indication</b> (how strongly severity X drives both vaccination and the outcome). As it grows, the <b>crude</b> vaccinated-vs-unvaccinated estimate drifts ever further from the truth, while <b>IPTW</b> and <b>overlap weighting</b> stay locked on the true effect. At strength 0 there is no confounding and even the crude estimate is correct.">
-      拉動滑桿改變<b>適應症混淆</b>的強度（嚴重度 X 同時驅動接種與結果的力道）。強度越大，<b>粗估</b>（接種 vs 未接種）越來越偏離真值，
-      而 <b>IPTW</b> 與<b>重疊權重</b>始終鎖在真正的效果上。強度為 0 時沒有混淆，連粗估都準。
+      拉動滑桿改變<b>適應症混淆</b>的強度（嚴重度 X 同時驅動接種與結果的力道）。強度越大，<b>未校正</b>（接種 vs 未接種）越來越偏離真值，
+      而 <b>IPTW</b> 與<b>重疊權重</b>始終鎖在真正的效果上。強度為 0 時沒有混淆，連未校正都準。
     </p>
 
     <div class="controls">
       <label>
         <span data-en="Confounding-by-indication strength:">適應症混淆強度：</span><b id="psConfVal">1.0</b>
         <input type="range" id="psConfSlider" min="0" max="1.5" value="1" step="0.05" />
-        <small data-en="0 = no confounding (crude is already right). Larger = severity drives treatment &amp; outcome more, so the crude estimate is more biased — but PS weighting holds.">0＝沒有混淆（粗估本來就準）。越大＝嚴重度越強地驅動治療與結果，粗估越偏，但 PS 加權穩住。</small>
+        <small data-en="0 = no confounding (crude is already right). Larger = severity drives treatment &amp; outcome more, so the crude estimate is more biased — but PS weighting holds.">0＝沒有混淆（未校正本來就準）。越大＝嚴重度越強地驅動治療與結果，未校正越偏，但 PS 加權穩住。</small>
       </label>
     </div>
 
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Crude difference">粗估差異</div><div class="stat-num" id="psCrude">–</div><div class="stat-foot" data-en="biased by X">被 X 偏掉</div></div>
+      <div class="stat"><div class="stat-label" data-en="Crude difference">未校正差異</div><div class="stat-num" id="psCrude">–</div><div class="stat-foot" data-en="biased by X">被 X 偏掉</div></div>
       <div class="stat"><div class="stat-label" data-en="IPTW (ATE)">IPTW（ATE）</div><div class="stat-num" id="psIptw">–</div><div class="stat-foot" data-en="balanced">已平衡</div></div>
       <div class="stat"><div class="stat-label" data-en="Overlap weighting">重疊權重</div><div class="stat-num" id="psOverlap">–</div><div class="stat-foot" data-en="most stable">最穩定</div></div>
     </div>
@@ -4844,9 +4844,9 @@ medsens(m)
 
   <!-- ===================== PS ③ 資料分析 ===================== -->
   <section id="psanalyze" class="panel">
-    <h1 data-en="Data analysis: crude vs regression adjustment vs PS matching / IPTW / overlap">資料分析：粗估 vs 迴歸校正 vs PS 配對／IPTW／重疊權重</h1>
+    <h1 data-en="Data analysis: crude vs regression adjustment vs PS matching / IPTW / overlap">資料分析：未校正 vs 迴歸校正 vs PS 配對／IPTW／重疊權重</h1>
     <p class="lead" data-en="Load the built-in cohort (treatment A, outcome Y, covariate X = severity). The tool reports the <b>crude</b> difference (biased), <b>regression adjustment</b>, <b>IPTW</b> (ATE), <b>overlap weighting</b> (ATO) and <b>PS matching</b> (ATT) — with a bootstrap CI for IPTW — plus the <b>balance evidence</b>: the standardized mean difference (SMD) of X before vs after weighting.">
-      載入內建世代（治療 A、結果 Y、共變項 X＝嚴重度）。工具回報<b>粗估</b>差異（偏）、<b>迴歸校正</b>、<b>IPTW</b>（ATE）、<b>重疊權重</b>（ATO）
+      載入內建世代（治療 A、結果 Y、共變項 X＝嚴重度）。工具回報<b>未校正</b>差異（偏）、<b>迴歸校正</b>、<b>IPTW</b>（ATE）、<b>重疊權重</b>（ATO）
       與 <b>PS 配對</b>（ATT），IPTW 附自助信賴區間；並給出<b>平衡證據</b>：共變項 X 的標準化差異（SMD）加權前 vs 加權後。
     </p>
 
@@ -4869,7 +4869,7 @@ medsens(m)
       <div class="result-cards" id="psAnalyzeCards"></div>
       <div id="psAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="The crude bar is inflated by confounding by indication; regression adjustment, IPTW, overlap weighting and PS matching all fall back near the dashed truth line. Balancing the PS made the comparison fair.">
-        粗估那條被適應症混淆撐高；迴歸校正、IPTW、重疊權重與 PS 配對都回落到虛線真值附近。把 PS 平衡掉，比較就公平了。
+        未校正那條被適應症混淆撐高；迴歸校正、IPTW、重疊權重與 PS 配對都回落到虛線真值附近。把 PS 平衡掉，比較就公平了。
       </p>
     </div>
   
@@ -5031,18 +5031,18 @@ glm Y A [pw=wt], family(binomial) vce(robust)        <span class="cm">// weighte
   <!-- ===================== TMLE ② 互動講解 ===================== -->
   <section id="tmleplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive: strengthen the confounding, watch the crude drift but DR hold">互動：加強混淆，看粗估漂掉、雙重穩健卻穩住</h1>
+    <h1 data-en="Interactive: strengthen the confounding, watch the crude drift but DR hold">互動：加強混淆，看未校正漂掉、雙重穩健卻穩住</h1>
     <p class="lead" data-en="Drag the slider for the confounding strength (how strongly severity X drives both treatment and the non-linear outcome). The <b>crude</b> estimate drifts ever further from the truth, while <b>AIPW</b> and <b>TMLE</b> stay locked on the true effect. At 0 there is no confounding and even the crude estimate is correct.">
-      拉動滑桿改變混淆強度（嚴重度 X 同時驅動治療與非線性結果的力道）。<b>粗估</b>越來越偏離真值，而 <b>AIPW</b> 與 <b>TMLE</b>
-      始終鎖在真正的效果上。為 0 時沒有混淆，連粗估都準。
+      拉動滑桿改變混淆強度（嚴重度 X 同時驅動治療與非線性結果的力道）。<b>未校正</b>越來越偏離真值，而 <b>AIPW</b> 與 <b>TMLE</b>
+      始終鎖在真正的效果上。為 0 時沒有混淆，連未校正都準。
     </p>
     <div class="controls"><label>
       <span data-en="Confounding strength:">混淆強度：</span><b id="tmleConfVal">1.0</b>
       <input type="range" id="tmleConfSlider" min="0" max="1.5" value="1" step="0.05" />
-      <small data-en="0 = no confounding. Larger = severity drives treatment &amp; the non-linear outcome more, so the crude estimate is more biased — but the doubly-robust estimators hold.">0＝沒有混淆。越大＝嚴重度越強地驅動治療與非線性結果，粗估越偏，但雙重穩健估計穩住。</small>
+      <small data-en="0 = no confounding. Larger = severity drives treatment &amp; the non-linear outcome more, so the crude estimate is more biased — but the doubly-robust estimators hold.">0＝沒有混淆。越大＝嚴重度越強地驅動治療與非線性結果，未校正越偏，但雙重穩健估計穩住。</small>
     </label></div>
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Crude difference">粗估差異</div><div class="stat-num" id="tmleCrude">–</div><div class="stat-foot" data-en="biased by X">被 X 偏掉</div></div>
+      <div class="stat"><div class="stat-label" data-en="Crude difference">未校正差異</div><div class="stat-num" id="tmleCrude">–</div><div class="stat-foot" data-en="biased by X">被 X 偏掉</div></div>
       <div class="stat"><div class="stat-label" data-en="AIPW (doubly robust)">AIPW（雙重穩健）</div><div class="stat-num" id="tmleAipw">–</div><div class="stat-foot" data-en="either model right">其一對就不偏</div></div>
       <div class="stat"><div class="stat-label" data-en="TMLE (targeted)">TMLE（targeting）</div><div class="stat-num" id="tmleTmle">–</div><div class="stat-foot" data-en="DR + efficient">穩健＋有效率</div></div>
     </div>
@@ -5052,9 +5052,9 @@ glm Y A [pw=wt], family(binomial) vce(robust)        <span class="cm">// weighte
 
   <!-- ===================== TMLE ③ 資料分析 ===================== -->
   <section id="tmleanalyze" class="panel">
-    <h1 data-en="Data analysis: crude vs g-computation vs IPTW vs AIPW vs TMLE">資料分析：粗估 vs g-computation vs IPTW vs AIPW vs TMLE</h1>
+    <h1 data-en="Data analysis: crude vs g-computation vs IPTW vs AIPW vs TMLE">資料分析：未校正 vs g-computation vs IPTW vs AIPW vs TMLE</h1>
     <p class="lead" data-en="Load the built-in cohort (treatment A, outcome Y, covariate X = severity, with a non-linear X effect). The tool reports the <b>crude</b> difference (biased), <b>g-computation</b> (outcome model only), <b>IPTW</b> (propensity only), the <b>doubly-robust AIPW</b>, and <b>TMLE</b> with an influence-curve 95% CI — the DR estimators recover the truth even though a single model could be wrong.">
-      載入內建世代（治療 A、結果 Y、共變項 X＝嚴重度，X 對 Y 為非線性）。工具回報<b>粗估</b>差異（偏）、<b>g-computation</b>（只用結果模型）、
+      載入內建世代（治療 A、結果 Y、共變項 X＝嚴重度，X 對 Y 為非線性）。工具回報<b>未校正</b>差異（偏）、<b>g-computation</b>（只用結果模型）、
       <b>IPTW</b>（只用傾向分數）、<b>雙重穩健 AIPW</b>、與 <b>TMLE</b>（附影響曲線 95% CI），即使單一模型可能錯，雙重穩健估計仍還原真值。
     </p>
     <div class="datasource">
@@ -5074,7 +5074,7 @@ glm Y A [pw=wt], family(binomial) vce(robust)        <span class="cm">// weighte
       <div class="result-cards" id="tmleAnalyzeCards"></div>
       <div id="tmleAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="The crude bar is inflated by confounding; g-computation, IPTW, AIPW and TMLE all fall back near the dashed truth line. AIPW/TMLE are doubly robust — unbiased if either nuisance model is right.">
-        粗估那條被混淆撐高；g-computation、IPTW、AIPW 與 TMLE 都回落到虛線真值附近。AIPW／TMLE 雙重穩健，任一輔助模型對就不偏。</p>
+        未校正那條被混淆撐高；g-computation、IPTW、AIPW 與 TMLE 都回落到虛線真值附近。AIPW／TMLE 雙重穩健，任一輔助模型對就不偏。</p>
     </div>
   
     <hr class="merge-sep" />
@@ -5503,18 +5503,18 @@ nlcom 1 - exp(_b[1.vaccinated])          <span class="cm">// VE = 1 - OR, with 9
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Prescription sequence symmetry: a fast screen for prescribing cascades">處方順序對稱分析：快速篩出「處方瀑布」的訊號</h1>
     <p class="lead" data-en="Some adverse drug effects show up as a <b>prescribing cascade</b>: drug A causes a symptom, and the symptom gets treated with drug B. If A really triggers B, then among people who used <b>both</b>, &quot;A-then-B&quot; should outnumber &quot;B-then-A&quot;. The <b>crude sequence ratio (cSR)</b> = (A-then-B) ÷ (B-then-A) captures this — but it is <b>confounded by the prescribing trend</b>: if B's use is simply rising over calendar time, B tends to come &quot;later&quot; for everyone, inflating the cSR into a <b>false signal</b>. PSSA divides out that trend: the <b>null sequence ratio (SRnull)</b> is what the cSR would be under the trend <b>alone</b>, and the <b>adjusted sequence ratio</b> <b>aSR = cSR ÷ SRnull</b> ≈ 1 when there is no cascade and rises above 1 for a real one (Hallas 1996).">
-      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>粗順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個，但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 灌成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>無效果順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
+      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>未校正順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個，但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 灌成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>無效果順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
     </p>
-    <div class="card scene"><h3 data-en="The crude SR is inflated by the prescribing trend; SRnull removes it → aSR">粗順序比被處方趨勢灌大；SRnull 把它除掉 → aSR</h3>
+    <div class="card scene"><h3 data-en="The crude SR is inflated by the prescribing trend; SRnull removes it → aSR">未校正順序比被處方趨勢灌大；SRnull 把它除掉 → aSR</h3>
       <div id="pssaScene" class="chart"></div></div>
     <details class="term">
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef"><h4>順序比 cSR／aSR <span class="en">crude / adjusted sequence ratio</span></h4>
         <p data-en="The idea is simple: if drug A causes a side effect that gets treated with drug B, then among people who took <b>both</b>, &quot;A first, then B&quot; should happen more often than &quot;B first, then A&quot;. So you just count the two orders — call them <code>a</code> (A-then-B) and <code>b</code> (B-then-A) — and form the crude sequence ratio <code>cSR = a ÷ b</code>. A ratio above 1 means A tended to come first, which hints A might be triggering B. But raw counting is misleading, because drugs that are simply prescribed more and more over the years naturally show up &quot;later&quot; for everyone. So you divide the crude ratio by what it <i>would</i> have been from that timing alone (the null ratio, SRnull), giving the adjusted ratio <code>aSR = cSR ÷ SRnull</code>. An aSR clearly above 1 is the real warning sign that A may trigger B.">
-          這個想法很直觀：如果藥 A 會引起某個副作用、而那個副作用又被藥 B 治療，那麼在<b>兩種藥都吃過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」常見。所以你就數這兩種先後順序，把「先 A 後 B」叫 <code>a</code>、「先 B 後 A」叫 <code>b</code>，算出粗順序比 <code>cSR ＝ a ÷ b</code>。比值大於 1，代表 A 比較常排在前面，暗示 A 可能正在引發 B。但光是這樣數會被誤導，因為一種藥若這些年用得越來越多，對每個人來說它自然就傾向「比較晚」才出現。於是你把粗比值除以「光靠這種時間趨勢就會有的比值」（虛無比值 SRnull），得到校正比值 <code>aSR ＝ cSR ÷ SRnull</code>。aSR 明顯大於 1，才是 A 可能引發 B 的真正警訊。</p></div>
+          這個想法很直觀：如果藥 A 會引起某個副作用、而那個副作用又被藥 B 治療，那麼在<b>兩種藥都吃過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」常見。所以你就數這兩種先後順序，把「先 A 後 B」叫 <code>a</code>、「先 B 後 A」叫 <code>b</code>，算出未校正順序比 <code>cSR ＝ a ÷ b</code>。比值大於 1，代表 A 比較常排在前面，暗示 A 可能正在引發 B。但光是這樣數會被誤導，因為一種藥若這些年用得越來越多，對每個人來說它自然就傾向「比較晚」才出現。於是你把未校正比值除以「光靠這種時間趨勢就會有的比值」（虛無比值 SRnull），得到校正比值 <code>aSR ＝ cSR ÷ SRnull</code>。aSR 明顯大於 1，才是 A 可能引發 B 的真正警訊。</p></div>
       <div class="tdef"><h4>處方趨勢混淆 <span class="en">prescribing-trend confounding</span></h4>
         <p data-en="This is the trap that the adjustment fixes. Suppose drug B is newer and its use keeps climbing year after year — then for almost everyone B simply tends to be prescribed <i>later</i> in time, so &quot;A first, then B&quot; piles up even when A never caused B at all. The raw count is being pushed around by this calendar-time trend, not by any real cascade, and it can manufacture a false signal out of thin air. The fix is to measure how lopsided the ordering would look from the <b>trend alone</b> — that number is SRnull — and then divide it out, so the adjusted ratio aSR reflects only the part that the trend can't explain. A tiny example: if rising use of B alone makes &quot;A-then-B&quot; 1.5× as common, SRnull = 1.5, and only a crude ratio above 1.5 counts as a genuine signal.">
-          這就是校正要修掉的陷阱。假設藥 B 比較新、用量年年上升，那麼對幾乎所有人來說，B 單純就傾向<i>比較晚</i>才開出來，於是「先 A 後 B」會堆積起來，就算 A 從來沒引發過 B 也一樣。這時原始計數是被日曆時間的趨勢推著走、而不是被真正的瀑布推動，它可以憑空造出一個假訊號。解法是先量出「光靠這個趨勢」順序會偏到什麼程度，這個數就是 SRnull，再把它除掉，讓校正比值 aSR 只剩下趨勢無法解釋的部分。舉個小例子：如果光是 B 用量上升就讓「先 A 後 B」變成 1.5 倍常見，那 SRnull ＝ 1.5，粗比值要超過 1.5 才算真訊號。</p></div>
+          這就是校正要修掉的陷阱。假設藥 B 比較新、用量年年上升，那麼對幾乎所有人來說，B 單純就傾向<i>比較晚</i>才開出來，於是「先 A 後 B」會堆積起來，就算 A 從來沒引發過 B 也一樣。這時原始計數是被日曆時間的趨勢推著走、而不是被真正的瀑布推動，它可以憑空造出一個假訊號。解法是先量出「光靠這個趨勢」順序會偏到什麼程度，這個數就是 SRnull，再把它除掉，讓校正比值 aSR 只剩下趨勢無法解釋的部分。舉個小例子：如果光是 B 用量上升就讓「先 A 後 B」變成 1.5 倍常見，那 SRnull ＝ 1.5，未校正比值要超過 1.5 才算真訊號。</p></div>
       <div class="tdef"><h4>訊號偵測（產生假說）<span class="en">signal detection (hypothesis-generating)</span></h4>
         <p data-en="PSSA is a <b>screen</b>, not a verdict — its job is to point a finger, not to convict. It is fast and <b>self-controlled</b> (each person is their own comparison, so many fixed background differences cancel out), which lets you sweep across huge numbers of drug pairs cheaply and raise a hand wherever the ordering looks suspicious. But raising a hand is not proof of cause: a flagged pair still has to be chased down with a sturdier study that actually controls for who-takes-what (a cohort study, a self-controlled case series, or an active-comparator design). Think of PSSA as the smoke detector that tells you where to send the fire crew. It is the one-pair-at-a-time relative of <b>TreeScan</b> (see ⑤), which runs the same kind of screen across a whole hierarchy of outcomes at once (Hallas 1996).">
           PSSA 是<b>篩檢</b>、不是定論，它的工作是指出可疑方向，不是定罪。它快、而且<b>自我對照</b>（每個人當自己的對照，許多固定不變的背景差異就互相抵消），所以可以便宜地掃過大量藥物配對，只要順序看起來可疑就舉手示警。但舉手不等於證明因果：被標出的配對，還是得用更紮實、真正控制「誰會吃什麼藥」的研究追下去（世代研究、自我對照病例系列，或主動對照設計）。可以把 PSSA 想成煙霧偵測器，告訴你該把消防隊派去哪裡。它是 <b>TreeScan</b>（見 ⑤）一次只看一對的近親，後者把同一種篩檢一口氣跑遍整個結果階層（Hallas 1996）。</p></div>
@@ -5524,17 +5524,17 @@ nlcom 1 - exp(_b[1.vaccinated])          <span class="cm">// VE = 1 - OR, with 9
   <!-- ===================== PSSA ② 互動講解 ===================== -->
   <section id="pssaplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive: turn up the cascade, watch the crude SR stay high but the aSR separate signal from trend">互動：加大瀑布，看粗 SR 一直高、aSR 把訊號從趨勢中分出來</h1>
+    <h1 data-en="Interactive: turn up the cascade, watch the crude SR stay high but the aSR separate signal from trend">互動：加大瀑布，看未校正 SR 一直高、aSR 把訊號從趨勢中分出來</h1>
     <p class="lead" data-en="Drag the slider for the strength of the <b>real cascade</b> (how often A actually triggers B). The <b>crude SR</b> is <b>high throughout</b> — even at 0 cascade — because the prescribing trend alone inflates it (a false signal). The <b>adjusted SR (aSR)</b> sits at the null (≈1) when there is no cascade and climbs only as the real cascade grows. That gap is the whole point: aSR, not cSR, is the real signal.">
-      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>粗 SR</b> <b>從頭到尾都高</b>，連瀑布為 0 時也是，因為光是處方趨勢就把它灌大（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：真正的訊號是 aSR，不是 cSR。
+      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>未校正 SR</b> <b>從頭到尾都高</b>，連瀑布為 0 時也是，因為光是處方趨勢就把它灌大（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：真正的訊號是 aSR，不是 cSR。
     </p>
     <div class="controls"><label>
       <span data-en="Real cascade strength:">真實瀑布強度：</span><b id="pssaCascVal">1.0</b>
       <input type="range" id="pssaCascSlider" min="0" max="1.5" value="1" step="0.05" />
-      <small data-en="0 = no cascade (A never triggers B); the crude SR is still &gt; 1 from the trend alone — a false signal — but the aSR sits at 1. Larger = a stronger real cascade, which only the aSR tracks.">0＝沒有瀑布（A 從不引發 B）；粗 SR 仍因趨勢 &gt; 1，假訊號，但 aSR 落在 1。越大＝真瀑布越強，只有 aSR 跟得上。</small>
+      <small data-en="0 = no cascade (A never triggers B); the crude SR is still &gt; 1 from the trend alone — a false signal — but the aSR sits at 1. Larger = a stronger real cascade, which only the aSR tracks.">0＝沒有瀑布（A 從不引發 B）；未校正 SR 仍因趨勢 &gt; 1，假訊號，但 aSR 落在 1。越大＝真瀑布越強，只有 aSR 跟得上。</small>
     </label></div>
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Crude SR">粗 SR</div><div class="stat-num" id="pssaCsr">–</div><div class="stat-foot" data-en="trend-inflated">趨勢灌大</div></div>
+      <div class="stat"><div class="stat-label" data-en="Crude SR">未校正 SR</div><div class="stat-num" id="pssaCsr">–</div><div class="stat-foot" data-en="trend-inflated">趨勢灌大</div></div>
       <div class="stat"><div class="stat-label" data-en="Null SR (trend)">SRnull（趨勢）</div><div class="stat-num" id="pssaSrnull">–</div><div class="stat-foot" data-en="trend baseline">趨勢基準</div></div>
       <div class="stat"><div class="stat-label" data-en="Adjusted SR">校正 SR（aSR）</div><div class="stat-num" id="pssaAsr">–</div><div class="stat-foot" data-en="the real signal">真正的訊號</div></div>
     </div>
@@ -5544,9 +5544,9 @@ nlcom 1 - exp(_b[1.vaccinated])          <span class="cm">// VE = 1 - OR, with 9
 
   <!-- ===================== PSSA ③ 資料分析 ===================== -->
   <section id="pssaanalyze" class="panel">
-    <h1 data-en="Data analysis: crude SR vs adjusted SR (aSR = cSR ÷ SRnull)">資料分析：粗 SR vs 校正 SR（aSR ＝ cSR ÷ SRnull）</h1>
+    <h1 data-en="Data analysis: crude SR vs adjusted SR (aSR = cSR ÷ SRnull)">資料分析：未校正 SR vs 校正 SR（aSR ＝ cSR ÷ SRnull）</h1>
     <p class="lead" data-en="Load the built-in new-user cohort (first-ever initiation months of the index drug A and the marker drug B). The tool reports the <b>crude SR</b> (confounded by the prescribing trend), the <b>SRnull</b> it implies, and the <b>adjusted SR</b> aSR = cSR ÷ SRnull with a 95% CI, and whether the pair is <b>flagged as a signal</b> (aSR CI excludes 1).">
-      載入內建的新使用者世代（指標藥 A 與標記藥 B 的<b>首次</b>起始月）。工具回報<b>粗 SR</b>（被處方趨勢偏）、它隱含的 <b>SRnull</b>、以及<b>校正 SR</b> aSR ＝ cSR ÷ SRnull 附 95% CI，並判斷這對是否<b>被標為訊號</b>（aSR 的 CI 不含 1）。
+      載入內建的新使用者世代（指標藥 A 與標記藥 B 的<b>首次</b>起始月）。工具回報<b>未校正 SR</b>（被處方趨勢偏）、它隱含的 <b>SRnull</b>、以及<b>校正 SR</b> aSR ＝ cSR ÷ SRnull 附 95% CI，並判斷這對是否<b>被標為訊號</b>（aSR 的 CI 不含 1）。
     </p>
     <div class="datasource">
       <button id="usePssaExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
@@ -5559,12 +5559,12 @@ nlcom 1 - exp(_b[1.vaccinated])          <span class="cm">// VE = 1 - OR, with 9
       <div class="result-cards" id="pssaAnalyzeCards"></div>
       <div id="pssaAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="The crude SR bar is lifted above 1 by the prescribing trend; dividing by SRnull gives the adjusted SR, the real signal. A 95% CI that excludes 1 flags the pair.">
-        粗 SR 那條被處方趨勢抬到 1 以上；除以 SRnull 得到校正 SR，才是真正的訊號。95% CI 不含 1 就把這對標出來。</p>
+        未校正 SR 那條被處方趨勢抬到 1 以上；除以 SRnull 得到校正 SR，才是真正的訊號。95% CI 不含 1 就把這對標出來。</p>
     </div>
   
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="SAS / R code: the key steps for sequence symmetry analysis">程式（SAS · R · Stata）：處方順序對稱分析的關鍵步驟</h2>
-    <p class="lead" data-en="PSSA is mostly counting: among new users of <b>both</b> drugs, count A-then-B vs B-then-A, then divide the crude SR by a trend-only SRnull. The estimator is a ratio, so the &quot;code&quot; is data-step counting plus a closed-form CI.">PSSA 主要是計數：在<b>兩種藥都首次使用</b>的人裡，數「先 A 後 B」與「先 B 後 A」，再把粗 SR 除以「只有趨勢」的 SRnull。估計式是個比值，所以「程式」就是資料步驟的計數加上閉式 CI。</p>
+    <p class="lead" data-en="PSSA is mostly counting: among new users of <b>both</b> drugs, count A-then-B vs B-then-A, then divide the crude SR by a trend-only SRnull. The estimator is a ratio, so the &quot;code&quot; is data-step counting plus a closed-form CI.">PSSA 主要是計數：在<b>兩種藥都首次使用</b>的人裡，數「先 A 後 B」與「先 B 後 A」，再把未校正 SR 除以「只有趨勢」的 SRnull。估計式是個比值，所以「程式」就是資料步驟的計數加上閉式 CI。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
     <div data-lang="sas" class="card"><h3 data-en="Step 0 — new users of both drugs; first-ever start dates">步驟 0 — 兩藥的新使用者；各自首次起始日</h3>
       <pre class="sas"><code><span class="cm">/* incident (new) use of BOTH drugs, with a washout before each first dispensing. */</span>
@@ -5578,7 +5578,7 @@ proc sql;
       and abs(tB - tA) &lt;= 365;                         <span class="cm">/* time window, e.g. 12 months */</span>
 quit;</code></pre>
       <p data-en="Everything rests on Step 0: first-ever (incident) use of both drugs and a sensible time window. Prevalent users contaminate the order (see ④, C4).">成敗在步驟 0：兩藥都要首次（incident）使用、配合合理的時間窗。盛行使用者會污染順序（見 ④ C4）。</p></div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 1 — crude SR, then divide out the trend → aSR">步驟 1 — 粗 SR，再除掉趨勢 → aSR</h3>
+    <div data-lang="sas" class="card"><h3 data-en="Step 1 — crude SR, then divide out the trend → aSR">步驟 1 — 未校正 SR，再除掉趨勢 → aSR</h3>
       <pre class="sas"><code>data c; set pairs; aThenB = (tA &lt; tB); run;
 proc sql;                                              <span class="cm">/* a = A-then-B, b = B-then-A */</span>
    select sum(aThenB) into :a from c;
@@ -5586,7 +5586,7 @@ proc sql;                                              <span class="cm">/* a = A
 quit;
 <span class="cm">/* crude SR = a/b ; SRnull from the empirical timing CDFs (trend only) ; aSR = cSR/SRnull */</span>
 <span class="cm">/* Var(log aSR) = 1/a + 1/b ; 95% CI = aSR * exp(+/- 1.96*sqrt(1/a+1/b)). aSR>1 & CI excl. 1 = signal */</span></code></pre>
-      <p data-en="The crude SR = a ÷ b; SRnull is the same ratio expected under the prescribing trend alone (estimated from the empirical start-time distributions). aSR = cSR ÷ SRnull, with a log-scale CI. R: the <code>Sequence Symmetry Analysis</code> idiom, or the <code>SSAcox</code> / dedicated SSA packages.">粗 SR ＝ a ÷ b；SRnull 是「只有處方趨勢」時同一比值的期望（由經驗起始時間分布估）。aSR ＝ cSR ÷ SRnull，附 log 尺度 CI。R：序列對稱分析慣用法，或專用 SSA 套件。</p></div>
+      <p data-en="The crude SR = a ÷ b; SRnull is the same ratio expected under the prescribing trend alone (estimated from the empirical start-time distributions). aSR = cSR ÷ SRnull, with a log-scale CI. R: the <code>Sequence Symmetry Analysis</code> idiom, or the <code>SSAcox</code> / dedicated SSA packages.">未校正 SR ＝ a ÷ b；SRnull 是「只有處方趨勢」時同一比值的期望（由經驗起始時間分布估）。aSR ＝ cSR ÷ SRnull，附 log 尺度 CI。R：序列對稱分析慣用法，或專用 SSA 套件。</p></div>
     <div data-lang="sas" class="card"><h3 data-en="Step 2 — scale up: from one pair to a tree (TreeScan)">步驟 2 — 規模化：從一對到一棵樹（TreeScan）</h3>
       <pre class="sas"><code><span class="cm">/* PSSA screens one pair. To screen thousands of outcomes with FWER control, */</span>
 <span class="cm">/* use a tree-based scan statistic (Bernoulli LLR over an outcome hierarchy,  */</span>
@@ -5616,7 +5616,7 @@ aSR   &lt;- cSR / SRnull                  <span class="cm"># SRnull = null-expec
 se    &lt;- sqrt(1/a + 1/b)              <span class="cm"># Var(log aSR) = 1/a + 1/b</span>
 ci    &lt;- aSR * exp(c(-1, 1) * 1.96 * se)   <span class="cm"># aSR&gt;1 &amp; CI excl. 1 = signal</span>
 </code></pre>
-      <p data-en="Same steps in dplyr: collapse to one row per person with first-ever tA and tB, keep discordant pairs inside the window, count the two orderings, then crude SR = a ÷ b and aSR = cSR ÷ SRnull with a log-scale CI. Dedicated <code>SSA</code> / <code>SSAcox</code> packages wrap this.">dplyr 同樣步驟：每人收成一列、取首次 tA 與 tB，留下窗內不一致對，數兩種順序，粗 SR ＝ a ÷ b、aSR ＝ cSR ÷ SRnull 並附 log 尺度 CI。專用 <code>SSA</code>／<code>SSAcox</code> 套件即封裝此流程。</p></div>
+      <p data-en="Same steps in dplyr: collapse to one row per person with first-ever tA and tB, keep discordant pairs inside the window, count the two orderings, then crude SR = a ÷ b and aSR = cSR ÷ SRnull with a log-scale CI. Dedicated <code>SSA</code> / <code>SSAcox</code> packages wrap this.">dplyr 同樣步驟：每人收成一列、取首次 tA 與 tB，留下窗內不一致對，數兩種順序，未校正 SR ＝ a ÷ b、aSR ＝ cSR ÷ SRnull 並附 log 尺度 CI。專用 <code>SSA</code>／<code>SSAcox</code> 套件即封裝此流程。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata version — the same steps (sequence ratio)">Stata 版本：同樣步驟（序列比）</h3>
       <pre class="sas"><code><span class="cm">* Stata — prescription sequence symmetry analysis</span>
 <span class="cm">* incident (new) use of BOTH drugs: first-ever start date per drug per person</span>
@@ -5641,7 +5641,7 @@ scalar lo  = aSR * exp(-1.96 * se)            <span class="cm">// aSR&gt;1 &amp;
 scalar hi  = aSR * exp( 1.96 * se)
 di "aSR=" aSR "  95% CI " lo ", " hi
 </code></pre>
-      <p data-en="Same steps in Stata: collapse to first-ever start dates, reshape to one row per person (tA, tB), keep discordant pairs in the window, count the two orderings into scalars a and b, then crude SR = a ÷ b and aSR = cSR ÷ SRnull with a log-scale 95% CI.">Stata 同樣步驟：collapse 取首次起始日、reshape 成每人一列（tA、tB），留窗內不一致對，把兩種順序計入純量 a 與 b，粗 SR ＝ a ÷ b、aSR ＝ cSR ÷ SRnull 並附 log 尺度 95% CI。</p></div>
+      <p data-en="Same steps in Stata: collapse to first-ever start dates, reshape to one row per person (tA, tB), keep discordant pairs in the window, count the two orderings into scalars a and b, then crude SR = a ÷ b and aSR = cSR ÷ SRnull with a log-scale 95% CI.">Stata 同樣步驟：collapse 取首次起始日、reshape 成每人一列（tA、tB），留窗內不一致對，把兩種順序計入純量 a 與 b，未校正 SR ＝ a ÷ b、aSR ＝ cSR ÷ SRnull 並附 log 尺度 95% CI。</p></div>
   </section>
 
   <!-- ===================== PSSA ④ 假設檢驗 ===================== -->
@@ -8503,6 +8503,7 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="miss"><b data-en="Missing data (Missing-data tab)">缺失資料（缺失資料分頁）</b> · Rubin, D. B. (1987). <i>Multiple Imputation for Nonresponse in Surveys.</i> Wiley.</li>
       <li data-ref="miss">van Buuren, S. (2018). <i>Flexible Imputation of Missing Data</i> (2nd ed.). CRC Press (the <code>mice</code> package).</li>
       <li data-ref="miss">Sterne, J. A. C., White, I. R., Carlin, J. B., et al. (2009). Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. <i>BMJ, 338</i>, b2393.</li>
+      <li data-ref="miss">Mathur, M. B. (2023). The M-value: a simple sensitivity analysis for bias due to missing data in treatment effect estimates. <i>American Journal of Epidemiology, 192</i>(4), 612–620. https://doi.org/10.1093/aje/kwac207. <span data-en="〔a missing-data sensitivity analysis — the 'missing-data analogue' of the E-value〕">〔缺失資料偏誤的敏感度分析，可視為 E-value 的「缺失資料版」〕</span></li>
       <li data-ref="miss"><b data-en="Teaching resources">教學資源</b> · Princeton DSS, <i>Missing Data &amp; R</i> (libguides.princeton.edu/R-Missingdata).</li>
       <li data-ref="miss">Columbia MailmanSPH, <i>Missing Data and Multiple Imputation</i> (publichealth.columbia.edu, Population Health Methods).</li>
       <li data-ref="miss">Brownlee, J. (2024). <i>Advanced Imputation Techniques in pandas &amp; scikit-learn</i> (machinelearningmastery.com — IterativeImputer / KNNImputer).</li>
@@ -8576,6 +8577,8 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="srma">Bannach-Brown, A., Przybyła, P., Thomas, J., et al. (2019). Machine learning algorithms for systematic review: reducing workload and human screening error. <i>Systematic Reviews, 8</i>, 23.</li>
       <li data-ref="srma">Hanegraaf, P., Wondimu, A., Mosselman, J. J., et al. (2024). Inter-reviewer reliability of human literature reviewing and implications for machine-assisted systematic reviews. <i>BMJ Open, 14</i>, e076912.</li>
       <li data-ref="srma">Guo, E., Gupta, M., Deng, J., et al. (2024). Automated paper screening for clinical reviews using large language models. <i>JMIR, 26</i>, e48996.</li>
+      <li data-ref="srma">Mathur, M. B., &amp; VanderWeele, T. J. (2020). Sensitivity analysis for publication bias in meta-analyses. <i>Journal of the Royal Statistical Society: Series C (Applied Statistics), 69</i>(5), 1091–1119. https://doi.org/10.1111/rssc.12440.</li>
+      <li data-ref="srma">Braginsky, M., Mathur, M. B., &amp; VanderWeele, T. J. <i>PublicationBias</i>: sensitivity analysis for publication bias in meta-analyses (R package). <a href="https://cran.r-project.org/package=PublicationBias" target="_blank" rel="noopener">cran.r-project.org/package=PublicationBias</a>. <span data-en="〔how much publication bias would shift the pooled estimate / CI — the significance funnel &amp; worst-case estimate〕">〔需要多強的發表偏誤才會移動合併估計／信賴區間——significance funnel 與最壞情況估計〕</span></li>
       <li data-ref="iv">Homayra, F., Enns, B., Min, J. E., Kurz, M., Bach, P., Bruneau, J., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
@@ -8674,6 +8677,7 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="evalue">Ding, P., &amp; VanderWeele, T. J. (2016). Sensitivity analysis without assumptions. <i>Epidemiology, 27</i>(3), 368–377. <span data-en="〔the Ding–VanderWeele bounding factor〕">〔Ding–VanderWeele 偏誤因子〕</span></li>
       <li data-ref="evalue">Haneuse, S., VanderWeele, T. J., &amp; Arterburn, D. (2019). Using the E-value to assess the potential effect of unmeasured confounding in observational studies. <i>JAMA, 321</i>(6), 602–603.</li>
       <li data-ref="evalue">Mathur, M. B., Ding, P., Riddell, C. A., &amp; VanderWeele, T. J. (2018). Web site and R package for computing E-values. <i>Epidemiology, 29</i>(5), e45–e47 (the <code>EValue</code> package).</li>
+      <li data-ref="evalue">Mathur, M. B., Smith, L. H., Ding, P., &amp; VanderWeele, T. J. <i>EValue</i>: sensitivity analyses for unmeasured confounding and other biases in observational studies and meta-analyses (R package, v4.1). <a href="https://cran.r-project.org/package=EValue" target="_blank" rel="noopener">cran.r-project.org/package=EValue</a>. <span data-en="〔E-value, selection bias, measurement error, multiple-bias &amp; meta-analytic sensitivity — the package the ③ code uses〕">〔E-value、選樣偏誤、測量誤差、多重偏誤與統合分析敏感度，③ 程式所用的套件〕</span></li>
       <li data-ref="evalue">VanderWeele, T. J., &amp; Mathur, M. B. (2020). Commentary: developing best-practice guidelines for the reporting of E-values. <i>International Journal of Epidemiology, 49</i>(5), 1495–1497.</li>
       <li data-ref="evalue">E-value calculator (official online tool). <a href="https://www.evalue-calculator.com/evalue/" target="_blank" rel="noopener">evalue-calculator.com/evalue</a>.</li>
       <li data-ref="evalue">Schneeweiss, S. (2006). Sensitivity analysis and external adjustment for unmeasured confounders in epidemiologic database studies of therapeutics (the <b>array approach</b>). <i>Pharmacoepidemiology and Drug Safety, 15</i>(5), 291–303.</li>
@@ -8738,7 +8742,7 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="tnd"><b data-en="Causal / adjusted TND &amp; validation">因果／調整式 TND 與驗證</b> · Schnitzer, M. E. (2022). Estimands and Estimation of COVID-19 Vaccine Effectiveness Under the Test-Negative Design. <i>Epidemiology, 33</i>(3), 325–333.</li>
       <li data-ref="tnd">Rowley, E. A. K., et al. (2025). Methods to Adjust for Confounding in Test-Negative Design COVID-19 Effectiveness Studies: Simulation Study. <i>JMIR Formative Research</i>.</li>
       <li data-ref="tnd">Andrews, N., et al. (2025). Evaluating the Test-Negative Design for COVID-19 Vaccine Effectiveness Using Randomized Trial Data. <i>JAMA Network Open</i>.</li>
-      <li data-ref="pssa"><b data-en="Foundational">奠基</b> · Hallas, J. (1996). Evidence of depression provoked by cardiovascular medication: a prescription sequence symmetry analysis. <i>Epidemiology, 7</i>(5), 478–484. <span data-en="〔the original sequence symmetry analysis &amp; the crude/adjusted sequence ratio — PSSA tabs ①③〕">〔處方順序對稱分析原典與粗／校正順序比：PSSA 分頁 ①③〕</span></li>
+      <li data-ref="pssa"><b data-en="Foundational">奠基</b> · Hallas, J. (1996). Evidence of depression provoked by cardiovascular medication: a prescription sequence symmetry analysis. <i>Epidemiology, 7</i>(5), 478–484. <span data-en="〔the original sequence symmetry analysis &amp; the crude/adjusted sequence ratio — PSSA tabs ①③〕">〔處方順序對稱分析原典與未校正／校正順序比：PSSA 分頁 ①③〕</span></li>
       <li data-ref="pssa">Tsiropoulos, I., Andersen, M., &amp; Hallas, J. (2009). Adverse events with use of antiepileptic drugs: a prescription and event symmetry analysis. <i>Pharmacoepidemiology and Drug Safety, 18</i>(6), 483–491.</li>
       <li data-ref="pssa">Lai, E. C.-C., et al. (2017). Sequence symmetry analysis in pharmacovigilance and pharmacoepidemiologic studies. <i>European Journal of Epidemiology, 32</i>(7), 567–582.</li>
       <li data-ref="pssa"><b data-en="Reporting / scaling">報告／規模化</b> · Hendrix, N., et al. (2024). Reporting guidance for sequence symmetry analysis.</li>
