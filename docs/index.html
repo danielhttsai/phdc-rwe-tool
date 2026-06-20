@@ -6163,7 +6163,8 @@ regress Y A [pweight = iosw] if in_trial == 1, vce(robust)
         <label><span data-en="Confounder prevalence in the unexposed (PC0)">未暴露組的混淆盛行率 PC0</span> <input type="range" class="ea-p0" min="0" max="1" step="0.02" value="0.20"> <b class="ea-p0v">0.20</b></label>
         <label><span data-en="Confounder ↔ outcome RR (RRCD)">混淆↔結果的相對風險 RRCD</span> <input type="range" class="ea-cd" min="1" max="6" step="0.1" value="2.5"> <b class="ea-cdv">2.5</b></label>
       </div>
-      <div id="evalueArrayChart" class="chart" style="height:300px"></div>
+      <div id="evalueArrayChart" class="chart" style="height:380px"></div>
+      <p class="caption" data-en="The surface is the bias-adjusted RR over every combination of P<sub>C1</sub> and RR<sub>CD</sub> (with ARR and P<sub>C0</sub> held fixed at the slider values) — the same view as the Schneeweiss array Excel; the dot marks your current sliders. Drag to rotate.">曲面是「在固定 ARR 與 P<sub>C0</sub>（滑桿值）下，每一組 P<sub>C1</sub> 與 RR<sub>CD</sub> 對應的校正後 RR」，與 Schneeweiss array Excel 同一個視圖；圓點是你目前的滑桿位置。可拖曳旋轉。</p>
       <p class="caption ea-out"></p>
       <p class="caption" data-en="Bias factor BF = (1 + PC1(RRCD−1)) / (1 + PC0(RRCD−1)); adjusted RR = ARR ∕ BF — the same formula as Schneeweiss's array-approach Excel (the 'Array' sheets). A confounder only biases the effect when its prevalence differs across exposure groups (PC1 ≠ PC0) AND it is linked to the outcome (RRCD &gt; 1).">偏誤因子 BF ＝ (1 ＋ PC1(RRCD−1)) ∕ (1 ＋ PC0(RRCD−1))；校正後 RR ＝ ARR ∕ BF，與 Schneeweiss array-approach Excel（「Array」分頁）同一條公式。混淆只有在「兩組盛行率不同（PC1 ≠ PC0）」<b>且</b>「與結果有關（RRCD &gt; 1）」時才會造成偏誤。</p>
     </div>

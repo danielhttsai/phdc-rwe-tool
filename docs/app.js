@@ -622,16 +622,43 @@ function refreshEvalueArray() {
   card.querySelector(".ea-cdv").textContent = cd.toFixed(1);
   const bf = (1 + p1 * (cd - 1)) / (1 + p0 * (cd - 1)), adj = rr / bf;
   const gone = adj <= 1;
+  // Excel-style 3D surface: RRadjusted over P_C1 (x) × RR_CD (y), with ARR & P_C0 fixed.
+  const xs = [], ys = [];
+  for (let i = 0; i <= 24; i++) xs.push(i / 24);          // P_C1 : 0 → 1
+  for (let j = 0; j <= 24; j++) ys.push(1 + j * (5 / 24)); // RR_CD: 1 → 6
+  const z = ys.map((cdv) => xs.map((pc1) => {
+    const BF = (1 + pc1 * (cdv - 1)) / (1 + p0 * (cdv - 1));
+    return rr / BF;                                        // RRadjusted = ARR / BF
+  }));
   const el = document.getElementById("evalueArrayChart");
-  if (el) Plotly.react(el, [{
-    x: [tr("觀察 ARR", "apparent ARR"), tr("校正後 RRadj", "adjusted RRadj")], y: [rr, adj], type: "bar",
-    marker: { color: [SLATE, gone ? "#b91c1c" : TEAL] }, text: [rr.toFixed(2), adj.toFixed(2)],
-    textposition: "outside", hoverinfo: "skip",
-  }], sceneLayout({
-    height: 300, margin: { t: 16, r: 16, b: 34, l: 52 },
-    yaxis: { title: tr("風險比", "risk ratio"), range: [0, Math.max(rr, adj, 2.2) + 0.5] },
-    shapes: [{ type: "line", x0: -0.5, x1: 1.5, y0: 1, y1: 1, line: { color: "#94a3b8", dash: "dash", width: 1.5 } }],
-  }), SCENE_CFG);
+  if (el) Plotly.react(el, [
+    {
+      type: "surface", x: xs, y: ys, z: z, showscale: false, opacity: 0.97,
+      colorscale: [[0, "#fff7bc"], [0.4, "#7fcdbb"], [0.7, "#8856a7"], [1, "#c51b8a"]],
+      contours: { z: { show: true, usecolormap: true, width: 1, project: { z: false } } },
+      hovertemplate: "P<sub>C1</sub>=%{x:.2f}<br>RR<sub>CD</sub>=%{y:.1f}<br>RR<sub>adj</sub>=%{z:.2f}<extra></extra>",
+    },
+    {
+      type: "scatter3d", mode: "markers", x: [p1], y: [cd], z: [adj],
+      marker: { size: 5, color: gone ? "#b91c1c" : "#0f172a" },
+      hovertemplate: `${tr("目前選擇", "current")}: P<sub>C1</sub>=${p1.toFixed(2)}, RR<sub>CD</sub>=${cd.toFixed(1)} → RR<sub>adj</sub>=${adj.toFixed(2)}<extra></extra>`,
+    },
+  ], {
+    height: 380, margin: { l: 0, r: 0, t: 6, b: 0 }, showlegend: false,
+    paper_bgcolor: "rgba(0,0,0,0)",
+    scene: {
+      xaxis: { title: "P<sub>C1</sub>", range: [0, 1] },
+      yaxis: { title: "RR<sub>CD</sub>", range: [1, 6] },
+      zaxis: { title: tr("校正後 RR<sub>adj</sub>", "RR<sub>adjusted</sub>") },
+      camera: { eye: { x: 1.7, y: -1.5, z: 0.7 } },
+    },
+    annotations: [{
+      xref: "paper", yref: "paper", x: 1, y: 0.96, xanchor: "right", showarrow: false,
+      align: "left", bordercolor: "#94a3b8", borderwidth: 1, borderpad: 5, bgcolor: "#ffffff",
+      font: { size: 11 },
+      text: `${tr("固定", "Fixed")}:<br>ARR = ${rr.toFixed(2)}<br>P<sub>C0</sub> = ${p0.toFixed(2)}`,
+    }],
+  }, { displayModeBar: false, responsive: true });
   card.querySelector(".ea-out").innerHTML = tr(
     `偏誤因子 BF＝<b>${bf.toFixed(2)}</b>，把 ARR ${rr.toFixed(2)} 校正成 RRadj＝<b>${adj.toFixed(2)}</b> → ` +
       (gone ? `<b style="color:#b91c1c">這個混淆足以把效果解釋掉（跨過 1）</b>` : `<b style="color:#1d6f57">仍在 1 的同側，效果存活</b>`),
