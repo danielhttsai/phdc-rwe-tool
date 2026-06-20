@@ -914,6 +914,47 @@ run;</code></pre>
    model Y = above cage above*cage;   <span class="cm">/* coef of 'above' = Sharp RD */</span>
 run;</code></pre>
       <p data-en="The <code>above*cage</code> term lets the slope differ on each side; the coefficient on <code>above</code> is the jump (Sharp RD). For <b>fuzzy</b> RDD, use <code>above</code> as an instrument for actual treatment in <code>proc syslin 2sls</code>."><code>above*cage</code> 讓兩側斜率不同；<code>above</code> 的係數即跳幅（Sharp RD）。<b>模糊</b> RDD 則在 <code>proc syslin 2sls</code> 裡用 <code>above</code> 當實際治療的工具。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (rdrobust)">R 版本 —— 同樣步驟（rdrobust）</h3>
+      <pre class="sas"><code><span class="cm"># R — regression discontinuity</span>
+<span class="cm"># Step 0 — from longitudinal data to analysis-ready: one INDEX row per person</span>
+library(dplyr); library(rdrobust)
+rdd &lt;- raw %&gt;%
+  filter(visit_type == "index") %&gt;%
+  transmute(pid, age = age_at_index, D = treated, Y = outcome)
+
+<span class="cm"># Step 1 — data-driven bandwidth + centre the running variable at cutoff 65</span>
+bw   &lt;- rdbwselect(y = rdd$Y, x = rdd$age, c = 65)   <span class="cm"># MSE-optimal h</span>
+rdd  &lt;- rdd %&gt;% mutate(cage = age - 65, above = as.integer(age &gt;= 65))
+
+<span class="cm"># Step 2 — local linear regression (Sharp RD): jump at the cutoff = effect</span>
+rdplot(y = rdd$Y, x = rdd$age, c = 65)               <span class="cm"># visualise the jump</span>
+sharp &lt;- rdrobust(y = rdd$Y, x = rdd$age, c = 65)     <span class="cm"># coef = Sharp RD</span>
+summary(sharp)
+
+<span class="cm"># Fuzzy RDD: use actual treatment D as the fuzzy assignment</span>
+fuzzy &lt;- rdrobust(y = rdd$Y, x = rdd$age, c = 65, fuzzy = rdd$D)
+summary(fuzzy)
+</code></pre>
+      <p data-en="<code>rdrobust</code> picks the bandwidth, fits the local linear regression on each side, and reports the jump with bias-corrected robust CIs; add <code>fuzzy = D</code> for fuzzy RDD."><code>rdrobust</code> 自動選頻寬、在兩側各配局部線性迴歸，並以偏誤校正穩健信賴區間報告跳幅；加 <code>fuzzy = D</code> 即為模糊 RDD。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (rdrobust)">Stata 版本 —— 同樣步驟（rdrobust）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — regression discontinuity</span>
+<span class="cm">* Step 0 — from longitudinal data to analysis-ready: one INDEX row per person</span>
+keep if visit_type == "index"
+rename (age_at_index treated outcome) (age D Y)
+
+<span class="cm">* Step 1 — data-driven bandwidth + centre the running variable at cutoff 65</span>
+rdbwselect Y age, c(65)              // MSE-optimal h
+gen cage  = age - 65                 // centre at the cutoff
+gen above = age &gt;= 65                // treated/eligible side
+
+<span class="cm">* Step 2 — local linear regression (Sharp RD): jump at the cutoff = effect</span>
+rdplot Y age, c(65)                  // visualise the jump
+rdrobust Y age, c(65)               // coef = Sharp RD
+
+<span class="cm">* Fuzzy RDD: use actual treatment D as the fuzzy assignment</span>
+rdrobust Y age, c(65) fuzzy(D)
+</code></pre>
+      <p data-en="<code>rdrobust</code> selects the bandwidth, fits the local linear fit each side and reports the jump with robust bias-corrected inference; <code>fuzzy(D)</code> switches to fuzzy RDD."><code>rdrobust</code> 自動選頻寬、兩側各配局部線性，並以穩健偏誤校正推論報告跳幅；<code>fuzzy(D)</code> 即切換為模糊 RDD。</p></div>
   </section>
 
   <!-- ===================== RDD ④ 假設檢驗 ===================== -->
@@ -1388,6 +1429,54 @@ run;</code></pre>
    repeated subject=id;
 run;</code></pre>
       <p data-en="Plot the <code>treat*period</code> coefficients: if the <b>pre</b>-intervention ones are near zero, parallel trends is plausible.">把 <code>treat*period</code> 各期係數畫出來：若<b>介入前</b>各期接近 0，平行趨勢就較可信。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (panel build, DiD, event study)">R 版本 —— 同樣步驟（建面板、DiD、事件研究）</h3>
+      <pre class="sas"><code><span class="cm"># R — difference-in-differences</span>
+library(dplyr); library(fixest)
+
+<span class="cm"># Step 0 — person-month records -&gt; unit x period PANEL (collapse to means)</span>
+did &lt;- raw %&gt;%
+  group_by(id = community, period) %&gt;%
+  summarise(Y     = mean(outcome),
+            treat = max(ever_treated),       <span class="cm"># unit ever gets the policy</span>
+            policy_period = first(policy_period), .groups = "drop") %&gt;%
+  mutate(post = as.integer(period &gt;= policy_period))   <span class="cm"># before vs after the switch</span>
+
+<span class="cm"># Step 1 — the DiD interaction with cluster-robust SE by unit</span>
+feols(Y ~ treat * post, data = did, cluster = ~id)     <span class="cm"># treat:post = DiD / ATT</span>
+
+<span class="cm"># Step 2 — event study (check pre-trends), period -1 as reference</span>
+es &lt;- feols(Y ~ i(period, treat, ref = -1) | id + period,
+            data = did, cluster = ~id)
+iplot(es)                                              <span class="cm"># pre-period coefs ~ 0 supports parallel trends</span>
+
+<span class="cm"># Alternative — Callaway &amp; Sant'Anna group-time ATT (staggered adoption)</span>
+library(did)
+att &lt;- att_gt(yname = "Y", tname = "period", idname = "id",
+              gname = "policy_period", data = did)      <span class="cm"># gname = first treated period (0 if never)</span>
+aggte(att, type = "dynamic")                            <span class="cm"># event-study aggregation</span>
+</code></pre>
+      <p data-en="Same flow as SAS: collapse to a unit×period panel, then the coefficient on <code>treat:post</code> in <code>feols</code> is the DiD/ATT with <code>cluster = ~id</code> for unit-clustered SEs; <code>i(period, treat)</code> gives the event study, and <code>did::att_gt</code> handles staggered adoption.">與 SAS 同流程：先收成單位×期別面板，<code>feols</code> 中 <code>treat:post</code> 的係數即 DiD／ATT，<code>cluster = ~id</code> 給單位群集標準誤；<code>i(period, treat)</code> 做事件研究，<code>did::att_gt</code> 可處理交錯（staggered）採用。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (panel build, DiD, event study)">Stata 版本 —— 同樣步驟（建面板、DiD、事件研究）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — difference-in-differences</span>
+
+<span class="cm">* Step 0 — person-month records -&gt; unit x period PANEL (collapse to means)</span>
+collapse (mean) Y=outcome (max) treat=ever_treated ///
+         (first) policy_period, by(community period)
+rename community id
+gen post = (period &gt;= policy_period)        <span class="cm">* before vs after the switch</span>
+xtset id period
+
+<span class="cm">* Step 1 — the DiD interaction with cluster-robust SE by unit</span>
+didregress (Y) (post), group(id) time(period)     <span class="cm">// ATET = the DiD effect</span>
+<span class="cm">* equivalently, two-way fixed effects:</span>
+xtreg Y i.post##i.treat i.period, fe vce(cluster id)   <span class="cm">// 1.post#1.treat = DiD / ATT</span>
+
+<span class="cm">* Step 2 — event study (check pre-trends), period -1 as reference</span>
+xtreg Y ib(-1).period##i.treat, fe vce(cluster id)     <span class="cm">// treat x period coefs</span>
+margins, dydx(treat) over(period)                       <span class="cm">// pre-period effects ~ 0 supports parallel trends</span>
+marginsplot
+</code></pre>
+      <p data-en="Same flow as SAS: collapse to a unit×period panel and <code>xtset id period</code>; <code>didregress</code> reports the ATET (the DiD effect), or read <code>1.post#1.treat</code> from the two-way FE <code>xtreg</code>; the <code>ib(-1).period##i.treat</code> model plus <code>marginsplot</code> is the event study.">與 SAS 同流程：收成單位×期別面板並 <code>xtset id period</code>；<code>didregress</code> 報告 ATET（即 DiD 效果），或從雙向固定效果的 <code>xtreg</code> 讀 <code>1.post#1.treat</code>；<code>ib(-1).period##i.treat</code> 模型搭配 <code>marginsplot</code> 即事件研究。</p></div>
   </section>
 
   <!-- ===================== DiD ④ 假設檢驗 ===================== -->
@@ -1650,6 +1739,41 @@ run;</code></pre>
    estimate 'OR' exp(b1);          <span class="cm">/* causal odds ratio */</span>
 run;</code></pre>
       <p data-en="<code>b1</code> is the causal log-odds-ratio; <code>exp(b1)</code> is the trend-in-trend OR. The per-stratum nuisance parameters absorb the differing exposure trends across strata."><code>b1</code> 是因果對數勝算比；<code>exp(b1)</code> 即 TiT 的 OR。各層的滋擾參數吸收了跨層不同的暴露趨勢。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (CPE strata → counts → fit)">R 版本 —— 同樣步驟（CPE 層 → 計數 → 擬合）</h3>
+      <pre class="sas"><code><span class="cm"># R — trend-in-trend</span>
+<span class="cm"># 1) cumulative-prob-of-exposure (CPE) per person, then cut into 5 strata</span>
+fit_cpe &lt;- glm(ever_exposed ~ age + sex + comorbidity,
+               family = binomial, data = base)
+base$cpe_p &lt;- predict(fit_cpe, type = "response")
+base$cpe_stratum &lt;- cut(base$cpe_p,
+                        breaks = quantile(base$cpe_p, 0:5/5),
+                        labels = FALSE, include.lowest = TRUE)
+
+<span class="cm"># 2) merge cpe_stratum onto the period x person longitudinal rows</span>
+tit &lt;- merge(tit, base[, c("id", "cpe_stratum")], by = "id")
+
+<span class="cm"># 3) maximise the likelihood with the TrendInTrend package</span>
+library(TrendInTrend)
+fit &lt;- ttest(G = tit$outcome, Ti = tit$exposed,
+             cpe = tit$cpe_stratum, time = tit$period)
+exp(fit$beta[1])                 <span class="cm"># causal odds ratio = exp(b1)</span></code></pre>
+      <p data-en="<code>glm()</code> gives the CPE, <code>cut()</code> on quintiles makes the 5 strata; the <code>TrendInTrend</code> package's <code>ttest()</code> maximises the same exposure-conditional binomial likelihood, and <code>exp(fit$beta[1])</code> is the trend-in-trend OR."><code>glm()</code> 算出 CPE，依五分位用 <code>cut()</code> 切成 5 層；<code>TrendInTrend</code> 套件的 <code>ttest()</code> 最大化同一條暴露條件的二項概似，<code>exp(fit$beta[1])</code> 即 TiT 的 OR。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (CPE strata → counts → fit)">Stata 版本 —— 同樣步驟（CPE 層 → 計數 → 擬合）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — trend-in-trend</span>
+<span class="cm">* 1) cumulative-prob-of-exposure (CPE) per person, then cut into 5 strata</span>
+logit ever_exposed age sex comorbidity
+predict cpe_p, pr
+xtile cpe_stratum = cpe_p, nq(5)
+
+<span class="cm">* 2) merge cpe_stratum onto the period x person longitudinal rows</span>
+<span class="cm">*    then aggregate to time x stratum cells</span>
+collapse (sum) n_exp=exposed n_out=outcome (count) n=outcome, ///
+    by(period cpe_stratum)
+
+<span class="cm">* 3) maximise the binomial likelihood (per-stratum nuisance params)</span>
+glm n_out i.cpe_stratum period, family(binomial n) link(logit) eform
+<span class="cm">* the period coefficient exp(b1) is the causal odds ratio</span></code></pre>
+      <p data-en="<code>logit</code> + <code>predict, pr</code> give the CPE, <code>xtile … nq(5)</code> makes the 5 strata; <code>collapse</code> builds the time×stratum cells, and the binomial <code>glm</code> with per-stratum terms maximises the same likelihood — <code>eform</code> reports <code>exp(b1)</code>, the trend-in-trend OR."><code>logit</code> 加 <code>predict, pr</code> 算出 CPE，<code>xtile … nq(5)</code> 切成 5 層；<code>collapse</code> 建出「時間×層」細格，含各層項的二項 <code>glm</code> 最大化同一條概似——<code>eform</code> 報出 <code>exp(b1)</code>，即 TiT 的 OR。</p></div>
   </section>
 
   <!-- ===================== TiT ④ 假設檢驗 ===================== -->
@@ -1937,6 +2061,44 @@ run;</code></pre>
    model Y = t level trend / nlag=2 method=ml dwprob;   <span class="cm">/* model AR errors */</span>
 run;   <span class="cm">/* level = level change, trend = slope change */</span></code></pre>
       <p data-en="<code>proc autoreg</code> with <code>nlag</code> models the autocorrelated errors so the standard errors aren't too narrow; <code>level</code> and <code>trend</code> are the two effect estimates."><code>proc autoreg</code> 的 <code>nlag</code> 把自相關誤差模型化，標準誤才不會過窄；<code>level</code>、<code>trend</code> 就是兩個效應估計。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (nlme::gls with corAR1)">R 版本 —— 同樣步驟（nlme::gls 搭配 corAR1）</h3>
+      <pre class="sas"><code><span class="cm"># R — interrupted time series</span>
+<span class="cm"># Step 0: aggregate longitudinal records → one row per PERIOD</span>
+library(dplyr)
+its &lt;- raw %&gt;%
+    group_by(period) %&gt;%
+    summarise(t = first(period), Y = sum(event), denom = sum(n)) %&gt;%
+    arrange(t)
+
+<span class="cm"># Step 1: code the interruption</span>
+its$level &lt;- as.integer(its$t &gt;= t0)   <span class="cm"># 0 before, 1 after</span>
+its$trend &lt;- pmax(0, its$t - t0)        <span class="cm"># time since intervention</span>
+
+<span class="cm"># Step 2: segmented regression with AR errors</span>
+library(nlme)
+fit &lt;- gls(Y ~ t + level + trend, data = its,
+           correlation = corAR1(form = ~ t))   <span class="cm"># model AR(1) errors</span>
+summary(fit)   <span class="cm"># level = level change, trend = slope change</span>
+</code></pre>
+      <p data-en="Same three steps as SAS: aggregate to one row per period, build <code>level</code> and <code>trend</code>, then fit a segmented regression. <code>gls</code> with <code>corAR1</code> models the autocorrelated errors (like <code>proc autoreg</code>'s <code>nlag</code>) so the standard errors aren't too narrow.">與 SAS 三步驟相同：聚合成每期一列、建 <code>level</code> 與 <code>trend</code>，再做分段迴歸。<code>gls</code> 的 <code>corAR1</code> 把自相關誤差模型化（等同 <code>proc autoreg</code> 的 <code>nlag</code>），標準誤才不會過窄。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (itsa / prais)">Stata 版本 —— 同樣步驟（itsa / prais）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — interrupted time series</span>
+<span class="cm">* Step 0: aggregate longitudinal records → one row per PERIOD</span>
+collapse (sum) Y=event denom=n, by(period)
+generate t = period
+sort t
+tsset t                          <span class="cm">// declare the time series</span>
+
+<span class="cm">* Step 1: code the interruption</span>
+generate level = (t &gt;= t0)        <span class="cm">// 0 before, 1 after</span>
+generate trend = max(0, t - t0)   <span class="cm">// time since intervention</span>
+
+<span class="cm">* Step 2: segmented regression with AR errors</span>
+prais Y t level trend            <span class="cm">// Prais-Winsten, AR(1) errors</span>
+<span class="cm">* level = level change, trend = slope change</span>
+<span class="cm">* or, in one step:  itsa Y, single trperiod(t0) lag(2)</span>
+</code></pre>
+      <p data-en="Same three steps as SAS: <code>collapse</code> to one row per period, build <code>level</code> and <code>trend</code>, then run a segmented regression. <code>prais</code> (Prais-Winsten) handles the AR(1) errors like <code>proc autoreg</code>; <code>itsa</code> wraps the whole thing with Newey-West standard errors.">與 SAS 三步驟相同：<code>collapse</code> 成每期一列、建 <code>level</code> 與 <code>trend</code>，再做分段迴歸。<code>prais</code>（Prais-Winsten）像 <code>proc autoreg</code> 一樣處理 AR(1) 誤差；<code>itsa</code> 則把整個流程用 Newey-West 標準誤包好。</p></div>
   </section>
 
   <!-- ===================== ITS ④ 假設檢驗 ===================== -->
@@ -2198,6 +2360,49 @@ run;</code></pre>
       <pre class="sas"><code><span class="cm">/* PERR = RR_post / RR_prior = exp(group*period interaction) */</span>
 estimate 'PERR (log)' group*period 1 / exp;</code></pre>
       <p data-en="<code>exp</code> on the interaction estimate returns the PERR directly; time-fixed multiplicative confounding cancels in this ratio of ratios."><code>estimate ... / exp</code> 直接給出 PERR；時間不變、乘法型的混淆在這個「比值的比值」裡相消。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (glm Poisson)">R 版本 —— 同樣步驟（glm Poisson）</h3>
+      <pre class="sas"><code><span class="cm"># R — prior event rate ratio (PERR)</span>
+<span class="cm"># Step 0: split each person at treatment start into PRIOR and POST rows</span>
+<span class="cm"># long format: events + person-time per period, by group</span>
+perr &lt;- rbind(
+   data.frame(group=cohort$trt, period="prior",
+              events=cohort$ev_prior, pt=cohort$pt_prior),
+   data.frame(group=cohort$trt, period="post",
+              events=cohort$ev_post,  pt=cohort$pt_post))
+perr$group  &lt;- factor(perr$group)
+perr$period &lt;- factor(perr$period, levels=c("prior","post"))
+
+<span class="cm"># Step 1: Poisson rate model, one row per group x period</span>
+<span class="cm"># offset = log(person-time) so coefficients are on the rate scale</span>
+fit &lt;- glm(events ~ group * period + offset(log(pt)),
+           family=poisson, data=perr)
+
+<span class="cm"># Step 2: PERR = RR_post / RR_prior = exp(group:period interaction)</span>
+b   &lt;- coef(fit)["groupB:periodpost"]   <span class="cm"># adjust level names as needed</span>
+ci  &lt;- confint(fit)["groupB:periodpost", ]
+exp(c(PERR=b, ci))                       <span class="cm"># PERR with 95% CI</span>
+</code></pre>
+      <p data-en="One row per group×period with <code>offset(log(pt))</code> makes <code>glm</code> estimate event <b>rates</b>; the <code>group:period</code> interaction is the log PERR, so <code>exp()</code> of it gives the ratio of rate ratios (post ÷ prior).">每個 group×period 一列、加上 <code>offset(log(pt))</code>，<code>glm</code> 估的就是事件<b>率</b>；<code>group:period</code> 交互作用即 log PERR，取 <code>exp()</code> 就是率比的比值（事後 ÷ 事前）。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (poisson, exposure)">Stata 版本 —— 同樣步驟（poisson, exposure）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — prior event rate ratio (PERR)</span>
+<span class="cm">* Step 0: split each person at treatment start into PRIOR and POST rows</span>
+<span class="cm">* long format: events + person-time per period, by group</span>
+generate group = trt
+expand 2
+bysort _n_orig: generate period = cond(_n==1, 0, 1)   // 0=prior, 1=post
+label define per 0 "prior" 1 "post"
+label values period per
+generate events = cond(period==0, ev_prior, ev_post)
+generate pt     = cond(period==0, pt_prior, pt_post)
+
+<span class="cm">* Step 1: Poisson rate model, one row per group x period</span>
+<span class="cm">* exposure(pt) enters log(person-time) as the offset -&gt; rate scale</span>
+poisson events i.group##i.period, exposure(pt) irr
+
+<span class="cm">* Step 2: PERR = RR_post / RR_prior = the group#period interaction (irr)</span>
+lincom 1.group#1.period, irr        // PERR with 95% CI
+</code></pre>
+      <p data-en="<code>exposure(pt)</code> adds <code>log(person-time)</code> as the offset so <code>poisson</code> models event <b>rates</b>; with <code>irr</code> the <code>group#period</code> interaction term is the PERR directly — the post rate ratio divided by the prior rate ratio."><code>exposure(pt)</code> 把 <code>log(人時)</code> 當 offset，<code>poisson</code> 估的是事件<b>率</b>；加上 <code>irr</code>，<code>group#period</code> 交互作用項就直接是 PERR —— 事後率比除以事前率比。</p></div>
   </section>
 
   <!-- ===================== PERR ④ 假設檢驗 ===================== -->
@@ -2454,6 +2659,62 @@ proc phreg data=pm covs(aggregate);
    weight ipcw; id pid;          <span class="cm">/* weighted KM/Cox per arm; person-robust SE */</span>
 run;</code></pre>
       <p data-en="The logistic model gives each clone-month's probability of not being censored; its inverse is the IPC weight. The weighted <code>proc phreg</code> then compares the two strategies (use stabilized weights for grace/early-late, unstabilized + truncation for sustained).">logistic 給每個人月「沒被設限」的機率，倒數即 IPC 權重；加權的 <code>proc phreg</code> 再比兩策略（grace／早晚啟動用穩定化權重，sustained 用未穩定化＋截斷）。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (survival + pooled-logistic IPCW)">R 版本 —— 同樣步驟（survival ＋ pooled-logistic IPCW）</h3>
+      <pre class="sas"><code><span class="cm"># R — clone-censor-weight</span>
+<span class="cm"># Step 0: rx -&gt; one row per person (cohort)</span>
+library(dplyr); library(splitstackshape); library(survival)
+cohort &lt;- rx %&gt;% group_by(pid, index_date) %&gt;% summarise(
+   start_date = min(fill_date),
+   stop_date  = max(fill_date + days_supply),
+   event_date = min(event_date), .groups = "drop") %&gt;%
+   mutate(start_month = as.integer((start_date - index_date) / 30),
+          stop_month  = as.integer((stop_date  - index_date) / 30),
+          event_month = as.integer((event_date - index_date) / 30))
+
+<span class="cm"># Step 1: clone into both arms, expand to person-months; acens=1 when a clone deviates</span>
+clones &lt;- bind_rows(mutate(cohort, arm = "early"), mutate(cohort, arm = "late"))
+pm &lt;- expandRows(clones, count = "stop_month", count.is.col = TRUE, drop = FALSE) %&gt;%
+   group_by(pid, arm) %&gt;% mutate(month = row_number() - 1) %&gt;% ungroup() %&gt;%
+   mutate(event = as.integer(month == event_month),
+          acens = deviates)          <span class="cm"># 1 when the clone stops matching its arm</span>
+
+<span class="cm"># Step 2: pooled logistic for staying uncensored -&gt; IPC weights</span>
+cfit &lt;- glm(acens ~ month + age + frailty, data = pm, family = binomial)
+pm$pc   &lt;- 1 - predict(cfit, type = "response")        <span class="cm"># P(not censored) this month</span>
+pm &lt;- pm %&gt;% group_by(pid, arm) %&gt;% mutate(ipcw = 1 / cumprod(pc)) %&gt;% ungroup()
+
+<span class="cm"># weighted survival comparing the two strategies; person-robust SE via cluster(pid)</span>
+coxph(Surv(month, month + 1, event) ~ arm + cluster(pid), data = pm, weights = ipcw)
+</code></pre>
+      <p data-en="<code>expandRows</code> blows each clone out to person-months; the pooled logistic gives each clone-month's probability of staying uncensored, and the running inverse of its cumulative product is the IPC weight. The weighted <code>coxph</code> with <code>cluster(pid)</code> then compares early vs late with person-robust SEs (stabilized weights for grace/early-late, unstabilized + truncation for sustained).">用 <code>expandRows</code> 把每個複製品展開成人月；pooled logistic 給每個人月「沒被設限」的機率，其累積乘積的倒數即 IPC 權重。加權 <code>coxph</code> 搭 <code>cluster(pid)</code> 比較早晚啟動並給穩健 SE（grace／早晚啟動用穩定化權重，sustained 用未穩定化＋截斷）。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (expand/clone, stset, pooled-logistic IPCW)">Stata 版本 —— 同樣步驟（expand/clone、stset、pooled-logistic IPCW）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — clone-censor-weight</span>
+<span class="cm">* Step 0: rx -&gt; one row per person (cohort)</span>
+collapse (min) start_date=fill_date (max) stop_date=fill_stop ///
+         (min) event_date, by(pid index_date)
+gen start_month = mofd(start_date) - mofd(index_date)
+gen stop_month  = mofd(stop_date)  - mofd(index_date)
+gen event_month = mofd(event_date) - mofd(index_date)
+
+<span class="cm">* Step 1: clone into both arms, expand to person-months</span>
+expand 2                                  // one copy per strategy
+bysort pid index_date: gen arm = cond(_n==1, "early", "late")
+expand stop_month                         // one row per person-month
+bysort pid arm: gen month = _n - 1
+gen event = month == event_month
+gen acens = deviates                      // 1 when the clone stops matching its arm
+
+<span class="cm">* Step 2: pooled logistic for staying uncensored -&gt; IPC weights</span>
+logit acens month age frailty
+predict phat, pr
+gen pc = 1 - phat                          // P(not censored) this month
+bysort pid arm (month): gen ipcw = 1 / exp(sum(ln(pc)))
+
+<span class="cm">* weighted survival comparing the two strategies; person-robust SE</span>
+stset month [pw=ipcw], id(pid) failure(event==1)
+stcox i.arm, vce(cluster pid)
+</code></pre>
+      <p data-en="<code>expand</code> clones each person into both arms and then into person-months; the pooled <code>logit</code> yields each clone-month's probability of staying uncensored, and the inverse of its cumulative product (<code>sum(ln(pc))</code>) is the IPC weight. <code>stset</code> with <code>[pw=ipcw]</code> then drives a weighted <code>stcox</code> comparing early vs late with person-robust SEs (stabilized weights for grace/early-late, unstabilized + truncation for sustained).">用 <code>expand</code> 把每人複製到兩臂、再展開成人月；pooled <code>logit</code> 給每個人月「沒被設限」的機率，其累積乘積（<code>sum(ln(pc))</code>）的倒數即 IPC 權重。<code>stset</code> 帶 <code>[pw=ipcw]</code> 驅動加權 <code>stcox</code> 比較早晚啟動並給穩健 SE（grace／早晚啟動用穩定化權重，sustained 用未穩定化＋截斷）。</p></div>
   </section>
 
   <!-- ===================== CCW ④ 假設檢驗 ===================== -->
@@ -2657,6 +2918,46 @@ run;   <span class="cm">/* exp(beta) = case-crossover OR */</span></code></pre>
       <pre class="sas"><code><span class="cm">/* run the same model in non-cases (a control series) to get OR_trend, */</span>
 <span class="cm">/* then CCTC OR = OR_case / OR_trend (the case-time-control estimator)  */</span></code></pre>
       <p data-en="Pure case-crossover is biased if exposure prevalence drifts over calendar time; the control-series OR captures that trend and dividing it out leaves the causal part (CCTC).">純案例交叉在暴露盛行率隨日曆時間漂移時會偏；對照序列的 OR 抓住趨勢，相除後剩下因果部分（CCTC）。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (clogit)">R 版本 —— 同樣步驟（clogit）</h3>
+      <pre class="sas"><code><span class="cm"># R — case-crossover / case-time-control</span>
+<span class="cm"># Step 0 — for each CASE, build two within-person windows from the Rx history:</span>
+<span class="cm"># exposure in the HAZARD window vs an earlier REFERENCE window.</span>
+cco &lt;- rbind(
+    transform(cases, y = 1, exposed = exp_between(event_date - 7,  event_date - 1)),  <span class="cm"># hazard</span>
+    transform(cases, y = 0, exposed = exp_between(event_date - 35, event_date - 29))  <span class="cm"># reference</span>
+)
+
+<span class="cm"># Step 1 — case-crossover: conditional logistic, each person = one stratum (own control)</span>
+library(survival)
+m_case &lt;- clogit(y ~ exposed + strata(pid), data = cco)  <span class="cm"># exp(coef) = case-crossover OR</span>
+summary(m_case)
+
+<span class="cm"># Step 2 — divide out the time trend (CCTC):</span>
+<span class="cm"># fit the SAME model in a control series (non-cases) to get OR_trend,</span>
+<span class="cm"># then CCTC OR = OR_case / OR_trend (the case-time-control estimator).</span>
+m_ctrl &lt;- clogit(y ~ exposed + strata(pid), data = cco_controls)
+OR_cctc &lt;- exp(coef(m_case)["exposed"]) / exp(coef(m_ctrl)["exposed"])
+</code></pre>
+      <p data-en="Same sequence as SAS: build hazard vs reference windows per person, fit clogit with strata(pid) for the case-crossover OR, then refit in a control series and divide the two ORs to remove the exposure-time trend (CCTC).">與 SAS 同樣步驟：每人建危險窗 vs 參考窗，用 strata(pid) 的 clogit 得到案例交叉 OR；再於對照序列重跑同模型，把兩個 OR 相除扣掉暴露的時間趨勢（CCTC）。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (clogit)">Stata 版本 —— 同樣步驟（clogit）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — case-crossover / case-time-control</span>
+<span class="cm">* Step 0 — for each CASE, build two within-person windows from the Rx history:</span>
+<span class="cm">* exposure in the HAZARD window vs an earlier REFERENCE window.</span>
+expand 2
+bysort pid: gen y = (_n == 1)
+gen exposed = cond(y == 1, ///
+    exp_between(event_date - 7,  event_date - 1), ///   // hazard
+    exp_between(event_date - 35, event_date - 29))      // reference
+
+<span class="cm">* Step 1 — case-crossover: conditional logistic, each person = one stratum (own control)</span>
+clogit y exposed, group(pid)   <span class="cm">// exp(b) = case-crossover OR</span>
+
+<span class="cm">* Step 2 — divide out the time trend (CCTC):</span>
+<span class="cm">* run the SAME model in a control series (non-cases) to get OR_trend,</span>
+<span class="cm">* then CCTC OR = OR_case / OR_trend (the case-time-control estimator).</span>
+clogit y exposed if !case, group(pid)
+</code></pre>
+      <p data-en="Same sequence as SAS: expand each person into hazard vs reference rows, fit clogit … , group(pid) for the case-crossover OR, then refit in a control series and divide the two ORs to remove the exposure-time trend (CCTC).">與 SAS 同樣步驟：把每人展開成危險窗 vs 參考窗兩列，用 clogit … , group(pid) 得到案例交叉 OR；再於對照序列重跑同模型，把兩個 OR 相除扣掉暴露的時間趨勢（CCTC）。</p></div>
   </section>
 
   <!-- ===================== CCTC ④ 假設檢驗 ===================== -->
@@ -2833,6 +3134,41 @@ run;</code></pre>
    id pid;                               <span class="cm">/* person-cluster robust SE (repeat enrolment) */</span>
 run;</code></pre>
       <p data-en="<code>strata trial</code> pools the per-trial effects; <code>covs(aggregate); id pid</code> gives standard errors robust to the same person appearing in several trials."><code>strata trial</code> 把各場試驗效果合併；<code>covs(aggregate); id pid</code> 給出對「同一人出現在多場試驗」穩健的標準誤。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (one row per person → stack trials → stratified survival, person-robust SE)">R 版本 —— 同樣步驟（每人一列 → 堆疊試驗 → 分層存活＋個人穩健標準誤）</h3>
+      <pre class="sas"><code><span class="cm"># R — sequential trial emulation</span>
+<span class="cm"># Step 0 — longitudinal data -&gt; one row per person with key months</span>
+library(data.table); library(survival)
+cohort &lt;- as.data.table(raw)[, .(start_month = min(init_month),
+                                 event_month = min(event_month)), by = pid]
+
+<span class="cm"># Step 1 — stack one emulated trial per eligibility month (time zero resets)</span>
+trials &lt;- cohort[, .(k = 1:12), by = pid][
+  cohort, on = "pid"][eligible_at(k) == TRUE]
+trials[, `:=`(trial = k, t0 = k)]      <span class="cm"># time zero = trial start</span>
+
+<span class="cm"># Step 2 — stratified survival, person-cluster-robust SE (repeat enrolment)</span>
+fit &lt;- coxph(Surv(time, event) ~ initiate + age + frailty +
+               strata(trial) + cluster(pid), data = trials)
+summary(fit)                           <span class="cm"># robust SE via cluster(pid)</span>
+</code></pre>
+      <p data-en="Same flow as SAS: reduce to one row per person, then <code>1:12</code> stacks an emulated trial per eligibility month with its own time zero; <code>coxph</code> with <code>strata(trial)</code> pools the per-trial effects and <code>cluster(pid)</code> gives SEs robust to a person re-entering several trials.">與 SAS 同流程：先收成每人一列，再用 <code>1:12</code> 為每個資格月堆疊一場各自歸零的模擬試驗；<code>coxph</code> 以 <code>strata(trial)</code> 合併各場試驗效果，<code>cluster(pid)</code> 給出對「同一人重複收案」穩健的標準誤。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (one row per person → stack trials → stratified survival, person-robust SE)">Stata 版本 —— 同樣步驟（每人一列 → 堆疊試驗 → 分層存活＋個人穩健標準誤）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — sequential trial emulation</span>
+<span class="cm">* Step 0 — longitudinal data -&gt; one row per person with key months</span>
+collapse (min) start_month=init_month event_month, by(pid)
+
+<span class="cm">* Step 1 — stack one emulated trial per eligibility month (time zero resets)</span>
+expand 12                              <span class="cm">// one potential trial per month</span>
+bysort pid: gen k = _n
+keep if eligible_at(k)                 <span class="cm">// keep months the person is eligible</span>
+gen trial = k
+gen t0    = k                          <span class="cm">// time zero = trial start</span>
+
+<span class="cm">* Step 2 — stratified survival, person-cluster-robust SE (repeat enrolment)</span>
+stset time, failure(event==1)
+stcox initiate age frailty, strata(trial) vce(cluster pid)
+</code></pre>
+      <p data-en="Same flow as SAS: <code>collapse (min)</code> gives one row per person, <code>expand 12</code> with a per-person counter stacks an emulated trial per eligibility month, and <code>stcox ... strata(trial) vce(cluster pid)</code> pools the per-trial baselines while making SEs robust to a person appearing in several trials.">與 SAS 同流程：<code>collapse (min)</code> 收成每人一列，<code>expand 12</code> 搭配每人計數器為每個資格月堆疊一場模擬試驗，<code>stcox ... strata(trial) vce(cluster pid)</code> 合併各場試驗基線、並讓標準誤對「同一人出現在多場試驗」穩健。</p></div>
   </section>
 
   <!-- ===================== Sequential ④ 假設檢驗 ===================== -->
@@ -3027,6 +3363,42 @@ run;   <span class="cm">/* exp(beta_exposed) = adjusted OR */</span></code></pre
    model case(event='1') = exposed age sex comorbidity;   <span class="cm">/* adjust confounders directly */</span>
 run;</code></pre>
       <p data-en="Without matching, drop <code>strata</code> and adjust the confounders as covariates; either way the controls must represent the source population.">不配對時拿掉 <code>strata</code>、把混淆當共變項校正；無論哪種，對照都必須代表來源族群。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (clogit / glm)">R 版本 —— 同樣步驟（clogit／glm）</h3>
+      <pre class="sas"><code><span class="cm"># R — case-control</span>
+library(survival)
+
+<span class="cm"># Step 0 — cases + (matched) controls; derive exposure by looking back</span>
+<span class="cm"># over the longitudinal claims before each person's index date</span>
+cc$exposed &lt;- as.integer(sapply(seq_len(nrow(cc)), function(i)
+    any(rx$pid == cc$pid[i] &amp; rx$date &lt; cc$index_date[i])))
+
+<span class="cm"># Step 1 — matched: conditional logistic, stratified by matched set</span>
+fit_m &lt;- clogit(case ~ exposed + age + sex + strata(match_id), data = cc)
+summary(fit_m)        <span class="cm"># exp(coef) for exposed = matched (adjusted) OR</span>
+
+<span class="cm"># Step 2 — unmatched alternative: plain logistic, adjust confounders</span>
+fit_u &lt;- glm(case ~ exposed + age + sex + comorbidity,
+             data = cc, family = binomial)
+exp(coef(fit_u))      <span class="cm"># adjusted OR from the unmatched model</span>
+</code></pre>
+      <p data-en="<code>clogit</code> with <code>strata(match_id)</code> uses the conditional likelihood within each matched case-control set, so <code>exp(coef)</code> on <code>exposed</code> is the matched (adjusted) odds ratio; without matching, <code>glm(family=binomial)</code> adjusts the confounders directly."><code>clogit</code> 搭配 <code>strata(match_id)</code> 在每個配對的病例-對照組內用條件概似，<code>exposed</code> 的 <code>exp(coef)</code> 就是配對（校正）勝算比；不配對時改用 <code>glm(family=binomial)</code> 直接把混淆當共變項校正。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (clogit / logistic)">Stata 版本 —— 同樣步驟（clogit／logistic）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — case-control</span>
+
+<span class="cm">* Step 0 — cases + (matched) controls; derive exposure by looking</span>
+<span class="cm">* back over the longitudinal claims before each index date</span>
+gen exposed = 0
+bysort pid: replace exposed = 1 if rx_date &lt; index_date
+
+<span class="cm">* Step 1 — matched: conditional logistic, grouped by matched set</span>
+clogit case exposed age sex, group(match_id) or
+                             <span class="cm">// exp(beta_exposed) = matched (adjusted) OR</span>
+
+<span class="cm">* Step 2 — unmatched alternative: plain logistic, adjust confounders</span>
+logistic case exposed age sex comorbidity
+                             <span class="cm">// reports adjusted OR directly</span>
+</code></pre>
+      <p data-en="<code>clogit … , group(match_id)</code> conditions on each matched case-control set and <code>or</code> reports the matched (adjusted) odds ratio; without matching, <code>logistic</code> fits a plain logistic model and reports adjusted ORs for the confounders directly."><code>clogit … , group(match_id)</code> 條件在每個配對的病例-對照組，<code>or</code> 直接給配對（校正）勝算比；不配對時用 <code>logistic</code> 擬合一般 logistic，直接報出共變項的校正勝算比。</p></div>
   </section>
 
   <!-- ===================== Case-control ④ 假設檢驗 ===================== -->
@@ -3445,6 +3817,53 @@ quit;</code></pre>
    repeated subject=pid;        <span class="cm">/* condition on the person */</span>
 run;   <span class="cm">/* exp(expgr) = incidence rate ratio (risk window vs baseline) */</span></code></pre>
       <p data-en="Conditioning on <code>pid</code> drops each person's baseline rate, so all time-fixed confounding cancels; <code>exp(expgr)</code> is the within-person IRR. Age/season are handled by <code>agegr</code> splitting.">條件在 <code>pid</code> 上消掉每個人的基線速率，所有時間不變混淆相消；<code>exp(expgr)</code> 即個人內 IRR；年齡／季節用 <code>agegr</code> 切分處理。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (SCCS / gnm)">R 版本 —— 同樣步驟（SCCS／gnm）</h3>
+      <pre class="sas"><code><span class="cm"># R — self-controlled case series</span>
+<span class="cm"># SCCS uses CASES only: cases carries pid, obs_start, obs_end, vacc_day, event_day</span>
+library(SCCS)
+
+<span class="cm"># Step 1 + 2 in one call: standardsccs() splits each person's time into the</span>
+<span class="cm"># post-exposure risk window vs baseline (and age groups), then fits the</span>
+<span class="cm"># conditional Poisson stratified by person.</span>
+fit &lt;- standardsccs(event ~ vacc_day,
+                    indiv    = pid,
+                    astart   = obs_start, aend = obs_end,
+                    aevent   = event_day,
+                    adrug    = vacc_day,                 <span class="cm"># exposure day</span>
+                    aedrug   = vacc_day + 28,            <span class="cm"># risk window end (28 d)</span>
+                    agegrp   = c(91, 182, 273),          <span class="cm"># age/season bands</span>
+                    data     = cases)
+exp(coef(fit))   <span class="cm"># exp(vacc_day) = incidence rate ratio (risk window vs baseline)</span>
+
+<span class="cm"># Equivalent by hand once data are split to one row per person x expgr x agegr,</span>
+<span class="cm"># with nevents and loginterval = log(interval length): conditional Poisson via gnm</span>
+<span class="cm"># with eliminate(pid) drops each person's baseline (the stratum intercept).</span>
+library(gnm)
+fit2 &lt;- gnm(nevents ~ expgr + agegr + offset(loginterval),
+            family    = poisson,
+            eliminate = factor(pid),     <span class="cm"># condition on the person</span>
+            data      = sccs)
+exp(coef(fit2)["expgr"])   <span class="cm"># within-person IRR</span>
+</code></pre>
+      <p data-en="Same three steps as SAS: keep cases only, split each person's follow-up into risk window vs baseline (and age bands), then fit conditional Poisson stratified by <code>pid</code>. <code>standardsccs()</code> does the split and fit together; <code>gnm</code> with <code>eliminate(pid)</code> is the explicit conditional-Poisson equivalent of <code>genmod … repeated subject=pid</code>.">與 SAS 相同的三步：只留 case，把每人追蹤切成危險窗 vs 基線（及年齡分段），再以 <code>pid</code> 分層配條件 Poisson。<code>standardsccs()</code> 一次完成切分與配適；<code>gnm</code> 搭 <code>eliminate(pid)</code> 即 <code>genmod … repeated subject=pid</code> 的條件 Poisson 對應寫法。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (xtpoisson, fe)">Stata 版本 —— 同樣步驟（xtpoisson, fe）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — self-controlled case series</span>
+<span class="cm">* CASES only: cases has pid obs_start obs_end vacc_day event_day; one row/person.</span>
+
+<span class="cm">* Step 1 — split each person into rows: expgr (0/1 post-exposure risk window)</span>
+<span class="cm">* x agegr (age/season bands), with nevents and interval = piece length.</span>
+<span class="cm">* (the official Stata SCCS helpers expand cases to person-interval rows here)</span>
+gen loginterval = ln(interval)
+
+<span class="cm">* Step 2 — conditional Poisson with the person as the stratum (fixed effect).</span>
+xtset pid
+xtpoisson nevents i.expgr i.agegr, fe offset(loginterval) irr
+<span class="cm">* the i.expgr IRR = incidence rate ratio (risk window vs baseline)</span>
+
+<span class="cm">* clogit-equivalent conditional Poisson, same estimate, grouped on pid:</span>
+clogit nevents i.expgr i.agegr, group(pid) offset(loginterval)
+</code></pre>
+      <p data-en="The fixed-effect (<code>fe</code>) option in <code>xtpoisson</code> conditions on <code>pid</code>, dropping each person's baseline rate exactly like SAS <code>repeated subject=pid</code>; <code>irr</code> reports <code>exp(expgr)</code> as the within-person incidence rate ratio. <code>xtset pid</code> declares the person as the panel; <code>clogit … group(pid)</code> gives the same conditional-Poisson estimate.">在 <code>xtpoisson</code> 用固定效果（<code>fe</code>）即條件在 <code>pid</code> 上，消掉每個人的基線速率，等同 SAS 的 <code>repeated subject=pid</code>；<code>irr</code> 直接報 <code>exp(expgr)</code> 個人內相對速率。<code>xtset pid</code> 宣告「人」為 panel；<code>clogit … group(pid)</code> 給出相同的條件 Poisson 估計。</p></div>
   </section>
 
   <!-- ===================== SCCS ④ 假設檢驗 ===================== -->
@@ -3621,6 +4040,41 @@ run;</code></pre>
    weight iptw; id pid;          <span class="cm">/* IPTW-weighted hazard ratio of A vs B */</span>
 run;</code></pre>
       <p data-en="The weighted <code>proc phreg</code> gives the A-vs-B hazard ratio; <code>proc psmatch</code> is an alternative to weighting if you prefer matched pairs.">加權的 <code>proc phreg</code> 給 A vs B 風險比；若偏好配對，可改用 <code>proc psmatch</code>。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (MatchIt / WeightIt + coxph)">R 版本 —— 同樣步驟（MatchIt / WeightIt + coxph）</h3>
+      <pre class="sas"><code><span class="cm"># R — active-comparator new-user</span>
+library(WeightIt); library(survival)
+<span class="cm"># acnu: one row per new user of A or B, t0 aligned, baseline covariates from the pre-t0 window</span>
+acnu$drugA &lt;- as.integer(acnu$drug == "A")    <span class="cm"># A vs active comparator B</span>
+
+<span class="cm"># Step 1 — propensity score (A vs B among new users) -&gt; IPTW</span>
+w &lt;- weightit(drugA ~ severity + age + comorbidity,
+              data = acnu, method = "ps", estimand = "ATE")
+acnu$iptw &lt;- w$weights                        <span class="cm"># inverse-prob-of-treatment weight</span>
+<span class="cm"># matching alternative: MatchIt::matchit(drugA ~ ..., method = "nearest")</span>
+
+<span class="cm"># Step 2 — weighted outcome model (A vs B HR)</span>
+fit &lt;- coxph(Surv(time, event) ~ drugA, data = acnu,
+             weights = iptw, robust = TRUE, id = pid)
+summary(fit)                                  <span class="cm"># IPTW-weighted hazard ratio of A vs B</span>
+</code></pre>
+      <p data-en="WeightIt fits the same A-vs-B propensity score and returns IPTW weights (use MatchIt for matched pairs); coxph with those weights and a robust/cluster SE gives the same A-vs-B hazard ratio as proc phreg.">WeightIt 用同一組共變項建 A vs B 的傾向分數並回傳 IPTW 權重（要配對則用 MatchIt）；coxph 帶權重與穩健（cluster）標準誤，得到與 proc phreg 相同的 A vs B 風險比。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (teffects / psmatch2 + stcox)">Stata 版本 —— 同樣步驟（teffects / psmatch2 + stcox）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — active-comparator new-user</span>
+<span class="cm">* acnu: one row per new user of A or B, t0 aligned, baseline covariates pre-t0</span>
+gen byte drugA = drug == "A"          <span class="cm">// A vs active comparator B</span>
+
+<span class="cm">* Step 1 — propensity score (A vs B among new users) -&gt; IPTW</span>
+logit drugA severity age comorbidity
+predict ps, pr                        <span class="cm">// probability of getting A vs B</span>
+gen iptw = cond(drugA, 1/ps, 1/(1-ps)) <span class="cm">// inverse-prob-of-treatment weight</span>
+<span class="cm">* matching alternative: psmatch2 drugA severity age comorbidity, outcome(...)</span>
+
+<span class="cm">* Step 2 — weighted outcome model (A vs B HR)</span>
+stset time, failure(event==1) id(pid)
+stcox drugA [pweight=iptw], vce(robust)  <span class="cm">// IPTW-weighted hazard ratio of A vs B</span>
+<span class="cm">* one-liner alternative: teffects ipw (event) (drugA severity age comorbidity)</span>
+</code></pre>
+      <p data-en="logit fits the same A-vs-B propensity score and the IPTW is formed by hand (or use teffects/psmatch2 for one-step weighting/matching); stset + stcox with pweight and robust SE reproduce the same A-vs-B hazard ratio as proc phreg.">logit 建同一組 A vs B 的傾向分數，IPTW 自行計算（或用 teffects／psmatch2 一步加權／配對）；stset 後以 pweight 加權、robust 標準誤的 stcox，重現與 proc phreg 相同的 A vs B 風險比。</p></div>
   </section>
 
   <!-- ===================== ACNU ④ 假設檢驗 ===================== -->
@@ -3798,6 +4252,55 @@ run;</code></pre>
 run;
 <span class="cm">/* then proc phreg on 'matched' (strata set) for the A-vs-B HR */</span></code></pre>
       <p data-en="<code>exact=tss_band</code> forces matches to share the time-since-start band (the time-conditional part); the matched set then goes into a stratified <code>proc phreg</code>."><code>exact=tss_band</code> 強制配對共享距起始時間分層（時間條件的關鍵）；配對後再進分層的 <code>proc phreg</code>。</p></div>
+    <div class="card"><h3 data-en="R version — the same steps (dplyr exposure sets → WeightIt time-conditional PS → coxph)">R 版本 —— 同樣步驟（dplyr 建暴露集 → WeightIt 時間條件 PS → coxph）</h3>
+      <pre class="sas"><code><span class="cm"># R — prevalent new-user</span>
+library(dplyr); library(MatchIt); library(WeightIt); library(survival)
+
+<span class="cm"># Step 0 — from longitudinal claims to time-since-start (tss) + bands</span>
+firstfill &lt;- rx %&gt;% filter(drug == "A") %&gt;%
+  group_by(pid) %&gt;% summarise(first_fill = min(fill_date), .groups = "drop")
+pnu &lt;- current_users %&gt;% left_join(firstfill, by = "pid") %&gt;%
+  mutate(
+    tss       = as.integer(interval(first_fill, entry_date) %/% months(1)),
+    prevalent = as.integer(tss &gt; 0),
+    tss_band  = pmin(tss %/% 6L, 5L))          <span class="cm"># time-since-start bands for matching</span>
+
+<span class="cm"># Step 1 — time-conditional propensity score (PS conditional on tss_band)</span>
+pnu &lt;- pnu %&gt;% mutate(tss_band = factor(tss_band))
+ps_fit &lt;- glm(drugA ~ severity + age + tss_band, data = pnu, family = binomial)
+pnu$ps &lt;- predict(ps_fit, type = "response")
+
+<span class="cm"># Step 2 — match within time-since-start band, then outcome model</span>
+m &lt;- matchit(drugA ~ severity + age, data = pnu,
+             method = "nearest", distance = pnu$ps,
+             exact = ~ tss_band)              <span class="cm"># exact-match the tss band (time-conditional)</span>
+matched &lt;- match.data(m)                       <span class="cm"># carries subclass = matched set id</span>
+coxph(Surv(time, event) ~ drugA + strata(subclass), data = matched)   <span class="cm"># A-vs-B HR</span></code></pre>
+      <p data-en="<code>interval(...) %/% months(1)</code> reproduces SAS <code>intck('month', ...)</code> for time-since-start; the PS includes <code>tss_band</code> so prevalent users are weighed conditional on duration, and <code>exact = ~ tss_band</code> forces matches to share the band — the matched <code>subclass</code> then becomes the <code>strata()</code> in <code>coxph</code>."><code>interval(...) %/% months(1)</code> 重現 SAS 的 <code>intck('month', ...)</code> 算距起始時間；PS 納入 <code>tss_band</code>，盛行使用者才在「用得久」的條件下被比較，<code>exact = ~ tss_band</code> 強制配對共享分層——配對後的 <code>subclass</code> 即進 <code>coxph</code> 的 <code>strata()</code>。</p></div>
+    <div class="card"><h3 data-en="Stata version — the same steps (build exposure sets → time-conditional PS → stcox)">Stata 版本 —— 同樣步驟（建暴露集 → 時間條件 PS → stcox）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — prevalent new-user</span>
+<span class="cm">* Step 0 — from longitudinal claims to time-since-start (tss) + bands</span>
+preserve
+    keep if drug == "A"
+    collapse (min) first_fill = fill_date, by(pid)        // each person's first-ever fill
+    tempfile firstfill
+    save `firstfill'
+restore
+merge m:1 pid using `firstfill', keep(master match) nogen
+gen     tss       = mofd(entry_date) - mofd(first_fill)   // time-since-start, in months
+gen     prevalent = tss &gt; 0
+gen     tss_band  = min(floor(tss/6), 5)                  // time-since-start bands for matching
+
+<span class="cm">* Step 1 — time-conditional propensity score (PS conditional on tss_band)</span>
+logit drugA severity age i.tss_band
+predict ps, pr
+
+<span class="cm">* Step 2 — match within time-since-start band, then outcome model</span>
+teffects psmatch (outcome) (drugA severity age i.tss_band), ///
+    ematch(tss_band) gen(match_)                          // exact-match the tss band
+stset time, failure(event)
+stcox drugA, strata(tss_band)                             // A-vs-B HR, time-conditional</code></pre>
+      <p data-en="<code>mofd(entry_date) - mofd(first_fill)</code> mirrors SAS <code>intck('month', ...)</code>; <code>i.tss_band</code> in the <code>logit</code> makes the PS conditional on time-since-start, and <code>ematch(tss_band)</code> forces the match to share the band — the same time-conditional design carried into a band-stratified <code>stcox</code>."><code>mofd(entry_date) - mofd(first_fill)</code> 對應 SAS 的 <code>intck('month', ...)</code>；<code>logit</code> 中的 <code>i.tss_band</code> 讓 PS 條件在距起始時間，<code>ematch(tss_band)</code> 強制配對共享分層——同樣的時間條件設計帶進分層的 <code>stcox</code>。</p></div>
   </section>
 
   <!-- ===================== PNU ④ 假設檢驗 ===================== -->
