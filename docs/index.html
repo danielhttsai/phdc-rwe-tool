@@ -7142,6 +7142,7 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
           <a class="xref chip" data-m="sccs">SCCS</a><a class="xref chip" data-m="cctc">CCTC</a><a class="xref chip" data-m="cc">CC</a><a class="xref chip" data-m="tnd">TND</a><a class="xref chip" data-m="med">MED</a>
           <a class="xref chip chip-go" data-tab="choose">→ 怎麼選 / Which one?</a>
         </div>
+        <p class="caption" data-en="Note: IV, RDD and MR share one engine — &quot;as-good-as-random&quot; exogenous variation. A fuzzy RDD is a <b>local IV</b> at the cutoff (the threshold is the instrument), and MR is IV with a <b>genetic</b> instrument. Same identification logic, different source of the randomness.">提醒：IV、RDD、MR 同一個引擎，都是「近似隨機」的外生變異。模糊 RDD 在切點附近就是一個<b>局部 IV</b>（門檻即工具），而 MR 是以<b>遺傳變異</b>為工具的 IV。識別邏輯相同，只是隨機的來源不同。</p>
       </div>
       <div class="flow-arrow" aria-hidden="true">↓</div>
 
@@ -7155,7 +7156,7 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
       <div class="flow-stage" data-step="5">
         <div class="flow-head"><span class="flow-no">⑤</span><h3 data-en="Corroborate from outside (mechanism &amp; experiment)">從外部佐證（機制與實驗）</h3></div>
         <p data-en="Bring in evidence that fails in <b>different</b> ways from observational data — genetic, bench, or model-based. Agreement across unrelated biases is the core of <b>triangulation</b>.">引入「與觀察性資料以<b>不同方式</b>出錯」的證據：遺傳、實驗檯、或模型化。互不相關的偏誤仍一致，正是<b>三角驗證</b>的核心。</p>
-        <div class="flow-chips"><a class="xref chip" data-m="mr">MR</a><a class="xref chip chip-adj" data-tab="choose">Wet-lab</a><a class="xref chip" data-m="dt">Digital twin</a><a class="xref chip chip-adj" data-tab="choose">BA/BE</a></div>
+        <div class="flow-chips"><a class="xref chip" data-m="mr">MR</a><a class="chip chip-adj adj-jump" data-leaf="rWETLAB">Wet-lab</a><a class="xref chip" data-m="dt">Digital twin</a><a class="chip chip-adj adj-jump" data-leaf="rBABE">BA/BE</a></div>
       </div>
       <div class="flow-arrow" aria-hidden="true">↓</div>
 
@@ -7169,7 +7170,7 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
       <div class="flow-stage" data-step="7">
         <div class="flow-head"><span class="flow-no">⑦</span><h3 data-en="Decide &amp; generalize">決策與外推</h3></div>
         <p data-en="Weigh benefits against risks, carry the effect to <i>your</i> population, and borrow a comparator when there is none.">權衡效益與風險，把效果搬到<i>你的</i>族群，沒有對照時就借一個。</p>
-        <div class="flow-chips"><a class="xref chip chip-adj" data-tab="choose">MCDA</a><a class="xref chip" data-m="transport">Transportability</a><a class="xref chip" data-m="extctrl">External control</a><a class="xref chip chip-adj" data-tab="choose">BA/BE</a></div>
+        <div class="flow-chips"><a class="chip chip-adj adj-jump" data-leaf="rMCDA">MCDA</a><a class="xref chip" data-m="transport">Transportability</a><a class="xref chip" data-m="extctrl">External control</a><a class="chip chip-adj adj-jump" data-leaf="rBABE">BA/BE</a></div>
       </div>
       <div class="flow-arrow" aria-hidden="true">↓</div>
 
@@ -7464,11 +7465,17 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
     </div>
 
     <div class="card info" id="adjacentApproaches">
-      <h3 data-en="Adjacent approaches (not core causal-inference designs)">鄰近取向（非核心的因果推論設計）</h3>
-      <p data-en="These are useful tools that sit next to — but are not — study designs for estimating a causal effect from data. Click each to read what it is and its references.">這些是實用的工具，緊鄰、但不屬於「從資料估計因果效果」的研究設計。點開各項看它是什麼以及參考文獻。</p>
-      <details class="adj-item"><summary data-en="MCDA · multi-criteria decision analysis">MCDA · multi-criteria decision analysis</summary>
-        <p data-en="Multi-criteria decision analysis aggregates several conflicting criteria (efficacy, safety, cost, access) with explicit weights into one comparable score to rank options. It is a decision / value-tradeoff tool, not a design for estimating a causal effect from data.">多準則決策分析（MCDA）把多個彼此衝突的準則（療效、安全、成本、可近性）用明確權重彙整成一個可比較的分數來排序選項。它是決策／價值權衡工具，不是「從資料估計因果效果」的研究設計。</p>
-        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+      <h3 data-en="Adjacent approaches — beside causal inference, not within it">鄰近取向：在因果推論「旁邊」，不在其中</h3>
+      <p data-en="A few tools in this toolbox are not designs for estimating a causal effect from data — they make decisions, screen formulations, or test mechanism. They live here as one-click <b>leaf cards</b> in the decision tree below, so the main picker stays focused on causal designs. Click one to open its card (with references) right in the tree.">本工具箱有幾個工具，並不是「從資料估計因果效果」的設計，它們做的是決策、製劑比對或機制檢驗。把它們放成下方決策樹裡可一鍵展開的<b>葉卡片</b>，主選單就能專注在因果設計上。點一個，就在決策樹裡看它的卡片與參考文獻。</p>
+      <div class="flow-chips">
+        <a class="chip chip-adj adj-jump" data-leaf="rMCDA">MCDA · 多準則決策</a>
+        <a class="chip chip-adj adj-jump" data-leaf="rFSQCA">fsQCA · 模糊集</a>
+        <a class="chip chip-adj adj-jump" data-leaf="rBABE">BA/BE · 生體相等性</a>
+        <a class="chip chip-adj adj-jump" data-leaf="rWETLAB">Wet-lab · 實驗室</a>
+      </div>
+    </div>
+    <div id="adjrefs-mcda" hidden>
+      <details class="term"><summary data-en="Show references">看參考文獻</summary>
           <ul class="reflist nofilter">
           <li><b data-en="Multi-criteria decision analysis (MCDA tab)">多準則決策分析（MCDA 分頁）</b> · Thokala, P., Devlin, N., Marsh, K., et al. (2016). Multiple Criteria Decision Analysis for Health Care Decision Making — an introduction: Report 1 of the ISPOR MCDA Emerging Good Practices Task Force. <i>Value in Health, 19</i>(1), 1–13. <span data-en="〔ISPOR Task Force Report 1 introducing MCDA for health-care decisions.〕">〔ISPOR 工作小組報告一，醫療決策 MCDA 導論。〕</span></li>
           <li>Marsh, K., IJzerman, M., Thokala, P., et al. (2016). MCDA for Health Care Decision Making — Emerging Good Practices: Report 2 of the ISPOR Task Force. <i>Value in Health, 19</i>(2), 125–137. <span data-en="〔ISPOR Task Force Report 2 on emerging MCDA good practices.〕">〔ISPOR 工作小組報告二，MCDA 新興良好實務。〕</span></li>
@@ -7486,10 +7493,9 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
           <li>Wang, H., Zhang, F., &amp; Mu, C. (2025). One for all: a general framework of LLMs-based multi-criteria decision making on human expert level. <i>arXiv</i>:2502.15778. https://doi.org/10.48550/arXiv.2502.15778. <span data-en="〔A general framework using large language models for expert-level MCDM.〕">〔以大型語言模型達專家水準的通用 MCDM 框架。〕</span></li>
           </ul>
         </details>
-      </details>
-      <details class="adj-item"><summary data-en="fsQCA · fuzzy-set qualitative comparative analysis">fsQCA · fuzzy-set qualitative comparative analysis</summary>
-        <p data-en="Fuzzy-set qualitative comparative analysis uses set theory to find which combinations of conditions are sufficient or necessary for an outcome, embracing equifinality and causal asymmetry; suited to small-to-medium-N configurational analysis. It answers configurational sufficiency, not an average causal effect.">模糊集質性比較分析（fsQCA）以集合論找出「哪些條件組合對結果為充分或必要」，擁抱等終性與因果不對稱，適合中小樣本的組態分析。它回答的是組態充分性，而不是平均因果效果。</p>
-        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+    </div>
+    <div id="adjrefs-fsqca" hidden>
+      <details class="term"><summary data-en="Show references">看參考文獻</summary>
           <ul class="reflist nofilter">
           <li><b data-en="fsQCA (fsQCA tab)">模糊集質性比較分析（fsQCA 分頁）</b> · Ragin, C. C. (2008). <i>Redesigning Social Inquiry: Fuzzy Sets and Beyond.</i> University of Chicago Press. <span data-en="〔the foundational fsQCA text — calibration, fuzzy sets, set relations〕">〔fsQCA 的奠基著作，校準、模糊集、集合關係〕</span></li>
           <li>Ragin, C. C. (2006). Set relations in social research: evaluating their consistency and coverage. <i>Political Analysis, 14</i>(3), 291–310. <span data-en="〔consistency &amp; coverage — the ② metrics〕">〔一致性與覆蓋率，② 的指標〕</span></li>
@@ -7507,10 +7513,9 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
           <li>蘇彥中（Su, Y.-C.）。組織生命週期與公司治理之組態：模糊集質性比較分析（fsQCA）的應用〔以 2012 年台灣上市公司治理資料為例〕。<span data-en="〔Chinese-language application: organizational life-cycle &amp; corporate-governance configurations via fsQCA〕">〔中文應用研究：以 fsQCA 分析組織生命週期與公司治理組態〕</span></li>
           </ul>
         </details>
-      </details>
-      <details class="adj-item"><summary data-en="BA/BE · bioavailability &amp; bioequivalence">BA/BE · bioavailability &amp; bioequivalence</summary>
-        <p data-en="Bioavailability / bioequivalence compares a test vs reference formulation's Cmax and AUC in a randomized 2×2 crossover PK study, checking whether the GMR's 90% CI lies within 80–125%. It is a regulatory pharmacokinetic-equivalence trial in formulation / clinical pharmacology, not an observational-data causal design.">生體可用率／生體相等性（BA/BE）以隨機 2×2 交叉的人體藥動試驗比較測試與參考劑型的 Cmax、AUC，看 GMR 的 90% CI 是否落在 80–125%。它是製劑／臨床藥學領域的法規藥動等效試驗，不是觀察性資料的因果設計。</p>
-        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+    </div>
+    <div id="adjrefs-babe" hidden>
+      <details class="term"><summary data-en="Show references">看參考文獻</summary>
           <ul class="reflist nofilter">
           <li><b data-en="Bioavailability / bioequivalence (BA/BE tab)">生體可用率／生體相等性（BA/BE 分頁）</b> · Chow, S.-C., &amp; Liu, J.-P. (2008). <i>Design and Analysis of Bioavailability and Bioequivalence Studies</i> (3rd ed.). Chapman &amp; Hall/CRC. <span data-en="〔The standard textbook on BA/BE design and the crossover analysis.〕">〔BA/BE 設計與交叉分析的標準教科書。〕</span></li>
           <li>U.S. FDA (2022). <i>Bioequivalence Studies With Pharmacokinetic Endpoints for Drugs Submitted Under an ANDA</i> (guidance for industry); EMA CHMP, <i>Guideline on the Investigation of Bioequivalence</i>. <span data-en="〔The regulatory guidance defining the 90% CI within 80.00–125.00% rule.〕">〔界定「90% CI 落在 80.00–125.00%」規則的法規指引。〕</span></li>
@@ -7520,16 +7525,14 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
           <li>Ampadi Ramachandran, R., Tell, L. A., Mercer, M. A., Xu, X., Millagaha Gedara, N. I., Clapham, M. O., et al. (2026). Machine learning-based unified models for predicting drug clearance from pharmacokinetic animal and study design variables. <i>PLOS One, 21</i>(5), e0346432. https://doi.org/10.1371/journal.pone.0346432. <span data-en="〔ML models predicting drug clearance, a core PK parameter〕">〔以機器學習預測藥物清除率（核心藥動參數）的統一模型〕</span></li>
           </ul>
         </details>
-      </details>
-      <details class="adj-item"><summary data-en="Wet-lab · experimental validation">Wet-lab · experimental validation</summary>
-        <p data-en="Wet-lab experiments deliberately manipulate at the cell, animal or molecular level (knock-out/knock-in, dose–response, randomized animals) to test mechanism and direction with high internal validity. They are bench studies — usually triangulated with observational evidence — rather than a causal design built from real-world data.">實驗室實驗（Wet-lab）在細胞、動物或分子層級刻意操弄（基因剔除／嵌入、劑量反應、隨機分派動物），以高內部效度直接檢驗機制與方向。屬實驗台研究，通常與觀察性證據三角驗證，而非從真實世界資料建立的因果設計。</p>
-        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+    </div>
+    <div id="adjrefs-wetlab" hidden>
+      <details class="term"><summary data-en="Show references">看參考文獻</summary>
           <ul class="reflist nofilter">
           <li><b data-en="Wet-lab experiments (Wet-lab tab)">實驗室實驗（Wet-lab 分頁）</b> · Fisher, R. A. (1935). <i>The Design of Experiments.</i> Oliver &amp; Boyd. <span data-en="〔The foundational text on randomized experimental design.〕">〔隨機化實驗設計的奠基之作。〕</span></li>
           <li>Lawlor, D. A., Tilling, K., &amp; Davey Smith, G. (2016). Triangulation in aetiological epidemiology. <i>International Journal of Epidemiology, 45</i>(6), 1866–1886. <span data-en="〔Triangulation: combining designs whose biases are unrelated — the logic linking wet-lab &amp; observational evidence.〕">〔三角驗證：結合偏誤互不相關的設計，串起實驗室與觀察性證據的邏輯。〕</span></li>
           </ul>
         </details>
-      </details>
     </div>
 
     <div id="dtree" class="dtree">
