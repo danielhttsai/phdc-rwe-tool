@@ -109,6 +109,36 @@ def test_quiz_keys_are_real_methods(appjs, method_prefix):
     assert not bad, f"QUIZ keys that are not methods: {bad}"
 
 
+# --- SELF_AUDIT.md standard: enforced on every push (see SELF_AUDIT.md) ---
+
+def test_every_method_has_a_method_ref(appjs, method_prefix):
+    body = _obj_body(appjs, "METHOD_REF")
+    keys = set(re.findall(r"(\w+)\s*:\s*\{", body))
+    missing = [m for m in method_prefix if m not in keys]
+    assert not missing, f"methods with no METHOD_REF entry: {missing}"
+
+
+def test_every_method_has_at_least_one_reference(html, method_prefix):
+    missing = [m for m in method_prefix if f'data-ref="{m}"' not in html]
+    assert not missing, f"methods with no reference <li>: {missing}"
+
+
+def test_cross_links_point_at_real_methods(html, method_prefix):
+    targets = set(re.findall(r'data-m="(\w+)"', html))
+    bad = targets - set(method_prefix)
+    assert not bad, f"data-m cross-links that are not methods: {bad}"
+
+
+def test_no_long_em_dash_ai_tell(html, appjs):
+    # the long em-dash 「——」 reads as AI-generated; use 「：」 / 「，」 instead.
+    assert "——" not in html, "long em-dash '——' found in index.html (see SELF_AUDIT.md)"
+    assert "——" not in appjs, "long em-dash '——' found in app.js (see SELF_AUDIT.md)"
+
+
+def test_no_casual_slang(html):
+    assert "「GG」" not in html and "&quot;GG&quot;" not in html, "casual 'GG' slang in shipped copy"
+
+
 def test_subtab_buttons_match_the_six_subs(html):
     found = set(re.findall(r'class="tab subtab[^"]*"\s+data-sub="(\w+)"', html))
     found |= set(re.findall(r'data-sub="(\w+)"', html))

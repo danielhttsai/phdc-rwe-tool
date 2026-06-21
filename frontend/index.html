@@ -1019,7 +1019,7 @@ rdrobust Y age, c(65) fuzzy(D)
       <h3 data-en="What does the data look like? A sloped trend with a small jump at 65">資料長什麼樣子？一條有斜率的趨勢、在 65 歲處有一個小跳階</h3>
       <p data-en="x is age, y is the outcome. There is a clear <b>upward trend with age</b> on both sides, plus a small <b>jump</b> right at 65 (the dotted line) — that jump is the real effect we want. The trouble: outcome already rises with age, so if you open a <b>wide window</b> (amber band) and just compare left-grey vs right-teal averages, the age trend <b>inflates</b> the jump. DML subtracts the trend first, so the estimate stays honest even with a wide window.">
         橫軸是年齡、縱軸是結果。兩側都有明顯的<b>隨年齡上升的趨勢</b>，再加上 65 歲（虛線）處一個小<b>跳階</b>
-       ，那個跳階就是我們要的真效果。麻煩在於：結果本來就隨年齡上升，所以若把<b>視窗開寬</b>（琥珀色帶），
+      ，那個跳階就是我們要的真效果。麻煩在於：結果本來就隨年齡上升，所以若把<b>視窗開寬</b>（琥珀色帶），
         只比左側灰點與右側青點的平均，年齡趨勢會把跳階<b>灌水</b>。DML 先把趨勢扣掉，視窗再寬估計也誠實。
       </p>
       <div id="sceneTrend" class="chart"></div>
@@ -1239,7 +1239,7 @@ rdrobust Y age, c(65) fuzzy(D)
       <p data-en="Each line is a group's average outcome over time. Before the policy (left of the dotted line) the two lines climb in <b>parallel</b> — same slope, just a fixed gap apart. At the cutoff the policy switches on for the teal (treated) group, and its line <b>jumps above</b> where the parallel path would have taken it. That extra gap — the teal line minus its own dashed &quot;what-if-no-policy&quot; continuation — is the DiD effect.">
         每條線是一組隨時間的平均結果。政策上路前（虛線左側），兩條線<b>平行</b>上升，斜率相同、只差一個固定落差。
         在斷點處，政策對青色（介入）組開啟，它的線就<b>跳到</b>原本平行路徑的上方。多出來的那一段
-       ，青色線減掉它自己那條虛線「假如沒政策會怎樣」的延伸，就是 DiD 效果。
+      ，青色線減掉它自己那條虛線「假如沒政策會怎樣」的延伸，就是 DiD 效果。
       </p>
       <div id="sceneDidParallel" class="chart"></div>
     </div>
@@ -2204,7 +2204,7 @@ prais Y t level trend            <span class="cm">// Prais-Winsten, AR(1) errors
       <h3 data-en="What does the data look like? A confounding gap before, a real effect after">資料長什麼樣子？事前一道混淆落差、事後一個真效果</h3>
       <p data-en="Four event rates: treated vs control, in the prior period and the post period. In the <b>prior</b> period (nobody treated yet) the teal bar already sits above the grey one — that gap is the confounding fingerprint. In the <b>post</b> period the vaccine pulls the treated rate down, closing the gap. PERR reads the effect from how that gap <b>changes</b>, not from the post gap alone.">
         四個事件率：處置 vs 對照，分事前期與事後期。在<b>事前期</b>（還沒有人接種），青色棒就已經高過灰色棒
-       ，那道落差就是混淆的指紋。在<b>事後期</b>，疫苗把處置組的率往下拉、把落差縮小。PERR 從這道落差怎麼
+      ，那道落差就是混淆的指紋。在<b>事後期</b>，疫苗把處置組的率往下拉、把落差縮小。PERR 從這道落差怎麼
         <b>改變</b>讀出效果，而不是只看事後的落差。
       </p>
       <div id="perrScene" class="chart"></div>
@@ -2221,7 +2221,7 @@ prais Y t level trend            <span class="cm">// Prais-Winsten, AR(1) errors
         <h3 data-en="When it beats a plain cohort study">什麼時候勝過樸素世代研究</h3>
         <p data-en="A plain after-only comparison (e.g. Cox) is biased by every unmeasured confounder. PERR removes the part of that confounding that is <b>stable over time and multiplicative</b> — at the cost of needing a clean prior period and that stability to hold.">
           只看事後的樸素比較（如 Cox）會被每一個未測混淆汙染。PERR 把其中<b>時間不變、乘法尺度</b>的那部分消掉
-         ，代價是需要一段乾淨的事前期，以及那份穩定性要成立。
+        ，代價是需要一段乾淨的事前期，以及那份穩定性要成立。
         </p>
       </div>
     </div>
@@ -2545,7 +2545,7 @@ lincom 1.group#1.period, irr        // PERR with 95% CI
       <p data-en="The other methods answer a point question (treated vs not). CCW answers a <b>timing / sustained-strategy</b> question (treat <b>early</b> vs <b>late</b>) where the naive analysis suffers <b>immortal-time bias</b>. It is a <b>target-trial emulation</b>: it explicitly builds the trial you would have run — same time zero, eligibility and assignment — then uses cloning + censoring + weighting instead of randomisation. It is the natural tool when &quot;when to start&quot; is the question (Hernán 2018; García-Albéniz et al.; the HIV when-to-start studies).">
         其他方法回答的是「點」問題（有沒有治療）。CCW 回答的是<b>時機／持續策略</b>問題（<b>早</b>接種 vs <b>晚</b>接種），
         而這裡未校正分析會中 <b>immortal-time bias</b>。它是一種<b>目標試驗模擬</b>：明確地把「你本來會做的試驗」建出來
-       ，同樣的時間零點、資格、指派，再用複製＋設限＋加權取代隨機化。當問題是「何時開始」時，它就是最自然的工具
+      ，同樣的時間零點、資格、指派，再用複製＋設限＋加權取代隨機化。當問題是「何時開始」時，它就是最自然的工具
         （Hernán 2018；García-Albéniz 等人；HIV 何時開始治療的研究）。
       </p>
     </details>
@@ -2819,9 +2819,9 @@ stcox i.arm, vce(cluster pid)
     <h1 data-en="Case-crossover &amp; case-(case-)time-control: each person is their own control">案例交叉與案例-（案例-）時間對照：每個人當自己的對照</h1>
     <p class="lead" data-en="For an <b>acute</b> event that a <b>transient</b> exposure might trigger, compare the same person's exposure in a <b>hazard window</b> (just before the event) vs an earlier <b>reference window</b> — a self-control that cancels everything stable about them (case-crossover, CCO). The catch: if the exposure's <b>prevalence rises over calendar time</b>, the recent window is more exposed for everyone, so CCO is inflated. A control group (or future-onset cases) that share the trend net it out — case-(case-)time-control (CCTC).">
       對一個可能由<b>短暫暴露</b>觸發的<b>急性</b>事件，比較同一個人在<b>危險窗</b>（事件前）vs 更早的<b>參考窗</b>的暴露
-     ，用自己當對照，把所有穩定的個人特質都消掉（案例交叉，CCO）。麻煩在於：如果暴露的<b>盛行率隨日曆時間上升</b>，
+    ，用自己當對照，把所有穩定的個人特質都消掉（案例交叉，CCO）。麻煩在於：如果暴露的<b>盛行率隨日曆時間上升</b>，
       近期那一窗本來就比較常暴露，CCO 會被高估。用同樣經歷趨勢的對照族群（或較晚發病的未來 case）把趨勢扣掉
-     ，就是案例-（案例-）時間對照（CCTC）。
+    ，就是案例-（案例-）時間對照（CCTC）。
     </p>
 
     <div class="card scene">
@@ -3028,7 +3028,7 @@ clogit y exposed if !case, group(pid)
     <h1 data-en="Sequential trials: one emulated trial per eligibility time, then pool">序列試驗：每個資格時點開一場模擬試驗，再合併</h1>
     <p class="lead" data-en="When a <b>point treatment</b> (treat now vs not) could be started at many different times, you can't just compare 'ever-treated vs never' — that has <b>immortal-time bias</b> (the ever-treated had to survive long enough to start). Instead, emulate a small <b>target trial at each eligibility month</b>: at that moment, compare those who initiate vs those who don't, align time-zero, adjust for baseline covariates, then <b>pool</b> across all the sequential trials. A person can re-enter several trials, boosting the effective sample.">
       當一個<b>點治療</b>（當下治療 vs 不治療）可以在很多不同時間點啟動時，你不能只比「曾治療 vs 從未治療」
-     ，那會有 <b>immortal-time bias</b>（曾治療者必須先活得夠久才能開始）。做法：在<b>每個資格月</b>各模擬一場
+    ，那會有 <b>immortal-time bias</b>（曾治療者必須先活得夠久才能開始）。做法：在<b>每個資格月</b>各模擬一場
       小型目標試驗：在那一刻，比較啟動 vs 不啟動的人、對齊時間零點、調整基線共變項，再把所有序列試驗<b>合併</b>。
       同一個人可在多場重複收案，放大有效樣本。
     </p>
@@ -4423,7 +4423,7 @@ stcox drugA, strata(tss_band)                             // A-vs-B HR, time-con
     <h1 data-en="Interactive: the detection signal grows while proximal stays on the truth">互動：偵測訊號隨混淆放大，而近端因果穩在真值</h1>
     <p class="lead" data-en="Drag the slider for the strength of the <b>unmeasured confounder</b> U. The <b>naive A→Y</b> estimate is pushed ever further off the truth; in lockstep the <b>negative-control A→W</b> (which should be 0) grows — that is the detection signal. The <b>proximal P2SLS</b> estimate, using the same negative-control pair, stays on the truth however strong the confounding.">
       拉動滑桿改變<b>未測混淆</b> U 的強度。<b>未校正 A→Y</b> 被推得離真值越來越遠；同時<b>陰性對照 A→W</b>（本應為 0）也跟著放大
-     ，這就是偵測訊號。用同一對陰性對照的<b>近端因果 P2SLS</b>，不管混淆多強都穩在真值。
+    ，這就是偵測訊號。用同一對陰性對照的<b>近端因果 P2SLS</b>，不管混淆多強都穩在真值。
     </p>
 
     <div class="controls">
@@ -5787,7 +5787,7 @@ di "aSR=" aSR "  95% CI " lo ", " hi
   
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for the tree-based scan statistic">程式（SAS · R · Stata）：樹狀掃描統計的關鍵步驟</h2>
-    <p class="code-src" data-en="Sources — software: Kulldorff's <i>TreeScan</i> (Kulldorff et al. 2003); SAS/Stata only prepare the tree/case files &amp; call the batch — verify against the TreeScan user guide.">出處 — 軟體：Kulldorff 的 <i>TreeScan</i>（Kulldorff 等 2003）；SAS/Stata 僅負責準備樹／案例檔並呼叫批次——請對照 TreeScan 使用手冊。</p>
+    <p class="code-src" data-en="Sources — software: Kulldorff's <i>TreeScan</i> (Kulldorff et al. 2003); SAS/Stata only prepare the tree/case files &amp; call the batch — verify against the TreeScan user guide.">出處 — 軟體：Kulldorff 的 <i>TreeScan</i>（Kulldorff 等 2003）；SAS/Stata 僅負責準備樹／案例檔並呼叫批次，請對照 TreeScan 使用手冊。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://www.treescan.org/" target="_blank" rel="noopener">TreeScan</a></p>
     <p class="lead" data-en="TreeScan is most naturally run from R (the <code>TreeScan</code> engine, or the <code>TreeMineR</code> package): define the outcome tree, supply per-subject node + exposure, and let the scan compute the max-LLR with a Monte-Carlo permutation p. The mechanics are a likelihood-ratio scan over nodes plus a permutation null.">TreeScan 最自然是從 R 跑（<code>TreeScan</code> 引擎，或 <code>TreeMineR</code> 套件）：定義結果樹、給每個個體的節點＋暴露，讓掃描算出最大 LLR 與蒙地卡羅排列 p。機制就是「節點上的概似比掃描＋排列虛無」。</p>
     <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own tree / dataset.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；樹／資料集請換成你自己的。</div>
@@ -8192,18 +8192,18 @@ regress Y i.A c.y0, vce(robust)   <span class="cm">// treatment effect with the 
     </div>
     <div class="card">
       <h3 data-en="The 80–125% rule">80–125% 規則</h3>
-      <p data-en="The equivalence limits 80.00–125.00% are symmetric on the <b>log scale</b> (0.80 = 1/1.25). Average bioequivalence requires the whole 90% CI of the GMR — for both Cmax and AUC — to fall inside this band.">相等性界限 80.00–125.00% 在<b>對數尺度</b>上是對稱的（0.80 ＝ 1／1.25）。平均生體相等要求 GMR 的整段 90% CI——Cmax 與 AUC 都要——落在這個帶內。</p>
+      <p data-en="The equivalence limits 80.00–125.00% are symmetric on the <b>log scale</b> (0.80 = 1/1.25). Average bioequivalence requires the whole 90% CI of the GMR — for both Cmax and AUC — to fall inside this band.">相等性界限 80.00–125.00% 在<b>對數尺度</b>上是對稱的（0.80 ＝ 1／1.25）。平均生體相等要求 GMR 的整段 90% CI，Cmax 與 AUC 都要，落在這個帶內。</p>
     </div>
   </div>
   <details class="term">
     <summary data-en="Show terminology">看專有名詞解釋</summary>
     <div class="tdef">
       <h4>幾何平均比值（GMR） <span class="en">geometric mean ratio</span></h4>
-      <p data-en="Because PK metrics like Cmax and AUC are right-skewed and roughly log-normal, we compare them on the log scale. The GMR is the ratio of the test formulation's geometric mean to the reference's — equivalently, the back-transformed difference of mean log-values. A GMR of 1.00 means identical average exposure; 1.10 means the test gives 10% more on average. BE is judged on the GMR, not the arithmetic mean ratio, precisely because the log scale is where these data are symmetric and where the 80–125% limits become symmetric too.">因為 Cmax、AUC 這類藥動指標右偏、大致呈對數常態，我們在對數尺度上比較它們。GMR 是測試劑型的幾何平均除以參考劑型的幾何平均——等價於對數平均差的反轉換。GMR ＝ 1.00 表示平均曝露相同；1.10 表示測試平均多出 10%。BE 以 GMR 而非算術平均比值來判定，正是因為對數尺度才是這些資料對稱之處，也是 80–125% 界限變得對稱之處。</p>
+      <p data-en="Because PK metrics like Cmax and AUC are right-skewed and roughly log-normal, we compare them on the log scale. The GMR is the ratio of the test formulation's geometric mean to the reference's — equivalently, the back-transformed difference of mean log-values. A GMR of 1.00 means identical average exposure; 1.10 means the test gives 10% more on average. BE is judged on the GMR, not the arithmetic mean ratio, precisely because the log scale is where these data are symmetric and where the 80–125% limits become symmetric too.">因為 Cmax、AUC 這類藥動指標右偏、大致呈對數常態，我們在對數尺度上比較它們。GMR 是測試劑型的幾何平均除以參考劑型的幾何平均，等價於對數平均差的反轉換。GMR ＝ 1.00 表示平均曝露相同；1.10 表示測試平均多出 10%。BE 以 GMR 而非算術平均比值來判定，正是因為對數尺度才是這些資料對稱之處，也是 80–125% 界限變得對稱之處。</p>
     </div>
     <div class="tdef">
       <h4>清除期 <span class="en">washout</span></h4>
-      <p data-en="The gap between the two dosing periods, made long enough (usually ≥ 5 elimination half-lives) that the first formulation is essentially gone before the second is given. Too short a washout leaves drug carrying over into the next period — carryover — which biases the within-subject comparison.">兩個給藥期之間的間隔，要長到（通常 ≥ 5 個排除半衰期）第一種劑型在第二種給藥前基本排空。清除期太短會讓藥物殘留到下一期——殘留效應（carryover）——使受試者內的比較產生偏誤。</p>
+      <p data-en="The gap between the two dosing periods, made long enough (usually ≥ 5 elimination half-lives) that the first formulation is essentially gone before the second is given. Too short a washout leaves drug carrying over into the next period — carryover — which biases the within-subject comparison.">兩個給藥期之間的間隔，要長到（通常 ≥ 5 個排除半衰期）第一種劑型在第二種給藥前基本排空。清除期太短會讓藥物殘留到下一期，殘留效應（carryover），使受試者內的比較產生偏誤。</p>
     </div>
     <div class="tdef">
       <h4>平均生體相等性（ABE） <span class="en">average bioequivalence</span></h4>
@@ -8229,7 +8229,7 @@ regress Y i.A c.y0, vce(robust)   <span class="cm">// treatment effect with the 
   <h1 data-en="Data analysis: run a full average-bioequivalence test">資料分析：跑一次完整的平均生體相等性檢定</h1>
   <div class="card info">
     <h3 data-en="Steps">步驟</h3>
-    <p data-en="(1) <b>Non-compartmental analysis (NCA)</b> on each subject×period concentration–time curve to extract <b>Cmax</b> and <b>AUC</b>. (2) <b>Log-transform</b> both metrics. (3) Fit a <b>linear mixed model</b> with sequence, period and treatment as <b>fixed</b> effects and subject(sequence) as a <b>random</b> effect. (4) Form the <b>90% CI</b> of the treatment difference and <b>back-transform</b> it to the GMR scale. (5) Compare against <b>80.00–125.00%</b> — both Cmax and AUC must pass.">(1) 對每個受試者×期別的濃度–時間曲線做<b>非室分析（NCA）</b>，取出 <b>Cmax</b> 與 <b>AUC</b>。(2) 兩個指標皆<b>取對數</b>。(3) 配一個<b>線性混合模型</b>，以順序、期別、處置為<b>固定</b>效果，subject(sequence) 為<b>隨機</b>效果。(4) 對處置差求 <b>90% CI</b>，再<b>反轉換</b>回 GMR 尺度。(5) 與 <b>80.00–125.00%</b> 比較——Cmax 與 AUC 都要通過。</p>
+    <p data-en="(1) <b>Non-compartmental analysis (NCA)</b> on each subject×period concentration–time curve to extract <b>Cmax</b> and <b>AUC</b>. (2) <b>Log-transform</b> both metrics. (3) Fit a <b>linear mixed model</b> with sequence, period and treatment as <b>fixed</b> effects and subject(sequence) as a <b>random</b> effect. (4) Form the <b>90% CI</b> of the treatment difference and <b>back-transform</b> it to the GMR scale. (5) Compare against <b>80.00–125.00%</b> — both Cmax and AUC must pass.">(1) 對每個受試者×期別的濃度–時間曲線做<b>非室分析（NCA）</b>，取出 <b>Cmax</b> 與 <b>AUC</b>。(2) 兩個指標皆<b>取對數</b>。(3) 配一個<b>線性混合模型</b>，以順序、期別、處置為<b>固定</b>效果，subject(sequence) 為<b>隨機</b>效果。(4) 對處置差求 <b>90% CI</b>，再<b>反轉換</b>回 GMR 尺度。(5) 與 <b>80.00–125.00%</b> 比較，Cmax 與 AUC 都要通過。</p>
   </div>
   <p class="code-src" data-en="Sources — guidance: FDA Bioequivalence guidance; EMA CHMP bioequivalence guideline; Chow &amp; Liu, Design and Analysis of Bioavailability and Bioequivalence Studies; packages: R <code>PowerTOST</code> &amp; <code>replicateBE</code>.">出處 — 指引：FDA 生體相等性指引；EMA CHMP 生體相等性指引；Chow &amp; Liu《Design and Analysis of Bioavailability and Bioequivalence Studies》；套件：R <code>PowerTOST</code> 與 <code>replicateBE</code>。</p>
   <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">PowerTOST</a> · <a href="https://cran.r-project.org/package=replicateBE" target="_blank" rel="noopener">replicateBE</a></p>
@@ -8291,16 +8291,16 @@ nlcom exp(_b[2.treatment]), level(90)    <span class="cm">// back-transform -&gt
   <h1 data-en="What has to hold (and when the 80–125% limits widen)">需要哪些前提（以及界限何時放寬）</h1>
   <div class="cards cards-3">
     <div class="card warn">
-      <h3 data-en="Adequate washout — no carryover">充分清除期——無殘留</h3>
+      <h3 data-en="Adequate washout — no carryover">充分清除期，無殘留</h3>
       <p data-en="The washout must clear the first drug before period two; otherwise residual drug carries over and contaminates the within-subject contrast. A significant sequence effect is the warning sign that carryover (or a true sequence-by-formulation interaction) is present.">清除期必須在第二期前清掉第一種藥，否則殘留藥物會延續汙染受試者內的對比。順序效果顯著就是殘留效應（或真正的「順序×劑型」交互作用）存在的警訊。</p>
     </div>
     <div class="card warn">
       <h3 data-en="No period or sequence effects">無期別或順序效果</h3>
-      <p data-en="The model assumes period and sequence shift exposure additively (on the log scale) and are separable from treatment. If a strong period effect or sequence-by-treatment interaction exists, the simple ABE estimate can mislead — inspect those terms, don't just read off the GMR.">模型假設期別與順序在（對數尺度上）加法地平移曝露，且可與處置分離。若有強烈的期別效果或「順序×處置」交互作用，簡單的 ABE 估計可能誤導——要檢視這些項，別只讀 GMR。</p>
+      <p data-en="The model assumes period and sequence shift exposure additively (on the log scale) and are separable from treatment. If a strong period effect or sequence-by-treatment interaction exists, the simple ABE estimate can mislead — inspect those terms, don't just read off the GMR.">模型假設期別與順序在（對數尺度上）加法地平移曝露，且可與處置分離。若有強烈的期別效果或「順序×處置」交互作用，簡單的 ABE 估計可能誤導，要檢視這些項，別只讀 GMR。</p>
     </div>
     <div class="card">
       <h3 data-en="Log-normal PK, within-subject design">對數常態 PK 與受試者內設計</h3>
-      <p data-en="Cmax and AUC are assumed log-normal (hence the log transform and the geometric mean). The crossover relies on within-subject comparison, so subjects must be in a comparable physiological state each period and complete both — dropouts erode the within-subject advantage.">Cmax 與 AUC 假設為對數常態（故取對數、用幾何平均）。交叉設計仰賴受試者內比較，因此每位受試者各期須處於可比的生理狀態並完成兩期——退出會侵蝕受試者內的優勢。</p>
+      <p data-en="Cmax and AUC are assumed log-normal (hence the log transform and the geometric mean). The crossover relies on within-subject comparison, so subjects must be in a comparable physiological state each period and complete both — dropouts erode the within-subject advantage.">Cmax 與 AUC 假設為對數常態（故取對數、用幾何平均）。交叉設計仰賴受試者內比較，因此每位受試者各期須處於可比的生理狀態並完成兩期，退出會侵蝕受試者內的優勢。</p>
     </div>
     <div class="card">
       <h3 data-en="Highly variable drugs → scaling">高變異藥物 → 比例放寬</h3>
@@ -8308,30 +8308,30 @@ nlcom exp(_b[2.treatment]), level(90)    <span class="cm">// back-transform -&gt
     </div>
     <div class="card warn">
       <h3 data-en="Narrow therapeutic index → tighter">窄治療指數 → 收緊</h3>
-      <p data-en="For narrow-therapeutic-index (NTI) drugs, where small exposure changes matter clinically, regulators <b>tighten</b> rather than relax — e.g. scaled limits that can narrow toward ~90.00–111.11%, often with an added within-subject variability comparison.">對窄治療指數（NTI）藥物，曝露的小幅變化在臨床上就有意義，主管機關會<b>收緊</b>而非放寬——例如可收窄到約 90.00–111.11% 的比例界限，並常附加受試者內變異的比較。</p>
+      <p data-en="For narrow-therapeutic-index (NTI) drugs, where small exposure changes matter clinically, regulators <b>tighten</b> rather than relax — e.g. scaled limits that can narrow toward ~90.00–111.11%, often with an added within-subject variability comparison.">對窄治療指數（NTI）藥物，曝露的小幅變化在臨床上就有意義，主管機關會<b>收緊</b>而非放寬，例如可收窄到約 90.00–111.11% 的比例界限，並常附加受試者內變異的比較。</p>
     </div>
     <div class="card">
       <h3 data-en="Enough subjects &amp; proper crossover">足夠受試者與正確交叉</h3>
-      <p data-en="The 90% CI must be precise enough to fit inside the band — that needs an adequately powered sample for the drug's variability. Randomized sequence allocation and a balanced 2×2 (or replicate) design are what license the causal, within-subject interpretation.">90% CI 必須精準到能塞進帶內——這需要對該藥變異有足夠檢定力的樣本。隨機的順序分派與平衡的 2×2（或重複）設計，正是支撐「因果、受試者內」詮釋的依據。</p>
+      <p data-en="The 90% CI must be precise enough to fit inside the band — that needs an adequately powered sample for the drug's variability. Randomized sequence allocation and a balanced 2×2 (or replicate) design are what license the causal, within-subject interpretation.">90% CI 必須精準到能塞進帶內，這需要對該藥變異有足夠檢定力的樣本。隨機的順序分派與平衡的 2×2（或重複）設計，正是支撐「因果、受試者內」詮釋的依據。</p>
     </div>
   </div>
 </section>
 
 <section id="babeml" class="panel">
   <h1 data-en="Where modelling and ML meet BA/BE">建模與機器學習在 BA/BE 的交會處</h1>
-  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗——中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。要誠實面對哪些目前已被主管機關接受。</p>
+  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗，中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。要誠實面對哪些目前已被主管機關接受。</p>
   <div class="cards cards-3">
     <div class="card">
       <h3 data-en="Population-PK / model-informed BE">族群藥動／模型導向 BE</h3>
-      <p data-en="Nonlinear mixed-effects (popPK) models pool sparse data across subjects to estimate exposure and its variability — useful for designing studies and, increasingly, for model-informed approaches that supplement or (in limited cases) substitute a classical BE arm.">非線性混合效果（popPK）模型把跨受試者的稀疏資料匯整，估計曝露與其變異——對設計試驗有用，且日益用於「模型導向」作法，補充、或（在有限情形下）替代傳統 BE 臂。</p>
+      <p data-en="Nonlinear mixed-effects (popPK) models pool sparse data across subjects to estimate exposure and its variability — useful for designing studies and, increasingly, for model-informed approaches that supplement or (in limited cases) substitute a classical BE arm.">非線性混合效果（popPK）模型把跨受試者的稀疏資料匯整，估計曝露與其變異，對設計試驗有用，且日益用於「模型導向」作法，補充、或（在有限情形下）替代傳統 BE 臂。</p>
     </div>
     <div class="card">
       <h3 data-en="NCA automation">NCA 自動化</h3>
-      <p data-en="Extracting Cmax/Tmax/AUC and choosing the elimination phase is repetitive and rule-based; pipelines (and ML-assisted curve QC) standardize peak detection, lambda-z selection, and outlier flagging — reducing analyst-to-analyst variability in the inputs to the BE test.">擷取 Cmax/Tmax/AUC 與選取排除相是重複且規則化的工作；管線（與 ML 輔助的曲線品管）可標準化峰值偵測、lambda-z 選取與離群標記——降低不同分析者對 BE 檢定輸入的變異。</p>
+      <p data-en="Extracting Cmax/Tmax/AUC and choosing the elimination phase is repetitive and rule-based; pipelines (and ML-assisted curve QC) standardize peak detection, lambda-z selection, and outlier flagging — reducing analyst-to-analyst variability in the inputs to the BE test.">擷取 Cmax/Tmax/AUC 與選取排除相是重複且規則化的工作；管線（與 ML 輔助的曲線品管）可標準化峰值偵測、lambda-z 選取與離群標記，降低不同分析者對 BE 檢定輸入的變異。</p>
     </div>
     <div class="card">
       <h3 data-en="Virtual BE / PBPK simulation">虛擬 BE／PBPK 模擬</h3>
-      <p data-en="Physiologically based PK (PBPK) and virtual-BE simulations predict whether two formulations would pass before any dosing — valuable for prioritizing and for biowaivers. Regulatory acceptance is real but case-by-case and growing; treat simulation as evidence to argue, not an automatic pass.">生理基礎藥動（PBPK）與虛擬 BE 模擬可在任何給藥前預測兩劑型是否會通過——對排序與生體豁免（biowaiver）很有價值。法規接受度確實存在，但逐案審查、仍在成長；把模擬當作要論證的證據，而非自動通過。</p>
+      <p data-en="Physiologically based PK (PBPK) and virtual-BE simulations predict whether two formulations would pass before any dosing — valuable for prioritizing and for biowaivers. Regulatory acceptance is real but case-by-case and growing; treat simulation as evidence to argue, not an automatic pass.">生理基礎藥動（PBPK）與虛擬 BE 模擬可在任何給藥前預測兩劑型是否會通過，對排序與生體豁免（biowaiver）很有價值。法規接受度確實存在，但逐案審查、仍在成長；把模擬當作要論證的證據，而非自動通過。</p>
     </div>
   </div>
 </section>
@@ -8350,7 +8350,7 @@ nlcom exp(_b[2.treatment]), level(90)    <span class="cm">// back-transform -&gt
     </div>
     <div class="card">
       <h3 data-en="What if Cmax passes but AUC fails?">如果 Cmax 過、AUC 沒過？</h3>
-      <p data-en="Then the product is <b>not</b> bioequivalent. BE requires <b>both</b> the rate marker (Cmax) and the extent marker (AUC) to fall within the limits — a pass on one cannot rescue a fail on the other. Each metric is judged on its own 90% CI.">那麼產品<b>不</b>具生體相等性。BE 要求速度指標（Cmax）與程度指標（AUC）<b>兩者都</b>落在界限內——一個過救不了另一個沒過。每個指標各以自己的 90% CI 判定。</p>
+      <p data-en="Then the product is <b>not</b> bioequivalent. BE requires <b>both</b> the rate marker (Cmax) and the extent marker (AUC) to fall within the limits — a pass on one cannot rescue a fail on the other. Each metric is judged on its own 90% CI.">那麼產品<b>不</b>具生體相等性。BE 要求速度指標（Cmax）與程度指標（AUC）<b>兩者都</b>落在界限內，一個過救不了另一個沒過。每個指標各以自己的 90% CI 判定。</p>
     </div>
   </div>
 </section>
@@ -9323,7 +9323,7 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="srma">Hanegraaf, P., Wondimu, A., Mosselman, J. J., et al. (2024). Inter-reviewer reliability of human literature reviewing and implications for machine-assisted systematic reviews. <i>BMJ Open, 14</i>, e076912. <span data-en="〔Examines inter-reviewer reliability in machine-assisted systematic reviews.〕">〔探討機器輔助系統性回顧的審查者間信度。〕</span></li>
       <li data-ref="srma">Guo, E., Gupta, M., Deng, J., et al. (2024). Automated paper screening for clinical reviews using large language models. <i>JMIR, 26</i>, e48996. <span data-en="〔Study using large language models to automate clinical review screening.〕">〔運用大型語言模型自動篩選臨床回顧文獻的研究。〕</span></li>
       <li data-ref="srma">Mathur, M. B., &amp; VanderWeele, T. J. (2020). Sensitivity analysis for publication bias in meta-analyses. <i>Journal of the Royal Statistical Society: Series C (Applied Statistics), 69</i>(5), 1091–1119. https://doi.org/10.1111/rssc.12440. <span data-en="〔Sensitivity-analysis methods for assessing publication bias in meta-analyses.〕">〔提出針對統合分析中發表偏誤的敏感度分析方法。〕</span></li>
-      <li data-ref="srma">Braginsky, M., Mathur, M. B., &amp; VanderWeele, T. J. <i>PublicationBias</i>: sensitivity analysis for publication bias in meta-analyses (R package). <a href="https://cran.r-project.org/package=PublicationBias" target="_blank" rel="noopener">cran.r-project.org/package=PublicationBias</a>. <span data-en="〔how much publication bias would shift the pooled estimate / CI — the significance funnel &amp; worst-case estimate〕">〔需要多強的發表偏誤才會移動合併估計／信賴區間——significance funnel 與最壞情況估計〕</span></li>
+      <li data-ref="srma">Braginsky, M., Mathur, M. B., &amp; VanderWeele, T. J. <i>PublicationBias</i>: sensitivity analysis for publication bias in meta-analyses (R package). <a href="https://cran.r-project.org/package=PublicationBias" target="_blank" rel="noopener">cran.r-project.org/package=PublicationBias</a>. <span data-en="〔how much publication bias would shift the pooled estimate / CI — the significance funnel &amp; worst-case estimate〕">〔需要多強的發表偏誤才會移動合併估計／信賴區間，significance funnel 與最壞情況估計〕</span></li>
       <li data-ref="iv">Homayra, F., Enns, B., Min, J. E., Kurz, M., Bach, P., Bruneau, J., et al. (2024). Comparative Analysis of Instrumental Variables on the Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use Disorder. <i>Epidemiology, 35</i>(2), 218–231. <span data-en="〔A1–A4b assumption framework〕">〔A1–A4b 假設檢驗框架〕</span></li>
       <li data-ref="iv">Singh, A., Hosanagar, K., &amp; Gandhi, A. (2020). Machine Learning Instrument Variables for Causal Inference. In <i>Proceedings of the 21st ACM Conference on Economics and Computation (EC '20)</i>, 835–836. <span data-en="〔instrument synthesis〕">〔合成工具〕</span></li>
       <li data-ref="iv">Bakhitov, E. (2025). On machine learning instrumental variable estimators. <i>Economics Letters.</i> <span data-en="〔properties of ML IV estimators〕">〔ML 工具變數估計量的性質〕</span></li>
