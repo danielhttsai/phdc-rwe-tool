@@ -29,7 +29,6 @@
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
         <option value="acnu" data-en="ACNU · Active-comparator new-user">ACNU · 主動對照新使用者</option>
-        <option value="babe" data-en="BA/BE · Bioavailability &amp; bioequivalence">BA/BE · 生體可用率與生體相等性</option>
         <option value="causalml" data-en="Causal ML · CATE &amp; meta-learners">Causal ML · 因果機器學習</option>
         <option value="cc" data-en="CC · Case-control">CC · 病例對照</option>
         <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
@@ -37,12 +36,10 @@
         <option value="did" data-en="DiD · Difference-in-differences">DiD · 差異中的差異</option>
         <option value="dt" data-en="Digital twin · model-predicted control">Digital twin · 數位孿生（模型化對照）</option>
         <option value="extctrl" data-en="External control · borrow a control arm">External control · 外部對照</option>
-        <option value="fsqca" data-en="fsQCA · Fuzzy-set qualitative comparative analysis">fsQCA · 模糊集質性比較分析</option>
         <option value="gbtm" data-en="GBTM · Group-based trajectory model">GBTM · 群組軌跡模型</option>
         <option value="gm" data-en="GM · G-methods (time-varying confounding)">GM · G-methods（時變混淆）</option>
         <option value="its" data-en="ITS · Interrupted time series">ITS · 中斷時間序列</option>
         <option value="iv" data-en="IV · Instrumental variables" selected>IV · 工具變數</option>
-        <option value="mcda" data-en="MCDA · Multi-criteria decision analysis">MCDA · 多準則決策分析</option>
         <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
         <option value="mr" data-en="MR · Mendelian randomization">MR · 孟德爾隨機化</option>
         <option value="miss" data-en="Missing data · multiple imputation">Missing data · 缺失資料與多重插補</option>
@@ -63,7 +60,6 @@
         <option value="transport" data-en="Transportability · extend to a target population">Transportability · 可轉移性</option>
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
-        <option value="wetlab" data-en="Wet-lab · experimental validation">Wet-lab · 實驗室驗證</option>
       </select>
     </label>
     <div class="subtabs" role="tablist" aria-label="方法的六層 · the six layers of each method">
@@ -6338,280 +6334,28 @@ display "BF = " BF "  RRadj = " RRadj</code></pre>
   </section>
 
   <!-- ===================== MCDA ① 是什麼 ===================== -->
-  <section id="mcdalearn" class="panel">
-    <h1 data-en="Multi-criteria decision analysis (MCDA): choosing when criteria conflict">多準則決策分析（MCDA）：當準則互相衝突時怎麼選</h1>
-    <p class="lead" data-en="The other methods in this toolbox <b>estimate effects</b>. MCDA is the layer <b>after</b> that: once you have the numbers, how do you <b>decide</b> between options that are good on some criteria and bad on others — a drug that is more effective but riskier and pricier? MCDA makes the trade-off explicit: list the <b>criteria</b>, score each option on each, attach <b>weights</b> reflecting how much each criterion matters, and combine them into an overall score or ranking. It is the backbone of health-technology assessment and regulatory benefit–risk.">本工具箱其他方法都在<b>估計效果</b>。MCDA 是在那之後的一層：當你有了數字，要怎麼在「有些準則好、有些準則差」的選項間<b>做決定</b>，一個更有效、但更危險也更貴的藥？MCDA 把取捨攤開：列出<b>準則</b>、替每個選項在每個準則上評分、給<b>權重</b>反映各準則有多重要，再合成一個總分或排名。它是醫療科技評估（HTA）與法規效益–風險評估的骨幹。</p>
-    <div class="card info"><h3 data-en="The five steps">五個步驟</h3>
-      <p data-en="<b>① Criteria</b> — pick the things that matter (efficacy, safety, cost, convenience…), ideally non-overlapping. <b>② Performance matrix</b> — score every option on every criterion. <b>③ Normalise</b> — put criteria on a common 0–1 scale (and flip 'cost-type' ones, where lower is better). <b>④ Weight &amp; aggregate</b> — multiply by weights and sum (the simple additive / MAVT model), or use TOPSIS / PROMETHEE / ELECTRE / AHP. <b>⑤ Sensitivity</b> — vary the weights and check whether the winner is robust.">"<b>① 準則</b>，挑出重要的面向（療效、安全、成本、方便性……），最好彼此不重疊。<b>② 績效矩陣</b>，替每個選項在每個準則上評分。<b>③ 正規化</b>，把準則放到共同的 0–1 尺度（並把「成本型、越低越好」的反向）。<b>④ 加權與合成</b>，乘上權重再加總（簡單加權／MAVT），或用 TOPSIS／PROMETHEE／ELECTRE／AHP。<b>⑤ 敏感度</b>，變動權重，看冠軍是否穩健。</p></div>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="Common methods">常見方法</h3><p data-en="<b>Weighted sum / MAVT</b> (the demo here) is the most transparent. <b>AHP</b> derives weights from pairwise comparisons. <b>TOPSIS</b> ranks by closeness to an ideal point; <b>PROMETHEE / ELECTRE</b> use outranking with preference thresholds and vetoes."><b>加權總和／MAVT</b>（本頁示範）最透明。<b>AHP</b> 用兩兩比較推出權重。<b>TOPSIS</b> 依「離理想點的距離」排名；<b>PROMETHEE／ELECTRE</b> 用偏好門檻與否決的「優劣勝出」法。</p></div>
-      <div class="card"><h3 data-en="Where it's used in health">在醫療的應用</h3><p data-en="Regulatory <b>benefit–risk</b> assessment (EMA, FDA frameworks), <b>HTA</b> and formulary decisions, prioritising interventions, and shared decision-making. ISPOR published good-practice guidance for MCDA in healthcare.">法規的<b>效益–風險</b>評估（EMA、FDA 框架）、<b>HTA</b> 與藥品給付決策、介入排序、以及醫病共享決策。ISPOR 出版了醫療 MCDA 的良好實務指引。</p></div>
-      <div class="card"><h3 data-en="What it is — and isn't">它是什麼、不是什麼</h3><p data-en="MCDA does <b>not</b> create evidence — it <b>aggregates</b> the effect estimates (from the other methods here) together with explicit <b>value judgements</b>. Its honesty is its strength: the weights are written down and can be debated, not hidden in someone's head.">MCDA <b>不</b>產生證據，它把（本工具其他方法估到的）效果估計，連同明確的<b>價值判斷</b>一起<b>合成</b>。它的透明正是優點：權重被寫下來、可以被討論，而不是藏在某人腦中。</p></div>
-    </div>
-    <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
-      <div class="tdef"><h4>多準則決策分析 <span class="en">multi-criteria decision analysis (MCDA)</span></h4><p data-en="A family of structured methods for evaluating options against multiple, conflicting criteria simultaneously, by combining a performance matrix (options × criteria) with criterion weights into an overall valuation or ranking. In health it underpins benefit–risk and HTA decisions (Thokala et al. 2016; Marsh et al. 2016, ISPOR).">一組結構化方法，用來同時依多個互相衝突的準則評估選項：把績效矩陣（選項×準則）與準則權重合成為總體評價或排名。在醫療領域支撐效益–風險與 HTA 決策（Thokala 等 2016；Marsh 等 2016，ISPOR）。</p></div>
-    </details>
-  </section>
 
   <!-- ===================== MCDA ② 互動講解 ===================== -->
-  <section id="mcdaplay" class="panel">
-    <h1 data-en="② Interactive: drag the weights, watch the ranking change">② 互動：拉動權重，看排名怎麼變</h1>
-    <p class="lead" data-en="Four treatments scored on four criteria (a synthetic performance matrix). Drag how much each criterion matters; the bars re-rank live by the weighted score. There is no single 'right' answer — the ranking is whatever your values say, made explicit.">四個治療、四個準則的（合成）績效矩陣。拉動「每個準則有多重要」，長條會依加權總分即時重新排名。沒有唯一「正確」答案，排名就是你的價值觀說了算，而且被攤開來看。</p>
-    <div class="card scene" id="mcdaCard">
-      <div class="table-wrap"><table class="cmp">
-        <thead><tr><th data-en="Treatment">治療</th><th data-en="Efficacy">療效</th><th data-en="Safety">安全</th><th data-en="Cost (lower better)">成本（越低越好）</th><th data-en="Convenience">方便性</th></tr></thead>
-        <tbody>
-          <tr><td data-en="new drug A">新藥 A</td><td>90</td><td>60</td><td>80</td><td>70</td></tr>
-          <tr><td data-en="old drug B">老藥 B</td><td>65</td><td>85</td><td>20</td><td>80</td></tr>
-          <tr><td data-en="biologic C">生物製劑 C</td><td>95</td><td>70</td><td>95</td><td>40</td></tr>
-          <tr><td data-en="generic D">學名藥 D</td><td>60</td><td>80</td><td>10</td><td>90</td></tr>
-        </tbody>
-      </table></div>
-      <div class="controls">
-        <label><span data-en="Efficacy weight">療效 權重</span> <input type="range" class="mw-eff" min="0" max="10" step="1" value="7"> <b class="mwv-eff">7</b></label>
-        <label><span data-en="Safety weight">安全 權重</span> <input type="range" class="mw-saf" min="0" max="10" step="1" value="6"> <b class="mwv-saf">6</b></label>
-        <label><span data-en="Cost weight">成本 權重</span> <input type="range" class="mw-cost" min="0" max="10" step="1" value="4"> <b class="mwv-cost">4</b></label>
-        <label><span data-en="Convenience weight">方便性 權重</span> <input type="range" class="mw-conv" min="0" max="10" step="1" value="3"> <b class="mwv-conv">3</b></label>
-      </div>
-      <div id="mcdaChart" class="chart" style="height:300px"></div>
-      <p class="caption mcda-out"></p>
-      <p class="caption" data-en="Each criterion is min-max normalised to 0–1 (cost inverted); the score is the weight-share-weighted sum. This is the simple additive (MAVT) model — TOPSIS/PROMETHEE would rank a little differently but tell the same story.">每個準則用 min-max 正規化到 0–1（成本反向）；總分是「權重占比」的加權總和。這是簡單加權（MAVT）模型，TOPSIS／PROMETHEE 排名會略有不同，但故事一樣。</p>
-    </div>
-  </section>
 
   <!-- ===================== MCDA ③ 資料分析 ===================== -->
-  <section id="mcdaanalyze" class="panel">
-    <h1 data-en="③ Doing it: build the matrix, weight, aggregate">③ 實際做：建矩陣、給權重、合成</h1>
-    <div class="card info"><h3 data-en="Workflow">流程</h3><p data-en="Define criteria and an explicit scoring scale, fill the performance matrix, elicit weights (swing weighting, AHP pairwise, or stakeholder panels), normalise, aggregate, then run a sensitivity analysis on the weights. Document who set the weights and why.">定義準則與明確的評分尺度、填好績效矩陣、引出權重（swing weighting、AHP 兩兩比較、或利害關係人小組）、正規化、合成，再對權重做敏感度分析。記錄是誰、為何這樣設權重。</p></div>
-    <p class="code-src" data-en="Sources — ISPOR MCDA Task Force (Thokala et al. 2016; Marsh et al. 2016); packages: R <code>MCDA</code>/<code>topsis</code>, Python <code>pymcdm</code>/<code>scikit-criteria</code>.">出處 — ISPOR MCDA 工作小組（Thokala 等 2016；Marsh 等 2016）；套件：R <code>MCDA</code>/<code>topsis</code>、Python <code>pymcdm</code>/<code>scikit-criteria</code>。</p>
-    <div data-lang="r" class="card"><h3 data-en="Software">軟體</h3>
-      <pre class="sas"><code><span class="cm"># R: many MCDA methods in one place</span>
-library(MCDA)        <span class="cm"># weighted sum, TOPSIS, ELECTRE, PROMETHEE, AHP…</span>
-<span class="cm"># Python</span>
-import pymcdm        <span class="cm"># pymcdm: TOPSIS, PROMETHEE, VIKOR, weighting methods</span>
-<span class="cm"># scikit-criteria is another well-documented Python option</span></code></pre>
-      <p data-en="A worked, code-first example combining TOPSIS / PROMETHEE / ELECTRE with machine-learning inputs is the NTUA notebook collection (see references).">一個以程式為主、把 TOPSIS／PROMETHEE／ELECTRE 與機器學習輸入結合的完整範例，是 NTUA 的 notebook 集（見參考文獻）。</p></div>
-      <div data-lang="sas" class="card"><h3 data-en="SAS — weighted-sum / TOPSIS by hand">SAS：加權總和／TOPSIS 手算</h3>
-      <pre class="sas"><code><span class="cm">/* SAS — MCDA: normalise, weight, rank */</span>
-<span class="cm">/* perf: rows = alternatives, cols = criteria (here all "benefit" criteria) */</span>
-<span class="cm">/* MCDA has no native SAS proc — this just reproduces the arithmetic in IML. */</span>
-PROC IML;
-  use perf;  read all var _NUM_ into X[colname=crit rowname=alt];  close perf;
-  w = {0.4 0.35 0.25};                          <span class="cm">/* criterion weights, sum to 1 */</span>
-  w = w / sum(w);
-
-  <span class="cm">/* --- vector normalisation: r_ij = x_ij / sqrt(sum_i x_ij^2) --- */</span>
-  norm = sqrt(X[##,]);                           <span class="cm">/* column-wise sqrt of sum of squares */</span>
-  R = X / norm;                                  <span class="cm">/* row-wise division (broadcast) */</span>
-  V = R # w;                                     <span class="cm">/* weighted normalised matrix */</span>
-
-  <span class="cm">/* --- TOPSIS ideal (best) and anti-ideal (worst) per criterion --- */</span>
-  Aplus  = V[&lt;:&gt;,];                              <span class="cm">/* column maxima (all benefit) */</span>
-  Aminus = V[&gt;:&lt;,];                              <span class="cm">/* column minima */</span>
-  dplus  = sqrt( ((V - Aplus )##2)[,+] );        <span class="cm">/* distance to ideal */</span>
-  dminus = sqrt( ((V - Aminus)##2)[,+] );        <span class="cm">/* distance to anti-ideal */</span>
-  C = dminus / (dplus + dminus);                 <span class="cm">/* closeness coefficient in [0,1] */</span>
-
-  ws = V[,+];                                    <span class="cm">/* simple weighted-sum score, for comparison */</span>
-  create scores var{alt C ws};  append;  close scores;
-QUIT;
-
-PROC RANK data=scores out=ranked descending ties=low;
-  var C ws;  ranks C_rank ws_rank;              <span class="cm">/* rank 1 = best */</span>
-RUN;
-PROC SORT data=ranked;  by C_rank;  RUN;
-PROC PRINT data=ranked;  RUN;</code></pre>
-      <p data-en="MCDA's native ecosystem is R/Python — SAS only reproduces the arithmetic. PROC IML does the matrix work: vector-normalise the performance matrix, multiply by the weights, then take either the weighted-sum score or the TOPSIS closeness coefficient (distance to the ideal vs anti-ideal); PROC RANK orders the alternatives. Cost-type criteria would be flipped (or their max/min swapped) beforehand.">MCDA 的原生生態系在 R／Python，SAS 只是重現算術。PROC IML 負責矩陣運算：把績效矩陣做向量正規化、乘上權重，再取加權總和分數、或 TOPSIS 接近度係數（到理想解與反理想解的距離）；PROC RANK 對選項排名。成本型準則要先反向（或交換其 max／min）。</p></div>
-    <div data-lang="stata" class="card"><h3 data-en="Stata — weighted-sum / TOPSIS by hand">Stata：加權總和／TOPSIS 手算</h3>
-      <pre class="sas"><code><span class="cm">* Stata — MCDA: normalise, weight, rank</span>
-<span class="cm">* No official MCDA command — done by hand. Data: one row per alternative,</span>
-<span class="cm">* string id `alt`, benefit criteria c1 c2 c3.</span>
-local crit "c1 c2 c3"
-matrix W = (0.40, 0.35, 0.25)               <span class="cm">// weights, sum to 1</span>
-
-<span class="cm">* --- vector normalisation: divide each column by sqrt(sum of squares) ---</span>
-local i = 0
-foreach v of local crit {
-    local ++i
-    quietly egen double ss_`v' = total(`v'^2)
-    quietly gen double r_`v' = `v' / sqrt(ss_`v')
-    local wgt = W[1,`i']
-    quietly gen double vv_`v' = r_`v' * `wgt'   <span class="cm">// weighted normalised value</span>
-}
-
-<span class="cm">* --- weighted-sum score ---</span>
-quietly egen double wsum = rowtotal(vv_*)
-
-<span class="cm">* --- TOPSIS: ideal (max) &amp; anti-ideal (min) of each weighted column ---</span>
-quietly gen double dplus  = 0
-quietly gen double dminus = 0
-foreach v of local crit {
-    quietly summarize vv_`v', meanonly
-    quietly replace dplus  = dplus  + (vv_`v' - r(max))^2
-    quietly replace dminus = dminus + (vv_`v' - r(min))^2
-}
-quietly replace dplus  = sqrt(dplus)
-quietly replace dminus = sqrt(dminus)
-gen double closeness = dminus / (dplus + dminus)   <span class="cm">// in [0,1]</span>
-
-<span class="cm">* --- rank: 1 = best (highest closeness / score) ---</span>
-egen rank_topsis = rank(-closeness)
-egen rank_wsum   = rank(-wsum)
-gsort rank_topsis
-list alt closeness rank_topsis wsum rank_wsum, noobs sep(0)</code></pre>
-      <p data-en="There is no official Stata MCDA command, so this is hand-rolled: egen total() supplies each criterion's normalising constant, weights live in a matrix, egen rowtotal() forms the weighted sum, and the TOPSIS closeness is built column by column from summarize r(max)/r(min). egen rank(-x) ranks alternatives with 1 = best. The real MCDA toolbox still lives in R/Python.">Stata 沒有官方 MCDA 指令，所以全靠手算：egen total() 提供每個準則的正規化常數、權重放在矩陣裡、egen rowtotal() 算加權總和，TOPSIS 接近度則逐欄用 summarize 的 r(max)／r(min) 建出。egen rank(-x) 讓 1＝最佳。真正的 MCDA 工具集仍在 R／Python。</p></div>
-</section>
 
   <!-- ===================== MCDA ④ 假設檢驗 ===================== -->
-  <section id="mcdaassume" class="panel">
-    <h1 data-en="④ Assumptions &amp; pitfalls">④ 假設與陷阱</h1>
-    <div class="cards cards-3">
-      <div class="card warn"><h3 data-en="Weights are values, not facts">權重是價值，不是事實</h3><p data-en="The result depends entirely on the weights, which encode <b>whose preferences</b>. Different stakeholders (regulator, payer, patient) rank differently — report whose values were used, and always show a weight sensitivity analysis (tab ⑥).">結果完全取決於權重，而權重編碼的是<b>誰的偏好</b>。不同利害關係人（法規、付費者、病人）排名不同，要說明用了誰的價值，並一定附上權重敏感度分析（⑥ 分頁）。</p></div>
-      <div class="card warn"><h3 data-en="Double counting &amp; bad scales">重複計算與壞尺度</h3><p data-en="Overlapping criteria (e.g. two that both capture 'safety') secretly double-weight that dimension. And a poorly chosen scoring scale (non-linear value, wrong ranges) distorts every method. Criteria should be preference-independent and the value functions defensible.">重疊的準則（例如兩個都在量「安全」）會偷偷把那個面向加倍加權。評分尺度沒選好（價值非線性、範圍錯）會扭曲每個方法。準則應彼此偏好獨立、價值函數要站得住腳。</p></div>
-      <div class="card"><h3 data-en="Rank reversal">排名反轉</h3><p data-en="Some methods (TOPSIS, ELECTRE) can <b>reverse</b> the order of two options when an irrelevant third option is added or removed. Know your method's behaviour; the simple weighted sum is immune but hides intransitivity differently.">有些方法（TOPSIS、ELECTRE）在加入或移除一個不相關的第三選項時，可能<b>反轉</b>兩個選項的順序。要了解所用方法的行為；簡單加權總和沒有這問題，但會以別的方式掩蓋不可遞移性。</p></div>
-    </div>
-  </section>
 
   <!-- ===================== MCDA ⑤ 用 AI 強化 ===================== -->
-  <section id="mcdaml" class="panel">
-    <h1 data-en="⑤ Boost with AI / ML: where learning helps an MCDA">⑤ 用 AI／ML 強化：機器學習能幫 MCDA 什麼</h1>
-    <p class="lead" data-en="MCDA needs two ingredients — the performance numbers and the weights. Machine learning can help supply both, but never the values themselves.">MCDA 需要兩樣東西，績效數字與權重。機器學習能幫忙提供這兩者，但永遠提供不了「價值」本身。</p>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="Filling the matrix">填績效矩陣</h3><p data-en="ML/forecasting models can produce the criterion scores fed into the matrix — e.g. the NTUA example uses LSTM forecasts as inputs before applying TOPSIS / PROMETHEE / ELECTRE to rank options.">ML／預測模型可以產生餵進矩陣的準則分數，例如 NTUA 的範例先用 LSTM 預測當輸入，再用 TOPSIS／PROMETHEE／ELECTRE 對選項排名。</p></div>
-      <div class="card"><h3 data-en="Learning the weights">學出權重</h3><p data-en="<b>Preference learning / inverse MCDA</b> infers criterion weights from past decisions, and AHP-style consistency checks flag incoherent inputs — useful when a panel can't state weights directly."><b>偏好學習／逆向 MCDA</b> 從過去的決策反推準則權重；AHP 式的一致性檢查能標出矛盾的輸入，當小組說不出明確權重時很有用。</p></div>
-      <div class="card"><h3 data-en="What ML can't supply">ML 給不了的</h3><p data-en="Learning weights from history just <b>copies past values</b> (and their biases). Whose preferences <i>should</i> count is an ethical / governance question, not a prediction. Keep the weights transparent and contestable.">從歷史學權重只是<b>複製過去的價值</b>（連同其偏誤）。<i>應該</i>採計誰的偏好是倫理／治理問題，不是預測。讓權重保持透明、可被挑戰。</p></div>
-    </div>
-  </section>
 
   <!-- ===================== MCDA ⑥ 如果……？ ===================== -->
-  <section id="mcdawhatif" class="panel">
-    <h1 data-en="⑥ What if…? Whose weights, and is the winner robust?">⑥ 如果……？換誰的權重，冠軍還站得住嗎</h1>
-    <p class="lead" data-en="The honest MCDA question is counterfactual: would the decision change under different but reasonable weights? Use the ② sliders as a live sensitivity analysis.">真正的 MCDA 問題是反事實的：在不同但合理的權重下，決定會不會改變？把 ② 的滑桿當成即時的敏感度分析。</p>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="What if a payer weights cost highly?">如果付費者很看重成本？</h3><p data-en="Push the cost weight up in ② and the cheap options (generic D, old drug B) climb; push efficacy up and the new/biologic options win. A choice that only wins under one stakeholder's weights is fragile.">在 ② 把成本權重拉高，便宜的選項（學名藥 D、老藥 B）就上升；把療效拉高，新藥／生物製劑就贏。只有在某一方權重下才贏的選擇，是脆弱的。</p></div>
-      <div class="card"><h3 data-en="What if the winner never changes?">如果冠軍從不改變？</h3><p data-en="If one option stays on top across the whole plausible range of weights, the decision is <b>robust</b> — a genuinely strong recommendation. That is the most useful output of an MCDA, more than any single ranking.">如果某個選項在整個合理權重範圍內都維持第一，這個決定就<b>穩健</b>，是真正有力的建議。這才是 MCDA 最有用的產出，勝過任何單一排名。</p></div>
-      <div class="card"><h3 data-en="Pair it with the evidence's uncertainty">配上證據的不確定性</h3><p data-en="The scores in the matrix are themselves estimates with confidence intervals. A thorough analysis varies <b>both</b> the weights (values) and the performance scores (evidence) — the latter coming from the causal methods in this toolbox.">矩陣裡的分數本身是帶信賴區間的估計。完整的分析會<b>同時</b>變動權重（價值）與績效分數（證據），後者正來自本工具箱的因果方法。</p></div>
-    </div>
-  </section>
 
   <!-- ===================== fsQCA ① 是什麼 ===================== -->
-  <section id="fsqcalearn" class="panel">
-    <h1 data-en="Fuzzy-set QCA (fsQCA): which combinations of conditions produce the outcome?">模糊集質性比較分析（fsQCA）：哪些「條件組合」會產生結果？</h1>
-    <p class="lead" data-en="Regression asks 'what is the average net effect of each variable, holding the others fixed?'. <b>fsQCA</b> (Ragin) asks a set-theoretic question instead: <b>which combinations of conditions are sufficient (or necessary) for the outcome?</b> It embraces <b>equifinality</b> (several different recipes can lead to the same outcome) and <b>causal asymmetry</b> (the recipe for the outcome's absence is not just the mirror image). It shines with small-to-medium N and theory-driven conditions — common in health-services, policy and implementation research.">迴歸問的是「每個變數、在固定其他變數下的平均淨效果」。<b>fsQCA</b>（Ragin）改問一個集合論的問題：<b>哪些條件的組合，對結果而言是充分（或必要）的？</b>它擁抱<b>等終性（equifinality）</b>（不同的「配方」可以通往同一個結果）與<b>因果不對稱</b>（造成「結果不發生」的配方，不只是把它鏡像反過來）。它在中小樣本、且條件由理論驅動時最有用，常見於衛生服務、政策與實施研究。</p>
-    <div class="card info"><h3 data-en="The workflow">工作流程</h3>
-      <p data-en="<b>① Calibrate</b> — turn each raw variable into a <b>fuzzy membership</b> score in [0,1] using substantive anchors (full membership ≈ 0.95, crossover = 0.5, full non-membership ≈ 0.05). <b>② Truth table</b> — list every logically possible configuration of conditions and how cases distribute across them. <b>③ Necessity &amp; sufficiency</b> — assess which conditions/combinations are necessary for, or sufficient to produce, the outcome. <b>④ Minimise</b> — Boolean-reduce the consistent configurations to a compact solution.">"<b>① 校準</b>，用實質定義的錨點，把每個原始變數轉成 [0,1] 的<b>模糊隸屬度</b>（完全屬於 ≈ 0.95、交叉點 = 0.5、完全不屬於 ≈ 0.05）。<b>② 真值表</b>，列出條件的所有邏輯可能組合，以及案例如何分布。<b>③ 必要性與充分性</b>，評估哪些條件／組合對結果是必要、或充分。<b>④ 最小化</b>，把一致的組合用布林邏輯化簡成精簡解。</p></div>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="Sets, not variables">是集合，不是變數</h3><p data-en="Conditions are <b>sets</b> a case belongs to by degree (fuzzy membership 0–1). Combinations use Boolean logic: <b>AND</b> = the minimum membership, <b>OR</b> = the maximum, <b>NOT</b> = 1 − membership.">條件是案例「依程度隸屬」的<b>集合</b>（模糊隸屬度 0–1）。組合用布林邏輯：<b>AND</b>＝取最小隸屬度、<b>OR</b>＝取最大、<b>NOT</b>＝1 − 隸屬度。</p></div>
-      <div class="card"><h3 data-en="Sufficiency vs necessity">充分 vs 必要</h3><p data-en="<b>Sufficient</b>: whenever the configuration is present, the outcome is too (membership in X ≤ membership in Y for all cases — points on/above the diagonal). <b>Necessary</b>: the outcome only occurs when the condition is present (X ≥ Y). The ② plot shows sufficiency."><b>充分</b>：只要組合出現、結果就出現（每個案例 X 的隸屬度 ≤ Y 的隸屬度，點在對角線上方）。<b>必要</b>：結果只在該條件出現時才發生（X ≥ Y）。② 的圖示範充分性。</p></div>
-      <div class="card"><h3 data-en="Consistency &amp; coverage">一致性與覆蓋率</h3><p data-en="<b>Consistency</b> = how closely the data obey the set relation (Σmin(X,Y)/ΣX for sufficiency); a usual benchmark is ≥ 0.80. <b>Coverage</b> = how much of the outcome that configuration accounts for (Σmin(X,Y)/ΣY) — the empirical importance of a recipe."><b>一致性</b>＝資料有多貼近這個集合關係（充分性用 Σmin(X,Y)/ΣX）；常見門檻 ≥ 0.80。<b>覆蓋率</b>＝該組合解釋了多少結果（Σmin(X,Y)/ΣY），一個配方的經驗重要性。</p></div>
-    </div>
-    <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
-      <div class="tdef"><h4>模糊集質性比較分析 <span class="en">fuzzy-set qualitative comparative analysis (fsQCA)</span></h4><p data-en="A set-theoretic, configurational method (Ragin 2008) that calibrates conditions into fuzzy membership scores and uses Boolean minimisation of a truth table to identify combinations of conditions that are consistently sufficient (or necessary) for an outcome, summarised by consistency and coverage. It is designed for multiple conjunctural causation, equifinality and causal asymmetry rather than estimating average net effects.">一種集合論、組態式的方法（Ragin 2008）：把條件校準成模糊隸屬度，並用真值表的布林最小化，找出對結果「一致地充分（或必要）」的條件組合，以一致性與覆蓋率摘要。它為「多重連結因果、等終性、因果不對稱」而設計，而非估計平均淨效果。</p></div>
-    </details>
-  </section>
 
   <!-- ===================== fsQCA ② 互動講解 ===================== -->
-  <section id="fsqcaplay" class="panel">
-    <h1 data-en="② Interactive: is a configuration sufficient for the outcome?">② 互動：某個條件組合對結果是否充分？</h1>
-    <p class="lead" data-en="Twelve cases, each with a fuzzy membership in conditions A and B and in the outcome Y. Pick a configuration and see the set-theoretic sufficiency plot: each point is a case (x = its membership in the configuration, y = its membership in the outcome). <b>Sufficiency means points sit on or above the diagonal</b> (X ⊆ Y). Consistency and coverage update live — notice how 'A AND B' is more consistent (fewer red points below the line) than A or B alone.">十二個案例，每個都有對條件 A、B 與對結果 Y 的模糊隸屬度。選一個條件組合，看集合論的充分性圖：每個點是一個案例（x＝它對該組合的隸屬度、y＝它對結果的隸屬度）。<b>充分＝點落在對角線上（或上方）</b>（X ⊆ Y）。一致性與覆蓋率即時更新，注意「A 且 B」比單獨 A 或 B <b>更一致</b>（落在線下方的紅點更少）。</p>
-    <div class="card scene" id="fsqcaCard">
-      <div class="controls">
-        <label><span data-en="Configuration X">條件組合 X</span>
-          <select class="fq-cfg">
-            <option value="AB" data-en="A AND B">A 且 B（AND）</option>
-            <option value="A" data-en="A alone">只有 A</option>
-            <option value="B" data-en="B alone">只有 B</option>
-            <option value="AorB" data-en="A OR B">A 或 B（OR）</option>
-          </select>
-        </label>
-      </div>
-      <div id="fsqcaChart" class="chart" style="height:320px"></div>
-      <p class="caption fq-out"></p>
-      <p class="caption" data-en="Red points violate sufficiency (outcome membership below configuration membership). Consistency = Σmin(X,Y)/ΣX, coverage = Σmin(X,Y)/ΣY (Ragin 2006). Synthetic teaching data.">紅點違反充分性（結果隸屬度低於組合隸屬度）。一致性 ＝ Σmin(X,Y)/ΣX、覆蓋率 ＝ Σmin(X,Y)/ΣY（Ragin 2006）。合成教學資料。</p>
-    </div>
-  </section>
 
   <!-- ===================== fsQCA ③ 資料分析 ===================== -->
-  <section id="fsqcaanalyze" class="panel">
-    <h1 data-en="③ Doing it: calibrate, truth table, minimise">③ 實際做：校準、真值表、最小化</h1>
-    <div class="card info"><h3 data-en="Steps">步驟</h3><p data-en="Choose conditions from theory; <b>calibrate</b> each (direct method: set the three anchors — 0.95 / 0.5 / 0.05); build the <b>truth table</b>; set a <b>consistency threshold</b> (commonly ≥ 0.8, with a frequency cutoff for case count); <b>logically minimise</b> to the conservative / intermediate / parsimonious solutions; report consistency &amp; coverage for each path; run robustness checks on the calibration and thresholds.">從理論挑條件；對每個<b>校準</b>（直接法：設三個錨點，0.95／0.5／0.05）；建<b>真值表</b>；設<b>一致性門檻</b>（常 ≥ 0.8，並對案例數設頻次門檻）；<b>布林最小化</b>得到保守／中間／精簡解；對每條路徑報一致性與覆蓋率；對校準與門檻做穩健性檢查。</p></div>
-    <p class="code-src" data-en="Sources — method: Ragin (2008); packages: R <code>QCA</code> (Dusa 2019), Stata <code>fuzzy</code> (Longest &amp; Vaisey 2008), the fsQCA software (Ragin &amp; Davey).">出處 — 方法：Ragin（2008）；套件：R <code>QCA</code>（Dusa 2019）、Stata <code>fuzzy</code>（Longest &amp; Vaisey 2008）、fsQCA 軟體（Ragin &amp; Davey）。</p>
-    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=QCA" target="_blank" rel="noopener">QCA</a></p>
-    <div data-lang="r" class="card"><h3 data-en="Software">軟體</h3>
-      <pre class="sas"><code><span class="cm"># R: the QCA package (Dusa) + SetMethods for robustness</span>
-library(QCA)
-dat &lt;- calibrate(raw$x, type = "fuzzy", thresholds = c(0.05, 0.5, 0.95))
-tt  &lt;- truthTable(data, outcome = "Y", conditions = "A,B,C", incl.cut = 0.8)
-minimize(tt, details = TRUE, include = "?")   <span class="cm"># intermediate solution</span>
-<span class="cm"># Also: the standalone fsQCA software (Ragin &amp; Davey); the Excel fsQCA add-in (qca-addin.net)</span></code></pre>
-      <p data-en="No raw individual data is needed beyond the calibrated condition/outcome memberships per case.">除了每個案例校準後的條件／結果隸屬度，不需要其他原始個體資料。</p></div>
-    <div data-lang="sas" class="card"><h3 data-en="SAS — direct-method calibration">SAS：直接法校準</h3>
-      <pre class="sas"><code><span class="cm">/* SAS — fsQCA calibration (minimisation in fsQCA software / R / Stata) */</span>
-<span class="cm">/* SAS has no native fsQCA procedure: do the direct-method calibration here, */</span>
-<span class="cm">/* then minimise in the standalone fsQCA software, R's QCA, or Stata's fuzzy. */</span>
-data calibrated;
-  set raw;
-  <span class="cm">/* three anchors: full-in 0.95, crossover 0.5, full-out 0.05 */</span>
-  full_in = 0.95; crossover = 0.5; full_out = 0.05;
-  <span class="cm">/* direct method (Ragin): log-odds metric, scaled by the two slopes */</span>
-  if x &gt;= crossover then
-    dev = (x - crossover) * (log(0.95/0.05) / (full_in - crossover));
-  else
-    dev = (x - crossover) * (log(0.95/0.05) / (crossover - full_out));
-  fz_x = exp(dev) / (1 + exp(dev));   <span class="cm">/* calibrated fuzzy membership in [0,1] */</span>
-run;
-<span class="cm">/* consistency of a configuration as a subset of Y (cutoff &gt;= 0.8): */</span>
-proc sql;
-  select sum(min(fz_x, fz_y)) / sum(fz_x) as consistency
-  from calibrated;   <span class="cm">/* keep configurations with consistency &gt;= 0.8 */</span>
-quit;</code></pre>
-      <p data-en="SAS handles the per-case direct-method calibration (0.95 / 0.5 / 0.05 anchors) and can compute subset consistency, but Boolean minimisation to conservative / intermediate / parsimonious solutions must be done in the fsQCA software, R's QCA, or Stata's fuzzy.">SAS 負責逐案例的直接法校準（0.95／0.5／0.05 錨點），也能算子集一致性，但要得到保守／中間／精簡解的布林最小化，必須在 fsQCA 軟體、R 的 QCA 或 Stata 的 fuzzy 裡做。</p></div>
-    <div data-lang="stata" class="card"><h3 data-en="Stata — fuzzy">Stata：fuzzy</h3>
-      <pre class="sas"><code><span class="cm">* Stata — fuzzy-set QCA (fuzzy command)</span>
-<span class="cm">* community command by Longest &amp; Vaisey (Stata Journal): calibrate -&gt; truth table -&gt; minimise</span>
-ssc install fuzzy
-<span class="cm">* direct-method calibration of each condition with the three anchors</span>
-calibrate A, generate(fzA) method(direct) thresholds(0.05 0.5 0.95)
-calibrate B, generate(fzB) method(direct) thresholds(0.05 0.5 0.95)
-calibrate C, generate(fzC) method(direct) thresholds(0.05 0.5 0.95)
-calibrate Y, generate(fzY) method(direct) thresholds(0.05 0.5 0.95)
-<span class="cm">* build the truth table and minimise at consistency cutoff &gt;= 0.8</span>
-fuzzy fzA fzB fzC, outcome(fzY) ncut(1) consol(0.8) ///
-      test(fzA fzB fzC) ucol(0.8)   <span class="cm">// reports consistency &amp; coverage per path</span></code></pre>
-      <p data-en="Stata's community fuzzy command runs the full fsQCA pipeline — direct-method calibration with the 0.95 / 0.5 / 0.05 anchors, the truth table, and minimisation at the 0.8 consistency cutoff, reporting consistency and coverage for each sufficient path.">Stata 社群的 fuzzy 指令可跑完整的 fsQCA 流程，以 0.95／0.5／0.05 錨點做直接法校準、建真值表、在一致性切點 0.8 做最小化，並對每條充分路徑報一致性與覆蓋率。</p></div>
-  </section>
 
   <!-- ===================== fsQCA ④ 假設檢驗 ===================== -->
-  <section id="fsqcaassume" class="panel">
-    <h1 data-en="④ Assumptions &amp; pitfalls">④ 假設與陷阱</h1>
-    <div class="cards cards-3">
-      <div class="card warn"><h3 data-en="Calibration is a judgement">校準是判斷</h3><p data-en="The anchors that turn raw numbers into membership are <b>substantive choices</b>; different anchors can change the solution. Justify them from theory/external knowledge and show the result is robust to reasonable alternatives — garbage calibration in, garbage solution out.">把原始數字變成隸屬度的錨點是<b>實質選擇</b>；不同錨點可能改變解。要用理論／外部知識證成，並證明結果對合理替代穩健，校準是垃圾，解就是垃圾。</p></div>
-      <div class="card warn"><h3 data-en="Limited diversity / logical remainders">有限多樣性／邏輯餘項</h3><p data-en="With many conditions, most logically possible configurations have <b>no cases</b> (logical remainders). What you assume about those unobserved rows is a <b>counterfactual</b> choice that drives the conservative vs parsimonious vs intermediate solutions — report which you used and why.">條件一多，多數邏輯可能的組合<b>沒有案例</b>（邏輯餘項）。你對這些沒觀察到的列做什麼假設，是一個<b>反事實</b>選擇，會決定保守／精簡／中間解，要說明你用了哪個、為什麼。</p></div>
-      <div class="card"><h3 data-en="Not probabilities or effect sizes">不是機率或效果量</h3><p data-en="Consistency is a set-relation measure, <b>not</b> a p-value or an effect size, and QCA is not designed for statistical inference to a population. Thresholds (0.8 consistency, frequency cutoffs) are conventions; sensitivity-test them. Causal claims still rest on theory and case knowledge.">一致性是集合關係的量，<b>不是</b> p 值或效果量；QCA 不是為「推論到母體」設計的。門檻（一致性 0.8、頻次切點）是慣例；要做敏感度測試。因果主張仍靠理論與個案知識。</p></div>
-    </div>
-  </section>
 
   <!-- ===================== fsQCA ⑤ 用 AI 強化 ===================== -->
-  <section id="fsqcaml" class="panel">
-    <h1 data-en="⑤ fsQCA &amp; machine learning: both hunt for combinations">⑤ fsQCA 與機器學習：都在找「組合」</h1>
-    <p class="lead" data-en="fsQCA and ML both reject the single-variable, additive view — they look for interactions and combinations. They differ in spirit: fsQCA is theory-driven set logic on few cases; ML is data-driven pattern-finding on many.">fsQCA 與機器學習都拒絕「單變數、可加」的觀點，它們都在找交互與組合。差別在精神：fsQCA 是少量案例上、理論驅動的集合邏輯；ML 是大量資料上、資料驅動的找型態。</p>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="Rule/tree learning is the ML cousin">規則／樹學習是 ML 表親</h3><p data-en="Decision-tree and rule-mining methods also output 'IF condition-combination THEN outcome' statements — close in form to QCA configurations, but optimised for prediction, not set-theoretic sufficiency or interpretability.">決策樹與規則探勘也輸出「若條件組合則結果」的句子，形式上接近 QCA 組態，但是為預測最佳化，不是為集合論充分性或可解讀性。</p></div>
-      <div class="card"><h3 data-en="ML can suggest conditions">ML 可建議條件</h3><p data-en="On larger data, feature-importance or interaction-detection from ML can <b>suggest</b> candidate conditions to bring into a theory-guided QCA — but the calibration and the causal reading stay with the analyst.">在較大的資料上，ML 的特徵重要性或交互偵測可以<b>建議</b>候選條件，帶進理論導向的 QCA，但校準與因果解讀仍由分析者負責。</p></div>
-      <div class="card"><h3 data-en="What neither automates">兩者都無法自動化的</h3><p data-en="Choosing meaningful conditions, calibrating them, and deciding which counterfactuals are tenable are substantive judgements. Neither QCA's algorithm nor an ML model supplies them.">挑出有意義的條件、校準它們、判斷哪些反事實站得住，都是實質判斷。QCA 的演算法與 ML 模型都給不了。</p></div>
-    </div>
-  </section>
 
   <!-- ===================== fsQCA ⑥ 如果……？ ===================== -->
-  <section id="fsqcawhatif" class="panel">
-    <h1 data-en="⑥ What if…? Equifinality, asymmetry &amp; robustness">⑥ 如果……？等終性、不對稱與穩健性</h1>
-    <p class="lead" data-en="The counterfactual questions are baked into QCA: what other recipes reach the outcome, what happens to unobserved configurations, and would the solution survive different calibration choices?">反事實問題是 QCA 內建的：還有哪些配方能達到結果、沒觀察到的組合怎麼辦、換不同校準解還站得住嗎？</p>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="What if there are several recipes?">如果有好幾種配方？</h3><p data-en="Equifinality means the solution can have <b>multiple sufficient paths</b> — A·B for some cases, C·D for others. Report each path's consistency and (raw &amp; unique) coverage rather than forcing one 'winner'.">等終性代表解可以有<b>多條充分路徑</b>，有些案例靠 A·B、有些靠 C·D。對每條路徑報一致性與（原始與獨有）覆蓋率，而不是硬選一個「冠軍」。</p></div>
-      <div class="card"><h3 data-en="What if you analyse the outcome's absence?">如果分析「結果不發生」？</h3><p data-en="Because of <b>causal asymmetry</b>, the recipe for ~Y is not just the negation of the recipe for Y — you must analyse it separately. A factor can be part of producing Y and irrelevant to ~Y.">因為<b>因果不對稱</b>，造成 ~Y 的配方不只是 Y 配方的否定，必須分開分析。某因子可能在「產生 Y」裡有份，卻與「~Y」無關。</p></div>
-      <div class="card"><h3 data-en="What if the calibration changed?">如果校準改變？</h3><p data-en="Re-run with different anchors, consistency thresholds and frequency cutoffs (SetMethods supports this). A solution that holds across reasonable choices is credible; one that flips with a small anchor move is an artefact.">用不同的錨點、一致性門檻與頻次切點重跑（SetMethods 支援）。在合理選擇下都成立的解才可信；輕輕動一下錨點就翻盤的，是假象。</p></div>
-    </div>
-  </section>
 
   <!-- ===================== External control ① 是什麼 ===================== -->
   <section id="extctrllearn" class="panel">
@@ -7575,21 +7319,11 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
             <td data-en="Instead of a mailed reminder, use a genetic variant that raises the chance of (or proxies) the exposure as the instrument, asking whether the exposure itself affects the outcome">不用寄出的提醒，而是用一個會提高暴露機率（或代理暴露）的遺傳變異當工具，問暴露本身是否影響結果</td>
             <td data-en="Randomisation at conception: alleles are allocated roughly at random with respect to lifestyle/confounders and fixed for life (an IV with a genetic instrument)">受孕時的隨機：等位基因相對於生活型態／混淆近似隨機分派且終生固定（以遺傳變異為工具的 IV）</td>
             <td data-en="The IV trio — relevance, independence, and exclusion (no pleiotropy: the variant affects the outcome only through the exposure)">IV 三條，相關性、獨立性、排除限制（無多效性：變異只透過暴露影響結果）</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="Family · wet-lab experiment (deliberate manipulation at the bench)">家族 · 實驗室實驗（在實驗台上刻意操弄）</td></tr>
-          <tr><td><a class="xref" data-m="wetlab">Wet-lab</a></td>
-            <td data-en="Directly intervene on the exposure at the bench — knock-out/knock-in, a cell-line dose–response, or a randomized animal model — to test mechanism and direction">在實驗台上直接操弄暴露，基因剔除／嵌入、細胞株劑量反應，或隨機分派的動物模型，檢驗機制與方向</td>
-            <td data-en="A real (not borrowed) randomised manipulation with everything else held fixed — the gold standard for internal validity">真正（不是借來的）隨機操弄、其餘維持不變，內部效度的黃金標準</td>
-            <td data-en="Transportability to humans and to the real-world dose — high internal validity, uncertain external validity">對人體與真實劑量的可轉移性，內部效度高、外部效度不確定</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · digital twin (a model-predicted control trajectory)">家族 · 數位孿生（模型預測的對照軌跡）</td></tr>
           <tr><td><a class="xref" data-m="dt">Digital twin</a></td>
             <td data-en="Build a prognostic model on control/historical patients that predicts each treated patient's untreated trajectory; the effect is observed minus the predicted twin">用對照／歷史病人建預後模型，預測每位治療病人「未治療」的軌跡；效果＝實際值減去預測的孿生</td>
             <td data-en="Borrows precision / a comparator from a prognostic model (PROCOVA covariate, or a synthetic control arm) — not randomness">向預後模型借精準度／比較對象（PROCOVA 共變項，或合成對照臂），借的不是隨機</td>
             <td data-en="The prognostic model is unbiased, well-calibrated and transportable to the current patients (it fixes no unmeasured confounding by itself)">預後模型無偏、校準良好、可轉移到當前病人（它本身修不了未測混淆）</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="Family · bioavailability / bioequivalence (a randomized within-subject crossover)">家族 · 生體可用率／生體相等性（受試者內隨機交叉）</td></tr>
-          <tr><td><a class="xref" data-m="babe">BA/BE</a></td>
-            <td data-en="Give the same volunteers the test vs reference formulation in a randomized 2×2 crossover and compare PK exposure (Cmax, AUC) on the test/reference ratio">讓同一批受試者在隨機 2×2 交叉中服用測試 vs 參考劑型，以「測試／參考」比值比較藥動曝露（Cmax、AUC）</td>
-            <td data-en="A genuine randomized within-subject experiment — each person is their own control, so between-subject confounding cancels">真正的受試者內隨機實驗，每個人當自己的對照，受試者間的混淆相互抵銷</td>
-            <td data-en="Adequate washout (no carryover) and no period/sequence effects, so the within-subject contrast is clean">充分清除期（無殘留）、無期別／順序效果，受試者內對比才乾淨</td></tr>
         </tbody>
       </table>
     </div>
@@ -7648,6 +7382,75 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
     <div class="flow-legend">
       <span data-en="<b>✓</b> implemented in this toolbox (clickable)"><b>✓</b> 本工具箱已實作（可點擊前往）</span>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
+    </div>
+
+    <div class="card info" id="adjacentApproaches">
+      <h3 data-en="Adjacent approaches (not core causal-inference designs)">鄰近取向（非核心的因果推論設計）</h3>
+      <p data-en="These are useful tools that sit next to — but are not — study designs for estimating a causal effect from data. Click each to read what it is and its references.">這些是實用的工具，緊鄰、但不屬於「從資料估計因果效果」的研究設計。點開各項看它是什麼以及參考文獻。</p>
+      <details class="adj-item"><summary data-en="MCDA · multi-criteria decision analysis">MCDA · multi-criteria decision analysis</summary>
+        <p data-en="Multi-criteria decision analysis aggregates several conflicting criteria (efficacy, safety, cost, access) with explicit weights into one comparable score to rank options. It is a decision / value-tradeoff tool, not a design for estimating a causal effect from data.">多準則決策分析（MCDA）把多個彼此衝突的準則（療效、安全、成本、可近性）用明確權重彙整成一個可比較的分數來排序選項。它是決策／價值權衡工具，不是「從資料估計因果效果」的研究設計。</p>
+        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+          <ul class="reflist nofilter">
+          <li><b data-en="Multi-criteria decision analysis (MCDA tab)">多準則決策分析（MCDA 分頁）</b> · Thokala, P., Devlin, N., Marsh, K., et al. (2016). Multiple Criteria Decision Analysis for Health Care Decision Making — an introduction: Report 1 of the ISPOR MCDA Emerging Good Practices Task Force. <i>Value in Health, 19</i>(1), 1–13. <span data-en="〔ISPOR Task Force Report 1 introducing MCDA for health-care decisions.〕">〔ISPOR 工作小組報告一，醫療決策 MCDA 導論。〕</span></li>
+          <li>Marsh, K., IJzerman, M., Thokala, P., et al. (2016). MCDA for Health Care Decision Making — Emerging Good Practices: Report 2 of the ISPOR Task Force. <i>Value in Health, 19</i>(2), 125–137. <span data-en="〔ISPOR Task Force Report 2 on emerging MCDA good practices.〕">〔ISPOR 工作小組報告二，MCDA 新興良好實務。〕</span></li>
+          <li>Belton, V., &amp; Stewart, T. J. (2002). <i>Multiple Criteria Decision Analysis: An Integrated Approach.</i> Springer. <span data-en="〔Introductory textbook presenting an integrated approach to MCDA.〕">〔多準則決策分析整合方法的入門教科書。〕</span></li>
+          <li>Mussen, F., Salek, S., &amp; Walker, S. (2007). A quantitative approach to benefit-risk assessment of medicines. <i>Pharmacoepidemiology and Drug Safety, 16</i>(S1), S2–S15. <span data-en="〔Quantitative approach to benefit-risk assessment of medicines.〕">〔藥品效益風險評估的量化方法。〕</span></li>
+          <li>Greco, S., Ehrgott, M., &amp; Figueira, J. R. (Eds.) (2016). <i>Multiple Criteria Decision Analysis: State of the Art Surveys.</i> Springer. <span data-en="〔Authoritative edited surveys on the state of the art in MCDA.〕">〔MCDA 最新進展的權威綜述文集。〕</span></li>
+          <li><b data-en="Software &amp; worked code">軟體與程式範例</b> · R packages <code>MCDA</code>, <code>topsis</code>; Python <code>pymcdm</code>, <code>scikit-criteria</code>. <span data-en="〔R and Python software packages for implementing MCDA.〕">〔實作 MCDA 的 R 與 Python 軟體套件。〕</span></li>
+          <li>Georgilakis (jimmyg1997). <i>NTUA Multi-Criteria Decision Analysis</i> — worked notebooks combining TOPSIS, PROMETHEE &amp; ELECTRE I with LSTM/deep-learning inputs. <a href="https://github.com/jimmyg1997/NTUA-Multi-Criteria-Decision-Analysis" target="_blank" rel="noopener">github.com/jimmyg1997/NTUA-Multi-Criteria-Decision-Analysis</a>. <span data-en="〔NTUA worked notebooks for TOPSIS/PROMETHEE/ELECTRE plus deep learning.〕">〔NTUA 之 TOPSIS/PROMETHEE/ELECTRE 與深度學習範例筆記本。〕</span></li>
+          <li>Chisholm, O., Sharry, P., &amp; Phillips, L. (2022). Multi-criteria decision analysis for benefit-risk analysis by national regulatory authorities. <i>Frontiers in Medicine, 8</i>, 820335. https://doi.org/10.3389/fmed.2021.820335. <span data-en="〔MCDA applied to benefit-risk analysis by national drug regulators.〕">〔國家藥政機關以 MCDA 進行效益風險分析。〕</span></li>
+          <li>Zelei, T., Mendola, N. D., Elezbawy, B., Németh, B., &amp; Campbell, J. D. (2021). Criteria and scoring functions used in multi-criteria decision analysis and value frameworks for the assessment of rare disease therapies: a systematic literature review. <i>PharmacoEconomics - Open, 5</i>(4), 605–612. https://doi.org/10.1007/s41669-021-00271-w. <span data-en="〔Systematic review of MCDA criteria and scoring functions for rare-disease therapies.〕">〔系統性回顧罕病療法 MCDA 的準則與評分函數。〕</span></li>
+          <li>Baran-Kooiker, A., Czech, M., &amp; Kooiker, C. (2018). Multi-criteria decision analysis (MCDA) models in health technology assessment of orphan drugs — a systematic literature review. <i>Frontiers in Public Health, 6</i>, 287. https://doi.org/10.3389/fpubh.2018.00287. <span data-en="〔Systematic review of MCDA models in HTA of orphan drugs.〕">〔系統性回顧孤兒藥 HTA 中的 MCDA 模型。〕</span></li>
+          <li>Blythe, R., Naidoo, S., Abbott, C., Bryant, G., Dines, A., &amp; Graves, N. (2019). Development and pilot of a multicriteria decision analysis (MCDA) tool for health services administrators. <i>BMJ Open, 9</i>(4), e025752. https://doi.org/10.1136/bmjopen-2018-025752. <span data-en="〔Developing and piloting an MCDA tool for health-service administrators.〕">〔為衛生服務管理者開發並試行 MCDA 工具。〕</span></li>
+          <li>Więckowski, J., &amp; Sałabun, W. (2023). Sensitivity analysis approaches in multi-criteria decision analysis: a systematic review. <i>Applied Soft Computing, 148</i>, 110915. https://doi.org/10.1016/j.asoc.2023.110915. <span data-en="〔Systematic review of sensitivity-analysis approaches in MCDA.〕">〔系統性回顧 MCDA 的敏感度分析方法。〕</span></li>
+          <li>Ijadi Maghsoodi, A., Ebadi Torkayesh, A., Wood, L. C., Herrera-Viedma, E., &amp; Govindan, K. (2023). A machine learning driven multiple criteria decision analysis using LS-SVM feature elimination: sustainability performance assessment with incomplete data. <i>Engineering Applications of Artificial Intelligence, 119</i>, 105785. https://doi.org/10.1016/j.engappai.2022.105785. <span data-en="〔Machine-learning-driven MCDA handling incomplete data via LS-SVM feature elimination.〕">〔以 LS-SVM 特徵刪除的機器學習驅動 MCDA，處理不完整資料。〕</span></li>
+          <li>Wang, H., Zhang, F., &amp; Mu, C. (2025). One for all: a general framework of LLMs-based multi-criteria decision making on human expert level. <i>arXiv</i>:2502.15778. https://doi.org/10.48550/arXiv.2502.15778. <span data-en="〔A general framework using large language models for expert-level MCDM.〕">〔以大型語言模型達專家水準的通用 MCDM 框架。〕</span></li>
+          </ul>
+        </details>
+      </details>
+      <details class="adj-item"><summary data-en="fsQCA · fuzzy-set qualitative comparative analysis">fsQCA · fuzzy-set qualitative comparative analysis</summary>
+        <p data-en="Fuzzy-set qualitative comparative analysis uses set theory to find which combinations of conditions are sufficient or necessary for an outcome, embracing equifinality and causal asymmetry; suited to small-to-medium-N configurational analysis. It answers configurational sufficiency, not an average causal effect.">模糊集質性比較分析（fsQCA）以集合論找出「哪些條件組合對結果為充分或必要」，擁抱等終性與因果不對稱，適合中小樣本的組態分析。它回答的是組態充分性，而不是平均因果效果。</p>
+        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+          <ul class="reflist nofilter">
+          <li><b data-en="fsQCA (fsQCA tab)">模糊集質性比較分析（fsQCA 分頁）</b> · Ragin, C. C. (2008). <i>Redesigning Social Inquiry: Fuzzy Sets and Beyond.</i> University of Chicago Press. <span data-en="〔the foundational fsQCA text — calibration, fuzzy sets, set relations〕">〔fsQCA 的奠基著作，校準、模糊集、集合關係〕</span></li>
+          <li>Ragin, C. C. (2006). Set relations in social research: evaluating their consistency and coverage. <i>Political Analysis, 14</i>(3), 291–310. <span data-en="〔consistency &amp; coverage — the ② metrics〕">〔一致性與覆蓋率，② 的指標〕</span></li>
+          <li>Schneider, C. Q., &amp; Wagemann, C. (2012). <i>Set-Theoretic Methods for the Social Sciences: A Guide to Qualitative Comparative Analysis.</i> Cambridge University Press. <span data-en="〔standards of good practice, necessity/sufficiency, robustness〕">〔良好實務標準、必要／充分、穩健性〕</span></li>
+          <li>Rihoux, B., &amp; Ragin, C. C. (Eds.) (2009). <i>Configurational Comparative Methods: Qualitative Comparative Analysis (QCA) and Related Techniques.</i> Sage. <span data-en="〔crisp/multi-value/fuzzy QCA, truth tables, minimisation〕">〔清晰集／多值／模糊 QCA、真值表、最小化〕</span></li>
+          <li>Dusa, A. (2019). <i>QCA with R: A Comprehensive Resource.</i> Springer. <span data-en="〔the R QCA package — calibrate(), truthTable(), minimize() — MCDA ③〕">〔R 的 QCA 套件，calibrate()／truthTable()／minimize()：fsQCA ③〕</span></li>
+          <li>Kahwati, L. C., &amp; Kane, H. L. (2020). <i>Qualitative Comparative Analysis in Mixed Methods Research and Evaluation.</i> Sage. <span data-en="〔applied QCA in health-services &amp; evaluation research〕">〔QCA 在衛生服務與評估研究的應用〕</span></li>
+          <li><i>How to do fsQCA</i> — the fsQCA Excel add-in user guide. <a href="https://www.qca-addin.net/HowToFsQCA.html" target="_blank" rel="noopener">qca-addin.net/HowToFsQCA.html</a>. <span data-en="〔step-by-step calibration → truth table → solution in Excel〕">〔Excel 裡一步步：校準 → 真值表 → 解〕</span></li>
+          <li>Ragin, C. C. (2007). Qualitative comparative analysis using fuzzy sets (fsQCA). In B. Rihoux &amp; C. C. Ragin (Eds.), <i>Configurational Comparative Analysis</i> (Ch. 5). Sage. <span data-en="〔the calibration chapter — anchors at 0.95 / 0.50 / 0.05〕">〔校準專章，0.95／0.50／0.05 三個錨點〕</span></li>
+          <li>Kent, R. (2008). <i>Using fsQCA: A Brief Guide and Workshop for Fuzzy-Set Qualitative Comparative Analysis.</i> Department of Marketing, University of Stirling. <span data-en="〔plain-language teaching guide〕">〔白話教學手冊〕</span></li>
+          <li>Pappas, I. O., &amp; Woodside, A. G. (2021). Fuzzy-set qualitative comparative analysis (fsQCA): Guidelines for research practice in information systems and marketing. <i>International Journal of Information Management, 58</i>, 102310. https://doi.org/10.1016/j.ijinfomgt.2021.102310. <span data-en="〔Practical fsQCA guidelines for information-systems and marketing research.〕">〔fsQCA 在資訊系統與行銷研究實務的操作指引。〕</span></li>
+          <li>Cangialosi, N. (2023). Fuzzy-set qualitative comparative analysis (fsQCA) in organizational psychology: Theoretical overview, research guidelines, and a step-by-step tutorial using R software. <i>The Spanish Journal of Psychology, 26</i>, e21. https://doi.org/10.1017/SJP.2023.21. <span data-en="〔the step-by-step R QCA-package tutorial the ③ code follows〕">〔③ 程式碼依循的 R QCA 套件逐步教學〕</span></li>
+          <li>Korjani, M. M., &amp; Mendel, J. M. (2012). Fuzzy set qualitative comparative analysis (fsQCA): Challenges and applications. <i>2012 Annual Meeting of the North American Fuzzy Information Processing Society (NAFIPS)</i>, IEEE. <span data-en="〔a computational / fuzzy-logic reformulation of fsQCA〕">〔fsQCA 的計算／模糊邏輯重構〕</span></li>
+          <li>Islam, M. Z., Jilani, M. M. A. K., &amp; Karim, M. R. (2024). Enhancing post-training evaluation of annual performance agreement training: A fusion of fsQCA and artificial neural network approach. <i>PLOS ONE, 19</i>(7), e0305916. https://doi.org/10.1371/journal.pone.0305916. <span data-en="〔fsQCA + neural-network hybrid application〕">〔fsQCA＋類神經網路的混合應用〕</span></li>
+          <li>蘇彥中（Su, Y.-C.）。組織生命週期與公司治理之組態：模糊集質性比較分析（fsQCA）的應用〔以 2012 年台灣上市公司治理資料為例〕。<span data-en="〔Chinese-language application: organizational life-cycle &amp; corporate-governance configurations via fsQCA〕">〔中文應用研究：以 fsQCA 分析組織生命週期與公司治理組態〕</span></li>
+          </ul>
+        </details>
+      </details>
+      <details class="adj-item"><summary data-en="BA/BE · bioavailability &amp; bioequivalence">BA/BE · bioavailability &amp; bioequivalence</summary>
+        <p data-en="Bioavailability / bioequivalence compares a test vs reference formulation's Cmax and AUC in a randomized 2×2 crossover PK study, checking whether the GMR's 90% CI lies within 80–125%. It is a regulatory pharmacokinetic-equivalence trial in formulation / clinical pharmacology, not an observational-data causal design.">生體可用率／生體相等性（BA/BE）以隨機 2×2 交叉的人體藥動試驗比較測試與參考劑型的 Cmax、AUC，看 GMR 的 90% CI 是否落在 80–125%。它是製劑／臨床藥學領域的法規藥動等效試驗，不是觀察性資料的因果設計。</p>
+        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+          <ul class="reflist nofilter">
+          <li><b data-en="Bioavailability / bioequivalence (BA/BE tab)">生體可用率／生體相等性（BA/BE 分頁）</b> · Chow, S.-C., &amp; Liu, J.-P. (2008). <i>Design and Analysis of Bioavailability and Bioequivalence Studies</i> (3rd ed.). Chapman &amp; Hall/CRC. <span data-en="〔The standard textbook on BA/BE design and the crossover analysis.〕">〔BA/BE 設計與交叉分析的標準教科書。〕</span></li>
+          <li>U.S. FDA (2022). <i>Bioequivalence Studies With Pharmacokinetic Endpoints for Drugs Submitted Under an ANDA</i> (guidance for industry); EMA CHMP, <i>Guideline on the Investigation of Bioequivalence</i>. <span data-en="〔The regulatory guidance defining the 90% CI within 80.00–125.00% rule.〕">〔界定「90% CI 落在 80.00–125.00%」規則的法規指引。〕</span></li>
+          <li>Labes, D., Schütz, H., &amp; Lang, B. <i>PowerTOST</i>: power and sample size for bioequivalence studies (R package). <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">cran.r-project.org/package=PowerTOST</a>. <span data-en="〔The R package for BE power, sample size and the back-transformed 90% CI.〕">〔BE 檢定力、樣本數與反轉換 90% CI 的 R 套件。〕</span></li>
+          <li>Yao, S.-H., Tsai, H.-T., Lin, W.-L., Chen, Y.-C., Chou, C., &amp; Lin, H.-W. (2021). Predicting the serum digoxin concentrations of infants in the neonatal intensive care unit through an artificial neural network. <i>BMC Pediatrics, 21</i>, 41. https://doi.org/10.1186/s12887-021-02501-w. <span data-en="〔ANN prediction of drug PK concentrations — links BA/BE PK to ML〕">〔以類神經網路預測藥物 PK 濃度，連結 BA/BE 藥動與機器學習〕</span></li>
+          <li>Zhang, Y., Zhu, L., Shen, L., Wang, G., Zhang, J., Chen, Y., Wang, Y., &amp; Li, Z. (2026). Machine learning combined with population pharmacokinetics: a hybrid model for predicting the plasma concentration of linezolid in critically ill pediatric patients. <i>Frontiers in Pharmacology, 17</i>, 1817282. https://doi.org/10.3389/fphar.2026.1817282. <span data-en="〔hybrid ML + population-PK plasma-concentration prediction〕">〔機器學習結合族群藥動的血漿濃度預測混合模型〕</span></li>
+          <li>Ampadi Ramachandran, R., Tell, L. A., Mercer, M. A., Xu, X., Millagaha Gedara, N. I., Clapham, M. O., et al. (2026). Machine learning-based unified models for predicting drug clearance from pharmacokinetic animal and study design variables. <i>PLOS One, 21</i>(5), e0346432. https://doi.org/10.1371/journal.pone.0346432. <span data-en="〔ML models predicting drug clearance, a core PK parameter〕">〔以機器學習預測藥物清除率（核心藥動參數）的統一模型〕</span></li>
+          </ul>
+        </details>
+      </details>
+      <details class="adj-item"><summary data-en="Wet-lab · experimental validation">Wet-lab · experimental validation</summary>
+        <p data-en="Wet-lab experiments deliberately manipulate at the cell, animal or molecular level (knock-out/knock-in, dose–response, randomized animals) to test mechanism and direction with high internal validity. They are bench studies — usually triangulated with observational evidence — rather than a causal design built from real-world data.">實驗室實驗（Wet-lab）在細胞、動物或分子層級刻意操弄（基因剔除／嵌入、劑量反應、隨機分派動物），以高內部效度直接檢驗機制與方向。屬實驗台研究，通常與觀察性證據三角驗證，而非從真實世界資料建立的因果設計。</p>
+        <details class="term"><summary data-en="Show references">看參考文獻</summary>
+          <ul class="reflist nofilter">
+          <li><b data-en="Wet-lab experiments (Wet-lab tab)">實驗室實驗（Wet-lab 分頁）</b> · Fisher, R. A. (1935). <i>The Design of Experiments.</i> Oliver &amp; Boyd. <span data-en="〔The foundational text on randomized experimental design.〕">〔隨機化實驗設計的奠基之作。〕</span></li>
+          <li>Lawlor, D. A., Tilling, K., &amp; Davey Smith, G. (2016). Triangulation in aetiological epidemiology. <i>International Journal of Epidemiology, 45</i>(6), 1866–1886. <span data-en="〔Triangulation: combining designs whose biases are unrelated — the logic linking wet-lab &amp; observational evidence.〕">〔三角驗證：結合偏誤互不相關的設計，串起實驗室與觀察性證據的邏輯。〕</span></li>
+          </ul>
+        </details>
+      </details>
     </div>
 
     <div id="dtree" class="dtree">
@@ -7962,117 +7765,6 @@ run;
   </div>
 </section>
 
-<section id="wetlablearn" class="panel">
-  <h1 data-en="Wet-lab experiments: build the cause, then watch the effect">濕式實驗：把「因」造出來，再看「果」</h1>
-  <p class="lead" data-en="A wet-lab experiment is the experimental complement to observational causal inference: instead of adjusting for confounders in messy human data, you go to the bench or the animal and <b>deliberately intervene</b> — knock a gene out, titrate a dose, randomize animals to treatment — and read the effect on a mechanism you can measure. The pay-off is very high internal validity (you made the cause, so confounding is designed away) and direct evidence of mechanism; the price is uncertain transportability to humans. Its real power is in <b>triangulation</b>: when a bench result and an epidemiological estimate point the same way despite failing in completely different ways, the causal claim gets much stronger.">濕式實驗是觀察性因果推論的「實驗版互補」：不是在雜亂的人類資料裡硬校正混淆，而是直接到實驗檯或動物身上<b>刻意介入</b>，敲除一個基因、滴定劑量、把動物隨機分派到處理組，再讀出你量得到的機制反應。好處是內部效度極高（因是你造的，混淆被設計掉了）並能直接看到機制；代價是對人類的可轉移性不確定。它真正的威力在於<b>三角驗證</b>：當實驗檯結果與流行病學估計、儘管各自有完全不同的弱點、卻指向同一方向時，因果主張會大大加強。</p>
-  <div class="card info"><h3 data-en="The workflow">工作流程</h3><p data-en="Pick a manipulable cause (a gene, a compound, a dose); randomize and blind the experimental units (cells, dishes, animals) so groups differ only by the intervention; apply graded doses; measure the mechanistic and phenotypic outcome; then analyze with ANOVA/regression and a dose–response curve, and replicate. The design — not the statistics — is what buys the causal claim.">挑一個可操弄的因（一個基因、一種化合物、一個劑量）；把實驗單位（細胞、培養皿、動物）隨機分派並設盲，使各組僅在介入上不同；施加分級劑量；量測機制與表型結果；再用 ANOVA／迴歸與劑量反應曲線分析，並重複驗證。買到因果主張的是「設計」，不是統計。</p></div>
-  <div class="cards cards-3">
-    <div class="card"><h3 data-en="Genetic manipulation">基因操弄</h3><p data-en="Knock-out / knock-in (CRISPR, conditional alleles) removes or installs the candidate cause, then asks whether the phenotype follows. Necessity and sufficiency tests at the level of the molecule itself.">敲除／敲入（CRISPR、條件型等位基因）把候選的因拿掉或裝上，再看表型是否隨之改變。這是在分子層級直接做「必要性」與「充分性」檢驗。</p></div>
-    <div class="card"><h3 data-en="Cell-line dose–response">細胞株劑量反應</h3><p data-en="Treat cells with graded concentrations and fit a dose–response curve (EC50/IC50). A monotone, reproducible curve is strong mechanistic evidence that the exposure drives the readout.">用分級濃度處理細胞，配出劑量反應曲線（EC50／IC50）。一條單調、可重現的曲線，是「暴露驅動讀數」的有力機制證據。</p></div>
-    <div class="card"><h3 data-en="Randomized animal models">隨機化動物模型</h3><p data-en="Animals are randomized to treatment vs control and outcomes measured under blinding — a true experiment in a whole organism, bridging molecule-level mechanism and a physiological endpoint.">把動物隨機分派到處理組與對照組，在設盲下量測結果，這是在整個生物體上做的真正實驗，銜接分子機制與生理終點。</p></div>
-  </div>
-  <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
-    <div class="tdef"><h4>內部效度 vs 外部效度 <span class="en">internal vs external validity</span></h4><p data-en="Internal validity = within this experiment, did the intervention really cause the measured change (no confounding, no bias)? Randomization, blinding and controls make wet-lab internal validity very high. External validity = does that effect carry over to humans and real-world doses? This is where bench work is weakest, which is why it is paired with observational evidence rather than trusted alone.">內部效度＝在這個實驗內部，介入是否真的造成了量到的改變（沒有混淆、沒有偏差）？隨機分派、設盲與對照讓濕式實驗的內部效度非常高。外部效度＝那個效果是否搬得到人類與真實世界的劑量？這正是實驗檯研究最弱的地方，所以它要與觀察性證據搭配，而不是單獨採信。</p></div>
-    <div class="tdef"><h4>三角驗證 <span class="en">triangulation</span></h4><p data-en="Combining estimates from designs whose key biases are unrelated — e.g. a randomized bench experiment (strong internal validity, weak transportability) and an observational human study (the reverse). If they agree, no single shared bias explains both, so the causal conclusion is more credible (Lawlor, Tilling &amp; Davey Smith 2016).">把「關鍵偏差互不相關」的不同設計的估計合起來看，例如隨機化實驗檯實驗（內部效度強、可轉移性弱）與觀察性人類研究（剛好相反）。若兩者一致，就沒有單一共同偏差能同時解釋它們，因果結論因而更可信（Lawlor、Tilling &amp; Davey Smith 2016）。</p></div>
-  </details>
-</section>
-
-<section id="wetlabplay" class="panel">
-  <h1 data-en="Interactive: the randomized experiment stays on the truth while the observational curve bends">互動：隨機實驗貼著真值，觀察曲線卻彎掉</h1>
-  <p class="lead" data-en="Two ways to learn a dose–response. The <b>randomized wet-lab experiment</b> (green) assigns dose at random, so dose is independent of everything else — its estimated curve sits on the <b>true</b> dose–response. The <b>observational association</b> (amber) just records whatever dose units happened to get, where a hidden factor pushes both the chosen dose and the outcome. Drag the slider to add confounding to the observational data and watch only the amber curve drift away from the truth — the experiment never moves.">學一條劑量反應有兩種方式。<b>隨機化的濕式實驗</b>（綠）以隨機方式指派劑量，所以劑量與其他一切無關，它估出的曲線貼在<b>真實</b>劑量反應上。<b>觀察性關聯</b>（琥珀）只是記錄各單位「剛好」拿到的劑量，而一個隱藏因子同時推動所選劑量與結果。拉動滑桿替觀察資料加入混淆，只有琥珀曲線會偏離真值，實驗那條從不移動。</p>
-  <div class="card scene" id="wetlabCard">
-    <div class="controls">
-      <label><span data-en="Confounding in the observational data">觀察資料中的混淆強度</span> <input type="range" class="wl-conf" min="0" max="2" step="0.1" value="1.0"> <b class="wl-confv">1.0</b></label>
-    </div>
-    <div id="wetlabChart" class="chart" style="height:320px"></div>
-    <p class="caption wl-out"></p>
-    <p class="caption" data-en="Green = the randomized wet-lab dose–response (the truth); amber = the confounded observational association. Only the observational curve bends as confounding grows; the experiment stays on the truth. Synthetic teaching data.">綠＝隨機分派的實驗劑量反應（真值）；琥珀＝被混淆的觀察性關聯。只有觀察曲線會隨混淆變強而偏；實驗始終貼著真值。合成教學資料。</p>
-  </div>
-</section>
-
-<section id="wetlabanalyze" class="panel">
-  <h1 data-en="Data analysis: randomize, blind, fit the dose–response, replicate">資料分析：隨機分派、設盲、配劑量反應、重複</h1>
-  <div class="card info"><h3 data-en="Steps">步驟</h3><p data-en="(1) Randomize experimental units to dose/genotype groups so the intervention is independent of confounders; (2) blind handling and measurement to remove expectation bias; (3) apply graded doses and fit a dose–response curve (EC50); (4) test group differences with ANOVA / regression (mixed models when units are nested in batches or litters); (5) replicate across independent runs — a single experiment is a result, replication is evidence.">（1）把實驗單位隨機分派到劑量／基因型組，使介入與混淆獨立；（2）對操作與量測設盲以去除期望偏差；（3）施加分級劑量並配劑量反應曲線（EC50）；（4）用 ANOVA／迴歸檢驗組間差異（單位巢套於批次或同窩時用混合模型）；（5）跨獨立批次重複，單次實驗是一個結果，重複才是證據。</p></div>
-  <p class="code-src" data-en="Sources — design: Fisher (1935) randomized experiments; for dose–response, standard ANOVA / linear &amp; nonlinear regression (e.g. R <code>drc</code>). Triangulation: Lawlor, Tilling &amp; Davey Smith (2016).">出處 — 設計：Fisher（1935）隨機化實驗；劑量反應用標準 ANOVA／線性與非線性迴歸（如 R <code>drc</code>）。三角驗證：Lawlor、Tilling &amp; Davey Smith（2016）。</p>
-  <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=drc" target="_blank" rel="noopener">drc</a></p>
-  <div data-lang="r" class="card"><h3 data-en="R — randomized experiment + 4-parameter dose–response">R — 隨機化實驗 ＋ 四參數劑量反應</h3>
-    <pre class="sas"><code><span class="cm"># R — randomized dose-response experiment</span>
-<span class="cm"># 1) randomized comparison: did the intervention move the outcome?</span>
-fit_aov &lt;- aov(response ~ group, data = expt)   <span class="cm"># groups: control vs treated</span>
-summary(fit_aov)
-fit_lm  &lt;- lm(response ~ group + batch, data = expt) <span class="cm"># block on batch if randomized within batch</span>
-
-<span class="cm"># 2) dose-response: 4-parameter log-logistic, estimate EC50</span>
-library(drc)
-dr &lt;- drm(response ~ dose, data = expt, fct = LL.4())  <span class="cm"># LL.4: lower, upper, slope, EC50</span>
-summary(dr)
-ED(dr, 50)                                  <span class="cm"># EC50 with confidence interval</span>
-plot(dr)                                     <span class="cm"># the fitted dose-response curve</span></code></pre>
-    <p data-en="<code>aov()</code>/<code>lm()</code> test whether the randomized intervention shifted the outcome (block on batch when you randomized within batches). <code>drc::drm()</code> with <code>LL.4()</code> fits a 4-parameter log-logistic curve and <code>ED(dr, 50)</code> returns the EC50 — the dose for half-maximal effect."><code>aov()</code>／<code>lm()</code> 檢驗隨機介入是否移動了結果（在批次內隨機時就以批次為區組）。<code>drc::drm()</code> 搭 <code>LL.4()</code> 配四參數對數邏輯斯曲線，<code>ED(dr, 50)</code> 回傳 EC50，即達半最大效果的劑量。</p></div>
-  <div data-lang="sas" class="card"><h3 data-en="SAS — ANOVA / mixed model + nonlinear dose–response">SAS — ANOVA／混合模型 ＋ 非線性劑量反應</h3>
-    <pre class="sas"><code><span class="cm">/* SAS — randomized experiment (ANOVA) + dose-response */</span>
-<span class="cm">/* 1) randomized comparison of groups */</span>
-proc glm data=expt;
-   class group;
-   model response = group;                 <span class="cm">/* control vs treated */</span>
-   lsmeans group / pdiff;
-run;
-<span class="cm">/* mixed model when units are nested in batches / litters (random block) */</span>
-proc mixed data=expt;
-   class group batch;
-   model response = group;
-   random batch;                            <span class="cm">/* batch as a random effect */</span>
-run;
-
-<span class="cm">/* 2) dose-response: 4-parameter log-logistic via nonlinear least squares */</span>
-proc nlin data=expt;
-   parms low=0 high=100 ec50=1 slope=1;
-   model response = low + (high-low)/(1 + (dose/ec50)**(-slope));  <span class="cm">/* EC50 estimated */</span>
-run;</code></pre>
-    <p data-en="<code>PROC GLM</code> (or <code>PROC MIXED</code> with a random <code>batch</code> effect for nested units) tests the randomized group difference; <code>PROC NLIN</code> fits the 4-parameter log-logistic dose–response and returns the EC50."><code>PROC GLM</code>（單位有巢套時改用帶隨機 <code>batch</code> 效果的 <code>PROC MIXED</code>）檢驗隨機分組差異；<code>PROC NLIN</code> 配四參數對數邏輯斯劑量反應並回傳 EC50。</p></div>
-  <div data-lang="stata" class="card"><h3 data-en="Stata — anova / regress + nl dose–response">Stata — anova／regress ＋ nl 劑量反應</h3>
-    <pre class="sas"><code><span class="cm">* Stata — randomized experiment + dose-response</span>
-<span class="cm">* 1) randomized comparison of groups</span>
-anova response group                    <span class="cm">// control vs treated</span>
-regress response i.group i.batch        <span class="cm">// block on batch if randomized within batch</span>
-
-<span class="cm">* 2) dose-response: 4-parameter log-logistic, estimate EC50</span>
-nl (response = {low} + ({high}-{low})/(1 + (dose/{ec50})^(-{slope}))), ///
-   initial(low 0 high 100 ec50 1 slope 1)
-nlcom _b[/ec50]                         <span class="cm">// EC50 with confidence interval</span></code></pre>
-    <p data-en="<code>anova</code>/<code>regress</code> test the randomized group effect (add <code>i.batch</code> to block); <code>nl</code> fits the 4-parameter log-logistic curve and <code>nlcom</code> reports the EC50."><code>anova</code>／<code>regress</code> 檢驗隨機分組效果（加 <code>i.batch</code> 作區組）；<code>nl</code> 配四參數對數邏輯斯曲線，<code>nlcom</code> 報告 EC50。</p></div>
-</section>
-
-<section id="wetlabassume" class="panel">
-  <h1 data-en="Can we trust this experiment? Three validity questions">這個實驗可不可信？三道效度提問</h1>
-  <p class="lead" data-en="Wet-lab evidence is only as good as three kinds of validity. Internal validity is usually strong by design; the hard ones are whether the model represents the human exposure (construct), and whether the effect carries to humans at real-world doses (external).">濕式實驗的證據好不好，取決於三種效度。內部效度通常因設計而強；難的是模型是否代表人類的暴露（構念），以及效果在真實世界劑量下能否搬到人身上（外部）。</p>
-  <div class="cards cards-3">
-    <div class="card"><h3 data-en="① Internal validity — usually strong">① 內部效度，通常很強</h3><p data-en="Randomization, blinding and concurrent controls mean any difference between groups is caused by the intervention, not by confounding. Threats to check: failed randomization, unblinded measurement, pseudoreplication (treating sub-samples as independent), and batch effects masquerading as treatment.">隨機分派、設盲與同期對照，意味著組間任何差異都來自介入、而非混淆。要檢查的威脅：隨機化失敗、量測未設盲、偽重複（把子樣本當成獨立）、以及把批次效應誤當成處理效應。</p></div>
-    <div class="card warn"><h3 data-en="② Construct validity — does the model represent the human exposure?">② 構念效度，模型代表得了人類暴露嗎？</h3><p data-en="A knock-out is a total, lifelong loss; a human exposure may be partial and transient. Cell lines, immortalized or cancer-derived, may not behave like primary human tissue. Ask whether the manipulated cause and the measured readout actually map onto the human exposure and outcome you care about.">敲除是徹底、終生的喪失；人類的暴露可能是部分且短暫的。細胞株（已永生化或源自癌細胞）的行為未必像人類原代組織。要問：被操弄的因與量到的讀數，是否真的對應到你關心的人類暴露與結果。</p></div>
-    <div class="card warn"><h3 data-en="③ External validity — does it transport to humans?">③ 外部效度，搬得到人身上嗎？</h3><p data-en="Doses that work in a dish are often supra-physiological; species differ in metabolism and physiology; the controlled bench environment strips away real-world heterogeneity. A clean bench result is a hypothesis about humans, not a conclusion — confirm it by triangulating with human evidence.">在培養皿裡有效的劑量常是超生理的；物種在代謝與生理上不同；受控的實驗檯環境抹除了真實世界的異質性。一個乾淨的實驗檯結果是「關於人類的假說」，不是結論，要靠與人類證據三角驗證來確認。</p></div>
-  </div>
-</section>
-
-<section id="wetlabml" class="panel">
-  <h1 data-en="Boost with AI: phenotyping, screening triage, and in-silico pre-screen">用 AI 強化：表型判讀、篩選分流、與電腦預篩</h1>
-  <p class="lead" data-en="Machine learning does not replace the experimental logic of a wet-lab study — randomization is still what buys causation. What it changes is throughput and measurement: reading phenotypes from images and omics, triaging which conditions are worth a full assay, and pre-screening compounds in silico so the bench focuses on the most promising candidates. Each helps generate and prioritize hypotheses; none confirms them.">機器學習不取代濕式實驗的實驗邏輯，買到因果的仍是隨機化。它改變的是通量與量測：從影像與體學讀出表型、分流哪些條件值得做完整試驗、用電腦預篩化合物讓實驗檯聚焦最有希望的候選。每一項都在幫忙產生與排序假說，沒有一項能確認假說。</p>
-  <div class="cards cards-3">
-    <div class="card"><h3 data-en="① Image / omics phenotyping">① 影像／體學表型判讀</h3><p data-en="Deep models score subtle morphological or molecular phenotypes from microscopy and omics far faster and more reproducibly than manual scoring, giving sensitive, unbiased outcome measurements. Limit: a learned phenotype is only as meaningful as the labels and biology behind it — validate against ground truth.">深度模型能從顯微影像與體學評分細微的形態或分子表型，比人工評分更快、更可重現，提供敏感且無偏的結果量測。限制：學出來的表型只和它背後的標註與生物學一樣可靠，要對照金標準驗證。</p></div>
-    <div class="card"><h3 data-en="② High-content screening triage">② 高內涵篩選分流</h3><p data-en="In large screens, ML ranks wells/conditions so scarce bench effort goes to the most promising hits and obvious artifacts are filtered out. Limit: this is prioritization, not proof — every ML-flagged hit still needs a randomized confirmatory experiment, and the ranking can inherit screen-specific batch biases.">在大規模篩選中，ML 把孔位／條件排序，讓稀缺的實驗檯資源用在最有希望的命中、並濾掉明顯偽影。限制：這是排序、不是證明，每個被 ML 標出的命中仍需隨機化的確認實驗，且排序可能繼承篩選特有的批次偏差。</p></div>
-    <div class="card"><h3 data-en="③ In-silico pre-screen">③ 電腦端預篩</h3><p data-en="Structure- and ML-based models predict binding, toxicity or activity to narrow a chemical or genetic space before any bench work, saving reagents and time. Limit: predictions are correlational and only as good as the training chemistry — they suggest what to test, never substitute for the wet-lab readout.">以結構與 ML 為基礎的模型預測結合、毒性或活性，在動手實驗前先縮小化學或基因空間，省試劑與時間。限制：預測是相關性的、且只和訓練化學一樣好，它建議「該測什麼」，永遠不取代濕式實驗的讀數。</p></div>
-  </div>
-</section>
-
-<section id="wetlabwhatif" class="panel">
-  <h1 data-en="What if…? When the bench result meets reality">如果…？當實驗檯結果碰上現實</h1>
-  <p class="lead" data-en="A clean experiment answers one question precisely but leaves open whether it matters for humans. Three 'what ifs' show why a bench result is one leg of a triangle, not the whole answer — and how to read a disagreement with the epidemiology.">一個乾淨的實驗精準回答一個問題，卻沒回答它對人類是否重要。三個「如果」說明為何實驗檯結果只是三角的一條邊、而非全部答案，以及當它與流行病學不一致時該怎麼讀。</p>
-  <div class="cards cards-3">
-    <div class="card"><h3 data-en="What if the animal model doesn't transport?">如果動物模型搬不過來？</h3><p data-en="Species differ in metabolism, physiology and disease mechanism, so an effect in mice may simply not exist in humans. Don't discard the experiment — treat it as evidence of a possible mechanism, and weight it by how conserved that pathway is across species before acting on it in humans.">物種在代謝、生理與疾病機制上不同，所以在小鼠身上的效果在人類可能根本不存在。別丟掉實驗，把它當成「可能機制」的證據，並依該通路在物種間的保守程度加權，再決定在人類身上採取行動。</p></div>
-    <div class="card"><h3 data-en="What if the dose is supra-physiological?">如果劑量是超生理的？</h3><p data-en="If the effect only appears at concentrations far above any realistic human exposure, it may be a toxicological artifact rather than a relevant causal effect. Check that the active dose overlaps achievable human levels, and read the lower end of the dose–response curve, not just the maximum effect.">如果效果只在遠超任何真實人類暴露的濃度下才出現，那可能是毒理學偽影、而非相關的因果效果。確認有效劑量與人類可達的水準重疊，並去讀劑量反應曲線的低劑量端，而不是只看最大效果。</p></div>
-    <div class="card"><h3 data-en="What if it disagrees with the epidemiology?">如果它與流行病學不一致？</h3><p data-en="Disagreement is informative, not a failure. Because the bench and observational designs fail in unrelated ways, a conflict points to a specific culprit — residual confounding or selection in the human data, or poor transportability of the model. Resolve it by triangulation: ask which design's known weakness best explains the gap, rather than declaring a winner.">不一致是有資訊的、不是失敗。因為實驗檯與觀察性設計的弱點互不相關，衝突反而指向特定的元兇，可能是人類資料的殘餘混淆或選樣、也可能是模型可轉移性差。用三角驗證來化解：問「哪個設計的已知弱點最能解釋這個落差」，而不是直接宣布誰贏。</p></div>
-  </div>
-</section>
-
 <section id="dtlearn" class="panel">
   <h1 data-en="Digital twin: a model-predicted control trajectory for each patient">數位孿生：為每位病人預測一條「對照」軌跡</h1>
   <p class="lead" data-en="A <b>digital twin</b> is a prognostic model — trained on rich historical and control-arm data — that predicts what <i>each</i> patient's outcome would have been <b>under control</b> (no treatment). You then read the treatment effect as <b>observed minus the predicted twin</b>. The twin can serve as a precise covariate adjustment (PROCOVA), as an external / synthetic control arm, or to run an in-silico trial. Crucially, a twin removes <b>no</b> confounding on its own: it borrows precision and a comparator, and its validity rests entirely on the prognostic model being <b>unbiased</b> and <b>transportable</b> to the patients you apply it to.">​<b>數位孿生</b>是一個預後模型，用豐富的歷史與對照臂資料訓練，預測<i>每位</i>病人<b>在對照（不治療）下</b>的結果會是多少。接著把治療效果讀成<b>實際值減去預測的孿生值</b>。這條孿生可以當作精準的共變項調整（PROCOVA）、外部／合成對照臂，或用來跑虛擬（in-silico）試驗。重點是：孿生本身<b>不</b>消除任何混淆，它借的是精準度與一個比較對象，其有效性完全取決於預後模型是否<b>無偏</b>、且可<b>轉移</b>到你套用的病人身上。</p>
@@ -8160,6 +7852,7 @@ regress Y i.A c.y0, vce(robust)   <span class="cm">// treatment effect with the 
   <div class="cards cards-3">
     <div class="card info"><h3 data-en="① Flexible prognostic models">① 彈性的預後模型</h3><p data-en="Gradient boosting, random forests, deep nets, and generative sequence models can produce far sharper twins than a linear model — capturing non-linear, high-dimensional baseline structure to predict each patient's untreated trajectory.">梯度提升、隨機森林、深度網路與生成式序列模型，能產生比線性模型銳利得多的孿生，捕捉非線性、高維的基線結構來預測每位病人的未治療軌跡。</p></div>
     <div class="card info"><h3 data-en="② Cross-fitting &amp; calibration">② 交叉擬合與校準</h3><p data-en="Use cross-fitting / sample-splitting so the twin for each patient comes from a model not trained on them, and recalibrate (isotonic / Platt) so Ŷ₀ is honest. Doubly-robust estimators (AIPW, TMLE) pair the twin with a treatment model for extra protection in observational settings.">用交叉擬合／樣本分割，讓每位病人的孿生來自沒在他身上訓練過的模型，並重新校準（isotonic／Platt）讓 Ŷ₀ 誠實。雙重穩健估計式（AIPW、TMLE）把孿生與治療模型配對，在觀察性情境提供額外保護。</p></div>
+    <div class="card"><h3 data-en="Human-AI co-design of the prognostic model (HACHI)">以人機協作建立預後模型（HACHI）</h3><p data-en="The twin is only as good as its prognostic model. <b>HACHI</b> (Feng et al. 2026, <i>npj Digital Medicine</i>) builds such models with a human-in-the-loop, AI-agent workflow that keeps them <b>fully interpretable</b> — clinicians can audit which concepts (including ones mined from clinical notes) enter the model, improving the calibration and trust the twin depends on.">孿生的好壞完全取決於它的預後模型。<b>HACHI</b>（Feng 等 2026，<i>npj Digital Medicine</i>）以「人在迴圈、AI 代理人」的流程建立這類模型，並讓它<b>完全可解讀</b>，臨床醫師能審視哪些概念（包含從病歷文字挖出的）進入模型，提升孿生所仰賴的校準與信任。</p></div>
     <div class="card warn"><h3 data-en="③ Overfitting &amp; dataset shift">③ 過擬合與資料漂移</h3><p data-en="A flexible twin can fit noise (over-optimistic predictions) or quietly degrade when the deployment population differs from training (dataset shift). Guard with held-out calibration, prespecification of the twin, and monitoring for drift — precision is worthless if the twin is wrong.">彈性孿生可能擬合到雜訊（過度樂觀的預測），或在部署族群與訓練不同時悄悄退化（資料漂移）。以留存校準、事先指定孿生、與漂移監測來防範，孿生若是錯的，精準度毫無價值。</p></div>
   </div>
 </section>
@@ -8171,187 +7864,6 @@ regress Y i.A c.y0, vce(robust)   <span class="cm">// treatment effect with the 
     <div class="card"><h3 data-en="① What if the twin is miscalibrated?">① 如果孿生校準不良？</h3><p data-en="If Ŷ₀ is systematically too high or too low, the observed − twin contrast is biased by exactly that error, and even PROCOVA's precision gain shrinks. Always check calibration on held-out controls; recalibrate before relying on the twin.">若 Ŷ₀ 系統性偏高或偏低，「實際 − 孿生」的對比就剛好被那個誤差弄偏，連 PROCOVA 的精準度收益也會縮水。務必在留存對照上檢查校準，依賴孿生前先重新校準。</p></div>
     <div class="card"><h3 data-en="② What if the population shifted since training?">② 如果族群自訓練後已改變？</h3><p data-en="A twin trained on an earlier era or different site may no longer describe your patients' untreated course (new standard of care, different case mix). The twin is then non-transportable — most dangerous when it replaces a concurrent control, the historical-control trap.">在較早年代或不同場域訓練的孿生，可能不再描述你的病人未治療病程（新標準照護、不同病例組成）。此時孿生不可轉移，當它取代同期對照時最危險，正是歷史對照陷阱。</p></div>
     <div class="card"><h3 data-en="③ What if you adjust vs use it as a control arm?">③ 如果是調整 vs 當對照臂？</h3><p data-en="As a covariate in a randomised trial (PROCOVA), randomisation guarantees unbiasedness and the twin only adds precision — a low-risk gain. As a synthetic control replacing randomisation, the prognostic model carries the entire identification burden — a far stronger, untestable assumption.">在隨機試驗中當共變項（PROCOVA）時，隨機化保證無偏，孿生只是增加精準度，是低風險的收益。當合成對照取代隨機化時，預後模型承擔全部辨識重擔，是強得多、且無法檢驗的假設。</p></div>
-  </div>
-</section>
-
-<section id="babelearn" class="panel">
-  <h1 data-en="A within-subject experiment: is the test drug equivalent to the reference? (BA/BE)">受試者自身的實驗：測試藥與參考藥相等嗎？（生體可用率／生體相等性 BA/BE）</h1>
-  <p class="lead" data-en="Bioavailability (BA) asks <b>how much</b> and <b>how fast</b> a drug reaches the bloodstream; bioequivalence (BE) asks whether a <b>test</b> formulation can stand in for a <b>reference</b> one. We give the same volunteers both formulations in a randomized crossover, then check whether the 90% confidence interval of the test/reference ratio sits inside the 80.00–125.00% equivalence limits.">生體可用率（BA）問的是藥物進入血流的<b>量</b>有多少、<b>速度</b>有多快；生體相等性（BE）問的是<b>測試</b>劑型能不能取代<b>參考</b>劑型。我們讓同一批受試者交叉服用兩種劑型，再檢查「測試／參考」比值的 90% 信賴區間是否落在 80.00–125.00% 的相等性界限內。</p>
-  <div class="card info">
-    <h3 data-en="The workflow">工作流程</h3>
-    <p data-en="The canonical design is a randomized <b>2×2 crossover</b>: each volunteer is randomized to sequence RT or TR, takes one formulation, undergoes a <b>washout</b> long enough to clear the drug, then takes the other. Blood is sampled over time to obtain each period's <b>Cmax</b>, <b>Tmax</b> and <b>AUC</b>. We log-transform Cmax &amp; AUC, fit a linear mixed model, back-transform the test/reference geometric mean ratio (GMR), and declare average bioequivalence only if its <b>90% CI lies entirely within 80.00–125.00%</b>.">標準設計是隨機分組的 <b>2×2 交叉試驗</b>：每位受試者隨機分到 RT 或 TR 順序，先服一種劑型，經過足夠長的<b>清除期（washout）</b>讓藥物排空，再服另一種。沿時間採血以取得每一期的 <b>Cmax</b>、<b>Tmax</b> 與 <b>AUC</b>。我們把 Cmax 與 AUC 取對數、配一個線性混合模型，將「測試／參考」幾何平均比值（GMR）反轉換回來，只有當其 <b>90% CI 整段落在 80.00–125.00%</b> 內，才判定為平均生體相等。</p>
-  </div>
-  <div class="cards cards-3">
-    <div class="card">
-      <h3 data-en="What BA measures">BA 量什麼</h3>
-      <p data-en="From the concentration–time curve: <b>Cmax</b> (peak level, the rate marker), <b>Tmax</b> (time to peak), and <b>AUC</b> (total exposure, the extent marker). BA characterizes a single formulation's exposure; BE compares two.">從濃度–時間曲線取：<b>Cmax</b>（最高濃度，反映速度）、<b>Tmax</b>（達峰時間）、<b>AUC</b>（總曝露量，反映程度）。BA 描述單一劑型的曝露；BE 則比較兩種。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="Why crossover">為何用交叉</h3>
-      <p data-en="Because each person is their own control, between-subject variability cancels out — the comparison is within one body. That makes a 2×2 crossover the <b>cleanest causal contrast</b> in this toolbox: a genuine randomized within-subject experiment.">因為每個人當自己的對照，受試者間的變異被消掉，比較發生在同一個身體內。這讓 2×2 交叉成為本工具箱中<b>最乾淨的因果對比</b>：一個貨真價實的「受試者內」隨機實驗。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="The 80–125% rule">80–125% 規則</h3>
-      <p data-en="The equivalence limits 80.00–125.00% are symmetric on the <b>log scale</b> (0.80 = 1/1.25). Average bioequivalence requires the whole 90% CI of the GMR — for both Cmax and AUC — to fall inside this band.">相等性界限 80.00–125.00% 在<b>對數尺度</b>上是對稱的（0.80 ＝ 1／1.25）。平均生體相等要求 GMR 的整段 90% CI，Cmax 與 AUC 都要，落在這個帶內。</p>
-    </div>
-  </div>
-  <details class="term">
-    <summary data-en="Show terminology">看專有名詞解釋</summary>
-    <div class="tdef">
-      <h4>幾何平均比值（GMR） <span class="en">geometric mean ratio</span></h4>
-      <p data-en="Because PK metrics like Cmax and AUC are right-skewed and roughly log-normal, we compare them on the log scale. The GMR is the ratio of the test formulation's geometric mean to the reference's — equivalently, the back-transformed difference of mean log-values. A GMR of 1.00 means identical average exposure; 1.10 means the test gives 10% more on average. BE is judged on the GMR, not the arithmetic mean ratio, precisely because the log scale is where these data are symmetric and where the 80–125% limits become symmetric too.">因為 Cmax、AUC 這類藥動指標右偏、大致呈對數常態，我們在對數尺度上比較它們。GMR 是測試劑型的幾何平均除以參考劑型的幾何平均，等價於對數平均差的反轉換。GMR ＝ 1.00 表示平均曝露相同；1.10 表示測試平均多出 10%。BE 以 GMR 而非算術平均比值來判定，正是因為對數尺度才是這些資料對稱之處，也是 80–125% 界限變得對稱之處。</p>
-    </div>
-    <div class="tdef">
-      <h4>清除期 <span class="en">washout</span></h4>
-      <p data-en="The gap between the two dosing periods, made long enough (usually ≥ 5 elimination half-lives) that the first formulation is essentially gone before the second is given. Too short a washout leaves drug carrying over into the next period — carryover — which biases the within-subject comparison.">兩個給藥期之間的間隔，要長到（通常 ≥ 5 個排除半衰期）第一種劑型在第二種給藥前基本排空。清除期太短會讓藥物殘留到下一期，殘留效應（carryover），使受試者內的比較產生偏誤。</p>
-    </div>
-    <div class="tdef">
-      <h4>平均生體相等性（ABE） <span class="en">average bioequivalence</span></h4>
-      <p data-en="The default regulatory standard: equivalence of the population <i>average</i> exposure, demonstrated when the 90% CI of the GMR lies within 80.00–125.00%. It does not address whether each individual would respond identically (that would be individual BE) or whether variability matches (population BE).">預設的法規標準：族群<i>平均</i>曝露的相等性，當 GMR 的 90% CI 落在 80.00–125.00% 內即成立。它不處理每個人是否反應一致（那是個體 BE），也不處理變異是否相符（族群 BE）。</p>
-    </div>
-  </details>
-</section>
-
-<section id="babeplay" class="panel">
-  <h1 data-en="Interactive BE: drag the true GMR and watch the verdict">互動式 BE：拖動真實 GMR，看判定結果</h1>
-  <p class="lead" data-en="Drag the slider to set the <b>true</b> test/reference ratio (GMR). The chart draws the 90% confidence interval of the estimated GMR against the 80.00–125.00% bioequivalence band, and declares <b>PASS</b> only when the <b>entire</b> CI is inside the band. Notice that a point estimate near 1.00 can still fail if the CI is wide, and a ratio drifting toward an edge fails once the CI pokes out.">拖動滑桿設定<b>真實</b>的測試／參考比值（GMR）。圖會把估計 GMR 的 90% 信賴區間畫在 80.00–125.00% 的生體相等帶上，只有當<b>整段</b> CI 都在帶內時才判定 <b>PASS</b>。注意：即使點估計接近 1.00，CI 太寬仍會失敗；比值漂向邊緣時，只要 CI 探出去就失敗。</p>
-  <div class="card scene" id="babeCard">
-    <div class="controls">
-      <label><span data-en="True test/reference ratio (GMR)">真實 測試／參考 比值（GMR）</span> <input type="range" class="bb-gmr" min="0.70" max="1.40" step="0.01" value="1.00"> <b class="bb-gmrv">1.00</b></label>
-    </div>
-    <div id="babeChart" class="chart" style="height:320px"></div>
-    <p class="caption bb-out"></p>
-    <p class="caption" data-en="The shaded band is the 80.00–125.00% bioequivalence limit; the point + whiskers are the GMR and its 90% confidence interval. Bioequivalence is concluded only when the entire 90% CI falls within the band. Synthetic teaching data.">陰影帶是 80.00–125.00% 的生體相等性界限；點與鬚是 GMR 及其 90% 信賴區間。只有整段 90% CI 都落在帶內，才能判定生體相等。合成教學資料。</p>
-  </div>
-</section>
-
-<section id="babeanalyze" class="panel">
-  <h1 data-en="Data analysis: run a full average-bioequivalence test">資料分析：跑一次完整的平均生體相等性檢定</h1>
-  <div class="card info">
-    <h3 data-en="Steps">步驟</h3>
-    <p data-en="(1) <b>Non-compartmental analysis (NCA)</b> on each subject×period concentration–time curve to extract <b>Cmax</b> and <b>AUC</b>. (2) <b>Log-transform</b> both metrics. (3) Fit a <b>linear mixed model</b> with sequence, period and treatment as <b>fixed</b> effects and subject(sequence) as a <b>random</b> effect. (4) Form the <b>90% CI</b> of the treatment difference and <b>back-transform</b> it to the GMR scale. (5) Compare against <b>80.00–125.00%</b> — both Cmax and AUC must pass.">(1) 對每個受試者×期別的濃度–時間曲線做<b>非室分析（NCA）</b>，取出 <b>Cmax</b> 與 <b>AUC</b>。(2) 兩個指標皆<b>取對數</b>。(3) 配一個<b>線性混合模型</b>，以順序、期別、處置為<b>固定</b>效果，subject(sequence) 為<b>隨機</b>效果。(4) 對處置差求 <b>90% CI</b>，再<b>反轉換</b>回 GMR 尺度。(5) 與 <b>80.00–125.00%</b> 比較，Cmax 與 AUC 都要通過。</p>
-  </div>
-  <p class="code-src" data-en="Sources — guidance: FDA Bioequivalence guidance; EMA CHMP bioequivalence guideline; Chow &amp; Liu, Design and Analysis of Bioavailability and Bioequivalence Studies; packages: R <code>PowerTOST</code> &amp; <code>replicateBE</code>.">出處 — 指引：FDA 生體相等性指引；EMA CHMP 生體相等性指引；Chow &amp; Liu《Design and Analysis of Bioavailability and Bioequivalence Studies》；套件：R <code>PowerTOST</code> 與 <code>replicateBE</code>。</p>
-  <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">PowerTOST</a> · <a href="https://cran.r-project.org/package=replicateBE" target="_blank" rel="noopener">replicateBE</a></p>
-  <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
-  <div data-lang="sas" class="card">
-    <h3 data-en="SAS — the regulatory standard (PROC MIXED)">SAS — 法規標準作法（PROC MIXED）</h3>
-    <pre class="sas"><code><span class="cm">/* SAS — 2x2 crossover average bioequivalence (PROC MIXED) */</span>
-data be; set pk;
-   lcmax = log(cmax);  lauc = log(auc);   <span class="cm">/* log-transform the PK metrics */</span>
-run;
-
-proc mixed data=be method=reml;
-   class subject sequence period treatment;
-   model lauc = sequence period treatment / ddfm=kr;   <span class="cm">/* fixed: seq, period, treatment */</span>
-   random subject(sequence);                            <span class="cm">/* subject nested in sequence = random */</span>
-   estimate 'T vs R (log)' treatment 1 -1 / cl alpha=0.10;  <span class="cm">/* 90% CI of the log difference */</span>
-run;
-<span class="cm">/* exp() the estimate &amp; its 90% CL -&gt; GMR and its 90% CI; check 0.80-1.25 */</span>
-<span class="cm">/* repeat the model with lcmax for Cmax. Classic alternative: PROC GLM on the same model. */</span></code></pre>
-    <p data-en="PROC MIXED on the log-PK metric with <code>treatment</code> fixed and <code>subject(sequence)</code> random; the <code>estimate ... / cl alpha=0.10</code> gives the 90% CI of the log difference, which you exponentiate to the GMR scale. PROC GLM gives the classic fixed-effects equivalent."><code>PROC MIXED</code> 對對數化 PK 指標建模，<code>treatment</code> 為固定、<code>subject(sequence)</code> 為隨機；<code>estimate ... / cl alpha=0.10</code> 給出對數差的 90% CI，取 exp() 即回到 GMR 尺度。<code>PROC GLM</code> 是傳統固定效果的等價作法。</p>
-  </div>
-  <div data-lang="r" class="card">
-    <h3 data-en="R — PowerTOST + a mixed model">R — PowerTOST ＋ 混合模型</h3>
-    <pre class="sas"><code><span class="cm"># R — average bioequivalence (PowerTOST / mixed model)</span>
-library(PowerTOST)
-
-<span class="cm"># sample size to show ABE given assumed GMR &amp; within-subject CV</span>
-sampleN.TOST(CV = 0.25, theta0 = 0.95, targetpower = 0.80,
-             theta1 = 0.80, theta2 = 1.25)    <span class="cm"># 80-125% limits, alpha = 0.05 (=&gt; 90% CI)</span>
-
-<span class="cm"># quick 90% CI from summary stats (point estimate + within-subject CV)</span>
-CI.BE(pe = 0.97, CV = 0.25, n = 24)           <span class="cm"># back-transformed GMR 90% CI</span>
-
-<span class="cm"># subject-level model on the log metric (mixed); back-transform the 90% CI</span>
-library(nlme)
-m &lt;- lme(log(AUC) ~ sequence + period + treatment,
-         random = ~1 | subject, data = be)
-ci &lt;- intervals(m, level = 0.90, which = "fixed")$fixed["treatmentT", ]
-exp(ci)                                        <span class="cm"># GMR and its 90% CI; check within 0.80-1.25</span></code></pre>
-    <p data-en="<code>PowerTOST</code> handles design/power (<code>sampleN.TOST</code>) and the back-transformed CI from summary stats (<code>CI.BE</code>); for subject-level data, fit <code>lme</code> (or <code>lmer</code>) on the log-PK metric and exponentiate the 90% CI of the treatment coefficient."><code>PowerTOST</code> 處理設計與檢定力（<code>sampleN.TOST</code>）以及由摘要統計反算的 CI（<code>CI.BE</code>）；若有個體層級資料，對對數化 PK 指標配 <code>lme</code>（或 <code>lmer</code>），再對處置係數的 90% CI 取 exp()。</p>
-  </div>
-  <div data-lang="stata" class="card">
-    <h3 data-en="Stata — mixed + nlcom for the GMR CI">Stata — mixed ＋ nlcom 求 GMR 的 CI</h3>
-    <pre class="sas"><code><span class="cm">* Stata — 2x2 crossover bioequivalence</span>
-gen lauc = ln(auc)                       <span class="cm">// log-transform the PK metric</span>
-
-mixed lauc i.sequence i.period i.treatment || subject: , reml   ///
-      level(90)                          <span class="cm">// subject random effect; 90% CI</span>
-
-<span class="cm">* the treatment coefficient is the log(T/R) difference</span>
-lincom _b[2.treatment], level(90)        <span class="cm">// 90% CI on the log scale</span>
-nlcom exp(_b[2.treatment]), level(90)    <span class="cm">// back-transform -&gt; GMR and 90% CI; check 0.80-1.25</span>
-<span class="cm">* repeat with ln(cmax) for Cmax</span></code></pre>
-    <p data-en="<code>mixed</code> on the log metric with sequence/period/treatment fixed and a subject random effect; <code>lincom</code> reads the 90% CI of the log difference and <code>nlcom exp(...)</code> back-transforms it to the GMR and its 90% CI."><code>mixed</code> 對對數化指標建模，順序／期別／處置為固定、受試者為隨機效果；<code>lincom</code> 讀對數差的 90% CI，<code>nlcom exp(...)</code> 反轉換成 GMR 及其 90% CI。</p>
-  </div>
-</section>
-
-<section id="babeassume" class="panel">
-  <h1 data-en="What has to hold (and when the 80–125% limits widen)">需要哪些前提（以及界限何時放寬）</h1>
-  <div class="cards cards-3">
-    <div class="card warn">
-      <h3 data-en="Adequate washout — no carryover">充分清除期，無殘留</h3>
-      <p data-en="The washout must clear the first drug before period two; otherwise residual drug carries over and contaminates the within-subject contrast. A significant sequence effect is the warning sign that carryover (or a true sequence-by-formulation interaction) is present.">清除期必須在第二期前清掉第一種藥，否則殘留藥物會延續汙染受試者內的對比。順序效果顯著就是殘留效應（或真正的「順序×劑型」交互作用）存在的警訊。</p>
-    </div>
-    <div class="card warn">
-      <h3 data-en="No period or sequence effects">無期別或順序效果</h3>
-      <p data-en="The model assumes period and sequence shift exposure additively (on the log scale) and are separable from treatment. If a strong period effect or sequence-by-treatment interaction exists, the simple ABE estimate can mislead — inspect those terms, don't just read off the GMR.">模型假設期別與順序在（對數尺度上）加法地平移曝露，且可與處置分離。若有強烈的期別效果或「順序×處置」交互作用，簡單的 ABE 估計可能誤導，要檢視這些項，別只讀 GMR。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="Log-normal PK, within-subject design">對數常態 PK 與受試者內設計</h3>
-      <p data-en="Cmax and AUC are assumed log-normal (hence the log transform and the geometric mean). The crossover relies on within-subject comparison, so subjects must be in a comparable physiological state each period and complete both — dropouts erode the within-subject advantage.">Cmax 與 AUC 假設為對數常態（故取對數、用幾何平均）。交叉設計仰賴受試者內比較，因此每位受試者各期須處於可比的生理狀態並完成兩期，退出會侵蝕受試者內的優勢。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="Highly variable drugs → scaling">高變異藥物 → 比例放寬</h3>
-      <p data-en="When the within-subject CV exceeds ~30%, the fixed 80–125% limits are nearly impossible to meet even for truly equivalent products. <b>Reference-scaled ABE (RSABE)</b> widens the limits as a function of the reference's within-subject variability (estimated from a replicate design).">當受試者內 CV 超過約 30%，固定的 80–125% 界限即使對真正相等的產品也幾乎不可能達到。<b>參考比例放寬 ABE（RSABE）</b>會依參考藥的受試者內變異（由重複設計估得）來放寬界限。</p>
-    </div>
-    <div class="card warn">
-      <h3 data-en="Narrow therapeutic index → tighter">窄治療指數 → 收緊</h3>
-      <p data-en="For narrow-therapeutic-index (NTI) drugs, where small exposure changes matter clinically, regulators <b>tighten</b> rather than relax — e.g. scaled limits that can narrow toward ~90.00–111.11%, often with an added within-subject variability comparison.">對窄治療指數（NTI）藥物，曝露的小幅變化在臨床上就有意義，主管機關會<b>收緊</b>而非放寬，例如可收窄到約 90.00–111.11% 的比例界限，並常附加受試者內變異的比較。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="Enough subjects &amp; proper crossover">足夠受試者與正確交叉</h3>
-      <p data-en="The 90% CI must be precise enough to fit inside the band — that needs an adequately powered sample for the drug's variability. Randomized sequence allocation and a balanced 2×2 (or replicate) design are what license the causal, within-subject interpretation.">90% CI 必須精準到能塞進帶內，這需要對該藥變異有足夠檢定力的樣本。隨機的順序分派與平衡的 2×2（或重複）設計，正是支撐「因果、受試者內」詮釋的依據。</p>
-    </div>
-  </div>
-</section>
-
-<section id="babeml" class="panel">
-  <h1 data-en="Where modelling and ML meet BA/BE">建模與機器學習在 BA/BE 的交會處</h1>
-  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗，中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。要誠實面對哪些目前已被主管機關接受。</p>
-  <div class="cards cards-3">
-    <div class="card">
-      <h3 data-en="Population-PK / model-informed BE">族群藥動／模型導向 BE</h3>
-      <p data-en="Nonlinear mixed-effects (popPK) models pool sparse data across subjects to estimate exposure and its variability — useful for designing studies and, increasingly, for model-informed approaches that supplement or (in limited cases) substitute a classical BE arm.">非線性混合效果（popPK）模型把跨受試者的稀疏資料匯整，估計曝露與其變異，對設計試驗有用，且日益用於「模型導向」作法，補充、或（在有限情形下）替代傳統 BE 臂。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="NCA automation">NCA 自動化</h3>
-      <p data-en="Extracting Cmax/Tmax/AUC and choosing the elimination phase is repetitive and rule-based; pipelines (and ML-assisted curve QC) standardize peak detection, lambda-z selection, and outlier flagging — reducing analyst-to-analyst variability in the inputs to the BE test.">擷取 Cmax/Tmax/AUC 與選取排除相是重複且規則化的工作；管線（與 ML 輔助的曲線品管）可標準化峰值偵測、lambda-z 選取與離群標記，降低不同分析者對 BE 檢定輸入的變異。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="Virtual BE / PBPK simulation">虛擬 BE／PBPK 模擬</h3>
-      <p data-en="Physiologically based PK (PBPK) and virtual-BE simulations predict whether two formulations would pass before any dosing — valuable for prioritizing and for biowaivers. Regulatory acceptance is real but case-by-case and growing; treat simulation as evidence to argue, not an automatic pass.">生理基礎藥動（PBPK）與虛擬 BE 模擬可在任何給藥前預測兩劑型是否會通過，對排序與生體豁免（biowaiver）很有價值。法規接受度確實存在，但逐案審查、仍在成長；把模擬當作要論證的證據，而非自動通過。</p>
-    </div>
-  </div>
-</section>
-
-<section id="babewhatif" class="panel">
-  <h1 data-en="What if… edge cases that change the verdict">如果……改變判定的邊角情況</h1>
-  <p class="lead" data-en="The 80–125% rule is the default, not the whole story. Three common what-ifs change either the limits or what you must demonstrate.">80–125% 規則是預設、不是全貌。三個常見的「如果」會改變界限、或改變你必須證明的內容。</p>
-  <div class="cards cards-3">
-    <div class="card">
-      <h3 data-en="What if the drug is highly variable?">如果藥物高度變異？</h3>
-      <p data-en="If the within-subject CV is large (&gt;~30%), the fixed band is unreachable even for equivalent products. Switch to a <b>replicate design</b> and <b>reference-scaled ABE (RSABE)</b>, which widens the limits in proportion to the reference's own variability.">若受試者內 CV 很大（&gt; 約 30%），固定帶即使對相等產品也搆不到。改採<b>重複設計</b>與<b>參考比例放寬 ABE（RSABE）</b>，依參考藥本身的變異按比例放寬界限。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="What if it's a narrow therapeutic index drug?">如果是窄治療指數藥物？</h3>
-      <p data-en="Go the other way: for NTI drugs the limits are <b>tightened</b> (e.g. scaled toward ~90.00–111.11%), and you typically must also show the test's within-subject variability is no worse than the reference's. Equivalence here is a higher bar, not a lower one.">反向操作：對 NTI 藥物，界限要<b>收緊</b>（例如收向約 90.00–111.11%），且通常還須證明測試藥的受試者內變異不差於參考藥。這裡的相等是更高、而非更低的門檻。</p>
-    </div>
-    <div class="card">
-      <h3 data-en="What if Cmax passes but AUC fails?">如果 Cmax 過、AUC 沒過？</h3>
-      <p data-en="Then the product is <b>not</b> bioequivalent. BE requires <b>both</b> the rate marker (Cmax) and the extent marker (AUC) to fall within the limits — a pass on one cannot rescue a fail on the other. Each metric is judged on its own 90% CI.">那麼產品<b>不</b>具生體相等性。BE 要求速度指標（Cmax）與程度指標（AUC）<b>兩者都</b>落在界限內，一個過救不了另一個沒過。每個指標各以自己的 90% CI 判定。</p>
-    </div>
   </div>
 </section>
 
@@ -9199,6 +8711,7 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
     <div class="card"><h3 data-en="Run it: software">動手做：軟體</h3>
       <p data-en="<b>Python</b> — <code>EconML</code> (Microsoft; meta-learners, DML, causal forests, policy learning), <code>causalml</code> (Uber), <code>DoubleML</code>. <b>R</b> — <code>grf</code> (generalized random forests / causal forest), <code>DoubleML</code>, <code>rlearner</code>. The ⑤ &quot;Boost with AI&quot; tab on several methods here already runs a real DML / flexible-nuisance instance of these ideas."><b>Python</b>，<code>EconML</code>（Microsoft；meta-learners、DML、因果森林、政策學習）、<code>causalml</code>（Uber）、<code>DoubleML</code>。<b>R</b>，<code>grf</code>（廣義隨機森林／因果森林）、<code>DoubleML</code>、<code>rlearner</code>。本工具箱多個方法的 ⑤「用 AI 強化」分頁，已經在跑這些想法的真實 DML／彈性輔助實例。</p></div>
 
+    <div class="card"><h3 data-en="Human-AI co-design (HACHI)">人機協作共同設計（HACHI）</h3><p data-en="When the model must stay interpretable and trustworthy, <b>HACHI</b> (Feng et al. 2026, <i>npj Digital Medicine</i>) pairs AI agents with clinicians in a loop: the agent uses statistical tools to propose candidate concepts — even mined from free-text notes — experts give feedback, and the result is a <b>fully interpretable</b> clinical prediction model. It is a governance / interpretability layer for trusting a model before anyone acts on individual-level estimates — not a way to skip a credible causal design.">當模型必須保持可解讀、可信任時，<b>HACHI</b>（Feng 等 2026，<i>npj Digital Medicine</i>）讓 AI 代理人與臨床專家在迴圈中協作：代理人用統計工具提出候選概念（甚至從自由文字病歷挖出），專家給回饋，最後得到一個<b>完全可解讀</b>的臨床預測模型。它是「在依個體層級估計行動前先建立信任」的治理／可解讀性層，而不是跳過可信因果設計的捷徑。</p></div>
     <div class="card info"><h3 data-en="The bottom line">結論</h3>
       <p data-en="Causal ML is the natural next layer on top of this toolbox: keep a <b>credible design</b> for identification, then let flexible ML estimate <b>who</b> benefits and by how much — with honesty, cross-fitting and overlap checks. It earns its keep when effects are genuinely heterogeneous and you have enough data and overlap. It is <b>not</b> a way to get causal answers from messy data without a design.">因果機器學習是疊在本工具箱之上的自然下一層：先用一個<b>可信的設計</b>做識別，再讓彈性 ML 估<b>誰</b>受益、受益多少，配上誠實切分、交叉擬合與重疊檢查。當效果真的有異質、且你有足夠資料與重疊時，它才划算。它<b>不是</b>一條「不用設計、就能從髒資料得到因果答案」的捷徑。</p></div>
   </section>
@@ -9288,8 +8801,6 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="mr">Davies, N. M., Holmes, M. V., &amp; Davey Smith, G. (2018). Reading Mendelian randomisation studies: a guide, glossary, and checklist for clinicians. <i>BMJ, 362</i>, k601. https://doi.org/10.1136/bmj.k601. <span data-en="〔A clinician's guide, glossary, and checklist for reading MR studies.〕">〔臨床醫師閱讀 MR 研究的指南、詞彙表與查核清單。〕</span></li>
       <li data-ref="mr">Legault, M.-A., Hartford, J., Arsenault, B. J., Yang, A. Y., &amp; Pineau, J. (2025). A flexible machine learning Mendelian randomization estimator applied to predict the safety and efficacy of sclerostin inhibition. <i>The American Journal of Human Genetics, 112</i>(6), 1344–1362. https://doi.org/10.1016/j.ajhg.2025.04.010. <span data-en="〔Quantile IV: a flexible machine-learning MR estimator with few assumptions.〕">〔Quantile IV：假設極少的彈性機器學習 MR 估計式。〕</span></li>
       <li data-ref="mr">Lin, S.-C., Lin, S.-H., Ge, T., Chen, C.-Y., &amp; Lin, Y.-F. (2025). Causal mediation analysis: a summary-data Mendelian randomization approach. <i>Statistics in Medicine, 44</i>(6), e10317. https://doi.org/10.1002/sim.10317. <span data-en="〔A summary-data MR approach to causal mediation analysis.〕">〔以彙總資料 MR 進行因果中介分析的方法。〕</span></li>
-      <li data-ref="wetlab"><b data-en="Wet-lab experiments (Wet-lab tab)">實驗室實驗（Wet-lab 分頁）</b> · Fisher, R. A. (1935). <i>The Design of Experiments.</i> Oliver &amp; Boyd. <span data-en="〔The foundational text on randomized experimental design.〕">〔隨機化實驗設計的奠基之作。〕</span></li>
-      <li data-ref="wetlab">Lawlor, D. A., Tilling, K., &amp; Davey Smith, G. (2016). Triangulation in aetiological epidemiology. <i>International Journal of Epidemiology, 45</i>(6), 1866–1886. <span data-en="〔Triangulation: combining designs whose biases are unrelated — the logic linking wet-lab &amp; observational evidence.〕">〔三角驗證：結合偏誤互不相關的設計，串起實驗室與觀察性證據的邏輯。〕</span></li>
       <li data-ref="dt"><b data-en="Digital twin (Digital-twin tab)">數位孿生（數位孿生分頁）</b> · Schuler, A., Walsh, D., Hall, D., et al. (2022). Increasing the efficiency of randomized trial estimates via linear adjustment for a prognostic score (PROCOVA). <i>The International Journal of Biostatistics</i>. <span data-en="〔PROCOVA: prognostic-score (digital-twin) covariate adjustment for tighter RCT estimates.〕">〔PROCOVA：以預後分數（數位孿生）做共變項調整，讓 RCT 估計更精準。〕</span></li>
       <li data-ref="dt">Chen, J., Eapen, S., Walsh, D., et al. — Unlearn.AI digital-twin (prognostic) approach to external/synthetic control arms and prognostic covariate adjustment. <span data-en="〔Digital-twin prognostic models as model-based control arms; see FDA/EMA prognostic-adjustment qualifications.〕">〔以數位孿生預後模型作模型化對照臂；另見 FDA／EMA 對預後調整的認可。〕</span></li>
       <li data-ref="dt">Ishwaran, H., &amp; Blackstone, E. H. (2025). Harnessing the power of virtual (digital) twins: graphical causal tools for understanding patient and hospital differences. <i>Computational and Structural Biotechnology Journal.</i> <span data-en="〔Graphical causal tools using virtual (digital) twins.〕">〔以虛擬（數位）孿生建立圖形化因果工具。〕</span></li>
@@ -9299,12 +8810,6 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="dt">Vallée, A. (2026). A unified framework for causal digital twins. <i>Journal of Translational Medicine, 24</i>, 441. https://doi.org/10.1186/s12967-026-07895-8. <span data-en="〔Unified framework for causal digital twins.〕">〔因果數位孿生的統一框架。〕</span></li>
       <li data-ref="dt">Ekström, A. M., &amp; Ottersen, O. P. (2023). Digital twin for pandemic monitoring and prevention: urgent need for agreements for global data sharing. <i>PNAS, 120</i>(40), e2311969120. https://doi.org/10.1073/pnas.2311969120. <span data-en="〔Digital twins for pandemic monitoring and global data sharing.〕">〔疫情監測用數位孿生與全球資料共享需求。〕</span></li>
       <li data-ref="dt">Feng, J., Kothari, A., Vossler, P., Bishara, A., Zier, L., Addo, N., Kornblith, A., Tan, Y. S., &amp; Singh, C. (2026). Human-AI co-design for clinical prediction models. <i>npj Digital Medicine.</i> https://doi.org/10.1038/s41746-026-02838-5. <span data-en="〔HACHI: an iterative human-in-the-loop AI-agent framework for building fully interpretable clinical prediction models from clinical notes.〕">〔HACHI：以 AI 代理人與專家迭代協作、從臨床文字建構完全可解讀的臨床預測模型的框架。〕</span></li>
-      <li data-ref="babe"><b data-en="Bioavailability / bioequivalence (BA/BE tab)">生體可用率／生體相等性（BA/BE 分頁）</b> · Chow, S.-C., &amp; Liu, J.-P. (2008). <i>Design and Analysis of Bioavailability and Bioequivalence Studies</i> (3rd ed.). Chapman &amp; Hall/CRC. <span data-en="〔The standard textbook on BA/BE design and the crossover analysis.〕">〔BA/BE 設計與交叉分析的標準教科書。〕</span></li>
-      <li data-ref="babe">U.S. FDA (2022). <i>Bioequivalence Studies With Pharmacokinetic Endpoints for Drugs Submitted Under an ANDA</i> (guidance for industry); EMA CHMP, <i>Guideline on the Investigation of Bioequivalence</i>. <span data-en="〔The regulatory guidance defining the 90% CI within 80.00–125.00% rule.〕">〔界定「90% CI 落在 80.00–125.00%」規則的法規指引。〕</span></li>
-      <li data-ref="babe">Labes, D., Schütz, H., &amp; Lang, B. <i>PowerTOST</i>: power and sample size for bioequivalence studies (R package). <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">cran.r-project.org/package=PowerTOST</a>. <span data-en="〔The R package for BE power, sample size and the back-transformed 90% CI.〕">〔BE 檢定力、樣本數與反轉換 90% CI 的 R 套件。〕</span></li>
-      <li data-ref="babe">Yao, S.-H., Tsai, H.-T., Lin, W.-L., Chen, Y.-C., Chou, C., &amp; Lin, H.-W. (2021). Predicting the serum digoxin concentrations of infants in the neonatal intensive care unit through an artificial neural network. <i>BMC Pediatrics, 21</i>, 41. https://doi.org/10.1186/s12887-021-02501-w. <span data-en="〔ANN prediction of drug PK concentrations — links BA/BE PK to ML〕">〔以類神經網路預測藥物 PK 濃度，連結 BA/BE 藥動與機器學習〕</span></li>
-      <li data-ref="babe">Zhang, Y., Zhu, L., Shen, L., Wang, G., Zhang, J., Chen, Y., Wang, Y., &amp; Li, Z. (2026). Machine learning combined with population pharmacokinetics: a hybrid model for predicting the plasma concentration of linezolid in critically ill pediatric patients. <i>Frontiers in Pharmacology, 17</i>, 1817282. https://doi.org/10.3389/fphar.2026.1817282. <span data-en="〔hybrid ML + population-PK plasma-concentration prediction〕">〔機器學習結合族群藥動的血漿濃度預測混合模型〕</span></li>
-      <li data-ref="babe">Ampadi Ramachandran, R., Tell, L. A., Mercer, M. A., Xu, X., Millagaha Gedara, N. I., Clapham, M. O., et al. (2026). Machine learning-based unified models for predicting drug clearance from pharmacokinetic animal and study design variables. <i>PLOS One, 21</i>(5), e0346432. https://doi.org/10.1371/journal.pone.0346432. <span data-en="〔ML models predicting drug clearance, a core PK parameter〕">〔以機器學習預測藥物清除率（核心藥動參數）的統一模型〕</span></li>
       <li data-ref="gbtm"><b data-en="Group-based trajectory model (GBTM tab)">群組軌跡模型（GBTM 分頁）</b> · Nagin, D. S. (1999). Analyzing developmental trajectories: a semiparametric, group-based approach. <i>Psychological Methods, 4</i>(2), 139–157. <span data-en="〔Foundational paper introducing the semiparametric group-based trajectory method.〕">〔GBTM 開創性論文，提出半參數群組軌跡分析方法。〕</span></li>
       <li data-ref="gbtm">Nagin, D. S. (2005). <i>Group-Based Modeling of Development.</i> Harvard University Press. <span data-en="〔Authoritative monograph systematically presenting group-based developmental modelling.〕">〔權威專書，系統闡述群組基礎發展模型。〕</span></li>
       <li data-ref="gbtm">Nagin, D. S., &amp; Odgers, C. L. (2010). Group-based trajectory modeling in clinical research. <i>Annual Review of Clinical Psychology, 6</i>, 109–138. <span data-en="〔Review guiding application of GBTM in clinical research.〕">〔臨床研究中應用 GBTM 的回顧性指引。〕</span></li>
@@ -9318,34 +8823,6 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="gbtm">Elmer, J., Jones, B. L., &amp; Nagin, D. S. (2018). Using the beta distribution in group-based trajectory models. <i>BMC Medical Research Methodology, 18</i>(1), 152. https://doi.org/10.1186/s12874-018-0620-9. <span data-en="〔Extends GBTM with the beta distribution for continuous longitudinal data poorly fit by the normal.〕">〔以 beta 分配擴充 GBTM，適用於常態難以配適的連續縱貫資料。〕</span></li>
       <li data-ref="gbtm">Dodge, H. H., Shen, C., &amp; Ganguli, M. (2008). Application of the pattern-mixture latent trajectory model in an epidemiological study with non-ignorable missingness. <i>Statistics and its Interface, 1</i>(1), 175–185. https://doi.org/10.4310/SII.2008.v1.n1.a15. <span data-en="〔Combines pattern-mixture and latent trajectory models to handle non-ignorable missing data.〕">〔結合型態混合與潛在軌跡模型以處理不可忽略的遺漏資料。〕</span></li>
       <li data-ref="gbtm">Dai, K., Yang, X., Huang, M., Peng, X., Wang, S., &amp; Rong, Z. (2026). Group-based trajectory modelling and machine learning to identify neurodevelopmental heterogeneity and perinatal predictors in preterm infants. <i>BMC Pediatrics, 26</i>(1), 115. https://doi.org/10.1186/s12887-025-06476-w. <span data-en="〔Combines GBTM and machine learning to identify neurodevelopmental trajectories in preterm infants.〕">〔結合 GBTM 與機器學習辨識早產兒神經發展軌跡與圍產期預測因子。〕</span></li>
-      <li data-ref="mcda"><b data-en="Multi-criteria decision analysis (MCDA tab)">多準則決策分析（MCDA 分頁）</b> · Thokala, P., Devlin, N., Marsh, K., et al. (2016). Multiple Criteria Decision Analysis for Health Care Decision Making — an introduction: Report 1 of the ISPOR MCDA Emerging Good Practices Task Force. <i>Value in Health, 19</i>(1), 1–13. <span data-en="〔ISPOR Task Force Report 1 introducing MCDA for health-care decisions.〕">〔ISPOR 工作小組報告一，醫療決策 MCDA 導論。〕</span></li>
-      <li data-ref="mcda">Marsh, K., IJzerman, M., Thokala, P., et al. (2016). MCDA for Health Care Decision Making — Emerging Good Practices: Report 2 of the ISPOR Task Force. <i>Value in Health, 19</i>(2), 125–137. <span data-en="〔ISPOR Task Force Report 2 on emerging MCDA good practices.〕">〔ISPOR 工作小組報告二，MCDA 新興良好實務。〕</span></li>
-      <li data-ref="mcda">Belton, V., &amp; Stewart, T. J. (2002). <i>Multiple Criteria Decision Analysis: An Integrated Approach.</i> Springer. <span data-en="〔Introductory textbook presenting an integrated approach to MCDA.〕">〔多準則決策分析整合方法的入門教科書。〕</span></li>
-      <li data-ref="mcda">Mussen, F., Salek, S., &amp; Walker, S. (2007). A quantitative approach to benefit-risk assessment of medicines. <i>Pharmacoepidemiology and Drug Safety, 16</i>(S1), S2–S15. <span data-en="〔Quantitative approach to benefit-risk assessment of medicines.〕">〔藥品效益風險評估的量化方法。〕</span></li>
-      <li data-ref="mcda">Greco, S., Ehrgott, M., &amp; Figueira, J. R. (Eds.) (2016). <i>Multiple Criteria Decision Analysis: State of the Art Surveys.</i> Springer. <span data-en="〔Authoritative edited surveys on the state of the art in MCDA.〕">〔MCDA 最新進展的權威綜述文集。〕</span></li>
-      <li data-ref="mcda"><b data-en="Software &amp; worked code">軟體與程式範例</b> · R packages <code>MCDA</code>, <code>topsis</code>; Python <code>pymcdm</code>, <code>scikit-criteria</code>. <span data-en="〔R and Python software packages for implementing MCDA.〕">〔實作 MCDA 的 R 與 Python 軟體套件。〕</span></li>
-      <li data-ref="mcda">Georgilakis (jimmyg1997). <i>NTUA Multi-Criteria Decision Analysis</i> — worked notebooks combining TOPSIS, PROMETHEE &amp; ELECTRE I with LSTM/deep-learning inputs. <a href="https://github.com/jimmyg1997/NTUA-Multi-Criteria-Decision-Analysis" target="_blank" rel="noopener">github.com/jimmyg1997/NTUA-Multi-Criteria-Decision-Analysis</a>. <span data-en="〔NTUA worked notebooks for TOPSIS/PROMETHEE/ELECTRE plus deep learning.〕">〔NTUA 之 TOPSIS/PROMETHEE/ELECTRE 與深度學習範例筆記本。〕</span></li>
-      <li data-ref="mcda">Chisholm, O., Sharry, P., &amp; Phillips, L. (2022). Multi-criteria decision analysis for benefit-risk analysis by national regulatory authorities. <i>Frontiers in Medicine, 8</i>, 820335. https://doi.org/10.3389/fmed.2021.820335. <span data-en="〔MCDA applied to benefit-risk analysis by national drug regulators.〕">〔國家藥政機關以 MCDA 進行效益風險分析。〕</span></li>
-      <li data-ref="mcda">Zelei, T., Mendola, N. D., Elezbawy, B., Németh, B., &amp; Campbell, J. D. (2021). Criteria and scoring functions used in multi-criteria decision analysis and value frameworks for the assessment of rare disease therapies: a systematic literature review. <i>PharmacoEconomics - Open, 5</i>(4), 605–612. https://doi.org/10.1007/s41669-021-00271-w. <span data-en="〔Systematic review of MCDA criteria and scoring functions for rare-disease therapies.〕">〔系統性回顧罕病療法 MCDA 的準則與評分函數。〕</span></li>
-      <li data-ref="mcda">Baran-Kooiker, A., Czech, M., &amp; Kooiker, C. (2018). Multi-criteria decision analysis (MCDA) models in health technology assessment of orphan drugs — a systematic literature review. <i>Frontiers in Public Health, 6</i>, 287. https://doi.org/10.3389/fpubh.2018.00287. <span data-en="〔Systematic review of MCDA models in HTA of orphan drugs.〕">〔系統性回顧孤兒藥 HTA 中的 MCDA 模型。〕</span></li>
-      <li data-ref="mcda">Blythe, R., Naidoo, S., Abbott, C., Bryant, G., Dines, A., &amp; Graves, N. (2019). Development and pilot of a multicriteria decision analysis (MCDA) tool for health services administrators. <i>BMJ Open, 9</i>(4), e025752. https://doi.org/10.1136/bmjopen-2018-025752. <span data-en="〔Developing and piloting an MCDA tool for health-service administrators.〕">〔為衛生服務管理者開發並試行 MCDA 工具。〕</span></li>
-      <li data-ref="mcda">Więckowski, J., &amp; Sałabun, W. (2023). Sensitivity analysis approaches in multi-criteria decision analysis: a systematic review. <i>Applied Soft Computing, 148</i>, 110915. https://doi.org/10.1016/j.asoc.2023.110915. <span data-en="〔Systematic review of sensitivity-analysis approaches in MCDA.〕">〔系統性回顧 MCDA 的敏感度分析方法。〕</span></li>
-      <li data-ref="mcda">Ijadi Maghsoodi, A., Ebadi Torkayesh, A., Wood, L. C., Herrera-Viedma, E., &amp; Govindan, K. (2023). A machine learning driven multiple criteria decision analysis using LS-SVM feature elimination: sustainability performance assessment with incomplete data. <i>Engineering Applications of Artificial Intelligence, 119</i>, 105785. https://doi.org/10.1016/j.engappai.2022.105785. <span data-en="〔Machine-learning-driven MCDA handling incomplete data via LS-SVM feature elimination.〕">〔以 LS-SVM 特徵刪除的機器學習驅動 MCDA，處理不完整資料。〕</span></li>
-      <li data-ref="mcda">Wang, H., Zhang, F., &amp; Mu, C. (2025). One for all: a general framework of LLMs-based multi-criteria decision making on human expert level. <i>arXiv</i>:2502.15778. https://doi.org/10.48550/arXiv.2502.15778. <span data-en="〔A general framework using large language models for expert-level MCDM.〕">〔以大型語言模型達專家水準的通用 MCDM 框架。〕</span></li>
-      <li data-ref="fsqca"><b data-en="fsQCA (fsQCA tab)">模糊集質性比較分析（fsQCA 分頁）</b> · Ragin, C. C. (2008). <i>Redesigning Social Inquiry: Fuzzy Sets and Beyond.</i> University of Chicago Press. <span data-en="〔the foundational fsQCA text — calibration, fuzzy sets, set relations〕">〔fsQCA 的奠基著作，校準、模糊集、集合關係〕</span></li>
-      <li data-ref="fsqca">Ragin, C. C. (2006). Set relations in social research: evaluating their consistency and coverage. <i>Political Analysis, 14</i>(3), 291–310. <span data-en="〔consistency &amp; coverage — the ② metrics〕">〔一致性與覆蓋率，② 的指標〕</span></li>
-      <li data-ref="fsqca">Schneider, C. Q., &amp; Wagemann, C. (2012). <i>Set-Theoretic Methods for the Social Sciences: A Guide to Qualitative Comparative Analysis.</i> Cambridge University Press. <span data-en="〔standards of good practice, necessity/sufficiency, robustness〕">〔良好實務標準、必要／充分、穩健性〕</span></li>
-      <li data-ref="fsqca">Rihoux, B., &amp; Ragin, C. C. (Eds.) (2009). <i>Configurational Comparative Methods: Qualitative Comparative Analysis (QCA) and Related Techniques.</i> Sage. <span data-en="〔crisp/multi-value/fuzzy QCA, truth tables, minimisation〕">〔清晰集／多值／模糊 QCA、真值表、最小化〕</span></li>
-      <li data-ref="fsqca">Dusa, A. (2019). <i>QCA with R: A Comprehensive Resource.</i> Springer. <span data-en="〔the R QCA package — calibrate(), truthTable(), minimize() — MCDA ③〕">〔R 的 QCA 套件，calibrate()／truthTable()／minimize()：fsQCA ③〕</span></li>
-      <li data-ref="fsqca">Kahwati, L. C., &amp; Kane, H. L. (2020). <i>Qualitative Comparative Analysis in Mixed Methods Research and Evaluation.</i> Sage. <span data-en="〔applied QCA in health-services &amp; evaluation research〕">〔QCA 在衛生服務與評估研究的應用〕</span></li>
-      <li data-ref="fsqca"><i>How to do fsQCA</i> — the fsQCA Excel add-in user guide. <a href="https://www.qca-addin.net/HowToFsQCA.html" target="_blank" rel="noopener">qca-addin.net/HowToFsQCA.html</a>. <span data-en="〔step-by-step calibration → truth table → solution in Excel〕">〔Excel 裡一步步：校準 → 真值表 → 解〕</span></li>
-      <li data-ref="fsqca">Ragin, C. C. (2007). Qualitative comparative analysis using fuzzy sets (fsQCA). In B. Rihoux &amp; C. C. Ragin (Eds.), <i>Configurational Comparative Analysis</i> (Ch. 5). Sage. <span data-en="〔the calibration chapter — anchors at 0.95 / 0.50 / 0.05〕">〔校準專章，0.95／0.50／0.05 三個錨點〕</span></li>
-      <li data-ref="fsqca">Kent, R. (2008). <i>Using fsQCA: A Brief Guide and Workshop for Fuzzy-Set Qualitative Comparative Analysis.</i> Department of Marketing, University of Stirling. <span data-en="〔plain-language teaching guide〕">〔白話教學手冊〕</span></li>
-      <li data-ref="fsqca">Pappas, I. O., &amp; Woodside, A. G. (2021). Fuzzy-set qualitative comparative analysis (fsQCA): Guidelines for research practice in information systems and marketing. <i>International Journal of Information Management, 58</i>, 102310. https://doi.org/10.1016/j.ijinfomgt.2021.102310. <span data-en="〔Practical fsQCA guidelines for information-systems and marketing research.〕">〔fsQCA 在資訊系統與行銷研究實務的操作指引。〕</span></li>
-      <li data-ref="fsqca">Cangialosi, N. (2023). Fuzzy-set qualitative comparative analysis (fsQCA) in organizational psychology: Theoretical overview, research guidelines, and a step-by-step tutorial using R software. <i>The Spanish Journal of Psychology, 26</i>, e21. https://doi.org/10.1017/SJP.2023.21. <span data-en="〔the step-by-step R QCA-package tutorial the ③ code follows〕">〔③ 程式碼依循的 R QCA 套件逐步教學〕</span></li>
-      <li data-ref="fsqca">Korjani, M. M., &amp; Mendel, J. M. (2012). Fuzzy set qualitative comparative analysis (fsQCA): Challenges and applications. <i>2012 Annual Meeting of the North American Fuzzy Information Processing Society (NAFIPS)</i>, IEEE. <span data-en="〔a computational / fuzzy-logic reformulation of fsQCA〕">〔fsQCA 的計算／模糊邏輯重構〕</span></li>
-      <li data-ref="fsqca">Islam, M. Z., Jilani, M. M. A. K., &amp; Karim, M. R. (2024). Enhancing post-training evaluation of annual performance agreement training: A fusion of fsQCA and artificial neural network approach. <i>PLOS ONE, 19</i>(7), e0305916. https://doi.org/10.1371/journal.pone.0305916. <span data-en="〔fsQCA + neural-network hybrid application〕">〔fsQCA＋類神經網路的混合應用〕</span></li>
-      <li data-ref="fsqca">蘇彥中（Su, Y.-C.）。組織生命週期與公司治理之組態：模糊集質性比較分析（fsQCA）的應用〔以 2012 年台灣上市公司治理資料為例〕。<span data-en="〔Chinese-language application: organizational life-cycle &amp; corporate-governance configurations via fsQCA〕">〔中文應用研究：以 fsQCA 分析組織生命週期與公司治理組態〕</span></li>
       <li data-ref="nma"><b data-en="Network meta-analysis (NMA tab)">網路統合分析（NMA 分頁）</b> · Cochrane Comparing Multiple Interventions Methods Group. <i>Network Meta-Analysis Toolkit.</i> <a href="https://methods.cochrane.org/cmi/network-meta-analysis-toolkit" target="_blank" rel="noopener">methods.cochrane.org/cmi</a>. <span data-en="〔Cochrane methods group's toolkit for network meta-analysis.〕">〔Cochrane 多介入比較方法組的網絡統合分析工具包。〕</span></li>
       <li data-ref="nma">Harrer, M., Cuijpers, P., Furukawa, T. A., &amp; Ebert, D. D. (2021). Network Meta-Analysis. In <i>Doing Meta-Analysis with R.</i> <a href="https://doing-meta.guide/netwma" target="_blank" rel="noopener">doing-meta.guide/netwma</a>. <span data-en="〔Network meta-analysis chapter from Doing Meta-Analysis with R.〕">〔《以 R 做統合分析》中的網絡統合分析章節。〕</span></li>
       <li data-ref="nma">Salanti, G. (2012). Indirect and mixed-treatment comparison, network, or multiple-treatments meta-analysis. <i>Research Synthesis Methods, 3</i>(2), 80–97. <span data-en="〔Salanti's review of indirect and mixed-treatment comparison methods.〕">〔Salanti 綜述間接與混合治療比較方法。〕</span></li>

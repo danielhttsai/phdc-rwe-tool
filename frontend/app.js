@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mcda: "mcda", fsqca: "fsqca", mr: "mr", wetlab: "wetlab", dt: "dt", babe: "babe" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mr: "mr", dt: "dt" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -73,9 +73,7 @@ const PANEL_INIT = {
   srmaplay: () => initSrma(), nmaplay: () => initNma(), gbtmplay: () => initGbtm(),
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
   evalueplay: () => { initEvaluePlay(); initEvalueArray(); },
-  mcdaplay: () => initMcda(),
-  fsqcaplay: () => initFsqca(),
-  mrplay: () => initMr(), wetlabplay: () => initWetlab(), dtplay: () => initDt(), babeplay: () => initBabe(),
+  mrplay: () => initMr(), dtplay: () => initDt(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
@@ -2923,9 +2921,7 @@ const DNODES = {
     q: { zh: "你想從觀察性資料<b>之外</b>佐證因果？選一個最貼近的取徑（它們各自以不同方式出錯，因此最適合三角驗證）。", en: "Want to corroborate causation from <b>outside</b> observational data? Pick the closest approach (each fails differently, which is what makes them ideal for triangulation)." },
     opts: [
       { l: { zh: "用<b>遺傳變異</b>當工具（人體、終生暴露）", en: "Use a <b>genetic variant</b> as the instrument (human, lifelong exposure)" }, to: "rMR" },
-      { l: { zh: "在<b>實驗台／動物</b>上刻意操弄、看機制", en: "Deliberately manipulate at the <b>bench / in animals</b> for mechanism" }, to: "rWETLAB" },
       { l: { zh: "用<b>模型預測的對照軌跡（數位孿生）</b>當比較基準", en: "Use a <b>model-predicted control (digital twin)</b> as the comparator" }, to: "rDT" },
-      { l: { zh: "比較兩種劑型的藥動曝露（<b>生體相等性 BA/BE</b>，受試者內隨機交叉）", en: "Compare two formulations' PK exposure (<b>bioequivalence</b>, within-subject crossover)" }, to: "rBABE" },
     ],
   },
   rMR: { rec: { kind: "toolbox", method: "mr", badge: "MR ✓",
@@ -2936,14 +2932,6 @@ const DNODES = {
                 en: "Scenario: does lifelong LDL cholesterol cause heart disease? You can't randomize cholesterol — use LDL-raising genetic variants as the instrument (see the MR tabs ①–⑥)." },
     watch: { zh: "✓ 本工具箱已實作。IV 三條：相關性（小心弱工具，F&lt;10）、獨立性（族群分層）、排除性（<b>水平多效性</b>是頭號威脅）。",
              en: "✓ Implemented in this toolbox. The IV trio: relevance (beware weak instruments, F&lt;10), independence (population stratification), exclusion (<b>horizontal pleiotropy</b> is the main threat)." } } },
-  rWETLAB: { rec: { kind: "toolbox", method: "wetlab", badge: "Wet-lab ✓",
-    title: { zh: "最適合：實驗室實驗 Wet-lab ✓（本工具）", en: "Best fit: Wet-lab experiments ✓ (this tool)" },
-    why: { zh: "你能<b>直接操弄</b>暴露：基因剔除／嵌入、細胞株劑量反應、或隨機分派的動物模型。隨機化＋設盲＋對照讓內部效度極高，並能直接看到<b>機制</b>。代價是對人體與真實劑量的可轉移性不確定，所以最適合與人體觀察證據<b>三角驗證</b>。",
-           en: "You can <b>directly manipulate</b> the exposure — knock-out/knock-in, a cell-line dose–response, or a randomized animal model. Randomization + blinding + controls give very high internal validity and direct evidence of <b>mechanism</b>. The cost is uncertain transportability to humans and real-world doses, so it pairs best with human observational evidence by <b>triangulation</b>." },
-    scenario: { zh: "情境：流行病學看到某營養素與疾病相關，疑似被生活型態混淆；在細胞／動物上隨機給該營養素、看機制是否成立（見「Wet-lab」分頁 ①–⑥）。",
-                en: "Scenario: epidemiology links a nutrient to disease but lifestyle confounding is suspected; randomize the nutrient in cells/animals to test whether the mechanism holds (see the Wet-lab tabs ①–⑥)." },
-    watch: { zh: "✓ 本工具箱已實作。三種效度：內部（通常強）、構念（模型代表人類暴露嗎）、外部（搬得到人身上嗎，常是超生理劑量）。",
-             en: "✓ Implemented in this toolbox. Three validities: internal (usually strong), construct (does the model represent the human exposure?), external (does it transport to humans — often supra-physiological doses?)." } } },
   rDT: { rec: { kind: "toolbox", method: "dt", badge: "Digital twin ✓",
     title: { zh: "最適合：數位孿生 ✓（本工具）", en: "Best fit: Digital twin ✓ (this tool)" },
     why: { zh: "你想用一個<b>預後模型</b>，預測每位病人「未治療」時的軌跡（數位孿生），再把效果讀成「實際 − 孿生」。它可當隨機試驗的精準度調整（PROCOVA），或在缺乏同期對照時當合成對照臂。注意：孿生本身<b>不</b>消除混淆，效度全押在預後模型是否無偏、可轉移。",
@@ -2952,14 +2940,6 @@ const DNODES = {
                 en: "Scenario: a single-arm rare-disease trial with no concurrent control; train a prognostic model on historical controls to predict each treated patient's untreated trajectory as the comparator (see the Digital-twin tabs ①–⑥)." },
     watch: { zh: "✓ 本工具箱已實作。關鍵：預後模型<b>無偏、校準良好、可轉移</b>到當前病人；當孿生取代同期對照時，等於回到歷史對照陷阱。",
              en: "✓ Implemented in this toolbox. Key: the prognostic model must be <b>unbiased, well-calibrated and transportable</b> to current patients; when the twin replaces a concurrent control it re-enters the historical-control trap." } } },
-  rBABE: { rec: { kind: "toolbox", method: "babe", badge: "BA/BE ✓",
-    title: { zh: "最適合：生體可用率／生體相等性 BA/BE ✓（本工具）", en: "Best fit: Bioavailability / bioequivalence (BA/BE) ✓ (this tool)" },
-    why: { zh: "你要比較兩種劑型（測試 vs 參考）的藥動曝露是否可互換。用<b>隨機 2×2 交叉</b>讓同一批受試者都服用兩種劑型，<b>每個人當自己的對照</b>，受試者間混淆相互抵銷。對 log(Cmax)、log(AUC) 配混合模型，若 GMR 的 90% CI 整段落在 80–125% 即判定生體相等。這是本工具箱<b>最乾淨的因果對比</b>。",
-           en: "You want to compare two formulations' (test vs reference) PK exposure for interchangeability. A <b>randomized 2×2 crossover</b> gives the same volunteers both formulations, so <b>each person is their own control</b> and between-subject confounding cancels. Fit a mixed model on log(Cmax), log(AUC); bioequivalence holds if the 90% CI of the GMR lies entirely within 80–125%. The cleanest causal contrast in this toolbox." },
-    scenario: { zh: "情境：學名藥廠要證明自家錠劑與原廠在吸收上相等，做隨機交叉的人體藥動試驗（見「BA/BE」分頁 ①–⑥）。",
-                en: "Scenario: a generic manufacturer must show its tablet is absorbed equivalently to the brand — run a randomized crossover human PK study (see the BA/BE tabs ①–⑥)." },
-    watch: { zh: "✓ 本工具箱已實作。需充分清除期（無殘留）、無期別／順序效果；高變異藥用參考比例放寬（RSABE），窄治療指數藥反而收緊界限。",
-             en: "✓ Implemented in this toolbox. Needs adequate washout (no carryover) and no period/sequence effects; highly variable drugs use reference-scaled limits (RSABE), narrow-therapeutic-index drugs tighten them instead." } } },
   rEXTCTRL: { rec: { kind: "toolbox", method: "extctrl", badge: "外部對照 ✓",
     title: { zh: "最適合：外部對照 ✓（本工具）， 借一個對照臂補上單臂研究缺的對照", en: "Best fit: External control ✓ (this tool) — borrow a control arm for a single-arm study" },
     why: { zh: "你只有一個<b>單臂</b>（全部都治療）、沒有同期對照。借<b>外部／歷史對照</b>（外部世代、登錄、或那場 RCT 的未治療者）補上對照臂；有個體資料時，用<b>標準化／傾向加權</b>把兩臂的共變項差異校正掉再比較。只有彙總結果時，改走較輕量的 MAIC／STC（配對調整間接比較）。",
@@ -3357,9 +3337,7 @@ const CHOOSE_FAMILIES = [
   { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00], ["TreeScan", 3.00, 1.00]] },
   { zh: "可轉移性・外部對照", en: "transport / external control", members: [["Transportability", 0.39, 0.91], ["External control", 1.52, 1.02]] },
   { zh: "遺傳工具（MR）", en: "genetic instrument (MR)", members: [["MR", 1.62, 1.00]] },
-  { zh: "實驗室實驗", en: "wet-lab experiment", members: [["Wet-lab", 1.70, 1.00]] },
   { zh: "數位孿生", en: "digital twin", members: [["Digital twin", 1.55, 1.00]] },
-  { zh: "生體相等性（交叉）", en: "bioequivalence (crossover)", members: [["BA/BE", 1.40, 1.00]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -3424,8 +3402,6 @@ const METHOD_REF = {
   gm: { zh: "G-methods（時變混淆）", en: "G-methods (time-varying confounding)", src: "Robins, Hernán & Brumback (2000); Naimi, Cole & Kennedy (2017), IJE; Daniel et al. (2013), Stat Med" },
   gbtm: { zh: "群組軌跡模型 GBTM", en: "Group-based trajectory model (GBTM)", src: "Nagin (1999, 2005); Nagin & Odgers (2010), Annu Rev Clin Psychol; Jones & Nagin (2007, PROC TRAJ); Nagin & Tremblay (2005)" },
   evalue: { zh: "量化偏誤分析 QBA", en: "Quantitative bias analysis (QBA)", src: "VanderWeele & Ding (2017), Ann Intern Med; Haneuse, VanderWeele & Arterburn (2019), JAMA; Ding & VanderWeele (2016), Epidemiology; Lash, Fox & Fink (2009), Applying QBA" },
-  mcda: { zh: "多準則決策分析 MCDA", en: "Multi-criteria decision analysis (MCDA)", src: "Thokala et al. (2016) & Marsh et al. (2016), ISPOR MCDA Task Force, Value in Health; Belton & Stewart (2002); Mussen, Salek & Walker (2007)" },
-  fsqca: { zh: "模糊集質性比較分析 fsQCA", en: "Fuzzy-set QCA (fsQCA)", src: "Ragin (2008), Redesigning Social Inquiry; Ragin (2006), Political Analysis; Schneider & Wagemann (2012); Dusa (2019), QCA with R" },
   tnd: { zh: "陰性檢驗設計 TND", en: "Test-Negative Design (TND)", src: "Jackson & Nelson (2013), Vaccine; Sullivan, Tchetgen Tchetgen & Cowling (2016); Schnitzer (2022), Epidemiology" },
   pssa: { zh: "處方順序對稱 PSSA", en: "Prescription Sequence Symmetry (PSSA)", src: "Hallas (1996), Epidemiology; Tsiropoulos, Andersen & Hallas (2009); Lai et al. (2017), Eur J Epidemiol" },
   tscan: { zh: "樹狀掃描統計 TreeScan", en: "Tree-based Scan Statistic (TreeScan)", src: "Kulldorff, Fang & Walsh (2003), Biometrics; Kulldorff et al. (2013), Stat Med; Maro et al. (2014), FDA Sentinel" },
@@ -3438,9 +3414,7 @@ const METHOD_REF = {
   nma: { zh: "網路統合分析", en: "Network meta-analysis", src: "Cochrane NMA Toolkit; Harrer et al. (doing-meta.guide/netwma); Salanti (2012); Bucher et al. (1997); Rücker & Schwarzer (2015)" },
   causalml: { zh: "因果機器學習", en: "Causal machine learning", src: "Feuerriegel et al. (2024, Nat Med); Künzel et al. (2019, PNAS); Wager & Athey (2018); Chernozhukov et al. (2018, DML); Nie & Wager (2021)" },
   mr: { zh: "孟德爾隨機化 MR", en: "Mendelian randomization (MR)", src: "Davey Smith & Ebrahim (2003), IJE; Burgess, Butterworth & Thompson (2013); Bowden et al. (2015, MR-Egger); Hemani et al. (2018, TwoSampleMR)" },
-  wetlab: { zh: "實驗室實驗 Wet-lab", en: "Wet-lab experiments", src: "Fisher (1935), Design of Experiments; Lawlor, Tilling & Davey Smith (2016, triangulation), IJE" },
   dt: { zh: "數位孿生", en: "Digital twin", src: "Schuler et al. (2022, PROCOVA); FDA/EMA prognostic-adjustment guidance; synthetic control arms" },
-  babe: { zh: "生體可用率／生體相等性 BA/BE", en: "Bioavailability / bioequivalence (BA/BE)", src: "FDA Bioequivalence guidance; EMA CHMP BE guideline; Chow & Liu, Design and Analysis of BA/BE Studies; PowerTOST" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
