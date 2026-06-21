@@ -72,7 +72,8 @@
       <button class="tab subtab" data-sub="ml" role="tab" aria-selected="false" data-en="⑤ Boost with AI">⑤ 用 AI 強化</button>
       <button class="tab subtab" data-sub="whatif" role="tab" aria-selected="false" data-en="⑥ What if">⑥ 如果……？</button>
     </div>
-    <button class="tab tab-sep" id="chooseTab" data-en="Which one?">怎麼選</button>
+    <button class="tab tab-sep" id="flowTab" data-en="Workflow">因果流程</button>
+    <button class="tab" id="chooseTab" data-en="Which one?">怎麼選</button>
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
     <button class="tab" id="glossaryTab" data-en="Glossary">名詞表</button>
   </nav>
@@ -7104,6 +7105,82 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
   
 
   
+
+  <!-- ===================== 因果推論流程 / Causal-inference workflow ===================== -->
+  <section id="flow" class="panel">
+    <h1 data-en="The causal-inference workflow: from a public-health signal to a conclusion">因果推論的流程：一個公衛訊號，從無到有到結論</h1>
+    <p class="lead" data-en="The method picker and the &quot;Which one?&quot; tree help you choose <i>one</i> design. But real evidence is built by <b>chaining many designs</b> across the life of a signal — each compensating for the others' weaknesses. This is the end-to-end pipeline; click any design to open it. A causal claim becomes credible when designs that <b>fail in different ways</b> converge — that is triangulation.">方法選單與「怎麼選」幫你挑<i>單一</i>設計。但真正的證據，是沿著一個訊號的生命週期把<b>許多設計串起來</b>，彼此補強弱點。這是端到端的流程圖，點任一設計即可打開。當「以不同方式出錯」的設計彼此收斂時，因果主張才可信，這就是三角驗證。</p>
+
+    <div class="flowchart">
+      <div class="flow-stage" data-step="0">
+        <div class="flow-head"><span class="flow-no">起點</span><h3 data-en="A public-health signal">一個公衛訊號</h3></div>
+        <p data-en="It starts from a spontaneous report, a clinician's hunch, a routine-surveillance blip, or a question from a guideline — a possible drug–outcome link nobody has confirmed yet.">起於一筆自發通報、臨床醫師的直覺、例行監測的異常、或指引上的疑問：一個還沒人確認的「藥物→結果」關聯。</p>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="1">
+        <div class="flow-head"><span class="flow-no">①</span><h3 data-en="Detect &amp; screen (hypothesis-generating)">偵測與篩選（產生假說）</h3></div>
+        <p data-en="Scan many drugs × many outcomes at once to flag candidate signals while controlling the flood of false positives. These <b>flag, they do not confirm</b>.">一次掃描「多種藥 × 多種結果」標出候選訊號，同時控制大量偽陽性。它們只<b>標記、不確認</b>。</p>
+        <div class="flow-chips"><a class="xref chip" data-m="tscan">TreeScan</a><a class="xref chip" data-m="pssa">PSSA</a></div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="2">
+        <div class="flow-head"><span class="flow-no">②</span><h3 data-en="Frame the question &amp; check the data">界定問題、檢查資料</h3></div>
+        <p data-en="Turn the signal into a precise <b>target trial</b> (PICO, eligibility, a clear time-zero, the comparator). Describe who/when, and handle missing data. Which design you <i>can</i> run is decided by your data source.">把訊號變成精確的<b>目標試驗</b>（PICO、納入條件、明確的時間零點、對照）。描述誰／何時，並處理缺失資料。你<i>能</i>跑哪個設計，由資料來源決定。</p>
+        <div class="flow-chips"><a class="xref chip" data-m="gbtm">GBTM</a><a class="xref chip" data-m="miss">Missing data</a><a class="xref chip chip-go" data-tab="db">資料庫 Databases</a></div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="3">
+        <div class="flow-head"><span class="flow-no">③</span><h3 data-en="Estimate the effect — pick a confounding-control design">估計效果：挑一個控制混淆的設計</h3></div>
+        <p data-en="The heart of it: choose a design that removes confounding, given your data. Use the <b>&quot;Which one?&quot;</b> tree to navigate the families below (quasi-experiment · self-controlled · active-comparator new-user · adjustment / PS / g-methods · sampling · proxies).">核心：依你的資料挑一個能去除混淆的設計。用<b>「怎麼選」</b>決策樹在下列家族間導航（準實驗 · 自我對照 · 主動對照新使用者 · 校正／PS／g-methods · 抽樣 · 代理）。</p>
+        <div class="flow-chips">
+          <a class="xref chip" data-m="iv">IV</a><a class="xref chip" data-m="mr">MR</a><a class="xref chip" data-m="rdd">RDD</a><a class="xref chip" data-m="did">DiD</a><a class="xref chip" data-m="its">ITS</a><a class="xref chip" data-m="perr">PERR</a><a class="xref chip" data-m="tit">TiT</a>
+          <a class="xref chip" data-m="ps">PS</a><a class="xref chip" data-m="tmle">TMLE</a><a class="xref chip" data-m="gm">G-methods</a><a class="xref chip" data-m="wce">WCE</a>
+          <a class="xref chip" data-m="acnu">ACNU</a><a class="xref chip" data-m="pnu">PNU</a><a class="xref chip" data-m="ccw">CCW</a><a class="xref chip" data-m="seq">Seq</a>
+          <a class="xref chip" data-m="sccs">SCCS</a><a class="xref chip" data-m="cctc">CCTC</a><a class="xref chip" data-m="cc">CC</a><a class="xref chip" data-m="tnd">TND</a><a class="xref chip" data-m="med">MED</a>
+          <a class="xref chip chip-go" data-tab="choose">→ 怎麼選 / Which one?</a>
+        </div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="4">
+        <div class="flow-head"><span class="flow-no">④</span><h3 data-en="Quantify residual bias (sensitivity analysis)">量化殘餘偏誤（敏感度分析）</h3></div>
+        <p data-en="No observational design is assumption-free. Ask how strong unmeasured confounding, missingness, or residual bias would have to be to overturn the result.">沒有任何觀察性設計是零假設的。問：未測混淆、缺失、或殘餘偏誤要多強，才能推翻結果。</p>
+        <div class="flow-chips"><a class="xref chip" data-m="evalue">QBA / E-value</a><a class="xref chip" data-m="nc">NC / PCI</a><a class="xref chip" data-m="miss">M-value</a></div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="5">
+        <div class="flow-head"><span class="flow-no">⑤</span><h3 data-en="Corroborate from outside (mechanism &amp; experiment)">從外部佐證（機制與實驗）</h3></div>
+        <p data-en="Bring in evidence that fails in <b>different</b> ways from observational data — genetic, bench, or model-based. Agreement across unrelated biases is the core of <b>triangulation</b>.">引入「與觀察性資料以<b>不同方式</b>出錯」的證據：遺傳、實驗檯、或模型化。互不相關的偏誤仍一致，正是<b>三角驗證</b>的核心。</p>
+        <div class="flow-chips"><a class="xref chip" data-m="mr">MR</a><a class="xref chip chip-adj" data-tab="choose">Wet-lab</a><a class="xref chip" data-m="dt">Digital twin</a><a class="xref chip chip-adj" data-tab="choose">BA/BE</a></div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="6">
+        <div class="flow-head"><span class="flow-no">⑥</span><h3 data-en="Synthesize the whole evidence base">合成整體證據</h3></div>
+        <p data-en="Pool every credible study into one answer with a transparent, reproducible protocol, and rate the overall certainty (GRADE).">用透明、可重現的流程把每篇可信研究合併成一個答案，並評整體證據強度（GRADE）。</p>
+        <div class="flow-chips"><a class="xref chip" data-m="srma">SR / MA</a><a class="xref chip" data-m="nma">NMA</a></div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage" data-step="7">
+        <div class="flow-head"><span class="flow-no">⑦</span><h3 data-en="Decide &amp; generalize">決策與外推</h3></div>
+        <p data-en="Weigh benefits against risks, carry the effect to <i>your</i> population, and borrow a comparator when there is none.">權衡效益與風險，把效果搬到<i>你的</i>族群，沒有對照時就借一個。</p>
+        <div class="flow-chips"><a class="xref chip chip-adj" data-tab="choose">MCDA</a><a class="xref chip" data-m="transport">Transportability</a><a class="xref chip" data-m="extctrl">External control</a><a class="xref chip chip-adj" data-tab="choose">BA/BE</a></div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">↓</div>
+
+      <div class="flow-stage flow-end" data-step="8">
+        <div class="flow-head"><span class="flow-no">✔</span><h3 data-en="A causal conclusion → action">因果結論 → 行動</h3></div>
+        <p data-en="When designs that fail in different ways converge, the causal claim is credible — a Bradford-Hill-style, triangulated judgement that can inform a guideline, a label change, or a policy. Then keep monitoring: the loop restarts at ①.">當「以不同方式出錯」的設計彼此收斂，因果主張就可信，這是 Bradford-Hill 式、三角驗證的判斷，據以更新指引、仿單或政策。接著持續監測，循環回到 ①。</p>
+        <div class="flow-chips"><a class="xref chip chip-go" data-tab="flow">↺ 持續監測（回到 ①）</a></div>
+      </div>
+    </div>
+    <p class="caption" data-en="Not every signal needs every box — but the strongest causal conclusions in pharmacoepidemiology are triangulated across several of these stages, not won by a single study.">不是每個訊號都要跑完每一格，但藥物流行病學裡最強的因果結論，是跨這幾個階段三角驗證出來的，而不是單一研究就定案。</p>
+  </section>
 
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">

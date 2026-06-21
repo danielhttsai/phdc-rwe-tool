@@ -82,6 +82,7 @@ const methodSelect = document.getElementById("methodSelect");
 const subtabBtns = [...document.querySelectorAll(".subtab")];
 const subtabsRow = document.querySelector(".subtabs");
 const chooseTab = document.getElementById("chooseTab");
+const flowTab = document.getElementById("flowTab");
 const dataTab = document.getElementById("dataTab");
 const homeTab = document.getElementById("homeTab");
 const glossaryTab = document.getElementById("glossaryTab");
@@ -135,6 +136,7 @@ function applyHash() {
   try {
     if (raw === "home") { showHome(); return true; }
     if (raw === "glossary") { showGlossary(); return true; }
+    if (raw === "flow") { if (flowTab) flowTab.click(); return true; }
     if (raw === "choose") { chooseTab.click(); return true; }
     if (raw === "db") { if (dataTab) { dataTab.click(); return true; } return false; }
     const p = new URLSearchParams(raw);
@@ -171,7 +173,7 @@ function initHome() {
 function showHome() {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
-  chooseTab.classList.remove("active");
+  chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   if (glossaryTab) glossaryTab.classList.remove("active");
   if (homeTab) homeTab.classList.add("active");
@@ -208,7 +210,7 @@ function initGlossary() {
 function showGlossary() {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
-  chooseTab.classList.remove("active");
+  chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   if (homeTab) homeTab.classList.remove("active");
   if (glossaryTab) glossaryTab.classList.add("active");
@@ -282,7 +284,7 @@ function openTopic(key) {
   if (glossaryTab) glossaryTab.classList.remove("active");
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
-  chooseTab.classList.remove("active");
+  chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   if (methodSelect) methodSelect.value = key;
   showPanel(t.panel);
@@ -295,7 +297,7 @@ function showMethodSub() {
   setSubtabs(true);
   if (homeTab) homeTab.classList.remove("active");
   if (glossaryTab) glossaryTab.classList.remove("active");
-  chooseTab.classList.remove("active");
+  chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   subtabBtns.forEach((b) => { const on = b.dataset.sub === curSub; b.classList.toggle("active", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
   showPanel(METHOD_PREFIX[curMethod] + curSub);
@@ -314,12 +316,25 @@ subtabBtns.forEach((b) => b.addEventListener("click", () => {
   if (subtabsRow && subtabsRow.style.display === "none") return;  // ignore clicks while on a topic / choose / db page
   curSub = b.dataset.sub; showMethodSub();
 }));
+if (flowTab) flowTab.addEventListener("click", () => {
+  subtabBtns.forEach((x) => x.classList.remove("active"));
+  setSubtabs(false);
+  if (homeTab) homeTab.classList.remove("active");
+  if (glossaryTab) glossaryTab.classList.remove("active");
+  if (dataTab) dataTab.classList.remove("active");
+  chooseTab.classList.remove("active");
+  flowTab.classList.add("active");
+  showPanel("flow");
+  if (typeof filterRefs === "function") filterRefs("all");
+  setHash("#flow");
+});
 chooseTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
   setSubtabs(false);
   if (homeTab) homeTab.classList.remove("active");
   if (glossaryTab) glossaryTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
+  if (flowTab) flowTab.classList.remove("active");
   chooseTab.classList.add("active");
   showPanel("choose");
   if (typeof filterRefs === "function") filterRefs("choose");
@@ -330,7 +345,7 @@ if (dataTab) dataTab.addEventListener("click", () => {
   setSubtabs(false);
   if (homeTab) homeTab.classList.remove("active");
   if (glossaryTab) glossaryTab.classList.remove("active");
-  chooseTab.classList.remove("active");
+  chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
   dataTab.classList.add("active");
   showPanel("dbpanel");
   if (typeof filterRefs === "function") filterRefs("db");
@@ -356,6 +371,7 @@ document.addEventListener("click", (e) => {
   if (a.dataset.m) gotoMethod(a.dataset.m, "learn");
   else if (a.dataset.tab === "db" && dataTab) dataTab.click();
   else if (a.dataset.tab === "choose") chooseTab.click();
+  else if (a.dataset.tab === "flow" && flowTab) flowTab.click();
   else if (TOPICS[a.dataset.tab]) openTopic(a.dataset.tab);
 });
 
