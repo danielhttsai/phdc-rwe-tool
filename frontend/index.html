@@ -7314,7 +7314,7 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
             <td data-en="A single-arm vaccine study (everyone vaccinated, no concurrent controls); you borrow an external/historical untreated cohort as the control arm">單臂疫苗研究（全部接種、沒有同期對照）；你借一個外部／歷史的未接種世代當對照臂</td>
             <td data-en="Borrow a whole control arm — then standardise / propensity-weight the external controls to match the trial's covariates">借的是整個對照臂，再用標準化／傾向加權把外部對照校到試驗的共變項分布</td>
             <td data-en="The external controls are exchangeable given measured covariates, with no era/source drift and consistent outcomes, plus overlap">扣掉已測共變項後外部對照可交換、無時代／來源漂移、結果定義一致，且有重疊</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="Family · genetic instrument — Mendelian randomization">家族 · 遺傳工具（孟德爾隨機化）</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · borrowed exogenous variation — Mendelian randomization is IV with a genetic instrument">家族 · 借外生變異：MR（孟德爾隨機化）就是「以基因為工具」的 IV</td></tr>
           <tr><td><a class="xref" data-m="mr">MR</a></td>
             <td data-en="Instead of a mailed reminder, use a genetic variant that raises the chance of (or proxies) the exposure as the instrument, asking whether the exposure itself affects the outcome">不用寄出的提醒，而是用一個會提高暴露機率（或代理暴露）的遺傳變異當工具，問暴露本身是否影響結果</td>
             <td data-en="Randomisation at conception: alleles are allocated roughly at random with respect to lifestyle/confounders and fixed for life (an IV with a genetic instrument)">受孕時的隨機：等位基因相對於生活型態／混淆近似隨機分派且終生固定（以遺傳變異為工具的 IV）</td>
@@ -7576,7 +7576,7 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
     <div class="card">
       <h3 data-en="One variant → a Wald ratio">一個變異 → 一個 Wald 比值</h3>
       <p data-en="If a variant raises the exposure by β<sub>X</sub> and raises the outcome by β<sub>Y</sub>, the implied causal effect of the exposure on the outcome is the ratio <code>β<sub>Y</sub> / β<sub>X</sub></code>. Each variant gives its own ratio; honest variants should agree.">
-        若一個變異把暴露提高 β<sub>X</sub>、把結果提高 β<sub>Y</sub>，則暴露對結果的隱含因果效果就是比值 <code>β<sub>Y</sub> / β<sub>X</sub></code>。每個變異各給一個比值；老實的變異們應該彼此一致。
+        若一個變異把暴露提高 β<sub>X</sub>、把結果提高 β<sub>Y</sub>，則暴露對結果的隱含因果效果就是比值 <code>β<sub>Y</sub> / β<sub>X</sub></code>。每個變異各給一個比值；有效的變異們應該彼此一致。
       </p>
     </div>
     <div class="card">
@@ -7730,7 +7730,7 @@ run;
       </p>
     </div>
     <div class="card warn">
-      <h3 data-en="An honest caution">一個老實的提醒</h3>
+      <h3 data-en="An important caution">一個重要提醒</h3>
       <p data-en="There is <b>no</b> established ML method that turns an invalid instrument into a valid one. Flexible models can refine instrument choice and find outliers, but the causal identification still rests entirely on relevance, independence and exclusion. A great predictor of the outcome is not a causal effect.">
         目前<b>沒有</b>任何成熟的 ML 方法能把無效工具變成有效工具。彈性模型能精修工具挑選、找出離群，但因果識別仍完全靠相關性、獨立性與排除性。一個很會預測結果的模型，不等於一個因果效果。
       </p>
