@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mcda: "mcda", fsqca: "fsqca" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mcda: "mcda", fsqca: "fsqca", mr: "mr", wetlab: "wetlab", dt: "dt", babe: "babe" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -75,6 +75,7 @@ const PANEL_INIT = {
   evalueplay: () => { initEvaluePlay(); initEvalueArray(); },
   mcdaplay: () => initMcda(),
   fsqcaplay: () => initFsqca(),
+  mrplay: () => initMr(), wetlabplay: () => initWetlab(), dtplay: () => initDt(), babeplay: () => initBabe(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
@@ -2665,6 +2666,7 @@ const DNODES = {
     q: { zh: "你有沒有一個「外生、近似隨機」的工具，會改變人們是否接受暴露，且只透過暴露影響結果？（隨機提醒、抽籤、政策樂透、基因變異）", en: "Do you have an external, near-random instrument that changes whether people get the exposure and affects the outcome only through it? (a randomised reminder, lottery, policy lottery, genetic variant)" },
     opts: [
       { l: { zh: "有，這工具幾乎可當隨機", en: "Yes — that instrument is essentially random" }, to: "rIV" },
+      { l: { zh: "有，而且是<b>遺傳變異</b>（基因型）", en: "Yes — and it is a <b>genetic variant</b>" }, to: "rMR" },
       { l: { zh: "沒有這種工具 → 繼續往下", en: "No such instrument — continue" }, to: "exCut" },
     ],
   },
@@ -2913,8 +2915,51 @@ const DNODES = {
     opts: [
       { l: { zh: "有，但只有發表的彙總結果（沒有個體資料）", en: "Yes, but only published summary results (no individual data)" }, to: "rEXTCTRL" },
       { l: { zh: "有，且拿得到個體層級資料", en: "Yes, and I can get its individual-level data" }, to: "rTRANS" },
+      { l: { zh: "沒有可借的 RCT，但想用<b>實驗／遺傳／模型</b>從外部佐證", en: "No RCT to borrow — but I want to corroborate from outside (experiment / genetics / model)" }, to: "exTri" },
     ],
   },
+  exTri: {
+    step: { zh: "實驗／遺傳／模型三角驗證", en: "Experimental / genetic / model triangulation" },
+    q: { zh: "你想從觀察性資料<b>之外</b>佐證因果？選一個最貼近的取徑（它們各自以不同方式出錯，因此最適合三角驗證）。", en: "Want to corroborate causation from <b>outside</b> observational data? Pick the closest approach (each fails differently, which is what makes them ideal for triangulation)." },
+    opts: [
+      { l: { zh: "用<b>遺傳變異</b>當工具（人體、終生暴露）", en: "Use a <b>genetic variant</b> as the instrument (human, lifelong exposure)" }, to: "rMR" },
+      { l: { zh: "在<b>實驗台／動物</b>上刻意操弄、看機制", en: "Deliberately manipulate at the <b>bench / in animals</b> for mechanism" }, to: "rWETLAB" },
+      { l: { zh: "用<b>模型預測的對照軌跡（數位孿生）</b>當比較基準", en: "Use a <b>model-predicted control (digital twin)</b> as the comparator" }, to: "rDT" },
+      { l: { zh: "比較兩種劑型的藥動曝露（<b>生體相等性 BA/BE</b>，受試者內隨機交叉）", en: "Compare two formulations' PK exposure (<b>bioequivalence</b>, within-subject crossover)" }, to: "rBABE" },
+    ],
+  },
+  rMR: { rec: { kind: "toolbox", method: "mr", badge: "MR ✓",
+    title: { zh: "最適合：孟德爾隨機化 MR ✓（本工具）", en: "Best fit: Mendelian randomization (MR) ✓ (this tool)" },
+    why: { zh: "你有一個與暴露穩健相關的<b>遺傳變異</b>。等位基因在受孕時近乎隨機分派、且終生固定，所以一個有效的遺傳工具沒有混淆、也沒有反向因果。它就是把工具變數的工具換成基因：每個變異的 β<sub>Y</sub>/β<sub>X</sub> 是一個 Wald 比值，用 IVW 合併、再以 MR-Egger／加權中位數檢查多效性。",
+           en: "You have a <b>genetic variant</b> robustly associated with the exposure. Alleles are allocated near-randomly at conception and fixed for life, so a valid genetic instrument is unconfounded and free of reverse causation. It is instrumental variables with a gene as the instrument: each variant's β<sub>Y</sub>/β<sub>X</sub> is a Wald ratio, combined by IVW and stress-tested for pleiotropy with MR-Egger / weighted median." },
+    scenario: { zh: "情境：想知道終生 LDL 膽固醇是否導致心臟病，但無法隨機分配膽固醇；改用會升高 LDL 的遺傳變異當工具（見「MR」分頁 ①–⑥）。",
+                en: "Scenario: does lifelong LDL cholesterol cause heart disease? You can't randomize cholesterol — use LDL-raising genetic variants as the instrument (see the MR tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。IV 三條：相關性（小心弱工具，F&lt;10）、獨立性（族群分層）、排除性（<b>水平多效性</b>是頭號威脅）。",
+             en: "✓ Implemented in this toolbox. The IV trio: relevance (beware weak instruments, F&lt;10), independence (population stratification), exclusion (<b>horizontal pleiotropy</b> is the main threat)." } } },
+  rWETLAB: { rec: { kind: "toolbox", method: "wetlab", badge: "Wet-lab ✓",
+    title: { zh: "最適合：實驗室實驗 Wet-lab ✓（本工具）", en: "Best fit: Wet-lab experiments ✓ (this tool)" },
+    why: { zh: "你能<b>直接操弄</b>暴露：基因剔除／嵌入、細胞株劑量反應、或隨機分派的動物模型。隨機化＋設盲＋對照讓內部效度極高，並能直接看到<b>機制</b>。代價是對人體與真實劑量的可轉移性不確定，所以最適合與人體觀察證據<b>三角驗證</b>。",
+           en: "You can <b>directly manipulate</b> the exposure — knock-out/knock-in, a cell-line dose–response, or a randomized animal model. Randomization + blinding + controls give very high internal validity and direct evidence of <b>mechanism</b>. The cost is uncertain transportability to humans and real-world doses, so it pairs best with human observational evidence by <b>triangulation</b>." },
+    scenario: { zh: "情境：流行病學看到某營養素與疾病相關，疑似被生活型態混淆；在細胞／動物上隨機給該營養素、看機制是否成立（見「Wet-lab」分頁 ①–⑥）。",
+                en: "Scenario: epidemiology links a nutrient to disease but lifestyle confounding is suspected; randomize the nutrient in cells/animals to test whether the mechanism holds (see the Wet-lab tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。三種效度：內部（通常強）、構念（模型代表人類暴露嗎）、外部（搬得到人身上嗎，常是超生理劑量）。",
+             en: "✓ Implemented in this toolbox. Three validities: internal (usually strong), construct (does the model represent the human exposure?), external (does it transport to humans — often supra-physiological doses?)." } } },
+  rDT: { rec: { kind: "toolbox", method: "dt", badge: "Digital twin ✓",
+    title: { zh: "最適合：數位孿生 ✓（本工具）", en: "Best fit: Digital twin ✓ (this tool)" },
+    why: { zh: "你想用一個<b>預後模型</b>，預測每位病人「未治療」時的軌跡（數位孿生），再把效果讀成「實際 − 孿生」。它可當隨機試驗的精準度調整（PROCOVA），或在缺乏同期對照時當合成對照臂。注意：孿生本身<b>不</b>消除混淆，效度全押在預後模型是否無偏、可轉移。",
+           en: "You want a <b>prognostic model</b> that predicts each patient's untreated trajectory (a digital twin), then read the effect as observed − twin. It can be a precision adjustment in an RCT (PROCOVA) or a synthetic control arm when concurrent controls are scarce. Note: the twin removes <b>no</b> confounding by itself — validity rests on the prognostic model being unbiased and transportable." },
+    scenario: { zh: "情境：罕病單臂試驗沒有同期對照；用歷史對照資料訓練預後模型，為每位治療者預測未治療軌跡當對照（見「數位孿生」分頁 ①–⑥）。",
+                en: "Scenario: a single-arm rare-disease trial with no concurrent control; train a prognostic model on historical controls to predict each treated patient's untreated trajectory as the comparator (see the Digital-twin tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。關鍵：預後模型<b>無偏、校準良好、可轉移</b>到當前病人；當孿生取代同期對照時，等於回到歷史對照陷阱。",
+             en: "✓ Implemented in this toolbox. Key: the prognostic model must be <b>unbiased, well-calibrated and transportable</b> to current patients; when the twin replaces a concurrent control it re-enters the historical-control trap." } } },
+  rBABE: { rec: { kind: "toolbox", method: "babe", badge: "BA/BE ✓",
+    title: { zh: "最適合：生體可用率／生體相等性 BA/BE ✓（本工具）", en: "Best fit: Bioavailability / bioequivalence (BA/BE) ✓ (this tool)" },
+    why: { zh: "你要比較兩種劑型（測試 vs 參考）的藥動曝露是否可互換。用<b>隨機 2×2 交叉</b>讓同一批受試者都服用兩種劑型，<b>每個人當自己的對照</b>，受試者間混淆相互抵銷。對 log(Cmax)、log(AUC) 配混合模型，若 GMR 的 90% CI 整段落在 80–125% 即判定生體相等。這是本工具箱<b>最乾淨的因果對比</b>。",
+           en: "You want to compare two formulations' (test vs reference) PK exposure for interchangeability. A <b>randomized 2×2 crossover</b> gives the same volunteers both formulations, so <b>each person is their own control</b> and between-subject confounding cancels. Fit a mixed model on log(Cmax), log(AUC); bioequivalence holds if the 90% CI of the GMR lies entirely within 80–125%. The cleanest causal contrast in this toolbox." },
+    scenario: { zh: "情境：學名藥廠要證明自家錠劑與原廠在吸收上相等，做隨機交叉的人體藥動試驗（見「BA/BE」分頁 ①–⑥）。",
+                en: "Scenario: a generic manufacturer must show its tablet is absorbed equivalently to the brand — run a randomized crossover human PK study (see the BA/BE tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。需充分清除期（無殘留）、無期別／順序效果；高變異藥用參考比例放寬（RSABE），窄治療指數藥反而收緊界限。",
+             en: "✓ Implemented in this toolbox. Needs adequate washout (no carryover) and no period/sequence effects; highly variable drugs use reference-scaled limits (RSABE), narrow-therapeutic-index drugs tighten them instead." } } },
   rEXTCTRL: { rec: { kind: "toolbox", method: "extctrl", badge: "外部對照 ✓",
     title: { zh: "最適合：外部對照 ✓（本工具）， 借一個對照臂補上單臂研究缺的對照", en: "Best fit: External control ✓ (this tool) — borrow a control arm for a single-arm study" },
     why: { zh: "你只有一個<b>單臂</b>（全部都治療）、沒有同期對照。借<b>外部／歷史對照</b>（外部世代、登錄、或那場 RCT 的未治療者）補上對照臂；有個體資料時，用<b>標準化／傾向加權</b>把兩臂的共變項差異校正掉再比較。只有彙總結果時，改走較輕量的 MAIC／STC（配對調整間接比較）。",
@@ -3172,6 +3217,127 @@ function renderFullMap(hitKey) {
 // so we plot every estimate ÷ its OWN truth: 1.0 = perfectly recovered. Amber = the
 // naive comparison (biased, off 1.0); teal = the method's corrected estimate (back near
 // 1.0). Representative values from this tool's verified demos.
+// ======================================================================
+// Four added methods' ② interactive demos (Plotly, deterministic synthetic data).
+// ======================================================================
+function initMr() {
+  const card = document.getElementById("mrCard"); if (!card) return;
+  if (!card._wired) { card._wired = true; card.querySelector(".mr-scn").addEventListener("change", refreshMr); }
+  refreshMr();
+}
+function refreshMr() {
+  const card = document.getElementById("mrCard"); if (!card) return;
+  const pleio = card.querySelector(".mr-scn").value === "pleio";
+  const bx = [0.10, 0.14, 0.18, 0.22, 0.26, 0.30, 0.34, 0.40];
+  const jit = [0.004, -0.006, 0.008, -0.003, 0.006, -0.007, 0.003, -0.004];
+  const TRUTH = 0.5, lift = pleio ? [0, 0, 0.07, 0, 0.10, 0.02, 0.12, 0.03] : bx.map(() => 0);
+  const by = bx.map((x, i) => TRUTH * x + jit[i] + lift[i]);
+  // IVW = weighted regression through origin (equal weights); Egger = OLS with intercept
+  let sxy = 0, sxx = 0; bx.forEach((x, i) => { sxy += x * by[i]; sxx += x * x; });
+  const ivw = sxy / sxx;
+  const n = bx.length, mx = bx.reduce((a, b) => a + b, 0) / n, my = by.reduce((a, b) => a + b, 0) / n;
+  let sb = 0, sd = 0; bx.forEach((x, i) => { sb += (x - mx) * (by[i] - my); sd += (x - mx) ** 2; });
+  const eggb = sb / sd, egga = my - eggb * mx;
+  const xmax = 0.44;
+  Plotly.react("mrChart", [
+    { x: bx, y: by, mode: "markers", type: "scatter", name: tr("遺傳變異", "variants"), marker: { color: INK, size: 9 } },
+    { x: [0, xmax], y: [0, ivw * xmax], mode: "lines", name: "IVW", line: { color: RED, width: 2.5 } },
+    { x: [0, xmax], y: [egga, egga + eggb * xmax], mode: "lines", name: "MR-Egger", line: { color: AMBER, width: 2, dash: "dot" } },
+    { x: [0, xmax], y: [0, TRUTH * xmax], mode: "lines", name: tr("真值斜率 0.50", "truth 0.50"), line: { color: GREEN, width: 1.5, dash: "dash" } },
+  ], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.12 }, margin: { t: 24, r: 14, b: 44, l: 50 },
+    xaxis: { title: tr("變異 → 暴露（β_X）", "variant → exposure (β_X)"), range: [0, xmax], zeroline: true },
+    yaxis: { title: tr("變異 → 結果（β_Y）", "variant → outcome (β_Y)"), zeroline: true },
+  }), SCENE_CFG);
+  card.querySelector(".mr-out").innerHTML = pleio
+    ? tr(`IVW 斜率＝<b style="color:#b91c1c">${ivw.toFixed(2)}</b>（被多效性灌大、偏離真值 0.50）；MR-Egger 截距＝<b>${egga.toFixed(2)}</b>（不為 0 → 偵測到多效性），其斜率＝<b style="color:#1d6f57">${eggb.toFixed(2)}</b> 較接近真值。`,
+        `IVW slope = <b style="color:#b91c1c">${ivw.toFixed(2)}</b> (inflated by pleiotropy, off the truth 0.50); MR-Egger intercept = <b>${egga.toFixed(2)}</b> (≠ 0 → pleiotropy detected), its slope = <b style="color:#1d6f57">${eggb.toFixed(2)}</b> is closer to the truth.`)
+    : tr(`IVW 斜率＝<b style="color:#1d6f57">${ivw.toFixed(2)}</b>（貼近真值 0.50）；MR-Egger 截距＝<b>${egga.toFixed(2)}</b>（≈ 0 → 無多效性跡象）。`,
+        `IVW slope = <b style="color:#1d6f57">${ivw.toFixed(2)}</b> (on the truth 0.50); MR-Egger intercept = <b>${egga.toFixed(2)}</b> (≈ 0 → no sign of pleiotropy).`);
+}
+
+function initWetlab() {
+  const card = document.getElementById("wetlabCard"); if (!card) return;
+  if (!card._wired) { card._wired = true; card.querySelector(".wl-conf").addEventListener("input", refreshWetlab); }
+  refreshWetlab();
+}
+function refreshWetlab() {
+  const card = document.getElementById("wetlabCard"); if (!card) return;
+  const conf = parseFloat(card.querySelector(".wl-conf").value); card.querySelector(".wl-confv").textContent = conf.toFixed(1);
+  const dose = [0, 1, 2, 3, 4, 5, 6, 7, 8], TRUTH = 0.40;
+  const truth = dose.map((d) => TRUTH * d);
+  const obs = dose.map((d) => TRUTH * d + conf * 0.22 * d);     // confounding inflates the observational slope
+  Plotly.react("wetlabChart", [
+    { x: dose, y: truth, mode: "lines+markers", name: tr("隨機實驗（真值）", "randomized experiment (truth)"), line: { color: GREEN, width: 2.5 }, marker: { color: GREEN, size: 7 } },
+    { x: dose, y: obs, mode: "lines+markers", name: tr("觀察性關聯", "observational"), line: { color: AMBER, width: 2.5 }, marker: { color: AMBER, size: 7 } },
+  ], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.12 }, margin: { t: 24, r: 14, b: 44, l: 50 },
+    xaxis: { title: tr("劑量", "dose") }, yaxis: { title: tr("結果", "outcome") },
+  }), SCENE_CFG);
+  const obsSlope = TRUTH + conf * 0.22;
+  card.querySelector(".wl-out").innerHTML = tr(
+    `實驗斜率＝<b style="color:#1d6f57">${TRUTH.toFixed(2)}</b>（永遠是真值）；觀察斜率＝<b style="color:${conf > 0.05 ? "#b91c1c" : "#1d6f57"}">${obsSlope.toFixed(2)}</b>。混淆越強，只有觀察曲線越偏。`,
+    `Experiment slope = <b style="color:#1d6f57">${TRUTH.toFixed(2)}</b> (always the truth); observational slope = <b style="color:${conf > 0.05 ? "#b91c1c" : "#1d6f57"}">${obsSlope.toFixed(2)}</b>. The stronger the confounding, the more only the observational curve drifts.`);
+}
+
+function initDt() {
+  const card = document.getElementById("dtCard"); if (!card) return;
+  if (!card._wired) { card._wired = true; card.querySelector(".dt-bias").addEventListener("input", refreshDt); }
+  refreshDt();
+}
+function refreshDt() {
+  const card = document.getElementById("dtCard"); if (!card) return;
+  const bias = parseFloat(card.querySelector(".dt-bias").value); card.querySelector(".dt-biasv").textContent = bias.toFixed(1);
+  const t = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const obs = t.map((x) => 10 - 0.50 * x);                 // observed treated trajectory
+  const ctrlTrue = t.map((x) => 10 - 0.20 * x);            // true (unseen) control trajectory
+  const twin = t.map((x) => 10 - 0.20 * x + bias * 0.08 * x); // model-predicted twin (biased by slider)
+  const estEff = obs[10] - twin[10], trueEff = obs[10] - ctrlTrue[10];
+  Plotly.react("dtChart", [
+    { x: t, y: obs, mode: "lines", name: tr("實際（治療）", "observed (treated)"), line: { color: TEAL, width: 2.5 } },
+    { x: t, y: twin, mode: "lines", name: tr("數位孿生（對照）", "digital twin (control)"), line: { color: SLATE, width: 2, dash: "dash" } },
+    { x: t, y: ctrlTrue, mode: "lines", name: tr("真實對照（看不到）", "true control (unseen)"), line: { color: "#cbd5e1", width: 1.5, dash: "dot" } },
+  ], sceneLayout({
+    height: 320, showlegend: true, legend: { orientation: "h", y: 1.12 }, margin: { t: 24, r: 14, b: 44, l: 50 },
+    xaxis: { title: tr("時間", "time") }, yaxis: { title: tr("結果", "outcome") },
+  }), SCENE_CFG);
+  const off = Math.abs(estEff - trueEff);
+  card.querySelector(".dt-out").innerHTML = tr(
+    `估計效果（實際 − 孿生）＝<b style="color:${off > 0.3 ? "#b91c1c" : "#1d6f57"}">${estEff.toFixed(2)}</b>；真值＝<b>${trueEff.toFixed(2)}</b>。孿生模型偏誤越大，估計越偏離真值（治療其實沒變）。`,
+    `Estimated effect (observed − twin) = <b style="color:${off > 0.3 ? "#b91c1c" : "#1d6f57"}">${estEff.toFixed(2)}</b>; truth = <b>${trueEff.toFixed(2)}</b>. The more biased the twin model, the further the estimate drifts — though the treatment never changed.`);
+}
+
+function initBabe() {
+  const card = document.getElementById("babeCard"); if (!card) return;
+  if (!card._wired) { card._wired = true; card.querySelector(".bb-gmr").addEventListener("input", refreshBabe); }
+  refreshBabe();
+}
+function refreshBabe() {
+  const card = document.getElementById("babeCard"); if (!card) return;
+  const gmr = parseFloat(card.querySelector(".bb-gmr").value); card.querySelector(".bb-gmrv").textContent = gmr.toFixed(2);
+  const se = 0.075, f = Math.exp(1.645 * se);              // 90% CI multiplier (CV≈0.25, n≈24)
+  const lo = gmr / f, hi = gmr * f, pass = lo >= 0.80 && hi <= 1.25;
+  Plotly.react("babeChart", [
+    { x: ["GMR"], y: [gmr], type: "scatter", mode: "markers", marker: { color: pass ? GREEN : RED, size: 14 },
+      error_y: { type: "data", symmetric: false, array: [hi - gmr], arrayminus: [gmr - lo], color: pass ? GREEN : RED, thickness: 2.5, width: 14 },
+      hovertemplate: `GMR ${gmr.toFixed(2)} [${lo.toFixed(2)}, ${hi.toFixed(2)}]<extra></extra>` },
+  ], sceneLayout({
+    height: 320, showlegend: false, margin: { t: 18, r: 14, b: 30, l: 50 },
+    xaxis: { showticklabels: true }, yaxis: { title: tr("測試／參考 比值", "test/reference ratio"), range: [0.6, 1.5] },
+    shapes: [
+      { type: "rect", xref: "paper", x0: 0, x1: 1, y0: 0.80, y1: 1.25, fillcolor: "rgba(16,185,129,.10)", line: { width: 0 }, layer: "below" },
+      { type: "line", xref: "paper", x0: 0, x1: 1, y0: 0.80, y1: 0.80, line: { color: GREEN, width: 1, dash: "dash" } },
+      { type: "line", xref: "paper", x0: 0, x1: 1, y0: 1.25, y1: 1.25, line: { color: GREEN, width: 1, dash: "dash" } },
+      { type: "line", xref: "paper", x0: 0, x1: 1, y0: 1.0, y1: 1.0, line: { color: "#94a3b8", width: 1, dash: "dot" } },
+    ],
+  }), SCENE_CFG);
+  card.querySelector(".bb-out").innerHTML = tr(
+    `GMR ${gmr.toFixed(2)}，90% CI [${lo.toFixed(2)}, ${hi.toFixed(2)}] → ` + (pass
+      ? `<b style="color:#1d6f57">通過（整段 CI 在 0.80–1.25 內）</b>` : `<b style="color:#b91c1c">未通過（CI 超出 0.80–1.25）</b>`),
+    `GMR ${gmr.toFixed(2)}, 90% CI [${lo.toFixed(2)}, ${hi.toFixed(2)}] → ` + (pass
+      ? `<b style="color:#1d6f57">PASS (whole CI within 0.80–1.25)</b>` : `<b style="color:#b91c1c">FAIL (CI exits 0.80–1.25)</b>`));
+}
+
 const CHOOSE_FAMILIES = [
   { zh: "借外生變異", en: "borrowed exogenous variation", members: [
       ["IV", 1.83, 1.00], ["RDD", 1.83, 1.00]] },
@@ -3190,7 +3356,10 @@ const CHOOSE_FAMILIES = [
   { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97], ["WCE", 0.58, 1.01]] },
   { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00], ["TreeScan", 3.00, 1.00]] },
   { zh: "可轉移性・外部對照", en: "transport / external control", members: [["Transportability", 0.39, 0.91], ["External control", 1.52, 1.02]] },
-  { zh: "實驗／遺傳三角驗證", en: "experimental / genetic triangulation", members: [["MR", 1.62, 1.00], ["Wet-lab", 1.70, 1.00]] },
+  { zh: "遺傳工具（MR）", en: "genetic instrument (MR)", members: [["MR", 1.62, 1.00]] },
+  { zh: "實驗室實驗", en: "wet-lab experiment", members: [["Wet-lab", 1.70, 1.00]] },
+  { zh: "數位孿生", en: "digital twin", members: [["Digital twin", 1.55, 1.00]] },
+  { zh: "生體相等性（交叉）", en: "bioequivalence (crossover)", members: [["BA/BE", 1.40, 1.00]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -3268,6 +3437,10 @@ const METHOD_REF = {
   srma: { zh: "系統性回顧與統合分析", en: "Systematic review & meta-analysis", src: "Cochrane Handbook (Higgins et al. 2024); PRISMA 2020; DerSimonian & Laird (1986); GRADE (Guyatt et al. 2008)" },
   nma: { zh: "網路統合分析", en: "Network meta-analysis", src: "Cochrane NMA Toolkit; Harrer et al. (doing-meta.guide/netwma); Salanti (2012); Bucher et al. (1997); Rücker & Schwarzer (2015)" },
   causalml: { zh: "因果機器學習", en: "Causal machine learning", src: "Feuerriegel et al. (2024, Nat Med); Künzel et al. (2019, PNAS); Wager & Athey (2018); Chernozhukov et al. (2018, DML); Nie & Wager (2021)" },
+  mr: { zh: "孟德爾隨機化 MR", en: "Mendelian randomization (MR)", src: "Davey Smith & Ebrahim (2003), IJE; Burgess, Butterworth & Thompson (2013); Bowden et al. (2015, MR-Egger); Hemani et al. (2018, TwoSampleMR)" },
+  wetlab: { zh: "實驗室實驗 Wet-lab", en: "Wet-lab experiments", src: "Fisher (1935), Design of Experiments; Lawlor, Tilling & Davey Smith (2016, triangulation), IJE" },
+  dt: { zh: "數位孿生", en: "Digital twin", src: "Schuler et al. (2022, PROCOVA); FDA/EMA prognostic-adjustment guidance; synthetic control arms" },
+  babe: { zh: "生體可用率／生體相等性 BA/BE", en: "Bioavailability / bioequivalence (BA/BE)", src: "FDA Bioequivalence guidance; EMA CHMP BE guideline; Chow & Liu, Design and Analysis of BA/BE Studies; PowerTOST" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 

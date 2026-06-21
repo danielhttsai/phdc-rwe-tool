@@ -31,11 +31,13 @@
     <label class="method-pick"><span data-en="Method">方法</span>
       <select id="methodSelect">
         <option value="acnu" data-en="ACNU · Active-comparator new-user">ACNU · 主動對照新使用者</option>
+        <option value="babe" data-en="BA/BE · Bioavailability &amp; bioequivalence">BA/BE · 生體可用率與生體相等性</option>
         <option value="causalml" data-en="Causal ML · CATE &amp; meta-learners">Causal ML · 因果機器學習</option>
         <option value="cc" data-en="CC · Case-control">CC · 病例對照</option>
         <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
         <option value="ccw" data-en="CCW · Clone-censor-weight">CCW · 複製-設限-加權</option>
         <option value="did" data-en="DiD · Difference-in-differences">DiD · 差異中的差異</option>
+        <option value="dt" data-en="Digital twin · model-predicted control">Digital twin · 數位孿生（模型化對照）</option>
         <option value="extctrl" data-en="External control · borrow a control arm">External control · 外部對照</option>
         <option value="fsqca" data-en="fsQCA · Fuzzy-set qualitative comparative analysis">fsQCA · 模糊集質性比較分析</option>
         <option value="gbtm" data-en="GBTM · Group-based trajectory model">GBTM · 群組軌跡模型</option>
@@ -44,6 +46,7 @@
         <option value="iv" data-en="IV · Instrumental variables" selected>IV · 工具變數</option>
         <option value="mcda" data-en="MCDA · Multi-criteria decision analysis">MCDA · 多準則決策分析</option>
         <option value="med" data-en="MED · Mediation analysis">MED · 中介分析</option>
+        <option value="mr" data-en="MR · Mendelian randomization">MR · 孟德爾隨機化</option>
         <option value="miss" data-en="Missing data · multiple imputation">Missing data · 缺失資料與多重插補</option>
         <option value="nc" data-en="NC/PCI · Negative control &amp; proximal causal inference">NC/PCI · 陰性對照與近端因果</option>
         <option value="nma" data-en="NMA · network meta-analysis">NMA · 網路統合分析</option>
@@ -62,6 +65,7 @@
         <option value="transport" data-en="Transportability · extend to a target population">Transportability · 可轉移性</option>
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
+        <option value="wetlab" data-en="Wet-lab · experimental validation">Wet-lab · 實驗室驗證</option>
       </select>
     </label>
     <div class="subtabs" role="tablist" aria-label="方法的六層 · the six layers of each method">
@@ -7568,15 +7572,26 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
             <td data-en="A single-arm vaccine study (everyone vaccinated, no concurrent controls); you borrow an external/historical untreated cohort as the control arm">單臂疫苗研究（全部接種、沒有同期對照）；你借一個外部／歷史的未接種世代當對照臂</td>
             <td data-en="Borrow a whole control arm — then standardise / propensity-weight the external controls to match the trial's covariates">借的是整個對照臂，再用標準化／傾向加權把外部對照校到試驗的共變項分布</td>
             <td data-en="The external controls are exchangeable given measured covariates, with no era/source drift and consistent outcomes, plus overlap">扣掉已測共變項後外部對照可交換、無時代／來源漂移、結果定義一致，且有重疊</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="Family · experimental / genetic triangulation (corroborate from outside observational data)">家族 · 實驗／遺傳三角驗證（從觀察性資料之外佐證）</td></tr>
-          <tr><td>MR</td>
+          <tr><td colspan="4" class="famhdr" data-en="Family · genetic instrument — Mendelian randomization">家族 · 遺傳工具（孟德爾隨機化）</td></tr>
+          <tr><td><a class="xref" data-m="mr">MR</a></td>
             <td data-en="Instead of a mailed reminder, use a genetic variant that raises the chance of (or proxies) the exposure as the instrument, asking whether the exposure itself affects the outcome">不用寄出的提醒，而是用一個會提高暴露機率（或代理暴露）的遺傳變異當工具，問暴露本身是否影響結果</td>
             <td data-en="Randomisation at conception: alleles are allocated roughly at random with respect to lifestyle/confounders and fixed for life (an IV with a genetic instrument)">受孕時的隨機：等位基因相對於生活型態／混淆近似隨機分派且終生固定（以遺傳變異為工具的 IV）</td>
             <td data-en="The IV trio — relevance, independence, and exclusion (no pleiotropy: the variant affects the outcome only through the exposure)">IV 三條，相關性、獨立性、排除限制（無多效性：變異只透過暴露影響結果）</td></tr>
-          <tr><td>Wet-lab</td>
+          <tr><td colspan="4" class="famhdr" data-en="Family · wet-lab experiment (deliberate manipulation at the bench)">家族 · 實驗室實驗（在實驗台上刻意操弄）</td></tr>
+          <tr><td><a class="xref" data-m="wetlab">Wet-lab</a></td>
             <td data-en="Directly intervene on the exposure at the bench — knock-out/knock-in, a cell-line dose–response, or a randomized animal model — to test mechanism and direction">在實驗台上直接操弄暴露，基因剔除／嵌入、細胞株劑量反應，或隨機分派的動物模型，檢驗機制與方向</td>
             <td data-en="A real (not borrowed) randomised manipulation with everything else held fixed — the gold standard for internal validity">真正（不是借來的）隨機操弄、其餘維持不變，內部效度的黃金標準</td>
             <td data-en="Transportability to humans and to the real-world dose — high internal validity, uncertain external validity">對人體與真實劑量的可轉移性，內部效度高、外部效度不確定</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · digital twin (a model-predicted control trajectory)">家族 · 數位孿生（模型預測的對照軌跡）</td></tr>
+          <tr><td><a class="xref" data-m="dt">Digital twin</a></td>
+            <td data-en="Build a prognostic model on control/historical patients that predicts each treated patient's untreated trajectory; the effect is observed minus the predicted twin">用對照／歷史病人建預後模型，預測每位治療病人「未治療」的軌跡；效果＝實際值減去預測的孿生</td>
+            <td data-en="Borrows precision / a comparator from a prognostic model (PROCOVA covariate, or a synthetic control arm) — not randomness">向預後模型借精準度／比較對象（PROCOVA 共變項，或合成對照臂），借的不是隨機</td>
+            <td data-en="The prognostic model is unbiased, well-calibrated and transportable to the current patients (it fixes no unmeasured confounding by itself)">預後模型無偏、校準良好、可轉移到當前病人（它本身修不了未測混淆）</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · bioavailability / bioequivalence (a randomized within-subject crossover)">家族 · 生體可用率／生體相等性（受試者內隨機交叉）</td></tr>
+          <tr><td><a class="xref" data-m="babe">BA/BE</a></td>
+            <td data-en="Give the same volunteers the test vs reference formulation in a randomized 2×2 crossover and compare PK exposure (Cmax, AUC) on the test/reference ratio">讓同一批受試者在隨機 2×2 交叉中服用測試 vs 參考劑型，以「測試／參考」比值比較藥動曝露（Cmax、AUC）</td>
+            <td data-en="A genuine randomized within-subject experiment — each person is their own control, so between-subject confounding cancels">真正的受試者內隨機實驗，每個人當自己的對照，受試者間的混淆相互抵銷</td>
+            <td data-en="Adequate washout (no carryover) and no period/sequence effects, so the within-subject contrast is clean">充分清除期（無殘留）、無期別／順序效果，受試者內對比才乾淨</td></tr>
         </tbody>
       </table>
     </div>
@@ -7738,6 +7753,609 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
     </div>
     <p class="caption" data-en="Cross-regional networks (e.g. AsPEN, NeuroGEN) run the <b>same protocol</b> across several of these databases and meta-analyse, trading single-database depth for breadth, generalisability and replication.">跨區域網路（如 AsPEN, NeuroGEN）會把<b>同一套協定</b>跑在上述多個資料庫上再做合併分析，以單一資料庫的深度換取廣度、可推論性與可重複性。</p>
   </section>
+
+<section id="mrlearn" class="panel">
+  <h1 data-en="Mendelian randomization: let nature run the randomized trial">孟德爾隨機化：讓大自然替你做隨機試驗</h1>
+  <p class="lead" data-en="We want to know whether an <b>exposure</b> (say, lifelong LDL cholesterol) <i>causes</i> a disease. A real trial that randomizes people's cholesterol from birth is impossible. But genes <i>are</i> handed out almost at random at conception — so a genetic variant that nudges cholesterol up acts like a tiny natural randomizer. Mendelian randomization (MR) uses such variants as <b>instrumental variables</b>: if the variant raises the exposure <b>and</b> raises the disease in proportion, the exposure is doing the causing.">
+    我們想知道某個<b>暴露</b>（例如終生的 LDL 膽固醇）是否<i>導致</i>某疾病。要做一個從出生就隨機分配膽固醇的真實試驗是不可能的。但基因在受精時幾乎是<b>隨機</b>分發的，所以一個會把膽固醇往上推的遺傳變異，就像一台微型的天然隨機分配器。孟德爾隨機化（MR）把這類變異當成<b>工具變數</b>：若變異提高了暴露、<b>又</b>按比例提高了疾病，那暴露就是在做因果。
+  </p>
+  <div class="card info">
+    <h3 data-en="The workflow">工作流程</h3>
+    <p data-en="Pick genetic variants (SNPs) robustly associated with the exposure → get each variant's effect on the exposure (β<sub>X</sub>) and on the outcome (β<sub>Y</sub>), usually from two big GWAS → for each variant the ratio β<sub>Y</sub>/β<sub>X</sub> is a causal estimate (a Wald ratio) → combine them by inverse-variance weighting (IVW) into one number → run sensitivity methods (MR-Egger, weighted median) to check the answer isn't driven by misbehaving variants.">
+      挑選與暴露穩健相關的遺傳變異（SNP）→ 取得每個變異對暴露的效果（β<sub>X</sub>）與對結果的效果（β<sub>Y</sub>），通常來自兩個大型 GWAS → 每個變異的比值 β<sub>Y</sub>/β<sub>X</sub> 就是一個因果估計（Wald 比值）→ 用反變異加權（IVW）把它們合成一個數字 → 跑敏感度方法（MR-Egger、加權中位數）確認答案不是被行為不良的變異帶歪。
+    </p>
+  </div>
+  <div class="cards cards-3">
+    <div class="card">
+      <h3 data-en="Why genes work as instruments">為什麼基因能當工具</h3>
+      <p data-en="Your genotype is fixed at conception and shuffled roughly at random across people (Mendel's law), so it usually comes <b>before</b> and <b>independent of</b> the lifestyle and disease factors that confound ordinary studies. That makes a relevant variant a credible natural experiment.">
+        你的基因型在受精時就固定、且在人群間大致隨機洗牌（孟德爾定律），所以它通常<b>先於</b>、也<b>獨立於</b>那些汙染一般研究的生活型態與疾病因素。這讓一個相關的變異成為可信的自然實驗。
+      </p>
+    </div>
+    <div class="card">
+      <h3 data-en="One variant → a Wald ratio">一個變異 → 一個 Wald 比值</h3>
+      <p data-en="If a variant raises the exposure by β<sub>X</sub> and raises the outcome by β<sub>Y</sub>, the implied causal effect of the exposure on the outcome is the ratio <code>β<sub>Y</sub> / β<sub>X</sub></code>. Each variant gives its own ratio; honest variants should agree.">
+        若一個變異把暴露提高 β<sub>X</sub>、把結果提高 β<sub>Y</sub>，則暴露對結果的隱含因果效果就是比值 <code>β<sub>Y</sub> / β<sub>X</sub></code>。每個變異各給一個比值；老實的變異們應該彼此一致。
+      </p>
+    </div>
+    <div class="card">
+      <h3 data-en="Combine with IVW">用 IVW 合併</h3>
+      <p data-en="Plotting β<sub>Y</sub> against β<sub>X</sub> for many variants, the points should fall on a straight line through the origin; its <b>slope is the IVW causal estimate</b>. Variants with smaller standard errors get more weight.">
+        把許多變異的 β<sub>Y</sub> 對 β<sub>X</sub> 畫出來，這些點應落在一條過原點的直線上；它的<b>斜率就是 IVW 因果估計</b>。標準誤較小的變異拿到較大的權重。
+      </p>
+    </div>
+  </div>
+  <details class="term">
+    <summary data-en="Show terminology">看專有名詞解釋</summary>
+    <div class="tdef">
+      <h4>多效性 <span class="en">horizontal pleiotropy</span></h4>
+      <p data-en="A gene often does more than one job. Horizontal pleiotropy is when a variant affects the outcome through some pathway <b>other than</b> the exposure you're studying — for example a cholesterol variant that also independently affects inflammation, which itself affects heart disease. That extra path breaks MR's key &quot;exclusion&quot; rule: the variant is no longer influencing the outcome <i>only</i> through the exposure, so its Wald ratio is contaminated. On the scatter plot a pleiotropic variant sits <b>off</b> the line through the origin; if many do, the IVW slope is biased. MR-Egger handles this by allowing the line to have a non-zero intercept — a non-zero intercept is itself a warning that pleiotropy is present.">
+        一個基因常常不只做一件事。水平多效性是指一個變異透過<b>暴露以外</b>的某條路徑影響結果，例如一個膽固醇變異同時獨立地影響發炎、而發炎本身又影響心臟病。這條額外路徑破壞了 MR 的關鍵「排除」規則：變異不再<i>只</i>透過暴露影響結果，於是它的 Wald 比值被汙染。在散佈圖上，有多效性的變異會<b>偏離</b>那條過原點的直線；若很多變異如此，IVW 斜率就有偏。MR-Egger 的處理方式是允許直線有不為 0 的截距，而這個不為 0 的截距本身就是「有多效性」的警訊。
+      </p>
+    </div>
+  </details>
+</section>
+
+<section id="mrplay" class="panel">
+  <h1 data-en="Interactive MR: read the causal slope, and watch pleiotropy bend it">互動式 MR：讀出因果斜率，再看多效性把它弄歪</h1>
+  <p class="lead" data-en="Each dot is one genetic variant: its horizontal position is how strongly it raises the <b>exposure</b> (β<sub>X</sub>), its vertical position is how strongly it raises the <b>outcome</b> (β<sub>Y</sub>). When the instruments are valid the dots line up through the origin and the <b>slope of that line is the causal effect</b> (the IVW estimate). Switch the menu to &quot;some pleiotropy&quot; and several dots lift <b>off</b> the line — they push the outcome through a second pathway, so the IVW slope is biased; but MR-Egger lets the line start away from the origin, and its <b>non-zero intercept flags the pleiotropy</b>.">
+    每個點是一個遺傳變異：水平位置是它把<b>暴露</b>提高多少（β<sub>X</sub>），垂直位置是它把<b>結果</b>提高多少（β<sub>Y</sub>）。當工具有效時，這些點會沿著過原點的直線排好，而<b>那條線的斜率就是因果效果</b>（IVW 估計）。把選單切到「部分多效性」，會有幾個點<b>偏離</b>直線，它們透過第二條路徑推動結果，於是 IVW 斜率有偏；但 MR-Egger 允許直線不從原點出發，它<b>不為 0 的截距就標記出多效性</b>。
+  </p>
+  <div class="card scene" id="mrCard">
+    <div class="controls">
+      <label><span data-en="Instruments">工具變數情境</span>
+        <select class="mr-scn">
+          <option value="valid" data-en="Valid instruments (no pleiotropy)">有效工具（無多效性）</option>
+          <option value="pleio" data-en="Some pleiotropy (invalid)">部分多效性（無效）</option>
+        </select>
+      </label>
+    </div>
+    <div id="mrChart" class="chart" style="height:320px"></div>
+    <p class="caption mr-out"></p>
+    <p class="caption" data-en="Each point is a genetic variant: x = its effect on the exposure, y = its effect on the outcome. The slope of the line through the origin is the IVW causal estimate; a non-zero MR-Egger intercept flags pleiotropy. Synthetic teaching data.">每個點是一個遺傳變異：x＝它對暴露的效果、y＝它對結果的效果。過原點直線的斜率即 IVW 因果估計；MR-Egger 截距不為 0 代表有多效性。合成教學資料。</p>
+  </div>
+</section>
+
+<section id="mranalyze" class="panel">
+  <h1 data-en="Data analysis: run a two-sample MR">資料分析：跑一次兩樣本 MR</h1>
+  <div class="card info">
+    <h3 data-en="Steps">步驟</h3>
+    <p data-en="Two-sample MR reads the two effect sizes from two separate GWAS. ① From the <b>exposure</b> GWAS, select variants robustly associated with it (genome-wide significant) and prune so they aren't correlated (LD clumping). ② Pull those same variants' effects from the <b>outcome</b> GWAS. ③ <b>Harmonise</b> so both effects refer to the same allele (a wrong-strand flip silently reverses a sign). ④ Compute each Wald ratio and combine by IVW. ⑤ Re-run with MR-Egger and weighted median, and test the MR-Egger intercept for pleiotropy.">
+      兩樣本 MR 從兩個獨立的 GWAS 讀出兩個效果量。① 從<b>暴露</b> GWAS 挑出與它穩健相關（達全基因組顯著）的變異，並做修剪使彼此不相關（LD clumping）。② 從<b>結果</b> GWAS 取出同一批變異的效果。③ <b>調和</b>，使兩邊效果都對應同一個等位基因（弄錯股向會悄悄翻轉正負號）。④ 算出每個 Wald 比值並以 IVW 合併。⑤ 再用 MR-Egger 與加權中位數重跑，並檢定 MR-Egger 截距是否有多效性。
+    </p>
+  </div>
+  <p class="code-src" data-en="Sources — method: Davey Smith &amp; Ebrahim (2003); Burgess, Butterworth &amp; Thompson (2013); packages: R <code>TwoSampleMR</code> &amp; <code>MendelianRandomization</code>, Stata <code>mrrobust</code>.">出處 — 方法：Davey Smith &amp; Ebrahim（2003）；Burgess、Butterworth &amp; Thompson（2013）；套件：R <code>TwoSampleMR</code> 與 <code>MendelianRandomization</code>、Stata <code>mrrobust</code>。</p>
+  <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=MendelianRandomization" target="_blank" rel="noopener">MendelianRandomization</a> · <a href="https://mrcieu.github.io/TwoSampleMR/" target="_blank" rel="noopener">TwoSampleMR</a></p>
+  <div data-lang="r" class="card"><h3 data-en="R version — TwoSampleMR (IVW, Egger, weighted median, pleiotropy test)">R 版本：TwoSampleMR（IVW、Egger、加權中位數、多效性檢定）</h3>
+    <pre class="sas"><code><span class="cm"># R — two-sample MR</span>
+library(TwoSampleMR)
+
+<span class="cm"># Step 1-2 — exposure SNPs (clumped), then their effects in the outcome GWAS</span>
+exp &lt;- extract_instruments(outcome = "ieu-a-300")          <span class="cm"># e.g. LDL cholesterol</span>
+out &lt;- extract_outcome_data(snps = exp$SNP, outcomes = "ieu-a-7")  <span class="cm"># e.g. CHD</span>
+
+<span class="cm"># Step 3 — harmonise so both betas refer to the same effect allele</span>
+dat &lt;- harmonise_data(exposure_dat = exp, outcome_dat = out)
+
+<span class="cm"># Step 4-5 — IVW + sensitivity methods in one call</span>
+mr(dat, method_list = c("mr_ivw", "mr_egger_regression",
+                        "mr_weighted_median"))            <span class="cm"># slope = causal estimate</span>
+mr_pleiotropy_test(dat)                                    <span class="cm"># Egger intercept != 0 -&gt; pleiotropy</span>
+</code></pre>
+    <p data-en="<code>mr()</code> returns the IVW slope plus MR-Egger and weighted-median estimates side by side; <code>mr_pleiotropy_test()</code> reports the MR-Egger intercept — a non-zero intercept warns that horizontal pleiotropy is biasing IVW."><code>mr()</code> 同時回傳 IVW 斜率與 MR-Egger、加權中位數估計；<code>mr_pleiotropy_test()</code> 報告 MR-Egger 截距，截距不為 0 即警告水平多效性正在使 IVW 有偏。</p></div>
+  <div data-lang="stata" class="card"><h3 data-en="Stata version — mrrobust (mregger, model selection)">Stata 版本：mrrobust（mregger、模型選擇）</h3>
+    <pre class="sas"><code><span class="cm">* Stata — Mendelian randomization</span>
+<span class="cm">* data in long form: betaY seY betaX seX, one row per SNP</span>
+
+<span class="cm">* IVW = weighted regression of betaY on betaX through the origin</span>
+mregger betaY betaX [aw=1/(seY^2)], ivw                 <span class="cm">// slope = IVW causal estimate</span>
+
+<span class="cm">* MR-Egger: allow a free intercept; a non-zero _cons flags pleiotropy</span>
+mregger betaY betaX [aw=1/(seY^2)]                      <span class="cm">// _cons = Egger intercept</span>
+
+<span class="cm">* compare IVW vs Egger and pick a model</span>
+mrmodsel betaY betaX, gxse(seX) gyse(seY)               <span class="cm">// model selection / heterogeneity</span>
+</code></pre>
+    <p data-en="<code>mregger ..., ivw</code> gives the IVW slope; dropping <code>ivw</code> fits MR-Egger, whose <code>_cons</code> is the pleiotropy-detecting intercept; <code>mrmodsel</code> compares the fits and flags heterogeneity."><code>mregger ..., ivw</code> 給出 IVW 斜率；去掉 <code>ivw</code> 即配 MR-Egger，其 <code>_cons</code> 就是偵測多效性的截距；<code>mrmodsel</code> 比較各模型並標記異質性。</p></div>
+  <div data-lang="sas" class="card"><h3 data-en="SAS version — inverse-variance-weighted MR by hand">SAS 版本：手動做反變異加權 MR</h3>
+    <pre class="sas"><code><span class="cm">/* SAS — inverse-variance-weighted MR by hand */</span>
+<span class="cm">/* SAS has no first-class MR package, so build IVW from the betas yourself. */</span>
+<span class="cm">/* input: one row per SNP with betaY seY betaX seX */</span>
+
+data mr;
+   set snps;
+   wald   = betaY / betaX;          <span class="cm">/* per-SNP Wald-ratio causal estimate */</span>
+   weight = (betaX**2) / (seY**2);  <span class="cm">/* inverse-variance weight */</span>
+run;
+
+<span class="cm">/* IVW = weighted mean of the Wald ratios (equiv. to origin regression) */</span>
+proc means data=mr;
+   weight weight;
+   var wald;                        <span class="cm">/* the weighted mean is the IVW estimate */</span>
+run;
+
+<span class="cm">/* equivalently: weighted regression of betaY on betaX through the origin */</span>
+proc reg data=snps;
+   weight wY;                       <span class="cm">/* wY = 1/seY**2 */</span>
+   model betaY = betaX / noint;     <span class="cm">/* slope = IVW; add intercept for Egger */</span>
+run;
+</code></pre>
+    <p data-en="Because SAS lacks a dedicated MR routine, compute the per-SNP Wald ratios and combine them as an inverse-variance weighted mean (or fit a no-intercept weighted regression of β<sub>Y</sub> on β<sub>X</sub>); adding an intercept turns it into MR-Egger.">由於 SAS 沒有專門的 MR 程序，請自行算出每個 SNP 的 Wald 比值，再用反變異加權平均合併（或對 β<sub>Y</sub> 對 β<sub>X</sub> 做無截距的加權迴歸）；加上截距就變成 MR-Egger。</p></div>
+</section>
+
+<section id="mrassume" class="panel">
+  <h1 data-en="Can we trust this MR? The instrument trio, plus sensitivity tools">這個 MR 可不可信？工具三條件，加上敏感度工具</h1>
+  <p class="lead" data-en="MR is instrumental variables, so it rests on the same three rules — <b>relevance</b>, <b>independence</b>, <b>exclusion</b> — read in genetic terms. Only the first can be fully proven from data; the other two are defended with sensitivity analyses.">
+    MR 就是工具變數，所以它依賴同樣的三條規則，<b>相關性</b>、<b>獨立性</b>、<b>排除性</b>，只是用遺傳的語言來讀。只有第一條能完全由資料證明，其餘兩條靠敏感度分析來防守。
+  </p>
+  <div class="cards cards-3">
+    <div class="card warn">
+      <h3 data-en="① Relevance — beware weak instruments">① 相關性，當心弱工具</h3>
+      <p data-en="The variants must <b>genuinely</b> move the exposure. Weak instruments (low <b>F-statistic</b>, rule of thumb F &lt; 10) bias two-sample MR toward the null and inflate variance. Use genome-wide-significant variants and report the F-statistic or the variance explained.">
+        變異必須<b>確實</b>能撼動暴露。弱工具（<b>F 統計量</b>偏低，經驗法則 F &lt; 10）會把兩樣本 MR 拉向虛無、並放大變異。請使用達全基因組顯著的變異，並報告 F 統計量或解釋的變異比例。
+      </p>
+    </div>
+    <div class="card warn">
+      <h3 data-en="② Independence — population stratification">② 獨立性，族群分層</h3>
+      <p data-en="The variants must be independent of confounders of the exposure–outcome link. The main threat is <b>population stratification</b>: ancestry differences make both genotype and disease cluster together, faking a genetic effect. Analyse within one ancestry and adjust for genetic principal components.">
+        變異必須獨立於暴露–結果關係的混淆因子。主要威脅是<b>族群分層</b>：祖源差異讓基因型與疾病一起群聚，偽造出一個遺傳效果。請在單一祖源內分析，並校正遺傳主成分。
+      </p>
+    </div>
+    <div class="card warn">
+      <h3 data-en="③ Exclusion — pleiotropy, and how to probe it">③ 排除性，多效性與檢測法</h3>
+      <p data-en="The variants may affect the outcome <b>only</b> through the exposure — violated by horizontal pleiotropy. No test fully proves it, but <b>MR-Egger</b> (a non-zero intercept flags it), the <b>weighted median</b> (valid if &gt;50% of weight is from good instruments), and <b>MR-PRESSO</b> (detects and drops outlier variants) together stress-test the answer.">
+        變異只能<b>透過</b>暴露影響結果，水平多效性會違反它。沒有檢定能完全證明，但 <b>MR-Egger</b>（截距不為 0 即標記）、<b>加權中位數</b>（過半權重來自好工具時仍有效）與 <b>MR-PRESSO</b>（偵測並剔除離群變異）三者一起對答案做壓力測試。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="mrml" class="panel">
+  <h1 data-en="Where machine learning meets MR (and where it doesn't)">機器學習與 MR 的交會處（以及尚未交會處）</h1>
+  <p class="lead" data-en="MR's credibility comes from the <b>design</b> — genes as nature's randomizer — not from any fancy estimator. Machine learning shows up mostly at the <b>edges</b>: choosing and cleaning instruments, and spotting outliers. None of it can rescue a broken exclusion assumption, so treat these as housekeeping, not as causal magic.">
+    MR 的可信度來自<b>設計</b>，基因是大自然的隨機分配器，而不是來自任何花俏的估計器。機器學習多半出現在<b>邊緣</b>：挑選與清理工具、以及找出離群點。它們都救不了壞掉的排除假設，所以請把這些當成整理工作，而不是因果魔法。
+  </p>
+  <div class="cards cards-3">
+    <div class="card">
+      <h3 data-en="Instrument selection / dimension reduction">工具挑選／降維</h3>
+      <p data-en="With thousands of candidate variants and millions of correlations, penalised regression (LASSO) and related methods can help pick a stable, near-independent instrument set or summarise many weak variants. Useful, but selection done on the same data it's tested on can introduce winner's-curse bias.">
+        面對數千個候選變異與數百萬個相關，懲罰迴歸（LASSO）與相關方法可幫忙挑出穩定、近乎獨立的工具集合，或把許多弱變異彙總起來。有用，但在「用來檢定的同一份資料」上做挑選會引入勝者詛咒偏誤。
+      </p>
+    </div>
+    <div class="card">
+      <h3 data-en="MR-PRESSO — outlier detection">MR-PRESSO，離群偵測</h3>
+      <p data-en="MR-PRESSO is the most established &quot;data-driven&quot; tool in MR: it flags individual variants whose Wald ratios are aberrant (likely pleiotropic), removes them, and re-estimates. It's a useful sensitivity check, but dropping points is itself a modelling choice that can bias the result if overused.">
+        MR-PRESSO 是 MR 中最成熟的「資料驅動」工具：它標記出 Wald 比值異常（很可能有多效性）的個別變異、移除它們、再重新估計。它是有用的敏感度檢查，但「剔點」本身就是一種建模選擇，過度使用反而會使結果有偏。
+      </p>
+    </div>
+    <div class="card warn">
+      <h3 data-en="An honest caution">一個老實的提醒</h3>
+      <p data-en="There is <b>no</b> established ML method that turns an invalid instrument into a valid one. Flexible models can refine instrument choice and find outliers, but the causal identification still rests entirely on relevance, independence and exclusion. A great predictor of the outcome is not a causal effect.">
+        目前<b>沒有</b>任何成熟的 ML 方法能把無效工具變成有效工具。彈性模型能精修工具挑選、找出離群，但因果識別仍完全靠相關性、獨立性與排除性。一個很會預測結果的模型，不等於一個因果效果。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="mrwhatif" class="panel">
+  <h1 data-en="&quot;What if…&quot; — stress-testing an MR study">「如果……」對一個 MR 研究做壓力測試</h1>
+  <p class="lead" data-en="MR's headline number is only as good as its assumptions. Walk through the three failures that most often overturn an MR conclusion, and the design choices that defend against each.">
+    MR 的招牌數字，好不好全看它的假設。我們逐一走過最常推翻 MR 結論的三種失敗，以及對應的防守設計。
+  </p>
+  <div class="cards cards-3">
+    <div class="card">
+      <h3 data-en="What if there is pleiotropy?">如果有多效性？</h3>
+      <p data-en="If variants hit the outcome through a second pathway, IVW is biased and the scatter points scatter off the origin line. Compare IVW with <b>MR-Egger</b> (check its intercept), the <b>weighted median</b>, and <b>MR-PRESSO</b>: if all roughly agree, the conclusion is robust; if they diverge, distrust IVW.">
+        若變異透過第二條路徑打到結果，IVW 就有偏、散佈點會偏離過原點的直線。把 IVW 與 <b>MR-Egger</b>（看它的截距）、<b>加權中位數</b>與 <b>MR-PRESSO</b> 互相比較：若大致一致，結論就穩健；若彼此分歧，就別信 IVW。
+      </p>
+    </div>
+    <div class="card">
+      <h3 data-en="What if the instruments are weak?">如果工具很弱？</h3>
+      <p data-en="Low-F instruments shrink the two-sample estimate toward zero and widen its interval, so a true effect can look null. Report the <b>F-statistic</b>, prefer genome-wide-significant variants, and where possible cross-check in an independent sample to gauge winner's-curse and weak-instrument bias.">
+        低 F 的工具會把兩樣本估計收向 0、並把區間拉寬，於是一個真實效果可能看起來像虛無。請報告 <b>F 統計量</b>、優先使用達全基因組顯著的變異，並盡量在獨立樣本交叉驗證，以評估勝者詛咒與弱工具偏誤。
+      </p>
+    </div>
+    <div class="card">
+      <h3 data-en="What if causation runs backwards?">如果因果是反向的？</h3>
+      <p data-en="Maybe the disease changes the exposure, not the other way round. <b>Bidirectional MR</b> reruns the analysis with exposure and outcome swapped, and the <b>Steiger</b> test checks each variant explains more of the exposure than the outcome — together they help pin down the direction of the arrow.">
+        也許是疾病改變了暴露，而非反過來。<b>雙向 MR</b> 把暴露與結果對調再跑一次分析，而 <b>Steiger</b> 檢定檢查每個變異對暴露的解釋是否多於對結果的解釋，兩者一起幫忙釘住箭頭的方向。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="wetlablearn" class="panel">
+  <h1 data-en="Wet-lab experiments: build the cause, then watch the effect">濕式實驗：把「因」造出來，再看「果」</h1>
+  <p class="lead" data-en="A wet-lab experiment is the experimental complement to observational causal inference: instead of adjusting for confounders in messy human data, you go to the bench or the animal and <b>deliberately intervene</b> — knock a gene out, titrate a dose, randomize animals to treatment — and read the effect on a mechanism you can measure. The pay-off is very high internal validity (you made the cause, so confounding is designed away) and direct evidence of mechanism; the price is uncertain transportability to humans. Its real power is in <b>triangulation</b>: when a bench result and an epidemiological estimate point the same way despite failing in completely different ways, the causal claim gets much stronger.">濕式實驗是觀察性因果推論的「實驗版互補」：不是在雜亂的人類資料裡硬校正混淆，而是直接到實驗檯或動物身上<b>刻意介入</b>，敲除一個基因、滴定劑量、把動物隨機分派到處理組，再讀出你量得到的機制反應。好處是內部效度極高（因是你造的，混淆被設計掉了）並能直接看到機制；代價是對人類的可轉移性不確定。它真正的威力在於<b>三角驗證</b>：當實驗檯結果與流行病學估計、儘管各自有完全不同的弱點、卻指向同一方向時，因果主張會大大加強。</p>
+  <div class="card info"><h3 data-en="The workflow">工作流程</h3><p data-en="Pick a manipulable cause (a gene, a compound, a dose); randomize and blind the experimental units (cells, dishes, animals) so groups differ only by the intervention; apply graded doses; measure the mechanistic and phenotypic outcome; then analyze with ANOVA/regression and a dose–response curve, and replicate. The design — not the statistics — is what buys the causal claim.">挑一個可操弄的因（一個基因、一種化合物、一個劑量）；把實驗單位（細胞、培養皿、動物）隨機分派並設盲，使各組僅在介入上不同；施加分級劑量；量測機制與表型結果；再用 ANOVA／迴歸與劑量反應曲線分析，並重複驗證。買到因果主張的是「設計」，不是統計。</p></div>
+  <div class="cards cards-3">
+    <div class="card"><h3 data-en="Genetic manipulation">基因操弄</h3><p data-en="Knock-out / knock-in (CRISPR, conditional alleles) removes or installs the candidate cause, then asks whether the phenotype follows. Necessity and sufficiency tests at the level of the molecule itself.">敲除／敲入（CRISPR、條件型等位基因）把候選的因拿掉或裝上，再看表型是否隨之改變。這是在分子層級直接做「必要性」與「充分性」檢驗。</p></div>
+    <div class="card"><h3 data-en="Cell-line dose–response">細胞株劑量反應</h3><p data-en="Treat cells with graded concentrations and fit a dose–response curve (EC50/IC50). A monotone, reproducible curve is strong mechanistic evidence that the exposure drives the readout.">用分級濃度處理細胞，配出劑量反應曲線（EC50／IC50）。一條單調、可重現的曲線，是「暴露驅動讀數」的有力機制證據。</p></div>
+    <div class="card"><h3 data-en="Randomized animal models">隨機化動物模型</h3><p data-en="Animals are randomized to treatment vs control and outcomes measured under blinding — a true experiment in a whole organism, bridging molecule-level mechanism and a physiological endpoint.">把動物隨機分派到處理組與對照組，在設盲下量測結果，這是在整個生物體上做的真正實驗，銜接分子機制與生理終點。</p></div>
+  </div>
+  <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
+    <div class="tdef"><h4>內部效度 vs 外部效度 <span class="en">internal vs external validity</span></h4><p data-en="Internal validity = within this experiment, did the intervention really cause the measured change (no confounding, no bias)? Randomization, blinding and controls make wet-lab internal validity very high. External validity = does that effect carry over to humans and real-world doses? This is where bench work is weakest, which is why it is paired with observational evidence rather than trusted alone.">內部效度＝在這個實驗內部，介入是否真的造成了量到的改變（沒有混淆、沒有偏差）？隨機分派、設盲與對照讓濕式實驗的內部效度非常高。外部效度＝那個效果是否搬得到人類與真實世界的劑量？這正是實驗檯研究最弱的地方，所以它要與觀察性證據搭配，而不是單獨採信。</p></div>
+    <div class="tdef"><h4>三角驗證 <span class="en">triangulation</span></h4><p data-en="Combining estimates from designs whose key biases are unrelated — e.g. a randomized bench experiment (strong internal validity, weak transportability) and an observational human study (the reverse). If they agree, no single shared bias explains both, so the causal conclusion is more credible (Lawlor, Tilling &amp; Davey Smith 2016).">把「關鍵偏差互不相關」的不同設計的估計合起來看，例如隨機化實驗檯實驗（內部效度強、可轉移性弱）與觀察性人類研究（剛好相反）。若兩者一致，就沒有單一共同偏差能同時解釋它們，因果結論因而更可信（Lawlor、Tilling &amp; Davey Smith 2016）。</p></div>
+  </details>
+</section>
+
+<section id="wetlabplay" class="panel">
+  <h1 data-en="Interactive: the randomized experiment stays on the truth while the observational curve bends">互動：隨機實驗貼著真值，觀察曲線卻彎掉</h1>
+  <p class="lead" data-en="Two ways to learn a dose–response. The <b>randomized wet-lab experiment</b> (green) assigns dose at random, so dose is independent of everything else — its estimated curve sits on the <b>true</b> dose–response. The <b>observational association</b> (amber) just records whatever dose units happened to get, where a hidden factor pushes both the chosen dose and the outcome. Drag the slider to add confounding to the observational data and watch only the amber curve drift away from the truth — the experiment never moves.">學一條劑量反應有兩種方式。<b>隨機化的濕式實驗</b>（綠）以隨機方式指派劑量，所以劑量與其他一切無關，它估出的曲線貼在<b>真實</b>劑量反應上。<b>觀察性關聯</b>（琥珀）只是記錄各單位「剛好」拿到的劑量，而一個隱藏因子同時推動所選劑量與結果。拉動滑桿替觀察資料加入混淆，只有琥珀曲線會偏離真值，實驗那條從不移動。</p>
+  <div class="card scene" id="wetlabCard">
+    <div class="controls">
+      <label><span data-en="Confounding in the observational data">觀察資料中的混淆強度</span> <input type="range" class="wl-conf" min="0" max="2" step="0.1" value="1.0"> <b class="wl-confv">1.0</b></label>
+    </div>
+    <div id="wetlabChart" class="chart" style="height:320px"></div>
+    <p class="caption wl-out"></p>
+    <p class="caption" data-en="Green = the randomized wet-lab dose–response (the truth); amber = the confounded observational association. Only the observational curve bends as confounding grows; the experiment stays on the truth. Synthetic teaching data.">綠＝隨機分派的實驗劑量反應（真值）；琥珀＝被混淆的觀察性關聯。只有觀察曲線會隨混淆變強而偏；實驗始終貼著真值。合成教學資料。</p>
+  </div>
+</section>
+
+<section id="wetlabanalyze" class="panel">
+  <h1 data-en="Data analysis: randomize, blind, fit the dose–response, replicate">資料分析：隨機分派、設盲、配劑量反應、重複</h1>
+  <div class="card info"><h3 data-en="Steps">步驟</h3><p data-en="(1) Randomize experimental units to dose/genotype groups so the intervention is independent of confounders; (2) blind handling and measurement to remove expectation bias; (3) apply graded doses and fit a dose–response curve (EC50); (4) test group differences with ANOVA / regression (mixed models when units are nested in batches or litters); (5) replicate across independent runs — a single experiment is a result, replication is evidence.">（1）把實驗單位隨機分派到劑量／基因型組，使介入與混淆獨立；（2）對操作與量測設盲以去除期望偏差；（3）施加分級劑量並配劑量反應曲線（EC50）；（4）用 ANOVA／迴歸檢驗組間差異（單位巢套於批次或同窩時用混合模型）；（5）跨獨立批次重複，單次實驗是一個結果，重複才是證據。</p></div>
+  <p class="code-src" data-en="Sources — design: Fisher (1935) randomized experiments; for dose–response, standard ANOVA / linear &amp; nonlinear regression (e.g. R <code>drc</code>). Triangulation: Lawlor, Tilling &amp; Davey Smith (2016).">出處 — 設計：Fisher（1935）隨機化實驗；劑量反應用標準 ANOVA／線性與非線性迴歸（如 R <code>drc</code>）。三角驗證：Lawlor、Tilling &amp; Davey Smith（2016）。</p>
+  <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=drc" target="_blank" rel="noopener">drc</a></p>
+  <div data-lang="r" class="card"><h3 data-en="R — randomized experiment + 4-parameter dose–response">R — 隨機化實驗 ＋ 四參數劑量反應</h3>
+    <pre class="sas"><code><span class="cm"># R — randomized dose-response experiment</span>
+<span class="cm"># 1) randomized comparison: did the intervention move the outcome?</span>
+fit_aov &lt;- aov(response ~ group, data = expt)   <span class="cm"># groups: control vs treated</span>
+summary(fit_aov)
+fit_lm  &lt;- lm(response ~ group + batch, data = expt) <span class="cm"># block on batch if randomized within batch</span>
+
+<span class="cm"># 2) dose-response: 4-parameter log-logistic, estimate EC50</span>
+library(drc)
+dr &lt;- drm(response ~ dose, data = expt, fct = LL.4())  <span class="cm"># LL.4: lower, upper, slope, EC50</span>
+summary(dr)
+ED(dr, 50)                                  <span class="cm"># EC50 with confidence interval</span>
+plot(dr)                                     <span class="cm"># the fitted dose-response curve</span></code></pre>
+    <p data-en="<code>aov()</code>/<code>lm()</code> test whether the randomized intervention shifted the outcome (block on batch when you randomized within batches). <code>drc::drm()</code> with <code>LL.4()</code> fits a 4-parameter log-logistic curve and <code>ED(dr, 50)</code> returns the EC50 — the dose for half-maximal effect."><code>aov()</code>／<code>lm()</code> 檢驗隨機介入是否移動了結果（在批次內隨機時就以批次為區組）。<code>drc::drm()</code> 搭 <code>LL.4()</code> 配四參數對數邏輯斯曲線，<code>ED(dr, 50)</code> 回傳 EC50，即達半最大效果的劑量。</p></div>
+  <div data-lang="sas" class="card"><h3 data-en="SAS — ANOVA / mixed model + nonlinear dose–response">SAS — ANOVA／混合模型 ＋ 非線性劑量反應</h3>
+    <pre class="sas"><code><span class="cm">/* SAS — randomized experiment (ANOVA) + dose-response */</span>
+<span class="cm">/* 1) randomized comparison of groups */</span>
+proc glm data=expt;
+   class group;
+   model response = group;                 <span class="cm">/* control vs treated */</span>
+   lsmeans group / pdiff;
+run;
+<span class="cm">/* mixed model when units are nested in batches / litters (random block) */</span>
+proc mixed data=expt;
+   class group batch;
+   model response = group;
+   random batch;                            <span class="cm">/* batch as a random effect */</span>
+run;
+
+<span class="cm">/* 2) dose-response: 4-parameter log-logistic via nonlinear least squares */</span>
+proc nlin data=expt;
+   parms low=0 high=100 ec50=1 slope=1;
+   model response = low + (high-low)/(1 + (dose/ec50)**(-slope));  <span class="cm">/* EC50 estimated */</span>
+run;</code></pre>
+    <p data-en="<code>PROC GLM</code> (or <code>PROC MIXED</code> with a random <code>batch</code> effect for nested units) tests the randomized group difference; <code>PROC NLIN</code> fits the 4-parameter log-logistic dose–response and returns the EC50."><code>PROC GLM</code>（單位有巢套時改用帶隨機 <code>batch</code> 效果的 <code>PROC MIXED</code>）檢驗隨機分組差異；<code>PROC NLIN</code> 配四參數對數邏輯斯劑量反應並回傳 EC50。</p></div>
+  <div data-lang="stata" class="card"><h3 data-en="Stata — anova / regress + nl dose–response">Stata — anova／regress ＋ nl 劑量反應</h3>
+    <pre class="sas"><code><span class="cm">* Stata — randomized experiment + dose-response</span>
+<span class="cm">* 1) randomized comparison of groups</span>
+anova response group                    <span class="cm">// control vs treated</span>
+regress response i.group i.batch        <span class="cm">// block on batch if randomized within batch</span>
+
+<span class="cm">* 2) dose-response: 4-parameter log-logistic, estimate EC50</span>
+nl (response = {low} + ({high}-{low})/(1 + (dose/{ec50})^(-{slope}))), ///
+   initial(low 0 high 100 ec50 1 slope 1)
+nlcom _b[/ec50]                         <span class="cm">// EC50 with confidence interval</span></code></pre>
+    <p data-en="<code>anova</code>/<code>regress</code> test the randomized group effect (add <code>i.batch</code> to block); <code>nl</code> fits the 4-parameter log-logistic curve and <code>nlcom</code> reports the EC50."><code>anova</code>／<code>regress</code> 檢驗隨機分組效果（加 <code>i.batch</code> 作區組）；<code>nl</code> 配四參數對數邏輯斯曲線，<code>nlcom</code> 報告 EC50。</p></div>
+</section>
+
+<section id="wetlabassume" class="panel">
+  <h1 data-en="Can we trust this experiment? Three validity questions">這個實驗可不可信？三道效度提問</h1>
+  <p class="lead" data-en="Wet-lab evidence is only as good as three kinds of validity. Internal validity is usually strong by design; the hard ones are whether the model represents the human exposure (construct), and whether the effect carries to humans at real-world doses (external).">濕式實驗的證據好不好，取決於三種效度。內部效度通常因設計而強；難的是模型是否代表人類的暴露（構念），以及效果在真實世界劑量下能否搬到人身上（外部）。</p>
+  <div class="cards cards-3">
+    <div class="card"><h3 data-en="① Internal validity — usually strong">① 內部效度，通常很強</h3><p data-en="Randomization, blinding and concurrent controls mean any difference between groups is caused by the intervention, not by confounding. Threats to check: failed randomization, unblinded measurement, pseudoreplication (treating sub-samples as independent), and batch effects masquerading as treatment.">隨機分派、設盲與同期對照，意味著組間任何差異都來自介入、而非混淆。要檢查的威脅：隨機化失敗、量測未設盲、偽重複（把子樣本當成獨立）、以及把批次效應誤當成處理效應。</p></div>
+    <div class="card warn"><h3 data-en="② Construct validity — does the model represent the human exposure?">② 構念效度，模型代表得了人類暴露嗎？</h3><p data-en="A knock-out is a total, lifelong loss; a human exposure may be partial and transient. Cell lines, immortalized or cancer-derived, may not behave like primary human tissue. Ask whether the manipulated cause and the measured readout actually map onto the human exposure and outcome you care about.">敲除是徹底、終生的喪失；人類的暴露可能是部分且短暫的。細胞株（已永生化或源自癌細胞）的行為未必像人類原代組織。要問：被操弄的因與量到的讀數，是否真的對應到你關心的人類暴露與結果。</p></div>
+    <div class="card warn"><h3 data-en="③ External validity — does it transport to humans?">③ 外部效度，搬得到人身上嗎？</h3><p data-en="Doses that work in a dish are often supra-physiological; species differ in metabolism and physiology; the controlled bench environment strips away real-world heterogeneity. A clean bench result is a hypothesis about humans, not a conclusion — confirm it by triangulating with human evidence.">在培養皿裡有效的劑量常是超生理的；物種在代謝與生理上不同；受控的實驗檯環境抹除了真實世界的異質性。一個乾淨的實驗檯結果是「關於人類的假說」，不是結論，要靠與人類證據三角驗證來確認。</p></div>
+  </div>
+</section>
+
+<section id="wetlabml" class="panel">
+  <h1 data-en="Boost with AI: phenotyping, screening triage, and in-silico pre-screen">用 AI 強化：表型判讀、篩選分流、與電腦預篩</h1>
+  <p class="lead" data-en="Machine learning does not replace the experimental logic of a wet-lab study — randomization is still what buys causation. What it changes is throughput and measurement: reading phenotypes from images and omics, triaging which conditions are worth a full assay, and pre-screening compounds in silico so the bench focuses on the most promising candidates. Each helps generate and prioritize hypotheses; none confirms them.">機器學習不取代濕式實驗的實驗邏輯，買到因果的仍是隨機化。它改變的是通量與量測：從影像與體學讀出表型、分流哪些條件值得做完整試驗、用電腦預篩化合物讓實驗檯聚焦最有希望的候選。每一項都在幫忙產生與排序假說，沒有一項能確認假說。</p>
+  <div class="cards cards-3">
+    <div class="card"><h3 data-en="① Image / omics phenotyping">① 影像／體學表型判讀</h3><p data-en="Deep models score subtle morphological or molecular phenotypes from microscopy and omics far faster and more reproducibly than manual scoring, giving sensitive, unbiased outcome measurements. Limit: a learned phenotype is only as meaningful as the labels and biology behind it — validate against ground truth.">深度模型能從顯微影像與體學評分細微的形態或分子表型，比人工評分更快、更可重現，提供敏感且無偏的結果量測。限制：學出來的表型只和它背後的標註與生物學一樣可靠，要對照金標準驗證。</p></div>
+    <div class="card"><h3 data-en="② High-content screening triage">② 高內涵篩選分流</h3><p data-en="In large screens, ML ranks wells/conditions so scarce bench effort goes to the most promising hits and obvious artifacts are filtered out. Limit: this is prioritization, not proof — every ML-flagged hit still needs a randomized confirmatory experiment, and the ranking can inherit screen-specific batch biases.">在大規模篩選中，ML 把孔位／條件排序，讓稀缺的實驗檯資源用在最有希望的命中、並濾掉明顯偽影。限制：這是排序、不是證明，每個被 ML 標出的命中仍需隨機化的確認實驗，且排序可能繼承篩選特有的批次偏差。</p></div>
+    <div class="card"><h3 data-en="③ In-silico pre-screen">③ 電腦端預篩</h3><p data-en="Structure- and ML-based models predict binding, toxicity or activity to narrow a chemical or genetic space before any bench work, saving reagents and time. Limit: predictions are correlational and only as good as the training chemistry — they suggest what to test, never substitute for the wet-lab readout.">以結構與 ML 為基礎的模型預測結合、毒性或活性，在動手實驗前先縮小化學或基因空間，省試劑與時間。限制：預測是相關性的、且只和訓練化學一樣好，它建議「該測什麼」，永遠不取代濕式實驗的讀數。</p></div>
+  </div>
+</section>
+
+<section id="wetlabwhatif" class="panel">
+  <h1 data-en="What if…? When the bench result meets reality">如果…？當實驗檯結果碰上現實</h1>
+  <p class="lead" data-en="A clean experiment answers one question precisely but leaves open whether it matters for humans. Three 'what ifs' show why a bench result is one leg of a triangle, not the whole answer — and how to read a disagreement with the epidemiology.">一個乾淨的實驗精準回答一個問題，卻沒回答它對人類是否重要。三個「如果」說明為何實驗檯結果只是三角的一條邊、而非全部答案，以及當它與流行病學不一致時該怎麼讀。</p>
+  <div class="cards cards-3">
+    <div class="card"><h3 data-en="What if the animal model doesn't transport?">如果動物模型搬不過來？</h3><p data-en="Species differ in metabolism, physiology and disease mechanism, so an effect in mice may simply not exist in humans. Don't discard the experiment — treat it as evidence of a possible mechanism, and weight it by how conserved that pathway is across species before acting on it in humans.">物種在代謝、生理與疾病機制上不同，所以在小鼠身上的效果在人類可能根本不存在。別丟掉實驗，把它當成「可能機制」的證據，並依該通路在物種間的保守程度加權，再決定在人類身上採取行動。</p></div>
+    <div class="card"><h3 data-en="What if the dose is supra-physiological?">如果劑量是超生理的？</h3><p data-en="If the effect only appears at concentrations far above any realistic human exposure, it may be a toxicological artifact rather than a relevant causal effect. Check that the active dose overlaps achievable human levels, and read the lower end of the dose–response curve, not just the maximum effect.">如果效果只在遠超任何真實人類暴露的濃度下才出現，那可能是毒理學偽影、而非相關的因果效果。確認有效劑量與人類可達的水準重疊，並去讀劑量反應曲線的低劑量端，而不是只看最大效果。</p></div>
+    <div class="card"><h3 data-en="What if it disagrees with the epidemiology?">如果它與流行病學不一致？</h3><p data-en="Disagreement is informative, not a failure. Because the bench and observational designs fail in unrelated ways, a conflict points to a specific culprit — residual confounding or selection in the human data, or poor transportability of the model. Resolve it by triangulation: ask which design's known weakness best explains the gap, rather than declaring a winner.">不一致是有資訊的、不是失敗。因為實驗檯與觀察性設計的弱點互不相關，衝突反而指向特定的元兇，可能是人類資料的殘餘混淆或選樣、也可能是模型可轉移性差。用三角驗證來化解：問「哪個設計的已知弱點最能解釋這個落差」，而不是直接宣布誰贏。</p></div>
+  </div>
+</section>
+
+<section id="dtlearn" class="panel">
+  <h1 data-en="Digital twin: a model-predicted control trajectory for each patient">數位孿生：為每位病人預測一條「對照」軌跡</h1>
+  <p class="lead" data-en="A <b>digital twin</b> is a prognostic model — trained on rich historical and control-arm data — that predicts what <i>each</i> patient's outcome would have been <b>under control</b> (no treatment). You then read the treatment effect as <b>observed minus the predicted twin</b>. The twin can serve as a precise covariate adjustment (PROCOVA), as an external / synthetic control arm, or to run an in-silico trial. Crucially, a twin removes <b>no</b> confounding on its own: it borrows precision and a comparator, and its validity rests entirely on the prognostic model being <b>unbiased</b> and <b>transportable</b> to the patients you apply it to.">​<b>數位孿生</b>是一個預後模型，用豐富的歷史與對照臂資料訓練，預測<i>每位</i>病人<b>在對照（不治療）下</b>的結果會是多少。接著把治療效果讀成<b>實際值減去預測的孿生值</b>。這條孿生可以當作精準的共變項調整（PROCOVA）、外部／合成對照臂，或用來跑虛擬（in-silico）試驗。重點是：孿生本身<b>不</b>消除任何混淆，它借的是精準度與一個比較對象，其有效性完全取決於預後模型是否<b>無偏</b>、且可<b>轉移</b>到你套用的病人身上。</p>
+  <div class="card info"><h3 data-en="The workflow">工作流程</h3><p data-en="Train a prognostic model on control / historical patients to predict the untreated outcome Ŷ₀ from baseline covariates. Generate each current patient's twin Ŷ₀. Then either (a) contrast observed Y against Ŷ₀ to estimate the effect, or (b) carry Ŷ₀ in as a single, powerful covariate (PROCOVA) to shrink the variance of a randomised contrast. Finally, validate the twin's calibration in held-out controls before trusting it.">在對照／歷史病人上訓練一個預後模型，用基線共變項預測未治療結果 Ŷ₀。為每位當前病人產生孿生 Ŷ₀。接著或者 (a) 把實際 Y 與 Ŷ₀ 對比來估效果，或者 (b) 把 Ŷ₀ 當成單一、強力的共變項帶入（PROCOVA），以縮小隨機對比的變異。最後，先在留存的對照資料上驗證孿生的校準，再信任它。</p></div>
+  <div class="cards cards-3">
+    <div class="card"><h3 data-en="① Prognostic covariate adjustment (PROCOVA)">① 預後共變項調整（PROCOVA）</h3><p data-en="In a randomised trial, add the digital-twin prediction Ŷ₀ as a prespecified covariate. Randomisation already guarantees unbiasedness; the twin just absorbs prognostic variation, so the same effect is estimated with a tighter interval (smaller sample for the same power).">在隨機試驗裡，把數位孿生預測 Ŷ₀ 當成事先指定的共變項加入。隨機化本身已保證無偏；孿生只是吸收預後變異，於是同一個效果能用更窄的區間估出（同樣檢力下樣本更少）。</p></div>
+    <div class="card"><h3 data-en="② External / synthetic control arm">② 外部／合成對照臂</h3><p data-en="When a concurrent control is scarce (rare disease, oncology), the predicted twins act as a model-based control arm, contrasting each treated patient against their own predicted untreated trajectory. Here the twin <i>replaces</i> randomisation, so the prognostic model must carry the full burden of comparability.">當同期對照稀缺（罕病、腫瘤），預測的孿生充當以模型為基礎的對照臂，把每位治療病人對比到自己預測的未治療軌跡。此時孿生<i>取代</i>了隨機化，因此預後模型必須獨自承擔可比性的全部重擔。</p></div>
+    <div class="card"><h3 data-en="③ In-silico trials">③ 虛擬（in-silico）試驗</h3><p data-en="Twins for a whole virtual cohort let you simulate untreated trajectories, stress-test designs, and forecast outcomes before or alongside a real trial — useful for planning, but only as good as the generative prognostic model behind them.">為整個虛擬世代產生孿生，可模擬未治療軌跡、壓力測試設計、並在真實試驗之前或同時預測結果，對規劃很有用，但好壞完全取決於背後的生成式預後模型。</p></div>
+  </div>
+  <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
+    <div class="tdef"><h4>數位孿生 <span class="en">digital twin</span></h4><p data-en="A model-predicted counterfactual control for an individual patient: the trajectory or outcome they would be expected to have under no treatment, given their baseline characteristics. It is a prediction, not an observation — so it inherits every bias of the model that produced it.">針對個別病人、由模型預測的反事實對照：在不治療下、依其基線特徵預期會有的軌跡或結果。它是預測而非觀測，因此會繼承產生它的模型的一切偏誤。</p></div>
+    <div class="tdef"><h4>預後分數 <span class="en">prognostic score</span></h4><p data-en="A summary Ŷ₀ of baseline covariates that predicts the untreated outcome. Adjusting for it (PROCOVA) is the outcome-model twin of the propensity score: it improves precision in randomised trials and supports standardisation in observational ones, but does not by itself control confounding.">基線共變項的一個摘要 Ŷ₀，用來預測未治療結果。對它做調整（PROCOVA）是傾向分數的「結果模型版孿生」：在隨機試驗能提升精準度、在觀察性研究可支援標準化，但本身並不控制混淆。</p></div>
+  </details>
+</section>
+
+<section id="dtplay" class="panel">
+  <h1 data-en="Interactive: watch the estimated effect drift when the twin model is biased">互動：看孿生模型有偏時，估計效果如何漂走</h1>
+  <p class="lead" data-en="Here is one patient's <b>observed treated</b> trajectory and the model-predicted <b>digital-twin control</b> trajectory. The vertical gap between them is the estimated treatment effect. Drag the slider to make the twin model more or less <b>biased</b>: as the twin drifts away from the true control trajectory, the estimated effect drifts away from the truth — even though nothing about the actual treatment changed.">這裡是某位病人的<b>實際（接受治療）</b>軌跡，與模型預測的<b>數位孿生對照</b>軌跡。兩者間的垂直落差就是估計的治療效果。拖動滑桿讓孿生模型更有偏或更無偏：當孿生偏離真實對照軌跡時，估計效果就偏離真值，即使實際治療完全沒變。</p>
+  <div class="card scene" id="dtCard">
+    <div class="controls">
+      <label><span data-en="Digital-twin model bias">數位孿生模型偏誤</span> <input type="range" class="dt-bias" min="-1" max="1" step="0.1" value="0"> <b class="dt-biasv">0.0</b></label>
+    </div>
+    <div id="dtChart" class="chart" style="height:320px"></div>
+    <p class="caption dt-out"></p>
+    <p class="caption" data-en="Teal = the patient's observed (treated) outcome over time; grey dashed = the digital-twin predicted control trajectory; the gap between them is the estimated treatment effect. When the twin model is biased, the estimate drifts off the true effect even with no real change in treatment. Synthetic teaching data.">青色＝病人實際（接受治療）的結果隨時間變化；灰色虛線＝數位孿生預測的「對照」軌跡；兩者落差即估計的治療效果。模型一旦有偏，估計就算治療沒變也會偏離真值。合成教學資料。</p>
+  </div>
+</section>
+
+<section id="dtanalyze" class="panel">
+  <h1 data-en="Data analysis: build the twin, then contrast or adjust">資料分析：建立孿生，再做對比或調整</h1>
+  <div class="card info"><h3 data-en="Steps">步驟</h3><p data-en="(1) Train a prognostic model for the untreated outcome on control / historical patients. (2) Predict each current patient's twin Ŷ₀ from baseline covariates. (3) Estimate the effect as mean(observed − Ŷ₀) among the treated, or carry Ŷ₀ in as a covariate (PROCOVA-style g-computation). (4) Validate calibration of Ŷ₀ in held-out controls before trusting the contrast.">（1）在對照／歷史病人上，為未治療結果訓練一個預後模型。（2）用基線共變項為每位當前病人預測孿生 Ŷ₀。（3）把效果估成治療組的 mean(實際 − Ŷ₀)，或把 Ŷ₀ 當共變項帶入（PROCOVA 式的 g-computation）。（4）信任這個對比前，先在留存的對照資料上驗證 Ŷ₀ 的校準。</p></div>
+  <p class="code-src" data-en="Sources — prognostic covariate adjustment / digital twins: Schuler et al. (2022) PROCOVA; FDA/EMA prognostic-adjustment guidance; synthetic control arms. Estimation via g-computation with a prognostic model.">出處 — 預後共變項調整／數位孿生：Schuler 等（2022）PROCOVA；FDA／EMA 預後調整指引；合成對照臂。以預後模型做 g-computation 估計。</p>
+  <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=SuperLearner" target="_blank" rel="noopener">SuperLearner</a> · <a href="https://cran.r-project.org/package=tmle" target="_blank" rel="noopener">tmle</a></p>
+  <div data-lang="r" class="card"><h3 data-en="R — train a prognostic twin, then contrast or PROCOVA-adjust">R — 訓練預後孿生，再做對比或 PROCOVA 調整</h3>
+    <pre class="sas"><code><span class="cm"># R — digital twin / prognostic-score control</span>
+<span class="cm"># 1) train a prognostic (control-arm) model and predict the twin Y0 for everyone</span>
+library(ranger)
+fit  &lt;- ranger(Y ~ ., data = controls[, c("Y", covs)])      <span class="cm"># or SuperLearner for an ensemble</span>
+y0   &lt;- predict(fit, data = dat)$predictions                <span class="cm"># Y0-hat = digital twin for each patient</span>
+
+<span class="cm"># 2a) effect = observed - predicted twin, among the treated</span>
+mean(dat$Y[dat$A == 1] - y0[dat$A == 1])                    <span class="cm"># digital-twin contrast</span>
+
+<span class="cm"># 2b) PROCOVA: carry the twin in as a single prespecified covariate</span>
+summary(lm(Y ~ A + y0, data = dat))                          <span class="cm"># tighter CI, same estimand in an RCT</span></code></pre>
+    <p data-en="Fit the prognostic model on controls only, score everyone to get the twin Ŷ₀, then either contrast observed against the twin or include Ŷ₀ as a covariate. In a randomised trial the PROCOVA version preserves unbiasedness and buys precision.">只在對照上擬合預後模型，為所有人評分得到孿生 Ŷ₀，再把實際值與孿生對比，或把 Ŷ₀ 當共變項加入。在隨機試驗中，PROCOVA 版本保有無偏性並換來精準度。</p></div>
+  <div data-lang="sas" class="card"><h3 data-en="SAS — prognostic model on controls, score the treated, contrast">SAS — 在對照上建預後模型、為治療組評分、再對比</h3>
+    <pre class="sas"><code><span class="cm">/* SAS — prognostic-twin control via predicted Y0 */</span>
+<span class="cm">/* build the prognostic (control-arm) model */</span>
+proc hpforest data=controls;                  <span class="cm">/* or PROC GLMSELECT for a parametric twin */</span>
+   target Y / level=interval;
+   input &amp;covs / level=interval;
+   save file="twin.bin";
+run;
+
+<span class="cm">/* score everyone to get the digital twin Y0-hat, then contrast observed - Y0-hat */</span>
+proc hp4score data=dat; score file="twin.bin" out=scored(rename=(P_Y=y0)); run;
+proc means data=scored mean; where A=1; var diff;            <span class="cm">/* diff = Y - y0 */</span>
+run;</code></pre>
+    <p data-en="PROC HPFOREST (or PROC GLMSELECT) builds the untreated-outcome model on controls; score the treated patients to obtain their twin Ŷ₀, then contrast Y − Ŷ₀ (or include y0 as a covariate in PROC GLM).">PROC HPFOREST（或 PROC GLMSELECT）在對照上建立未治療結果模型；為治療病人評分得到孿生 Ŷ₀，再對比 Y − Ŷ₀（或在 PROC GLM 中把 y0 當共變項）。</p></div>
+  <div data-lang="stata" class="card"><h3 data-en="Stata — predict the twin on controls, then adjust (PROCOVA-style)">Stata — 在對照上預測孿生，再做調整（PROCOVA 式）</h3>
+    <pre class="sas"><code><span class="cm">* Stata — prognostic-twin (PROCOVA-style) adjustment</span>
+<span class="cm">* build the prognostic model on controls only</span>
+regress Y &amp;covs if A==0          <span class="cm">// or a flexible learner; this is the untreated-outcome model</span>
+predict y0, xb                    <span class="cm">// Y0-hat = digital twin for every patient</span>
+
+<span class="cm">* PROCOVA: regress outcome on treatment, adjusting for the predicted twin</span>
+regress Y i.A c.y0, vce(robust)   <span class="cm">// treatment effect with the twin as a covariate</span>
+<span class="cm">// twin-contrast alternative: summarize (Y - y0) if A==1</span></code></pre>
+    <p data-en="Fit the untreated-outcome model on controls, predict the twin Ŷ₀ for everyone, then regress the outcome on treatment adjusting for Ŷ₀ — the PROCOVA recipe. Within a randomised trial this sharpens precision without disturbing the estimand.">在對照上擬合未治療結果模型，為所有人預測孿生 Ŷ₀，再把結果對治療迴歸並校正 Ŷ₀，就是 PROCOVA 作法。在隨機試驗內，這會提升精準度而不擾動估計目標。</p></div>
+</section>
+
+<section id="dtassume" class="panel">
+  <h1 data-en="Can we trust the twin? Three checks">這條孿生可不可信？三道體檢</h1>
+  <div class="cards cards-3">
+    <div class="card warn"><h3 data-en="① Unbiased &amp; well-calibrated">① 無偏且校準良好</h3><p data-en="The prognostic model must predict the untreated outcome <b>without systematic error</b> across the covariate range: on held-out controls, predicted Ŷ₀ should match observed control outcomes on average and at every level. A miscalibrated twin biases every contrast built on it.">預後模型必須在整個共變項範圍內<b>無系統性誤差</b>地預測未治療結果：在留存對照上，預測 Ŷ₀ 應平均、且在每個水準都與實際對照結果相符。校準不良的孿生會讓所有以它為基礎的對比都偏。</p></div>
+    <div class="card warn"><h3 data-en="② Transportable to the current population">② 可轉移到當前族群</h3><p data-en="The model is usually trained on a <b>different era, site, or population</b>. If standard of care, case mix, or measurement has shifted since training, Ŷ₀ no longer describes <i>your</i> patients' untreated trajectory — and using it as a control arm reintroduces the classic historical-control trap.">模型通常是在<b>不同年代、場域或族群</b>上訓練的。若標準照護、病例組成或量測自訓練後已改變，Ŷ₀ 就不再描述<i>你</i>的病人未治療軌跡，把它當對照臂會重新落入歷史對照的經典陷阱。</p></div>
+    <div class="card warn"><h3 data-en="③ It does not fix unmeasured confounding">③ 它修不了未測混淆</h3><p data-en="When the twin <b>replaces a concurrent control</b>, validity rests wholly on the prognostic model — it controls <b>no</b> unmeasured confounding and is exposed to regression-to-the-mean and model misspecification. As mere precision adjustment in an RCT (PROCOVA), these risks are far milder.">當孿生<b>取代同期對照</b>時，有效性完全押在預後模型上，它<b>不</b>控制任何未測混淆，且暴露於迴歸到平均與模型設定錯誤。若僅作為隨機試驗中的精準度調整（PROCOVA），這些風險就溫和得多。</p></div>
+  </div>
+</section>
+
+<section id="dtml" class="panel">
+  <h1 data-en="Boost with AI: the twin is a machine-learning object by design">用 AI 強化：孿生本來就是機器學習的產物</h1>
+  <p class="lead" data-en="The digital twin <b>is</b> an ML-native method: its whole value comes from a prognostic model that predicts the untreated outcome accurately. The richer and better-calibrated that model, the more precision (or comparability) the twin can borrow — but flexibility also raises the stakes of overfitting and dataset shift.">數位孿生<b>本身</b>就是機器學習方法：它的全部價值來自一個能精準預測未治療結果的預後模型。模型越豐富、校準越好，孿生能借的精準度（或可比性）就越多，但彈性同時放大了過擬合與資料漂移的風險。</p>
+  <div class="cards cards-3">
+    <div class="card info"><h3 data-en="① Flexible prognostic models">① 彈性的預後模型</h3><p data-en="Gradient boosting, random forests, deep nets, and generative sequence models can produce far sharper twins than a linear model — capturing non-linear, high-dimensional baseline structure to predict each patient's untreated trajectory.">梯度提升、隨機森林、深度網路與生成式序列模型，能產生比線性模型銳利得多的孿生，捕捉非線性、高維的基線結構來預測每位病人的未治療軌跡。</p></div>
+    <div class="card info"><h3 data-en="② Cross-fitting &amp; calibration">② 交叉擬合與校準</h3><p data-en="Use cross-fitting / sample-splitting so the twin for each patient comes from a model not trained on them, and recalibrate (isotonic / Platt) so Ŷ₀ is honest. Doubly-robust estimators (AIPW, TMLE) pair the twin with a treatment model for extra protection in observational settings.">用交叉擬合／樣本分割，讓每位病人的孿生來自沒在他身上訓練過的模型，並重新校準（isotonic／Platt）讓 Ŷ₀ 誠實。雙重穩健估計式（AIPW、TMLE）把孿生與治療模型配對，在觀察性情境提供額外保護。</p></div>
+    <div class="card warn"><h3 data-en="③ Overfitting &amp; dataset shift">③ 過擬合與資料漂移</h3><p data-en="A flexible twin can fit noise (over-optimistic predictions) or quietly degrade when the deployment population differs from training (dataset shift). Guard with held-out calibration, prespecification of the twin, and monitoring for drift — precision is worthless if the twin is wrong.">彈性孿生可能擬合到雜訊（過度樂觀的預測），或在部署族群與訓練不同時悄悄退化（資料漂移）。以留存校準、事先指定孿生、與漂移監測來防範，孿生若是錯的，精準度毫無價值。</p></div>
+  </div>
+</section>
+
+<section id="dtwhatif" class="panel">
+  <h1 data-en="What if…? Stress-testing the digital twin">如果……？對數位孿生做壓力測試</h1>
+  <p class="lead" data-en="A digital twin estimates the effect as observed minus a model-predicted control. Its trustworthiness hinges on whether that prediction is calibrated, still valid for today's patients, and used as a mere precision adjustment versus a full stand-in for the control arm. Three what-ifs make the difference concrete.">數位孿生把效果估成「實際值減去模型預測的對照」。它可不可信，取決於那個預測是否校準、是否仍適用於今天的病人、以及它是被當成單純的精準度調整、還是對照臂的完全替身。三個「如果」把差別講清楚。</p>
+  <div class="cards cards-3">
+    <div class="card"><h3 data-en="① What if the twin is miscalibrated?">① 如果孿生校準不良？</h3><p data-en="If Ŷ₀ is systematically too high or too low, the observed − twin contrast is biased by exactly that error, and even PROCOVA's precision gain shrinks. Always check calibration on held-out controls; recalibrate before relying on the twin.">若 Ŷ₀ 系統性偏高或偏低，「實際 − 孿生」的對比就剛好被那個誤差弄偏，連 PROCOVA 的精準度收益也會縮水。務必在留存對照上檢查校準，依賴孿生前先重新校準。</p></div>
+    <div class="card"><h3 data-en="② What if the population shifted since training?">② 如果族群自訓練後已改變？</h3><p data-en="A twin trained on an earlier era or different site may no longer describe your patients' untreated course (new standard of care, different case mix). The twin is then non-transportable — most dangerous when it replaces a concurrent control, the historical-control trap.">在較早年代或不同場域訓練的孿生，可能不再描述你的病人未治療病程（新標準照護、不同病例組成）。此時孿生不可轉移，當它取代同期對照時最危險，正是歷史對照陷阱。</p></div>
+    <div class="card"><h3 data-en="③ What if you adjust vs use it as a control arm?">③ 如果是調整 vs 當對照臂？</h3><p data-en="As a covariate in a randomised trial (PROCOVA), randomisation guarantees unbiasedness and the twin only adds precision — a low-risk gain. As a synthetic control replacing randomisation, the prognostic model carries the entire identification burden — a far stronger, untestable assumption.">在隨機試驗中當共變項（PROCOVA）時，隨機化保證無偏，孿生只是增加精準度，是低風險的收益。當合成對照取代隨機化時，預後模型承擔全部辨識重擔，是強得多、且無法檢驗的假設。</p></div>
+  </div>
+</section>
+
+<section id="babelearn" class="panel">
+  <h1 data-en="A within-subject experiment: is the test drug equivalent to the reference? (BA/BE)">受試者自身的實驗：測試藥與參考藥相等嗎？（生體可用率／生體相等性 BA/BE）</h1>
+  <p class="lead" data-en="Bioavailability (BA) asks <b>how much</b> and <b>how fast</b> a drug reaches the bloodstream; bioequivalence (BE) asks whether a <b>test</b> formulation can stand in for a <b>reference</b> one. We give the same volunteers both formulations in a randomized crossover, then check whether the 90% confidence interval of the test/reference ratio sits inside the 80.00–125.00% equivalence limits.">生體可用率（BA）問的是藥物進入血流的<b>量</b>有多少、<b>速度</b>有多快；生體相等性（BE）問的是<b>測試</b>劑型能不能取代<b>參考</b>劑型。我們讓同一批受試者交叉服用兩種劑型，再檢查「測試／參考」比值的 90% 信賴區間是否落在 80.00–125.00% 的相等性界限內。</p>
+  <div class="card info">
+    <h3 data-en="The workflow">工作流程</h3>
+    <p data-en="The canonical design is a randomized <b>2×2 crossover</b>: each volunteer is randomized to sequence RT or TR, takes one formulation, undergoes a <b>washout</b> long enough to clear the drug, then takes the other. Blood is sampled over time to obtain each period's <b>Cmax</b>, <b>Tmax</b> and <b>AUC</b>. We log-transform Cmax &amp; AUC, fit a linear mixed model, back-transform the test/reference geometric mean ratio (GMR), and declare average bioequivalence only if its <b>90% CI lies entirely within 80.00–125.00%</b>.">標準設計是隨機分組的 <b>2×2 交叉試驗</b>：每位受試者隨機分到 RT 或 TR 順序，先服一種劑型，經過足夠長的<b>清除期（washout）</b>讓藥物排空，再服另一種。沿時間採血以取得每一期的 <b>Cmax</b>、<b>Tmax</b> 與 <b>AUC</b>。我們把 Cmax 與 AUC 取對數、配一個線性混合模型，將「測試／參考」幾何平均比值（GMR）反轉換回來，只有當其 <b>90% CI 整段落在 80.00–125.00%</b> 內，才判定為平均生體相等。</p>
+  </div>
+  <div class="cards cards-3">
+    <div class="card">
+      <h3 data-en="What BA measures">BA 量什麼</h3>
+      <p data-en="From the concentration–time curve: <b>Cmax</b> (peak level, the rate marker), <b>Tmax</b> (time to peak), and <b>AUC</b> (total exposure, the extent marker). BA characterizes a single formulation's exposure; BE compares two.">從濃度–時間曲線取：<b>Cmax</b>（最高濃度，反映速度）、<b>Tmax</b>（達峰時間）、<b>AUC</b>（總曝露量，反映程度）。BA 描述單一劑型的曝露；BE 則比較兩種。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="Why crossover">為何用交叉</h3>
+      <p data-en="Because each person is their own control, between-subject variability cancels out — the comparison is within one body. That makes a 2×2 crossover the <b>cleanest causal contrast</b> in this toolbox: a genuine randomized within-subject experiment.">因為每個人當自己的對照，受試者間的變異被消掉，比較發生在同一個身體內。這讓 2×2 交叉成為本工具箱中<b>最乾淨的因果對比</b>：一個貨真價實的「受試者內」隨機實驗。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="The 80–125% rule">80–125% 規則</h3>
+      <p data-en="The equivalence limits 80.00–125.00% are symmetric on the <b>log scale</b> (0.80 = 1/1.25). Average bioequivalence requires the whole 90% CI of the GMR — for both Cmax and AUC — to fall inside this band.">相等性界限 80.00–125.00% 在<b>對數尺度</b>上是對稱的（0.80 ＝ 1／1.25）。平均生體相等要求 GMR 的整段 90% CI——Cmax 與 AUC 都要——落在這個帶內。</p>
+    </div>
+  </div>
+  <details class="term">
+    <summary data-en="Show terminology">看專有名詞解釋</summary>
+    <div class="tdef">
+      <h4>幾何平均比值（GMR） <span class="en">geometric mean ratio</span></h4>
+      <p data-en="Because PK metrics like Cmax and AUC are right-skewed and roughly log-normal, we compare them on the log scale. The GMR is the ratio of the test formulation's geometric mean to the reference's — equivalently, the back-transformed difference of mean log-values. A GMR of 1.00 means identical average exposure; 1.10 means the test gives 10% more on average. BE is judged on the GMR, not the arithmetic mean ratio, precisely because the log scale is where these data are symmetric and where the 80–125% limits become symmetric too.">因為 Cmax、AUC 這類藥動指標右偏、大致呈對數常態，我們在對數尺度上比較它們。GMR 是測試劑型的幾何平均除以參考劑型的幾何平均——等價於對數平均差的反轉換。GMR ＝ 1.00 表示平均曝露相同；1.10 表示測試平均多出 10%。BE 以 GMR 而非算術平均比值來判定，正是因為對數尺度才是這些資料對稱之處，也是 80–125% 界限變得對稱之處。</p>
+    </div>
+    <div class="tdef">
+      <h4>清除期 <span class="en">washout</span></h4>
+      <p data-en="The gap between the two dosing periods, made long enough (usually ≥ 5 elimination half-lives) that the first formulation is essentially gone before the second is given. Too short a washout leaves drug carrying over into the next period — carryover — which biases the within-subject comparison.">兩個給藥期之間的間隔，要長到（通常 ≥ 5 個排除半衰期）第一種劑型在第二種給藥前基本排空。清除期太短會讓藥物殘留到下一期——殘留效應（carryover）——使受試者內的比較產生偏誤。</p>
+    </div>
+    <div class="tdef">
+      <h4>平均生體相等性（ABE） <span class="en">average bioequivalence</span></h4>
+      <p data-en="The default regulatory standard: equivalence of the population <i>average</i> exposure, demonstrated when the 90% CI of the GMR lies within 80.00–125.00%. It does not address whether each individual would respond identically (that would be individual BE) or whether variability matches (population BE).">預設的法規標準：族群<i>平均</i>曝露的相等性，當 GMR 的 90% CI 落在 80.00–125.00% 內即成立。它不處理每個人是否反應一致（那是個體 BE），也不處理變異是否相符（族群 BE）。</p>
+    </div>
+  </details>
+</section>
+
+<section id="babeplay" class="panel">
+  <h1 data-en="Interactive BE: drag the true GMR and watch the verdict">互動式 BE：拖動真實 GMR，看判定結果</h1>
+  <p class="lead" data-en="Drag the slider to set the <b>true</b> test/reference ratio (GMR). The chart draws the 90% confidence interval of the estimated GMR against the 80.00–125.00% bioequivalence band, and declares <b>PASS</b> only when the <b>entire</b> CI is inside the band. Notice that a point estimate near 1.00 can still fail if the CI is wide, and a ratio drifting toward an edge fails once the CI pokes out.">拖動滑桿設定<b>真實</b>的測試／參考比值（GMR）。圖會把估計 GMR 的 90% 信賴區間畫在 80.00–125.00% 的生體相等帶上，只有當<b>整段</b> CI 都在帶內時才判定 <b>PASS</b>。注意：即使點估計接近 1.00，CI 太寬仍會失敗；比值漂向邊緣時，只要 CI 探出去就失敗。</p>
+  <div class="card scene" id="babeCard">
+    <div class="controls">
+      <label><span data-en="True test/reference ratio (GMR)">真實 測試／參考 比值（GMR）</span> <input type="range" class="bb-gmr" min="0.70" max="1.40" step="0.01" value="1.00"> <b class="bb-gmrv">1.00</b></label>
+    </div>
+    <div id="babeChart" class="chart" style="height:320px"></div>
+    <p class="caption bb-out"></p>
+    <p class="caption" data-en="The shaded band is the 80.00–125.00% bioequivalence limit; the point + whiskers are the GMR and its 90% confidence interval. Bioequivalence is concluded only when the entire 90% CI falls within the band. Synthetic teaching data.">陰影帶是 80.00–125.00% 的生體相等性界限；點與鬚是 GMR 及其 90% 信賴區間。只有整段 90% CI 都落在帶內，才能判定生體相等。合成教學資料。</p>
+  </div>
+</section>
+
+<section id="babeanalyze" class="panel">
+  <h1 data-en="Data analysis: run a full average-bioequivalence test">資料分析：跑一次完整的平均生體相等性檢定</h1>
+  <div class="card info">
+    <h3 data-en="Steps">步驟</h3>
+    <p data-en="(1) <b>Non-compartmental analysis (NCA)</b> on each subject×period concentration–time curve to extract <b>Cmax</b> and <b>AUC</b>. (2) <b>Log-transform</b> both metrics. (3) Fit a <b>linear mixed model</b> with sequence, period and treatment as <b>fixed</b> effects and subject(sequence) as a <b>random</b> effect. (4) Form the <b>90% CI</b> of the treatment difference and <b>back-transform</b> it to the GMR scale. (5) Compare against <b>80.00–125.00%</b> — both Cmax and AUC must pass.">(1) 對每個受試者×期別的濃度–時間曲線做<b>非室分析（NCA）</b>，取出 <b>Cmax</b> 與 <b>AUC</b>。(2) 兩個指標皆<b>取對數</b>。(3) 配一個<b>線性混合模型</b>，以順序、期別、處置為<b>固定</b>效果，subject(sequence) 為<b>隨機</b>效果。(4) 對處置差求 <b>90% CI</b>，再<b>反轉換</b>回 GMR 尺度。(5) 與 <b>80.00–125.00%</b> 比較——Cmax 與 AUC 都要通過。</p>
+  </div>
+  <p class="code-src" data-en="Sources — guidance: FDA Bioequivalence guidance; EMA CHMP bioequivalence guideline; Chow &amp; Liu, Design and Analysis of Bioavailability and Bioequivalence Studies; packages: R <code>PowerTOST</code> &amp; <code>replicateBE</code>.">出處 — 指引：FDA 生體相等性指引；EMA CHMP 生體相等性指引；Chow &amp; Liu《Design and Analysis of Bioavailability and Bioequivalence Studies》；套件：R <code>PowerTOST</code> 與 <code>replicateBE</code>。</p>
+  <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">PowerTOST</a> · <a href="https://cran.r-project.org/package=replicateBE" target="_blank" rel="noopener">replicateBE</a></p>
+  <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
+  <div data-lang="sas" class="card">
+    <h3 data-en="SAS — the regulatory standard (PROC MIXED)">SAS — 法規標準作法（PROC MIXED）</h3>
+    <pre class="sas"><code><span class="cm">/* SAS — 2x2 crossover average bioequivalence (PROC MIXED) */</span>
+data be; set pk;
+   lcmax = log(cmax);  lauc = log(auc);   <span class="cm">/* log-transform the PK metrics */</span>
+run;
+
+proc mixed data=be method=reml;
+   class subject sequence period treatment;
+   model lauc = sequence period treatment / ddfm=kr;   <span class="cm">/* fixed: seq, period, treatment */</span>
+   random subject(sequence);                            <span class="cm">/* subject nested in sequence = random */</span>
+   estimate 'T vs R (log)' treatment 1 -1 / cl alpha=0.10;  <span class="cm">/* 90% CI of the log difference */</span>
+run;
+<span class="cm">/* exp() the estimate &amp; its 90% CL -&gt; GMR and its 90% CI; check 0.80-1.25 */</span>
+<span class="cm">/* repeat the model with lcmax for Cmax. Classic alternative: PROC GLM on the same model. */</span></code></pre>
+    <p data-en="PROC MIXED on the log-PK metric with <code>treatment</code> fixed and <code>subject(sequence)</code> random; the <code>estimate ... / cl alpha=0.10</code> gives the 90% CI of the log difference, which you exponentiate to the GMR scale. PROC GLM gives the classic fixed-effects equivalent."><code>PROC MIXED</code> 對對數化 PK 指標建模，<code>treatment</code> 為固定、<code>subject(sequence)</code> 為隨機；<code>estimate ... / cl alpha=0.10</code> 給出對數差的 90% CI，取 exp() 即回到 GMR 尺度。<code>PROC GLM</code> 是傳統固定效果的等價作法。</p>
+  </div>
+  <div data-lang="r" class="card">
+    <h3 data-en="R — PowerTOST + a mixed model">R — PowerTOST ＋ 混合模型</h3>
+    <pre class="sas"><code><span class="cm"># R — average bioequivalence (PowerTOST / mixed model)</span>
+library(PowerTOST)
+
+<span class="cm"># sample size to show ABE given assumed GMR &amp; within-subject CV</span>
+sampleN.TOST(CV = 0.25, theta0 = 0.95, targetpower = 0.80,
+             theta1 = 0.80, theta2 = 1.25)    <span class="cm"># 80-125% limits, alpha = 0.05 (=&gt; 90% CI)</span>
+
+<span class="cm"># quick 90% CI from summary stats (point estimate + within-subject CV)</span>
+CI.BE(pe = 0.97, CV = 0.25, n = 24)           <span class="cm"># back-transformed GMR 90% CI</span>
+
+<span class="cm"># subject-level model on the log metric (mixed); back-transform the 90% CI</span>
+library(nlme)
+m &lt;- lme(log(AUC) ~ sequence + period + treatment,
+         random = ~1 | subject, data = be)
+ci &lt;- intervals(m, level = 0.90, which = "fixed")$fixed["treatmentT", ]
+exp(ci)                                        <span class="cm"># GMR and its 90% CI; check within 0.80-1.25</span></code></pre>
+    <p data-en="<code>PowerTOST</code> handles design/power (<code>sampleN.TOST</code>) and the back-transformed CI from summary stats (<code>CI.BE</code>); for subject-level data, fit <code>lme</code> (or <code>lmer</code>) on the log-PK metric and exponentiate the 90% CI of the treatment coefficient."><code>PowerTOST</code> 處理設計與檢定力（<code>sampleN.TOST</code>）以及由摘要統計反算的 CI（<code>CI.BE</code>）；若有個體層級資料，對對數化 PK 指標配 <code>lme</code>（或 <code>lmer</code>），再對處置係數的 90% CI 取 exp()。</p>
+  </div>
+  <div data-lang="stata" class="card">
+    <h3 data-en="Stata — mixed + nlcom for the GMR CI">Stata — mixed ＋ nlcom 求 GMR 的 CI</h3>
+    <pre class="sas"><code><span class="cm">* Stata — 2x2 crossover bioequivalence</span>
+gen lauc = ln(auc)                       <span class="cm">// log-transform the PK metric</span>
+
+mixed lauc i.sequence i.period i.treatment || subject: , reml   ///
+      level(90)                          <span class="cm">// subject random effect; 90% CI</span>
+
+<span class="cm">* the treatment coefficient is the log(T/R) difference</span>
+lincom _b[2.treatment], level(90)        <span class="cm">// 90% CI on the log scale</span>
+nlcom exp(_b[2.treatment]), level(90)    <span class="cm">// back-transform -&gt; GMR and 90% CI; check 0.80-1.25</span>
+<span class="cm">* repeat with ln(cmax) for Cmax</span></code></pre>
+    <p data-en="<code>mixed</code> on the log metric with sequence/period/treatment fixed and a subject random effect; <code>lincom</code> reads the 90% CI of the log difference and <code>nlcom exp(...)</code> back-transforms it to the GMR and its 90% CI."><code>mixed</code> 對對數化指標建模，順序／期別／處置為固定、受試者為隨機效果；<code>lincom</code> 讀對數差的 90% CI，<code>nlcom exp(...)</code> 反轉換成 GMR 及其 90% CI。</p>
+  </div>
+</section>
+
+<section id="babeassume" class="panel">
+  <h1 data-en="What has to hold (and when the 80–125% limits widen)">需要哪些前提（以及界限何時放寬）</h1>
+  <div class="cards cards-3">
+    <div class="card warn">
+      <h3 data-en="Adequate washout — no carryover">充分清除期——無殘留</h3>
+      <p data-en="The washout must clear the first drug before period two; otherwise residual drug carries over and contaminates the within-subject contrast. A significant sequence effect is the warning sign that carryover (or a true sequence-by-formulation interaction) is present.">清除期必須在第二期前清掉第一種藥，否則殘留藥物會延續汙染受試者內的對比。順序效果顯著就是殘留效應（或真正的「順序×劑型」交互作用）存在的警訊。</p>
+    </div>
+    <div class="card warn">
+      <h3 data-en="No period or sequence effects">無期別或順序效果</h3>
+      <p data-en="The model assumes period and sequence shift exposure additively (on the log scale) and are separable from treatment. If a strong period effect or sequence-by-treatment interaction exists, the simple ABE estimate can mislead — inspect those terms, don't just read off the GMR.">模型假設期別與順序在（對數尺度上）加法地平移曝露，且可與處置分離。若有強烈的期別效果或「順序×處置」交互作用，簡單的 ABE 估計可能誤導——要檢視這些項，別只讀 GMR。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="Log-normal PK, within-subject design">對數常態 PK 與受試者內設計</h3>
+      <p data-en="Cmax and AUC are assumed log-normal (hence the log transform and the geometric mean). The crossover relies on within-subject comparison, so subjects must be in a comparable physiological state each period and complete both — dropouts erode the within-subject advantage.">Cmax 與 AUC 假設為對數常態（故取對數、用幾何平均）。交叉設計仰賴受試者內比較，因此每位受試者各期須處於可比的生理狀態並完成兩期——退出會侵蝕受試者內的優勢。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="Highly variable drugs → scaling">高變異藥物 → 比例放寬</h3>
+      <p data-en="When the within-subject CV exceeds ~30%, the fixed 80–125% limits are nearly impossible to meet even for truly equivalent products. <b>Reference-scaled ABE (RSABE)</b> widens the limits as a function of the reference's within-subject variability (estimated from a replicate design).">當受試者內 CV 超過約 30%，固定的 80–125% 界限即使對真正相等的產品也幾乎不可能達到。<b>參考比例放寬 ABE（RSABE）</b>會依參考藥的受試者內變異（由重複設計估得）來放寬界限。</p>
+    </div>
+    <div class="card warn">
+      <h3 data-en="Narrow therapeutic index → tighter">窄治療指數 → 收緊</h3>
+      <p data-en="For narrow-therapeutic-index (NTI) drugs, where small exposure changes matter clinically, regulators <b>tighten</b> rather than relax — e.g. scaled limits that can narrow toward ~90.00–111.11%, often with an added within-subject variability comparison.">對窄治療指數（NTI）藥物，曝露的小幅變化在臨床上就有意義，主管機關會<b>收緊</b>而非放寬——例如可收窄到約 90.00–111.11% 的比例界限，並常附加受試者內變異的比較。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="Enough subjects &amp; proper crossover">足夠受試者與正確交叉</h3>
+      <p data-en="The 90% CI must be precise enough to fit inside the band — that needs an adequately powered sample for the drug's variability. Randomized sequence allocation and a balanced 2×2 (or replicate) design are what license the causal, within-subject interpretation.">90% CI 必須精準到能塞進帶內——這需要對該藥變異有足夠檢定力的樣本。隨機的順序分派與平衡的 2×2（或重複）設計，正是支撐「因果、受試者內」詮釋的依據。</p>
+    </div>
+  </div>
+</section>
+
+<section id="babeml" class="panel">
+  <h1 data-en="Where modelling and ML meet BA/BE">建模與機器學習在 BA/BE 的交會處</h1>
+  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗——中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。要誠實面對哪些目前已被主管機關接受。</p>
+  <div class="cards cards-3">
+    <div class="card">
+      <h3 data-en="Population-PK / model-informed BE">族群藥動／模型導向 BE</h3>
+      <p data-en="Nonlinear mixed-effects (popPK) models pool sparse data across subjects to estimate exposure and its variability — useful for designing studies and, increasingly, for model-informed approaches that supplement or (in limited cases) substitute a classical BE arm.">非線性混合效果（popPK）模型把跨受試者的稀疏資料匯整，估計曝露與其變異——對設計試驗有用，且日益用於「模型導向」作法，補充、或（在有限情形下）替代傳統 BE 臂。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="NCA automation">NCA 自動化</h3>
+      <p data-en="Extracting Cmax/Tmax/AUC and choosing the elimination phase is repetitive and rule-based; pipelines (and ML-assisted curve QC) standardize peak detection, lambda-z selection, and outlier flagging — reducing analyst-to-analyst variability in the inputs to the BE test.">擷取 Cmax/Tmax/AUC 與選取排除相是重複且規則化的工作；管線（與 ML 輔助的曲線品管）可標準化峰值偵測、lambda-z 選取與離群標記——降低不同分析者對 BE 檢定輸入的變異。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="Virtual BE / PBPK simulation">虛擬 BE／PBPK 模擬</h3>
+      <p data-en="Physiologically based PK (PBPK) and virtual-BE simulations predict whether two formulations would pass before any dosing — valuable for prioritizing and for biowaivers. Regulatory acceptance is real but case-by-case and growing; treat simulation as evidence to argue, not an automatic pass.">生理基礎藥動（PBPK）與虛擬 BE 模擬可在任何給藥前預測兩劑型是否會通過——對排序與生體豁免（biowaiver）很有價值。法規接受度確實存在，但逐案審查、仍在成長；把模擬當作要論證的證據，而非自動通過。</p>
+    </div>
+  </div>
+</section>
+
+<section id="babewhatif" class="panel">
+  <h1 data-en="What if… edge cases that change the verdict">如果……改變判定的邊角情況</h1>
+  <p class="lead" data-en="The 80–125% rule is the default, not the whole story. Three common what-ifs change either the limits or what you must demonstrate.">80–125% 規則是預設、不是全貌。三個常見的「如果」會改變界限、或改變你必須證明的內容。</p>
+  <div class="cards cards-3">
+    <div class="card">
+      <h3 data-en="What if the drug is highly variable?">如果藥物高度變異？</h3>
+      <p data-en="If the within-subject CV is large (&gt;~30%), the fixed band is unreachable even for equivalent products. Switch to a <b>replicate design</b> and <b>reference-scaled ABE (RSABE)</b>, which widens the limits in proportion to the reference's own variability.">若受試者內 CV 很大（&gt; 約 30%），固定帶即使對相等產品也搆不到。改採<b>重複設計</b>與<b>參考比例放寬 ABE（RSABE）</b>，依參考藥本身的變異按比例放寬界限。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="What if it's a narrow therapeutic index drug?">如果是窄治療指數藥物？</h3>
+      <p data-en="Go the other way: for NTI drugs the limits are <b>tightened</b> (e.g. scaled toward ~90.00–111.11%), and you typically must also show the test's within-subject variability is no worse than the reference's. Equivalence here is a higher bar, not a lower one.">反向操作：對 NTI 藥物，界限要<b>收緊</b>（例如收向約 90.00–111.11%），且通常還須證明測試藥的受試者內變異不差於參考藥。這裡的相等是更高、而非更低的門檻。</p>
+    </div>
+    <div class="card">
+      <h3 data-en="What if Cmax passes but AUC fails?">如果 Cmax 過、AUC 沒過？</h3>
+      <p data-en="Then the product is <b>not</b> bioequivalent. BE requires <b>both</b> the rate marker (Cmax) and the extent marker (AUC) to fall within the limits — a pass on one cannot rescue a fail on the other. Each metric is judged on its own 90% CI.">那麼產品<b>不</b>具生體相等性。BE 要求速度指標（Cmax）與程度指標（AUC）<b>兩者都</b>落在界限內——一個過救不了另一個沒過。每個指標各以自己的 90% CI 判定。</p>
+    </div>
+  </div>
+</section>
 
   <!-- ===================== 缺失資料 / Missing data ===================== -->
   <section id="misslearn" class="panel">
@@ -8654,6 +9272,17 @@ ddml estimate, robust                   <span class="cm">* AIPW doubly-robust AT
       <li data-ref="causalml">Chernozhukov, V., Chetverikov, D., Demirer, M., et al. (2018). Double/debiased machine learning for treatment and structural parameters. <i>The Econometrics Journal, 21</i>(1), C1–C68. <span data-en="〔Foundational double/debiased machine learning framework.〕">〔提出雙重／去偏機器學習的因果推論框架。〕</span></li>
       <li data-ref="causalml">Kaddour, J., Lynch, A., Liu, Q., Kusner, M. J., &amp; Silva, R. (2022). Causal Machine Learning: A Survey and Open Problems. <i>arXiv</i>:2206.15475. <span data-en="〔Survey of causal machine learning and its open problems.〕">〔因果機器學習的綜述與待解問題整理。〕</span></li>
       <li data-ref="causalml">Li, S., &amp; Chu, Z. (Eds.) (2023). <i>Machine Learning for Causal Inference.</i> Springer. <span data-en="〔Edited volume on machine learning methods for causal inference.〕">〔匯整因果推論機器學習方法的編輯專書。〕</span></li>
+      <li data-ref="mr"><b data-en="Mendelian randomization (MR tab)">孟德爾隨機化（MR 分頁）</b> · Davey Smith, G., &amp; Ebrahim, S. (2003). 'Mendelian randomization': can genetic epidemiology contribute to understanding environmental determinants of disease? <i>International Journal of Epidemiology, 32</i>(1), 1–22. <span data-en="〔The paper that named and framed Mendelian randomization.〕">〔替孟德爾隨機化命名並奠立框架的論文。〕</span></li>
+      <li data-ref="mr">Burgess, S., Butterworth, A., &amp; Thompson, S. G. (2013). Mendelian randomization analysis with multiple genetic variants using summarized data. <i>Genetic Epidemiology, 37</i>(7), 658–665. <span data-en="〔The inverse-variance-weighted (IVW) estimator for two-sample MR.〕">〔兩樣本 MR 的反變異加權（IVW）估計式。〕</span></li>
+      <li data-ref="mr">Bowden, J., Davey Smith, G., &amp; Burgess, S. (2015). Mendelian randomization with invalid instruments: effect estimation and bias detection through Egger regression. <i>International Journal of Epidemiology, 44</i>(2), 512–525. <span data-en="〔MR-Egger: a non-zero intercept detects directional pleiotropy.〕">〔MR-Egger：截距不為 0 可偵測方向性多效性。〕</span></li>
+      <li data-ref="mr">Hemani, G., Zheng, J., Elsworth, B., et al. (2018). The MR-Base platform supports systematic causal inference across the human phenome. <i>eLife, 7</i>, e34408 (the <code>TwoSampleMR</code> package). <span data-en="〔MR-Base / TwoSampleMR — the standard two-sample MR toolchain.〕">〔MR-Base／TwoSampleMR，標準的兩樣本 MR 工具鏈。〕</span></li>
+      <li data-ref="wetlab"><b data-en="Wet-lab experiments (Wet-lab tab)">實驗室實驗（Wet-lab 分頁）</b> · Fisher, R. A. (1935). <i>The Design of Experiments.</i> Oliver &amp; Boyd. <span data-en="〔The foundational text on randomized experimental design.〕">〔隨機化實驗設計的奠基之作。〕</span></li>
+      <li data-ref="wetlab">Lawlor, D. A., Tilling, K., &amp; Davey Smith, G. (2016). Triangulation in aetiological epidemiology. <i>International Journal of Epidemiology, 45</i>(6), 1866–1886. <span data-en="〔Triangulation: combining designs whose biases are unrelated — the logic linking wet-lab &amp; observational evidence.〕">〔三角驗證：結合偏誤互不相關的設計，串起實驗室與觀察性證據的邏輯。〕</span></li>
+      <li data-ref="dt"><b data-en="Digital twin (Digital-twin tab)">數位孿生（數位孿生分頁）</b> · Schuler, A., Walsh, D., Hall, D., et al. (2022). Increasing the efficiency of randomized trial estimates via linear adjustment for a prognostic score (PROCOVA). <i>The International Journal of Biostatistics</i>. <span data-en="〔PROCOVA: prognostic-score (digital-twin) covariate adjustment for tighter RCT estimates.〕">〔PROCOVA：以預後分數（數位孿生）做共變項調整，讓 RCT 估計更精準。〕</span></li>
+      <li data-ref="dt">Chen, J., Eapen, S., Walsh, D., et al. — Unlearn.AI digital-twin (prognostic) approach to external/synthetic control arms and prognostic covariate adjustment. <span data-en="〔Digital-twin prognostic models as model-based control arms; see FDA/EMA prognostic-adjustment qualifications.〕">〔以數位孿生預後模型作模型化對照臂；另見 FDA／EMA 對預後調整的認可。〕</span></li>
+      <li data-ref="babe"><b data-en="Bioavailability / bioequivalence (BA/BE tab)">生體可用率／生體相等性（BA/BE 分頁）</b> · Chow, S.-C., &amp; Liu, J.-P. (2008). <i>Design and Analysis of Bioavailability and Bioequivalence Studies</i> (3rd ed.). Chapman &amp; Hall/CRC. <span data-en="〔The standard textbook on BA/BE design and the crossover analysis.〕">〔BA/BE 設計與交叉分析的標準教科書。〕</span></li>
+      <li data-ref="babe">U.S. FDA (2022). <i>Bioequivalence Studies With Pharmacokinetic Endpoints for Drugs Submitted Under an ANDA</i> (guidance for industry); EMA CHMP, <i>Guideline on the Investigation of Bioequivalence</i>. <span data-en="〔The regulatory guidance defining the 90% CI within 80.00–125.00% rule.〕">〔界定「90% CI 落在 80.00–125.00%」規則的法規指引。〕</span></li>
+      <li data-ref="babe">Labes, D., Schütz, H., &amp; Lang, B. <i>PowerTOST</i>: power and sample size for bioequivalence studies (R package). <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">cran.r-project.org/package=PowerTOST</a>. <span data-en="〔The R package for BE power, sample size and the back-transformed 90% CI.〕">〔BE 檢定力、樣本數與反轉換 90% CI 的 R 套件。〕</span></li>
       <li data-ref="gbtm"><b data-en="Group-based trajectory model (GBTM tab)">群組軌跡模型（GBTM 分頁）</b> · Nagin, D. S. (1999). Analyzing developmental trajectories: a semiparametric, group-based approach. <i>Psychological Methods, 4</i>(2), 139–157. <span data-en="〔Foundational paper introducing the semiparametric group-based trajectory method.〕">〔GBTM 開創性論文，提出半參數群組軌跡分析方法。〕</span></li>
       <li data-ref="gbtm">Nagin, D. S. (2005). <i>Group-Based Modeling of Development.</i> Harvard University Press. <span data-en="〔Authoritative monograph systematically presenting group-based developmental modelling.〕">〔權威專書，系統闡述群組基礎發展模型。〕</span></li>
       <li data-ref="gbtm">Nagin, D. S., &amp; Odgers, C. L. (2010). Group-based trajectory modeling in clinical research. <i>Annual Review of Clinical Psychology, 6</i>, 109–138. <span data-en="〔Review guiding application of GBTM in clinical research.〕">〔臨床研究中應用 GBTM 的回顧性指引。〕</span></li>
