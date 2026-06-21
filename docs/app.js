@@ -10,7 +10,7 @@ const tr = (zh, en) => window.IV.tr(zh, en);
 const lang = () => window.IV.lang;
 
 // ----- navigation: method dropdown + sub-tabs -----
-const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mr: "mr", dt: "dt" };
+const METHOD_PREFIX = { iv: "", rdd: "rdd", did: "did", tit: "tit", its: "its", perr: "perr", ccw: "ccw", cctc: "cctc", seq: "seq", cc: "cc", sccs: "sccs", acnu: "acnu", pnu: "pnu", nc: "nc", med: "med", ps: "ps", tmle: "tmle", gm: "gm", tnd: "tnd", pssa: "pssa", tscan: "tscan", wce: "wce", transport: "transport", extctrl: "extctrl", srma: "srma", nma: "nma", gbtm: "gbtm", miss: "miss", causalml: "causalml", evalue: "evalue", mr: "mr", dt: "dt", mcda: "mcda", fsqca: "fsqca", babe: "babe", wetlab: "wetlab" };
 const PANEL_INIT = {
   play: () => refreshPlay(), ml: () => initMl(),
   rddplay: () => initRdd(), rddanalyze: () => initRddAnalyze(),
@@ -74,6 +74,7 @@ const PANEL_INIT = {
   missplay: () => initMiss(), causalmlplay: () => initCausalml(),
   evalueplay: () => { initEvaluePlay(); initEvalueArray(); },
   mrplay: () => initMr(), dtplay: () => initDt(),
+  mcdaplay: () => initMcda(), fsqcaplay: () => initFsqca(), babeplay: () => initBabe(), wetlabplay: () => initWetlab(),
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
@@ -375,22 +376,6 @@ document.addEventListener("click", (e) => {
   else if (TOPICS[a.dataset.tab]) openTopic(a.dataset.tab);
 });
 
-// Jump the decision tree straight to an adjacent-approach leaf card (rMCDA / rFSQCA / rBABE / rWETLAB)
-const _ADJ_LABEL = { rMCDA: { zh: "MCDA", en: "MCDA" }, rFSQCA: { zh: "fsQCA", en: "fsQCA" }, rBABE: { zh: "BA/BE", en: "BA/BE" }, rWETLAB: { zh: "Wet-lab", en: "Wet-lab" } };
-function jumpDtree(id) {
-  if (!DNODES[id]) return;
-  dtreeStack = [{ id: "n1", ans: null }, { id, ans: _ADJ_LABEL[id] || { zh: "", en: "" } }];
-  if (typeof renderDtree === "function") renderDtree();
-  const d = document.getElementById("dtree");
-  if (d) { const _rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; d.scrollIntoView({ behavior: _rm ? "auto" : "smooth", block: "start" }); }
-}
-document.addEventListener("click", (e) => {
-  const j = e.target.closest && e.target.closest(".adj-jump");
-  if (!j) return;
-  e.preventDefault();
-  if (!document.querySelector("#choose.active")) chooseTab.click();   // ensure the tree is on screen
-  jumpDtree(j.dataset.leaf);
-});
 
 // Auto-link method abbreviations inside every panel's prose / tables, so the
 // methods cross-link to each other. Links the FIRST occurrence of each token
@@ -2977,30 +2962,6 @@ const DNODES = {
   // adjacent (non-core) approaches — reference leaf cards, reachable from the
   // "adjacent approaches" chips on the choose page (jumpDtree). Their references
   // live in hidden #adjrefs-* blocks pulled in by renderDtree via refsId.
-  rMCDA: { rec: { kind: "reference", badge: "MCDA",
-    title: { zh: "鄰近取向：多準則決策分析 MCDA", en: "Adjacent: multi-criteria decision analysis (MCDA)" },
-    why: { zh: "多準則決策分析（MCDA）把多個彼此衝突的準則（療效、安全、成本、可近性）用明確權重彙整成一個可比較的分數來排序選項。它是決策／價值權衡工具，不是「從資料估計因果效果」的研究設計。",
-           en: "Multi-criteria decision analysis aggregates several conflicting criteria (efficacy, safety, cost, access) with explicit weights into one comparable score to rank options. It is a decision / value-tradeoff tool, not a design for estimating a causal effect from data." },
-    watch: { zh: "它整合的是「價值權衡」，不估計因果效果，所以列為鄰近取向（非核心因果設計）。", en: "It integrates value trade-offs, not a causal effect, so it is listed as an adjacent (non-core) approach." },
-    refsId: "adjrefs-mcda" } },
-  rFSQCA: { rec: { kind: "reference", badge: "fsQCA",
-    title: { zh: "鄰近取向：模糊集質性比較分析 fsQCA", en: "Adjacent: fuzzy-set qualitative comparative analysis (fsQCA)" },
-    why: { zh: "模糊集質性比較分析（fsQCA）以集合論找出「哪些條件組合對結果為充分或必要」，擁抱等終性與因果不對稱，適合中小樣本的組態分析。它回答的是組態充分性，而不是平均因果效果。",
-           en: "Fuzzy-set qualitative comparative analysis uses set theory to find which combinations of conditions are sufficient or necessary for an outcome, embracing equifinality and causal asymmetry; suited to small-to-medium-N configurational analysis. It answers configurational sufficiency, not an average causal effect." },
-    watch: { zh: "它回答的是「組態充分性」，不是平均因果效果，所以列為鄰近取向。", en: "It answers configurational sufficiency, not an average causal effect, so it is listed as adjacent." },
-    refsId: "adjrefs-fsqca" } },
-  rBABE: { rec: { kind: "reference", badge: "BA/BE",
-    title: { zh: "鄰近取向：生體可用率／生體相等性 BA/BE", en: "Adjacent: bioavailability / bioequivalence (BA/BE)" },
-    why: { zh: "生體可用率／生體相等性（BA/BE）以隨機 2×2 交叉的人體藥動試驗比較測試與參考劑型的 Cmax、AUC，看 GMR 的 90% CI 是否落在 80–125%。它是製劑／臨床藥學領域的法規藥動等效試驗，不是觀察性資料的因果設計。",
-           en: "Bioavailability / bioequivalence compares a test vs reference formulation's Cmax and AUC in a randomized 2×2 crossover PK study, checking whether the GMR's 90% CI lies within 80–125%. It is a regulatory pharmacokinetic-equivalence trial in formulation / clinical pharmacology, not an observational-data causal design." },
-    watch: { zh: "它是製劑藥動等效的法規試驗（隨機交叉），不是從觀察資料估因果效果，所以列為鄰近取向。", en: "It is a regulatory PK-equivalence trial (randomized crossover), not estimating a causal effect from observational data, so it is listed as adjacent." },
-    refsId: "adjrefs-babe" } },
-  rWETLAB: { rec: { kind: "reference", badge: "Wet-lab",
-    title: { zh: "鄰近取向：實驗室實驗 Wet-lab", en: "Adjacent: wet-lab experiments" },
-    why: { zh: "實驗室實驗（Wet-lab）在細胞、動物或分子層級刻意操弄（基因剔除／嵌入、劑量反應、隨機分派動物），以高內部效度直接檢驗機制與方向。屬實驗台研究，通常與觀察性證據三角驗證，而非從真實世界資料建立的因果設計。",
-           en: "Wet-lab experiments deliberately manipulate at the cell, animal or molecular level (knock-out/knock-in, dose–response, randomized animals) to test mechanism and direction with high internal validity. They are bench studies — usually triangulated with observational evidence — rather than a causal design built from real-world data." },
-    watch: { zh: "它是實驗台／動物的機制實驗（高內部效度、對人可轉移性不確定），與觀察性證據三角驗證，所以列為鄰近取向。", en: "It is a bench / animal mechanism experiment (high internal validity, uncertain transportability), triangulated with observational evidence, so it is listed as adjacent." },
-    refsId: "adjrefs-wetlab" } },
   rEXTCTRL: { rec: { kind: "toolbox", method: "extctrl", badge: "外部對照 ✓",
     title: { zh: "最適合：外部對照 ✓（本工具）， 借一個對照臂補上單臂研究缺的對照", en: "Best fit: External control ✓ (this tool) — borrow a control arm for a single-arm study" },
     why: { zh: "你只有一個<b>單臂</b>（全部都治療）、沒有同期對照。借<b>外部／歷史對照</b>（外部世代、登錄、或那場 RCT 的未治療者）補上對照臂；有個體資料時，用<b>標準化／傾向加權</b>把兩臂的共變項差異校正掉再比較。只有彙總結果時，改走較輕量的 MAIC／STC（配對調整間接比較）。",
@@ -3183,7 +3144,6 @@ function renderDtree() {
       `<p>${L(r.why)}</p>` +
       scenario +
       `<div class="rec-watch">${tr("⚠ 要盯住的關鍵假設：", "⚠ Key assumption to watch: ")}${L(r.watch)}</div>` +
-      (r.refsId && document.getElementById(r.refsId) ? document.getElementById(r.refsId).innerHTML : "") +
       `<div class="rec-actions">` + goto +
       `<button class="dtree-showmap" data-mapkey="${cur.id}">${tr("🌳 看完整決策樹（標出你的位置）", "🌳 Show the full tree (your spot marked)")}</button>` +
       `</div></div>`;
@@ -3473,6 +3433,10 @@ const METHOD_REF = {
   miss: { zh: "缺失資料", en: "Missing data", src: "Rubin (1987); van Buuren (2018); Sterne et al. (2009), BMJ" },
   srma: { zh: "系統性回顧與統合分析", en: "Systematic review & meta-analysis", src: "Cochrane Handbook (Higgins et al. 2024); PRISMA 2020; DerSimonian & Laird (1986); GRADE (Guyatt et al. 2008)" },
   nma: { zh: "網路統合分析", en: "Network meta-analysis", src: "Cochrane NMA Toolkit; Harrer et al. (doing-meta.guide/netwma); Salanti (2012); Bucher et al. (1997); Rücker & Schwarzer (2015)" },
+  mcda: { zh: "多準則決策分析 MCDA", en: "Multi-criteria decision analysis (MCDA)", src: "Thokala et al. (2016) & Marsh et al. (2016), ISPOR MCDA Task Force, Value in Health; Belton & Stewart (2002); Mussen, Salek & Walker (2007)" },
+  fsqca: { zh: "模糊集質性比較分析 fsQCA", en: "Fuzzy-set QCA (fsQCA)", src: "Ragin (2008), Redesigning Social Inquiry; Ragin (2006), Political Analysis; Schneider & Wagemann (2012); Dusa (2019), QCA with R" },
+  babe: { zh: "生體可用率／生體相等性 BA/BE", en: "Bioavailability / bioequivalence (BA/BE)", src: "FDA Bioequivalence guidance; EMA CHMP BE guideline; Chow & Liu, Design and Analysis of BA/BE Studies; PowerTOST" },
+  wetlab: { zh: "實驗室實驗 Wet-lab", en: "Wet-lab experiments", src: "Fisher (1935), Design of Experiments; Lawlor, Tilling & Davey Smith (2016, triangulation), IJE" },
   causalml: { zh: "因果機器學習", en: "Causal machine learning", src: "Feuerriegel et al. (2024, Nat Med); Künzel et al. (2019, PNAS); Wager & Athey (2018); Chernozhukov et al. (2018, DML); Nie & Wager (2021)" },
   mr: { zh: "孟德爾隨機化 MR", en: "Mendelian randomization (MR)", src: "Davey Smith & Ebrahim (2003), IJE; Burgess, Butterworth & Thompson (2013); Bowden et al. (2015, MR-Egger); Hemani et al. (2018, TwoSampleMR)" },
   dt: { zh: "數位孿生", en: "Digital twin", src: "Schuler et al. (2022, PROCOVA); FDA/EMA prognostic-adjustment guidance; synthetic control arms" },

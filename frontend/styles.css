@@ -119,6 +119,14 @@ b { color: #0b1020; }
 .flow-legend b { color: var(--ink); }
 
 /* interactive, clickable decision tree */
+/* adjacent-approaches gateway cards on the choose page */
+.adj-grid { margin-top: .4rem; }
+.adj-card { border-left: 4px solid #8b5cf6; }
+.adj-card h3 { margin: .1rem 0 .3rem; font-size: 1rem; }
+.adj-card p { font-size: .9rem; line-height: 1.65; margin: 0 0 .6rem; }
+.adj-goto { display: inline-block; font-weight: 600; font-size: .88rem; text-decoration: none;
+  color: #6d28d9; cursor: pointer; }
+.adj-goto:hover { text-decoration: underline; }
 /* causal-inference workflow flowchart (#flow) */
 .flowchart { max-width: 820px; margin: 1.2rem auto; }
 .flow-stage { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--teal, #1d6f57);
