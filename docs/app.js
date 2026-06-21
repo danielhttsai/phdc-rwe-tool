@@ -3190,6 +3190,7 @@ const CHOOSE_FAMILIES = [
   { zh: "時變治療／g-methods", en: "time-varying treatment / g-methods", members: [["GM", 0.58, 0.97], ["WCE", 0.58, 1.01]] },
   { zh: "訊號偵測（產生假說）", en: "signal detection (hypothesis-generating)", members: [["PSSA", 2.37, 1.00], ["TreeScan", 3.00, 1.00]] },
   { zh: "可轉移性・外部對照", en: "transport / external control", members: [["Transportability", 0.39, 0.91], ["External control", 1.52, 1.02]] },
+  { zh: "實驗／遺傳三角驗證", en: "experimental / genetic triangulation", members: [["MR", 1.62, 1.00], ["Wet-lab", 1.70, 1.00]] },
 ];
 function drawChooseChart() {
   if (!document.getElementById("chooseChart")) return;
@@ -3202,7 +3203,7 @@ function drawChooseChart() {
   // alternating family bands + family labels
   const TOP = 4.0;  // headroom above the tallest bar (~3.0) for the two-row family labels
   const shapes = [{ type: "line", x0: -0.5, x1: x.length - 0.5, y0: 1, y1: 1, line: { color: GREEN, width: 2, dash: "dash" } }];
-  const anns = [{ x: x.length - 1, y: 1, text: tr("真值＝1.0", "truth = 1.0"), showarrow: false, yshift: 10, font: { size: 11, color: GREEN } }];
+  const anns = [{ xref: "paper", x: 1.005, xanchor: "left", y: 1, yref: "y", text: tr("真值＝1.0", "truth = 1.0"), showarrow: false, font: { size: 11, color: GREEN } }];
   let i = 0;
   CHOOSE_FAMILIES.forEach((f, fi) => {
     const x0 = i - 0.5, x1 = i + f.members.length - 0.5;
@@ -3213,7 +3214,7 @@ function drawChooseChart() {
   });
   Plotly.react("chooseChart", [naive, corr], sceneLayout({
     height: 360, barmode: "group", showlegend: true, legend: { orientation: "h", y: 1.08 },
-    margin: { t: 30, r: 14, b: 40, l: 56 },
+    margin: { t: 30, r: 74, b: 40, l: 56 },
     xaxis: { tickfont: { size: 10 } },
     yaxis: { title: tr("估計 ÷ 各自真值（1.0＝命中）", "estimate ÷ own truth (1.0 = on target)"), range: [0, TOP] },
     shapes, annotations: anns,

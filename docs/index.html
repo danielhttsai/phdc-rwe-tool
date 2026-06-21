@@ -7372,7 +7372,23 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
     </div>
 
     <div class="card scene">
-      <h3 data-en="All 24 methods correct their naive bias back to the truth (grouped by family; mediation recovers the true direct effect, transportability/external-control the target-population effect)">二十四種方法，各自把「未校正偏誤」修回真值（按家族分組；中介分析還原真正的直接效果，可轉移性／外部對照還原目標族群的效果）</h3>
+      <h3 data-en="A causal-inference workflow: how to actually go about it">因果推論的流程：實際上怎麼做</h3>
+      <p data-en="Picking a design is step 3, not step 1. The estimate is only trustworthy if the steps around it are done. Walk this once for any causal question:">挑設計是第 3 步、不是第 1 步。估計值要可信，靠的是它前後的步驟都有做。任何因果問題都可以走一遍這個流程：</p>
+      <ol class="ci-flow">
+        <li data-en="<b>① Frame the question as a target trial.</b> Write the estimand explicitly — population, treatment strategies, comparator (an active comparator beats &quot;non-user&quot;), time-zero, outcome, follow-up, and the contrast you want (ATE / ATT / LATE). A fuzzy question can't be answered cleanly."><b>① 把問題寫成一場「目標試驗」。</b>明確寫下 estimand，族群、治療策略、對照（主動對照優於「沒用藥」）、時間零點、結果、追蹤期，以及你要的對比（ATE／ATT／LATE）。問題模糊，答案就乾淨不了。</li>
+        <li data-en="<b>② Draw a DAG; list the biases.</b> Map confounding, selection, measurement error, immortal time and time-varying confounding before touching data — the DAG tells you what must be adjusted and what must <i>not</i> (colliders, mediators)."><b>② 畫 DAG，列出偏誤。</b>動資料前先把混淆、選樣、測量誤差、不死時間、時變混淆畫出來，DAG 會告訴你哪些一定要校正、哪些<i>絕不能</i>校正（對撞、中介）。</li>
+        <li data-en="<b>③ Choose a design your data can support.</b> Where can you borrow as-good-as-random variation (an instrument, a cutoff, the person as their own control, timing)? Use the comparison chart, table and decision tree below — and start from the database you actually have."><b>③ 選一個你的資料撐得起的設計。</b>你能從哪裡借「近似隨機」的變異（工具、斷點、以人為己對照、時間）？用下面的比較圖、表與決策樹，並從你<b>實際擁有</b>的資料庫出發。</li>
+        <li data-en="<b>④ Write down the identifying assumptions.</b> Exchangeability, positivity, consistency — plus the one untestable core the design rests on. State them before estimating, not after."><b>④ 寫下識別假設。</b>可交換性、正性、一致性，加上該設計所押的那條不可檢驗核心。在估計<b>前</b>就講清楚，不是事後補。</li>
+        <li data-en="<b>⑤ Estimate.</b> Fit the design with PS / IPTW / g-methods / IV / TMLE as appropriate (the ③ tab gives runnable SAS · R · Stata for each)."><b>⑤ 估計。</b>依設計用 PS／IPTW／g-methods／IV／TMLE 等配適（每個方法的 ③ 分頁都有可執行的 SAS · R · Stata）。</li>
+        <li data-en="<b>⑥ Check the assumptions you can.</b> Covariate balance &amp; overlap, instrument strength, parallel-trend / pre-trend, negative-control and falsification tests — every method has a ④ dashboard for this."><b>⑥ 檢驗你能檢驗的假設。</b>共變項平衡與重疊、工具強度、平行／事前趨勢、陰性對照與否證檢定，每個方法都配一個 ④ 儀表板。</li>
+        <li data-en="<b>⑦ Quantify the bias you can't test.</b> Run a sensitivity analysis: the E-value or Schneeweiss array for unmeasured confounding, the M-value for missing data, probabilistic QBA for the full picture."><b>⑦ 量化你無法檢驗的偏誤。</b>做敏感度分析，未測混淆用 E-value 或 Schneeweiss array、缺失資料用 M-value、要完整就用機率式 QBA。</li>
+        <li data-en="<b>⑧ Triangulate.</b> One design is never proof. Corroborate with a second design that fails differently, with <b>Mendelian randomization</b> (genetic instruments), and — for mechanism — with <b>wet-lab experiments</b>. Agreement across methods with different biases is the real evidence (see the last family below)."><b>⑧ 三角驗證。</b>單一設計從來不算證明。用一個「以不同方式出錯」的第二設計、用<b>孟德爾隨機化</b>（遺傳工具）、以及機制上的<b>實驗室實驗</b>互相佐證。不同偏誤的方法都指向同一結論，才是真正的證據（見下方最後一個家族）。</li>
+        <li data-en="<b>⑨ Report transparently.</b> The estimand, the assumptions, the code, and the sensitivity analyses — following STROBE / RECORD-PE — so a reader can judge how much each assumption is doing."><b>⑨ 透明報告。</b>把 estimand、假設、程式碼與敏感度分析都寫出來（依 STROBE／RECORD-PE），讓讀者能判斷每個假設承擔了多少。</li>
+      </ol>
+    </div>
+
+    <div class="card scene">
+      <h3 data-en="Every design here corrects its naive bias back to the truth (grouped by family; mediation recovers the true direct effect, transportability/external-control the target-population effect, and the last family triangulates with genetic-IV and wet-lab experiments)">每一種設計，各自把「未校正偏誤」修回真值（按家族分組；中介分析還原真正的直接效果，可轉移性／外部對照還原目標族群的效果，最後一個家族則用遺傳工具與實驗室實驗做三角驗證）</h3>
       <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling · proxies/negative controls · mechanism/mediation) — different ways of recovering the truth, all landing near 1.0.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
         <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝未校正比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
@@ -7398,6 +7414,19 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
           IV、RDD、DiD、ITS、CC、SCCS、ACNU、PNU、MED、PS 都有真的 scikit-learn 示範；TiT 與 PERR 的文獻目前沒有現成的 AI 藥方。
         </li>
       </ul>
+    </div>
+
+    <h2 data-en="A different category: triangulation with experiments &amp; genetics (wet-lab + MR)">另一類：用實驗與遺傳做三角驗證（wet-lab ＋ MR）</h2>
+    <div class="card scene">
+      <h3 data-en="When observational adjustment isn't enough, corroborate with a method that fails differently">當觀察性校正還不夠時，用一個「以不同方式出錯」的方法佐證</h3>
+      <p data-en="The designs above all squeeze causation out of <b>observational</b> data, and they share one weakness — residual unmeasured confounding. The most convincing causal claims <b>triangulate</b>: they line up evidence from approaches whose biases are <b>unrelated</b>, so a shared answer is unlikely to be a shared artefact. Two complementary categories sit outside the observational toolbox:">上面的設計都是從<b>觀察性</b>資料裡擠出因果，因此共享同一個弱點，殘留的未測混淆。最有說服力的因果主張會做<b>三角驗證</b>，把偏誤<b>互不相關</b>的方法擺在一起，如果它們指向同一個答案，就不太可能只是同一個假象。觀察性工具箱之外，有兩個互補的類別：</p>
+      <div class="cards">
+        <div class="card"><h3 data-en="Mendelian randomization (MR) — genetic instruments">孟德爾隨機化（MR）：遺傳工具</h3>
+          <p data-en="MR is <b>instrumental-variables</b> inference where the instrument is a <b>genetic variant</b> (or a polygenic score) for the exposure. Because alleles are allocated at conception (roughly randomly with respect to later lifestyle/confounders) and fixed for life, a valid genetic instrument is unconfounded and free of reverse causation. The same IV assumptions apply — <b>relevance</b> (the variant predicts the exposure; watch weak instruments), <b>independence</b> (no confounding of variant–outcome), and <b>exclusion</b> (the variant affects the outcome only through the exposure; pleiotropy is the main threat). Two-sample MR uses GWAS summary statistics; sensitivity tools include MR-Egger, weighted median and MR-PRESSO. Tools: R <code>TwoSampleMR</code>, <code>MendelianRandomization</code>.">MR 就是把<b>工具變數</b>的工具換成暴露的<b>遺傳變異</b>（或多基因分數）。等位基因在受孕時就分派（相對於後天生活型態／混淆近似隨機）且終生固定，所以一個有效的遺傳工具沒有混淆、也沒有反向因果。IV 的三條假設照舊，<b>相關性</b>（變異能預測暴露，小心弱工具）、<b>獨立性</b>（變異與結果之間沒有混淆）、<b>排除限制</b>（變異只透過暴露影響結果，最大威脅是多效性 pleiotropy）。雙樣本 MR 用 GWAS 彙總統計；敏感度工具有 MR-Egger、加權中位數、MR-PRESSO。工具：R <code>TwoSampleMR</code>、<code>MendelianRandomization</code>。</p></div>
+        <div class="card"><h3 data-en="Wet-lab experiments — mechanism &amp; manipulation">實驗室（wet-lab）實驗：機制與操弄</h3>
+          <p data-en="Bench and animal experiments deliver the one thing observational data can't: a <b>deliberate intervention</b> on the exposure with everything else held fixed (knock-out / knock-in, cell-line dose–response, randomized animal models). They establish <b>mechanism</b> and <b>directionality</b> that make an epidemiological association biologically credible, and they can refute a confounded signal. Their limits are the mirror image of epidemiology's — high internal validity but uncertain <b>transportability</b> to humans and the real-world dose. That is exactly why they pair so well: agreement between a human observational estimate and an experimental mechanism is strong, biases-don't-overlap evidence.">實驗室與動物實驗能給觀察性資料給不了的東西，<b>刻意操弄</b>暴露、其餘維持不變（基因剔除／嵌入、細胞株劑量反應、隨機分派的動物模型）。它們建立<b>機制</b>與<b>方向性</b>，讓流行病學的關聯在生物學上可信，也能反駁一個被混淆的訊號。它們的限制正好和流行病學相反，內部效度高、但對人體與真實劑量的<b>可轉移性</b>不確定。正因如此兩者很搭：人體觀察估計與實驗機制若一致，就是「偏誤不重疊」的強證據。</p></div>
+      </div>
+      <p class="caption" data-en="In the chart above, MR and wet-lab appear as the last family: the naive observational association is confounded, while the genetic-IV estimate and the experimental result recover the truth (≈ 1.0) from a direction the observational designs cannot.">上面那張圖裡，MR 與 wet-lab 是最後一個家族：未校正的觀察性關聯被混淆，而遺傳工具估計與實驗結果則從觀察性設計到不了的方向，把真值（≈ 1.0）還原回來。</p>
     </div>
 
     <h2 data-en="Before you compare the numbers: mind the effect scale (collapsibility)">比較數字之前：注意效果尺度（可塌縮性 collapsibility）</h2>
@@ -7539,6 +7568,15 @@ stcox inTrial [pw=w], vce(robust)         <span class="cm">// weighted Cox; or g
             <td data-en="A single-arm vaccine study (everyone vaccinated, no concurrent controls); you borrow an external/historical untreated cohort as the control arm">單臂疫苗研究（全部接種、沒有同期對照）；你借一個外部／歷史的未接種世代當對照臂</td>
             <td data-en="Borrow a whole control arm — then standardise / propensity-weight the external controls to match the trial's covariates">借的是整個對照臂，再用標準化／傾向加權把外部對照校到試驗的共變項分布</td>
             <td data-en="The external controls are exchangeable given measured covariates, with no era/source drift and consistent outcomes, plus overlap">扣掉已測共變項後外部對照可交換、無時代／來源漂移、結果定義一致，且有重疊</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · experimental / genetic triangulation (corroborate from outside observational data)">家族 · 實驗／遺傳三角驗證（從觀察性資料之外佐證）</td></tr>
+          <tr><td>MR</td>
+            <td data-en="Instead of a mailed reminder, use a genetic variant that raises the chance of (or proxies) the exposure as the instrument, asking whether the exposure itself affects the outcome">不用寄出的提醒，而是用一個會提高暴露機率（或代理暴露）的遺傳變異當工具，問暴露本身是否影響結果</td>
+            <td data-en="Randomisation at conception: alleles are allocated roughly at random with respect to lifestyle/confounders and fixed for life (an IV with a genetic instrument)">受孕時的隨機：等位基因相對於生活型態／混淆近似隨機分派且終生固定（以遺傳變異為工具的 IV）</td>
+            <td data-en="The IV trio — relevance, independence, and exclusion (no pleiotropy: the variant affects the outcome only through the exposure)">IV 三條，相關性、獨立性、排除限制（無多效性：變異只透過暴露影響結果）</td></tr>
+          <tr><td>Wet-lab</td>
+            <td data-en="Directly intervene on the exposure at the bench — knock-out/knock-in, a cell-line dose–response, or a randomized animal model — to test mechanism and direction">在實驗台上直接操弄暴露，基因剔除／嵌入、細胞株劑量反應，或隨機分派的動物模型，檢驗機制與方向</td>
+            <td data-en="A real (not borrowed) randomised manipulation with everything else held fixed — the gold standard for internal validity">真正（不是借來的）隨機操弄、其餘維持不變，內部效度的黃金標準</td>
+            <td data-en="Transportability to humans and to the real-world dose — high internal validity, uncertain external validity">對人體與真實劑量的可轉移性，內部效度高、外部效度不確定</td></tr>
         </tbody>
       </table>
     </div>
