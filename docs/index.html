@@ -7886,22 +7886,6 @@ regress y arm progscore if source=="trial"</code></pre>
 
   <section id="missanalyze" class="panel">
     <h1 data-en="③ Data analysis: run multiple imputation">③ 資料分析：實際跑多重插補</h1>
-    <h2 data-en="How to actually do it (R &amp; Python)">實際怎麼做（R 與 Python）</h2>
-    <div data-lang="r" class="card"><h3 data-en="R — the mice package (multiple imputation by chained equations)">R：mice 套件（鏈式方程多重插補）</h3>
-      <pre class="sas"><code><span class="cm"># library(mice): impute m datasets, fit your model on each, pool by Rubin's rules</span>
-imp &lt;- mice(dat, m = 20, method = "pmm", seed = 1)   <span class="cm"># include the OUTCOME in dat</span>
-fit &lt;- with(imp, lm(Y ~ A + X))                      <span class="cm"># analyse each completed dataset</span>
-pool(fit)                                            <span class="cm"># combine estimates + CIs (Rubin)</span></code></pre>
-      <p data-en="Always put the outcome (and anything that predicts missingness) into the imputation model — leaving Y out biases the result.">插補模型一定要放進結果（以及任何能預測缺失的變數），把 Y 漏掉會讓結果偏掉。</p></div>
-    <div data-lang="r" class="card"><h3 data-en="Python — scikit-learn IterativeImputer / KNNImputer">Python：scikit-learn 的 IterativeImputer／KNNImputer</h3>
-      <pre class="sas"><code><span class="cm"># IterativeImputer ≈ MICE; sample_posterior=True draws give proper multiple imputation</span>
-from sklearn.experimental import enable_iterative_imputer
-from sklearn.impute import IterativeImputer, KNNImputer
-imp = IterativeImputer(sample_posterior=True, max_iter=10, random_state=0)
-X_filled = imp.fit_transform(df[["A", "Y", "X"]])    <span class="cm"># include A and Y as predictors</span>
-<span class="cm"># KNNImputer(n_neighbors=5): fill from the k nearest complete rows (a single imputation)</span></code></pre>
-      <p data-en="Single sklearn imputers fill once (under-stating uncertainty); loop over several sample_posterior draws and pool to get true multiple imputation.">單次的 sklearn 插補只填一次（低估不確定性）；對 sample_posterior 抽樣多次再合併，才是真正的多重插補。</p></div>
-
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Multiple Imputation">程式（SAS · R · Stata）：多重插補</h2>
     <p class="code-src" data-en="Sources — multiple imputation by chained equations (van Buuren &amp; Groothuis-Oudshoorn 2011); R uses the mice package.">出處 — 鏈式方程多重插補（van Buuren &amp; Groothuis-Oudshoorn 2011）；R 使用 mice 套件。</p>
