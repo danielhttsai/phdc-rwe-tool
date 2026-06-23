@@ -62,12 +62,13 @@
         <option value="transport" data-en="Transportability · extend to a target population">Transportability · 可轉移性</option>
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
-        <optgroup label="鄰近取向（非核心因果設計）/ adjacent (non-core)">
-          <option value="babe" data-en="BA/BE · Bioavailability &amp; bioequivalence">BA/BE · 生體可用率與生體相等性</option>
-          <option value="fsqca" data-en="fsQCA · Fuzzy-set qualitative comparative analysis">fsQCA · 模糊集質性比較分析</option>
-          <option value="mcda" data-en="MCDA · Multi-criteria decision analysis">MCDA · 多準則決策分析</option>
-          <option value="wetlab" data-en="Wet-lab · experimental validation">Wet-lab · 實驗室驗證</option>
-        </optgroup>
+        <!-- Adjacent approaches (not core causal designs): kept selectable so
+             the choose-page gateway can jump to their full ①–⑥ tabs, but hidden
+             from this picker so they don't clutter the causal method list. -->
+        <option value="babe" hidden data-en="BA/BE · Bioavailability &amp; bioequivalence">BA/BE · 生體可用率與生體相等性</option>
+        <option value="fsqca" hidden data-en="fsQCA · Fuzzy-set qualitative comparative analysis">fsQCA · 模糊集質性比較分析</option>
+        <option value="mcda" hidden data-en="MCDA · Multi-criteria decision analysis">MCDA · 多準則決策分析</option>
+        <option value="wetlab" hidden data-en="Wet-lab · experimental validation">Wet-lab · 實驗室驗證</option>
       </select>
     </label>
     <div class="subtabs" role="tablist" aria-label="方法的六層 · the six layers of each method">
