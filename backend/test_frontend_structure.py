@@ -151,10 +151,10 @@ def test_subtab_buttons_match_the_six_subs(html):
 
 DATA = os.path.join(FRONTEND, "data")
 
-# Methods whose ③ code has been rewritten to read <key>_sample.csv end-to-end.
-# Extend this set as each batch lands; the column-level correctness is verified
-# by review against each package's documented usage (R/SAS/Stata can't run here).
-DONE_METHODS = {"ccw", "seq"}
+# Every method's ③ code has been rewritten to read <key>_sample.csv end-to-end.
+# (Column-level correctness is verified by review against each package's
+# documented usage, since R/SAS/Stata can't be executed in CI.) None = all.
+DONE_METHODS = None
 
 
 def _analyze_panel(html, prefix):
@@ -173,10 +173,10 @@ def test_every_method_has_a_sample_csv(method_prefix):
 
 
 def test_migrated_code_reads_its_sample_csv(html, method_prefix):
+    methods = sorted(DONE_METHODS) if DONE_METHODS else sorted(method_prefix)
     bad = []
-    for m in sorted(DONE_METHODS):
-        prefix = method_prefix[m]
-        panel = _analyze_panel(html, prefix)
+    for m in methods:
+        panel = _analyze_panel(html, method_prefix[m])
         if f"{m}_sample.csv" not in panel:
             bad.append(m)
     assert not bad, f"③ code does not read its own sample CSV: {bad}"
