@@ -1,0 +1,6 @@
+outcome,rr,lo,hi
+mortality,0.78,0.69,0.88
+hospitalisation,0.85,0.74,0.98
+MI,0.91,0.8,1.04
+stroke,1.2,1.05,1.37
+AKI,1.45,1.1,1.91

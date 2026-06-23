@@ -1,0 +1,13 @@
+study,treatment,events,n
+S1,placebo,66,197
+S1,drugA,44,197
+S2,placebo,43,170
+S2,drugB,25,170
+S3,drugA,57,240
+S3,drugB,52,240
+S4,placebo,53,174
+S4,drugC,49,174
+S5,drugB,21,154
+S5,drugC,23,154
+S6,drugA,58,234
+S6,drugC,47,234

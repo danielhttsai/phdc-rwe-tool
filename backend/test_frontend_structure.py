@@ -144,3 +144,39 @@ def test_subtab_buttons_match_the_six_subs(html):
     found |= set(re.findall(r'data-sub="(\w+)"', html))
     for sub in SUBS:
         assert sub in found, f"subtab button for '{sub}' missing"
+
+
+# --- Round 3: every method ships a downloadable sample CSV, and the ③ code -----
+# --- that has been migrated reads exactly that file (runnable on dummy data). ---
+
+DATA = os.path.join(FRONTEND, "data")
+
+# Methods whose ③ code has been rewritten to read <key>_sample.csv end-to-end.
+# Extend this set as each batch lands; the column-level correctness is verified
+# by review against each package's documented usage (R/SAS/Stata can't run here).
+DONE_METHODS = {"ccw", "seq"}
+
+
+def _analyze_panel(html, prefix):
+    """Return the HTML of the <section id="<prefix>analyze"> ... </section>."""
+    pid = prefix + "analyze"
+    m = re.search(r'<section id="' + re.escape(pid) + r'"', html)
+    assert m, f"no analyze panel for #{pid}"
+    end = html.find("</section>", m.end())
+    return html[m.start():end]
+
+
+def test_every_method_has_a_sample_csv(method_prefix):
+    missing = [m for m in method_prefix
+               if not os.path.exists(os.path.join(DATA, f"{m}_sample.csv"))]
+    assert not missing, f"methods with no data/<m>_sample.csv: {missing}"
+
+
+def test_migrated_code_reads_its_sample_csv(html, method_prefix):
+    bad = []
+    for m in sorted(DONE_METHODS):
+        prefix = method_prefix[m]
+        panel = _analyze_panel(html, prefix)
+        if f"{m}_sample.csv" not in panel:
+            bad.append(m)
+    assert not bad, f"③ code does not read its own sample CSV: {bad}"

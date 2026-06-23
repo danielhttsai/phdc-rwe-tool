@@ -91,6 +91,11 @@ def _copy_assets():
     if os.path.isdir(assets_src):
         shutil.copytree(assets_src, os.path.join(DOCS, "assets"))
 
+    # 每個方法的可下載範例資料 frontend/data/*.csv → docs/data/(③ 程式直接讀它)
+    data_src = os.path.join(FRONTEND, "data")
+    if os.path.isdir(data_src):
+        shutil.copytree(data_src, os.path.join(DOCS, "data"))
+
     for name in BACKEND_PY:
         shutil.copyfile(os.path.join(BACKEND, name), os.path.join(DOCS, "py", name))
     shutil.copyfile(os.path.join(WEB, "api.py"), os.path.join(DOCS, "py", "api.py"))

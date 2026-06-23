@@ -496,6 +496,20 @@ const fmt = (x, d = 2) => (x === null || x === undefined || Number.isNaN(x) ? "�
 // the rows are cached so re-opening / language-toggling is cheap.
 // ----------------------------------------------------------------------
 const _previewCache = {};
+// Minimal CSV parser — our sample files are plain (no embedded commas/quotes),
+// so a line/field split is enough; empty fields stay "" (shown blank).
+function _parseCSV(text) {
+  const lines = text.replace(/\r\n?/g, "\n").split("\n").filter((l) => l.length);
+  if (!lines.length) return { columns: [], rows: [] };
+  const columns = lines[0].split(",");
+  const rows = lines.slice(1).map((l) => {
+    const parts = l.split(",");
+    const o = {};
+    columns.forEach((c, i) => { o[c] = parts[i] === undefined ? "" : parts[i]; });
+    return o;
+  });
+  return { columns, rows };
+}
 async function renderDataPreview(method) {
   const prefix = METHOD_PREFIX[method];
   const panel = document.getElementById(prefix + "analyze");
@@ -509,24 +523,32 @@ async function renderDataPreview(method) {
     if (h1) h1.insertAdjacentElement("afterend", box);
     else panel.insertAdjacentElement("afterbegin", box);
   }
+  // ③ now reads the SAME downloadable file the SAS/R/Stata code reads:
+  // data/<method>_sample.csv (copied to docs/data by build_docs.py). This keeps
+  // the preview, the download and the code's column names perfectly in sync.
   let data = _previewCache[method];
   if (!data) {
-    const ep = prefix ? `${API}/api/${prefix}_example` : `${API}/api/example`;
-    try { data = await getJSON(ep); _previewCache[method] = data; }
-    catch (e) { return; }
+    try {
+      const r = await fetch(`data/${method}_sample.csv`);
+      if (!r.ok) throw new Error(r.statusText);
+      const text = await r.text();
+      data = { csv: text, ..._parseCSV(text) };
+      _previewCache[method] = data;
+    } catch (e) { box.innerHTML = ""; return; }
   }
   const cols = data.columns || [];
-  const rows = (data.preview || []).slice(0, 6);
+  const rows = (data.rows || []).slice(0, 6);
   if (!cols.length || !rows.length) { box.innerHTML = ""; return; }
-  const cell = (v) => (typeof v === "number" ? (Number.isInteger(v) ? v : Math.round(v * 100) / 100)
+  const num = (s) => (s !== "" && s != null && !Number.isNaN(Number(s)));
+  const cell = (v) => (num(v) ? (Number.isInteger(Number(v)) ? Number(v) : Math.round(Number(v) * 1000) / 1000)
                        : (v == null ? "" : String(v)));
   const thead = "<tr>" + cols.map((c) => `<th>${c}</th>`).join("") + "</tr>";
   const tbody = rows.map((r) => "<tr>" + cols.map((c) => `<td>${cell(r[c])}</td>`).join("") + "</tr>").join("");
   box.innerHTML =
-    `<h3 class="dp-title">${tr("實際資料長什麼樣子（內建範例的前幾列）", "What the actual data looks like (first rows of the built-in example)")}</h3>` +
+    `<h3 class="dp-title">${tr("實際資料長什麼樣子（可下載的範例檔前幾列）", "What the actual data looks like (first rows of the downloadable sample file)")}</h3>` +
     `<div class="dp-scroll"><table class="dp-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>` +
-    `<p class="caption">${tr("每一列是一個觀測（人／人-時段）；下面就用這份資料跑分析。純屬合成的示範資料。", "Each row is one observation (person / person-period); the analysis below runs on exactly this data. Purely synthetic demo data.")}</p>` +
-    (data.csv ? `<button type="button" class="dl-csv">⬇ ${tr("下載這份範例資料（CSV）", "Download this sample data (CSV)")}</button>` : "");
+    `<p class="caption">${tr("下面 SAS／R／Stata 的程式就直接讀這個檔（" + method + "_sample.csv）跑。純屬合成的示範資料。", "The SAS / R / Stata code below reads exactly this file (" + method + "_sample.csv). Purely synthetic demo data.")}</p>` +
+    `<button type="button" class="dl-csv">⬇ ${tr("下載這份範例資料（CSV）", "Download this sample data (CSV)")}</button>`;
   const dl = box.querySelector(".dl-csv");
   if (dl) dl.addEventListener("click", () => {
     const blob = new Blob([data.csv], { type: "text/csv;charset=utf-8;" });

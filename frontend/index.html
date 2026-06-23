@@ -2641,100 +2641,148 @@ lincom 1.group#1.period, irr        // PERR with 95% CI
   
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Clone-Censor-Weight">程式（SAS · R · Stata）：複製-設限-加權 CCW 的關鍵步驟</h2>
-    <p class="code-src" data-en="Sources — method: Hernán &amp; Robins target-trial emulation; Maringe et al. (2020) clone-censor-weight tutorial; IPCW via pooled logistic. Cross-checked against Harvard Causalab.">出處 — 方法：Hernán &amp; Robins 目標試驗模擬；Maringe 等（2020）clone-censor-weight 教學；以 pooled logistic 計算 IPCW。並對照 Harvard Causalab。</p>
-    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://hsph.harvard.edu/research/causalab/software-2/" target="_blank" rel="noopener">Harvard Causalab</a></p>
-    <p class="lead" data-en="Clone each person into both strategy arms, censor a clone when it deviates, fit a pooled-logistic IPCW model for that artificial censoring, then a weighted survival analysis.">把每個人複製到兩個策略臂、偏離時設限、用 pooled-logistic 配 IPCW，再做加權存活分析。</p>
-    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal dispensings to one row per person">步驟 0 — 從縱貫的領藥紀錄整理成每人一列</h3>
-      <pre class="sas"><code><span class="cm">/* raw = one row per dispensing (pid fill_date days_supply) + event date. */</span>
-<span class="cm">/* Derive each person's treatment start/stop month and event month.       */</span>
-proc sql;
-   create table cohort as
-   select pid, index_date,
-          min(fill_date)               as start_date format=date9.,
-          max(fill_date + days_supply) as stop_date  format=date9.,
-          min(event_date)              as event_date format=date9.
-   from rx group by pid, index_date;
-quit;
-data cohort; set cohort;
-   start_month = intck('month', index_date, start_date);
-   stop_month  = intck('month', index_date, stop_date);
-   event_month = intck('month', index_date, event_date);
-run;</code></pre>
-      <p data-en="The hardest reshape: turn many dispensing rows into one row per person carrying the treatment episode (start/stop) and the event month. Step 1 then clones into both strategies and expands to person-months using these dates.">最難的整形：把多筆領藥列收成每人一列、帶著治療起訖（start/stop）與事件月。Step 1 再用這些日期複製到兩臂、展開成「人月」。</p></div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 1 — clone into both strategies, expand to person-months">步驟 1 — 複製到兩臂、展開成「人月」</h3>
-      <pre class="sas"><code>data clones; set cohort;
-   do arm = 'early','late'; output; end;     <span class="cm">/* one copy per strategy */</span>
+    <p class="code-src" data-en="Sources — method: Hernán &amp; Robins target-trial emulation; Maringe et al. (2020, Int J Epidemiol) publish the worked clone-censor-weight + IPCW code this mirrors; weighted survival via the R <code>survival</code> package.">出處 — 方法：Hernán &amp; Robins 目標試驗模擬；本程式對應 Maringe 等（2020, Int J Epidemiol）所公開的 clone-censor-weight＋IPCW 範例碼；加權存活用 R 的 <code>survival</code> 套件。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://doi.org/10.1093/ije/dyz207" target="_blank" rel="noopener">Maringe et al. 2020 (IJE)</a> · <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">survival</a></p>
+    <p class="lead" data-en="Clone each person into both strategy arms, censor a clone when it deviates, fit a pooled-logistic IPCW for that artificial censoring, then draw the weighted survival curve.">把每個人複製到兩個策略臂、偏離時設限、用 pooled-logistic 配 IPCW，再畫加權存活曲線。</p>
+    <div class="sas-note" data-en="This is a <b>complete, runnable</b> program on the downloadable <code>ccw_sample.csv</code> (one row per person: <code>pid, age, frailty, vacc_month</code> [NA = never], <code>event, futime</code>). Real registry data first needs the dispensing-to-person reshape; the sample is already in that shape.">這是可直接在可下載的 <code>ccw_sample.csv</code> 上<b>完整執行</b>的程式（每列一個人：<code>pid, age, frailty, vacc_month</code>〔NA＝未接種〕、<code>event, futime</code>）。真實健保資料要先把領藥紀錄整理成每人一列；這份範例已經是該格式。</div>
+    <div class="card info">
+      <h3 data-en="Drawing the survival curve: weighted KM vs standardization (read this)">怎麼畫存活曲線：加權 KM vs 標準化（請先讀）</h3>
+      <p data-en="After cloning + IPCW you have a <b>long / counting-process</b> dataset with a time-varying weight. There are two valid ways to get each strategy's survival curve, and both are in the R code below.<br><b>(1) Weighted Kaplan–Meier</b>: feed the long form straight into <code>survfit(Surv(tstart,tstop,event)~arm, weights=ipcw)</code>. R weights the long form directly, so this is the simplest and most common CCW curve — use it as the default.<br><b>(2) Standardization (g-formula)</b>: fit a pooled-logistic <b>hazard</b> model, predict each clone's monthly survival, then <b>average over clones</b> within each arm. Prefer this when you also want to <b>adjust for covariates directly</b>, when positivity is borderline, or when you want a smoother curve.<br>Both target the <b>same marginal survival</b> and should agree. <b>SE caveat:</b> the weights are estimated and time-varying, so the naïve KM / curve standard error is wrong — get CIs by <b>bootstrapping over <code>pid</code></b> (or robust <code>cluster(pid)</code> for the weighted Cox).">
+        複製＋IPCW 之後，你手上是一份帶<b>時變權重</b>的<b>長格式（counting-process）</b>資料。要得到每個策略的存活曲線有兩種正確做法，下面 R 程式兩種都附。<br><b>(1) 加權 Kaplan–Meier</b>：把長格式直接丟給 <code>survfit(Surv(tstart,tstop,event)~arm, weights=ipcw)</code>。R 可以直接對長格式加權，所以這是最簡單、最常見的 CCW 曲線，當預設用。<br><b>(2) 標準化（g-formula）</b>：配一個 pooled-logistic <b>風險（hazard）</b>模型，預測每個複製品逐月的存活，再在每個臂內<b>對複製品取平均</b>。當你還想<b>直接校正共變項</b>、正性（positivity）邊緣、或想要更平滑的曲線時，用這個。<br>兩者瞄準的是<b>同一個邊際存活</b>，結果應該一致。<b>SE 注意：</b>權重是估出來且時變的，所以天真的 KM／曲線標準誤是錯的；信賴區間請<b>對 <code>pid</code> 做 bootstrap</b>（或加權 Cox 用穩健 <code>cluster(pid)</code>）。
+      </p>
+    </div>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — clone, censor, IPCW, weighted survival (runs on ccw_sample.csv)">SAS — 複製、設限、IPCW、加權存活（直接跑 ccw_sample.csv）</h3>
+      <pre class="sas"><code>proc import datafile="ccw_sample.csv" out=d dbms=csv replace; getnames=yes; run;
+%let g=3; %let H=12;                  <span class="cm">/* grace period &amp; horizon (months) */</span>
+
+<span class="cm">/* 1) clone into both strategies, expand to person-months, mark deviation */</span>
+data pm; set d;
+  vacc = (vacc_month ne .);
+  stop = min(futime, &amp;H);
+  do arm = 1, 0;                       <span class="cm">/* 1 = initiate within grace, 0 = defer */</span>
+    cens = 0;
+    do month = 0 to stop-1 until(cens=1);
+      tstart=month; tstop=month+1;
+      evt = (event=1 and tstop=stop);
+      acens = 0;
+      if arm=1 and month=&amp;g and not (vacc and vacc_month&lt;=&amp;g) then acens=1;
+      if arm=0 and vacc and month=vacc_month and vacc_month&lt;=&amp;g then acens=1;
+      output;
+      if acens=1 then cens=1;          <span class="cm">/* stop this clone after it deviates */</span>
+    end;
+  end;
 run;
-<span class="cm">/* expand to one row per person-month; set acens=1 the month a clone deviates */</span></code></pre>
-      <p data-en="Each person contributes to <b>both</b> arms; a clone is artificially censored at the month its behaviour stops matching its assigned strategy.">每個人對<b>兩臂</b>都貢獻；當某複製品的行為不再符合所指派策略，就在那一月人為設限。</p></div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 2 — IPCW (pooled logistic) then weighted survival">步驟 2 — IPCW（pooled logistic）＋加權存活</h3>
-      <pre class="sas"><code><span class="cm">/* probability of staying uncensored each month → inverse-prob weights */</span>
-proc logistic data=pm;
-   model acens(event='1') = month age frailty;
-   output out=p p=pc;
-run;
+
+<span class="cm">/* 2) IPCW: pooled logistic for staying uncensored -&gt; cumulative inverse weight */</span>
+proc logistic data=pm noprint;
+  class arm; model acens(event='1') = arm month age frailty;
+  output out=pc p=phat; run;
+proc sort data=pc; by pid arm month; run;
+data pm; set pc; by pid arm;
+  retain cum; if first.arm then cum=1;
+  cum = cum * (1 - phat);             <span class="cm">/* P(still uncensored) */</span>
+  ipcw = 1/cum; run;
+
+<span class="cm">/* 3a) WEIGHTED survival curve per arm (the usual CCW curve) */</span>
 proc phreg data=pm covs(aggregate);
-   model (tstart,tstop)*event(0) = arm;
-   weight ipcw; id pid;          <span class="cm">/* weighted KM/Cox per arm; person-robust SE */</span>
-run;</code></pre>
-      <p data-en="The logistic model gives each clone-month's probability of not being censored; its inverse is the IPC weight. The weighted <code>proc phreg</code> then compares the two strategies (use stabilized weights for grace/early-late, unstabilized + truncation for sustained).">logistic 給每個人月「沒被設限」的機率，倒數即 IPC 權重；加權的 <code>proc phreg</code> 再比兩策略（grace／早晚啟動用穩定化權重，sustained 用未穩定化＋截斷）。</p></div>
-    <div data-lang="r" class="card"><h3 data-en="R version — the same steps (survival + pooled-logistic IPCW)">R 版本：同樣步驟（survival ＋ pooled-logistic IPCW）</h3>
-      <pre class="sas"><code><span class="cm"># R — clone-censor-weight</span>
-<span class="cm"># Step 0: rx -&gt; one row per person (cohort)</span>
-library(dplyr); library(splitstackshape); library(survival)
-cohort &lt;- rx %&gt;% group_by(pid, index_date) %&gt;% summarise(
-   start_date = min(fill_date),
-   stop_date  = max(fill_date + days_supply),
-   event_date = min(event_date), .groups = "drop") %&gt;%
-   mutate(start_month = as.integer((start_date - index_date) / 30),
-          stop_month  = as.integer((stop_date  - index_date) / 30),
-          event_month = as.integer((event_date - index_date) / 30))
+  class arm; model (tstart,tstop)*evt(0) = arm; weight ipcw; id pid;
+  baseline out=km survival=s;          <span class="cm">/* plot s by tstop, by arm */</span>
+run;
 
-<span class="cm"># Step 1: clone into both arms, expand to person-months; acens=1 when a clone deviates</span>
-clones &lt;- bind_rows(mutate(cohort, arm = "early"), mutate(cohort, arm = "late"))
-pm &lt;- expandRows(clones, count = "stop_month", count.is.col = TRUE, drop = FALSE) %&gt;%
-   group_by(pid, arm) %&gt;% mutate(month = row_number() - 1) %&gt;% ungroup() %&gt;%
-   mutate(event = as.integer(month == event_month),
-          acens = deviates)          <span class="cm"># 1 when the clone stops matching its arm</span>
+<span class="cm">/* 3b) STANDARDIZATION: pooled-logistic hazard, then average predicted survival */</span>
+proc logistic data=pm noprint;
+  class arm; model evt(event='1') = arm month month*month age frailty;
+  output out=h p=hz; run;             <span class="cm">/* per clone-month hazard; */</span>
+<span class="cm">/* survival = cumulative product of (1-hz) by pid*arm, then mean by arm*month */</span></code></pre>
+      <p data-en="The data step does the clone + person-month expansion and stops each clone the month it deviates. <code>proc logistic</code> gives the censoring probabilities; their running product inverts to the IPC weight. <code>proc phreg ... weight ipcw</code> with <code>baseline</code> draws the weighted survival curve (3a); the second <code>proc logistic</code> is the standardization hazard model whose averaged predicted survival is the g-formula curve (3b).">資料步驟做複製＋人月展開，並在偏離當月停掉該複製品。<code>proc logistic</code> 給設限機率，其累乘的倒數即 IPC 權重。<code>proc phreg … weight ipcw</code> 配 <code>baseline</code> 畫加權存活曲線（3a）；第二個 <code>proc logistic</code> 是標準化的風險模型，把預測存活平均起來就是 g-formula 曲線（3b）。</p></div>
+    <div data-lang="r" class="card"><h3 data-en="R — the reference: clone, IPCW, BOTH survival curves (runs on ccw_sample.csv)">R 版本（參考實作）：複製、IPCW、兩種存活曲線（直接跑 ccw_sample.csv）</h3>
+      <pre class="sas"><code><span class="cm"># R — Clone-Censor-Weight (grace-period target-trial emulation)</span>
+<span class="cm"># reads ccw_sample.csv: pid, age, frailty, vacc_month (NA=never), event, futime</span>
+library(dplyr); library(tidyr); library(survival)
+d &lt;- read.csv("ccw_sample.csv")
+g &lt;- 3; H &lt;- 12                          <span class="cm"># grace period & horizon (months)</span>
 
-<span class="cm"># Step 2: pooled logistic for staying uncensored -&gt; IPC weights</span>
-cfit &lt;- glm(acens ~ month + age + frailty, data = pm, family = binomial)
-pm$pc   &lt;- 1 - predict(cfit, type = "response")        <span class="cm"># P(not censored) this month</span>
-pm &lt;- pm %&gt;% group_by(pid, arm) %&gt;% mutate(ipcw = 1 / cumprod(pc)) %&gt;% ungroup()
+<span class="cm"># 1) clone into both strategies, expand to person-months, mark deviation</span>
+pm &lt;- d %&gt;% tidyr::crossing(arm = c("initiate","defer")) %&gt;%
+  group_by(pid, arm) %&gt;%
+  reframe(month = 0:(min(first(futime), H) - 1),
+          across(c(age, frailty, vacc_month, event, futime), first)) %&gt;%
+  ungroup() %&gt;%
+  mutate(tstart = month, tstop = month + 1,
+         vacc = !is.na(vacc_month),
+         evt  = as.integer(event == 1 & tstop == pmin(futime, H)),
+         acens = case_when(
+           arm=="initiate" & month==g & !(vacc & vacc_month&lt;=g)        ~ 1L,
+           arm=="defer"    & vacc & month==vacc_month & vacc_month&lt;=g  ~ 1L,
+           TRUE ~ 0L)) %&gt;%
+  group_by(pid, arm) %&gt;%
+  filter(cumsum(lag(acens, default = 0)) == 0) %&gt;% ungroup()  <span class="cm"># drop post-deviation rows</span>
 
-<span class="cm"># weighted survival comparing the two strategies; person-robust SE via cluster(pid)</span>
-coxph(Surv(month, month + 1, event) ~ arm + cluster(pid), data = pm, weights = ipcw)
+<span class="cm"># 2) IPCW: pooled logistic for staying uncensored -&gt; stabilized weight</span>
+den &lt;- glm(acens ~ arm + month + age + frailty, binomial, pm)
+num &lt;- glm(acens ~ arm + month,                binomial, pm)   <span class="cm"># stabiliser</span>
+pm &lt;- pm %&gt;% mutate(pu = 1 - predict(den, type="response"),
+                    pn = 1 - predict(num, type="response")) %&gt;%
+  group_by(pid, arm) %&gt;% mutate(ipcw = cumprod(pn)/cumprod(pu)) %&gt;% ungroup()
+
+<span class="cm"># 3a) WEIGHTED KAPLAN–MEIER on the long form (the usual CCW curve)</span>
+km &lt;- survfit(Surv(tstart, tstop, evt) ~ arm, data = pm, weights = ipcw)
+plot(km, col = c("#0E7C7B","#5b6b7b"), xlab="month", ylab="survival",
+     main="CCW: weighted Kaplan–Meier")
+
+<span class="cm"># 3b) STANDARDIZATION (g-formula): pooled-logistic hazard, average over clones</span>
+hz &lt;- glm(evt ~ arm*poly(month,2) + age + frailty, binomial, pm, weights = ipcw)
+std_curve &lt;- function(a){
+  nd &lt;- transform(pm, arm = a)
+  nd$h &lt;- predict(hz, nd, type = "response")
+  nd %&gt;% arrange(pid, month) %&gt;% group_by(pid) %&gt;% mutate(S = cumprod(1 - h)) %&gt;%
+    group_by(month) %&gt;% summarise(S = mean(S), .groups = "drop")
+}
+ini &lt;- std_curve("initiate"); def &lt;- std_curve("defer")
+lines(ini$month, ini$S, col="#0E7C7B", lty=2)   <span class="cm"># dashed = standardized</span>
+lines(def$month, def$S, col="#5b6b7b", lty=2)
+
+<span class="cm"># CI: weights are estimated + time-varying -&gt; bootstrap over pid (naive SE is wrong)</span>
 </code></pre>
-      <p data-en="<code>expandRows</code> blows each clone out to person-months; the pooled logistic gives each clone-month's probability of staying uncensored, and the running inverse of its cumulative product is the IPC weight. The weighted <code>coxph</code> with <code>cluster(pid)</code> then compares early vs late with person-robust SEs (stabilized weights for grace/early-late, unstabilized + truncation for sustained).">用 <code>expandRows</code> 把每個複製品展開成人月；pooled logistic 給每個人月「沒被設限」的機率，其累積乘積的倒數即 IPC 權重。加權 <code>coxph</code> 搭 <code>cluster(pid)</code> 比較早晚啟動並給穩健 SE（grace／早晚啟動用穩定化權重，sustained 用未穩定化＋截斷）。</p></div>
-    <div data-lang="stata" class="card"><h3 data-en="Stata version — the same steps (expand/clone, stset, pooled-logistic IPCW)">Stata 版本：同樣步驟（expand/clone、stset、pooled-logistic IPCW）</h3>
-      <pre class="sas"><code><span class="cm">* Stata — clone-censor-weight</span>
-<span class="cm">* Step 0: rx -&gt; one row per person (cohort)</span>
-collapse (min) start_date=fill_date (max) stop_date=fill_stop ///
-         (min) event_date, by(pid index_date)
-gen start_month = mofd(start_date) - mofd(index_date)
-gen stop_month  = mofd(stop_date)  - mofd(index_date)
-gen event_month = mofd(event_date) - mofd(index_date)
+      <p data-en="<code>crossing</code> + <code>reframe</code> clone each person into both strategies and expand to person-months; a clone is dropped after the month it deviates. Two pooled-logistic fits give the stabilized IPC weight. <b>3a</b> feeds the long form straight to <code>survfit(..., weights=ipcw)</code> — the weighted KM curve. <b>3b</b> fits a hazard model and averages each clone's predicted survival — the standardization curve (dashed). They should overlay; for CIs, bootstrap over <code>pid</code>."><code>crossing</code>＋<code>reframe</code> 把每人複製成兩個策略、展開成人月；偏離後的列丟掉。兩個 pooled-logistic 給穩定化 IPC 權重。<b>3a</b> 把長格式直接丟給 <code>survfit(..., weights=ipcw)</code>，就是加權 KM 曲線；<b>3b</b> 配風險模型、把每個複製品的預測存活平均起來，就是標準化曲線（虛線）。兩者應重疊；信賴區間請對 <code>pid</code> 做 bootstrap。</p></div>
+    <div data-lang="stata" class="card"><h3 data-en="Stata — clone, censor, IPCW, weighted survival (runs on ccw_sample.csv)">Stata — 複製、設限、IPCW、加權存活（直接跑 ccw_sample.csv）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — clone-censor-weight on ccw_sample.csv</span>
+import delimited "ccw_sample.csv", clear case(preserve)
+local g 3
+local H 12
+gen vacc = !missing(vacc_month)
 
-<span class="cm">* Step 1: clone into both arms, expand to person-months</span>
-expand 2                                  // one copy per strategy
-bysort pid index_date: gen arm = cond(_n==1, "early", "late")
-expand stop_month                         // one row per person-month
+<span class="cm">* 1) clone into both strategies, expand to person-months, mark deviation</span>
+expand 2
+bysort pid: gen arm = _n - 1                 // 1 = initiate within grace, 0 = defer
+gen stop = min(futime, `H')
+expand stop
 bysort pid arm: gen month = _n - 1
-gen event = month == event_month
-gen acens = deviates                      // 1 when the clone stops matching its arm
+gen tstart = month
+gen tstop  = month + 1
+gen evt = (event==1 & tstop==stop)
+gen acens = (arm==1 & month==`g' & !(vacc & vacc_month&lt;=`g')) ///
+          | (arm==0 & vacc & month==vacc_month & vacc_month&lt;=`g')
+bysort pid arm (month): drop if sum(acens[_n-1]) &gt; 0   // drop post-deviation rows
 
-<span class="cm">* Step 2: pooled logistic for staying uncensored -&gt; IPC weights</span>
-logit acens month age frailty
-predict phat, pr
-gen pc = 1 - phat                          // P(not censored) this month
-bysort pid arm (month): gen ipcw = 1 / exp(sum(ln(pc)))
+<span class="cm">* 2) IPCW: pooled logistic -&gt; stabilized cumulative weight</span>
+logit acens i.arm month age frailty
+predict pu, pr
+logit acens i.arm month
+predict pn, pr
+bysort pid arm (month): gen ipcw = exp(sum(ln(1-pn))) / exp(sum(ln(1-pu)))
 
-<span class="cm">* weighted survival comparing the two strategies; person-robust SE</span>
-stset month [pw=ipcw], id(pid) failure(event==1)
+<span class="cm">* 3a) WEIGHTED Kaplan–Meier / Cox (the usual CCW curve)</span>
+stset tstop [pw=ipcw], enter(tstart) id(pid) failure(evt==1)
+sts graph, by(arm)                           // weighted survival curves
 stcox i.arm, vce(cluster pid)
+
+<span class="cm">* 3b) STANDARDIZATION: pooled-logistic hazard + margins predicted survival</span>
+logit evt i.arm c.month##c.month age frailty
+margins arm, predict(pr)                      // average predicted hazard per arm
+<span class="cm">* cumulate (1 - predicted hazard) over month for each arm to get the std curve</span>
 </code></pre>
-      <p data-en="<code>expand</code> clones each person into both arms and then into person-months; the pooled <code>logit</code> yields each clone-month's probability of staying uncensored, and the inverse of its cumulative product (<code>sum(ln(pc))</code>) is the IPC weight. <code>stset</code> with <code>[pw=ipcw]</code> then drives a weighted <code>stcox</code> comparing early vs late with person-robust SEs (stabilized weights for grace/early-late, unstabilized + truncation for sustained).">用 <code>expand</code> 把每人複製到兩臂、再展開成人月；pooled <code>logit</code> 給每個人月「沒被設限」的機率，其累積乘積（<code>sum(ln(pc))</code>）的倒數即 IPC 權重。<code>stset</code> 帶 <code>[pw=ipcw]</code> 驅動加權 <code>stcox</code> 比較早晚啟動並給穩健 SE（grace／早晚啟動用穩定化權重，sustained 用未穩定化＋截斷）。</p></div>
+      <p data-en="<code>expand</code> clones each person into both arms then into person-months; the deviation flag <code>acens</code> truncates each clone. Two <code>logit</code> fits build the stabilized IPC weight. <b>3a</b> <code>stset [pw=ipcw]</code> + <code>sts graph</code> gives the weighted KM curve; <b>3b</b> the pooled-logistic hazard with <code>margins</code> gives the standardization curve. CIs: bootstrap over <code>pid</code> (weights are estimated and time-varying)."><code>expand</code> 把每人複製到兩臂、再展開成人月；偏離旗標 <code>acens</code> 截斷每個複製品。兩個 <code>logit</code> 組出穩定化 IPC 權重。<b>3a</b> <code>stset [pw=ipcw]</code>＋<code>sts graph</code> 給加權 KM 曲線；<b>3b</b> pooled-logistic 風險配 <code>margins</code> 給標準化曲線。信賴區間：對 <code>pid</code> 做 bootstrap（權重是估出來且時變的）。</p></div>
   </section>
 
   <!-- ===================== CCW ④ 假設檢驗 ===================== -->
@@ -3129,70 +3177,114 @@ clogit y exposed if !case, group(pid)
   
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): the key steps for Sequential trials">程式（SAS · R · Stata）：序列試驗 Seq 的關鍵步驟</h2>
-    <p class="code-src" data-en="Sources — method: Hernán et al. / Danaei et al. (2013) sequential trial emulation; estimation: pooled / stratified survival with person-cluster-robust SE.">出處 — 方法：Hernán 等／Danaei 等（2013）序列試驗模擬；估計：合併／分層存活，個人群集穩健標準誤。</p>
-    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">survival</a></p>
-    <p class="lead" data-en="Stack one emulated trial per eligibility time (resetting time zero), then fit a stratified survival model with person-cluster-robust SEs (people re-enter several trials).">每個資格時點堆疊一場模擬試驗（時間零點歸零），再配分層存活模型、用個人叢集穩健標準誤（同一人可重複收案）。</p>
-    <div class="sas-note" data-en="Illustrative <b>key steps</b>, not a full runnable program — swap in your own dataset / variable names.">教學用的<b>關鍵步驟</b>示意，非可直接執行的完整程式；資料集／變數名稱請換成你自己的。</div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 0 — from longitudinal data to one row per person">步驟 0 — 從縱貫資料整理成每人一列</h3>
-      <pre class="sas"><code><span class="cm">/* claims/visits → one row per person with the month they (would) start   */</span>
-<span class="cm">/* treatment and their event month (relative to a common baseline).       */</span>
-proc sql;
-   create table cohort as
-   select pid, min(init_month) as start_month, min(event_month) as event_month
-   from raw group by pid;
-quit;</code></pre>
-      <p data-en="Sequential trials reuse the same people across many start times, so first reduce the longitudinal data to one row per person with their key months; Step 1 then stacks one emulated trial per eligibility month.">序列試驗會在多個起始時點重複用到同一群人，所以先把縱貫資料收成每人一列、帶關鍵月份；Step 1 再每個資格月堆疊一場模擬試驗。</p></div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 1 — stack the emulated trials">步驟 1 — 堆疊各場模擬試驗</h3>
-      <pre class="sas"><code>data trials; set cohort;
-   do k = 1 to 12;                       <span class="cm">/* one trial per eligibility month */</span>
-      if eligible_at(k) then do;
-         trial = k; t0 = k; output;      <span class="cm">/* time zero = trial start */</span>
-      end;
-   end;
-run;</code></pre>
-      <p data-en="A still-untreated, event-free person enters every trial they are eligible for, each time as a fresh baseline at that trial's time zero.">仍未治療、未發生事件的人會進入每一場他符合資格的試驗，每次都以該試驗的時間零點當新基線。</p></div>
-    <div data-lang="sas" class="card"><h3 data-en="Step 2 — stratified survival, person-robust SE">步驟 2 — 分層存活＋個人穩健標準誤</h3>
-      <pre class="sas"><code>proc phreg data=trials covs(aggregate);
-   strata trial;                         <span class="cm">/* each trial its own baseline hazard */</span>
-   model time*event(0) = initiate age frailty;
-   id pid;                               <span class="cm">/* person-cluster robust SE (repeat enrolment) */</span>
-run;</code></pre>
-      <p data-en="<code>strata trial</code> pools the per-trial effects; <code>covs(aggregate); id pid</code> gives standard errors robust to the same person appearing in several trials."><code>strata trial</code> 把各場試驗效果合併；<code>covs(aggregate); id pid</code> 給出對「同一人出現在多場試驗」穩健的標準誤。</p></div>
+    <p class="code-src" data-en="Sources — method: Hernán et al. target-trial framework; Danaei et al. (2013, Stat Methods Med Res) sequential trial emulation; Keogh et al. (2023) g-formula/standardization for survival in emulated trials; estimation via the R <code>survival</code> package.">出處 — 方法：Hernán 等的目標試驗框架；Danaei 等（2013, Stat Methods Med Res）序列試驗模擬；Keogh 等（2023）模擬試驗存活的 g-formula／標準化；估計用 R 的 <code>survival</code> 套件。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://doi.org/10.1177/0962280211403603" target="_blank" rel="noopener">Danaei et al. 2013</a> · <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">survival</a></p>
+    <p class="lead" data-en="Stack one emulated trial per eligibility time (resetting time zero), then estimate each strategy's survival. Standardization is preferred here; a stratified/weighted KM is the quick view.">每個資格時點堆疊一場模擬試驗（時間零點歸零），再估計每個策略的存活。這裡偏好標準化；分層／加權 KM 當快速檢視。</p>
+    <div class="sas-note" data-en="This is a <b>complete, runnable</b> program on the downloadable <code>seq_sample.csv</code> (one row per person: <code>pid, age, frailty, init_month</code> [NA = never initiates], <code>event, futime</code>).">這是可直接在可下載的 <code>seq_sample.csv</code> 上<b>完整執行</b>的程式（每列一個人：<code>pid, age, frailty, init_month</code>〔NA＝從未啟動〕、<code>event, futime</code>）。</div>
+    <div class="card info">
+      <h3 data-en="Drawing the survival curve here: prefer standardization (read this)">這裡怎麼畫存活曲線：偏好標準化（請先讀）</h3>
+      <p data-en="A sequential design <b>re-enrols the same person into several trials</b>, so the stacked dataset has correlated, overlapping rows. That makes a plain per-arm Kaplan–Meier on the stack <b>distorted</b> — the same person-time is counted in many trials, and the initiator/non-initiator mix shifts across trials.<br><b>Preferred: standardization (g-formula).</b> Fit a pooled-logistic <b>hazard</b> on the stacked person-time (with trial and covariates), predict each person's survival <b>under initiate vs not</b>, then <b>average over the whole trial-person population</b>. This targets the marginal survival cleanly despite the overlap.<br><b>Quick view: stratified / weighted KM</b> — <code>strata(trial)</code> in a Cox fit, or a per-arm KM, is fine for a fast look but inherits the stacking distortion, so treat it as indicative.<br><b>SE caveat for both:</b> a person appears in several trials, so rows are correlated — use <b>person-cluster-robust SEs</b> (<code>cluster(pid)</code>) or a <b>bootstrap over <code>pid</code></b>; naïve SEs are too narrow.">
+        序列設計會<b>把同一個人重複收進好幾場試驗</b>，所以堆疊後的資料列彼此相關、重疊。直接在堆疊資料上對每個臂畫 Kaplan–Meier 會<b>失真</b>，因為同一段人時被多場試驗重複計入，且各場試驗的「啟動／未啟動」組成會漂移。<br><b>偏好：標準化（g-formula）。</b>在堆疊的人時上配一個 pooled-logistic <b>風險（hazard）</b>模型（納入試驗別與共變項），預測每個人<b>在啟動 vs 不啟動下</b>的存活，再<b>對整個「試驗×人」族群取平均</b>。即使有重疊，也能乾淨地瞄準邊際存活。<br><b>快速檢視：分層／加權 KM</b>，在 Cox 裡用 <code>strata(trial)</code>、或每個臂各畫一條 KM，看個大概可以，但它承襲了堆疊失真，當參考即可。<br><b>兩者共同的 SE 注意：</b>一個人出現在多場試驗，列彼此相關，請用<b>個人叢集穩健 SE</b>（<code>cluster(pid)</code>）或<b>對 <code>pid</code> 做 bootstrap</b>；天真 SE 太窄。
+      </p>
+    </div>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — stack trials, stratified survival + standardization (runs on seq_sample.csv)">SAS — 堆疊試驗、分層存活＋標準化（直接跑 seq_sample.csv）</h3>
+      <pre class="sas"><code>proc import datafile="seq_sample.csv" out=d dbms=csv replace; getnames=yes; run;
+%let M=6; %let H=12;                       <span class="cm">/* number of trials & horizon (months) */</span>
+
+<span class="cm">/* stack one emulated trial per eligibility month; eligible = not yet */</span>
+<span class="cm">/* initiated and still at risk at month m. time zero resets to m.       */</span>
+data trials; set d;
+  do m = 0 to &amp;M-1;
+    if (init_month = . or init_month &gt;= m) and futime &gt; m then do;
+      trial    = m;
+      initiate = (init_month = m);        <span class="cm">/* initiator at this trial's t0 */</span>
+      time     = min(futime, &amp;H) - m;
+      event2   = (event = 1 and futime &lt;= &amp;H);
+      output;
+    end;
+  end;
+run;
+
+<span class="cm">/* QUICK VIEW: stratified Cox, person-cluster-robust SE (repeat enrolment) */</span>
+proc phreg data=trials covs(aggregate);
+  strata trial; model time*event2(0) = initiate age frailty; id pid;
+run;
+
+<span class="cm">/* PREFERRED: standardization. Expand to person-time, pooled-logistic hazard */</span>
+data pt; set trials;
+  do t = 1 to time; evt = (event2=1 and t=time); output; end;
+run;
+proc logistic data=pt noprint;
+  class trial; model evt(event='1') = initiate t t*t age frailty trial;
+  output out=h p=hz; run;
+<span class="cm">/* predict under initiate=1 vs 0, survival=cumprod(1-hz) by pid*trial, */</span>
+<span class="cm">/* then average over the trial-person population at each t = std curve.  */</span></code></pre>
+      <p data-en="The data step stacks one trial per eligibility month (time zero resets to m) and labels initiators. The stratified <code>proc phreg</code> with <code>id pid</code> is the quick view; the person-time expansion + pooled-logistic <code>proc logistic</code> is the standardization hazard model whose averaged predicted survival (under initiate vs not) is the preferred curve.">資料步驟每個資格月堆疊一場試驗（時間零點歸零）、標記啟動者。分層 <code>proc phreg</code> 搭 <code>id pid</code> 是快速檢視；人時展開＋pooled-logistic <code>proc logistic</code> 是標準化的風險模型，把（啟動 vs 不啟動下）預測存活平均起來就是偏好的曲線。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R version — the same steps (one row per person → stack trials → stratified survival, person-robust SE)">R 版本：同樣步驟（每人一列 → 堆疊試驗 → 分層存活＋個人穩健標準誤）</h3>
-      <pre class="sas"><code><span class="cm"># R — sequential trial emulation</span>
-<span class="cm"># Step 0 — longitudinal data -&gt; one row per person with key months</span>
-library(data.table); library(survival)
-cohort &lt;- as.data.table(raw)[, .(start_month = min(init_month),
-                                 event_month = min(event_month)), by = pid]
+      <pre class="sas"><code><span class="cm"># R — sequential (nested) trial emulation on seq_sample.csv</span>
+library(dplyr); library(survival)
+d &lt;- read.csv("seq_sample.csv")
+M &lt;- 6; H &lt;- 12                           <span class="cm"># number of trials & horizon (months)</span>
 
-<span class="cm"># Step 1 — stack one emulated trial per eligibility month (time zero resets)</span>
-trials &lt;- cohort[, .(k = 1:12), by = pid][
-  cohort, on = "pid"][eligible_at(k) == TRUE]
-trials[, `:=`(trial = k, t0 = k)]      <span class="cm"># time zero = trial start</span>
+<span class="cm"># stack one emulated trial per eligibility month; time zero resets to m</span>
+trials &lt;- bind_rows(lapply(0:(M-1), function(m){
+  d %&gt;% filter(is.na(init_month) | init_month &gt;= m, futime &gt; m) %&gt;%
+    transmute(pid, trial = m, age, frailty,
+              initiate = as.integer(!is.na(init_month) & init_month == m),
+              time  = pmin(futime, H) - m,
+              event = as.integer(event == 1 & futime &lt;= H))
+}))
 
-<span class="cm"># Step 2 — stratified survival, person-cluster-robust SE (repeat enrolment)</span>
+<span class="cm"># QUICK VIEW — stratified Cox, person-cluster-robust SE</span>
 fit &lt;- coxph(Surv(time, event) ~ initiate + age + frailty +
                strata(trial) + cluster(pid), data = trials)
-summary(fit)                           <span class="cm"># robust SE via cluster(pid)</span>
+summary(fit)
+
+<span class="cm"># PREFERRED — standardization (g-formula) over the trial-person population</span>
+pt &lt;- trials %&gt;% filter(time &gt; 0) %&gt;% group_by(r = row_number()) %&gt;%
+  reframe(pid, trial, age, frailty, initiate, time, t = 1:time[1]) %&gt;%
+  mutate(evt = as.integer(event == 1 & t == time)) %&gt;% ungroup()
+hz &lt;- glm(evt ~ initiate*poly(t,2) + age + frailty + factor(trial),
+          binomial, pt)
+std &lt;- function(a){
+  nd &lt;- transform(pt, initiate = a); nd$h &lt;- predict(hz, nd, type="response")
+  nd %&gt;% group_by(trial, pid) %&gt;% arrange(t) %&gt;% mutate(S = cumprod(1 - h)) %&gt;%
+    group_by(t) %&gt;% summarise(S = mean(S), .groups = "drop")
+}
+s1 &lt;- std(1L); s0 &lt;- std(0L)
+plot (s1$t, s1$S, type="l", col="#0E7C7B", ylim=c(0,1),
+      xlab="month", ylab="survival", main="Sequential: standardized survival")
+lines(s0$t, s0$S, col="#5b6b7b")          <span class="cm"># initiate vs not, averaged</span>
+<span class="cm"># CI: bootstrap over pid (rows correlated across trials)</span>
 </code></pre>
-      <p data-en="Same flow as SAS: reduce to one row per person, then <code>1:12</code> stacks an emulated trial per eligibility month with its own time zero; <code>coxph</code> with <code>strata(trial)</code> pools the per-trial effects and <code>cluster(pid)</code> gives SEs robust to a person re-entering several trials.">與 SAS 同流程：先收成每人一列，再用 <code>1:12</code> 為每個資格月堆疊一場各自歸零的模擬試驗；<code>coxph</code> 以 <code>strata(trial)</code> 合併各場試驗效果，<code>cluster(pid)</code> 給出對「同一人重複收案」穩健的標準誤。</p></div>
-    <div data-lang="stata" class="card"><h3 data-en="Stata version — the same steps (one row per person → stack trials → stratified survival, person-robust SE)">Stata 版本：同樣步驟（每人一列 → 堆疊試驗 → 分層存活＋個人穩健標準誤）</h3>
-      <pre class="sas"><code><span class="cm">* Stata — sequential trial emulation</span>
-<span class="cm">* Step 0 — longitudinal data -&gt; one row per person with key months</span>
-collapse (min) start_month=init_month event_month, by(pid)
+      <p data-en="<code>lapply(0:(M-1), …)</code> stacks one trial per eligibility month with time zero reset and labels initiators. <code>coxph</code> with <code>strata(trial) + cluster(pid)</code> is the quick view. The person-time expansion + pooled-logistic <code>glm</code>, with predicted survival averaged over the trial-person population under initiate vs not, is the preferred standardized curve; bootstrap over <code>pid</code> for CIs."><code>lapply(0:(M-1), …)</code> 每個資格月堆疊一場、時間零點歸零、標記啟動者。<code>coxph</code> 搭 <code>strata(trial) + cluster(pid)</code> 是快速檢視。人時展開＋pooled-logistic <code>glm</code>、把（啟動 vs 不啟動下）預測存活對「試驗×人」族群取平均，就是偏好的標準化曲線；信賴區間對 <code>pid</code> 做 bootstrap。</p></div>
+    <div data-lang="stata" class="card"><h3 data-en="Stata — stack trials, stratified survival + standardization (runs on seq_sample.csv)">Stata — 堆疊試驗、分層存活＋標準化（直接跑 seq_sample.csv）</h3>
+      <pre class="sas"><code><span class="cm">* Stata — sequential trial emulation on seq_sample.csv</span>
+import delimited "seq_sample.csv", clear case(preserve)
+local M 6
+local H 12
 
-<span class="cm">* Step 1 — stack one emulated trial per eligibility month (time zero resets)</span>
-expand 12                              <span class="cm">// one potential trial per month</span>
-bysort pid: gen k = _n
-keep if eligible_at(k)                 <span class="cm">// keep months the person is eligible</span>
-gen trial = k
-gen t0    = k                          <span class="cm">// time zero = trial start</span>
+<span class="cm">* stack one emulated trial per eligibility month (time zero resets to m)</span>
+expand `M'
+bysort pid: gen trial = _n - 1
+keep if (missing(init_month) | init_month &gt;= trial) & futime &gt; trial
+gen initiate = (init_month == trial)
+gen time  = min(futime, `H') - trial
+gen event2 = (event==1 & futime &lt;= `H')
 
-<span class="cm">* Step 2 — stratified survival, person-cluster-robust SE (repeat enrolment)</span>
-stset time, failure(event==1)
+<span class="cm">* QUICK VIEW — stratified Cox, person-cluster-robust SE</span>
+stset time, failure(event2==1)
 stcox initiate age frailty, strata(trial) vce(cluster pid)
+
+<span class="cm">* PREFERRED — standardization: expand to person-time, pooled-logistic hazard</span>
+expand time
+bysort pid trial: gen t = _n
+gen evt = (event2==1 & t==time)
+logit evt i.initiate c.t##c.t age frailty i.trial
+margins initiate, predict(pr)             <span class="cm">// average predicted hazard per arm</span>
+<span class="cm">* cumulate (1 - predicted hazard) over t per arm to get the std survival curve</span>
 </code></pre>
-      <p data-en="Same flow as SAS: <code>collapse (min)</code> gives one row per person, <code>expand 12</code> with a per-person counter stacks an emulated trial per eligibility month, and <code>stcox ... strata(trial) vce(cluster pid)</code> pools the per-trial baselines while making SEs robust to a person appearing in several trials.">與 SAS 同流程：<code>collapse (min)</code> 收成每人一列，<code>expand 12</code> 搭配每人計數器為每個資格月堆疊一場模擬試驗，<code>stcox ... strata(trial) vce(cluster pid)</code> 合併各場試驗基線、並讓標準誤對「同一人出現在多場試驗」穩健。</p></div>
+      <p data-en="<code>expand `M'</code> stacks the trials and keeps eligible person-trials; the stratified <code>stcox</code> is the quick view. Expanding to person-time and fitting a pooled-logistic <code>logit</code> with <code>margins</code> gives the standardization hazard; cumulating (1 − hazard) per arm yields the preferred curve. Bootstrap over <code>pid</code> for CIs."><code>expand `M'</code> 堆疊試驗、保留符合資格的「人×試驗」；分層 <code>stcox</code> 是快速檢視。展開成人時、配 pooled-logistic <code>logit</code> 搭 <code>margins</code> 給標準化風險；每個臂把（1 − 風險）累乘即偏好曲線。信賴區間對 <code>pid</code> 做 bootstrap。</p></div>
   </section>
 
   <!-- ===================== Sequential ④ 假設檢驗 ===================== -->
