@@ -72,9 +72,19 @@ def test_methods_have_all_six_subpanels(html, method_prefix):
     assert not missing, f"missing sub-panels: {missing}"
 
 
+# Adjacent (non-core) approaches are intentionally kept OUT of the method
+# dropdown; they are reached only via the choose-page #adjacentApproaches gateway.
+ADJACENT_NO_OPTION = {"babe", "fsqca", "mcda", "wetlab"}
+
+
 def test_every_method_has_a_dropdown_option(html, method_prefix):
-    missing = [m for m in method_prefix if f'value="{m}"' not in html]
+    missing = [m for m in method_prefix
+               if m not in ADJACENT_NO_OPTION and f'value="{m}"' not in html]
     assert not missing, f"methods with no <option>: {missing}"
+
+    # the adjacent ones must still be reachable from the gateway (data-m link).
+    unreachable = [m for m in ADJACENT_NO_OPTION if f'data-m="{m}"' not in html]
+    assert not unreachable, f"adjacent methods with no gateway link: {unreachable}"
 
 
 def test_topics_are_not_also_methods(method_prefix, topic_keys):
