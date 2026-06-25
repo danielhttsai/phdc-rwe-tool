@@ -8309,8 +8309,8 @@ list study treatment events n in 1/8</code></pre>
 
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Group-based trajectory modelling">程式（SAS · R · Stata）：群組軌跡模型</h2>
-    <p class="code-src" data-en="Sources — Nagin (2005); Proust-Lima, Philipps &amp; Liquet (2017, JSS); R lcmm::hlme()">出處 — Nagin（2005）；Proust-Lima, Philipps &amp; Liquet（2017, JSS）；R lcmm 套件的 hlme()</p>
-    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=lcmm" target="_blank" rel="noopener">lcmm</a></p>
+    <p class="code-src" data-en="Sources — Nagin (2005); Proust-Lima, Philipps &amp; Liquet (2017, JSS) for R <code>lcmm::hlme</code>; Edwards (2023, Complex Trajectories guide) for the gridsearch + BIC/5%/APPA workflow; Magrini (2022) / Nagin et al. (2018) for the multivariate <code>gbmt</code> package.">出處 — Nagin（2005）；R <code>lcmm::hlme</code> 見 Proust-Lima, Philipps &amp; Liquet（2017, JSS）；gridsearch＋BIC／5%／APPA 流程見 Edwards（2023, Complex Trajectories 指引）；多變量 <code>gbmt</code> 套件見 Magrini（2022）／Nagin 等（2018）。</p>
+    <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=lcmm" target="_blank" rel="noopener">lcmm</a> · <a href="https://cran.r-project.org/package=gbmt" target="_blank" rel="noopener">gbmt</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>gbtm_sample.csv</code> (columns: pid, time, y).">這是可直接在可下載的 <code>gbtm_sample.csv</code> 上完整執行的程式（欄位：pid, time, y）。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — PROC TRAJ macro">SAS — PROC TRAJ 巨集</h3>
       <pre class="sas"><code><span class="cm">/* SAS uses Jones &amp; Nagin's PROC TRAJ add-on; data must be one row per pid (wide). */</span>
@@ -8326,16 +8326,31 @@ proc traj data=wide out=of outplot=op;
     model cnorm; min 0; max 100; ngroups 3; order 2 2 2;
 run;</code></pre>
       <p data-en="PROC TRAJ (Nagin/Jones) fits three quadratic trajectory groups after reshaping to one row per subject."><PROC TRAJ（Nagin/Jones）在轉成每位受試者一列後，配適三個二次軌跡群組。></p></div>
-    <div data-lang="r" class="card"><h3 data-en="R — lcmm::hlme">R — lcmm::hlme</h3>
-      <pre class="sas"><code><span class="cm"># Latent-class growth model: 3 groups, quadratic in time</span>
+    <div data-lang="r" class="card"><h3 data-en="R — lcmm::hlme with gridsearch (robust starts), model selection, posterior">R — lcmm::hlme＋gridsearch（穩健起始值）、選組、後驗分類</h3>
+      <pre class="sas"><code><span class="cm"># Group-based trajectory model with lcmm (Proust-Lima 2017)</span>
 library(lcmm)
 d &lt;- read.csv("gbtm_sample.csv")
-fit &lt;- hlme(y ~ poly(time, 2), subject = "pid", ng = 3,
-            mixture = ~ poly(time, 2), data = d)
-summary(fit)
-postprob(fit)
-plot(fit, which = "fit", var.time = "time")</code></pre>
-      <p data-en="hlme() with ng=3 fits three quadratic latent classes; postprob() shows class membership and plot() draws the trajectories."><hlme() 以 ng=3 配適三個二次潛在類別；postprob() 顯示類別歸屬，plot() 繪製軌跡。></p></div>
+
+<span class="cm"># 1-class reference model: also supplies starting values for the mixtures</span>
+m1 &lt;- hlme(y ~ poly(time, 2), subject = "pid", ng = 1, data = d)
+
+<span class="cm"># gridsearch = many random restarts -&gt; avoids local optima (Edwards 2023)</span>
+m2 &lt;- gridsearch(hlme(y ~ poly(time,2), mixture = ~poly(time,2),
+                     subject="pid", ng=2, data=d), rep=30, maxiter=15, minit=m1)
+m3 &lt;- gridsearch(hlme(y ~ poly(time,2), mixture = ~poly(time,2),
+                     subject="pid", ng=3, data=d), rep=30, maxiter=15, minit=m1)
+
+<span class="cm"># choose K: lowest BIC, every class &gt;=5%, clean classification (APPA &gt;=0.7)</span>
+summarytable(m1, m2, m3, which=c("G","loglik","npm","BIC","%class","entropy"))
+postprob(m3)                                   <span class="cm"># APPA + class sizes for K=3</span>
+
+<span class="cm"># keep the most-likely class per subject, then plot the group trajectories</span>
+d$class &lt;- m3$pprob$class[match(d$pid, m3$pprob$pid)]
+plot(m3, which = "fit", var.time = "time")
+
+<span class="cm"># several outcomes jointly (multi-trajectory)? use gbmt (Nagin 2018; Magrini 2022):</span>
+<span class="cm"># gbmt::gbmt(x.names=c("y1","y2"), unit="pid", time="time", ng=3, d=2, data=dwide)</span></code></pre>
+      <p data-en="Single <code>hlme</code> fits can land on local optima, so the guide (Edwards 2023) runs <code>gridsearch</code> with random restarts; <code>summarytable</code> compares K by BIC, <code>postprob</code> gives the APPA / class sizes (pick lowest BIC with every class ≥ 5% and APPA ≥ 0.7), and <code>$pprob$class</code> is the posterior assignment. For several indicators at once, the <code>gbmt</code> package fits a group-based <b>multivariate</b> trajectory model.">單次 <code>hlme</code> 可能停在局部最佳，所以指引（Edwards 2023）用 <code>gridsearch</code> 做隨機重啟；<code>summarytable</code> 以 BIC 比較組數 K，<code>postprob</code> 給 APPA／各組大小（選 BIC 最低、每組 ≥ 5%、APPA ≥ 0.7），<code>$pprob$class</code> 即後驗歸類。要同時處理多個指標時，<code>gbmt</code> 套件可配適群組<b>多變量</b>軌跡模型。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — traj plugin">Stata — traj 外掛</h3>
       <pre class="sas"><code><span class="cm">* Stata uses Jones &amp; Nagin's user-written -traj- plugin (needs wide data)</span>
 import delimited "gbtm_sample.csv", clear case(preserve)
@@ -8596,6 +8611,10 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
       <li data-ref="gbtm">Nagin, D. S., &amp; Odgers, C. L. (2010). Group-based trajectory modeling in clinical research. <i>Annual Review of Clinical Psychology, 6</i>, 109–138. <span data-en="〔Review guiding application of GBTM in clinical research.〕">〔臨床研究中應用 GBTM 的回顧性指引。〕</span></li>
       <li data-ref="gbtm">Nagin, D. S., &amp; Tremblay, R. E. (2005). Developmental trajectory groups: fact or a useful statistical fiction? <i>Criminology, 43</i>(4), 873–904. <span data-en="〔Discusses whether trajectory groups are real or useful statistical fiction.〕">〔探討軌跡群組是真實存在或實用統計虛構。〕</span></li>
       <li data-ref="gbtm">Jones, B. L., &amp; Nagin, D. S. (2007). Advances in group-based trajectory modeling and an SAS procedure for estimating them. <i>Sociological Methods &amp; Research, 35</i>(4), 542–571. <span data-en="〔Advances in GBTM plus a SAS procedure for estimation.〕">〔GBTM 方法進展與估計用 SAS 程序介紹。〕</span></li>
+      <li data-ref="gbtm"><b data-en="R packages &amp; how-to">R 套件與操作</b> · Proust-Lima, C., Philipps, V., &amp; Liquet, B. (2017). Estimation of extended mixed models using latent classes and latent processes: the R package <code>lcmm</code>. <i>Journal of Statistical Software, 78</i>(2). https://doi.org/10.18637/jss.v078.i02. <span data-en="〔The lcmm package (hlme / Jointlcmm) used for GBTM in R.〕">〔R 中做 GBTM 用的 lcmm 套件（hlme／Jointlcmm）。〕</span></li>
+      <li data-ref="gbtm">Edwards, C. (2023). <i>Group Based Trajectory Modelling: Guide for approach to GBTM in R.</i> Complex Trajectories Project (Erasmus+), CC BY 4.0. <span data-en="〔Practical R guide: gridsearch for robust starts, model selection by BIC + ≥5% class size + significant polynomials, posterior classification via pprob.〕">〔實作指引：用 gridsearch 取得穩健起始值，以 BIC＋每組 ≥5%＋多項式顯著選組，並以 pprob 做後驗分類。〕</span></li>
+      <li data-ref="gbtm">Magrini, A. (2022). Assessment of agricultural sustainability in EU countries: a group-based multivariate trajectory approach. <i>AStA Advances in Statistical Analysis, 106</i>, 673–703. https://doi.org/10.1007/s10182-022-00437-9. <span data-en="〔The gbmt R package: group-based MULTIvariate trajectory modelling (multiple indicators jointly) via EM; see also Nagin et al. 2018.〕">〔gbmt 套件：以 EM 做群組<b>多變量</b>軌跡模型（多指標聯合）；另見 Nagin 等 2018。〕</span></li>
+      <li data-ref="gbtm">van der Nest, G., Lima Passos, V., Candel, M. J. J. M., &amp; van Breukelen, G. J. P. (2020). An overview of mixture modelling for latent evolutions in longitudinal data. <i>Advances in Life Course Research, 43</i>, 100323. https://doi.org/10.1016/j.alcr.2019.100323. <span data-en="〔Overview of modelling approaches, fit statistics and software for latent trajectory groups.〕">〔潛在軌跡群組的建模取向、適配統計與軟體總覽。〕</span></li>
       <li data-ref="gbtm"><b data-en="Software &amp; tutorials">軟體與教學</b> · Jones, B. L. <i>PROC TRAJ / Stata traj documentation.</i> <a href="https://www.andrew.cmu.edu/user/bjones/documentation.htm" target="_blank" rel="noopener">andrew.cmu.edu/user/bjones</a>. <span data-en="〔Software documentation for the PROC TRAJ and Stata traj implementations.〕">〔PROC TRAJ / Stata traj 軟體操作文件。〕</span></li>
       <li data-ref="gbtm">Columbia Mailman School of Public Health, Population Health Methods. <i>Trajectory Analysis.</i> <a href="https://www.publichealth.columbia.edu/research/population-health-methods/trajectory-analysis" target="_blank" rel="noopener">publichealth.columbia.edu</a>. <span data-en="〔Columbia population-health-methods tutorial page on trajectory analysis.〕">〔哥倫比亞大學公衛方法網站之軌跡分析教學。〕</span></li>
       <li data-ref="gbtm">Wheeler, A. <i>Using PyTorch for group-based trajectory models</i> (worked notebook). <a href="https://github.com/apwheele/Blog_Code/blob/master/Using%20Pytorch%20for%20group%20based%20trajectory%20models.ipynb" target="_blank" rel="noopener">github.com/apwheele</a>. <span data-en="〔Worked notebook implementing group-based trajectory models in PyTorch.〕">〔以 PyTorch 實作 GBTM 的範例筆記本。〕</span></li>
