@@ -212,6 +212,9 @@ b { color: #0b1020; }
 .dtree-map .flow-end.flow-hit { box-shadow: 0 0 0 2px #93c5fd; }
 
 /* ---- the full tree drawn as a top-down flowchart ---- */
+.fc-toolbar { display: flex; justify-content: flex-end; margin: 0 0 .5rem; }
+.fc-toolbar .fc-dl { font-size: .85rem; }
+@media print { .fc-toolbar { display: none; } }
 .fc-title { text-align: center; margin: 0 0 1rem; font-size: 1.05rem; }
 .fc { display: flex; flex-direction: column; align-items: center; }
 .fc-start { background: #0f172a; color: #fff; font-weight: 800; border-radius: 999px;

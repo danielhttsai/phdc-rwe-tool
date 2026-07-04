@@ -3224,6 +3224,7 @@ function renderFullMap(hitKey) {
     `<div class="fc-q">${L(rct.q)}</div>` +
     rct.forks.map(outGroup).join("");
   box.innerHTML =
+    `<div class="fc-toolbar"><button type="button" class="btn fc-dl">⬇ ${tr("下載完整流程圖", "Download full flowchart")}</button></div>` +
     `<h3 class="fc-title">${L(FULLMAP.title)}</h3>` +
     `<div class="fc">` +
     `<div class="fc-start">${L(FULLMAP.start)}</div>` +
@@ -3232,7 +3233,36 @@ function renderFullMap(hitKey) {
     `<div class="fc-rct">${rctHtml}</div>` +
     `</div>`;
   box.hidden = false;
+  const dl = box.querySelector(".fc-dl");
+  if (dl) dl.addEventListener("click", downloadFlowchart);
   box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// Download the full decision flowchart as a self-contained HTML file: the map
+// markup plus the site's stylesheet inlined, so it opens standalone in any
+// browser and can be printed / saved to PDF. No external libraries needed.
+async function downloadFlowchart() {
+  const box = document.getElementById("dtreeMap");
+  if (!box) return;
+  let css = "";
+  try { css = await (await fetch("styles.css")).text(); } catch (e) { /* offline: ship structure only */ }
+  const clone = box.cloneNode(true);
+  clone.hidden = false;
+  const bar = clone.querySelector(".fc-toolbar");
+  if (bar) bar.remove();                                  // don't ship the download button
+  const title = tr("因果推論方法選擇：完整流程圖", "Causal inference method selection — full flowchart");
+  const html =
+    `<!doctype html><html lang="${lang()}"><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+    `<title>${title}</title><style>\n${css}\n` +
+    `body{background:#fff;margin:0;padding:24px;}#dtreeMap{display:block!important;}</style></head>` +
+    `<body>${clone.outerHTML}</body></html>`;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "causal-inference-flowchart.html";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
 }
 // All 15 methods, one vaccine question, grouped by DESIGN FAMILY (mediation shown as the
 // 'mechanism' family: its naive direct effect is biased, the proper NDE recovers truth).
