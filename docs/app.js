@@ -3238,18 +3238,148 @@ function renderFullMap(hitKey) {
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-// Download the full decision flowchart as a self-contained HTML file: the map
-// markup plus the site's stylesheet inlined, so it opens standalone in any
-// browser and can be printed / saved to PDF. No external libraries needed.
-async function downloadFlowchart() {
+function _saveBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Build the flowchart's stylesheet + markup once, shared by the PNG and the
+// standalone-HTML fallback.
+async function _flowchartExport() {
   const box = document.getElementById("dtreeMap");
-  if (!box) return;
   let css = "";
-  try { css = await (await fetch("styles.css")).text(); } catch (e) { /* offline: ship structure only */ }
+  try { css = await (await fetch("styles.css")).text(); } catch (e) { /* offline */ }
   const clone = box.cloneNode(true);
   clone.hidden = false;
   const bar = clone.querySelector(".fc-toolbar");
   if (bar) bar.remove();                                  // don't ship the download button
+  return { box, css, clone };
+}
+
+function _xmlEsc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;");
+}
+const _TRANSPARENT = /^rgba?\(0,\s*0,\s*0,\s*0\)$|transparent/;
+
+// Paint the rendered flowchart into a NATIVE svg (rect / line / text — no
+// <foreignObject>, so the canvas is not tainted and PNG export works). We walk
+// the live DOM: box backgrounds + borders from each element, text word-by-word
+// via Range rects (so wrapping/alignment match exactly), and the connector
+// lines that CSS draws with pseudo-elements are synthesised from geometry.
+function _flowchartToSVG(box) {
+  const base = box.getBoundingClientRect();
+  const ox = base.left, oy = base.top;
+  const P = [];
+  let mx = 0, my = 0;                                  // track true content extent
+  const grow = (x, y) => { if (x > mx) mx = x; if (y > my) my = y; };
+
+  box.querySelectorAll("*").forEach((el) => {
+    if (el.closest(".fc-toolbar")) return;
+    const cs = getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity === 0) return;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return;
+    const x = r.left - ox, y = r.top - oy;
+    const rx = parseFloat(cs.borderTopLeftRadius) || 0;
+    if (!_TRANSPARENT.test(cs.backgroundColor)) {
+      P.push(`<rect x="${x}" y="${y}" width="${r.width}" height="${r.height}" rx="${rx}" fill="${cs.backgroundColor}"/>`);
+      grow(x + r.width, y + r.height);
+    }
+    const bw = parseFloat(cs.borderTopWidth) || 0;
+    if (bw > 0 && cs.borderTopStyle !== "none" && !_TRANSPARENT.test(cs.borderTopColor)) {
+      P.push(`<rect x="${x + bw / 2}" y="${y + bw / 2}" width="${r.width - bw}" height="${r.height - bw}" rx="${Math.max(0, rx - bw / 2)}" fill="none" stroke="${cs.borderTopColor}" stroke-width="${bw}"/>`);
+      grow(x + r.width, y + r.height);
+    }
+    const blw = parseFloat(cs.borderLeftWidth) || 0;   // left accent stripe (fc-leaf)
+    if (blw > 1 && cs.borderLeftColor !== cs.borderTopColor && !_TRANSPARENT.test(cs.borderLeftColor))
+      P.push(`<rect x="${x}" y="${y}" width="${blw}" height="${r.height}" rx="${rx}" fill="${cs.borderLeftColor}"/>`);
+  });
+
+  // arrowheads at the foot of each connector bar
+  box.querySelectorAll(".fc-link").forEach((l) => {
+    const r = l.getBoundingClientRect();
+    const cx = (r.left + r.right) / 2 - ox, by = r.bottom - oy;
+    P.push(`<polygon points="${cx - 4},${by - 6} ${cx + 4},${by - 6} ${cx},${by}" fill="#94a3b8"/>`);
+  });
+  // the vertical + horizontal branch connectors CSS draws via ::before
+  box.querySelectorAll(".fc-leaves").forEach((g) => {
+    const gr = g.getBoundingClientRect();
+    const lx = gr.left - ox + 8;
+    P.push(`<line x1="${lx}" y1="${gr.top - oy - 10}" x2="${lx}" y2="${gr.bottom - oy - 18}" stroke="#94a3b8" stroke-width="2"/>`);
+    g.querySelectorAll(":scope > .fc-leaf").forEach((lf) => {
+      const lr = lf.getBoundingClientRect(), cy = (lr.top + lr.bottom) / 2 - oy;
+      P.push(`<line x1="${lx}" y1="${cy}" x2="${lr.left - ox}" y2="${cy}" stroke="#94a3b8" stroke-width="2"/>`);
+    });
+  });
+
+  const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!node.nodeValue.trim()) continue;
+    const parent = node.parentElement;
+    if (!parent || parent.closest(".fc-toolbar")) continue;
+    const cs = getComputedStyle(parent);
+    if (cs.display === "none" || cs.visibility === "hidden") continue;
+    const fs = parseFloat(cs.fontSize);
+    const fam = cs.fontFamily.replace(/"/g, "'");
+    const re = /\S+/g; let m;
+    while ((m = re.exec(node.nodeValue))) {
+      const rg = document.createRange();
+      rg.setStart(node, m.index); rg.setEnd(node, m.index + m[0].length);
+      const rr = rg.getBoundingClientRect();
+      if (!rr.width) continue;
+      const ty = rr.top - oy + (rr.height + fs) / 2 - fs * 0.2;   // approx baseline
+      P.push(`<text x="${rr.left - ox}" y="${ty}" font-family="${_xmlEsc(fam)}" font-size="${fs}" font-weight="${cs.fontWeight}" font-style="${cs.fontStyle}" fill="${cs.color}">${_xmlEsc(m[0])}</text>`);
+      grow(rr.right - ox, rr.bottom - oy);
+    }
+  }
+  const PAD = 14;
+  const W = Math.ceil(Math.max(box.scrollWidth, mx)) + PAD;
+  const H = Math.ceil(Math.max(box.scrollHeight, my)) + PAD;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>${P.join("")}</svg>`;
+  return { svg, W, H };
+}
+
+// Download the full decision flowchart as a PNG. Falls back to a self-contained
+// HTML file if anything in the rasterisation path fails.
+async function downloadFlowchart() {
+  const box = document.getElementById("dtreeMap");
+  if (!box) return;
+  const bar = box.querySelector(".fc-toolbar");
+  if (bar) bar.style.visibility = "hidden";               // keep it out of the capture
+  try {
+    const { svg, W, H } = _flowchartToSVG(box);
+    const scale = 2;
+    const svgUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("svg load")); img.src = svgUrl; });
+    const canvas = document.createElement("canvas");
+    canvas.width = W * scale; canvas.height = H * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(svgUrl);
+    const blob = await new Promise((res, rej) =>
+      canvas.toBlob((b) => (b ? res(b) : rej(new Error("toBlob failed"))), "image/png"));
+    _saveBlob(blob, "causal-inference-flowchart.png");
+  } catch (e) {
+    const { css, clone } = await _flowchartExport();
+    downloadFlowchartHTML(css, clone);
+  } finally {
+    if (bar) bar.style.visibility = "";
+  }
+}
+
+// Fallback: self-contained HTML (opens standalone, print/save to PDF).
+function downloadFlowchartHTML(css, clone) {
+  clone.hidden = false;
+  const bar = clone.querySelector(".fc-toolbar");
+  if (bar) bar.remove();
   const title = tr("因果推論方法選擇：完整流程圖", "Causal inference method selection — full flowchart");
   const html =
     `<!doctype html><html lang="${lang()}"><head><meta charset="utf-8">` +
@@ -3257,12 +3387,7 @@ async function downloadFlowchart() {
     `<title>${title}</title><style>\n${css}\n` +
     `body{background:#fff;margin:0;padding:24px;}#dtreeMap{display:block!important;}</style></head>` +
     `<body>${clone.outerHTML}</body></html>`;
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "causal-inference-flowchart.html";
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
+  _saveBlob(new Blob([html], { type: "text/html;charset=utf-8" }), "causal-inference-flowchart.html");
 }
 // All 15 methods, one vaccine question, grouped by DESIGN FAMILY (mediation shown as the
 // 'mechanism' family: its naive direct effect is biased, the proper NDE recovers truth).
