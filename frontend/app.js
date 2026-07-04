@@ -3274,8 +3274,11 @@ function _flowchartToSVG(box) {
   const base = box.getBoundingClientRect();
   const ox = base.left, oy = base.top;
   const P = [];
-  let mx = 0, my = 0;                                  // track true content extent
-  const grow = (x, y) => { if (x > mx) mx = x; if (y > my) my = y; };
+  let mnx = Infinity, mny = Infinity, mxx = -Infinity, mxy = -Infinity;
+  const grow = (x1, y1, x2, y2) => {                   // track true content bounds
+    if (x1 < mnx) mnx = x1; if (y1 < mny) mny = y1;
+    if (x2 > mxx) mxx = x2; if (y2 > mxy) mxy = y2;
+  };
 
   box.querySelectorAll("*").forEach((el) => {
     if (el.closest(".fc-toolbar")) return;
@@ -3287,24 +3290,18 @@ function _flowchartToSVG(box) {
     const rx = parseFloat(cs.borderTopLeftRadius) || 0;
     if (!_TRANSPARENT.test(cs.backgroundColor)) {
       P.push(`<rect x="${x}" y="${y}" width="${r.width}" height="${r.height}" rx="${rx}" fill="${cs.backgroundColor}"/>`);
-      grow(x + r.width, y + r.height);
+      grow(x, y, x + r.width, y + r.height);
     }
     const bw = parseFloat(cs.borderTopWidth) || 0;
     if (bw > 0 && cs.borderTopStyle !== "none" && !_TRANSPARENT.test(cs.borderTopColor)) {
       P.push(`<rect x="${x + bw / 2}" y="${y + bw / 2}" width="${r.width - bw}" height="${r.height - bw}" rx="${Math.max(0, rx - bw / 2)}" fill="none" stroke="${cs.borderTopColor}" stroke-width="${bw}"/>`);
-      grow(x + r.width, y + r.height);
+      grow(x, y, x + r.width, y + r.height);
     }
     const blw = parseFloat(cs.borderLeftWidth) || 0;   // left accent stripe (fc-leaf)
     if (blw > 1 && cs.borderLeftColor !== cs.borderTopColor && !_TRANSPARENT.test(cs.borderLeftColor))
       P.push(`<rect x="${x}" y="${y}" width="${blw}" height="${r.height}" rx="${rx}" fill="${cs.borderLeftColor}"/>`);
   });
 
-  // arrowheads at the foot of each connector bar
-  box.querySelectorAll(".fc-link").forEach((l) => {
-    const r = l.getBoundingClientRect();
-    const cx = (r.left + r.right) / 2 - ox, by = r.bottom - oy;
-    P.push(`<polygon points="${cx - 4},${by - 6} ${cx + 4},${by - 6} ${cx},${by}" fill="#94a3b8"/>`);
-  });
   // the vertical + horizontal branch connectors CSS draws via ::before
   box.querySelectorAll(".fc-leaves").forEach((g) => {
     const gr = g.getBoundingClientRect();
@@ -3325,22 +3322,38 @@ function _flowchartToSVG(box) {
     if (cs.display === "none" || cs.visibility === "hidden") continue;
     const fs = parseFloat(cs.fontSize);
     const fam = cs.fontFamily.replace(/"/g, "'");
-    const re = /\S+/g; let m;
-    while ((m = re.exec(node.nodeValue))) {
+    // Group characters into visual LINES (walk char-by-char; a jump in top =
+    // a new line). Whitespace-splitting breaks on CJK, which has no spaces, so
+    // a wrapped Chinese label would render as one overflowing line.
+    const val = node.nodeValue;
+    let run = "", rLeft = 0, rTop = null, rH = fs, rRight = 0;
+    const flush = () => {
+      if (run.trim()) {
+        const ty = rTop - oy + (rH + fs) / 2 - fs * 0.2;         // approx baseline
+        P.push(`<text x="${rLeft - ox}" y="${ty}" font-family="${_xmlEsc(fam)}" font-size="${fs}" font-weight="${cs.fontWeight}" font-style="${cs.fontStyle}" fill="${cs.color}">${_xmlEsc(run)}</text>`);
+        grow(rLeft - ox, rTop - oy, rRight - ox, rTop - oy + rH);
+      }
+      run = "";
+    };
+    for (let i = 0; i < val.length; i++) {
       const rg = document.createRange();
-      rg.setStart(node, m.index); rg.setEnd(node, m.index + m[0].length);
+      rg.setStart(node, i); rg.setEnd(node, i + 1);
       const rr = rg.getBoundingClientRect();
-      if (!rr.width) continue;
-      const ty = rr.top - oy + (rr.height + fs) / 2 - fs * 0.2;   // approx baseline
-      P.push(`<text x="${rr.left - ox}" y="${ty}" font-family="${_xmlEsc(fam)}" font-size="${fs}" font-weight="${cs.fontWeight}" font-style="${cs.fontStyle}" fill="${cs.color}">${_xmlEsc(m[0])}</text>`);
-      grow(rr.right - ox, rr.bottom - oy);
+      if (!rr.width && !rr.height) continue;
+      if (rTop === null || Math.abs(rr.top - rTop) > 1.5) { flush(); rLeft = rr.left; rTop = rr.top; rH = rr.height; }
+      run += val[i]; rRight = rr.right;
     }
+    flush();
   }
   const PAD = 14;
-  const W = Math.ceil(Math.max(box.scrollWidth, mx)) + PAD;
-  const H = Math.ceil(Math.max(box.scrollHeight, my)) + PAD;
+  if (!isFinite(mnx)) { mnx = 0; mny = 0; mxx = box.scrollWidth; mxy = box.scrollHeight; }
+  const W = Math.ceil(mxx - mnx) + PAD * 2;
+  const H = Math.ceil(mxy - mny) + PAD * 2;
+  // shift so the leftmost/topmost content sits at PAD (content may start at a
+  // negative offset when the horizontally-scrolling lanes are centred).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
-    `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>${P.join("")}</svg>`;
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>` +
+    `<g transform="translate(${(PAD - mnx).toFixed(2)},${(PAD - mny).toFixed(2)})">${P.join("")}</g></svg>`;
   return { svg, W, H };
 }
 
