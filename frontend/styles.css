@@ -605,3 +605,8 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .cb-ch .cb-warn li { margin: .3rem 0; }
 .cb-ch .cb-link { margin: .6rem 0 0; font-size: .9rem; }
 .cb-ch .cb-link a.xref { margin-right: .6rem; }
+.cb-ch .cb-howto { background: #eef6ff; border-left: 4px solid #2563eb; border-radius: 8px;
+  padding: .5rem .8rem .5rem 1.6rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-howto > b { color: #1d4ed8; margin-left: -0.8rem; }
+.cb-ch .cb-howto ol { margin: .3rem 0 0; padding-left: 1.1rem; }
+.cb-ch .cb-howto li { margin: .3rem 0; }
