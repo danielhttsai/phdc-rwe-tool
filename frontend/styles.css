@@ -572,3 +572,23 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .page-toc .toc-link:hover { background: var(--z); color: #fff; border-color: var(--z); }
 /* offset so the sticky header doesn't cover the jumped-to heading */
 .panel h2[id] { scroll-margin-top: 72px; }
+
+/* ---- What If book notes: password gate + chapter accordions ---- */
+.cb-gate { max-width: 460px; margin: 1.2rem 0; padding: 1.1rem 1.2rem; border: 1px solid var(--line);
+  border-radius: 14px; background: var(--card); box-shadow: var(--shadow); }
+.cb-gate h3 { margin: 0 0 .3rem; }
+.cb-gate-row { display: flex; gap: .5rem; margin-top: .6rem; }
+.cb-gate-row input { flex: 1 1 auto; min-width: 0; padding: .5rem .7rem; border: 1px solid var(--line);
+  border-radius: 8px; font-size: .95rem; }
+.cb-msg { min-height: 1.2em; margin: .5rem 0 0; font-size: .88rem; }
+.cb-msg.err { color: #b91c1c; }
+.cb-msg.ok { color: #15803d; }
+.cb-part { margin: 1.6rem 0 .6rem; padding-bottom: .3rem; border-bottom: 2px solid var(--z); color: var(--z); }
+.cb-ch { border: 1px solid var(--line); border-radius: 10px; margin: .5rem 0; background: var(--card); overflow: hidden; }
+.cb-ch > summary { cursor: pointer; padding: .6rem .8rem; font-weight: 700; list-style: none; }
+.cb-ch > summary::-webkit-details-marker { display: none; }
+.cb-ch > summary::before { content: "▸ "; color: var(--z); }
+.cb-ch[open] > summary::before { content: "▾ "; }
+.cb-ch .cb-chbody { padding: 0 .9rem .8rem; }
+.cb-ch .cb-chbody li { margin: .3rem 0; }
+.cb-num { color: var(--muted); font-weight: 700; margin-right: .4rem; }

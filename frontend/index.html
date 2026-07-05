@@ -77,6 +77,7 @@
     <button class="tab" id="chooseTab" data-en="Which one?">怎麼選</button>
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
     <button class="tab" id="glossaryTab" data-en="Glossary">名詞表</button>
+    <button class="tab" id="cbookTab" data-en="What If (book)">What If 課本 🔒</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -89,6 +90,22 @@
     <input id="homeSearch" class="home-search" type="search" placeholder="搜尋方法… / Search methods…" aria-label="Search methods" />
     <div id="homeGrid" class="home-grid"></div>
     <p class="caption" data-en="⚠ All built-in data is purely fictional synthetic demo data, for teaching only.">⚠ 本工具所有內建資料皆為純屬虛構的合成示範資料，僅供教學展示。</p>
+  </section>
+
+  <!-- ============ What If 課本讀書筆記（密碼保護） / What If book notes (password-gated) ============ -->
+  <section id="cbook" class="panel">
+    <h1 data-en="Causal Inference: What If — chapter study notes">因果推論 What If：分章讀書筆記</h1>
+    <p class="lead" data-en="Original bilingual study notes summarising each chapter of Hernán &amp; Robins, <i>Causal Inference: What If</i> (the free textbook). These are our own summaries of the key ideas, not the book's text — read the full book free at the link inside.">這是 Hernán &amp; Robins《Causal Inference: What If》（免費教科書）逐章重點的雙語讀書筆記，屬於我們自己整理的摘要，並非書本原文；完整內容請看下方連結的免費全書。</p>
+    <div id="cbGate" class="cb-gate">
+      <h3 data-en="🔒 Password required">🔒 需要密碼</h3>
+      <p class="muted" data-en="These notes are shared with our group. Enter the password to read them.">這份筆記僅供本組閱讀，請輸入密碼。</p>
+      <div class="cb-gate-row">
+        <input id="cbPass" type="password" autocomplete="off" placeholder="密碼 / password" aria-label="password" />
+        <button id="cbEnter" class="btn primary" type="button" data-en="Unlock">解鎖</button>
+      </div>
+      <p id="cbMsg" class="cb-msg" role="status"></p>
+    </div>
+    <div id="cbBody" hidden></div>
   </section>
 
   <!-- ===================== 名詞表 / Glossary ===================== -->
