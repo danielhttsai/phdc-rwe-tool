@@ -592,3 +592,10 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .cb-ch .cb-chbody { padding: 0 .9rem .8rem; }
 .cb-ch .cb-chbody li { margin: .3rem 0; }
 .cb-num { color: var(--muted); font-weight: 700; margin-right: .4rem; }
+.cb-ch .cb-eg { background: #f0f7f4; border-left: 4px solid var(--z); border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-formula { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; }
+.cb-ch .cb-formula > b { color: var(--z); }
+.cb-ch .cb-formula code, .cb-ch .cb-chbody code { background: #eef2f6; padding: .05rem .3rem;
+  border-radius: 4px; font-size: .9em; }
