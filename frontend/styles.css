@@ -221,9 +221,9 @@ b { color: #0b1020; }
   padding: .5rem 1.3rem; font-size: 1rem; letter-spacing: .5px; }
 /* A/B/C/D are PARALLEL anchor families, so lay them out as four columns in one
    horizontal row (scroll sideways on narrow screens) rather than a 2x2 wrap. */
-.fc-lanes { display: flex; gap: 1rem; align-items: flex-start; justify-content: center;
+.fc-lanes { display: flex; gap: 1rem; align-items: flex-start; justify-content: flex-start;
   width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
-.fc-lane { flex: 1 1 0; min-width: 240px; max-width: 520px; display: flex; flex-direction: column; align-items: stretch; }
+.fc-lane { flex: 1 1 0; min-width: 208px; max-width: 520px; display: flex; flex-direction: column; align-items: stretch; }
 /* plain vertical connector (a branch line, no arrowhead), optional branch label */
 .fc-link { width: 2px; min-height: 22px; background: #94a3b8; margin: 3px auto; position: relative; }
 .fc-elabel { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); white-space: nowrap;
@@ -599,3 +599,9 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .cb-ch .cb-formula > b { color: var(--z); }
 .cb-ch .cb-formula code, .cb-ch .cb-chbody code { background: #eef2f6; padding: .05rem .3rem;
   border-radius: 4px; font-size: .9em; }
+.cb-ch .cb-warn { background: #fff7ed; border-left: 4px solid #d97706; border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-warn > b { color: #b45309; }
+.cb-ch .cb-warn li { margin: .3rem 0; }
+.cb-ch .cb-link { margin: .6rem 0 0; font-size: .9rem; }
+.cb-ch .cb-link a.xref { margin-right: .6rem; }
