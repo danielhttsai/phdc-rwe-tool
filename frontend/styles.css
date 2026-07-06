@@ -618,3 +618,8 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
   border-radius: 8px; font-size: .93rem; line-height: 1.75; }
 .cb-ch .cb-narr > b { color: var(--z); }
 .cb-ch .cb-narr p { margin: .45rem 0; }
+.cb-ch .cb-secmap { background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 8px;
+  padding: .55rem .85rem; margin: .6rem 0 0; font-size: .92rem; line-height: 1.7; }
+.cb-ch .cb-secmap > b { color: #15803d; }
+.cb-ch .cb-secmap p { margin: .5rem 0; }
+.cb-ch .cb-secmap .cb-sec { font-weight: 600; color: #166534; display: block; margin-top: .6rem; }
