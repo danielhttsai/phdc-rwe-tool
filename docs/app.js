@@ -286,6 +286,7 @@ function showCbook() {
   if (glossaryTab) glossaryTab.classList.remove("active");
   if (cbookTab) cbookTab.classList.add("active");
   showPanel("cbook");
+  if (typeof filterRefs === "function") filterRefs("cbook");   // notes cite ONLY the What If book
   setHash("#cbook");
   if (_cbUnlocked) _cbReveal(_cbUnlocked);   // stay unlocked while navigating away and back
 }
@@ -3707,6 +3708,7 @@ const METHOD_REF = {
   causalml: { zh: "因果機器學習", en: "Causal machine learning", src: "Feuerriegel et al. (2024, Nat Med); Künzel et al. (2019, PNAS); Wager & Athey (2018); Chernozhukov et al. (2018, DML); Nie & Wager (2021)" },
   mr: { zh: "孟德爾隨機化 MR", en: "Mendelian randomization (MR)", src: "Davey Smith & Ebrahim (2003), IJE; Burgess, Butterworth & Thompson (2013); Bowden et al. (2015, MR-Egger); Hemani et al. (2018, TwoSampleMR)" },
   dt: { zh: "數位孿生", en: "Digital twin", src: "Schuler et al. (2022, PROCOVA); FDA/EMA prognostic-adjustment guidance; synthetic control arms" },
+  cbook: { zh: "What If 讀書筆記", en: "What If reading notes", src: "Hernán MA, Robins JM. Causal Inference: What If. Boca Raton: Chapman & Hall/CRC, 2020 (2025 update). Free full text: miguelhernan.org/whatifbook" },
 };
 let refsContext = "iv";   // which page's references/citation to show
 
@@ -3716,14 +3718,20 @@ function filterRefs(method) {
   const intro = document.getElementById("refsIntro");
   if (!list) return;
   const showAll = refsContext === "choose";
+  const cbookOnly = refsContext === "cbook";   // What If notes: cite ONLY the book
   list.querySelectorAll("li").forEach((li) => {
-    li.style.display = (showAll || li.dataset.ref === refsContext || li.dataset.ref === "all") ? "" : "none";
+    li.style.display = cbookOnly
+      ? (li.id === "refWhatIf" ? "" : "none")
+      : ((showAll || li.dataset.ref === refsContext || li.dataset.ref === "all") ? "" : "none");
   });
   if (intro) {
     const m = METHOD_REF[refsContext];
     intro.innerHTML = showAll
       ? tr("全部方法的完整參考文獻：", "Full reference list for all methods:")
-      : tr(`本頁（${m.zh}）的參考文獻：`, `References for this page (${m.en}):`);
+      : cbookOnly
+        ? tr("本讀書筆記的唯一參考來源（摘要為本組教學用整理，著作權屬原作者，請閱讀並引用原書）：",
+              "The only source for these reading notes (a teaching summary; copyright belongs to the original authors — please read and cite the original book):")
+        : tr(`本頁（${m.zh}）的參考文獻：`, `References for this page (${m.en}):`);
   }
   renderCitation();
 }
