@@ -3702,27 +3702,34 @@ quit;
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Self-controlled case series">程式（SAS · R · Stata）：自身對照病例系列</h2>
     <p class="code-src" data-en="Sources — Farrington 1995; Whitaker et al. 2006 (SCCS method); R SCCS::standardsccs, SAS conditional Poisson via PROC GENMOD, Stata xtpoisson, fe.">出處 — Farrington 1995；Whitaker 等人 2006（SCCS 方法）；R SCCS::standardsccs、SAS 以 PROC GENMOD 配適條件式 Poisson、Stata xtpoisson, fe。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=SCCS" target="_blank" rel="noopener">R SCCS</a></p>
-    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>sccs_sample.csv</code> (columns: pid, obs_start, obs_end, vacc_day, event_day, age_grp).">這是可直接在可下載的 <code>sccs_sample.csv</code> 上完整執行的程式（欄位：pid、obs_start、obs_end、vacc_day、event_day、age_grp）。</div>
+    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>sccs_sample.csv</code> (one row per case; columns: pid, obs_start, obs_end, vacc_day, event_day, age_grp). Each program expands each case into a long form of intervals internally; all three use the same risk window = days 1 to 28 after vaccination.">這是可直接在可下載的 <code>sccs_sample.csv</code> 上完整執行的程式（每位 case 一列；欄位：pid、obs_start、obs_end、vacc_day、event_day、age_grp）。三種語言都會在內部把每位 case 展開成區間的 long form，且都用同一個危險窗＝接種後第 1 到 28 天。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — conditional Poisson (PROC GENMOD)">SAS — 條件式 Poisson（PROC GENMOD）</h3>
       <pre class="sas"><code><span class="cm">/* read data */</span>
 proc import datafile="sccs_sample.csv" out=d dbms=csv replace;
     getnames=yes;
 run;
 
-<span class="cm">/* one exposure-risk interval (1) vs baseline (0) per case */</span>
+<span class="cm">/* expand each case into a 28-day post-dose risk window vs baseline */</span>
 data lng;
     set d;
-    risk=0; ystart=obs_start; yend=vacc_day-1;
-    intlen=yend-ystart+1; ev=(event_day&lt;=yend); output;
-    risk=1; ystart=vacc_day; yend=obs_end;
-    intlen=yend-ystart+1; ev=(event_day&gt;=ystart); output;
+    <span class="cm">/* pre-dose baseline (the dose day counts as baseline) */</span>
+    risk=0; ystart=obs_start;   yend=vacc_day;
+    intlen=yend-ystart+1; ev=(ystart&lt;=event_day and event_day&lt;=yend);
+    loglen=log(intlen); if intlen&gt;0 then output;
+    <span class="cm">/* risk window = days 1..28 after vaccination */</span>
+    risk=1; ystart=vacc_day+1;  yend=min(obs_end,vacc_day+28);
+    intlen=yend-ystart+1; ev=(ystart&lt;=event_day and event_day&lt;=yend);
+    loglen=log(intlen); if intlen&gt;0 then output;
+    <span class="cm">/* post-window baseline */</span>
+    risk=0; ystart=vacc_day+29; yend=obs_end;
+    intlen=yend-ystart+1; ev=(ystart&lt;=event_day and event_day&lt;=yend);
+    loglen=log(intlen); if intlen&gt;0 then output;
 run;
 
-<span class="cm">/* conditional Poisson stratified by subject */</span>
+<span class="cm">/* conditional Poisson (subject fixed effects) */</span>
 proc genmod data=lng;
     class pid;
     model ev = risk / dist=poisson link=log offset=loglen;
-    where intlen&gt;0;
 run;</code></pre>
       <p data-en="The risk coefficient is the log incidence rate ratio within subjects.">risk 係數為受試者內的對數發生率比。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — SCCS::standardsccs">R — SCCS::standardsccs</h3>
@@ -3731,18 +3738,19 @@ library(SCCS)
 d &lt;- read.csv("sccs_sample.csv")
 fit &lt;- standardsccs(event ~ vacc_day,
           indiv = pid, astart = obs_start, aend = obs_end,
-          aevent = event_day, adrug = vacc_day,
-          aedrug = vacc_day + 14, data = d)
+          aevent = event_day, adrug = vacc_day + 1,
+          aedrug = vacc_day + 28, data = d)
 print(fit)
-<span class="cm"># exp(coef) is the incidence rate ratio in the risk window</span></code></pre>
+<span class="cm"># exp(coef) is the IRR in the 28-day post-dose risk window</span></code></pre>
       <p data-en="standardsccs fits the conditional Poisson SCCS and prints the IRR.">standardsccs 配適條件式 Poisson SCCS 並印出發生率比。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — xtpoisson, fe">Stata — xtpoisson, fe</h3>
-      <pre class="sas"><code><span class="cm">* read data and build risk/baseline intervals</span>
+      <pre class="sas"><code><span class="cm">* build 3 intervals/case: risk window = days 1..28 after dose</span>
 import delimited "sccs_sample.csv", clear case(preserve)
-expand 2
-bysort pid: gen risk = (_n==2)
-gen lo = cond(risk, vacc_day, obs_start)
-gen hi = cond(risk, obs_end, vacc_day-1)
+expand 3
+bysort pid: gen seg = _n
+gen risk = (seg==2)
+gen lo = cond(seg==1, obs_start, cond(seg==2, vacc_day+1, vacc_day+29))
+gen hi = cond(seg==1, vacc_day,  cond(seg==2, min(obs_end,vacc_day+28), obs_end))
 gen intlen = hi - lo + 1
 gen ev = (event_day&gt;=lo) &amp; (event_day&lt;=hi)
 drop if intlen&lt;=0
