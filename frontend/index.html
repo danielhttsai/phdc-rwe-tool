@@ -3384,9 +3384,12 @@ clogit case exposed comorbidity, group(match_id) or</code></pre>
       </div>
       <div class="tdef">
         <h4>條件 Poisson <span class="en">conditional Poisson</span></h4>
-        <p data-en="People differ wildly in how event-prone they are overall — one person might be ten times likelier to get the event than another, for reasons we can't see. We don't actually care about that personal baseline level; we only care <i>when</i> the event hit relative to the shot. The trick called <b>conditioning</b> does exactly this: we take each person's total as given (we know they had their one event somewhere in their timeline) and ask only, given that, was it more likely to fall in the risk window than chance would predict? Doing this person-by-person makes everyone's unknown personal rate drop out of the maths completely — so all time-fixed differences between people are removed by construction, not by adjustment. Things that <i>do</i> change over time (the person aging, the season) don't cancel automatically, so we handle them by slicing each timeline into age or season bands too. The likelihood being maximised is <code>log L = Σ [xᵣβ + log eᵣ − log Σⱼ eⱼ exp(xⱼβ)]</code>.">
-          人跟人之間「天生多容易出事」差很多，某甲可能因為看不見的原因，出事機率是某乙的十倍。但我們其實不在乎這個人的整體基準有多高，只在乎事件「何時」發生、跟打針的相對位置。叫做<b>條件化</b>的技巧做的正是這件事：我們把每個人的總數當成已知（知道他在時間軸某處發生了那一次事件），只問，在這個前提下，事件落進危險窗的機率，有沒有比純機率預期的高？一個人一個人這樣算，每個人那個未知的個人速率就完全從式子裡消失，所以人與人之間所有時間不變的差異，是依設計被移除，不是靠調整。至於真的會隨時間變的東西（人變老、季節更替）不會自動相消，所以我們把每條時間軸也切成年齡段或季節段一起估。最大化的概似是 <code>log L = Σ [xᵣβ + log eᵣ − log Σⱼ eⱼ exp(xⱼβ)]</code>。
-        </p>
+        <ul class="tdef-list">
+          <li data-en="<b>Estimate one person at a time.</b> Take each person's event total as given (we know they had their event somewhere in their own timeline) and ask only: given that, did it land in the risk window or in baseline?"><b>一個人一個人分開算。</b>把每個人的事件總數當成已知（知道他在自己的時間軸某處發生了事件），只問一件事：在這個前提下，那件事是落在危險窗、還是基線？</li>
+          <li data-en="<b>The baseline hazard cancels out.</b> Each person's own <b>baseline hazard</b> (their unseen, person-specific background rate) appears in <b>both the numerator and the denominator</b> of the conditional likelihood, so it cancels and never enters the estimate. That is why every time-fixed between-person difference (genetics, constitution, socioeconomics) drops out by design."><b>baseline hazard 會自己消掉。</b>每個人自己的 <b>baseline hazard</b>（那個看不見、人人不同的背景風險）在條件概似的<b>分子與分母同時出現，互相抵銷</b>，根本不進入估計。所以人與人之間所有<b>不隨時間變</b>的差異（基因、體質、社經）依設計消失。</li>
+          <li data-en="<b>Time-varying factors do NOT cancel by themselves.</b> Aging and the season genuinely change the rate along a person's own timeline, so we also slice each timeline into age bands or season bands and estimate those."><b>會隨時間變的東西不會自動相消。</b>年齡增長、季節更替是真的會沿著一個人自己的時間軸改變速率的，所以我們把每條時間軸也切成<b>年齡段或季節段</b>一起估。</li>
+          <li data-en="<b>The conditional likelihood maximised:</b> <code>log L = Σ [xᵣβ + log eᵣ − log Σⱼ eⱼ exp(xⱼβ)]</code>."><b>最大化的條件概似：</b><code>log L = Σ [xᵣβ + log eᵣ − log Σⱼ eⱼ exp(xⱼβ)]</code>。</li>
+        </ul>
       </div>
     </details>
 
@@ -3479,7 +3482,8 @@ run;
     <details class="ext-card"><summary data-en="② Event-dependent observation / SCRI <span class='ext-tag'>— censoring, death &amp; changing background</span>">② 事件相依觀察期／SCRI <span class="ext-tag">， 設限、死亡與變動的背景</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
-        <p data-en="The event shortens follow-up (it raises mortality, or the outcome <i>is</i> death). Standard SCCS is biased; weight the likelihood by the event-to-end interval, fit iteratively (Farrington et al. 2011), or restrict to a short Self-Controlled Risk Interval (SCRI). A censoring 'fix' can flip results (antipsychotics &amp; stroke moved a subgroup 1.31→1.05). For changing background prevalence you can divide the positive-test RR by the negative-test RR over the same window (a negative-control-style correction — attendance &amp; COVID-19).">事件截短了追蹤（升高死亡率，或結果<i>就是</i>死亡）。標準 SCCS 會偏；用「事件→結束」間隔對概似加權、迭代擬合（Farrington 等 2011），或限制在短的自我對照風險區間（SCRI）。設限校正可能翻盤（抗精神病藥與中風讓某亞群 1.31→1.05）。背景盛行率在變時，可把陽性檢驗的 RR 除以同窗陰性檢驗的 RR（陰性對照式校正，活動出席與 COVID-19）。</p>
+        <p data-en="<b>Event-dependent observation.</b> The event shortens follow-up (it raises mortality, or the outcome <i>is</i> death). Standard SCCS is biased; weight the likelihood by the event-to-end interval and fit iteratively (Farrington et al. 2011). A censoring 'fix' can flip results (antipsychotics &amp; stroke moved a subgroup from 1.31 to 1.05). For changing background prevalence you can divide the positive-test RR by the negative-test RR over the same window (a negative-control-style correction: attendance &amp; COVID-19)."><b>事件相依觀察期。</b>事件截短了追蹤（升高死亡率，或結果<i>就是</i>死亡）。標準 SCCS 會偏；用「事件→結束」間隔對概似加權、迭代擬合（Farrington 等 2011）。設限校正可能翻盤（抗精神病藥與中風讓某亞群從 1.31 變 1.05）。背景盛行率在變時，可把陽性檢驗的 RR 除以同窗陰性檢驗的 RR（陰性對照式校正：活動出席與 COVID-19）。</p>
+        <p data-en="<b>SCRI is a design choice, not a fix for the above.</b> The Self-Controlled Risk Interval (SCRI) is simply an SCCS in which <b>you pre-define both periods yourself</b>: a short <b>risk interval</b> after exposure and a <b>separately chosen control interval</b> (e.g. a defined window before exposure, or well after it), both relative to the dose. You do <b>not</b> have to treat the entire remaining study period as baseline. Because the control interval is short and placed near exposure, SCRI also sidesteps long-run background time-trends and much event-dependent observation, which is why it is common in vaccine-safety work (see <a href='https://www.sciencedirect.com/science/article/pii/S0264410X2400330X' target='_blank' rel='noopener'>Vaccine 2024</a>)."><b>SCRI 是一種設計選擇，不是上面問題的補救。</b>自我對照風險區間（SCRI）就是一種 SCCS，只是<b>兩段期間都由你自己事先定義</b>：暴露後的一段短<b>風險區間</b>，以及一段<b>另外選定的控制區間</b>（例如暴露前的一段定義好的窗、或暴露後很久的一段），兩者都相對於接種日。你<b>不必</b>把整個剩餘的研究期都當成基線。因為控制區間短、且擺在暴露附近，SCRI 也順帶避開了長期的背景時間趨勢與多數事件相依觀察的問題，這也是它在疫苗安全研究常見的原因（見 <a href='https://www.sciencedirect.com/science/article/pii/S0264410X2400330X' target='_blank' rel='noopener'>Vaccine 2024</a>）。</p>
         <h5 data-en="What the data looks like">資料長相</h5>
         <table class="mini">
           <caption data-en="Same long format, plus the interval from the event to the end of observation (here, death censors follow-up).">同長格式，另記「事件→觀察結束」的間隔（這裡死亡截短了追蹤）。</caption>
@@ -3490,7 +3494,8 @@ run;
           </tbody>
         </table>
         <h5 data-en="SAS code">SAS code</h5>
-        <pre class="sas"><code><span class="cm">/* SCRI: keep only a short window around exposure, then a plain SCCS. */</span>
+        <pre class="sas"><code><span class="cm">/* SCRI: keep only a pre-defined risk interval vs a pre-defined control */</span>
+<span class="cm">/* interval near exposure (not the whole study period), then a plain SCCS. */</span>
 proc genmod data=scri;  class pid expgr;
    model nevents = expgr / dist=poisson link=log offset=loginterval;
    repeated subject=pid;

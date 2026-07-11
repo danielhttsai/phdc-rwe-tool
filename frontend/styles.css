@@ -455,6 +455,11 @@ select { padding: .45rem; border: 1px solid var(--line); border-radius: 8px; fon
 .tdef p b { color: var(--z); font-weight: 700; }
 .tdef code { background: #eef4f2; border: 1px solid var(--line); border-radius: 5px; padding: .05rem .35rem; font-size: .82rem; color: #14283c; white-space: nowrap; }
 .tdef .tform { margin-top: .3rem; }
+.tdef-list { margin: 0; padding-left: 1.15rem; }
+.tdef-list li { font-size: .85rem; color: #334155; line-height: 1.7; margin: 0 0 .5rem; }
+.tdef-list li:last-child { margin-bottom: 0; }
+.tdef-list li b { color: var(--z); font-weight: 700; }
+.tdef-list code { background: #eef4f2; border: 1px solid var(--line); border-radius: 5px; padding: .05rem .35rem; font-size: .82rem; color: #14283c; }
 /* ⑦ SAS code walkthrough */
 pre.sas { background: #0f1f2e; color: #e6edf3; padding: .8rem 1rem; border-radius: 10px;
   overflow-x: auto; margin: .5rem 0 .2rem; box-shadow: var(--shadow); }
