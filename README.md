@@ -1,140 +1,203 @@
-# 工具變數（IV）線上工具
+# 真實世界證據與準實驗工具箱 · RWE & Quasi-experimental Toolbox
 
-一個可在瀏覽器使用的 IV 教學 / 分析工具:把 IV 的分析流程,以及 A1–A4b 的假設檢驗框架,
-做成白話、可互動的網頁。**Python(FastAPI)後端 + 原生網頁前端**。
+一個可在瀏覽器直接使用的**因果推論 / 真實世界證據（RWE）教學與分析工具箱**：把 32 種
+觀察性研究與準實驗設計，每一種都拆成白話、可互動的六個學習層次，並附上可直接執行的
+SAS · R · Stata 程式與可下載的示範資料。全站**中英雙語**即時切換。
 
-## 功能（五個分頁）
+- 線上版（GitHub Pages，免安裝）：<https://danielhttsai.github.io/phdc-rwe-tool/>
+- 架構：**Python 計算核心（`backend/*.py`）**，本機用 FastAPI 跑，靜態版則用
+  [Pyodide](https://pyodide.org) 在瀏覽器裡跑「同一份 Python」，前端一行都不用改寫。
 
-1. **IV 是什麼** — 用「隨機接種提醒」故事白話講解工具變數、干擾因子、complier / defier、LATE。
-2. **互動講解** — 拉滑桿改變 complier 比例與樣本量，即時看 IV 估計與信賴區間如何變動（弱工具的陷阱）。
-3. **資料分析** — 載入內建接種提醒範例或上傳自己的 CSV，選欄位後一鍵跑：naive 迴歸、第一階段、簡化式、Wald、2SLS（含/不含共變項），輸出係數比較圖與結果卡。
-4. **假設檢驗** — 對目前資料自動檢查 A1–A4b，以紅／黃／綠燈號 + 白話結論呈現；並在 A2 之後加入一道「抓包測試」（反證／否證精神）：用**工具不等式（instrumental inequalities, Balke–Pearl）**試著從資料直接戳破 A2／A3（違反即出局，戳不破才算過關），A3 另列出 Homayra 等人提醒的**偏誤放大（bias amplification）**陷阱。
-5. **用 AI 強化** — 沿用接種提醒情境，白話示範機器學習能幫 IV 做的兩件事，以及一條安全規則：
-   - **藥方一・合成工具**：把很多個各自很弱的候選工具，用 ML 合成一個夠強的工具（拉滑桿即時看 F 強度與信賴區間收窄）。
-   - **藥方二・可彎的第一階段**：當工具的影響是曲線（非直線）時，直線第一階段抓不到、彈性 ML 第一階段才抓得到。
-   - **藥方三・安全帶（交叉擬合）**：現場用同一個隨機森林模型示範「偷看版（in-sample，會把干擾因子洩漏回來、黏在 naive）」vs「交叉擬合版（out-of-fold，拉回真值）」，說明為什麼一定要用 out-of-fold 預測避免「禁止迴歸 / 過度配適」偏誤。
-   全部即時模擬合成資料，真值固定為 LATE = 1.80。
+> 這個專案由早期的「工具變數（IV）教學工具」演化而來；IV 如今只是其中一種方法。
 
-## 安裝與啟動
+---
+
+## 這個工具箱有什麼
+
+### 32 種方法，每種都有 ①–⑥ 六個層次
+
+每個方法都用同一套六分頁的教學結構：
+
+| 分頁 | 內容 |
+|---|---|
+| **① 是什麼** | 用生活化的故事＋名詞解釋白話講清楚這個方法在做什麼、假設是什麼。 |
+| **② 互動講解** | 可拉滑桿的即時模擬圖，親手看參數怎麼牽動估計與偏誤。 |
+| **③ 資料分析** | 完整、可直接跑的 **SAS · R · Stata** 三語程式，每種方法配一份可下載的 `data/<method>_sample.csv`，用真實欄位名，貼上就能跑。 |
+| **④ 假設檢驗** | 對資料自動做紅／黃／綠燈的假設體檢＋白話結論（可辨識性、正性、平衡、可交換性等）。 |
+| **⑤ 用 AI 強化** | 這個方法能怎麼搭配機器學習（彈性 nuisance 模型、雙重穩健、CATE…），以及 ML 幫不上忙的地方。 |
+| **⑥ 如果……？** | 反事實 / 敏感度思考：假設被打破會怎樣、如何用設計或分析補救。 |
+
+部分方法另附**自我測驗（self-check quiz）**小卡。
+
+方法清單（下拉選單，依英文名）：
+
+| 縮寫 | 方法 |
+|---|---|
+| IV | Instrumental variables 工具變數 |
+| MR | Mendelian randomization 孟德爾隨機化 |
+| RDD | Regression discontinuity 斷點回歸 |
+| DiD | Difference-in-differences 差異中的差異 |
+| ITS | Interrupted time series 中斷時間序列 |
+| TiT | Trend-in-trend 趨勢中的趨勢 |
+| PS | Propensity score 傾向分數 |
+| TMLE | Doubly-robust / targeted ML 雙重穩健／目標最小損失 |
+| GM | G-methods（時變混淆） |
+| CCW | Clone-censor-weight 複製-設限-加權 |
+| Seq | Sequential target trials 序列目標試驗 |
+| PNU | Prevalent new-user 盛行新使用者 |
+| ACNU | Active-comparator new-user 主動對照新使用者 |
+| SCCS | Self-controlled case series 自身對照病例系列（含 SCRI） |
+| CCTC | Case-crossover & time-control 病例交叉 |
+| PSSA | Prescription sequence symmetry 處方順序對稱 |
+| WCE | Weighted cumulative exposure 加權累積暴露 |
+| CC | Case-control 病例對照 |
+| TND | Test-negative design 陰性檢驗設計 |
+| NC/PCI | Negative control & proximal causal inference 陰性對照與近端因果 |
+| PERR | Prior event rate ratio 事前事件率比 |
+| TreeScan | Tree-based scan statistic 樹狀掃描統計 |
+| SR/MA | Systematic review & meta-analysis 系統性回顧與統合分析 |
+| NMA | Network meta-analysis 網絡統合分析 |
+| GBTM | Group-based trajectory model 群組軌跡模型 |
+| MED | Mediation analysis 中介分析 |
+| Causal ML | CATE & meta-learners 因果機器學習 |
+| Digital twin | 數位分身 |
+| External control | 外部對照臂 |
+| Transportability | 可移轉性 |
+| Missing data | 缺失資料與多重插補 |
+| QBA | Quantitative bias analysis（含 E-value 量化偏誤分析） |
+
+### 方法以外的頁面
+
+- **首頁 Home** — 工具箱總覽與方法卡入口。
+- **怎麼選 Which one?** — 互動式**決策樹**，依你的資料與問題導向合適的方法。
+- **資料庫 Databases** — 常見真實世界資料庫的整理。
+- **名詞表 Glossary** — 集中式術語表。
+- **What If（課本）** — Hernán & Robins《Causal Inference: What If》全 23 章的**雙語逐段讀書筆記**，
+  加密、需密碼開啟（教學用摘要，非書本原文）。
+
+### 全站特性
+
+- **中英雙語**：每個元素同時帶中文 innerHTML 與英文 `data-en`，一鍵切換（存 `localStorage`）。
+- **可分享的深連結**：網址 hash 記住目前方法與分頁（`#m=sccs&t=analyze`），重整不跑掉。
+- **③ 的程式可真的跑**：三語程式都讀各自的 `data/<method>_sample.csv`（36 份合成 CSV），欄位一致、貼上即跑。
+- 圖表用 Plotly（延後載入以加速首屏），並附 ARIA 標籤與 `:focus-visible` 等無障礙處理。
+
+---
+
+## 安裝與啟動（本機 FastAPI 開發版）
 
 需求：Python 3.10+（已在 3.14 測試）。
 
 ```powershell
-cd "D:\Drive\IV detection\webtool\backend"
+cd "D:\Drive\IV detection\webtool"
 python -m pip install -r requirements.txt
-python gen_data.py          # 產生內建範例 data\demo_vaccine.csv（首次必跑）
+
+cd backend                      # app.py 用扁平 import，需在 backend\ 內啟動
+python gen_data.py              # 產生內建 IV 範例（首次；其餘方法的資料由 tools\make_samples.py 產）
 python -m uvicorn app:app --port 8000
 ```
 
 開啟瀏覽器：<http://127.0.0.1:8000>
 
+---
+
 ## 純靜態版（瀏覽器直跑，可放 GitHub Pages）
 
-不想開伺服器、想給別人一個網址點開就能用,可以打包成**完全在瀏覽器跑**的靜態網站:
-計算改用 [Pyodide](https://pyodide.org)(在瀏覽器裡跑 Python 的 WASM 版),
-重用同一份 `backend/*.py`,不需要任何後端。
+不想開伺服器、想給別人一個網址點開就能用，可以打包成**完全在瀏覽器跑**的靜態網站：
+計算改用 Pyodide（在瀏覽器裡跑 Python 的 WASM 版），重用同一份 `backend/*.py`，不需要任何後端。
 
 ```powershell
 cd "D:\Drive\IV detection\webtool"
-python build_docs.py        # 產生 docs/(GitHub Pages 來源)
+python tools\make_samples.py    # 產生 frontend\data\*.csv（36 份方法示範資料）
+python build_docs.py            # 組裝出 docs\（GitHub Pages 來源）
 ```
 
-- `web/api.py`：把 `app.py` 的端點改寫成可被瀏覽器呼叫的 `route()`。
-- `web/pyodide-bridge.js`：載入 Pyodide + numpy/scipy/pandas(sklearn 延後),
-  攔截 `/api/*` 的 `fetch` 改走 Pyodide,讓 `app.js` 一行都不用改。
-- `build_docs.py`：把 `frontend/*` 與 `backend/*.py` 組裝進 `docs/`(產生物,改來源後重跑即可)。
+- `web/api.py`：把後端端點改寫成可被瀏覽器呼叫的 `route()`。
+- `web/pyodide-bridge.js` · `web/pyodide-worker.js`：載入 Pyodide + numpy/scipy/pandas/sklearn，
+  攔截 `/api/*` 的 `fetch` 改走 Pyodide，讓前端 `app.js` 一行都不用改。
+- `build_docs.py`：把 `frontend/*`、`backend/*.py` 與 `frontend/data/*` 組裝進 `docs/`
+  （產生物；改來源後重跑即可）。
 
-部署:GitHub 設定 → Pages → Source 選 `main` 分支的 `/docs`。
-首次開啟需下載運算核心(約 20–40 MB,之後瀏覽器會快取)。
-> 注意:私有 repo 的 GitHub Pages 需付費方案;免費帳號需 repo 設為公開才能發佈。
+**部署**：GitHub 設定 → Pages → Source 選 `main` 分支的 `/docs`。首次開啟需下載運算核心
+（約 20–40 MB，之後瀏覽器會快取）。
 
-本機預覽靜態版:`cd docs; python -m http.server 8001` → <http://127.0.0.1:8001>
+**本機預覽靜態版**：`cd docs; python -m http.server 8001` → <http://127.0.0.1:8001>
+（建置前請先關掉任何開著 `docs/` 的預覽伺服器，否則會鎖檔。）
 
-## 內建範例資料（純屬虛構的合成資料）
+> 注意：私有 repo 的 GitHub Pages 需付費方案；免費帳號需 repo 設為公開才能發佈。
 
-`data/demo_vaccine.csv` 是一個**完全虛構、為本工具自行設計**的合成情境，
-欄位、數字、變數結構都是自訂的，請勿當成真實資料使用：
+---
 
-> 情境：衛生單位在「隨機抽中的社區」主動寄出免費接種提醒、並安排到府接種。
-> 工具 Z = `vaccine_reminder`、處置 A = `vaccinated`、結果 Y = `health_score_change`，
-> 看不見的干擾因子 = 個人健康意識。
+## 內建與示範資料（全部為純屬虛構的合成資料）
 
-資料設計（真值）：
+所有資料都是**為教學自行設計的合成情境**，欄位、數字、結構都是自訂的，請勿當成真實資料使用。
 
-| 指標 | 設計值 | 本工具 |
-|---|---|---|
-| naive 處置係數（受干擾高估） | ~2.60 | 2.61 |
-| 第一階段係數（compliers） | ~0.090（9.0%） | 0.089 |
-| 真正 LATE（Wald / 2SLS） | 1.80 | 1.78 |
+- `backend/data/demo_vaccine.csv`：IV 的「隨機接種提醒」情境
+  （工具 Z＝`vaccine_reminder`、處置 A＝`vaccinated`、結果 Y＝`health_score_change`，
+  真值 LATE ≈ 1.80）。
+- `frontend/data/<method>_sample.csv`：其餘每種方法一份、共 36 份，由 `tools/make_samples.py`
+  以固定亂數種子與寫明的欄位結構產生，讓 ③ 的三語程式能直接跑出合理輸出。
 
-欄位：`health_score_change`(Y)、`vaccinated`(A)、`vaccine_reminder`(Z)、
-`age, female, bmi, chronic_conditions, income_band`(共變項)。
+上傳自己的資料：CSV 須為數值欄位；在 ③ 分頁選欄位對應即可。
 
-## 自己的資料
-
-CSV 須為數值欄位。上傳後在「資料分析」分頁選擇 Y / A / Z 與共變項即可。
-工具/處置若為二元（0/1），假設檢驗中的 McFadden R²、單調性等檢查才會啟用。
+---
 
 ## 程式結構
 
 ```
 webtool/
-├─ backend/
-│  ├─ iv_core.py        # IV 計算核心（OLS / 第一階段 / 簡化式 / Wald / 2SLS）
-│  ├─ assumptions.py    # A1–A4b 假設檢驗
-│  ├─ ml_iv.py          # ML + IV 教學示範（合成工具 / 可彎第一階段 / 禁止迴歸·交叉擬合）
-│  ├─ app.py            # FastAPI：API + 靜態前端
-│  ├─ gen_data.py       # 產生內建合成範例資料
-│  ├─ test_iv_core.py   # pytest：鎖定教材數字
-│  └─ data/demo_vaccine.csv
-└─ frontend/
-   ├─ index.html  ├─ app.js  └─ styles.css
+├─ frontend/            # 來源：前端
+│  ├─ index.html        #   全部頁面與 ①–⑥ 面板
+│  ├─ app.js            #   路由、圖表、互動、加密的 What If 讀書筆記、測驗
+│  ├─ i18n.js           #   中英雙語切換
+│  ├─ styles.css
+│  └─ data/*.csv        #   36 份方法示範資料
+├─ backend/             # 來源：Python 計算核心（本機 FastAPI + 靜態版共用）
+│  ├─ app.py            #   FastAPI：API + 靜態前端
+│  ├─ <method>_core.py / _gen.py / _assumptions.py / _ml.py   # 各方法的計算、產資料、假設、ML
+│  ├─ iv_core.py · assumptions.py · ml_iv.py · gen_data.py    # IV（歷史核心）
+│  └─ test_*.py         #   31 組 pytest（鎖定教材數字與結構）
+├─ web/                 # 靜態版橋接：api.py + Pyodide bridge/worker
+├─ tools/make_samples.py# 產生 frontend/data 的 36 份 CSV
+├─ tests/smoke.spec.js  # Playwright 冒煙測試（載入頁面、逐方法檢查無 console error）
+├─ build_docs.py        # 來源 → docs/（GitHub Pages 產生物）
+├─ docs/                # 建置產生物（Pages 來源，勿手改）
+└─ .github/workflows/ci.yml   # CI：pytest + 建置檢查 + 結構測試 + Playwright
 ```
 
-統計（OLS、2SLS、F 統計量、McFadden R²）以 numpy/scipy 自行實作，
-不依賴 statsmodels / linearmodels，避免在新版 Python 上的編譯問題。
-分頁⑤的「藥方三・禁止迴歸現場示範」另用 scikit-learn 的隨機森林，
-對比偷看版與交叉擬合版的第一階段。
+統計（OLS、2SLS、F、McFadden R²、風險比、存活曲線等）多以 numpy/scipy 自行實作以求可攜；
+需要時才用 scikit-learn（如 ⑤ 的隨機森林示範）、statsmodels。
+
+---
 
 ## 測試
 
 ```powershell
 cd "D:\Drive\IV detection\webtool\backend"
-python -m pytest -q
+python -m pytest -q                             # 後端數字與結構（含 test_frontend_structure.py）
+
+cd "D:\Drive\IV detection\webtool"
+npx playwright install --with-deps chromium     # 首次
+npm run test:e2e                                # 前端冒煙測試
 ```
 
-## API 摘要
+`backend/test_frontend_structure.py` 是純 Python 的結構守門：檢查每個方法的六個子面板、
+下拉選項、以及每份 `data/<method>_sample.csv` 存在且欄位涵蓋 R 程式用到的欄位。
 
-| 端點 | 用途 |
-|---|---|
-| `GET /api/example` | 內建資料預覽與預設欄位對應 |
-| `POST /api/upload` | 上傳 CSV，回傳欄位清單與 token |
-| `POST /api/analyze` | 回傳所有 IV 估計（naive / 第一階段 / 簡化式 / Wald / 2SLS） |
-| `POST /api/assumptions` | 回傳 A1–A4b 檢驗結果與燈號 |
-| `GET /api/interactive` | 互動分頁：依 complier 比例 / 強度即時模擬 Wald |
-| `GET /api/ml_synthesis` | 藥方一：多個弱工具合成一個強工具（交叉擬合） |
-| `GET /api/ml_nonlinear` | 藥方二：直線 vs 可彎的第一階段 |
-| `GET /api/ml_forbidden` | 藥方三：隨機森林偷看版 vs 交叉擬合版（禁止迴歸偏誤） |
-| `GET /api/ml_compare` | 各種做法的綜合比較 |
+CI（`.github/workflows/ci.yml`）在每次 push 跑：`pytest` → `build_docs.py` 建置檢查 →
+結構測試 → Playwright 冒煙測試。
 
-## 參考文獻
+---
 
-方法與假設框架整理自下列文獻：
+## 主要參考文獻
 
-- **Homayra, F., et al. (2024).** Comparative Analysis of Instrumental Variables on the
-  Assignment of Buprenorphine/Naloxone or Methadone for the Treatment of Opioid Use
-  Disorder. *Epidemiology, 35*(2), 218–231. https://doi.org/10.1097/EDE.0000000000001697
-  〔A1–A4b 假設檢驗框架〕
-- **Leung, M. (2024).** *Instrumental Variables*〔講義〕. NCKU — Bias in Epidemiology.
-- **Singh, A., Hosanagar, K., & Gandhi, A.** Machine Learning Instrument Variables for
-  Causal Inference. University of Pennsylvania.〔合成工具〕
-- **Bakhitov, E. (2025).** On machine learning instrumental variable estimators.
-  *Economics Letters.* 〔Elsevier ScienceDirect: S0165176525004380〕
-- **Bruns-Smith, D. (2025).** *Two-Stage Machine Learning for Nonparametric Instrumental
-  Variable Regression.* Stanford University.〔可彎的第一階段〕
-- **Peng, J. (2024).** *Machine Learning for Instrumental Variable Regression: From Bias to
-  Resilience.* University of Connecticut. SSRN 5008641.〔禁止迴歸偏誤〕
-- **Wu, A., Kuang, K., Xiong, R., & Wu, F. (2022).** Instrumental Variables in Causal
-  Inference and Machine Learning: A Survey. *arXiv:2212.05778.*
-- **Kaufman, E. J., Keele, L. J., et al.** Operative and Nonoperative Outcomes of Emergency
-  General Surgery Conditions: An Observational Study Using a Novel Instrumental Variable.〔應用範例〕
+方法與假設框架整理自各方法領域的原始文獻（每個方法的 ① 與參考文獻頁均列出對應出處），
+包含但不限於：
+
+- Hernán MA, Robins JM. *Causal Inference: What If.* Chapman & Hall/CRC, 2020（2025 更新）。
+  免費全文：<https://miguelhernan.org/whatifbook>（⑥ What If 讀書筆記所本）。
+- Farrington CP (1995); Whitaker HJ, Farrington CP, Musonda P (2006) — SCCS 方法。
+- Homayra F, et al. (2024). *Epidemiology* 35(2):218–231 — IV 的 A1–A4b 假設檢驗框架。
+- 以及各方法在 ③ 程式卡「出處 / Sources」列出的套件文件與方法論文。
+
+（完整清單見站內各方法的參考文獻，以及 `SELF_AUDIT.md`。）
