@@ -1,5 +1,18 @@
 # 真實世界證據與準實驗工具箱 · RWE & Quasi-experimental Toolbox
 
+![Homepage of the toolbox showing 32 method cards](assets/screenshot-home.png)
+
+> **In English —** A bilingual (Traditional Chinese / English), browser-based teaching and
+> analysis toolbox for **causal inference and real-world evidence (RWE)**. It covers **32
+> observational and quasi-experimental study designs**, each unpacked into the same six
+> learning layers (①–⑥): what it is, an interactive demo, **runnable SAS · R · Stata code on a
+> downloadable per-method sample CSV**, a traffic-light assumptions check, an "add machine
+> learning" layer, and a "what if the assumptions break" layer. Plus a home gallery, a
+> **method-picker decision tree**, a databases page, a glossary, and password-gated bilingual
+> study notes on Hernán & Robins' *Causal Inference: What If*. The same Python compute core
+> (`backend/*.py`) runs under FastAPI locally and in-browser via Pyodide, so the site can be
+> served fully static from GitHub Pages. **Live:** <https://danielhttsai.github.io/phdc-rwe-tool/>
+
 一個可在瀏覽器直接使用的**因果推論 / 真實世界證據（RWE）教學與分析工具箱**：把 32 種
 觀察性研究與準實驗設計，每一種都拆成白話、可互動的六個學習層次，並附上可直接執行的
 SAS · R · Stata 程式與可下載的示範資料。全站**中英雙語**即時切換。
