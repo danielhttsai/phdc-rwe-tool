@@ -103,6 +103,13 @@ def _copy_assets():
     # .nojekyll 讓 GitHub Pages 不要用 Jekyll 處理(更快、且不過濾任何檔案)
     open(os.path.join(DOCS, ".nojekyll"), "w").close()
 
+    # 獨立版「怎麼選」決策樹(單一自足 HTML,供外部授課用)
+    # → standalone/choose.html 與 docs/choose/index.html。
+    # 必須在 _clean_docs() 之後產生,否則會被整個 docs/ 的清空刪掉。
+    sys.path.insert(0, os.path.join(HERE, "tools"))
+    import build_choose_site
+    build_choose_site.main()
+
 
 def main():
     # The success report below prints Chinese; on a cp950/Big5 Windows console

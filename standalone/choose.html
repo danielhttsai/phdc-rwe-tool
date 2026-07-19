@@ -1,0 +1,1481 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>怎麼選：因果研究設計決策樹 · Which design? A decision tree</title>
+<meta name="description" content="A standalone, clickable decision tree for choosing a causal / real-world-evidence study design, ending in the full flowchart. 因果推論研究設計的可點擊決策樹。">
+<style>
+:root {
+  --bg: #f3f6f7;
+  --ink: #14283c;
+  --muted: #5f6b7a;
+  --line: #e0e6ea;
+  --card: #ffffff;
+  --z: #3f8268;        /* teal — primary accent (ASPEN-like) */
+  --a: #0ea5e9;
+  --y: #16a34a;
+  --u: #ef4444;
+  --green: #16a34a;
+  --amber: #d97706;
+  --red: #dc2626;
+  --info: #2563eb;
+  --shadow: 0 1px 3px rgba(20, 40, 60, .07), 0 6px 20px rgba(20, 40, 60, .05);
+}
+* { box-sizing: border-box; }
+/* ---- Accessibility ---- */
+.skip-link {
+  position: absolute; left: -9999px; top: 0; z-index: 1000;
+  background: var(--z); color: #fff; padding: .55rem 1rem; border-radius: 0 0 8px 0;
+  font-weight: 700; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+:focus-visible { outline: 2px solid var(--z); outline-offset: 2px; }
+.tab:focus-visible, .home-card:focus-visible, .gloss-item:focus-visible, .toc-link:focus-visible,
+.btn:focus-visible, select:focus-visible, input:focus-visible, .lang-toggle:focus-visible {
+  outline: 2px solid var(--z); outline-offset: 2px; border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Microsoft JhengHei", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+}
+h1 { font-size: 1.7rem; margin: .2rem 0 1rem; }
+h2 { font-size: 1.25rem; margin: 2rem 0 .8rem; }
+h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+p { margin: .5rem 0; }
+b { color: #0b1020; }
+
+/* topbar */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--card); border-bottom: 1px solid var(--line);
+  padding: .7rem 1.5rem; box-shadow: var(--shadow);
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem;
+}
+.topbar .brand { order: 0; }
+.lang-toggle {
+  order: 2; margin-left: auto;
+  border: 1.5px solid var(--z); background: var(--z); color: #fff;
+  padding: .45rem 1rem; border-radius: 999px; cursor: pointer;
+  font-size: .95rem; font-weight: 700; white-space: nowrap; transition: .15s;
+  box-shadow: var(--shadow);
+}
+.lang-toggle::before { content: "🌐 "; }
+.lang-toggle:hover { filter: brightness(1.08); }
+.topbar .tabs { order: 3; flex-basis: 100%; }
+.brand { font-weight: 800; font-size: 1.15rem; letter-spacing: .5px; display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }
+.brand span { color: var(--z); }
+.brand-logo { height: 40px; width: auto; display: block; flex: 0 0 auto; }
+@media (max-width: 520px) { .brand-logo { height: 32px; } }
+.tabs { display: flex; gap: .4rem; margin-top: .6rem; flex-wrap: wrap; }
+.tab {
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  padding: .45rem .9rem; border-radius: 999px; cursor: pointer;
+  font-size: .92rem; transition: .15s;
+}
+.tab:hover { border-color: var(--z); color: var(--z); }
+.tab.active { background: var(--z); color: #fff; border-color: var(--z); }
+.tabs .tab-group {
+  align-self: center; font-weight: 800; font-size: .82rem; letter-spacing: .5px;
+  color: var(--z); padding: 0 .15rem 0 .5rem; user-select: none;
+}
+.tabs .tab-group:first-child { padding-left: 0; }
+.tab.tab-sep { margin-left: .5rem; border-style: dashed; }
+
+/* method dropdown + sub-tabs (replaces the long 31-button row) */
+.method-pick { display: flex; align-items: center; gap: .45rem; font-weight: 800;
+  font-size: .82rem; letter-spacing: .5px; color: var(--z); }
+.method-pick select {
+  padding: .42rem .8rem; border: 1.5px solid var(--z); border-radius: 999px;
+  font-size: .95rem; font-weight: 700; color: var(--z); background: var(--card); cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.subtabs { display: flex; gap: .4rem; flex-wrap: wrap; }
+.tab.subtab { font-weight: 600; }
+
+/* decision flowchart (choose tab) */
+.flow { max-width: 760px; margin: 1rem auto 1.5rem; }
+.flow-q {
+  background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--z);
+  border-radius: 12px; padding: .8rem 1rem; box-shadow: var(--shadow);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem;
+  font-size: .95rem;
+}
+.flow-q .flow-yes {
+  background: var(--z); color: #fff; border-radius: 999px; padding: .3rem .8rem;
+  font-weight: 700; white-space: nowrap; font-size: .9rem;
+}
+.flow-no { text-align: center; color: var(--muted); font-size: .85rem; font-weight: 700; margin: .35rem 0; }
+.flow-end {
+  background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;
+  border-radius: 12px; padding: .7rem 1rem; font-size: .92rem; margin-top: .35rem;
+}
+/* richer anchor-based design tree */
+.flow-head { font-weight: 800; color: var(--z); margin: 1rem 0 .4rem; font-size: 1rem;
+  border-bottom: 2px solid var(--z); padding-bottom: .25rem; }
+.flow-branch { margin-left: .2rem; border-left: 3px dashed var(--line); padding-left: .8rem; }
+.flow-yes.ext { background: var(--card); color: var(--muted); border: 1px solid var(--line); }
+.flow-yes.tte { box-shadow: 0 0 0 2px #bfdbfe; }
+.flow-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; font-size: .85rem;
+  color: var(--muted); margin: .4rem 0 1rem; }
+.flow-legend b { color: var(--ink); }
+
+/* interactive, clickable decision tree */
+/* adjacent-approaches gateway cards on the choose page */
+.adj-grid { margin-top: .4rem; }
+.adj-card { border-left: 4px solid #8b5cf6; }
+.adj-card h3 { margin: .1rem 0 .3rem; font-size: 1rem; }
+.adj-card p { font-size: .9rem; line-height: 1.65; margin: 0 0 .6rem; }
+.adj-goto { display: inline-block; font-weight: 600; font-size: .88rem; text-decoration: none;
+  color: #6d28d9; cursor: pointer; }
+.adj-goto:hover { text-decoration: underline; }
+/* causal-inference workflow flowchart (#flow) */
+.flowchart { max-width: 820px; margin: 1.2rem auto; }
+.flow-stage { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--teal, #1d6f57);
+  border-radius: 10px; padding: .85rem 1.1rem; box-shadow: 0 1px 3px rgba(15,40,60,.05); }
+.flow-stage.flow-end { border-left-color: #b45309; background: #fffdf6; }
+.flow-head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+.flow-head h3 { margin: .1rem 0; font-size: 1.05rem; }
+.flow-no { flex: none; min-width: 2.2rem; text-align: center; font-weight: 800; font-size: .9rem;
+  color: #fff; background: var(--teal, #1d6f57); border-radius: 999px; padding: .1rem .5rem; }
+.flow-end .flow-no { background: #b45309; }
+.flow-stage > p { margin: .4rem 0 .6rem; font-size: .92rem; line-height: 1.7; }
+.flow-arrow { text-align: center; color: #94a3b8; font-size: 1.4rem; line-height: 1; margin: .25rem 0; }
+.flow-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip { display: inline-block; padding: .28rem .7rem; font-size: .85rem; font-weight: 600; text-decoration: none;
+  color: #334155; background: #eef4fb; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.chip:hover { background: var(--teal, #1d6f57); color: #fff; border-color: var(--teal, #1d6f57); }
+.chip:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }
+.chip.chip-adj { background: #f5f3ff; border-style: dashed; }   /* demoted → choose page */
+.chip.chip-go { background: var(--teal, #1d6f57); color: #fff; border-color: var(--teal, #1d6f57); }
+.dtree { max-width: 760px; margin: 1rem auto 1.5rem; }
+.dtree-path { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; min-height: 1.6rem; }
+.dtree-crumb { background: #f1f5f9; color: var(--muted); border: 1px solid var(--line);
+  border-radius: 999px; padding: .2rem .7rem; font-size: .8rem; }
+.dtree-crumb.start { background: var(--z); color: #fff; border-color: var(--z); }
+.dtree-stage { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--z);
+  border-radius: 14px; padding: 1.1rem 1.2rem; box-shadow: var(--shadow); }
+.dtree-step { font-size: .78rem; font-weight: 800; letter-spacing: .04em; color: var(--z);
+  text-transform: uppercase; margin-bottom: .35rem; }
+.dtree-q { font-size: 1.08rem; font-weight: 700; line-height: 1.55; margin-bottom: 1rem; }
+.dtree-opts { display: flex; flex-direction: column; gap: .55rem; }
+.dtree-opt { text-align: left; background: #f8fafc; border: 1.5px solid var(--line);
+  border-radius: 10px; padding: .7rem .9rem; cursor: pointer; font-size: .95rem; line-height: 1.5;
+  color: var(--ink); transition: .15s; }
+.dtree-opt:hover { border-color: var(--z); background: #ecfeff; transform: translateX(2px); }
+.dtree-opt .arrow { float: right; color: var(--z); font-weight: 800; margin-left: .6rem; }
+/* recommendation leaf */
+.dtree-rec { border-radius: 14px; padding: 1.2rem 1.3rem; border: 2px solid; }
+.dtree-rec.toolbox { background: #ecfdf5; border-color: #34d399; }
+.dtree-rec.external { background: #fff7ed; border-color: #fdba74; }
+.dtree-rec.fallback { background: #eff6ff; border-color: #93c5fd; }
+.dtree-rec .rec-tag { display: inline-block; font-size: .78rem; font-weight: 800; letter-spacing: .04em;
+  text-transform: uppercase; margin-bottom: .4rem; color: var(--muted); }
+.dtree-rec h3 { margin: 0 0 .6rem; font-size: 1.35rem; }
+.dtree-rec.toolbox h3 { color: #047857; }
+.dtree-rec.external h3 { color: #9a3412; }
+.dtree-rec.fallback h3 { color: #1d4ed8; }
+.dtree-rec p { margin: .45rem 0; line-height: 1.7; }
+.dtree-rec .rec-scenario { background: rgba(255,255,255,.55); border-left: 3px solid currentColor;
+  border-radius: 8px; padding: .55rem .8rem; font-size: .92rem; line-height: 1.65; margin-top: .6rem; }
+.dtree-rec.toolbox .rec-scenario { color: #047857; }
+.dtree-rec.external .rec-scenario { color: #9a3412; }
+.dtree-rec.fallback .rec-scenario { color: #1d4ed8; }
+.dtree-rec .rec-scenario { color: var(--ink); }
+.dtree-rec .rec-watch { background: rgba(255,255,255,.65); border-radius: 10px; padding: .6rem .8rem;
+  font-size: .9rem; margin-top: .7rem; }
+.dtree-rec .rec-watch b { color: var(--ink); }
+.rec-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .9rem; }
+.dtree-goto { background: var(--z); color: #fff; border: none; border-radius: 999px;
+  padding: .55rem 1.2rem; font-weight: 700; font-size: .95rem; cursor: pointer; box-shadow: var(--shadow); }
+.dtree-goto:hover { filter: brightness(1.06); }
+.dtree-showmap { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); border-radius: 999px;
+  padding: .55rem 1.1rem; font-weight: 700; font-size: .95rem; cursor: pointer; }
+.dtree-showmap:hover { border-color: var(--z); color: var(--z); }
+.dtree-controls { display: flex; gap: .6rem; margin-top: .9rem; }
+.dtree-controls .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* the full decision-tree map that pops out at a leaf */
+.dtree-map { max-width: 760px; margin: 1rem auto 0; background: #f8fafc; border: 1px solid var(--line);
+  border-radius: 14px; padding: 1rem 1.1rem; }
+.dtree-map .map-title { margin: 0 0 .7rem; font-size: 1.05rem; }
+.dtree-map .flow-head { margin: .9rem 0 .4rem; font-size: .98rem; }
+.dtree-map .map-sub { font-weight: 700; color: var(--muted); font-size: .85rem; margin: .5rem 0 .3rem; }
+.dtree-map .flow-branch { border-left: 3px dashed var(--line); padding-left: .8rem; margin-left: .2rem; }
+.map-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: .5rem .7rem; margin: .35rem 0;
+  font-size: .9rem; }
+.map-row .map-cond { flex: 1 1 60%; }
+.flow-leaf { white-space: nowrap; border-radius: 999px; padding: .25rem .7rem; font-weight: 700; font-size: .85rem; }
+.flow-leaf.tb { background: var(--z); color: #fff; }
+.flow-leaf.ex { background: var(--card); color: var(--muted); border: 1px solid var(--line); }
+.map-row.flow-hit { border-color: #34d399; background: #ecfdf5; box-shadow: 0 0 0 2px #6ee7b7; }
+.map-row.flow-hit .flow-leaf.ex { border-color: #34d399; color: #047857; }
+.dtree-map .flow-end.flow-hit { box-shadow: 0 0 0 2px #93c5fd; }
+
+/* ---- the full tree drawn as a top-down flowchart ---- */
+.fc-toolbar { display: flex; justify-content: flex-end; margin: 0 0 .5rem; }
+.fc-toolbar .fc-dl { font-size: .85rem; }
+@media print { .fc-toolbar { display: none; } }
+.fc-title { text-align: center; margin: 0 0 1rem; font-size: 1.05rem; }
+.fc { display: flex; flex-direction: column; align-items: center; }
+.fc-start { background: #0f172a; color: #fff; font-weight: 800; border-radius: 999px;
+  padding: .5rem 1.3rem; font-size: 1rem; letter-spacing: .5px; }
+/* A/B/C/D are PARALLEL anchor families, so lay them out as four columns in one
+   horizontal row (scroll sideways on narrow screens) rather than a 2x2 wrap. */
+.fc-lanes { display: flex; gap: 1rem; align-items: flex-start; justify-content: flex-start;
+  width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
+.fc-lane { flex: 1 1 0; min-width: 208px; max-width: 520px; display: flex; flex-direction: column; align-items: stretch; }
+/* plain vertical connector (a branch line, no arrowhead), optional branch label */
+.fc-link { width: 2px; min-height: 22px; background: #94a3b8; margin: 3px auto; position: relative; }
+.fc-elabel { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); white-space: nowrap;
+  background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px;
+  font-size: .72rem; color: var(--muted); line-height: 1.6; }
+.fc-head { border-radius: 12px; padding: .55rem .8rem; font-weight: 800; color: #fff; text-align: center; }
+.fc-head small { display: block; font-weight: 500; font-size: .76rem; opacity: .92; margin-top: 2px; }
+.fc-head.a { background: var(--z); }
+.fc-head.b { background: #7c3aed; }
+.fc-head.c { background: #b45309; }
+.fc-head.d { background: #0e7490; }
+a.xref { color: var(--z); cursor: pointer; text-decoration: none; font-weight: 600;
+  border-bottom: 1px dotted rgba(63, 125, 98, .55); }
+a.xref:hover { color: #2c5b47; border-bottom-style: solid; }
+.fc-q { background: var(--card); border: 2px solid #94a3b8; border-radius: 12px; padding: .55rem .8rem;
+  font-weight: 700; text-align: center; box-shadow: var(--shadow); }
+.fc-q::before { content: "◇ "; color: #94a3b8; }
+/* leaves under a question fan out as tree branches: a vertical spine on the left
+   with a horizontal elbow into each leaf (org-chart / file-tree look) */
+.fc-leaves { display: flex; flex-direction: column; gap: .5rem; position: relative; padding-left: 22px; }
+.fc-leaves::before { content: ""; position: absolute; left: 8px; top: -10px; bottom: 18px; width: 2px; background: #94a3b8; }
+.fc-leaves .fc-leaf { position: relative; }
+.fc-leaves .fc-leaf::before { content: ""; position: absolute; left: -14px; top: 50%; width: 14px; height: 2px; background: #94a3b8; }
+.fc-leaf { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  background: var(--card); border: 1px solid var(--line); border-left-width: 5px; border-radius: 10px;
+  padding: .5rem .7rem; font-size: .88rem; }
+.fc-leaf.tb { border-left-color: var(--z); }
+.fc-leaf.ex { border-left-color: #c3cedb; }
+.fc-cond { color: var(--ink); flex: 1 1 auto; min-width: 0; }   /* min-width:0 lets the text wrap beside the badge instead of under it */
+.fc-badge { white-space: nowrap; flex: 0 0 auto; border-radius: 999px; padding: .22rem .65rem; font-weight: 700; font-size: .82rem; }
+.fc-badge.tb { background: var(--z); color: #fff; }
+.fc-badge.ex { background: #eef2f6; color: var(--muted); border: 1px solid var(--line); }
+.fc-leaf.fc-hit { background: #ecfdf5; border-color: #34d399; border-left-color: #16a34a; box-shadow: 0 0 0 2px #6ee7b7; }
+.fc-end { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: .7rem 1rem;
+  text-align: center; color: #1e3a8a; font-size: .9rem; max-width: 680px; line-height: 1.6; }
+.fc-end.fc-hit { box-shadow: 0 0 0 3px #93c5fd; }
+/* the "already have an RCT" branch at the bottom of the flowchart */
+.fc-rct { width: 100%; max-width: 560px; display: flex; flex-direction: column; align-items: stretch; }
+.fc-note { background: #eff6ff; border: 1px dashed #93c5fd; border-radius: 10px; padding: .5rem .8rem;
+  font-size: .82rem; color: #1e3a8a; text-align: center; line-height: 1.6; }
+
+main { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem; }
+.panel { display: none; animation: fade .25s; }
+.panel.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+.banner {
+  background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;
+  border-radius: 10px; padding: .6rem .9rem; font-size: .92rem; margin-bottom: 1rem;
+}
+.lead { font-size: 1.08rem; color: #2b3247; }
+.caption { color: var(--muted); font-size: .9rem; }
+.muted { color: var(--muted); }
+
+/* cards */
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 14px; padding: 1rem 1.2rem; box-shadow: var(--shadow); margin: 1rem 0;
+}
+.card.warn { border-left: 4px solid var(--amber); }
+.card.info { border-left: 4px solid var(--info); }
+.card.scene { border-left: 4px solid var(--teal, #3f8268); background: linear-gradient(180deg, rgba(63,130,104,0.045), transparent 60%); }
+.card.scene h3 { color: var(--teal, #3f8268); }
+/* scene mini-charts sit flush on the tinted card (no inner white box, shorter,
+   so the data fills the frame instead of floating in a big empty grid) */
+.card.scene .chart { height: 280px; background: transparent; border: none; box-shadow: none; margin: .5rem 0 0; }
+/* ⑥ DAG ↔ SWIG side by side, each filling its half; the long note sits below each
+   diagram as readable text (.diagnote) instead of being squeezed inside the chart */
+.whatif-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+.whatif-col { min-width: 0; }
+.diagnote { margin: .4rem 0 .2rem; line-height: 1.6; }
+@media (max-width: 760px) { .whatif-pair { grid-template-columns: 1fr; } }
+/* ③ data preview — a real data-row table at the top of the analyse panel */
+.data-preview { margin: .4rem 0 1.2rem; }
+.data-preview .dp-title { font-size: 1rem; margin: .2rem 0 .5rem; }
+.dp-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.dp-table { border-collapse: collapse; width: 100%; font-size: .85rem; white-space: nowrap; }
+.dp-table th, .dp-table td { padding: .35rem .6rem; text-align: right; border-bottom: 1px solid var(--line); }
+.dp-table th { background: #f3f6fb; color: #334155; font-weight: 600; position: sticky; top: 0; }
+.dp-table tbody tr:nth-child(even) { background: #fafcff; }
+.dp-table td:first-child, .dp-table th:first-child { text-align: left; color: var(--muted); }
+/* ③ download the built-in sample dataset as CSV */
+.dl-csv { margin-top: .6rem; padding: .45rem .9rem; font-size: .88rem; font-weight: 600;
+  color: #fff; background: var(--teal, #1d6f57); border: none; border-radius: 8px; cursor: pointer; }
+.dl-csv:hover { filter: brightness(1.08); }
+.dl-csv:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }
+/* provenance line under each ③ code header — cite the package/method so the code is trustworthy */
+.code-src { font-size: .82rem; line-height: 1.6; color: var(--muted); background: #f7f9fd;
+  border-left: 3px solid var(--teal, #1d6f57); border-radius: 0 6px 6px 0; padding: .5rem .75rem; margin: .2rem 0 .9rem; }
+.code-src code { font-size: .8em; }
+/* code-language switcher (SAS / R / Stata) above each ③ code section */
+.clang-switch { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem;
+  margin: .8rem 0 .9rem; }
+.clang-label { font-size: .9rem; color: var(--muted); margin-right: .2rem; }
+.clang-btn { padding: .32rem .9rem; font-size: .9rem; font-weight: 600; font-family: inherit;
+  color: #334155; background: #f3f6fb; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }
+.clang-btn:hover { background: #e7eef9; }
+.clang-btn[aria-pressed="true"] { color: #fff; background: var(--teal, #1d6f57); border-color: var(--teal, #1d6f57); }
+.clang-btn:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }
+/* ④ E-value sensitivity card */
+.evalue-card { margin-top: 1.2rem; }
+.evalue-card h4 { margin: .8rem 0 .3rem; }
+.ev-inputs, .ev-sliders { display: flex; flex-wrap: wrap; gap: 1rem 1.6rem; margin: .5rem 0; }
+.ev-inputs label, .ev-sliders label { display: flex; align-items: center; gap: .5rem; font-size: .92rem; }
+.ev-inputs input[type="number"] { width: 5rem; padding: .25rem .4rem; border: 1px solid var(--line); border-radius: 6px; }
+.ev-sliders input[type="range"] { width: 11rem; vertical-align: middle; }
+.ev-sliders b { min-width: 2.2rem; }
+.ev-out, .ev-verdict { background: #f7f9fd; border: 1px solid var(--line); border-radius: 8px; padding: .55rem .75rem; line-height: 1.7; margin: .5rem 0; }
+/* divider between the analysis and the merged SAS/R code section */
+.merge-sep { border: none; border-top: 2px dashed var(--line); margin: 2rem 0 1rem; }
+.merge-sas { margin-top: .3rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+.cards .card { margin: 0; }
+/* fixed 3-up grid for card sets that otherwise leave an ugly orphan row (e.g. 6 cards → 3+3) */
+.cards-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .cards-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cards-3 { grid-template-columns: 1fr; } }
+
+/* DAG diagram */
+.dag {
+  margin: 1.5rem 0 .5rem; padding: 1.2rem 1rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+}
+.dag-svg { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; }
+.dag-svg .dn { fill: #fff; font-weight: 700; font-size: 15px; text-anchor: middle; }
+.dag-svg .ds { fill: #fff; opacity: .92; font-weight: 500; font-size: 11px; text-anchor: middle; }
+
+/* interactive */
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1rem 0 1.5rem; }
+.controls label { display: block; font-weight: 600; }
+.controls input[type=range] { width: 100%; margin: .5rem 0 0; accent-color: var(--z); }
+.controls small { display: block; color: var(--muted); font-weight: 400; }
+.ccw-scen { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.scen-select { font: inherit; font-weight: 600; padding: .4rem .6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink, #14283c); cursor: pointer; }
+.scen-select:focus { outline: 2px solid var(--z); }
+.play-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.rdd-twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
+table.cmp { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+table.cmp th, table.cmp td { padding: .7rem .9rem; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--line); font-size: .92rem; }
+table.cmp thead th { background: var(--ink, #14283c); color: #fff; font-weight: 600; }
+table.cmp tbody td:first-child { font-weight: 600; color: var(--muted); white-space: nowrap; }
+table.cmp tbody tr:last-child td { border-bottom: none; }
+table.cmp tbody tr:nth-child(even) { background: #f8fafc; }
+/* design-family sub-header row inside comparison tables */
+table.cmp td.famhdr, table.cmp tbody tr td.famhdr {
+  background: #e7efeb; color: var(--z, #3f7d62); font-weight: 700; white-space: normal;
+  border-top: 2px solid var(--z, #3f7d62); font-size: .9em; letter-spacing: .01em;
+}
+/* design-family sub-heading above grouped decision cards */
+h4.fam-sub { margin: 1.2rem 0 .5rem; color: var(--z, #3f7d62); font-size: 1rem;
+  border-left: 4px solid var(--z, #3f7d62); padding-left: .55rem; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1rem; text-align: center; box-shadow: var(--shadow); }
+.stat-label { color: var(--muted); font-size: .85rem; }
+.stat-num { font-size: 2rem; font-weight: 800; margin: .2rem 0; }
+.stat-num.small { font-size: 1.2rem; }
+.stat-foot { color: var(--muted); font-size: .8rem; }
+.bv-readout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: .9rem 0 .3rem; }
+.bv-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: .7rem 1rem; box-shadow: var(--shadow); display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+.bv-k { color: var(--muted); font-size: .85rem; }
+.bv-v { font-size: 1.4rem; font-weight: 800; color: var(--z); white-space: nowrap; }
+@media (max-width: 720px) { .bv-readout { grid-template-columns: 1fr; } }
+.chart { width: 100%; height: 360px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+
+/* analysis */
+.datasource { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin: 1rem 0; }
+.or { color: var(--muted); }
+.btn {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  padding: .55rem 1.1rem; border-radius: 10px; cursor: pointer; font-size: .95rem; font-weight: 600;
+}
+.btn:hover { border-color: var(--z); }
+.btn.primary { background: var(--z); color: #fff; border-color: var(--z); }
+.btn.primary:hover { filter: brightness(1.07); }
+.colmap {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: end;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.2rem; box-shadow: var(--shadow); margin: 1rem 0;
+}
+.field { display: flex; flex-direction: column; gap: .3rem; }
+.field.wide { grid-column: 1 / -1; }
+.field label { font-weight: 600; font-size: .9rem; }
+select { padding: .45rem; border: 1px solid var(--line); border-radius: 8px; font-size: .92rem; background: var(--card); }
+#runAnalyze { grid-column: 1 / -1; }
+
+.result-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.rc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }
+.rc .big { font-size: 1.6rem; font-weight: 800; }
+.rc.highlight { border: 2px solid var(--z); }
+.rc p { font-size: .88rem; color: #404a60; margin: .4rem 0 0; }
+
+/* assumptions */
+.overall { padding: 1rem 1.2rem; border-radius: 14px; font-weight: 700; margin: 1rem 0; box-shadow: var(--shadow); }
+.assume-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); align-items: start; }
+.acard { background: var(--card); border: 1px solid var(--line); border-left-width: 6px; border-radius: 14px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }
+.acard h3 { display: flex; align-items: center; gap: .5rem; }
+.badge { font-size: .72rem; padding: .15rem .5rem; border-radius: 999px; color: #fff; font-weight: 700; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.st-green { border-left-color: var(--green); } .bg-green { background: var(--green); }
+.st-amber { border-left-color: var(--amber); } .bg-amber { background: var(--amber); }
+.st-red   { border-left-color: var(--red); }   .bg-red   { background: var(--red); }
+.st-info  { border-left-color: var(--info); }  .bg-info  { background: var(--info); }
+/* status badges: soft tinted pills (calmer than solid saturated chips); the
+   dots keep the solid .bg-* colour, so only the .badge.bg-* pairing is restyled */
+.badge.bg-green { background: #e7f6ee; color: #0f7a45; border: 1px solid #bce8d0; }
+.badge.bg-amber { background: #fdf1de; color: #97610e; border: 1px solid #f2d6a3; }
+.badge.bg-red   { background: #fdeaea; color: #c0322b; border: 1px solid #f2c0bc; }
+.badge.bg-info  { background: #eef2f7; color: #44607f; border: 1px solid #cfdbe9; }
+.metrics { list-style: none; padding: 0; margin: .6rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: .4rem; }
+.metrics li { background: #f7f9fd; border: 1px solid var(--line); border-radius: 8px; padding: .4rem .6rem; font-size: .85rem; }
+.metrics b { display: block; font-size: 1.05rem; }
+.metrics span { color: var(--muted); font-size: .76rem; }
+.acard .headline { font-size: 1.05rem; margin: .2rem 0 .5rem; }
+.acard .plain { font-size: .96rem; color: #2b3849; line-height: 1.75; margin: .3rem 0 .2rem; }
+.term { margin-top: .8rem; border-top: 1px dashed var(--line); padding-top: .5rem; }
+.term summary {
+  cursor: pointer; color: var(--z); font-size: .85rem; font-weight: 600;
+  list-style: none; user-select: none;
+}
+.term summary::before { content: "▸ "; }
+.term[open] summary::before { content: "▾ "; }
+.term p { font-size: .85rem; color: var(--muted); margin: .5rem 0 0; line-height: 1.7; }
+.tdef { margin: .7rem 0 0; padding: .7rem .85rem; background: #f8fafb; border: 1px solid var(--line); border-left: 3px solid var(--z); border-radius: 10px; }
+.tdef + .tdef { margin-top: .6rem; }
+.tdef h4 { margin: 0 0 .35rem; font-size: .92rem; color: var(--ink, #14283c); font-weight: 700; }
+.tdef h4 .en { color: var(--muted); font-weight: 500; font-size: .82rem; }
+.tdef p { font-size: .85rem; color: #334155; margin: 0; line-height: 1.75; }
+.tdef p b { color: var(--z); font-weight: 700; }
+.tdef code { background: #eef4f2; border: 1px solid var(--line); border-radius: 5px; padding: .05rem .35rem; font-size: .82rem; color: #14283c; white-space: nowrap; }
+.tdef .tform { margin-top: .3rem; }
+.tdef-list { margin: 0; padding-left: 1.15rem; }
+.tdef-list li { font-size: .85rem; color: #334155; line-height: 1.7; margin: 0 0 .5rem; }
+.tdef-list li:last-child { margin-bottom: 0; }
+.tdef-list li b { color: var(--z); font-weight: 700; }
+.tdef-list code { background: #eef4f2; border: 1px solid var(--line); border-radius: 5px; padding: .05rem .35rem; font-size: .82rem; color: #14283c; }
+/* ⑦ SAS code walkthrough */
+pre.sas { background: #0f1f2e; color: #e6edf3; padding: .8rem 1rem; border-radius: 10px;
+  overflow-x: auto; margin: .5rem 0 .2rem; box-shadow: var(--shadow); }
+pre.sas code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .82rem; line-height: 1.55; white-space: pre; color: inherit; background: none;
+  border: none; padding: 0; }
+pre.sas .cm { color: #8aa6bf; font-style: italic; }   /* SAS comment */
+pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
+.sas-note { background: #fff8e6; border: 1px solid #f0d68c; border-radius: 10px;
+  padding: .7rem .9rem; font-size: .85rem; color: #6b5618; margin: .2rem 0 1rem; }
+
+.hidden { display: none !important; }
+
+/* SCCS extensions — expandable cards (extension + worked example + data + SAS) */
+.ext-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: var(--shadow); margin: .7rem 0; overflow: hidden; }
+.ext-card > summary { cursor: pointer; padding: .85rem 1.1rem; font-weight: 700;
+  font-size: 1.02rem; list-style: none; line-height: 1.5; }
+.ext-card > summary::-webkit-details-marker { display: none; }
+.ext-card > summary::before { content: "▸"; color: var(--z); margin-right: .5rem; }
+.ext-card[open] > summary::before { content: "▾"; }
+.ext-card > summary .ext-tag { color: var(--muted); font-weight: 500; font-size: .9rem; }
+.ext-body { padding: 0 1.1rem 1.1rem; }
+.ext-body h5 { margin: 1rem 0 .4rem; color: var(--z); font-size: .92rem;
+  text-transform: none; letter-spacing: 0; }
+.ext-body h5:first-child { margin-top: .4rem; }
+.ext-body .mini { width: 100%; border-collapse: collapse; font-size: .82rem; margin: .2rem 0 .4rem; }
+.ext-body .mini th, .ext-body .mini td { border: 1px solid var(--line); padding: .28rem .5rem; text-align: center; }
+.ext-body .mini th { background: #f1f7f6; font-weight: 700; }
+.ext-body .mini td.lo { background: #f8fafc; }
+.ext-body .mini caption { caption-side: bottom; font-size: .76rem; color: var(--muted); padding-top: .3rem; text-align: left; }
+.ext-body pre.sas { margin: .2rem 0 .3rem; }
+
+/* references / citation footer */
+.refs {
+  max-width: 1280px; margin: 2rem auto 3rem; padding: 1.4rem 1.5rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+}
+.refs h2 { margin-top: 0; }
+.refs h3 { margin: 1.2rem 0 .5rem; }
+.refs .cite {
+  background: #f7f9fd; border-left: 4px solid var(--z); border-radius: 8px;
+  padding: .7rem .9rem; font-size: .95rem; color: #2b3849; line-height: 1.7;
+}
+.refs .cite a { color: var(--z); word-break: break-all; }
+.cite-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: .8rem 0 1.4rem; }
+.cite-actions .btn { font-size: .88rem; padding: .45rem .9rem; }
+.refs .reflist { margin: .8rem 0 0; padding-left: 1.2rem; }
+.refs .reflist li { font-size: .88rem; color: #404a60; margin: .4rem 0; line-height: 1.6; }
+
+@media (max-width: 720px) {
+  .controls, .colmap, .play-grid, .rdd-twocol { grid-template-columns: 1fr; }
+  table.cmp th, table.cmp td { font-size: .82rem; padding: .5rem .55rem; }
+}
+
+/* Phone polish: full-width method picker, horizontally-scrollable sub-tabs,
+   tighter topbar so the ①–⑥ row never becomes a cramped multi-line wrap. */
+@media (max-width: 600px) {
+  .topbar { padding: .55rem .8rem; }
+  .method-pick { display: flex; align-items: center; gap: .4rem; width: 100%; }
+  .method-pick select { flex: 1 1 auto; min-width: 0; width: 100%; }
+  .tabs { gap: .3rem; }
+  .subtabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 3px; }
+  .subtabs .subtab { flex: 0 0 auto; white-space: nowrap; }
+  .tab { padding: .4rem .7rem; font-size: .85rem; }
+  h1 { font-size: 1.4rem; }
+  main { padding-left: .9rem; padding-right: .9rem; }
+}
+
+/* Home / overview landing page: search box + clickable method grid. */
+.home-search {
+  width: 100%; max-width: 520px; margin: .4rem 0 1.2rem; padding: .6rem .9rem;
+  font: inherit; font-size: 1rem; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--card); color: var(--ink);
+}
+.home-search:focus { outline: none; border-color: var(--z); box-shadow: 0 0 0 2px rgba(63,130,104,.18); }
+.home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .7rem; }
+.home-card {
+  text-align: left; display: flex; flex-direction: column; gap: .2rem;
+  padding: .7rem .85rem; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--card); color: var(--ink); cursor: pointer; font: inherit;
+  transition: border-color .15s, box-shadow .15s, transform .05s;
+}
+.home-card:hover { border-color: var(--z); box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.home-card:active { transform: translateY(1px); }
+.home-card .hc-abbr { font-weight: 800; color: var(--z); }
+.home-card .hc-name { font-size: .86rem; color: var(--muted); }
+/* Self-check quiz (collapsible card at the end of a method's ① learn panel). */
+.quiz { margin-top: 1.6rem; }
+.quiz h3::before { content: "📝 "; }
+.quiz-q { margin: .7rem 0 1.1rem; }
+.quiz-prompt { font-weight: 600; margin: 0 0 .55rem; }
+.quiz-opts { display: flex; flex-direction: column; gap: .4rem; }
+.quiz-opt { text-align: left; padding: .5rem .8rem; border: 1.5px solid var(--line); border-radius: 10px;
+  background: var(--card); color: var(--ink); cursor: pointer; font: inherit; transition: .12s; }
+.quiz-opt:hover { border-color: var(--z); }
+.quiz-opt.correct { border-color: #16a34a; background: #ecfdf5; font-weight: 600; }
+.quiz-opt.wrong { border-color: #dc2626; background: #fef2f2; }
+.quiz-explain { margin: .55rem 0 0; font-size: .9rem; line-height: 1.6;
+  background: #f1f5f9; border-left: 3px solid var(--z); border-radius: 8px; padding: .5rem .75rem; }
+
+/* Glossary: auto-collected term definitions. */
+.gloss-item { border: 1px solid var(--line); border-radius: 10px; padding: .6rem .85rem; margin: .5rem 0; background: var(--card); box-shadow: var(--shadow); }
+.gloss-item h4 { margin: 0 0 .25rem; color: var(--z); font-size: 1rem; }
+.gloss-item .en { color: var(--muted); font-weight: 500; font-size: .85rem; }
+.gloss-item p { margin: 0; font-size: .9rem; line-height: 1.6; }
+
+/* In-page section nav (chips) for the long single-page topics (SR-MA, NMA). */
+.page-toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: .2rem 0 1.2rem; }
+.page-toc .toc-link {
+  display: inline-block; padding: .32rem .8rem; border-radius: 999px;
+  background: #eef2f6; border: 1px solid var(--line); color: var(--ink);
+  font-weight: 600; font-size: .86rem; text-decoration: none; cursor: pointer;
+}
+.page-toc .toc-link:hover { background: var(--z); color: #fff; border-color: var(--z); }
+/* offset so the sticky header doesn't cover the jumped-to heading */
+.panel h2[id] { scroll-margin-top: 72px; }
+
+/* ---- What If book notes: password gate + chapter accordions ---- */
+.cb-gate { max-width: 460px; margin: 1.2rem 0; padding: 1.1rem 1.2rem; border: 1px solid var(--line);
+  border-radius: 14px; background: var(--card); box-shadow: var(--shadow); }
+.cb-gate h3 { margin: 0 0 .3rem; }
+.cb-gate-row { display: flex; gap: .5rem; margin-top: .6rem; }
+.cb-gate-row input { flex: 1 1 auto; min-width: 0; padding: .5rem .7rem; border: 1px solid var(--line);
+  border-radius: 8px; font-size: .95rem; }
+.cb-msg { min-height: 1.2em; margin: .5rem 0 0; font-size: .88rem; }
+.cb-msg.err { color: #b91c1c; }
+.cb-msg.ok { color: #15803d; }
+.cb-part { margin: 1.6rem 0 .6rem; padding-bottom: .3rem; border-bottom: 2px solid var(--z); color: var(--z); }
+.cb-ch { border: 1px solid var(--line); border-radius: 10px; margin: .5rem 0; background: var(--card); overflow: hidden; }
+.cb-ch > summary { cursor: pointer; padding: .6rem .8rem; font-weight: 700; list-style: none; }
+.cb-ch > summary::-webkit-details-marker { display: none; }
+.cb-ch > summary::before { content: "▸ "; color: var(--z); }
+.cb-ch[open] > summary::before { content: "▾ "; }
+.cb-ch .cb-chbody { padding: 0 .9rem .8rem; }
+.cb-ch .cb-chbody li { margin: .3rem 0; }
+.cb-num { color: var(--muted); font-weight: 700; margin-right: .4rem; }
+.cb-ch .cb-eg { background: #f0f7f4; border-left: 4px solid var(--z); border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-formula { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; }
+.cb-ch .cb-formula > b { color: var(--z); }
+.cb-ch .cb-formula code, .cb-ch .cb-chbody code { background: #eef2f6; padding: .05rem .3rem;
+  border-radius: 4px; font-size: .9em; }
+.cb-ch .cb-warn { background: #fff7ed; border-left: 4px solid #d97706; border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-warn > b { color: #b45309; }
+.cb-ch .cb-warn li { margin: .3rem 0; }
+.cb-ch .cb-link { margin: .6rem 0 0; font-size: .9rem; }
+.cb-ch .cb-link a.xref { margin-right: .6rem; }
+.cb-ch .cb-howto { background: #eef6ff; border-left: 4px solid #2563eb; border-radius: 8px;
+  padding: .5rem .8rem .5rem 1.6rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-howto > b { color: #1d4ed8; margin-left: -0.8rem; }
+.cb-ch .cb-howto ol { margin: .3rem 0 0; padding-left: 1.1rem; }
+.cb-ch .cb-howto li { margin: .3rem 0; }
+.cb-ch .cb-deep { background: #faf5ff; border-left: 4px solid #7c3aed; border-radius: 8px;
+  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }
+.cb-ch .cb-deep > b { color: #6d28d9; }
+.cb-ch .cb-deep li { margin: .3rem 0; }
+.cb-ch .cb-narr { margin: .5rem 0 0; padding: .5rem .8rem; background: #fbfbfd; border: 1px dashed var(--line);
+  border-radius: 8px; font-size: .93rem; line-height: 1.75; }
+.cb-ch .cb-narr > b { color: var(--z); }
+.cb-ch .cb-narr p { margin: .45rem 0; }
+.cb-ch .cb-secmap { background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 8px;
+  padding: .55rem .85rem; margin: .6rem 0 0; font-size: .92rem; line-height: 1.7; }
+.cb-ch .cb-secmap > b { color: #15803d; }
+.cb-ch .cb-secmap p { margin: .5rem 0; }
+.cb-ch .cb-secmap .cb-sec { font-weight: 600; color: #166534; display: block; margin-top: .6rem; }
+
+
+/* ---- standalone page shell (this file has no app chrome) ---- */
+body { background: var(--bg, #f4f7f6); margin: 0; }
+.sa-wrap { max-width: 1180px; margin: 0 auto; padding: 1rem 1.1rem 4rem; }
+.sa-top { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
+  padding: .9rem 0 .5rem; border-bottom: 1px solid var(--line, #dfe7e4); margin-bottom: 1.1rem; }
+.sa-top h1 { font-size: 1.18rem; margin: 0; flex: 1 1 auto; color: var(--ink, #14283c); }
+.sa-top .sa-sub { display: block; font-size: .82rem; font-weight: 500; color: var(--muted, #64748b); margin-top: .2rem; }
+.sa-langbtn { border: 1px solid var(--z, #2f6f57); background: var(--z, #2f6f57); color: #fff;
+  border-radius: 999px; padding: .34rem .9rem; font-size: .84rem; cursor: pointer; }
+.sa-langbtn:hover { filter: brightness(1.08); }
+.sa-foot { margin-top: 2.2rem; padding-top: .9rem; border-top: 1px solid var(--line, #dfe7e4);
+  font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }
+.sa-foot a { color: var(--z, #2f6f57); }
+@media print {
+  .dtree-controls, .sa-langbtn, .fc-toolbar { display: none !important; }
+  #dtreeMap[hidden] { display: block !important; }
+}
+</style>
+</head>
+<body>
+<div class="sa-wrap">
+
+  <header class="sa-top">
+    <h1 data-en="Which design? A causal-inference decision tree">怎麼選：因果研究設計決策樹
+      <span class="sa-sub" data-en="Click through the questions; the full flowchart is at the end.">一題一題點下去，最後會給你完整流程圖。</span>
+    </h1>
+    <button id="saLang" class="sa-langbtn" type="button">EN</button>
+  </header>
+
+  <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and the toolbox's methods (incl. mediation, transportability &amp; external control) into <b>one clickable tree</b>. Answer each question about your study and it lands on a best-fit recommendation, then open the <b>full flowchart</b> with your endpoint highlighted. <b>✓</b> = covered in the full toolbox (opens in a new tab); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法（含中介分析、可轉移性與外部對照）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>、標出你的位置。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
+
+  <div class="flow-legend">
+    <span data-en="<b>✓</b> covered in the full toolbox (clickable)"><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
+    <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
+  </div>
+
+  <div id="dtree" class="dtree">
+    <div id="dtreePath" class="dtree-path"></div>
+    <div id="dtreeStage" class="dtree-stage"></div>
+    <div class="dtree-controls">
+      <button id="dtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
+      <button id="dtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
+      <button id="dtreeFullmap" class="btn" type="button" data-en="🌳 Full flowchart">🌳 看完整流程圖</button>
+    </div>
+  </div>
+  <div id="dtreeMap" class="dtree-map" hidden></div>
+
+  <p class="sa-foot" data-en="A standalone extract of the &quot;Which one?&quot; tab from the RWE &amp; Quasi-experimental Toolbox — for teaching use. Full toolbox (32 methods, each with six learning tabs): https://danielhttsai.github.io/phdc-rwe-tool/ · All built-in data is fictional synthetic demo data.">這是「真實世界證據與準實驗工具箱」中「怎麼選」分頁的獨立版，供授課使用。完整工具箱（32 種方法、每種六個學習分頁）：<a href="https://danielhttsai.github.io/phdc-rwe-tool/" target="_blank" rel="noopener">https://danielhttsai.github.io/phdc-rwe-tool/</a>　·　所有內建資料皆為純屬虛構的合成示範資料。</p>
+
+</div>
+
+<script>
+/* ---------- minimal i18n shim (the full toolbox uses i18n.js) ---------- */
+var _lang = (function () {
+  try { return localStorage.getItem("iv-lang") || "zh"; } catch (e) { return "zh"; }
+})();
+function lang() { return _lang; }
+function tr(zh, en) { return _lang === "en" ? en : zh; }
+function applyLang() {
+  document.querySelectorAll("[data-en]").forEach(function (el) {
+    if (el.dataset.zh === undefined) el.dataset.zh = el.innerHTML;
+    el.innerHTML = _lang === "en" ? el.dataset.en : el.dataset.zh;
+  });
+  document.documentElement.lang = _lang === "en" ? "en" : "zh-Hant";
+  var b = document.getElementById("saLang");
+  if (b) b.textContent = _lang === "en" ? "中文" : "EN";
+}
+
+/* ---------- leaf "go to the method" opens the full toolbox ---------- */
+var TOOLBOX_URL = "https://danielhttsai.github.io/phdc-rwe-tool/";
+function gotoMethod(m, sub) {
+  window.open(TOOLBOX_URL + "#m=" + m + "&t=" + (sub || "learn"), "_blank", "noopener");
+}
+
+/* ---------- the flowchart exporter reads the stylesheet; inline it ---------- */
+var __DTREE_CSS = ":root {\n  --bg: #f3f6f7;\n  --ink: #14283c;\n  --muted: #5f6b7a;\n  --line: #e0e6ea;\n  --card: #ffffff;\n  --z: #3f8268;        /* teal \u2014 primary accent (ASPEN-like) */\n  --a: #0ea5e9;\n  --y: #16a34a;\n  --u: #ef4444;\n  --green: #16a34a;\n  --amber: #d97706;\n  --red: #dc2626;\n  --info: #2563eb;\n  --shadow: 0 1px 3px rgba(20, 40, 60, .07), 0 6px 20px rgba(20, 40, 60, .05);\n}\n* { box-sizing: border-box; }\n/* ---- Accessibility ---- */\n.skip-link {\n  position: absolute; left: -9999px; top: 0; z-index: 1000;\n  background: var(--z); color: #fff; padding: .55rem 1rem; border-radius: 0 0 8px 0;\n  font-weight: 700; text-decoration: none;\n}\n.skip-link:focus { left: 0; }\n:focus-visible { outline: 2px solid var(--z); outline-offset: 2px; }\n.tab:focus-visible, .home-card:focus-visible, .gloss-item:focus-visible, .toc-link:focus-visible,\n.btn:focus-visible, select:focus-visible, input:focus-visible, .lang-toggle:focus-visible {\n  outline: 2px solid var(--z); outline-offset: 2px; border-radius: 6px;\n}\n@media (prefers-reduced-motion: reduce) {\n  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }\n}\nbody {\n  margin: 0;\n  font-family: \"Segoe UI\", \"Microsoft JhengHei\", system-ui, sans-serif;\n  background: var(--bg);\n  color: var(--ink);\n  line-height: 1.65;\n}\nh1 { font-size: 1.7rem; margin: .2rem 0 1rem; }\nh2 { font-size: 1.25rem; margin: 2rem 0 .8rem; }\nh3 { margin: 0 0 .4rem; font-size: 1.05rem; }\np { margin: .5rem 0; }\nb { color: #0b1020; }\n\n/* topbar */\n.topbar {\n  position: sticky; top: 0; z-index: 10;\n  background: var(--card); border-bottom: 1px solid var(--line);\n  padding: .7rem 1.5rem; box-shadow: var(--shadow);\n  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem;\n}\n.topbar .brand { order: 0; }\n.lang-toggle {\n  order: 2; margin-left: auto;\n  border: 1.5px solid var(--z); background: var(--z); color: #fff;\n  padding: .45rem 1rem; border-radius: 999px; cursor: pointer;\n  font-size: .95rem; font-weight: 700; white-space: nowrap; transition: .15s;\n  box-shadow: var(--shadow);\n}\n.lang-toggle::before { content: \"\ud83c\udf10 \"; }\n.lang-toggle:hover { filter: brightness(1.08); }\n.topbar .tabs { order: 3; flex-basis: 100%; }\n.brand { font-weight: 800; font-size: 1.15rem; letter-spacing: .5px; display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; }\n.brand span { color: var(--z); }\n.brand-logo { height: 40px; width: auto; display: block; flex: 0 0 auto; }\n@media (max-width: 520px) { .brand-logo { height: 32px; } }\n.tabs { display: flex; gap: .4rem; margin-top: .6rem; flex-wrap: wrap; }\n.tab {\n  border: 1px solid var(--line); background: var(--card); color: var(--muted);\n  padding: .45rem .9rem; border-radius: 999px; cursor: pointer;\n  font-size: .92rem; transition: .15s;\n}\n.tab:hover { border-color: var(--z); color: var(--z); }\n.tab.active { background: var(--z); color: #fff; border-color: var(--z); }\n.tabs .tab-group {\n  align-self: center; font-weight: 800; font-size: .82rem; letter-spacing: .5px;\n  color: var(--z); padding: 0 .15rem 0 .5rem; user-select: none;\n}\n.tabs .tab-group:first-child { padding-left: 0; }\n.tab.tab-sep { margin-left: .5rem; border-style: dashed; }\n\n/* method dropdown + sub-tabs (replaces the long 31-button row) */\n.method-pick { display: flex; align-items: center; gap: .45rem; font-weight: 800;\n  font-size: .82rem; letter-spacing: .5px; color: var(--z); }\n.method-pick select {\n  padding: .42rem .8rem; border: 1.5px solid var(--z); border-radius: 999px;\n  font-size: .95rem; font-weight: 700; color: var(--z); background: var(--card); cursor: pointer;\n  box-shadow: var(--shadow);\n}\n.subtabs { display: flex; gap: .4rem; flex-wrap: wrap; }\n.tab.subtab { font-weight: 600; }\n\n/* decision flowchart (choose tab) */\n.flow { max-width: 760px; margin: 1rem auto 1.5rem; }\n.flow-q {\n  background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--z);\n  border-radius: 12px; padding: .8rem 1rem; box-shadow: var(--shadow);\n  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem;\n  font-size: .95rem;\n}\n.flow-q .flow-yes {\n  background: var(--z); color: #fff; border-radius: 999px; padding: .3rem .8rem;\n  font-weight: 700; white-space: nowrap; font-size: .9rem;\n}\n.flow-no { text-align: center; color: var(--muted); font-size: .85rem; font-weight: 700; margin: .35rem 0; }\n.flow-end {\n  background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;\n  border-radius: 12px; padding: .7rem 1rem; font-size: .92rem; margin-top: .35rem;\n}\n/* richer anchor-based design tree */\n.flow-head { font-weight: 800; color: var(--z); margin: 1rem 0 .4rem; font-size: 1rem;\n  border-bottom: 2px solid var(--z); padding-bottom: .25rem; }\n.flow-branch { margin-left: .2rem; border-left: 3px dashed var(--line); padding-left: .8rem; }\n.flow-yes.ext { background: var(--card); color: var(--muted); border: 1px solid var(--line); }\n.flow-yes.tte { box-shadow: 0 0 0 2px #bfdbfe; }\n.flow-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; font-size: .85rem;\n  color: var(--muted); margin: .4rem 0 1rem; }\n.flow-legend b { color: var(--ink); }\n\n/* interactive, clickable decision tree */\n/* adjacent-approaches gateway cards on the choose page */\n.adj-grid { margin-top: .4rem; }\n.adj-card { border-left: 4px solid #8b5cf6; }\n.adj-card h3 { margin: .1rem 0 .3rem; font-size: 1rem; }\n.adj-card p { font-size: .9rem; line-height: 1.65; margin: 0 0 .6rem; }\n.adj-goto { display: inline-block; font-weight: 600; font-size: .88rem; text-decoration: none;\n  color: #6d28d9; cursor: pointer; }\n.adj-goto:hover { text-decoration: underline; }\n/* causal-inference workflow flowchart (#flow) */\n.flowchart { max-width: 820px; margin: 1.2rem auto; }\n.flow-stage { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--teal, #1d6f57);\n  border-radius: 10px; padding: .85rem 1.1rem; box-shadow: 0 1px 3px rgba(15,40,60,.05); }\n.flow-stage.flow-end { border-left-color: #b45309; background: #fffdf6; }\n.flow-head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }\n.flow-head h3 { margin: .1rem 0; font-size: 1.05rem; }\n.flow-no { flex: none; min-width: 2.2rem; text-align: center; font-weight: 800; font-size: .9rem;\n  color: #fff; background: var(--teal, #1d6f57); border-radius: 999px; padding: .1rem .5rem; }\n.flow-end .flow-no { background: #b45309; }\n.flow-stage > p { margin: .4rem 0 .6rem; font-size: .92rem; line-height: 1.7; }\n.flow-arrow { text-align: center; color: #94a3b8; font-size: 1.4rem; line-height: 1; margin: .25rem 0; }\n.flow-chips { display: flex; flex-wrap: wrap; gap: .4rem; }\n.chip { display: inline-block; padding: .28rem .7rem; font-size: .85rem; font-weight: 600; text-decoration: none;\n  color: #334155; background: #eef4fb; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }\n.chip:hover { background: var(--teal, #1d6f57); color: #fff; border-color: var(--teal, #1d6f57); }\n.chip:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }\n.chip.chip-adj { background: #f5f3ff; border-style: dashed; }   /* demoted \u2192 choose page */\n.chip.chip-go { background: var(--teal, #1d6f57); color: #fff; border-color: var(--teal, #1d6f57); }\n.dtree { max-width: 760px; margin: 1rem auto 1.5rem; }\n.dtree-path { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; min-height: 1.6rem; }\n.dtree-crumb { background: #f1f5f9; color: var(--muted); border: 1px solid var(--line);\n  border-radius: 999px; padding: .2rem .7rem; font-size: .8rem; }\n.dtree-crumb.start { background: var(--z); color: #fff; border-color: var(--z); }\n.dtree-stage { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--z);\n  border-radius: 14px; padding: 1.1rem 1.2rem; box-shadow: var(--shadow); }\n.dtree-step { font-size: .78rem; font-weight: 800; letter-spacing: .04em; color: var(--z);\n  text-transform: uppercase; margin-bottom: .35rem; }\n.dtree-q { font-size: 1.08rem; font-weight: 700; line-height: 1.55; margin-bottom: 1rem; }\n.dtree-opts { display: flex; flex-direction: column; gap: .55rem; }\n.dtree-opt { text-align: left; background: #f8fafc; border: 1.5px solid var(--line);\n  border-radius: 10px; padding: .7rem .9rem; cursor: pointer; font-size: .95rem; line-height: 1.5;\n  color: var(--ink); transition: .15s; }\n.dtree-opt:hover { border-color: var(--z); background: #ecfeff; transform: translateX(2px); }\n.dtree-opt .arrow { float: right; color: var(--z); font-weight: 800; margin-left: .6rem; }\n/* recommendation leaf */\n.dtree-rec { border-radius: 14px; padding: 1.2rem 1.3rem; border: 2px solid; }\n.dtree-rec.toolbox { background: #ecfdf5; border-color: #34d399; }\n.dtree-rec.external { background: #fff7ed; border-color: #fdba74; }\n.dtree-rec.fallback { background: #eff6ff; border-color: #93c5fd; }\n.dtree-rec .rec-tag { display: inline-block; font-size: .78rem; font-weight: 800; letter-spacing: .04em;\n  text-transform: uppercase; margin-bottom: .4rem; color: var(--muted); }\n.dtree-rec h3 { margin: 0 0 .6rem; font-size: 1.35rem; }\n.dtree-rec.toolbox h3 { color: #047857; }\n.dtree-rec.external h3 { color: #9a3412; }\n.dtree-rec.fallback h3 { color: #1d4ed8; }\n.dtree-rec p { margin: .45rem 0; line-height: 1.7; }\n.dtree-rec .rec-scenario { background: rgba(255,255,255,.55); border-left: 3px solid currentColor;\n  border-radius: 8px; padding: .55rem .8rem; font-size: .92rem; line-height: 1.65; margin-top: .6rem; }\n.dtree-rec.toolbox .rec-scenario { color: #047857; }\n.dtree-rec.external .rec-scenario { color: #9a3412; }\n.dtree-rec.fallback .rec-scenario { color: #1d4ed8; }\n.dtree-rec .rec-scenario { color: var(--ink); }\n.dtree-rec .rec-watch { background: rgba(255,255,255,.65); border-radius: 10px; padding: .6rem .8rem;\n  font-size: .9rem; margin-top: .7rem; }\n.dtree-rec .rec-watch b { color: var(--ink); }\n.rec-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .9rem; }\n.dtree-goto { background: var(--z); color: #fff; border: none; border-radius: 999px;\n  padding: .55rem 1.2rem; font-weight: 700; font-size: .95rem; cursor: pointer; box-shadow: var(--shadow); }\n.dtree-goto:hover { filter: brightness(1.06); }\n.dtree-showmap { background: var(--card); color: var(--ink); border: 1.5px solid var(--line); border-radius: 999px;\n  padding: .55rem 1.1rem; font-weight: 700; font-size: .95rem; cursor: pointer; }\n.dtree-showmap:hover { border-color: var(--z); color: var(--z); }\n.dtree-controls { display: flex; gap: .6rem; margin-top: .9rem; }\n.dtree-controls .btn:disabled { opacity: .4; cursor: not-allowed; }\n\n/* the full decision-tree map that pops out at a leaf */\n.dtree-map { max-width: 760px; margin: 1rem auto 0; background: #f8fafc; border: 1px solid var(--line);\n  border-radius: 14px; padding: 1rem 1.1rem; }\n.dtree-map .map-title { margin: 0 0 .7rem; font-size: 1.05rem; }\n.dtree-map .flow-head { margin: .9rem 0 .4rem; font-size: .98rem; }\n.dtree-map .map-sub { font-weight: 700; color: var(--muted); font-size: .85rem; margin: .5rem 0 .3rem; }\n.dtree-map .flow-branch { border-left: 3px dashed var(--line); padding-left: .8rem; margin-left: .2rem; }\n.map-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem;\n  background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: .5rem .7rem; margin: .35rem 0;\n  font-size: .9rem; }\n.map-row .map-cond { flex: 1 1 60%; }\n.flow-leaf { white-space: nowrap; border-radius: 999px; padding: .25rem .7rem; font-weight: 700; font-size: .85rem; }\n.flow-leaf.tb { background: var(--z); color: #fff; }\n.flow-leaf.ex { background: var(--card); color: var(--muted); border: 1px solid var(--line); }\n.map-row.flow-hit { border-color: #34d399; background: #ecfdf5; box-shadow: 0 0 0 2px #6ee7b7; }\n.map-row.flow-hit .flow-leaf.ex { border-color: #34d399; color: #047857; }\n.dtree-map .flow-end.flow-hit { box-shadow: 0 0 0 2px #93c5fd; }\n\n/* ---- the full tree drawn as a top-down flowchart ---- */\n.fc-toolbar { display: flex; justify-content: flex-end; margin: 0 0 .5rem; }\n.fc-toolbar .fc-dl { font-size: .85rem; }\n@media print { .fc-toolbar { display: none; } }\n.fc-title { text-align: center; margin: 0 0 1rem; font-size: 1.05rem; }\n.fc { display: flex; flex-direction: column; align-items: center; }\n.fc-start { background: #0f172a; color: #fff; font-weight: 800; border-radius: 999px;\n  padding: .5rem 1.3rem; font-size: 1rem; letter-spacing: .5px; }\n/* A/B/C/D are PARALLEL anchor families, so lay them out as four columns in one\n   horizontal row (scroll sideways on narrow screens) rather than a 2x2 wrap. */\n.fc-lanes { display: flex; gap: 1rem; align-items: flex-start; justify-content: flex-start;\n  width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }\n.fc-lane { flex: 1 1 0; min-width: 208px; max-width: 520px; display: flex; flex-direction: column; align-items: stretch; }\n/* plain vertical connector (a branch line, no arrowhead), optional branch label */\n.fc-link { width: 2px; min-height: 22px; background: #94a3b8; margin: 3px auto; position: relative; }\n.fc-elabel { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); white-space: nowrap;\n  background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px;\n  font-size: .72rem; color: var(--muted); line-height: 1.6; }\n.fc-head { border-radius: 12px; padding: .55rem .8rem; font-weight: 800; color: #fff; text-align: center; }\n.fc-head small { display: block; font-weight: 500; font-size: .76rem; opacity: .92; margin-top: 2px; }\n.fc-head.a { background: var(--z); }\n.fc-head.b { background: #7c3aed; }\n.fc-head.c { background: #b45309; }\n.fc-head.d { background: #0e7490; }\na.xref { color: var(--z); cursor: pointer; text-decoration: none; font-weight: 600;\n  border-bottom: 1px dotted rgba(63, 125, 98, .55); }\na.xref:hover { color: #2c5b47; border-bottom-style: solid; }\n.fc-q { background: var(--card); border: 2px solid #94a3b8; border-radius: 12px; padding: .55rem .8rem;\n  font-weight: 700; text-align: center; box-shadow: var(--shadow); }\n.fc-q::before { content: \"\u25c7 \"; color: #94a3b8; }\n/* leaves under a question fan out as tree branches: a vertical spine on the left\n   with a horizontal elbow into each leaf (org-chart / file-tree look) */\n.fc-leaves { display: flex; flex-direction: column; gap: .5rem; position: relative; padding-left: 22px; }\n.fc-leaves::before { content: \"\"; position: absolute; left: 8px; top: -10px; bottom: 18px; width: 2px; background: #94a3b8; }\n.fc-leaves .fc-leaf { position: relative; }\n.fc-leaves .fc-leaf::before { content: \"\"; position: absolute; left: -14px; top: 50%; width: 14px; height: 2px; background: #94a3b8; }\n.fc-leaf { display: flex; align-items: center; justify-content: space-between; gap: .5rem;\n  background: var(--card); border: 1px solid var(--line); border-left-width: 5px; border-radius: 10px;\n  padding: .5rem .7rem; font-size: .88rem; }\n.fc-leaf.tb { border-left-color: var(--z); }\n.fc-leaf.ex { border-left-color: #c3cedb; }\n.fc-cond { color: var(--ink); flex: 1 1 auto; min-width: 0; }   /* min-width:0 lets the text wrap beside the badge instead of under it */\n.fc-badge { white-space: nowrap; flex: 0 0 auto; border-radius: 999px; padding: .22rem .65rem; font-weight: 700; font-size: .82rem; }\n.fc-badge.tb { background: var(--z); color: #fff; }\n.fc-badge.ex { background: #eef2f6; color: var(--muted); border: 1px solid var(--line); }\n.fc-leaf.fc-hit { background: #ecfdf5; border-color: #34d399; border-left-color: #16a34a; box-shadow: 0 0 0 2px #6ee7b7; }\n.fc-end { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: .7rem 1rem;\n  text-align: center; color: #1e3a8a; font-size: .9rem; max-width: 680px; line-height: 1.6; }\n.fc-end.fc-hit { box-shadow: 0 0 0 3px #93c5fd; }\n/* the \"already have an RCT\" branch at the bottom of the flowchart */\n.fc-rct { width: 100%; max-width: 560px; display: flex; flex-direction: column; align-items: stretch; }\n.fc-note { background: #eff6ff; border: 1px dashed #93c5fd; border-radius: 10px; padding: .5rem .8rem;\n  font-size: .82rem; color: #1e3a8a; text-align: center; line-height: 1.6; }\n\nmain { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem; }\n.panel { display: none; animation: fade .25s; }\n.panel.active { display: block; }\n@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }\n\n.banner {\n  background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412;\n  border-radius: 10px; padding: .6rem .9rem; font-size: .92rem; margin-bottom: 1rem;\n}\n.lead { font-size: 1.08rem; color: #2b3247; }\n.caption { color: var(--muted); font-size: .9rem; }\n.muted { color: var(--muted); }\n\n/* cards */\n.card {\n  background: var(--card); border: 1px solid var(--line);\n  border-radius: 14px; padding: 1rem 1.2rem; box-shadow: var(--shadow); margin: 1rem 0;\n}\n.card.warn { border-left: 4px solid var(--amber); }\n.card.info { border-left: 4px solid var(--info); }\n.card.scene { border-left: 4px solid var(--teal, #3f8268); background: linear-gradient(180deg, rgba(63,130,104,0.045), transparent 60%); }\n.card.scene h3 { color: var(--teal, #3f8268); }\n/* scene mini-charts sit flush on the tinted card (no inner white box, shorter,\n   so the data fills the frame instead of floating in a big empty grid) */\n.card.scene .chart { height: 280px; background: transparent; border: none; box-shadow: none; margin: .5rem 0 0; }\n/* \u2465 DAG \u2194 SWIG side by side, each filling its half; the long note sits below each\n   diagram as readable text (.diagnote) instead of being squeezed inside the chart */\n.whatif-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }\n.whatif-col { min-width: 0; }\n.diagnote { margin: .4rem 0 .2rem; line-height: 1.6; }\n@media (max-width: 760px) { .whatif-pair { grid-template-columns: 1fr; } }\n/* \u2462 data preview \u2014 a real data-row table at the top of the analyse panel */\n.data-preview { margin: .4rem 0 1.2rem; }\n.data-preview .dp-title { font-size: 1rem; margin: .2rem 0 .5rem; }\n.dp-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }\n.dp-table { border-collapse: collapse; width: 100%; font-size: .85rem; white-space: nowrap; }\n.dp-table th, .dp-table td { padding: .35rem .6rem; text-align: right; border-bottom: 1px solid var(--line); }\n.dp-table th { background: #f3f6fb; color: #334155; font-weight: 600; position: sticky; top: 0; }\n.dp-table tbody tr:nth-child(even) { background: #fafcff; }\n.dp-table td:first-child, .dp-table th:first-child { text-align: left; color: var(--muted); }\n/* \u2462 download the built-in sample dataset as CSV */\n.dl-csv { margin-top: .6rem; padding: .45rem .9rem; font-size: .88rem; font-weight: 600;\n  color: #fff; background: var(--teal, #1d6f57); border: none; border-radius: 8px; cursor: pointer; }\n.dl-csv:hover { filter: brightness(1.08); }\n.dl-csv:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }\n/* provenance line under each \u2462 code header \u2014 cite the package/method so the code is trustworthy */\n.code-src { font-size: .82rem; line-height: 1.6; color: var(--muted); background: #f7f9fd;\n  border-left: 3px solid var(--teal, #1d6f57); border-radius: 0 6px 6px 0; padding: .5rem .75rem; margin: .2rem 0 .9rem; }\n.code-src code { font-size: .8em; }\n/* code-language switcher (SAS / R / Stata) above each \u2462 code section */\n.clang-switch { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem;\n  margin: .8rem 0 .9rem; }\n.clang-label { font-size: .9rem; color: var(--muted); margin-right: .2rem; }\n.clang-btn { padding: .32rem .9rem; font-size: .9rem; font-weight: 600; font-family: inherit;\n  color: #334155; background: #f3f6fb; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; }\n.clang-btn:hover { background: #e7eef9; }\n.clang-btn[aria-pressed=\"true\"] { color: #fff; background: var(--teal, #1d6f57); border-color: var(--teal, #1d6f57); }\n.clang-btn:focus-visible { outline: 2px solid var(--ink, #0f172a); outline-offset: 2px; }\n/* \u2463 E-value sensitivity card */\n.evalue-card { margin-top: 1.2rem; }\n.evalue-card h4 { margin: .8rem 0 .3rem; }\n.ev-inputs, .ev-sliders { display: flex; flex-wrap: wrap; gap: 1rem 1.6rem; margin: .5rem 0; }\n.ev-inputs label, .ev-sliders label { display: flex; align-items: center; gap: .5rem; font-size: .92rem; }\n.ev-inputs input[type=\"number\"] { width: 5rem; padding: .25rem .4rem; border: 1px solid var(--line); border-radius: 6px; }\n.ev-sliders input[type=\"range\"] { width: 11rem; vertical-align: middle; }\n.ev-sliders b { min-width: 2.2rem; }\n.ev-out, .ev-verdict { background: #f7f9fd; border: 1px solid var(--line); border-radius: 8px; padding: .55rem .75rem; line-height: 1.7; margin: .5rem 0; }\n/* divider between the analysis and the merged SAS/R code section */\n.merge-sep { border: none; border-top: 2px dashed var(--line); margin: 2rem 0 1rem; }\n.merge-sas { margin-top: .3rem; }\n.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }\n.cards .card { margin: 0; }\n/* fixed 3-up grid for card sets that otherwise leave an ugly orphan row (e.g. 6 cards \u2192 3+3) */\n.cards-3 { grid-template-columns: repeat(3, 1fr); }\n@media (max-width: 900px) { .cards-3 { grid-template-columns: repeat(2, 1fr); } }\n@media (max-width: 600px) { .cards-3 { grid-template-columns: 1fr; } }\n\n/* DAG diagram */\n.dag {\n  margin: 1.5rem 0 .5rem; padding: 1.2rem 1rem;\n  background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);\n}\n.dag-svg { width: 100%; max-width: 640px; height: auto; display: block; margin: 0 auto; }\n.dag-svg .dn { fill: #fff; font-weight: 700; font-size: 15px; text-anchor: middle; }\n.dag-svg .ds { fill: #fff; opacity: .92; font-weight: 500; font-size: 11px; text-anchor: middle; }\n\n/* interactive */\n.controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1rem 0 1.5rem; }\n.controls label { display: block; font-weight: 600; }\n.controls input[type=range] { width: 100%; margin: .5rem 0 0; accent-color: var(--z); }\n.controls small { display: block; color: var(--muted); font-weight: 400; }\n.ccw-scen { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }\n.scen-select { font: inherit; font-weight: 600; padding: .4rem .6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink, #14283c); cursor: pointer; }\n.scen-select:focus { outline: 2px solid var(--z); }\n.play-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }\n.rdd-twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }\n.table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }\ntable.cmp { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line);\n  border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }\ntable.cmp th, table.cmp td { padding: .7rem .9rem; text-align: left; vertical-align: top;\n  border-bottom: 1px solid var(--line); font-size: .92rem; }\ntable.cmp thead th { background: var(--ink, #14283c); color: #fff; font-weight: 600; }\ntable.cmp tbody td:first-child { font-weight: 600; color: var(--muted); white-space: nowrap; }\ntable.cmp tbody tr:last-child td { border-bottom: none; }\ntable.cmp tbody tr:nth-child(even) { background: #f8fafc; }\n/* design-family sub-header row inside comparison tables */\ntable.cmp td.famhdr, table.cmp tbody tr td.famhdr {\n  background: #e7efeb; color: var(--z, #3f7d62); font-weight: 700; white-space: normal;\n  border-top: 2px solid var(--z, #3f7d62); font-size: .9em; letter-spacing: .01em;\n}\n/* design-family sub-heading above grouped decision cards */\nh4.fam-sub { margin: 1.2rem 0 .5rem; color: var(--z, #3f7d62); font-size: 1rem;\n  border-left: 4px solid var(--z, #3f7d62); padding-left: .55rem; }\n.stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1rem; text-align: center; box-shadow: var(--shadow); }\n.stat-label { color: var(--muted); font-size: .85rem; }\n.stat-num { font-size: 2rem; font-weight: 800; margin: .2rem 0; }\n.stat-num.small { font-size: 1.2rem; }\n.stat-foot { color: var(--muted); font-size: .8rem; }\n.bv-readout { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: .9rem 0 .3rem; }\n.bv-item { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: .7rem 1rem; box-shadow: var(--shadow); display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }\n.bv-k { color: var(--muted); font-size: .85rem; }\n.bv-v { font-size: 1.4rem; font-weight: 800; color: var(--z); white-space: nowrap; }\n@media (max-width: 720px) { .bv-readout { grid-template-columns: 1fr; } }\n.chart { width: 100%; height: 360px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }\n\n/* analysis */\n.datasource { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin: 1rem 0; }\n.or { color: var(--muted); }\n.btn {\n  border: 1px solid var(--line); background: var(--card); color: var(--ink);\n  padding: .55rem 1.1rem; border-radius: 10px; cursor: pointer; font-size: .95rem; font-weight: 600;\n}\n.btn:hover { border-color: var(--z); }\n.btn.primary { background: var(--z); color: #fff; border-color: var(--z); }\n.btn.primary:hover { filter: brightness(1.07); }\n.colmap {\n  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: end;\n  background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1.2rem; box-shadow: var(--shadow); margin: 1rem 0;\n}\n.field { display: flex; flex-direction: column; gap: .3rem; }\n.field.wide { grid-column: 1 / -1; }\n.field label { font-weight: 600; font-size: .9rem; }\nselect { padding: .45rem; border: 1px solid var(--line); border-radius: 8px; font-size: .92rem; background: var(--card); }\n#runAnalyze { grid-column: 1 / -1; }\n\n.result-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }\n.rc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }\n.rc .big { font-size: 1.6rem; font-weight: 800; }\n.rc.highlight { border: 2px solid var(--z); }\n.rc p { font-size: .88rem; color: #404a60; margin: .4rem 0 0; }\n\n/* assumptions */\n.overall { padding: 1rem 1.2rem; border-radius: 14px; font-weight: 700; margin: 1rem 0; box-shadow: var(--shadow); }\n.assume-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); align-items: start; }\n.acard { background: var(--card); border: 1px solid var(--line); border-left-width: 6px; border-radius: 14px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }\n.acard h3 { display: flex; align-items: center; gap: .5rem; }\n.badge { font-size: .72rem; padding: .15rem .5rem; border-radius: 999px; color: #fff; font-weight: 700; }\n.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }\n.st-green { border-left-color: var(--green); } .bg-green { background: var(--green); }\n.st-amber { border-left-color: var(--amber); } .bg-amber { background: var(--amber); }\n.st-red   { border-left-color: var(--red); }   .bg-red   { background: var(--red); }\n.st-info  { border-left-color: var(--info); }  .bg-info  { background: var(--info); }\n/* status badges: soft tinted pills (calmer than solid saturated chips); the\n   dots keep the solid .bg-* colour, so only the .badge.bg-* pairing is restyled */\n.badge.bg-green { background: #e7f6ee; color: #0f7a45; border: 1px solid #bce8d0; }\n.badge.bg-amber { background: #fdf1de; color: #97610e; border: 1px solid #f2d6a3; }\n.badge.bg-red   { background: #fdeaea; color: #c0322b; border: 1px solid #f2c0bc; }\n.badge.bg-info  { background: #eef2f7; color: #44607f; border: 1px solid #cfdbe9; }\n.metrics { list-style: none; padding: 0; margin: .6rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: .4rem; }\n.metrics li { background: #f7f9fd; border: 1px solid var(--line); border-radius: 8px; padding: .4rem .6rem; font-size: .85rem; }\n.metrics b { display: block; font-size: 1.05rem; }\n.metrics span { color: var(--muted); font-size: .76rem; }\n.acard .headline { font-size: 1.05rem; margin: .2rem 0 .5rem; }\n.acard .plain { font-size: .96rem; color: #2b3849; line-height: 1.75; margin: .3rem 0 .2rem; }\n.term { margin-top: .8rem; border-top: 1px dashed var(--line); padding-top: .5rem; }\n.term summary {\n  cursor: pointer; color: var(--z); font-size: .85rem; font-weight: 600;\n  list-style: none; user-select: none;\n}\n.term summary::before { content: \"\u25b8 \"; }\n.term[open] summary::before { content: \"\u25be \"; }\n.term p { font-size: .85rem; color: var(--muted); margin: .5rem 0 0; line-height: 1.7; }\n.tdef { margin: .7rem 0 0; padding: .7rem .85rem; background: #f8fafb; border: 1px solid var(--line); border-left: 3px solid var(--z); border-radius: 10px; }\n.tdef + .tdef { margin-top: .6rem; }\n.tdef h4 { margin: 0 0 .35rem; font-size: .92rem; color: var(--ink, #14283c); font-weight: 700; }\n.tdef h4 .en { color: var(--muted); font-weight: 500; font-size: .82rem; }\n.tdef p { font-size: .85rem; color: #334155; margin: 0; line-height: 1.75; }\n.tdef p b { color: var(--z); font-weight: 700; }\n.tdef code { background: #eef4f2; border: 1px solid var(--line); border-radius: 5px; padding: .05rem .35rem; font-size: .82rem; color: #14283c; white-space: nowrap; }\n.tdef .tform { margin-top: .3rem; }\n.tdef-list { margin: 0; padding-left: 1.15rem; }\n.tdef-list li { font-size: .85rem; color: #334155; line-height: 1.7; margin: 0 0 .5rem; }\n.tdef-list li:last-child { margin-bottom: 0; }\n.tdef-list li b { color: var(--z); font-weight: 700; }\n.tdef-list code { background: #eef4f2; border: 1px solid var(--line); border-radius: 5px; padding: .05rem .35rem; font-size: .82rem; color: #14283c; }\n/* \u2466 SAS code walkthrough */\npre.sas { background: #0f1f2e; color: #e6edf3; padding: .8rem 1rem; border-radius: 10px;\n  overflow-x: auto; margin: .5rem 0 .2rem; box-shadow: var(--shadow); }\npre.sas code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;\n  font-size: .82rem; line-height: 1.55; white-space: pre; color: inherit; background: none;\n  border: none; padding: 0; }\npre.sas .cm { color: #8aa6bf; font-style: italic; }   /* SAS comment */\npre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */\n.sas-note { background: #fff8e6; border: 1px solid #f0d68c; border-radius: 10px;\n  padding: .7rem .9rem; font-size: .85rem; color: #6b5618; margin: .2rem 0 1rem; }\n\n.hidden { display: none !important; }\n\n/* SCCS extensions \u2014 expandable cards (extension + worked example + data + SAS) */\n.ext-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;\n  box-shadow: var(--shadow); margin: .7rem 0; overflow: hidden; }\n.ext-card > summary { cursor: pointer; padding: .85rem 1.1rem; font-weight: 700;\n  font-size: 1.02rem; list-style: none; line-height: 1.5; }\n.ext-card > summary::-webkit-details-marker { display: none; }\n.ext-card > summary::before { content: \"\u25b8\"; color: var(--z); margin-right: .5rem; }\n.ext-card[open] > summary::before { content: \"\u25be\"; }\n.ext-card > summary .ext-tag { color: var(--muted); font-weight: 500; font-size: .9rem; }\n.ext-body { padding: 0 1.1rem 1.1rem; }\n.ext-body h5 { margin: 1rem 0 .4rem; color: var(--z); font-size: .92rem;\n  text-transform: none; letter-spacing: 0; }\n.ext-body h5:first-child { margin-top: .4rem; }\n.ext-body .mini { width: 100%; border-collapse: collapse; font-size: .82rem; margin: .2rem 0 .4rem; }\n.ext-body .mini th, .ext-body .mini td { border: 1px solid var(--line); padding: .28rem .5rem; text-align: center; }\n.ext-body .mini th { background: #f1f7f6; font-weight: 700; }\n.ext-body .mini td.lo { background: #f8fafc; }\n.ext-body .mini caption { caption-side: bottom; font-size: .76rem; color: var(--muted); padding-top: .3rem; text-align: left; }\n.ext-body pre.sas { margin: .2rem 0 .3rem; }\n\n/* references / citation footer */\n.refs {\n  max-width: 1280px; margin: 2rem auto 3rem; padding: 1.4rem 1.5rem;\n  background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);\n}\n.refs h2 { margin-top: 0; }\n.refs h3 { margin: 1.2rem 0 .5rem; }\n.refs .cite {\n  background: #f7f9fd; border-left: 4px solid var(--z); border-radius: 8px;\n  padding: .7rem .9rem; font-size: .95rem; color: #2b3849; line-height: 1.7;\n}\n.refs .cite a { color: var(--z); word-break: break-all; }\n.cite-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin: .8rem 0 1.4rem; }\n.cite-actions .btn { font-size: .88rem; padding: .45rem .9rem; }\n.refs .reflist { margin: .8rem 0 0; padding-left: 1.2rem; }\n.refs .reflist li { font-size: .88rem; color: #404a60; margin: .4rem 0; line-height: 1.6; }\n\n@media (max-width: 720px) {\n  .controls, .colmap, .play-grid, .rdd-twocol { grid-template-columns: 1fr; }\n  table.cmp th, table.cmp td { font-size: .82rem; padding: .5rem .55rem; }\n}\n\n/* Phone polish: full-width method picker, horizontally-scrollable sub-tabs,\n   tighter topbar so the \u2460\u2013\u2465 row never becomes a cramped multi-line wrap. */\n@media (max-width: 600px) {\n  .topbar { padding: .55rem .8rem; }\n  .method-pick { display: flex; align-items: center; gap: .4rem; width: 100%; }\n  .method-pick select { flex: 1 1 auto; min-width: 0; width: 100%; }\n  .tabs { gap: .3rem; }\n  .subtabs { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 3px; }\n  .subtabs .subtab { flex: 0 0 auto; white-space: nowrap; }\n  .tab { padding: .4rem .7rem; font-size: .85rem; }\n  h1 { font-size: 1.4rem; }\n  main { padding-left: .9rem; padding-right: .9rem; }\n}\n\n/* Home / overview landing page: search box + clickable method grid. */\n.home-search {\n  width: 100%; max-width: 520px; margin: .4rem 0 1.2rem; padding: .6rem .9rem;\n  font: inherit; font-size: 1rem; border: 1px solid var(--line); border-radius: 10px;\n  background: var(--card); color: var(--ink);\n}\n.home-search:focus { outline: none; border-color: var(--z); box-shadow: 0 0 0 2px rgba(63,130,104,.18); }\n.home-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: .7rem; }\n.home-card {\n  text-align: left; display: flex; flex-direction: column; gap: .2rem;\n  padding: .7rem .85rem; border: 1px solid var(--line); border-radius: 12px;\n  background: var(--card); color: var(--ink); cursor: pointer; font: inherit;\n  transition: border-color .15s, box-shadow .15s, transform .05s;\n}\n.home-card:hover { border-color: var(--z); box-shadow: 0 2px 10px rgba(0,0,0,.06); }\n.home-card:active { transform: translateY(1px); }\n.home-card .hc-abbr { font-weight: 800; color: var(--z); }\n.home-card .hc-name { font-size: .86rem; color: var(--muted); }\n/* Self-check quiz (collapsible card at the end of a method's \u2460 learn panel). */\n.quiz { margin-top: 1.6rem; }\n.quiz h3::before { content: \"\ud83d\udcdd \"; }\n.quiz-q { margin: .7rem 0 1.1rem; }\n.quiz-prompt { font-weight: 600; margin: 0 0 .55rem; }\n.quiz-opts { display: flex; flex-direction: column; gap: .4rem; }\n.quiz-opt { text-align: left; padding: .5rem .8rem; border: 1.5px solid var(--line); border-radius: 10px;\n  background: var(--card); color: var(--ink); cursor: pointer; font: inherit; transition: .12s; }\n.quiz-opt:hover { border-color: var(--z); }\n.quiz-opt.correct { border-color: #16a34a; background: #ecfdf5; font-weight: 600; }\n.quiz-opt.wrong { border-color: #dc2626; background: #fef2f2; }\n.quiz-explain { margin: .55rem 0 0; font-size: .9rem; line-height: 1.6;\n  background: #f1f5f9; border-left: 3px solid var(--z); border-radius: 8px; padding: .5rem .75rem; }\n\n/* Glossary: auto-collected term definitions. */\n.gloss-item { border: 1px solid var(--line); border-radius: 10px; padding: .6rem .85rem; margin: .5rem 0; background: var(--card); box-shadow: var(--shadow); }\n.gloss-item h4 { margin: 0 0 .25rem; color: var(--z); font-size: 1rem; }\n.gloss-item .en { color: var(--muted); font-weight: 500; font-size: .85rem; }\n.gloss-item p { margin: 0; font-size: .9rem; line-height: 1.6; }\n\n/* In-page section nav (chips) for the long single-page topics (SR-MA, NMA). */\n.page-toc { display: flex; flex-wrap: wrap; gap: .5rem; margin: .2rem 0 1.2rem; }\n.page-toc .toc-link {\n  display: inline-block; padding: .32rem .8rem; border-radius: 999px;\n  background: #eef2f6; border: 1px solid var(--line); color: var(--ink);\n  font-weight: 600; font-size: .86rem; text-decoration: none; cursor: pointer;\n}\n.page-toc .toc-link:hover { background: var(--z); color: #fff; border-color: var(--z); }\n/* offset so the sticky header doesn't cover the jumped-to heading */\n.panel h2[id] { scroll-margin-top: 72px; }\n\n/* ---- What If book notes: password gate + chapter accordions ---- */\n.cb-gate { max-width: 460px; margin: 1.2rem 0; padding: 1.1rem 1.2rem; border: 1px solid var(--line);\n  border-radius: 14px; background: var(--card); box-shadow: var(--shadow); }\n.cb-gate h3 { margin: 0 0 .3rem; }\n.cb-gate-row { display: flex; gap: .5rem; margin-top: .6rem; }\n.cb-gate-row input { flex: 1 1 auto; min-width: 0; padding: .5rem .7rem; border: 1px solid var(--line);\n  border-radius: 8px; font-size: .95rem; }\n.cb-msg { min-height: 1.2em; margin: .5rem 0 0; font-size: .88rem; }\n.cb-msg.err { color: #b91c1c; }\n.cb-msg.ok { color: #15803d; }\n.cb-part { margin: 1.6rem 0 .6rem; padding-bottom: .3rem; border-bottom: 2px solid var(--z); color: var(--z); }\n.cb-ch { border: 1px solid var(--line); border-radius: 10px; margin: .5rem 0; background: var(--card); overflow: hidden; }\n.cb-ch > summary { cursor: pointer; padding: .6rem .8rem; font-weight: 700; list-style: none; }\n.cb-ch > summary::-webkit-details-marker { display: none; }\n.cb-ch > summary::before { content: \"\u25b8 \"; color: var(--z); }\n.cb-ch[open] > summary::before { content: \"\u25be \"; }\n.cb-ch .cb-chbody { padding: 0 .9rem .8rem; }\n.cb-ch .cb-chbody li { margin: .3rem 0; }\n.cb-num { color: var(--muted); font-weight: 700; margin-right: .4rem; }\n.cb-ch .cb-eg { background: #f0f7f4; border-left: 4px solid var(--z); border-radius: 8px;\n  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }\n.cb-ch .cb-formula { background: #f8fafc; border: 1px solid var(--line); border-radius: 8px;\n  padding: .5rem .8rem; margin: .6rem 0 0; }\n.cb-ch .cb-formula > b { color: var(--z); }\n.cb-ch .cb-formula code, .cb-ch .cb-chbody code { background: #eef2f6; padding: .05rem .3rem;\n  border-radius: 4px; font-size: .9em; }\n.cb-ch .cb-warn { background: #fff7ed; border-left: 4px solid #d97706; border-radius: 8px;\n  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }\n.cb-ch .cb-warn > b { color: #b45309; }\n.cb-ch .cb-warn li { margin: .3rem 0; }\n.cb-ch .cb-link { margin: .6rem 0 0; font-size: .9rem; }\n.cb-ch .cb-link a.xref { margin-right: .6rem; }\n.cb-ch .cb-howto { background: #eef6ff; border-left: 4px solid #2563eb; border-radius: 8px;\n  padding: .5rem .8rem .5rem 1.6rem; margin: .6rem 0 0; font-size: .92rem; }\n.cb-ch .cb-howto > b { color: #1d4ed8; margin-left: -0.8rem; }\n.cb-ch .cb-howto ol { margin: .3rem 0 0; padding-left: 1.1rem; }\n.cb-ch .cb-howto li { margin: .3rem 0; }\n.cb-ch .cb-deep { background: #faf5ff; border-left: 4px solid #7c3aed; border-radius: 8px;\n  padding: .5rem .8rem; margin: .6rem 0 0; font-size: .92rem; }\n.cb-ch .cb-deep > b { color: #6d28d9; }\n.cb-ch .cb-deep li { margin: .3rem 0; }\n.cb-ch .cb-narr { margin: .5rem 0 0; padding: .5rem .8rem; background: #fbfbfd; border: 1px dashed var(--line);\n  border-radius: 8px; font-size: .93rem; line-height: 1.75; }\n.cb-ch .cb-narr > b { color: var(--z); }\n.cb-ch .cb-narr p { margin: .45rem 0; }\n.cb-ch .cb-secmap { background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 8px;\n  padding: .55rem .85rem; margin: .6rem 0 0; font-size: .92rem; line-height: 1.7; }\n.cb-ch .cb-secmap > b { color: #15803d; }\n.cb-ch .cb-secmap p { margin: .5rem 0; }\n.cb-ch .cb-secmap .cb-sec { font-weight: 600; color: #166534; display: block; margin-top: .6rem; }\n";
+
+/* ================= extracted verbatim from frontend/app.js ================= */
+const L = (o) => (lang() === "en" ? o.en : o.zh);
+
+// node = question {step, q:{}, opts:[{l:{}, to}]}  OR  leaf {rec:{...}}
+// One tree, faithful to the pharmacoepidemiology "anchor" decision diagram:
+// the common study designs (active comparator cohort, SCCS, CCW, sequential
+// trial, nested case-control, case-crossover, CTC/CCTC) and the toolbox's six
+// methods (IV/RDD/DiD/ITS/PERR/TiT) are all reachable endpoints. Every leaf
+// carries a concrete vaccine scenario, and the full tree pops out at the end.
+const DNODES = {
+  n1: {
+    step: { zh: "錨點", en: "Anchor" },
+    q: { zh: "你的研究「錨點」是什麼？（決策樹的第一個分岔）", en: "What is your study's anchor? (the first split)" },
+    opts: [
+      { l: { zh: "暴露錨定：先固定一個暴露／介入，看它造成什麼結果", en: "Exposure-anchored: fix one exposure/intervention, study its effects" }, to: "exOut" },
+      { l: { zh: "結果錨定：先固定一個結果，回頭找是哪些暴露造成的", en: "Outcome-anchored: fix one outcome, look back for the exposures" }, to: "outHow" },
+      { l: { zh: "機制錨定：已知某暴露有效果，想知道有多少<b>透過某中介</b>發生（中介分析）", en: "Mechanism-anchored: an effect is known — ask how much runs <b>through a mediator</b> (mediation)" }, to: "rMED" },
+      { l: { zh: "證據錨定：你不是在做單一研究，而是想把<b>已有的多篇研究</b>合起來回答（證據合併）", en: "Evidence-anchored: you are not running a single study but want to combine <b>several existing studies</b> (evidence synthesis)" }, to: "synth" },
+    ],
+  },
+  // ================= D · evidence-anchored (cross-study synthesis) =================
+  synth: {
+    step: { zh: "證據合併", en: "Evidence synthesis" },
+    q: { zh: "你要一次比較幾個治療？（這層決定做一般統合分析還是網路統合分析）", en: "How many treatments are you comparing at once? (this decides ordinary vs network meta-analysis)" },
+    opts: [
+      { l: { zh: "兩個的正面對決（或一個介入 vs 對照），先系統性回顧找出所有研究，再做統合分析", en: "Two, head-to-head (or one intervention vs a control) — systematically review all studies, then meta-analyse" }, to: "rSRMA" },
+      { l: { zh: "三個以上、而且很少有試驗直接兩兩比過，用直接＋間接證據連成網路", en: "Three or more, with few head-to-head trials — connect direct + indirect evidence into a network" }, to: "rNMA" },
+    ],
+  },
+  // ================= A · exposure-anchored =================
+  exOut: {
+    step: { zh: "結果型態", en: "Outcome type" },
+    q: { zh: "你的結果是哪一種？這一步決定哪些設計「用得了」。", en: "Which kind is your outcome? This step decides which designs are even eligible." },
+    opts: [
+      { l: { zh: "一次性／可能致命／慢性持續（不是「會反覆又會好」）", en: "One-off / possibly fatal / chronic-persistent (not 'recurs and resolves')" }, to: "exInst" },
+      { l: { zh: "急性、會反覆發生、也會痊癒、非致命", en: "Acute, recurrent, resolving, non-fatal" }, to: "exSelf" },
+    ],
+  },
+  exInst: {
+    step: { zh: "外生工具？", en: "An instrument?" },
+    q: { zh: "你有沒有一個「外生、近似隨機」的工具，會改變人們是否接受暴露，且只透過暴露影響結果？（隨機提醒、抽籤、政策樂透、基因變異）", en: "Do you have an external, near-random instrument that changes whether people get the exposure and affects the outcome only through it? (a randomised reminder, lottery, policy lottery, genetic variant)" },
+    opts: [
+      { l: { zh: "有，這工具幾乎可當隨機", en: "Yes — that instrument is essentially random" }, to: "rIV" },
+      { l: { zh: "有，而且是<b>遺傳變異</b>（基因型）", en: "Yes — and it is a <b>genetic variant</b>" }, to: "rMR" },
+      { l: { zh: "沒有這種工具 → 繼續往下", en: "No such instrument — continue" }, to: "exCut" },
+    ],
+  },
+  exCut: {
+    step: { zh: "切點／時點／對照", en: "Cutoff / timing / comparator" },
+    q: { zh: "你的暴露有沒有以下任一種「準隨機」結構？（選最接近的一個）", en: "Does your exposure have any of these quasi-random structures? (pick the closest one)" },
+    opts: [
+      { l: { zh: "分數上的明確門檻（年齡 65／風險指標切點），只需門檻附近的答案", en: "A sharp cutoff on a score (age 65 / a risk index); answer needed near the cutoff" }, to: "rRDD" },
+      { l: { zh: "政策在已知時點開啟，且有沒被開啟的對照組（面板資料）", en: "Policy switched on at a known time, with an untreated control group (panel data)" }, to: "rDiD" },
+      { l: { zh: "政策在已知時點開啟，但只有單一群體、前後有許多時間點", en: "Policy at a known time, but a single population with many time points" }, to: "rITS" },
+      { l: { zh: "有藥理／適應症相近的活性對照（比「打 A vs 打 B」）", en: "A pharmacologically / indication-similar active comparator ('A vs B')" }, to: "rACC" },
+      { l: { zh: "有活性對照，但想把<b>既有（盛行）使用者</b>也納入、不想只用新起始者", en: "Active comparator, but you want to include <b>prevalent</b> users, not just new starters" }, to: "rPNU" },
+      { l: { zh: "都沒有，但有兩組「暴露前 vs 暴露後」事件率、且混淆乘法穩定", en: "None, but both groups' before-vs-after event rates with stable multiplicative confounding" }, to: "rPERR" },
+      { l: { zh: "擔心<b>未測混淆</b>，但有一對<b>陰性對照</b>（對結果無因果的暴露代理＋不受暴露影響的結果代理）", en: "Worried about <b>unmeasured confounding</b>, but you have a pair of <b>negative controls</b> (an exposure proxy with no effect on the outcome + an outcome proxy unaffected by exposure)" }, to: "rNC" },
+      { l: { zh: "以上皆非 → 繼續", en: "None of the above — continue" }, to: "exDyn" },
+    ],
+  },
+  exDyn: {
+    step: { zh: "動態策略？", en: "Dynamic strategy?" },
+    q: { zh: "剩下的情況：你的處置是「診斷後動態／隨時間調整」的策略嗎？", en: "What's left: is the treatment a sustained / dynamic strategy adjusted over time after diagnosis?" },
+    opts: [
+      { l: { zh: "是，動態策略（早 vs 晚開始、是否持續或密集用藥）", en: "Yes — a dynamic strategy (early vs late, sustained / intensive use)" }, to: "rCCW" },
+      { l: { zh: "比較像一次性的點治療，但病人在多個時間點陸續符合收案", en: "More a one-off point treatment, but patients become eligible at many times" }, to: "rSEQ" },
+      { l: { zh: "都不是，但我有<b>豐富的已測共變項</b>，只想把它們<b>平衡</b>掉（配對／加權）", en: "Neither, but I have <b>rich measured covariates</b> and just want to <b>balance</b> them (matching / weighting)" }, to: "rPS" },
+      { l: { zh: "有已測共變項，且想要<b>雙重穩健</b>（兩張網其一對就好）＋可用 ML／效率最佳", en: "Measured covariates, and you want <b>double robustness</b> (two models, either right) + ML / efficiency" }, to: "rTMLE" },
+      { l: { zh: "治療<b>分多個時點</b>給，且有<b>時變混淆</b>（被過去治療改變、又預測未來治療與結果）", en: "Treatment given at <b>several times</b>, with a <b>time-varying confounder</b> (changed by past treatment, predicts future treatment &amp; outcome)" }, to: "rGM" },
+      { l: { zh: "用藥逐月增減，且你想知道效果如何<b>隨用藥的時間與累積</b>變化（最近的劑量 vs 很久以前的）", en: "Dosing varies month to month and you want how the effect depends on the <b>timing &amp; accumulation</b> of doses (recent vs long-ago)" }, to: "rWCE" },
+      { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
+    ],
+  },
+  exSelf: {
+    step: { zh: "自身對照／趨勢", en: "Self-control / trend" },
+    q: { zh: "結果是急性、會反覆又會好，你想怎麼利用「個人自身」或「日曆趨勢」？", en: "The outcome is acute and recurrent/resolving — how do you want to use 'the person as their own control' or a calendar trend?" },
+    opts: [
+      { l: { zh: "用個人自身當對照、暴露有明確時窗（非致命、可復發）", en: "Person as own control, exposure has a clear window (non-fatal, recurrent)" }, to: "rSCCS" },
+      { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見", en: "Exposure spreads over calendar time at different rates; rare outcome" }, to: "rTiT" },
+      { l: { zh: "只想<b>快速篩出</b>「A 引起、B 治療」的<b>處方瀑布</b>訊號（產生假說，先 A 後 B 的不對稱）", en: "Just want a <b>fast screen</b> for an 'A-causes, B-treats' <b>prescribing cascade</b> (hypothesis-generating; A-then-B asymmetry)" }, to: "rPSSA" },
+      { l: { zh: "想<b>一次掃整個結果階層</b>（數百–數千個事件）找暴露的安全訊號，並<b>控制多重比較</b>", en: "Want to <b>scan a whole outcome hierarchy</b> (hundreds–thousands of events) for safety signals while <b>controlling multiplicity</b>" }, to: "rTSCAN" },
+      { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
+    ],
+  },
+  // ================= B · outcome-anchored =================
+  outHow: {
+    step: { zh: "B 結果錨定 · 取對照", en: "B Outcome-anchored · controls" },
+    q: { zh: "你從「已發生結果的個案」回看暴露，怎麼取對照？（多用於急性、可復發的結果）", en: "Looking back from cases — how do you take controls? (usually for acute, recurrent outcomes)" },
+    opts: [
+      { l: { zh: "從一般來源族群取對照、用校正／配對處理混淆（基本病例對照）", en: "Controls from the source population; handle confounding by adjustment/matching (basic case-control)" }, to: "rCC" },
+      { l: { zh: "在大世代裡用配對對照、巢式抽樣（想細看劑量–反應）", en: "Matched controls nested in a large cohort (to examine dose-response)" }, to: "rNCC" },
+      { l: { zh: "用個人自身近期當對照（急性、短暫暴露；案例交叉 CCO）", en: "The person's own recent past as control (acute, transient exposure; case-crossover CCO)" }, to: "rCCTC" },
+      { l: { zh: "個人自身對照，但暴露有日曆時間趨勢（用 CCTC 扣趨勢）", en: "Person-as-own-control, but the exposure has a calendar trend (CCTC nets it out)" }, to: "rCCTC" },
+      { l: { zh: "估<b>疫苗效力</b>，對照取自「來檢驗卻<b>陰性</b>」的人，去掉就醫傾向（陰性檢驗設計）", en: "Estimating <b>vaccine effectiveness</b> with controls who were tested but <b>negative</b>, removing care-seeking (test-negative design)" }, to: "rTND" },
+      { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
+    ],
+  },
+
+  // ====== recommendations (leaves) — each carries a vaccine scenario ======
+  rIV: { rec: { kind: "toolbox", method: "iv", badge: "IV ✓",
+    title: { zh: "最適合：工具變數 IV", en: "Best fit: Instrumental Variables (IV)" },
+    why: { zh: "你手上有一個近似隨機、只透過暴露影響結果的外生工具，這正是 IV 的引擎。用它把「被推動的順從者」的因果效果（LATE）撬出來。",
+           en: "You have a near-random, exclusion-respecting external instrument — exactly IV's engine. Use it to recover the causal effect for the compliers it moves (the LATE)." },
+    scenario: { zh: "疫苗情境：衛生局「隨機」寄出接種提醒，推了一部分人去打疫苗。用『有沒有收到提醒』當工具，估接種對健康的真正效果。",
+                en: "Vaccine scenario: the health authority mails reminders at random, nudging some people to get vaccinated. Use 'got a reminder?' as the instrument to estimate vaccination's true effect on health." },
+    watch: { zh: "最關鍵、不可檢驗的是<b>排除限制</b>（工具只透過暴露影響結果）。到 IV 的 ④ 跑一遍，特別看工具強度 F&gt;10。若你的工具是<b>遺傳變異</b>，那就是 IV 的特例：孟德爾隨機化（MR）。",
+             en: "The key untestable assumption is <b>exclusion</b> (the instrument affects the outcome only through the exposure). Run IV's ④ dashboard — check instrument strength F&gt;10. If your instrument is a <b>genetic variant</b>, that special case of IV is Mendelian randomization (MR).",
+             }, altMethod: "mr", altLabel: { zh: "工具是基因？看 MR →", en: "Genetic instrument? See MR →" } } },
+  rRDD: { rec: { kind: "toolbox", method: "rdd", badge: "RDD ✓",
+    title: { zh: "最適合：斷點回歸 RDD", en: "Best fit: Regression Discontinuity (RDD)" },
+    why: { zh: "暴露資格由分數上的明確門檻決定，門檻上下的人其他條件相近，把門檻兩側各配一條線、量切點的跳幅，就是 RDD。",
+           en: "Eligibility is set by a sharp cutoff and people just above/below are otherwise alike — fit a line on each side and read the jump at the cutoff. That's RDD." },
+    scenario: { zh: "疫苗情境：免費疫苗只開放給「滿 65 歲」的人。比較剛滿 65 與還差幾天的人，量門檻處健康指標的跳幅。",
+                en: "Vaccine scenario: free vaccination is offered only at age 65+. Compare those just over 65 with those just under, and read the jump in the health outcome at the cutoff." },
+    watch: { zh: "最關鍵的是<b>連續性</b>（剛好門檻上下的人本來就相像、且無法精準操弄分數）。小提醒：模糊 RDD 其實是「把門檻當工具」的局部 IV。",
+             en: "The key assumption is <b>continuity</b> (people right at the cutoff are comparable and can't precisely game the score). Note: a fuzzy RDD is really a local IV with the cutoff as the instrument." } } },
+  rDiD: { rec: { kind: "toolbox", method: "did", badge: "DiD ✓",
+    title: { zh: "最適合：差異中的差異 DiD", en: "Best fit: Difference-in-Differences (DiD)" },
+    why: { zh: "政策在已知時點對部分單位開啟、你又有對照組，且開啟前走勢平行，比較兩組「前→後變化的差」，消掉固定組差與共同時間趨勢。",
+           en: "A policy switches on for some units at a known time, you have a control group, and pre-trends were parallel — difference the two before/after changes to cancel fixed group gaps and common time trends." },
+    scenario: { zh: "疫苗情境：某些縣市在某月開啟接種推廣、其他縣市沒有。比較兩組「推廣前→後」健康變化的差。",
+                en: "Vaccine scenario: some counties switch on a vaccination drive in a given month, others don't. Compare the difference in each group's before→after change in health." },
+    watch: { zh: "最關鍵、後期不可檢驗的是<b>平行趨勢</b>（沒政策時兩組會一起變）。用 ④ 的事件研究檢查前期趨勢。",
+             en: "The key (post-period untestable) assumption is <b>parallel trends</b>. Use the event-study in ④ to check pre-trends." } } },
+  rITS: { rec: { kind: "toolbox", method: "its", badge: "ITS ✓",
+    title: { zh: "最適合：中斷時間序列 ITS", en: "Best fit: Interrupted Time Series (ITS)" },
+    why: { zh: "只有單一群體、但介入前後有許多時間點，用介入前趨勢外推當反事實，量介入處的水準與斜率跳變。",
+           en: "A single population with many points before and after — extrapolate the pre-intervention trend as the counterfactual and read the level & slope change at the interruption." },
+    scenario: { zh: "疫苗情境：某縣市在已知月份推出接種計畫，逐月追蹤健康指標。用推出前的趨勢外推當「沒推會怎樣」，量斷裂處的跳變。",
+                en: "Vaccine scenario: a county launches a vaccination programme in a known month and tracks a monthly health indicator. Extrapolate the pre-launch trend as 'what if no launch' and read the break." },
+    watch: { zh: "最關鍵的是<b>介入的同時沒有別的大事</b>一起發生；另要處理殘差自相關（④ 會檢 HAC）。若其實有對照序列，控制組 ITS／DiD 會更穩。",
+             en: "The key assumption is <b>no coincident event</b> at the interruption; also handle residual autocorrelation (④ checks HAC). If a control series exists, controlled-ITS/DiD is stronger." } } },
+  rTiT: { rec: { kind: "toolbox", method: "tit", badge: "TiT ✓",
+    title: { zh: "最適合：趨勢中的趨勢 TiT", en: "Best fit: Trend-in-Trend (TiT)" },
+    why: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見，看「結果率的趨勢」是否跟著「暴露率的趨勢」走。它是案例-時間對照（CTC/CCTC）的世代版。",
+           en: "Exposure spreads over calendar time at different rates across strata and the outcome is rare — check whether the outcome-rate trend tracks the exposure-rate trend. It is the cohort cousin of case-time-control (CTC/CCTC)." },
+    scenario: { zh: "疫苗情境：一支新疫苗的接種率隨季逐漸上升、不同縣市快慢不同。看「事件率的趨勢」是否跟著「接種率的趨勢」一起走。",
+                en: "Vaccine scenario: a new vaccine's uptake climbs over quarters, faster in some counties. Check whether the event-rate trend moves in step with the uptake trend." },
+    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與接種趨勢同步的未測混淆趨勢</b>。另一個重要限制：它建模「每期盛行率」，<b>只適合會反覆發生／也會痊癒的（急性）結果，看不了死亡</b>，死掉的人在這個框架下仍留在分母（見 TiT ④）。",
+             en: "The key untestable assumption is <b>no unmeasured confounder trend that moves in step with uptake</b>. Another important limit: it models per-period prevalence, so it <b>fits recurrent / resolving (acute) outcomes and CANNOT handle death</b> — the deceased still sit in the denominator here (see TiT ④)." } } },
+  rPERR: { rec: { kind: "toolbox", method: "perr", badge: "PERR ✓",
+    title: { zh: "最適合：事前事件率比 PERR", en: "Best fit: Prior Event Rate Ratio (PERR)" },
+    why: { zh: "你有兩組在「暴露前」與「暴露後」的事件率，且相信混淆隨時間穩定，用同一群人「暴露前」的率比當混淆基準除掉。",
+           en: "You have both groups' event rates in a pre- and a post-exposure window and believe confounding is stable — divide out the same people's pre-exposure ratio as the confounding benchmark." },
+    scenario: { zh: "疫苗情境：高風險者較常被接種。比較接種 vs 未接種者在「接種前」與「接種後」的事件率比，用事前率比扣掉體質差異。",
+                en: "Vaccine scenario: higher-risk people get vaccinated more. Compare vaccinated vs unvaccinated rate ratios in a pre- and a post-window, dividing out the prior ratio as the confounding benchmark." },
+    watch: { zh: "最關鍵的是<b>混淆時間不變且為乘法尺度</b>（P1）；事前期事件數要夠多，否則基準不穩。",
+             en: "The key assumption is <b>time-invariant, multiplicative confounding</b> (P1); the prior window needs enough events or the benchmark is unstable." } } },
+  rNC: { rec: { kind: "toolbox", method: "nc", badge: "NC ✓",
+    title: { zh: "最適合：陰性對照與近端因果 NC ✓（本工具）", en: "Best fit: Negative Control & Proximal (NC) ✓ (this tool)" },
+    why: { zh: "你擔心有<b>未測混淆</b>，但手上有一對<b>陰性對照</b>，一個<b>對結果無因果</b>的暴露代理（NCE）＋一個<b>不受暴露影響</b>的結果代理（NCO），兩者都與該混淆相關。先用「A→陰性對照結果本應為 0」<b>偵測</b>偏誤，再用<b>雙陰性對照／近端因果（P2SLS）</b>把未測混淆扣掉、還原效應。",
+           en: "You worry about <b>unmeasured confounding</b> but have a pair of <b>negative controls</b> — an exposure proxy with <b>no effect on the outcome</b> (NCE) + an outcome proxy <b>unaffected by exposure</b> (NCO), both associated with that confounder. <b>Detect</b> bias via 'A→NCO should be 0', then <b>correct</b> it with <b>double negative control / proximal (P2SLS)</b> to recover the effect." },
+    scenario: { zh: "疫苗情境：健康／就醫傾向（未測）同時影響接種與結果。用接種前事件當陰性對照結果、另一個與健康傾向相關但不影響結果的暴露當陰性對照暴露，偵測並校正 healthy-vaccinee 偏誤（見「NC」分頁 ①–⑥）。",
+                en: "Vaccine scenario: health / care-seeking (unmeasured) drives both vaccination and the outcome. Use a pre-vaccination event as the NCO and a health-related exposure that can't affect the outcome as the NCE to detect and correct healthy-vaccinee bias (see the NC tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。核心代價：<b>陰性對照的「無因果」與完備性不可檢驗</b>，要靠領域知識挑選；代理要夠相關（類似工具強度）。",
+             en: "✓ Implemented in this toolbox. The price: the negative controls' <b>'no causal effect' and completeness are untestable</b> — choose by domain knowledge; proxies must be relevant enough (like instrument strength)." } } },
+  rMED: { rec: { kind: "toolbox", method: "med", badge: "MED ✓",
+    title: { zh: "最適合：中介分析 MED ✓（本工具）", en: "Best fit: Mediation analysis (MED) ✓ (this tool)" },
+    why: { zh: "你已知（或正在估）某暴露對結果有效果，現在想知道<b>機制</b>：這個效果有多少是<b>透過某個中介 M</b>（間接 NIE）、多少走<b>其他路徑</b>（直接 NDE）。中介分析把總效果拆成 TE＝NDE＋NIE，並報<b>被中介比例</b>。這不是「控制混淆的設計」，而是效果的<b>分解</b>，通常接在前面任一設計之後。",
+           en: "You already know (or are estimating) that an exposure affects an outcome, and now want the <b>mechanism</b>: how much of the effect runs <b>through a mediator M</b> (indirect NIE) vs <b>other pathways</b> (direct NDE). Mediation splits the total into TE = NDE + NIE and reports the <b>proportion mediated</b>. It is not a confounding-control design but a <b>decomposition</b> that usually follows one of the designs above." },
+    scenario: { zh: "疫苗情境：疫苗對感染的保護，有多少是透過提高抗體效價（中介）？用中介分析估自然直接／間接效果與被中介比例（見「MED」分頁 ①–⑦）。",
+                en: "Vaccine scenario: how much of the vaccine's protection against infection runs through raising antibody titer (the mediator)? Mediation estimates the natural direct/indirect effects and proportion mediated (see the MED tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。最關鍵代價：要拆出間接效果，必須<b>沒有未測的中介–結果（M–Y）混淆</b>，<b>連把暴露隨機分派都換不到</b>這一條；務必做敏感度分析。",
+             en: "✓ Implemented in this toolbox. The key price: isolating the indirect effect needs <b>no unmeasured mediator-outcome (M–Y) confounding</b> — <b>not even randomising the exposure buys this</b>; always run a sensitivity analysis." } } },
+  rPS: { rec: { kind: "toolbox", method: "ps", badge: "PS ✓",
+    title: { zh: "最適合：傾向分數 PS ✓（本工具）", en: "Best fit: Propensity Score (PS) ✓ (this tool)" },
+    why: { zh: "沒有準隨機結構、也不是動態策略，但你<b>測到了會驅動治療與結果的共變項</b>，那就用<b>傾向分數 PS＝P(A|X)</b> 把它們<b>平衡</b>掉：<b>配對</b>（ATT）、<b>IPTW</b>（ATE）或<b>重疊權重</b>（ATO）。平衡好不好用<b>標準化差異 SMD</b> 檢查（目標 &lt; 0.1），而不是看 PS 預測得準不準。PS 是 RWE 最核心的工作馬，後面的 TMLE／g-methods 也都以它為基礎。",
+           en: "No quasi-random structure and not a dynamic strategy, but you <b>measured the covariates that drive treatment and outcome</b> — then use the <b>propensity score PS = P(A|X)</b> to <b>balance</b> them: <b>matching</b> (ATT), <b>IPTW</b> (ATE) or <b>overlap weights</b> (ATO). Judge balance by the <b>standardized mean difference (SMD)</b> (target &lt; 0.1), not by how well the PS predicts treatment. PS is the workhorse of RWE and underpins TMLE / g-methods." },
+    scenario: { zh: "疫苗情境：病重者（已測嚴重度 X 大）較易接種、也較易出事（適應症混淆）。對 PS 做配對／加權，讓兩組在 X 上看起來一樣，再比較（見「PS」分頁 ①–⑦）。",
+                en: "Vaccine scenario: sicker people (large measured severity X) are more likely to be vaccinated and to have the outcome (confounding by indication). Match/weight on the PS so the groups look alike on X, then compare (see the PS tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。最關鍵、不可檢驗的是<b>無未測混淆</b>，PS 只能平衡<b>有測到</b>的 X；還要<b>正性／重疊</b>（每人 0 &lt; PS &lt; 1）。",
+             en: "✓ Implemented in this toolbox. The key untestable assumption is <b>no unmeasured confounding</b> — PS only balances the X you <b>measured</b>; also needs <b>positivity / overlap</b> (0 &lt; PS &lt; 1 for everyone)." } } },
+  rTMLE: { rec: { kind: "toolbox", method: "tmle", badge: "TMLE ✓",
+    title: { zh: "最適合：雙重穩健／TMLE ✓（本工具）", en: "Best fit: Doubly-robust / TMLE ✓ (this tool)" },
+    why: { zh: "和 PS 一樣是「已測共變項、想校正」的情境，但你想要<b>更穩</b>：<b>雙重穩健（AIPW／TMLE）</b>同時配<b>兩張網</b>，結果模型（給定 X、A 下的 Y）＋傾向模型 PS，只要<b>其中一個對</b>就不偏（PS 法只賭傾向模型對）。TMLE 再做一步 <b>targeting</b> 取得半參數<b>有效率</b>估計，天然搭配 <b>機器學習／Super Learner</b> 當輔助模型。",
+           en: "Same 'measured covariates, want adjustment' situation as PS, but you want to be <b>more robust</b>: <b>doubly-robust (AIPW / TMLE)</b> fits <b>two models</b> — an outcome model (Y given X, A) and a propensity model PS — and stays unbiased if <b>either one</b> is right (plain PS bets only on the propensity model). TMLE adds a <b>targeting</b> step for a semiparametric-<b>efficient</b> estimate and pairs naturally with <b>machine learning / Super Learner</b> for the nuisance models." },
+    scenario: { zh: "疫苗情境：嚴重度 X 對接種與結果都是<b>非線性</b>影響。單一線性模型容易設錯；AIPW／TMLE 用兩張（可用 ML 的）網互相保險，把 ATE 還原到真值（見「TMLE」分頁 ①–⑦）。",
+                en: "Vaccine scenario: severity X drives both treatment and outcome <b>non-linearly</b>. A single linear model is easily mis-specified; AIPW/TMLE insure two (optionally ML) models against each other and recover the true ATE (see the TMLE tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。仍需<b>無未測混淆＋正性</b>；雙重穩健保的是「模型設定」、<b>不是</b>未測混淆。至少一個輔助模型要設定正確、Super Learner 函式庫要夠豐富。",
+             en: "✓ Implemented in this toolbox. Still needs <b>no unmeasured confounding + positivity</b>; double robustness guards <b>model specification</b>, <b>not</b> unmeasured confounding. At least one nuisance model must be right, and the Super Learner library rich enough." } } },
+  rGM: { rec: { kind: "toolbox", method: "gm", badge: "G-methods ✓",
+    title: { zh: "最適合：G-methods（時變混淆）✓（本工具）", en: "Best fit: G-methods (time-varying confounding) ✓ (this tool)" },
+    why: { zh: "你的治療<b>分多個時點</b>給、且有一個<b>時變混淆 Lₜ</b>：它預測下一次治療、<b>又被過去治療改變</b>、也影響結果（治療↔混淆<b>回饋</b>）。這時標準迴歸<b>兩頭都錯</b>，不校正 Lₜ 被混淆、校正 Lₜ 又擋掉效果路徑＋開對撞。要用 <b>g-methods</b>：<b>g-formula</b>（標準化）、<b>IPTW 邊際結構模型</b>（反治療機率加權）、或 <b>g-estimation</b>，估「全程治療 vs 全程不治療」這類策略的效果。",
+           en: "Your treatment is given at <b>several time points</b> and there is a <b>time-varying confounder Lₜ</b> that predicts the next treatment, is <b>itself changed by past treatment</b>, and affects the outcome (treatment–confounder <b>feedback</b>). Standard regression is then wrong <b>both ways</b> — not adjusting for Lₜ is confounded, adjusting blocks the effect path and opens a collider. Use <b>g-methods</b>: the <b>g-formula</b> (standardisation), the <b>IPTW marginal structural model</b> (inverse-probability-of-treatment weighting), or <b>g-estimation</b>, to estimate a treatment-regime effect like 'always treat vs never'." },
+    scenario: { zh: "疫苗／藥物情境：一種藥分兩期服用，中間的疾病活動度 Lₜ 既決定要不要續用、又被前一劑壓低、也影響結果。用 g-formula／IPTW-MSM 還原「全程用 vs 全程不用」的效果（見「G-methods」分頁 ①–⑦）。",
+                en: "Drug scenario: a drug taken over two periods; disease activity Lₜ in between both drives whether you continue and is lowered by the earlier dose, and affects the outcome. g-formula / IPTW-MSM recover the 'always vs never' effect (see the G-methods tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。最關鍵、不可檢驗的是<b>序列可交換</b>（無未測<b>時變</b>混淆）；還需每個時點正性、輔助模型設定正確（可用 ML，並可搭 TMLE 做雙重穩健）。",
+             en: "✓ Implemented in this toolbox. The key untestable assumption is <b>sequential exchangeability</b> (no unmeasured <b>time-varying</b> confounding); also needs per-time positivity and correct nuisance models (ML-improvable, and pairs with TMLE for double robustness)." } } },
+  rTND: { rec: { kind: "toolbox", method: "tnd", badge: "TND ✓",
+    title: { zh: "最適合：陰性檢驗設計 TND ✓（本工具）", en: "Best fit: Test-Negative Design (TND) ✓ (this tool)" },
+    why: { zh: "你要估<b>疫苗效力 VE</b>，麻煩是<b>就醫傾向</b>是未測混淆（愛就醫者較常接種、也較常被檢驗發現感染）。<b>陰性檢驗設計</b>只在「<b>因症狀就醫並檢驗</b>」的人裡比：case＝目標病原檢驗陽性、control＝檢驗陰性（其他病原）。兩組都通過同一道就醫濾網，就醫傾向被條件掉 → 接種勝算比給 <b>VE ＝ 1 − OR</b>。",
+           en: "You want <b>vaccine effectiveness (VE)</b>, and the trouble is <b>care-seeking</b> as an unmeasured confounder (care-seekers vaccinate more and have infections detected more). The <b>test-negative design</b> compares only people who <b>sought care for symptoms and were tested</b>: cases test positive for the target, controls test negative (another pathogen). Both passed the same care-seeking filter, so it is conditioned out and the vaccination odds ratio gives <b>VE = 1 − OR</b>." },
+    scenario: { zh: "疫苗情境：在因急性呼吸道症狀就醫並檢驗的人裡，比流感檢驗陽性（case）與陰性（control）的接種勝算，估流感疫苗效力（見「TND」分頁 ①–⑦）。",
+                en: "Vaccine scenario: among people tested for acute respiratory symptoms, compare vaccination odds in influenza-positive (cases) vs negative (controls) to estimate influenza VE (see the TND tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。關鍵、多不可檢驗：檢驗準確、<b>疫苗不影響對照疾病</b>、相同症狀下就醫無差別。其他<b>已測</b>混淆（年齡、日曆時間）仍要調整（可用因果 TND／ML，見 ⑤）。",
+             en: "✓ Implemented in this toolbox. Key, mostly untestable: an accurate test, the <b>vaccine not affecting the control illness</b>, and no differential care-seeking given symptoms. Other <b>measured</b> confounders (age, calendar time) still need adjustment (a causal TND / ML, see ⑤)." } } },
+  rPSSA: { rec: { kind: "toolbox", method: "pssa", badge: "PSSA ✓",
+    title: { zh: "最適合：處方順序對稱分析 PSSA ✓（本工具）", en: "Best fit: Prescription Sequence Symmetry Analysis (PSSA) ✓ (this tool)" },
+    why: { zh: "你想<b>快速、自我對照地篩</b>出「藥 A 引起某症狀、症狀又被藥 B 處理」的<b>處方瀑布</b>。在兩種藥都用過的人裡數「先 A 後 B」（a）與「先 B 後 A」（b）：未校正順序比 cSR ＝ a ÷ b 會被<b>處方趨勢</b>灌成假訊號，除以「只有趨勢」的 SRnull 得 <b>aSR ＝ cSR ÷ SRnull</b>；aSR＞1 且 CI 不含 1 ＝訊號。這是<b>產生假說</b>的篩檢，不是效果估計。",
+           en: "You want a <b>fast, self-controlled screen</b> for a <b>prescribing cascade</b> ('drug A causes a symptom, treated with drug B'). Among people who used both, count A-then-B (a) and B-then-A (b): the crude SR = a ÷ b is inflated into a false signal by the <b>prescribing trend</b>; dividing by the trend-only SRnull gives <b>aSR = cSR ÷ SRnull</b>; aSR > 1 with a CI excluding 1 = a signal. This is a <b>hypothesis-generating</b> screen, not an effect estimate." },
+    scenario: { zh: "藥物安全情境：新藥 A 上市後逐年普及；想知道 A 是否引發某不良反應、進而被 B 處理。用 PSSA 快速標出候選配對，再用控混淆的設計（世代／SCCS／主動對照）追下去（見「PSSA」分頁 ①–⑦）。",
+                en: "Drug-safety scenario: a new drug A diffuses over calendar time; you want to flag whether A triggers an adverse event that gets treated with B. PSSA quickly flags candidate pairs, to follow up with a confounder-controlled design (cohort / SCCS / active comparator) — see the PSSA tabs ①–⑦." },
+    watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>瀑布方向合理</b>、趨勢建模正確（SRnull）、新使用者、時間窗合適。被標出的配對要用控混淆的設計追蹤。想<b>一次篩上千個結果</b>＝看 TreeScan。",
+             en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a plausible cascade direction, a correctly modelled trend (SRnull), new users, and a sensible time window. Flagged pairs need a confounder-controlled follow-up. To screen <b>thousands of outcomes at once</b>, see TreeScan." } } },
+  rTSCAN: { rec: { kind: "toolbox", method: "tscan", badge: "TreeScan ✓",
+    title: { zh: "最適合：樹狀掃描統計 TreeScan ✓（本工具）", en: "Best fit: Tree-based Scan Statistic (TreeScan) ✓ (this tool)" },
+    why: { zh: "你想<b>一次掃整個結果階層</b>（數百到數千個事件，組成 MedDRA PT→SOC 之類的樹）找暴露的安全訊號，又不被<b>多重比較</b>的假陽性淹沒。TreeScan 為每個節點（葉＋父）算 Bernoulli <b>LLR</b>、取整棵樹的<b>最大 LLR</b>、用<b>打亂暴露標籤的排列法</b>給校正 p；這個最大統計量校正一次就把<b>族系錯誤率</b>控制住，只有真超額存活。",
+           en: "You want to <b>scan a whole outcome hierarchy</b> (hundreds–thousands of events forming a tree like MedDRA PT→SOC) for an exposure's safety signals, without drowning in <b>multiplicity</b> false positives. TreeScan computes a Bernoulli <b>LLR</b> at every node (leaf + parent), takes the <b>maximum LLR</b> over the tree, and gets an adjusted p by <b>permuting exposure labels</b>; that one max-statistic correction controls the <b>family-wise error</b> so only real excesses survive." },
+    scenario: { zh: "藥物／疫苗安全情境：一次暴露後掃描整棵不良反應樹，找出哪個事件（或哪個系統）有超額，FDA Sentinel 式的主動監測（見「TreeScan」分頁 ①–⑦）。",
+                en: "Drug / vaccine safety scenario: after one exposure, scan the whole adverse-event tree to find which event (or system) is in excess — FDA-Sentinel-style active surveillance (see the TreeScan tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>樹建得對</b>、各節點基準為常數、排列虛無有效（無未建模混淆）。被標出的節點要用控混淆的設計追蹤；想對混淆更穩健＝自我對照樹-時序掃描（見 ⑤）。它是 PSSA 的高通量表親。",
+             en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a well-built tree, a constant baseline across nodes, and a valid permutation null (no unmodelled confounding). Flagged nodes need a confounder-controlled follow-up; for confounding robustness use a self-controlled tree-temporal scan (see ⑤). It is the high-throughput cousin of PSSA." } } },
+  rWCE: { rec: { kind: "toolbox", method: "wce", badge: "WCE ✓",
+    title: { zh: "最適合：加權累積暴露 WCE ✓（本工具）", en: "Best fit: Weighted Cumulative Exposure (WCE) ✓ (this tool)" },
+    why: { zh: "你的暴露是<b>逐月增減</b>的用藥史，而且你相信「一劑藥的影響會隨時間而變」，最近的劑量可能比很久以前的重要。與其用「現在有沒有用藥」或「總劑量等權加總」這兩種會把時間權重設錯的未校正做法，<b>WCE</b> 直接從資料估出<b>權重函數</b> w(距離用藥的時間)，把過去每個月的劑量各乘上對應權重再加總，放進 Cox／風險模型。它<b>還原權重的形狀</b>（最近最重、隨時間衰減）與整體效果。",
+           en: "Your exposure is a <b>month-to-month dosing history</b>, and you believe a dose's effect changes over time — recent doses may matter more than long-ago ones. Rather than the naive 'current use?' or 'equally-weighted total dose' (both forcing a wrong time-weight), <b>WCE</b> estimates the <b>weight function</b> w(time-since-dose) directly from the data, multiplying each past month's dose by its weight and summing into a Cox/hazard model. It recovers the <b>shape of the weight</b> (recent doses weigh most, decaying) and the overall effect." },
+    scenario: { zh: "藥物安全情境：某長期用藥與某不良事件，效果集中在最近幾個月的用藥。用 WCE 估出權重曲線、看出「風險主要由近期暴露驅動」，並比未校正的當下／總劑量模型更貼近真值（見「WCE」分頁 ①–⑦）。",
+                en: "Drug-safety scenario: a chronic drug and an adverse event whose effect concentrates in the last few months of use. WCE recovers the weight curve, shows the risk is driven mostly by recent exposure, and beats the naive current-use / total-dose models (see the WCE tabs ①–⑦)." },
+    watch: { zh: "✓ 本工具箱已實作。需要<b>逐時間、準確的暴露史</b>與夠長的時間窗；事件要夠多（估整條曲線比估一個數字更吃資料）。最關鍵、不可檢的是<b>沒有時變的適應症混淆</b>，若病情同時驅動用藥與結果，要改用邊際結構 Cox／g-methods（見 ⑤、⑥）。",
+             en: "✓ Implemented in this toolbox. Needs a <b>time-resolved, accurate exposure history</b> and a long-enough window; enough events (estimating a whole curve is data-hungry). The key, untestable item is <b>no time-varying confounding by indication</b> — if disease state drives both dose and outcome, switch to a marginal structural Cox / g-methods (see ⑤, ⑥)." } } },
+  // common / external designs (reference)
+  rACC: { rec: { kind: "toolbox", method: "acnu", badge: "ACNU ✓",
+    title: { zh: "建議：主動對照新使用者 ACNU ✓（本工具）", en: "Suggested: Active-Comparator, New-User (ACNU) ✓ (this tool)" },
+    why: { zh: "你有藥理／適應症相近的對照藥可比，用「<b>新使用者＋主動對照</b>（A 的新使用者 vs B 的新使用者）」設計，兩組都有這個病、都剛起始、時間零點明確，能大幅削掉<b>因適應症的混淆</b>與 immortal-time／既有使用者偏誤；殘留的嚴重度差再用傾向分數校正。",
+           en: "With a pharmacologically / indication-similar comparator, a <b>new-user active-comparator</b> design (new users of A vs new users of B) puts both groups in the same indicated population with a clear time zero, sharply cutting <b>confounding by indication</b> and immortal-time / prevalent-user bias; residual severity is then handled by a propensity score." },
+    scenario: { zh: "疫苗情境：不用「打 vs 不打」比，而是比「打 A 廠牌 vs 打 B 廠牌」的新接種者，兩組都願意接種、體質較接近（見「ACNU」分頁 ①–⑥）。",
+                en: "Vaccine scenario: instead of 'vaccinated vs not', compare new recipients of brand A vs brand B — both groups chose to vaccinate, so they're more alike (see the ACNU tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。需要一個<b>同適應症、對該結果中性</b>的對照藥；估的是 A『相對 B』的效應。常可結合 <b>target trial emulation</b>。",
+             en: "✓ Implemented in this toolbox. Needs a comparator that shares the indication and is <b>neutral for the outcome</b>; you estimate A's effect <b>relative to B</b>. Often combined with <b>target trial emulation</b>." } } },
+  rPNU: { rec: { kind: "toolbox", method: "pnu", badge: "PNU ✓",
+    title: { zh: "建議：盛行新使用者 PNU ✓（本工具）", en: "Suggested: Prevalent New-User (PNU) ✓ (this tool)" },
+    why: { zh: "純新使用者設計會<b>丟掉所有既有（盛行）使用者</b>，樣本小、代表性差；但未經校正就把盛行使用者直接和新起始者比會中<b>易感者耗竭</b>偏誤（留下來的是低風險存活者）。PNU 用<b>時間條件配對</b>（依距起始時間對齊＋時間條件傾向分數）把盛行使用者<b>納回來</b>，既不偏、又用上他們。",
+           en: "A new-user-only design <b>discards all prevalent users</b> (small, less representative); but naively pooling prevalent users with new starters suffers <b>depletion of susceptibles</b> (the survivors are lower-risk). PNU uses <b>time-conditional matching</b> (align on time-since-start + a time-conditional propensity score) to <b>bring prevalent users back</b> — unbiased and using them." },
+    scenario: { zh: "疫苗情境：很多人已經接種過一段時間（盛行使用者）；只用「剛接種者」會丟掉他們，PNU 依「距接種時間」把他們對齊納回來（見「PNU」分頁 ①–⑥）。",
+                en: "Vaccine scenario: many people were vaccinated a while ago (prevalent users); using only fresh recipients discards them — PNU realigns them by time-since-vaccination and brings them back (see the PNU tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。需要盛行使用者的<b>暴露起始史</b>（何時起始、用多久）；殘留時變混淆仍需校正。",
+             en: "✓ Implemented in this toolbox. Needs prevalent users' <b>treatment-start history</b> (when they started, for how long); residual time-varying confounding still needs adjustment." } } },
+  rSCCS: { rec: { kind: "toolbox", method: "sccs", badge: "SCCS ✓",
+    title: { zh: "建議：自身對照病例系列 SCCS ✓（本工具）", en: "Suggested: self-controlled case series (SCCS) ✓ (this tool)" },
+    why: { zh: "結果是急性、短暫事件、暴露有明確時窗，SCCS <b>只用 case</b>、用「<b>個人自身</b>」當對照，把每個人切成接種後的危險窗與基線期比較，<b>自動消掉所有不隨時間變的混淆</b>（基因、體質、社經）。時變因子（年齡、季節）用切分處理。",
+           en: "For acute, transient outcomes with a well-defined exposure window, SCCS uses <b>only cases</b> and makes <b>each person their own control</b> — splitting each into a post-exposure risk window vs baseline, which <b>cancels all time-fixed confounding</b> (genetics, constitution, socioeconomics). Time-varying factors (age, season) are handled by splitting." },
+    scenario: { zh: "疫苗情境：只取「接種後曾發生不良事件」的人，比較他們在「接種後危險窗 vs 自己其他時間」的事件率，每個人當自己的對照（見「自身對照病例系列」分頁 ①–⑤）。",
+                en: "Vaccine scenario: take only people who had an adverse event, and compare their event rate in the post-vaccination risk window vs their own other time — each person is their own control (see the SCCS tabs ①–⑤)." },
+    watch: { zh: "✓ 本工具箱已實作。需假設事件<b>不致命、可復發</b>（致死事件用修正版）、且事件<b>不影響後續暴露</b>機率。",
+             en: "✓ Implemented in this toolbox. Assumes events are <b>non-fatal / recurrent</b> (fatal events need a modified version) and that the event <b>does not alter later exposure</b> probability." } } },
+  rCCW: { rec: { kind: "toolbox", method: "ccw", badge: "CCW ✓",
+    title: { zh: "建議：複製-設限-加權 CCW ✓（本工具）", en: "Suggested: clone-censor-weight (CCW) ✓ (this tool)" },
+    why: { zh: "CCW 適合「<b>診斷後一段時間的動態／持續策略</b>」，例如早 vs 晚開始、是否持續或密集用藥。這種隨時間調整的策略若直接分組會有 immortal time bias；CCW 在時間零點把每個人複製到各策略、依偏離設限、再加權校正。<b>好處</b>：若比較「<b>早用 vs 晚用</b>」，兩組<b>最終都會用藥（適應症相同）</b>，因此能大幅減輕「<b>因適應症而生的混淆（confounding by indication）</b>」。",
+           en: "CCW fits a <b>sustained / dynamic strategy over a window after diagnosis</b> — e.g. early vs late initiation, or sustained / intensive use. Naively grouping such a time-varying strategy creates immortal-time bias; CCW clones each person into each strategy at time zero, censors on deviation, and reweights. <b>Bonus</b>: comparing <b>early vs late</b> use largely removes <b>confounding by indication</b>, because <b>both groups end up treated</b> (same indication) — only the timing differs." },
+    scenario: { zh: "疫苗情境：比較「確診後<b>早接種 vs 晚接種</b>」，或「是否持續按時打追加劑」這類隨時間調整的策略。把每個人複製到各策略、依偏離設限再加權，避免 immortal time bias。",
+                en: "Vaccine scenario: compare '<b>early vs late</b> vaccination after diagnosis', or 'keep up booster doses on schedule or not' — a time-varying strategy. Clone each person into each strategy, censor on deviation, then reweight — avoiding immortal-time bias." },
+    watch: { zh: "✓ 本工具箱已實作（見 CCW 分頁 ①–⑤）。是 <b>target trial emulation</b> 的常見實作之一。",
+             en: "✓ Implemented in this toolbox (see the CCW tabs ①–⑤). A common way to implement <b>target trial emulation</b>." } } },
+  rSEQ: { rec: { kind: "toolbox", method: "seq", badge: "Seq ✓",
+    title: { zh: "建議：序列試驗 sequential trial ✓（本工具）", en: "Suggested: sequential trials ✓ (this tool)" },
+    why: { zh: "序列試驗適合「<b>某時點的單次（點）治療決定</b>」（不是診斷後持續調整的策略），病人在不同時間點陸續符合資格時，在每個符合點各開一場「迷你試驗」（當下打 vs 不打）、對齊時間零點再合併。和 CCW 的差別：這裡是<b>點治療</b>，CCW 處理的是<b>診斷後一段時間的動態／持續策略</b>。<b>好處</b>：同一個人可在多個符合點被重複納入，<b>潛在能放大有效樣本數</b>。",
+           en: "Sequential trials fit a <b>one-shot (point) treatment decision</b> (not a strategy adjusted over time): when patients become eligible at different times, open a 'mini-trial' at each point (treat now vs not), align time zero, then pool. Versus CCW: here the treatment is a <b>point decision</b>, whereas CCW handles a <b>sustained / dynamic strategy over a window after diagnosis</b>. <b>Bonus</b>: the same person can re-enter at several eligibility points, so it can <b>boost the effective sample size</b>." },
+    scenario: { zh: "疫苗情境：每個月把「當月剛符合接種資格的人」開一場迷你試驗（<b>當下打 vs 暫不打</b>，一次決定），再把多場合併估計。",
+                en: "Vaccine scenario: each month, open a mini-trial among people who just became eligible (<b>vaccinate now vs not</b> — a one-shot decision), then pool across months." },
+    watch: { zh: "✓ 本工具箱已實作（見「序列試驗」分頁 ①–⑤）。也屬 <b>target trial emulation</b> 家族。",
+             en: "✓ Implemented in this toolbox (see the Sequential-trials tabs ①–⑤). Also part of the <b>target trial emulation</b> family." } } },
+  rCCTC: { rec: { kind: "toolbox", method: "cctc", badge: "CCTC ✓",
+    title: { zh: "建議：案例交叉／案例-時間對照 CCTC ✓（本工具）", en: "Suggested: case-crossover / case-(case-)time-control (CCTC) ✓ (this tool)" },
+    why: { zh: "暴露<b>短暫、會波動</b>，想用個人自身近期當對照，比較發病前的危險窗 vs 較早的參考窗（案例交叉，CCO），自我控制掉所有穩定特徵。若暴露的<b>盛行率隨日曆時間上升</b>，純 CCO 會被高估；用對照族群（或較晚發病的未來 case）把趨勢扣掉，就是 <b>CCTC</b>。其「世代版」正是本工具箱的 TiT。",
+           en: "For a <b>transient, fluctuating</b> exposure, use each case's own recent past as control — compare the pre-event hazard window vs an earlier reference window (case-crossover, CCO), cancelling every time-stable trait. If the exposure's <b>prevalence trends up over calendar time</b>, plain CCO is inflated; net out that trend with controls (or future-onset cases) → <b>CCTC</b>. Its cohort version is this toolbox's TiT." },
+    scenario: { zh: "疫苗情境：對「接種後當天就醫」這種急性事件，比較事件前幾天 vs 更早一段時間的接種暴露；若全國接種率逐年上升，再用對照族群把趨勢扣掉。",
+                en: "Vaccine scenario: for an acute event like an ER visit on the day of vaccination, compare exposure in the days before vs an earlier reference window; if national uptake rises year on year, net out the trend with a control group." },
+    watch: { zh: "✓ 本工具箱已實作（見 CCTC 分頁 ①–⑤）。若你有世代資料，也可改用世代版 <b>TiT ✓</b>。",
+             en: "✓ Implemented in this toolbox (see the CCTC tabs ①–⑤). With cohort data you can also use the cohort version <b>TiT ✓</b>." },
+    altMethod: "tit", altLabel: { zh: "改用世代版 TiT →", en: "Use the cohort version: TiT →" } } },
+  rCC: { rec: { kind: "toolbox", method: "cc", badge: "CC ✓",
+    title: { zh: "建議：病例對照 case-control ✓（本工具）", en: "Suggested: case-control ✓ (this tool)" },
+    why: { zh: "<b>結果罕見</b>時最有效率的設計：先找個案與對照，再回看暴露，用<b>勝算比</b>衡量。關鍵是<b>對照取自產生個案的同一來源族群</b>、暴露兩組量得一樣準；混淆用 logistic <b>校正</b>、Mantel–Haenszel <b>分層</b>、或<b>配對</b>＋條件式分析處理。現代視角：把它當成對「模擬目標試驗的世代」做病例對照抽樣。",
+           en: "The most efficient design when the <b>outcome is rare</b>: find cases and controls, look back at exposure, summarise with an <b>odds ratio</b>. The keys are <b>controls from the same source population that produced the cases</b> and equally-measured exposure; handle confounding by logistic <b>adjustment</b>, Mantel–Haenszel <b>stratification</b>, or <b>matching</b> + conditional analysis. Modern view: it's case-control sampling of a target-trial-emulating cohort." },
+    scenario: { zh: "疫苗情境：要研究一個罕見的不良事件，找到「發生該事件的個案」與「沒發生的對照」，回頭比兩組過去的接種暴露，並校正年齡等混淆。",
+                en: "Vaccine scenario: to study a rare adverse event, find cases who had it and controls who didn't, compare their past vaccination exposure, and adjust for age and other confounders." },
+    watch: { zh: "✓ 本工具箱已實作（見「病例對照」分頁 ①–⑤）。配對時務必用條件式分析；別配在中介／對撞因子。",
+             en: "✓ Implemented in this toolbox (see the Case-control tabs ①–⑤). With matching, use conditional analysis; never match on mediators/colliders." } } },
+  rNCC: { rec: { kind: "toolbox", method: "cc", badge: "CC ✓",
+    title: { zh: "建議：病例對照（巢式對照）case-control ✓（本工具）", en: "Suggested: case-control (nested case-control) ✓ (this tool)" },
+    why: { zh: "<b>巢式對照其實就是病例對照</b>，只是把它「巢」在一個明確世代裡：只對「個案＋抽樣對照」量暴露。所以它特別適合<b>需要費工測量「暴露量／劑量」</b>的研究，量得起就能畫出<b>劑量–反應（dose-response）</b>關係，而結果≈完整世代分析。分析方法與「病例對照」分頁完全相同（勝算比、校正／配對、條件式分析）。",
+           en: "<b>A nested case-control IS just a case-control study</b> — nested inside an explicit cohort: exposure is measured only for cases + sampled controls. That makes it ideal when the exposure <b>level/dose is expensive to measure</b> — you can afford the detailed measurement and map a <b>dose-response</b> relationship, with results ≈ the full-cohort analysis. The analysis is exactly the Case-control tab's (odds ratio, adjustment/matching, conditional analysis)." },
+    scenario: { zh: "疫苗情境：在百萬人世代裡，只對「得到該疾病的個案」與抽樣對照<b>仔細量接種劑次／抗體濃度</b>，看「打越多劑、風險怎麼變」的劑量–反應。",
+                en: "Vaccine scenario: in a cohort of a million, carefully measure <b>number of doses / antibody level</b> only for disease cases and sampled controls, to map how risk changes with dose." },
+    watch: { zh: "✓ 本工具箱已實作（見「病例對照」分頁 ①–⑤），巢式對照就是病例對照的一種抽樣方式。",
+             en: "✓ Implemented in this toolbox (see the Case-control tabs ①–⑤) — nested case-control is just a sampling form of case-control." } } },
+  rLast: {
+    step: { zh: "最後一步（沒辦法的辦法）", en: "Last step (last resort)" },
+    q: { zh: "上面的觀察性設計都不符合，這是沒辦法的辦法：你其實已經有一場（別族群的）RCT 可以借嗎？", en: "None of the observational designs above fit — as a last resort: do you actually have an RCT (in another population) to borrow?" },
+    opts: [
+      { l: { zh: "有，但只有發表的彙總結果（沒有個體資料）", en: "Yes, but only published summary results (no individual data)" }, to: "rEXTCTRL" },
+      { l: { zh: "有，且拿得到個體層級資料", en: "Yes, and I can get its individual-level data" }, to: "rTRANS" },
+      { l: { zh: "沒有可借的 RCT，但想用<b>實驗／遺傳／模型</b>從外部佐證", en: "No RCT to borrow — but I want to corroborate from outside (experiment / genetics / model)" }, to: "exTri" },
+    ],
+  },
+  exTri: {
+    step: { zh: "實驗／遺傳／模型三角驗證", en: "Experimental / genetic / model triangulation" },
+    q: { zh: "你想從觀察性資料<b>之外</b>佐證因果？選一個最貼近的取徑（它們各自以不同方式出錯，因此最適合三角驗證）。", en: "Want to corroborate causation from <b>outside</b> observational data? Pick the closest approach (each fails differently, which is what makes them ideal for triangulation)." },
+    opts: [
+      { l: { zh: "用<b>遺傳變異</b>當工具（人體、終生暴露）", en: "Use a <b>genetic variant</b> as the instrument (human, lifelong exposure)" }, to: "rMR" },
+      { l: { zh: "用<b>模型預測的對照軌跡（數位孿生）</b>當比較基準", en: "Use a <b>model-predicted control (digital twin)</b> as the comparator" }, to: "rDT" },
+    ],
+  },
+  rMR: { rec: { kind: "toolbox", method: "mr", badge: "MR ✓",
+    title: { zh: "最適合：孟德爾隨機化 MR ✓（本工具）", en: "Best fit: Mendelian randomization (MR) ✓ (this tool)" },
+    why: { zh: "你有一個與暴露穩健相關的<b>遺傳變異</b>。等位基因在受孕時近乎隨機分派、且終生固定，所以一個有效的遺傳工具沒有混淆、也沒有反向因果。它就是把工具變數的工具換成基因：每個變異的 β<sub>Y</sub>/β<sub>X</sub> 是一個 Wald 比值，用 IVW 合併、再以 MR-Egger／加權中位數檢查多效性。",
+           en: "You have a <b>genetic variant</b> robustly associated with the exposure. Alleles are allocated near-randomly at conception and fixed for life, so a valid genetic instrument is unconfounded and free of reverse causation. It is instrumental variables with a gene as the instrument: each variant's β<sub>Y</sub>/β<sub>X</sub> is a Wald ratio, combined by IVW and stress-tested for pleiotropy with MR-Egger / weighted median." },
+    scenario: { zh: "情境：想知道終生 LDL 膽固醇是否導致心臟病，但無法隨機分配膽固醇；改用會升高 LDL 的遺傳變異當工具（見「MR」分頁 ①–⑥）。",
+                en: "Scenario: does lifelong LDL cholesterol cause heart disease? You can't randomize cholesterol — use LDL-raising genetic variants as the instrument (see the MR tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。IV 三條：相關性（小心弱工具，F&lt;10）、獨立性（族群分層）、排除性（<b>水平多效性</b>是頭號威脅）。",
+             en: "✓ Implemented in this toolbox. The IV trio: relevance (beware weak instruments, F&lt;10), independence (population stratification), exclusion (<b>horizontal pleiotropy</b> is the main threat)." } } },
+  rDT: { rec: { kind: "toolbox", method: "dt", badge: "Digital twin ✓",
+    title: { zh: "最適合：數位孿生 ✓（本工具）", en: "Best fit: Digital twin ✓ (this tool)" },
+    why: { zh: "你想用一個<b>預後模型</b>，預測每位病人「未治療」時的軌跡（數位孿生），再把效果讀成「實際 − 孿生」。它可當隨機試驗的精準度調整（PROCOVA），或在缺乏同期對照時當合成對照臂。注意：孿生本身<b>不</b>消除混淆，效度全押在預後模型是否無偏、可轉移。",
+           en: "You want a <b>prognostic model</b> that predicts each patient's untreated trajectory (a digital twin), then read the effect as observed − twin. It can be a precision adjustment in an RCT (PROCOVA) or a synthetic control arm when concurrent controls are scarce. Note: the twin removes <b>no</b> confounding by itself — validity rests on the prognostic model being unbiased and transportable." },
+    scenario: { zh: "情境：罕病單臂試驗沒有同期對照；用歷史對照資料訓練預後模型，為每位治療者預測未治療軌跡當對照（見「數位孿生」分頁 ①–⑥）。",
+                en: "Scenario: a single-arm rare-disease trial with no concurrent control; train a prognostic model on historical controls to predict each treated patient's untreated trajectory as the comparator (see the Digital-twin tabs ①–⑥)." },
+    watch: { zh: "✓ 本工具箱已實作。關鍵：預後模型<b>無偏、校準良好、可轉移</b>到當前病人；當孿生取代同期對照時，等於回到歷史對照陷阱。",
+             en: "✓ Implemented in this toolbox. Key: the prognostic model must be <b>unbiased, well-calibrated and transportable</b> to current patients; when the twin replaces a concurrent control it re-enters the historical-control trap." } } },
+  // adjacent (non-core) approaches — reference leaf cards, reachable from the
+  // "adjacent approaches" chips on the choose page (jumpDtree). Their references
+  // live in hidden #adjrefs-* blocks pulled in by renderDtree via refsId.
+  rEXTCTRL: { rec: { kind: "toolbox", method: "extctrl", badge: "外部對照 ✓",
+    title: { zh: "最適合：外部對照 ✓（本工具）， 借一個對照臂補上單臂研究缺的對照", en: "Best fit: External control ✓ (this tool) — borrow a control arm for a single-arm study" },
+    why: { zh: "你只有一個<b>單臂</b>（全部都治療）、沒有同期對照。借<b>外部／歷史對照</b>（外部世代、登錄、或那場 RCT 的未治療者）補上對照臂；有個體資料時，用<b>標準化／傾向加權</b>把兩臂的共變項差異校正掉再比較。只有彙總結果時，改走較輕量的 MAIC／STC（配對調整間接比較）。",
+           en: "You have a single <b>treated</b> arm with no concurrent control. Borrow an <b>external / historical control</b> (an external cohort, registry, or the untreated arm of that RCT) to supply the missing arm; with individual-level data, adjust the covariate difference between the arms by <b>standardisation / propensity weighting</b> before comparing. With only summary results, use the lighter MAIC / STC (matching-adjusted indirect comparison)." },
+    scenario: { zh: "疫苗情境：你只追蹤了一個「接種組」、沒有同期未接種對照；借一場外部 RCT／登錄資料的未接種者當對照臂，校正共變項差異後比較。",
+                en: "Vaccine scenario: you only followed a vaccinated arm with no concurrent unvaccinated controls; borrow the unvaccinated arm of an external RCT/registry as the control, and compare after adjusting for covariate differences." },
+    watch: { zh: "<b>關鍵</b>：兩來源的可比性（收案、時代、結果定義），歷史對照的頭號風險是時代效應；常用傾向分數／標準化／貝氏動態借用。ICH E10 提醒：效果要夠大、疾病自然史可預測才穩。",
+             en: "<b>Key</b>: comparability of the two sources (eligibility, era, outcome definitions) — the top risk with historical controls is an era effect; adjust with propensity scores / standardisation / Bayesian dynamic borrowing. ICH E10 cautions it is only reliable when the effect is large and the disease course is predictable." } } },
+  rTRANS: { rec: { kind: "toolbox", method: "transport", badge: "可轉移性 ✓",
+    title: { zh: "最適合：可轉移性／泛化 ✓（本工具）， 用個體資料把研究結果轉到你的族群", en: "Best fit: Transportability / generalizability ✓ (this tool) — carry a study's result to your population" },
+    why: { zh: "如果你<b>拿得到那場 RCT 的個體層級資料</b>，就能做<b>可移轉性／類推（transportability / generalizability）</b>：用兩邊都測得到的<b>效果修飾因子</b>重新加權，把「在試驗族群成立的因果效果」<b>搬到你關心的目標族群</b>，藉此更了解這個疾病在你族群裡的真實效果。（沒有個體資料、只有彙總結果時，改走上一格的「外部對照」。）",
+           en: "If you <b>have the RCT's individual-level data</b>, you can do <b>transportability / generalizability</b>: reweight by <b>effect modifiers</b> measured in both samples to <b>carry the trial's causal effect to your target population</b>, to understand the true effect in the people you care about. (With only summary results, use the 'external control' option instead.)" },
+    scenario: { zh: "疫苗情境：疫苗保護力來自一場在某國成人做的 RCT，但你關心的是<b>本地長者</b>。用兩邊共同的風險因子分布重新加權，把試驗估到的效果「轉」到本地長者族群。",
+                en: "Vaccine scenario: a vaccine's efficacy comes from an RCT in adults in another country, but you care about <b>local older adults</b>. Reweight by the shared distribution of risk factors to transport the trial's effect to your local elderly population." },
+    watch: { zh: "↗ 本工具箱未實作，供參考。<b>關鍵假設</b>：所有會改變效果的<b>修飾因子都測得到</b>，且兩族群在這些因子上有<b>重疊（共同支持）</b>。",
+             en: "↗ Not implemented here; for reference. <b>Key assumptions</b>: all effect modifiers are <b>measured</b>, and the two populations <b>overlap</b> on them (common support)." } } },
+  rSRMA: { rec: { kind: "toolbox", method: "srma", badge: "SR-MA ✓",
+    title: { zh: "最適合：系統性回顧與統合分析 ✓（本工具）， 把整個證據體合成一個答案", en: "Best fit: Systematic review & meta-analysis ✓ (this tool) — synthesise the whole evidence base" },
+    why: { zh: "你不是在分析單一份資料，而是想回答「<b>整個證據體</b>說了什麼」。先用事先寫好、可重現的方法（PICO、登錄計畫書、全面檢索、雙人篩選、偏誤風險）找出並評讀所有研究，再在研究夠相似時用<b>統合分析</b>（固定 vs 隨機效果、I²、漏斗圖）合併，最後用 <b>GRADE</b> 評整體證據強度。注意：這是比單一研究<b>更上一層</b>的設計，不是用來控制某一份資料的混淆。",
+           en: "You are not analysing one dataset but asking what <b>the whole body of evidence</b> says. Use a pre-specified, reproducible method (PICO, a registered protocol, a comprehensive search, dual screening, risk-of-bias) to find and appraise every study, then — where studies are similar enough — <b>meta-analyse</b> (fixed vs random effects, I², funnel plot), and finally rate certainty with <b>GRADE</b>. Note this sits <b>one level above</b> a single study; it is not a confounding-control design for one dataset." },
+    scenario: { zh: "疫苗情境：你想知道某疫苗對某結果的整體效果，找出所有相關試驗／世代研究，評讀並合併成一個帶信賴（與預測）區間的合併估計（見「系統性回顧與統合分析」分頁的即時森林圖／漏斗圖）。",
+                en: "Vaccine scenario: you want the overall effect of a vaccine on an outcome — find every relevant trial/cohort study, appraise and pool them into a single estimate with a confidence (and prediction) interval (see the SR-MA page's live forest/funnel plots)." },
+    watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：合併的可信度不會超過納入的研究（垃圾進、垃圾出），透明的事前方法、偏誤風險評讀、處理異質性與發表偏誤，缺一不可。",
+             en: "✓ Implemented in this toolbox. <b>Key</b>: the pool is only as trustworthy as the studies in it (garbage in, garbage out) — a transparent pre-specified method, risk-of-bias appraisal, and handling of heterogeneity & publication bias are all essential." } } },
+  rNMA: { rec: { kind: "toolbox", method: "nma", badge: "NMA ✓",
+    title: { zh: "最適合：網路統合分析 ✓（本工具）， 一次比較三個以上治療", en: "Best fit: Network meta-analysis ✓ (this tool) — compare three or more treatments at once" },
+    why: { zh: "臨床上要在<b>很多種</b>治療之間選擇，但很少有試驗直接兩兩比過。網路統合分析把所有治療連成一個<b>網路</b>，結合<b>直接</b>證據（真的比過的試驗）與<b>間接</b>證據（透過共同對照推得），一次估出每一對的對比、甚至排名。代價是多一個大假設，<b>可遞移性</b>，以及直接 vs 間接的<b>一致性</b>檢查。",
+           en: "Clinicians must choose among <b>many</b> treatments, but few trials compare every pair head-to-head. Network meta-analysis connects all treatments into one <b>network</b>, combining <b>direct</b> evidence (trials that compared the two) with <b>indirect</b> evidence (via a common comparator), to estimate every pairwise contrast at once — even a ranking. The price is one big extra assumption — <b>transitivity</b> — plus a direct-vs-indirect <b>coherence</b> check." },
+    scenario: { zh: "疫苗情境：有 A vs 安慰劑、B vs 安慰劑的試驗，但沒人直接做 A vs B。用安慰劑當共同對照間接估 A vs B，並在有直接試驗時合併成混合估計（見「網路統合分析」分頁）。",
+                en: "Vaccine scenario: trials of A vs placebo and B vs placebo exist, but nobody ran A vs B directly. Use placebo as the common comparator to estimate A vs B indirectly, pooling with any direct trial into a mixed estimate (see the NMA page)." },
+    watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：可遞移性（各比較的網路彼此可比）與一致性（直接與間接相符），信任排名前務必檢查這兩者。",
+             en: "✓ Implemented in this toolbox. <b>Key</b>: transitivity (the compared networks are comparable) and coherence (direct and indirect agree) — check both before trusting a ranking." } } },
+};
+
+// the whole tree as a static map — shown at a leaf, with the reached design lit
+const FULLMAP = {
+  title: { zh: "完整決策樹（流程圖；你剛走到的設計會被標亮）", en: "Full decision tree (flowchart; your endpoint is highlighted)" },
+  start: { zh: "研究錨點？", en: "Study anchor?" },
+  lanes: [
+    {
+      cls: "a",
+      edge: { zh: "暴露錨定", en: "exposure-anchored" },
+      head: { zh: "A · 暴露錨定", en: "A · Exposure-anchored" },
+      sub: { zh: "先固定暴露／介入 → 看它造成的結果", en: "fix the exposure → study its effects" },
+      steps: [
+        { q: { zh: "結果是哪一種型態？", en: "What type of outcome?" },
+          forks: [
+            { edge: { zh: "一次性／致命／慢性 → 世代與時點設計", en: "one-off / fatal / chronic → cohort & timing designs" },
+              leaves: [
+                { key: "rIV", cond: { zh: "有外生、近似隨機的工具", en: "an external, near-random instrument" }, tag: "IV ✓", kind: "tb" },
+                { key: "rRDD", cond: { zh: "分數上的明確門檻（年齡 65／指標）", en: "a sharp cutoff on a score" }, tag: "RDD ✓", kind: "tb" },
+                { key: "rDiD", cond: { zh: "政策某時點開啟＋有對照組", en: "policy at a known time + control group" }, tag: "DiD ✓", kind: "tb" },
+                { key: "rITS", cond: { zh: "政策某時點＋單一群體、前後多時點", en: "policy at a time + single population, many points" }, tag: "ITS ✓", kind: "tb" },
+                { key: "rACC", cond: { zh: "有藥理相近的活性對照（打 A vs 打 B）", en: "a similar active comparator (A vs B)" }, tag: "ACNU ✓", kind: "tb" },
+                { key: "rPNU", cond: { zh: "有活性對照，且想納入既有（盛行）使用者", en: "active comparator + want to include prevalent users" }, tag: "PNU ✓", kind: "tb" },
+                { key: "rPERR", cond: { zh: "前後事件率＋混淆乘法穩定", en: "before/after rates + stable multiplicative confounding" }, tag: "PERR ✓", kind: "tb" },
+                { key: "rNC", cond: { zh: "未測混淆＋有一對陰性對照（代理）", en: "unmeasured confounding + a pair of negative controls (proxies)" }, tag: "NC ✓", kind: "tb" },
+                { key: "rCCW", cond: { zh: "診斷後動態／持續策略（早 vs 晚、密集用藥）", en: "sustained/dynamic strategy (early vs late, intensive)" }, tag: "CCW ✓", kind: "tb" },
+                { key: "rSEQ", cond: { zh: "點治療，但多時點陸續收案", en: "point treatment, eligible at many times" }, tag: "Seq ✓", kind: "tb" },
+                { key: "rPS", cond: { zh: "有豐富已測共變項，配對／加權平衡（PS）", en: "rich measured covariates; balance by matching/weighting (PS)" }, tag: "PS ✓", kind: "tb" },
+                { key: "rTMLE", cond: { zh: "已測共變項，想雙重穩健＋ML／效率（TMLE）", en: "measured covariates; want double robustness + ML / efficiency (TMLE)" }, tag: "TMLE ✓", kind: "tb" },
+                { key: "rGM", cond: { zh: "多時點治療＋時變混淆回饋（g-formula／IPTW-MSM）", en: "multi-time treatment + time-varying confounding feedback (g-formula / IPTW-MSM)" }, tag: "G-methods ✓", kind: "tb" },
+                { key: "rWCE", cond: { zh: "逐月用藥史，想知道效果隨時間／累積怎麼變（權重函數）", en: "monthly dosing history; how the effect depends on timing/accumulation (weight function)" }, tag: "WCE ✓", kind: "tb" },
+              ] },
+            { edge: { zh: "急性、會反覆又會好、非致命 → 自身對照／趨勢", en: "acute, recurrent/resolving, non-fatal → self-control / trend" },
+              leaves: [
+                { key: "rSCCS", cond: { zh: "個人自身當對照＋暴露有明確時窗", en: "person as own control + clear exposure window" }, tag: "SCCS ✓", kind: "tb" },
+                { key: "rTiT", cond: { zh: "暴露隨日曆趨勢、跨族群速度不同、結果罕見", en: "exposure has a calendar trend, rare outcome" }, tag: "TiT ✓", kind: "tb" },
+                { key: "rPSSA", cond: { zh: "快速篩處方瀑布訊號（先 A 後 B 不對稱；aSR＝cSR÷SRnull）", en: "fast screen for a prescribing cascade (A-then-B asymmetry; aSR = cSR ÷ SRnull)" }, tag: "PSSA ✓", kind: "tb" },
+                { key: "rTSCAN", cond: { zh: "一次掃整棵結果樹找安全訊號、控制多重比較（最大 LLR＋排列 p）", en: "scan a whole outcome tree for safety signals with multiplicity control (max LLR + permutation p)" }, tag: "TreeScan ✓", kind: "tb" },
+              ] },
+          ] },
+      ],
+    },
+    {
+      cls: "b",
+      edge: { zh: "結果錨定", en: "outcome-anchored" },
+      head: { zh: "B · 結果錨定", en: "B · Outcome-anchored" },
+      sub: { zh: "先固定結果 → 回頭找暴露（多為急性、可復發）", en: "fix the outcome → find exposures (usually acute, recurrent)" },
+      steps: [
+        { q: { zh: "從個案回看，怎麼取對照？", en: "From cases, how to take controls?" },
+          forks: [
+            { edge: { zh: "來源族群對照 · 校正／配對", en: "source-population controls · adjust/match" },
+              leaves: [{ key: "rCC", cond: { zh: "結果罕見、用勝算比＋校正/分層/配對處理混淆", en: "rare outcome; odds ratio + adjust/stratify/match for confounding" }, tag: "CC ✓", kind: "tb" }] },
+            { edge: { zh: "配對、巢式抽樣", en: "matched, nested" },
+              leaves: [{ key: "rNCC", cond: { zh: "想看「劑量–反應」，只量個案＋抽樣對照的暴露量（巢式對照＝病例對照）", en: "want a dose-response; measure exposure only for cases + sampled controls (nested = case-control)" }, tag: "CC ✓", kind: "tb" }] },
+            { edge: { zh: "自身對照 · 暴露無趨勢", en: "own control · no trend" },
+              leaves: [{ key: "rCCTC", cond: { zh: "CCO（案例交叉）", en: "CCO (case-crossover)" }, tag: "CCTC ✓", kind: "tb" }] },
+            { edge: { zh: "自身對照 · 暴露有趨勢", en: "own control · has a trend" },
+              leaves: [{ key: "rCCTC", cond: { zh: "扣掉日曆趨勢（CCTC；世代版＝TiT ✓）", en: "net out the trend (CCTC; cohort = TiT ✓)" }, tag: "CCTC ✓", kind: "tb" }] },
+            { edge: { zh: "疫苗效力 · 陰性對照", en: "vaccine effectiveness · test-negative controls" },
+              leaves: [{ key: "rTND", cond: { zh: "估 VE，對照取「來檢驗卻陰性」者，去掉就醫傾向（VE＝1−OR）", en: "estimate VE with tested-but-negative controls, removing care-seeking (VE = 1 − OR)" }, tag: "TND ✓", kind: "tb" }] },
+          ] },
+      ],
+    },
+    {
+      cls: "c",
+      edge: { zh: "機制錨定", en: "mechanism-anchored" },
+      head: { zh: "C · 機制錨定", en: "C · Mechanism-anchored" },
+      sub: { zh: "已知有效果 → 問「怎麼有效」（效果的分解，接在任一設計之後）", en: "an effect is known → ask 'how' (a decomposition, follows any design)" },
+      steps: [
+        { q: { zh: "想拆出效果的機制？", en: "Want to decompose the mechanism?" },
+          forks: [
+            { edge: { zh: "多少透過某中介？", en: "how much via a mediator?" },
+              leaves: [{ key: "rMED", cond: { zh: "把總效果拆成直接 NDE ＋ 間接 NIE（透過中介）、報被中介比例", en: "split the total into direct NDE + indirect NIE (via a mediator), report proportion mediated" }, tag: "MED ✓", kind: "tb" }] },
+          ] },
+      ],
+    },
+    {
+      cls: "d",
+      edge: { zh: "證據錨定", en: "evidence-anchored" },
+      head: { zh: "D · 證據錨定（跨研究合併）", en: "D · Evidence-anchored (cross-study synthesis)" },
+      sub: { zh: "不是單一研究 → 把已有的多篇研究合成一個答案（比單一研究高一層）", en: "not a single study → synthesise several existing studies (one level above a single study)" },
+      steps: [
+        { q: { zh: "一次比較幾個治療？", en: "How many treatments at once?" },
+          forks: [
+            { edge: { zh: "兩個正面對決（或介入 vs 對照）", en: "two, head-to-head (or vs control)" },
+              leaves: [{ key: "rSRMA", cond: { zh: "系統性回顧找出所有研究，再合併（固定／隨機效果、I²、GRADE）", en: "systematically find all studies, then pool (fixed/random effects, I², GRADE)" }, tag: "SR-MA ✓", kind: "tb", method: "srma" }] },
+            { edge: { zh: "三個以上、少有直接對決", en: "three or more, few head-to-head" },
+              leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網路（可遞移性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
+          ] },
+      ],
+    },
+  ],
+  rct: {
+    q: { zh: "最後一步（沒辦法的辦法）：上面都不符合，你其實已有一場（別族群的）RCT 可以借嗎？", en: "Last step (last resort): nothing above fits — do you actually have an RCT (in another population) to borrow?" },
+    forks: [
+      { edge: { zh: "有，但只有彙總結果", en: "yes, summary results only" },
+        leaves: [{ key: "rEXTCTRL", cond: { zh: "把那場 RCT／外部資料當對照組", en: "borrow the RCT / external data as a control arm" }, tag: "外部對照 ✓", kind: "tb", method: "extctrl" }] },
+      { edge: { zh: "有，且有個體資料", en: "yes, with individual data" },
+        leaves: [{ key: "rTRANS", cond: { zh: "用效果修飾因子把結果轉到你的族群", en: "reweight by effect modifiers to your population" }, tag: "可轉移性 ✓", kind: "tb", method: "transport" }] },
+    ],
+  },
+};
+let dtreeStack = [{ id: "n1", ans: null }];
+
+function initDtree() {
+  if (!document.getElementById("dtreeStage")) return;
+  const back = document.getElementById("dtreeBack");
+  const restart = document.getElementById("dtreeRestart");
+  const fullmap = document.getElementById("dtreeFullmap");
+  if (back && !back.dataset.wired) {
+    back.dataset.wired = "1";
+    back.addEventListener("click", () => { if (dtreeStack.length > 1) { dtreeStack.pop(); renderDtree(); } });
+    restart.addEventListener("click", () => { dtreeStack = [{ id: "n1", ans: null }]; renderDtree(); });
+    if (fullmap) fullmap.addEventListener("click", () => {
+      const box = document.getElementById("dtreeMap");
+      if (box && !box.hidden) { box.hidden = true; return; }   // toggle off if already showing
+      renderFullMap(null);                                     // whole tree, no endpoint highlighted
+    });
+  }
+  renderDtree();
+}
+
+function renderDtree() {
+  const stage = document.getElementById("dtreeStage");
+  const pathEl = document.getElementById("dtreePath");
+  if (!stage) return;
+  const mapBox = document.getElementById("dtreeMap");
+  if (mapBox) mapBox.hidden = true;                       // collapse the full map on any move
+  const cur = dtreeStack[dtreeStack.length - 1];
+  const node = DNODES[cur.id];
+
+  // breadcrumb: the picks made so far
+  pathEl.innerHTML =
+    `<span class="dtree-crumb start">${tr("開始", "Start")}</span>` +
+    dtreeStack.slice(1).map((s) => `<span class="dtree-crumb">${L(s.ans)}</span>`).join("");
+
+  if (node.rec) {
+    const r = node.rec;
+    const goto = r.kind === "toolbox"
+      ? `<button class="dtree-goto" data-go="${r.method}">${tr("前往「" + r.badge.replace(" ✓", "") + "」的教學 →", "Go to " + r.badge.replace(" ✓", "") + " →")}</button>`
+      : (r.altMethod ? `<button class="dtree-goto" data-go="${r.altMethod}">${L(r.altLabel)}</button>` : "");
+    const scenario = r.scenario
+      ? `<div class="rec-scenario">${L(r.scenario)}</div>` : "";
+    stage.innerHTML =
+      `<div class="dtree-rec ${r.kind}">` +
+      `<span class="rec-tag">${tr("最終建議", "Recommendation")}</span>` +
+      `<h3>${L(r.title)}</h3>` +
+      `<p>${L(r.why)}</p>` +
+      scenario +
+      `<div class="rec-watch">${tr("⚠ 要盯住的關鍵假設：", "⚠ Key assumption to watch: ")}${L(r.watch)}</div>` +
+      `<div class="rec-actions">` + goto +
+      `<button class="dtree-showmap" data-mapkey="${cur.id}">${tr("🌳 看完整決策樹（標出你的位置）", "🌳 Show the full tree (your spot marked)")}</button>` +
+      `</div></div>`;
+    const gb = stage.querySelector(".dtree-goto");
+    if (gb) gb.addEventListener("click", () => gotoMethod(gb.dataset.go, "learn"));
+    const mb = stage.querySelector(".dtree-showmap");
+    if (mb) mb.addEventListener("click", () => renderFullMap(mb.dataset.mapkey));
+  } else {
+    stage.innerHTML =
+      `<div class="dtree-step">${L(node.step)}</div>` +
+      `<div class="dtree-q">${L(node.q)}</div>` +
+      `<div class="dtree-opts">` +
+      node.opts.map((o, i) =>
+        `<button class="dtree-opt" data-i="${i}">${L(o.l)}<span class="arrow">→</span></button>`
+      ).join("") +
+      `</div>`;
+    stage.querySelectorAll(".dtree-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const o = node.opts[Number(btn.dataset.i)];
+        dtreeStack.push({ id: o.to, ans: o.l });
+        renderDtree();
+      });
+    });
+  }
+  const back = document.getElementById("dtreeBack");
+  if (back) back.disabled = dtreeStack.length <= 1;
+}
+
+// the whole tree as a top-down FLOWCHART (start → two anchor lanes → decision
+// boxes → branch-labelled connectors → colour-coded terminal boxes), with the
+// reached design lit up (hitKey).
+function renderFullMap(hitKey) {
+  const box = document.getElementById("dtreeMap");
+  if (!box) return;
+  const link = (label) => `<div class="fc-link">${label ? `<span class="fc-elabel">${label}</span>` : ""}</div>`;
+  const leafBox = (lf) => {
+    const cond = lf.cond ? `<span class="fc-cond">${L(lf.cond)}</span>` : "";
+    return `<div class="fc-leaf ${lf.kind}${lf.key === hitKey ? " fc-hit" : ""}">${cond}` +
+           `<span class="fc-badge ${lf.kind}">${lf.tag}</span></div>`;
+  };
+  const outGroup = (o) =>
+    link(L(o.edge)) + (o.leaves.length > 1 ? `<div class="fc-leaves">${o.leaves.map(leafBox).join("")}</div>` : leafBox(o.leaves[0]));
+  const laneHtml = (lane) =>
+    `<div class="fc-lane">` +
+    link(L(lane.edge)) +
+    `<div class="fc-head ${lane.cls}">${L(lane.head)}<small>${L(lane.sub)}</small></div>` +
+    lane.steps.map((s) => {
+      let h = link("") + `<div class="fc-q">${L(s.q)}</div>`;
+      if (s.yes) h += outGroup(s.yes);
+      if (s.forks) h += s.forks.map(outGroup).join("");
+      return h;
+    }).join("") +
+    `</div>`;
+  const rct = FULLMAP.rct;
+  const rctHtml =
+    `<div class="fc-q">${L(rct.q)}</div>` +
+    rct.forks.map(outGroup).join("");
+  box.innerHTML =
+    `<div class="fc-toolbar"><button type="button" class="btn fc-dl">⬇ ${tr("下載完整流程圖", "Download full flowchart")}</button></div>` +
+    `<h3 class="fc-title">${L(FULLMAP.title)}</h3>` +
+    `<div class="fc">` +
+    `<div class="fc-start">${L(FULLMAP.start)}</div>` +
+    `<div class="fc-lanes">${FULLMAP.lanes.map(laneHtml).join("")}</div>` +
+    link("") +
+    `<div class="fc-rct">${rctHtml}</div>` +
+    `</div>`;
+  box.hidden = false;
+  const dl = box.querySelector(".fc-dl");
+  if (dl) dl.addEventListener("click", downloadFlowchart);
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function _saveBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Build the flowchart's stylesheet + markup once, shared by the PNG and the
+// standalone-HTML fallback.
+async function _flowchartExport() {
+  const box = document.getElementById("dtreeMap");
+  let css = "";
+  try { css = __DTREE_CSS; } catch (e) { /* offline */ }
+  const clone = box.cloneNode(true);
+  clone.hidden = false;
+  const bar = clone.querySelector(".fc-toolbar");
+  if (bar) bar.remove();                                  // don't ship the download button
+  return { box, css, clone };
+}
+
+function _xmlEsc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;");
+}
+const _TRANSPARENT = /^rgba?\(0,\s*0,\s*0,\s*0\)$|transparent/;
+
+// Paint the rendered flowchart into a NATIVE svg (rect / line / text — no
+// <foreignObject>, so the canvas is not tainted and PNG export works). We walk
+// the live DOM: box backgrounds + borders from each element, text word-by-word
+// via Range rects (so wrapping/alignment match exactly), and the connector
+// lines that CSS draws with pseudo-elements are synthesised from geometry.
+function _flowchartToSVG(box) {
+  const base = box.getBoundingClientRect();
+  const ox = base.left, oy = base.top;
+  const P = [];
+  let mnx = Infinity, mny = Infinity, mxx = -Infinity, mxy = -Infinity;
+  const grow = (x1, y1, x2, y2) => {                   // track true content bounds
+    if (x1 < mnx) mnx = x1; if (y1 < mny) mny = y1;
+    if (x2 > mxx) mxx = x2; if (y2 > mxy) mxy = y2;
+  };
+
+  box.querySelectorAll("*").forEach((el) => {
+    if (el.closest(".fc-toolbar")) return;
+    const cs = getComputedStyle(el);
+    if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity === 0) return;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return;
+    const x = r.left - ox, y = r.top - oy;
+    const rx = parseFloat(cs.borderTopLeftRadius) || 0;
+    if (!_TRANSPARENT.test(cs.backgroundColor)) {
+      P.push(`<rect x="${x}" y="${y}" width="${r.width}" height="${r.height}" rx="${rx}" fill="${cs.backgroundColor}"/>`);
+      grow(x, y, x + r.width, y + r.height);
+    }
+    const bw = parseFloat(cs.borderTopWidth) || 0;
+    if (bw > 0 && cs.borderTopStyle !== "none" && !_TRANSPARENT.test(cs.borderTopColor)) {
+      P.push(`<rect x="${x + bw / 2}" y="${y + bw / 2}" width="${r.width - bw}" height="${r.height - bw}" rx="${Math.max(0, rx - bw / 2)}" fill="none" stroke="${cs.borderTopColor}" stroke-width="${bw}"/>`);
+      grow(x, y, x + r.width, y + r.height);
+    }
+    const blw = parseFloat(cs.borderLeftWidth) || 0;   // left accent stripe (fc-leaf)
+    if (blw > 1 && cs.borderLeftColor !== cs.borderTopColor && !_TRANSPARENT.test(cs.borderLeftColor))
+      P.push(`<rect x="${x}" y="${y}" width="${blw}" height="${r.height}" rx="${rx}" fill="${cs.borderLeftColor}"/>`);
+  });
+
+  // the vertical + horizontal branch connectors CSS draws via ::before
+  box.querySelectorAll(".fc-leaves").forEach((g) => {
+    const gr = g.getBoundingClientRect();
+    const lx = gr.left - ox + 8;
+    P.push(`<line x1="${lx}" y1="${gr.top - oy - 10}" x2="${lx}" y2="${gr.bottom - oy - 18}" stroke="#94a3b8" stroke-width="2"/>`);
+    g.querySelectorAll(":scope > .fc-leaf").forEach((lf) => {
+      const lr = lf.getBoundingClientRect(), cy = (lr.top + lr.bottom) / 2 - oy;
+      P.push(`<line x1="${lx}" y1="${cy}" x2="${lr.left - ox}" y2="${cy}" stroke="#94a3b8" stroke-width="2"/>`);
+    });
+  });
+
+  const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!node.nodeValue.trim()) continue;
+    const parent = node.parentElement;
+    if (!parent || parent.closest(".fc-toolbar")) continue;
+    const cs = getComputedStyle(parent);
+    if (cs.display === "none" || cs.visibility === "hidden") continue;
+    const fs = parseFloat(cs.fontSize);
+    const fam = cs.fontFamily.replace(/"/g, "'");
+    // Group characters into visual LINES (walk char-by-char; a jump in top =
+    // a new line). Whitespace-splitting breaks on CJK, which has no spaces, so
+    // a wrapped Chinese label would render as one overflowing line.
+    const val = node.nodeValue;
+    let run = "", rLeft = 0, rTop = null, rH = fs, rRight = 0;
+    const flush = () => {
+      if (run.trim()) {
+        const ty = rTop - oy + (rH + fs) / 2 - fs * 0.2;         // approx baseline
+        P.push(`<text x="${rLeft - ox}" y="${ty}" font-family="${_xmlEsc(fam)}" font-size="${fs}" font-weight="${cs.fontWeight}" font-style="${cs.fontStyle}" fill="${cs.color}">${_xmlEsc(run)}</text>`);
+        grow(rLeft - ox, rTop - oy, rRight - ox, rTop - oy + rH);
+      }
+      run = "";
+    };
+    for (let i = 0; i < val.length; i++) {
+      const rg = document.createRange();
+      rg.setStart(node, i); rg.setEnd(node, i + 1);
+      const rr = rg.getBoundingClientRect();
+      if (!rr.width && !rr.height) continue;
+      if (rTop === null || Math.abs(rr.top - rTop) > 1.5) { flush(); rLeft = rr.left; rTop = rr.top; rH = rr.height; }
+      run += val[i]; rRight = rr.right;
+    }
+    flush();
+  }
+  const PAD = 14;
+  if (!isFinite(mnx)) { mnx = 0; mny = 0; mxx = box.scrollWidth; mxy = box.scrollHeight; }
+  const W = Math.ceil(mxx - mnx) + PAD * 2;
+  const H = Math.ceil(mxy - mny) + PAD * 2;
+  // shift so the leftmost/topmost content sits at PAD (content may start at a
+  // negative offset when the horizontally-scrolling lanes are centred).
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
+    `<rect x="0" y="0" width="${W}" height="${H}" fill="#ffffff"/>` +
+    `<g transform="translate(${(PAD - mnx).toFixed(2)},${(PAD - mny).toFixed(2)})">${P.join("")}</g></svg>`;
+  return { svg, W, H };
+}
+
+// Download the full decision flowchart as a PNG. Falls back to a self-contained
+// HTML file if anything in the rasterisation path fails.
+async function downloadFlowchart() {
+  const box = document.getElementById("dtreeMap");
+  if (!box) return;
+  const bar = box.querySelector(".fc-toolbar");
+  if (bar) bar.style.visibility = "hidden";               // keep it out of the capture
+  try {
+    const { svg, W, H } = _flowchartToSVG(box);
+    const scale = 2;
+    const svgUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("svg load")); img.src = svgUrl; });
+    const canvas = document.createElement("canvas");
+    canvas.width = W * scale; canvas.height = H * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(svgUrl);
+    const blob = await new Promise((res, rej) =>
+      canvas.toBlob((b) => (b ? res(b) : rej(new Error("toBlob failed"))), "image/png"));
+    _saveBlob(blob, "causal-inference-flowchart.png");
+  } catch (e) {
+    const { css, clone } = await _flowchartExport();
+    downloadFlowchartHTML(css, clone);
+  } finally {
+    if (bar) bar.style.visibility = "";
+  }
+}
+
+// Fallback: self-contained HTML (opens standalone, print/save to PDF).
+function downloadFlowchartHTML(css, clone) {
+  clone.hidden = false;
+  const bar = clone.querySelector(".fc-toolbar");
+  if (bar) bar.remove();
+  const title = tr("因果推論方法選擇：完整流程圖", "Causal inference method selection — full flowchart");
+  const html =
+    `<!doctype html><html lang="${lang()}"><head><meta charset="utf-8">` +
+    `<meta name="viewport" content="width=device-width, initial-scale=1">` +
+    `<title>${title}</title><style>\n${css}\n` +
+    `body{background:#fff;margin:0;padding:24px;}#dtreeMap{display:block!important;}</style></head>` +
+    `<body>${clone.outerHTML}</body></html>`;
+  _saveBlob(new Blob([html], { type: "text/html;charset=utf-8" }), "causal-inference-flowchart.html");
+}
+// All 15 methods, one vaccine question, grouped by DESIGN FAMILY (mediation shown as the
+// 'mechanism' family: its naive direct effect is biased, the proper NDE recovers truth).
+// Each method's truth
+// is on a different scale (effect difference, odds ratio, rate ratio, level change…),
+// so we plot every estimate ÷ its OWN truth: 1.0 = perfectly recovered. Amber = the
+// naive comparison (biased, off 1.0); teal = the method's corrected estimate (back near
+// 1.0). Representative values from this tool's verified demos.
+// ======================================================================
+// Four added methods' ② interactive demos (Plotly, deterministic synthetic data).
+// ======================================================================
+/* =========================== end extracted block =========================== */
+
+applyLang();
+initDtree();
+document.getElementById("saLang").addEventListener("click", function () {
+  _lang = _lang === "en" ? "zh" : "en";
+  try { localStorage.setItem("iv-lang", _lang); } catch (e) {}
+  applyLang();
+  renderDtree();                       // re-render the dynamic tree in the new language
+});
+</script>
+</body>
+</html>
