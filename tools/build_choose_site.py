@@ -37,6 +37,10 @@ def extract_tree_js(app_src: str) -> str:
     # The export helper reads styles.css over the network; inline it instead so
     # the single file works with no server and no fetch.
     js = js.replace('await (await fetch("styles.css")).text()', "__DTREE_CSS")
+    # The export helper builds a whole HTML document as a JS string. A literal
+    # "</script>" anywhere in this block would terminate the page's inline
+    # <script> early and silently break the standalone file, so neutralise it.
+    js = js.replace("</script>", "<\\/script>")
     return js
 
 

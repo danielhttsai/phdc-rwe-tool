@@ -194,7 +194,7 @@ b { color: #0b1020; }
 .dtree-controls .btn:disabled { opacity: .4; cursor: not-allowed; }
 
 /* the full decision-tree map that pops out at a leaf */
-.dtree-map { max-width: 760px; margin: 1rem auto 0; background: #f8fafc; border: 1px solid var(--line);
+.dtree-map { max-width: 100%; margin: 1rem auto 0; background: #f8fafc; border: 1px solid var(--line);
   border-radius: 14px; padding: 1rem 1.1rem; }
 .dtree-map .map-title { margin: 0 0 .7rem; font-size: 1.05rem; }
 .dtree-map .flow-head { margin: .9rem 0 .4rem; font-size: .98rem; }
@@ -221,9 +221,13 @@ b { color: #0b1020; }
   padding: .5rem 1.3rem; font-size: 1rem; letter-spacing: .5px; }
 /* A/B/C/D are PARALLEL anchor families, so lay them out as four columns in one
    horizontal row (scroll sideways on narrow screens) rather than a 2x2 wrap. */
-.fc-lanes { display: flex; gap: 1rem; align-items: flex-start; justify-content: flex-start;
-  width: 100%; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; }
-.fc-lane { flex: 1 1 0; min-width: 208px; max-width: 520px; display: flex; flex-direction: column; align-items: stretch; }
+/* The whole chart is scaled to fit by _fitFlowchart(), so the lanes must NOT
+   scroll on their own - the point is to see the entire tree at once. */
+.fc-lanes { display: flex; gap: 1rem; align-items: flex-start; justify-content: center;
+  width: 100%; flex-wrap: nowrap; overflow: visible; padding-bottom: 6px; }
+/* Keep lanes compact: the map is auto-scaled to fit, so a generous max-width
+   just forces a harsher scale-down and unreadable text when projected. */
+.fc-lane { flex: 1 1 0; min-width: 208px; max-width: 310px; display: flex; flex-direction: column; align-items: stretch; }
 /* plain vertical connector (a branch line, no arrowhead), optional branch label */
 .fc-link { width: 2px; min-height: 22px; background: #94a3b8; margin: 3px auto; position: relative; }
 .fc-elabel { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); white-space: nowrap;
@@ -256,7 +260,21 @@ a.xref:hover { color: #2c5b47; border-bottom-style: solid; }
 .fc-badge { white-space: nowrap; flex: 0 0 auto; border-radius: 999px; padding: .22rem .65rem; font-weight: 700; font-size: .82rem; }
 .fc-badge.tb { background: var(--z); color: #fff; }
 .fc-badge.ex { background: #eef2f6; color: var(--muted); border: 1px solid var(--line); }
-.fc-leaf.fc-hit { background: #ecfdf5; border-color: #34d399; border-left-color: #16a34a; box-shadow: 0 0 0 2px #6ee7b7; }
+/* Only the endpoint you actually reached should stand out: everything else is
+   dimmed, and the hit gets a pulsing green glow (all the ✓ badges are green, so
+   a static ring alone was invisible). */
+.fc.has-hit .fc-leaf:not(.fc-hit) { opacity: .38; filter: grayscale(.7); }
+.fc.has-hit .fc-q, .fc.has-hit .fc-head, .fc.has-hit .fc-elabel { opacity: .72; }
+.fc-leaf.fc-hit { background: #ecfdf5; border-color: #16a34a; border-left-color: #16a34a;
+  position: relative; z-index: 1; transform: scale(1.03); animation: fcPulse 1.5s ease-in-out infinite; }
+.fc-leaf.fc-hit .fc-badge.tb { background: #16a34a; }
+@keyframes fcPulse {
+  0%, 100% { box-shadow: 0 0 0 3px #6ee7b7, 0 0 10px 2px rgba(22,163,74,.45); }
+  50%      { box-shadow: 0 0 0 6px #a7f3d0, 0 0 20px 6px rgba(22,163,74,.65); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-leaf.fc-hit { animation: none; box-shadow: 0 0 0 4px #6ee7b7; }
+}
 .fc-end { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: .7rem 1rem;
   text-align: center; color: #1e3a8a; font-size: .9rem; max-width: 680px; line-height: 1.6; }
 .fc-end.fc-hit { box-shadow: 0 0 0 3px #93c5fd; }

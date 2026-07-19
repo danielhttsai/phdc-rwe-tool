@@ -3304,7 +3304,7 @@ function renderFullMap(hitKey) {
   box.innerHTML =
     `<div class="fc-toolbar"><button type="button" class="btn fc-dl">⬇ ${tr("下載完整流程圖", "Download full flowchart")}</button></div>` +
     `<h3 class="fc-title">${L(FULLMAP.title)}</h3>` +
-    `<div class="fc">` +
+    `<div class="fc${hitKey ? " has-hit" : ""}">` +
     `<div class="fc-start">${L(FULLMAP.start)}</div>` +
     `<div class="fc-lanes">${FULLMAP.lanes.map(laneHtml).join("")}</div>` +
     link("") +
@@ -3313,8 +3313,46 @@ function renderFullMap(hitKey) {
   box.hidden = false;
   const dl = box.querySelector(".fc-dl");
   if (dl) dl.addEventListener("click", downloadFlowchart);
+  _fitFlowchart();
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
+
+// Scale the whole flowchart down so the ENTIRE tree is visible at once — the
+// point of the map is to see every branch side by side, not to scroll it.
+// Below MIN_SCALE it would be unreadable, so there we fall back to scrolling.
+const FC_MIN_SCALE = 0.4;
+function _fitFlowchart() {
+  const box = document.getElementById("dtreeMap");
+  if (!box || box.hidden) return;
+  const fc = box.querySelector(".fc");
+  if (!fc) return;
+  // Reset, then pin the chart to its NATURAL (unshrunk) width before measuring.
+  // Measuring scrollWidth while the flex lanes can still shrink gives a moving
+  // target, so the chart ended up scaled but still overflowing.
+  fc.style.transform = "";
+  fc.style.marginBottom = "";
+  box.style.overflowX = "";
+  fc.style.width = "max-content";
+  const avail = box.clientWidth - 24;                 // minus the map's padding
+  // The branch labels (.fc-elabel) are absolutely positioned and nowrap, so they
+  // do NOT contribute to max-content width yet still stick out. Measure the real
+  // rightmost edge of every descendant instead of trusting offsetWidth.
+  const fcLeft = fc.getBoundingClientRect().left;
+  let natW = fc.offsetWidth;
+  fc.querySelectorAll("*").forEach((el) => {
+    natW = Math.max(natW, el.getBoundingClientRect().right - fcLeft);
+  });
+  const natH = fc.offsetHeight;
+  if (!avail || !natW) { fc.style.width = ""; return; }
+  if (natW <= avail) { fc.style.width = ""; return; } // already fits: leave it fluid
+  const k = Math.max(FC_MIN_SCALE, avail / natW);
+  fc.style.transformOrigin = "top left";
+  fc.style.transform = `scale(${k})`;
+  // a scaled element still reserves its unscaled height; reclaim the slack
+  fc.style.marginBottom = -(natH * (1 - k)) + "px";
+  if (avail / natW < FC_MIN_SCALE) box.style.overflowX = "auto";
+}
+window.addEventListener("resize", _fitFlowchart);
 
 function _saveBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
