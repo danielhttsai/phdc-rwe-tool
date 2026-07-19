@@ -2756,16 +2756,18 @@ const DNODES = {
       { l: { zh: "暴露錨定：先固定一個暴露／介入，看它造成什麼結果", en: "Exposure-anchored: fix one exposure/intervention, study its effects" }, to: "exOut" },
       { l: { zh: "結果錨定：先固定一個結果，回頭找是哪些暴露造成的", en: "Outcome-anchored: fix one outcome, look back for the exposures" }, to: "outHow" },
       { l: { zh: "機制錨定：已知某暴露有效果，想知道有多少<b>透過某中介</b>發生（中介分析）", en: "Mechanism-anchored: an effect is known — ask how much runs <b>through a mediator</b> (mediation)" }, to: "rMED" },
-      { l: { zh: "證據錨定：你不是在做單一研究，而是想把<b>已有的多篇研究</b>合起來回答（證據合併）", en: "Evidence-anchored: you are not running a single study but want to combine <b>several existing studies</b> (evidence synthesis)" }, to: "synth" },
+      { l: { zh: "證據錨定：答案的主要來源是<b>別人已經做過的研究</b>，你要把它們合併、或借過來用（證據合併與借用）", en: "Evidence-anchored: the answer comes mainly from <b>studies someone else already ran</b> — you pool them, or borrow one (evidence synthesis and borrowing)" }, to: "synth" },
     ],
   },
   // ================= D · evidence-anchored (cross-study synthesis) =================
   synth: {
-    step: { zh: "證據合併", en: "Evidence synthesis" },
-    q: { zh: "你要一次比較幾個治療？（這層決定做一般統合分析還是網路統合分析）", en: "How many treatments are you comparing at once? (this decides ordinary vs network meta-analysis)" },
+    step: { zh: "證據合併與借用", en: "Synthesis & borrowing" },
+    q: { zh: "你要怎麼「用」這些已經存在的研究？（前兩個是把多篇<b>合併</b>，後兩個是<b>借一篇</b>來補你自己的研究）", en: "How will you use those already-existing studies? (the first two <b>pool</b> many; the last two <b>borrow one</b> to complete your own study)" },
     opts: [
-      { l: { zh: "兩個的正面對決（或一個介入 vs 對照），先系統性回顧找出所有研究，再做統合分析", en: "Two, head-to-head (or one intervention vs a control) — systematically review all studies, then meta-analyse" }, to: "rSRMA" },
-      { l: { zh: "三個以上、而且很少有試驗直接兩兩比過，用直接＋間接證據連成網路", en: "Three or more, with few head-to-head trials — connect direct + indirect evidence into a network" }, to: "rNMA" },
+      { l: { zh: "合併：兩個的正面對決（或一個介入 vs 對照），先系統性回顧找出所有研究，再做統合分析", en: "Pool: two, head-to-head (or one intervention vs a control) — systematically review all studies, then meta-analyse" }, to: "rSRMA" },
+      { l: { zh: "合併：三個以上、而且很少有試驗直接兩兩比過，用直接＋間接證據連成網路", en: "Pool: three or more, with few head-to-head trials — connect direct + indirect evidence into a network" }, to: "rNMA" },
+      { l: { zh: "借用：我自己這組<b>只有治療臂、缺對照臂</b>（單臂試驗／罕病），想借外部研究的結果當<b>對照組</b>（只有彙總結果也行）", en: "Borrow: my own study has <b>only a treated arm and no control</b> (single-arm trial / rare disease) — borrow an external study as the <b>control arm</b> (summary results are enough)" }, to: "rEXTCTRL" },
+      { l: { zh: "借用：已有一場研究的結果，但它的<b>族群跟我的不一樣</b>，想把那個效果<b>轉到我的族群</b>（需要個體資料）", en: "Borrow: a study's result exists but its <b>population differs from mine</b> — <b>transport</b> that effect to my population (needs individual-level data)" }, to: "rTRANS" },
     ],
   },
   // ================= A · exposure-anchored =================
@@ -3028,11 +3030,10 @@ const DNODES = {
              en: "✓ Implemented in this toolbox (see the Case-control tabs ①–⑤) — nested case-control is just a sampling form of case-control." } } },
   rLast: {
     step: { zh: "最後一步（沒辦法的辦法）", en: "Last step (last resort)" },
-    q: { zh: "上面的觀察性設計都不符合，這是沒辦法的辦法：你其實已經有一場（別族群的）RCT 可以借嗎？", en: "None of the observational designs above fit — as a last resort: do you actually have an RCT (in another population) to borrow?" },
+    q: { zh: "上面的觀察性設計都不符合，這是沒辦法的辦法：你還能從<b>自己的資料以外</b>拿到什麼？", en: "None of the observational designs above fit — as a last resort: what can you get from <b>outside your own data</b>?" },
     opts: [
-      { l: { zh: "有，但只有發表的彙總結果（沒有個體資料）", en: "Yes, but only published summary results (no individual data)" }, to: "rEXTCTRL" },
-      { l: { zh: "有，且拿得到個體層級資料", en: "Yes, and I can get its individual-level data" }, to: "rTRANS" },
-      { l: { zh: "沒有可借的 RCT，但想用<b>實驗／遺傳／模型</b>從外部佐證", en: "No RCT to borrow — but I want to corroborate from outside (experiment / genetics / model)" }, to: "exTri" },
+      { l: { zh: "我其實有<b>別人做過的研究</b>可以借（當對照組，或把效果轉到我的族群）", en: "I do have <b>a study someone else ran</b> to borrow (as a control arm, or transported to my population)" }, to: "synth" },
+      { l: { zh: "沒有可借的研究，但想用<b>實驗／遺傳／模型</b>從外部佐證", en: "No study to borrow — but I want to corroborate from outside (experiment / genetics / model)" }, to: "exTri" },
     ],
   },
   exTri: {
@@ -3173,28 +3174,23 @@ const FULLMAP = {
     {
       cls: "d",
       edge: { zh: "證據錨定", en: "evidence-anchored" },
-      head: { zh: "D · 證據錨定（跨研究合併）", en: "D · Evidence-anchored (cross-study synthesis)" },
-      sub: { zh: "不是單一研究 → 把已有的多篇研究合成一個答案（比單一研究高一層）", en: "not a single study → synthesise several existing studies (one level above a single study)" },
+      head: { zh: "D · 證據錨定（合併或借用既有研究）", en: "D · Evidence-anchored (pool or borrow existing studies)" },
+      sub: { zh: "答案主要來自別人做過的研究 → 把多篇合併，或借一篇補上你缺的那一塊", en: "the answer comes from studies others already ran → pool many, or borrow one to fill the gap in yours" },
       steps: [
-        { q: { zh: "一次比較幾個治療？", en: "How many treatments at once?" },
+        { q: { zh: "你要怎麼用這些既有研究？", en: "How will you use those existing studies?" },
           forks: [
-            { edge: { zh: "兩個正面對決（或介入 vs 對照）", en: "two, head-to-head (or vs control)" },
+            { edge: { zh: "合併多篇 · 兩個正面對決", en: "pool many · two head-to-head" },
               leaves: [{ key: "rSRMA", cond: { zh: "系統性回顧找出所有研究，再合併（固定／隨機效果、I²、GRADE）", en: "systematically find all studies, then pool (fixed/random effects, I², GRADE)" }, tag: "SR-MA ✓", kind: "tb", method: "srma" }] },
-            { edge: { zh: "三個以上、少有直接對決", en: "three or more, few head-to-head" },
+            { edge: { zh: "合併多篇 · 三個以上、少直接對決", en: "pool many · 3+, few head-to-head" },
               leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網路（可遞移性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
+            { edge: { zh: "借一篇當對照臂 · 只有彙總結果", en: "borrow one as the control arm · summary results only" },
+              leaves: [{ key: "rEXTCTRL", cond: { zh: "自己只有治療臂（單臂／罕病），把外部研究當對照組", en: "you have only a treated arm (single-arm / rare disease); borrow an external study as the control" }, tag: "外部對照 ✓", kind: "tb", method: "extctrl" }] },
+            { edge: { zh: "借一篇轉到我的族群 · 需個體資料", en: "borrow one, transported to my population · needs individual data" },
+              leaves: [{ key: "rTRANS", cond: { zh: "族群不同，用效果修飾因子把結果轉到你的族群", en: "the population differs; reweight by effect modifiers onto your population" }, tag: "可轉移性 ✓", kind: "tb", method: "transport" }] },
           ] },
       ],
     },
   ],
-  rct: {
-    q: { zh: "最後一步（沒辦法的辦法）：上面都不符合，你其實已有一場（別族群的）RCT 可以借嗎？", en: "Last step (last resort): nothing above fits — do you actually have an RCT (in another population) to borrow?" },
-    forks: [
-      { edge: { zh: "有，但只有彙總結果", en: "yes, summary results only" },
-        leaves: [{ key: "rEXTCTRL", cond: { zh: "把那場 RCT／外部資料當對照組", en: "borrow the RCT / external data as a control arm" }, tag: "外部對照 ✓", kind: "tb", method: "extctrl" }] },
-      { edge: { zh: "有，且有個體資料", en: "yes, with individual data" },
-        leaves: [{ key: "rTRANS", cond: { zh: "用效果修飾因子把結果轉到你的族群", en: "reweight by effect modifiers to your population" }, tag: "可轉移性 ✓", kind: "tb", method: "transport" }] },
-    ],
-  },
 };
 let dtreeStack = [{ id: "n1", ans: null }];
 
@@ -3297,18 +3293,12 @@ function renderFullMap(hitKey) {
       return h;
     }).join("") +
     `</div>`;
-  const rct = FULLMAP.rct;
-  const rctHtml =
-    `<div class="fc-q">${L(rct.q)}</div>` +
-    rct.forks.map(outGroup).join("");
   box.innerHTML =
     `<div class="fc-toolbar"><button type="button" class="btn fc-dl">⬇ ${tr("下載完整流程圖", "Download full flowchart")}</button></div>` +
     `<h3 class="fc-title">${L(FULLMAP.title)}</h3>` +
     `<div class="fc${hitKey ? " has-hit" : ""}">` +
     `<div class="fc-start">${L(FULLMAP.start)}</div>` +
     `<div class="fc-lanes">${FULLMAP.lanes.map(laneHtml).join("")}</div>` +
-    link("") +
-    `<div class="fc-rct">${rctHtml}</div>` +
     `</div>`;
   box.hidden = false;
   const dl = box.querySelector(".fc-dl");
