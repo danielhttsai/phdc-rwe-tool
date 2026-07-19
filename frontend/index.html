@@ -61,8 +61,10 @@
         <option value="tscan" data-en="TreeScan · Tree-based scan statistic">TreeScan · 樹狀掃描統計</option>
         <option value="wce" data-en="WCE · Weighted cumulative exposure">WCE · 加權累積暴露</option>
         <!-- Adjacent approaches (BA/BE, fsQCA, MCDA) are intentionally NOT in this
-             picker; they are reached only via the #adjacentApproaches gateway on
-             the choose page, which jumps to their full ①–⑥ tabs via gotoMethod. -->
+             picker; they are reached via the #adjacentApproaches gateway at the
+             bottom of the choose page, which jumps to their full ①–⑥ tabs via
+             gotoMethod. Wet lab is likewise absent here, but is reached from the
+             triangulation (wet lab + MR) section on the same page. -->
       </select>
     </label>
     <div class="subtabs" role="tablist" aria-label="方法的六層 · the six layers of each method">
@@ -7248,9 +7250,11 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       <p data-en="The designs above all squeeze causation out of <b>observational</b> data, and they share one weakness — residual unmeasured confounding. The most convincing causal claims <b>triangulate</b>: they line up evidence from approaches whose biases are <b>unrelated</b>, so a shared answer is unlikely to be a shared artefact. Two complementary categories sit outside the observational toolbox:">上面的設計都是從<b>觀察性</b>資料裡擠出因果，因此共享同一個弱點，殘留的未測混淆。最有說服力的因果主張會做<b>三角驗證</b>，把偏誤<b>互不相關</b>的方法擺在一起，如果它們指向同一個答案，就不太可能只是同一個假象。觀察性工具箱之外，有兩個互補的類別：</p>
       <div class="cards">
         <div class="card"><h3 data-en="Mendelian randomization (MR) — genetic instruments">孟德爾隨機化（MR）：遺傳工具</h3>
-          <p data-en="MR is <b>instrumental-variables</b> inference where the instrument is a <b>genetic variant</b> (or a polygenic score) for the exposure. Because alleles are allocated at conception (roughly randomly with respect to later lifestyle/confounders) and fixed for life, a valid genetic instrument is unconfounded and free of reverse causation. The same IV assumptions apply — <b>relevance</b> (the variant predicts the exposure; watch weak instruments), <b>independence</b> (no confounding of variant–outcome), and <b>exclusion</b> (the variant affects the outcome only through the exposure; pleiotropy is the main threat). Two-sample MR uses GWAS summary statistics; sensitivity tools include MR-Egger, weighted median and MR-PRESSO. Tools: R <code>TwoSampleMR</code>, <code>MendelianRandomization</code>.">MR 就是把<b>工具變數</b>的工具換成暴露的<b>遺傳變異</b>（或多基因分數）。等位基因在受孕時就分派（相對於後天生活型態／混淆近似隨機）且終生固定，所以一個有效的遺傳工具沒有混淆、也沒有反向因果。IV 的三條假設照舊，<b>相關性</b>（變異能預測暴露，小心弱工具）、<b>獨立性</b>（變異與結果之間沒有混淆）、<b>排除限制</b>（變異只透過暴露影響結果，最大威脅是多效性 pleiotropy）。雙樣本 MR 用 GWAS 彙總統計；敏感度工具有 MR-Egger、加權中位數、MR-PRESSO。工具：R <code>TwoSampleMR</code>、<code>MendelianRandomization</code>。</p></div>
+          <p data-en="MR is <b>instrumental-variables</b> inference where the instrument is a <b>genetic variant</b> (or a polygenic score) for the exposure. Because alleles are allocated at conception (roughly randomly with respect to later lifestyle/confounders) and fixed for life, a valid genetic instrument is unconfounded and free of reverse causation. The same IV assumptions apply — <b>relevance</b> (the variant predicts the exposure; watch weak instruments), <b>independence</b> (no confounding of variant–outcome), and <b>exclusion</b> (the variant affects the outcome only through the exposure; pleiotropy is the main threat). Two-sample MR uses GWAS summary statistics; sensitivity tools include MR-Egger, weighted median and MR-PRESSO. Tools: R <code>TwoSampleMR</code>, <code>MendelianRandomization</code>.">MR 就是把<b>工具變數</b>的工具換成暴露的<b>遺傳變異</b>（或多基因分數）。等位基因在受孕時就分派（相對於後天生活型態／混淆近似隨機）且終生固定，所以一個有效的遺傳工具沒有混淆、也沒有反向因果。IV 的三條假設照舊，<b>相關性</b>（變異能預測暴露，小心弱工具）、<b>獨立性</b>（變異與結果之間沒有混淆）、<b>排除限制</b>（變異只透過暴露影響結果，最大威脅是多效性 pleiotropy）。雙樣本 MR 用 GWAS 彙總統計；敏感度工具有 MR-Egger、加權中位數、MR-PRESSO。工具：R <code>TwoSampleMR</code>、<code>MendelianRandomization</code>。</p>
+          <a class="xref adj-goto" data-m="mr" data-en="Open MR's full ①–⑥ tabs →">看 MR 完整 ①–⑥ 六個分頁 →</a></div>
         <div class="card"><h3 data-en="Wet lab experiments — mechanism &amp; manipulation">實驗室（wet lab）實驗：機制與操弄</h3>
-          <p data-en="Bench and animal experiments deliver the one thing observational data can't: a <b>deliberate intervention</b> on the exposure with everything else held fixed (knock-out / knock-in, cell-line dose–response, randomized animal models). They establish <b>mechanism</b> and <b>directionality</b> that make an epidemiological association biologically credible, and they can refute a confounded signal. Their limits are the mirror image of epidemiology's — high internal validity but uncertain <b>transportability</b> to humans and the real-world dose. That is exactly why they pair so well: agreement between a human observational estimate and an experimental mechanism is strong, biases-don't-overlap evidence.">實驗室與動物實驗能給觀察性資料給不了的東西，<b>刻意操弄</b>暴露、其餘維持不變（基因剔除／嵌入、細胞株劑量反應、隨機分派的動物模型）。它們建立<b>機制</b>與<b>方向性</b>，讓流行病學的關聯在生物學上可信，也能反駁一個被混淆的訊號。它們的限制正好和流行病學相反，內部效度高、但對人體與真實劑量的<b>可轉移性</b>不確定。正因如此兩者很搭：人體觀察估計與實驗機制若一致，就是「偏誤不重疊」的強證據。</p></div>
+          <p data-en="Bench and animal experiments deliver the one thing observational data can't: a <b>deliberate intervention</b> on the exposure with everything else held fixed (knock-out / knock-in, cell-line dose–response, randomized animal models). They establish <b>mechanism</b> and <b>directionality</b> that make an epidemiological association biologically credible, and they can refute a confounded signal. Their limits are the mirror image of epidemiology's — high internal validity but uncertain <b>transportability</b> to humans and the real-world dose. That is exactly why they pair so well: agreement between a human observational estimate and an experimental mechanism is strong, biases-don't-overlap evidence.">實驗室與動物實驗能給觀察性資料給不了的東西，<b>刻意操弄</b>暴露、其餘維持不變（基因剔除／嵌入、細胞株劑量反應、隨機分派的動物模型）。它們建立<b>機制</b>與<b>方向性</b>，讓流行病學的關聯在生物學上可信，也能反駁一個被混淆的訊號。它們的限制正好和流行病學相反，內部效度高、但對人體與真實劑量的<b>可轉移性</b>不確定。正因如此兩者很搭：人體觀察估計與實驗機制若一致，就是「偏誤不重疊」的強證據。</p>
+          <a class="xref adj-goto" data-m="wetlab" data-en="Open the wet lab's full ①–⑥ tabs →">看 Wet lab 完整 ①–⑥ 六個分頁 →</a></div>
       </div>
       <p class="caption" data-en="In the chart above, MR and wet lab appear as the last family: the naive observational association is confounded, while the genetic-IV estimate and the experimental result recover the truth (≈ 1.0) from a direction the observational designs cannot.">上面那張圖裡，MR 與 wet lab 是最後一個家族：未校正的觀察性關聯被混淆，而遺傳工具估計與實驗結果則從觀察性設計到不了的方向，把真值（≈ 1.0）還原回來。</p>
     </div>
@@ -7464,17 +7468,6 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
     </div>
 
-    <div class="card info" id="adjacentApproaches">
-      <h3 data-en="Adjacent approaches — beside causal inference, not within it">鄰近取向：在因果推論「旁邊」，不在其中</h3>
-      <p data-en="A few tools here are not designs for estimating a causal effect from data — they make decisions, screen formulations, or test mechanism. They are kept out of the main causal picker, but each still has its full ①–⑥ teaching tabs — open one below.">本工具箱有幾個工具，並不是「從資料估計因果效果」的設計，它們做的是決策、製劑比對或機制檢驗。它們不放進主要的因果選單，但各自仍保有完整的 ①–⑥ 教學分頁，點下面任一個打開。</p>
-      <div class="cards cards-2 adj-grid">
-      <div class="card adj-card"><h3 data-en="Multi-criteria decision analysis">MCDA · 多準則決策分析</h3><p data-en="A decision tool that weights conflicting criteria into one comparable score.">把多個衝突準則用權重彙整成可比較分數來排序選項的決策工具。</p><a class="xref adj-goto" data-m="mcda" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
-      <div class="card adj-card"><h3 data-en="Fuzzy-set QCA">fsQCA · 模糊集質性比較分析</h3><p data-en="Set-theoretic, configurational analysis of sufficient/necessary condition sets.">以集合論找「哪些條件組合對結果充分／必要」的組態分析。</p><a class="xref adj-goto" data-m="fsqca" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
-      <div class="card adj-card"><h3 data-en="Bioavailability / bioequivalence">BA/BE · 生體相等性</h3><p data-en="A randomized 2×2 crossover PK trial checking Cmax/AUC within 80–125%.">隨機 2×2 交叉的人體藥動試驗，比 Cmax／AUC 是否落在 80–125%。</p><a class="xref adj-goto" data-m="babe" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
-      <div class="card adj-card"><h3 data-en="Wet lab experiments">Wet lab · 實驗室實驗</h3><p data-en="Bench/animal experiments that manipulate the cause to test mechanism.">在細胞／動物上刻意操弄、檢驗機制與方向的實驗台研究。</p><a class="xref adj-goto" data-m="wetlab" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
-      </div>
-    </div>
-                
     <div id="dtree" class="dtree">
       <div id="dtreePath" class="dtree-path"></div>
       <div id="dtreeStage" class="dtree-stage"></div>
@@ -7485,6 +7478,16 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       </div>
     </div>
     <div id="dtreeMap" class="dtree-map" hidden></div>
+
+    <div class="card info" id="adjacentApproaches">
+      <h3 data-en="Adjacent approaches — beside causal inference, not within it">鄰近取向：在因果推論「旁邊」，不在其中</h3>
+      <p data-en="A few tools here are not designs for estimating a causal effect from data — they make decisions or compare formulations. They are kept out of the main causal picker and out of the tree above, but each still has its full ①–⑥ teaching tabs — open one below. (Wet lab experiments sit outside the tree too, but as a triangulation partner: see the wet lab + MR section above.)">本工具箱有幾個工具，並不是「從資料估計因果效果」的設計，它們做的是決策或製劑比對。它們不放進主要的因果選單、也不在上面那棵樹裡，但各自仍保有完整的 ①–⑥ 教學分頁，點下面任一個打開。（實驗室實驗同樣不在樹上，但它的角色是三角驗證的夥伴，見上方 wet lab ＋ MR 那一段。）</p>
+      <div class="cards cards-2 adj-grid">
+      <div class="card adj-card"><h3 data-en="Multi-criteria decision analysis">MCDA · 多準則決策分析</h3><p data-en="A decision tool that weights conflicting criteria into one comparable score.">把多個衝突準則用權重彙整成可比較分數來排序選項的決策工具。</p><a class="xref adj-goto" data-m="mcda" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
+      <div class="card adj-card"><h3 data-en="Fuzzy-set QCA">fsQCA · 模糊集質性比較分析</h3><p data-en="Set-theoretic, configurational analysis of sufficient/necessary condition sets.">以集合論找「哪些條件組合對結果充分／必要」的組態分析。</p><a class="xref adj-goto" data-m="fsqca" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
+      <div class="card adj-card"><h3 data-en="Bioavailability / bioequivalence">BA/BE · 生體相等性</h3><p data-en="A randomized 2×2 crossover PK trial checking Cmax/AUC within 80–125%.">隨機 2×2 交叉的人體藥動試驗，比 Cmax／AUC 是否落在 80–125%。</p><a class="xref adj-goto" data-m="babe" data-en="Open the full ①–⑥ tabs →">看完整 ①–⑥ 六個分頁 →</a></div>
+      </div>
+    </div>
 
     <div class="card info">
       <h3 data-en="Isn't &quot;local-randomization&quot; RDD just IV?">RDD 的「局部隨機化」會不會其實就是 IV？</h3>
