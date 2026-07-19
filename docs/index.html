@@ -8963,6 +8963,21 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
   </footer>
 </main>
 
+<!-- What If notes: concept explainer. Must sit OUTSIDE the panels — .panel
+     carries a transform, which would make it the containing block for
+     position:fixed and anchor the drawer to the panel instead of the viewport. -->
+<div id="cbDrawerScrim" class="cb-drawer-scrim" hidden></div>
+<aside id="cbDrawer" class="cb-drawer" hidden aria-hidden="true" role="dialog" aria-labelledby="cbDrawerTitle">
+  <div class="cb-drawer-head">
+    <h3 id="cbDrawerTitle"></h3>
+    <button id="cbDrawerClose" class="cb-drawer-x" type="button" aria-label="關閉 / Close">✕</button>
+  </div>
+  <div id="cbDrawerBody" class="cb-drawer-body"></div>
+  <div class="cb-drawer-foot">
+    <a id="cbDrawerJump" href="#cb-primer-top" data-en="Open this concept in the appendix ↓">在附錄裡打開這個概念 ↓</a>
+  </div>
+</aside>
+
 <script defer src="i18n.js?v=128"></script>
 <script defer src="app.js?v=128"></script>
 </body>

@@ -261,7 +261,137 @@ function _cbReveal(html) {
   body.hidden = false;
   if (gate) gate.hidden = true;
   if (window.IV && typeof IV.setLang === "function") IV.setLang(IV.lang);   // translate injected content
+  cbWireConcepts();          // must run AFTER setLang: it rewrites [data-en] innerHTML
 }
+
+// ---------------------------------------------------------------------------
+// What If notes: click a statistical concept, read it in a right-hand drawer.
+// The appendix concepts stay where they are; this just saves the reader from
+// scrolling to the appendix and losing their place in the chapter.
+// ---------------------------------------------------------------------------
+// First mention per chapter of each term becomes a link (more would be noise).
+const CB_TERMS = [
+  { c: 2,  re: /勝算比|odds ratio/i },
+  { c: 3,  re: /不可塌縮|non-?collapsib\w*/i },
+  { c: 4,  re: /後門路徑|後門|backdoor/i },
+  { c: 5,  re: /對撞(因子)?|collider/i },
+  { c: 9,  re: /標準化|g-公式|g-formula/i },
+  { c: 10, re: /IP 加權|反機率加權|inverse[- ]probability/i },
+  { c: 11, re: /穩定化權重|stabilized weight\w*/i },
+  { c: 12, re: /傾向分數|propensity score/i },
+  { c: 13, re: /雙重穩健|doubly[- ]robust|AIPW/i },
+  { c: 14, re: /風險率|hazard/i },
+  { c: 15, re: /合併邏輯|pooled logistic/i },
+  { c: 16, re: /時變混淆|time-varying confound\w*/i },
+  { c: 17, re: /工具變數|instrumental variable\w*/i },
+  { c: 18, re: /中介分析|mediation/i },
+  { c: 19, re: /拔靴|bootstrap/i },
+];
+const _CB_SKIP = new Set(["A", "BUTTON", "CODE", "PRE", "SUMMARY", "SCRIPT", "STYLE", "H2", "H3"]);
+
+function cbWireConcepts() {
+  const body = document.getElementById("cbBody");
+  if (!body || body.hidden) return;
+  const primers = [...body.querySelectorAll("details.cb-primer")];
+  if (!primers.length) return;
+  primers.forEach((d, i) => { d.id = "cb-c" + (i + 1); });
+
+  const chapters = [...body.querySelectorAll("details.cb-ch")].filter((d) => !d.classList.contains("cb-primer"));
+  chapters.forEach((ch) => {
+    const used = new Set();
+    const walker = document.createTreeWalker(ch, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        for (let p = node.parentNode; p && p !== ch; p = p.parentNode) {
+          if (_CB_SKIP.has(p.nodeName)) return NodeFilter.FILTER_REJECT;
+        }
+        return node.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      },
+    });
+    const texts = []; let t;
+    while ((t = walker.nextNode())) texts.push(t);
+    texts.forEach((node) => {
+      let hit = null, n = 0;
+      // an explicit cross-reference always links, and never uses up a term slot
+      const ref = node.nodeValue.match(/入門概念\s*(\d{1,2})|primer concept\s*(\d{1,2})/i);
+      if (ref) { hit = ref; n = Number(ref[1] || ref[2]); }
+      else {
+        for (const term of CB_TERMS) {
+          if (used.has(term.c)) continue;
+          const m = node.nodeValue.match(term.re);
+          if (m) { hit = m; n = term.c; used.add(term.c); break; }
+        }
+      }
+      if (!hit || !n || n < 1 || n > primers.length) return;
+      const match = node.splitText(hit.index);
+      match.splitText(hit[0].length);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cb-termlink";
+      btn.dataset.c = String(n);
+      btn.title = tr("點看概念說明", "Show the concept");
+      btn.textContent = hit[0];
+      match.parentNode.replaceChild(btn, match);
+    });
+  });
+
+  if (!body.dataset.cbDelegated) {
+    body.dataset.cbDelegated = "1";
+    body.addEventListener("click", (e) => {
+      const b = e.target.closest && e.target.closest(".cb-termlink");
+      if (b) cbOpenConcept(Number(b.dataset.c));
+    });
+  }
+}
+
+function cbOpenConcept(n) {
+  const body = document.getElementById("cbBody");
+  const drawer = document.getElementById("cbDrawer");
+  const scrim = document.getElementById("cbDrawerScrim");
+  const src = body && body.querySelector("#cb-c" + n);
+  if (!src || !drawer) return;
+  const sum = src.querySelector("summary");
+  document.getElementById("cbDrawerTitle").textContent =
+    sum ? sum.textContent.trim() : tr("概念 " + n, "Concept " + n);
+  const clone = src.cloneNode(true);
+  const s = clone.querySelector("summary"); if (s) s.remove();
+  document.getElementById("cbDrawerBody").innerHTML = clone.innerHTML;
+  const jump = document.getElementById("cbDrawerJump");
+  if (jump) jump.onclick = (e) => {
+    e.preventDefault();
+    cbCloseConcept();
+    src.open = true;
+    src.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  drawer.hidden = false; drawer.setAttribute("aria-hidden", "false");
+  if (scrim) scrim.hidden = false;
+  // Force a reflow so the transition has a start value, then open. Doing this
+  // synchronously rather than in requestAnimationFrame, which does not fire in
+  // a backgrounded tab and would leave the drawer stuck off-screen.
+  void drawer.offsetWidth;
+  drawer.classList.add("open");
+  drawer.style.right = "0px";
+  document.getElementById("cbDrawerClose").focus();
+}
+
+function cbCloseConcept() {
+  const drawer = document.getElementById("cbDrawer");
+  const scrim = document.getElementById("cbDrawerScrim");
+  if (!drawer || drawer.hidden) return;
+  drawer.classList.remove("open");
+  drawer.setAttribute("aria-hidden", "true");
+  drawer.style.right = "";
+  if (scrim) scrim.hidden = true;
+  setTimeout(() => { drawer.hidden = true; }, 200);
+}
+(function _cbDrawerInit() {
+  const x = document.getElementById("cbDrawerClose");
+  const scrim = document.getElementById("cbDrawerScrim");
+  if (x) x.addEventListener("click", cbCloseConcept);
+  if (scrim) scrim.addEventListener("click", cbCloseConcept);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") cbCloseConcept(); });
+  // setLang() rewrites [data-en] innerHTML, which strips the injected links
+  window.addEventListener("iv-lang", () => { cbCloseConcept(); setTimeout(cbWireConcepts, 0); });
+})();
 async function _cbTryUnlock() {
   const inp = document.getElementById("cbPass");
   const msg = document.getElementById("cbMsg");
