@@ -153,7 +153,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
     <div id="biasGame"></div>
   </section>
 
-  <p class="sa-foot" data-en="A standalone extract of the &quot;Which one?&quot; and &quot;Databases&quot; tabs from the RWE &amp; Quasi-experimental Toolbox — for teaching use. Full toolbox (32 methods, each with six learning tabs): {TOOLBOX_URL} · All built-in data is fictional synthetic demo data; drug X is a generic placeholder, not a real product.">這是「真實世界證據與準實驗工具箱」中「怎麼選」與「資料庫」分頁的獨立版，供授課使用。完整工具箱（32 種方法、每種六個學習分頁）：<a href="{TOOLBOX_URL}" target="_blank" rel="noopener">{TOOLBOX_URL}</a>　·　所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
+  <p class="sa-foot">所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
 
 </div>
 

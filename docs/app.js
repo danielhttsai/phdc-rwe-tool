@@ -3776,7 +3776,7 @@ const DB_SCENARIOS = [
   { s: { zh: "三種同類<b>藥物X 頭對頭比較</b>療效", en: "<b>Head-to-head</b> comparison of three same-class drug-X options" },
     db: { zh: "健保串接癌症登記", en: "NHI claims linked to the Cancer Registry" }, dbkey: "nhicancer", m: { zh: "主動對照新使用者", en: "active-comparator new-user" }, mkey: "acnu" },
   { s: { zh: "藥物X 在<b>失智症</b>的影像結果與臨床追蹤", en: "Drug X in <b>dementia</b>: imaging outcomes and clinical follow-up" },
-    db: { zh: "HALST 世代（可串健保）", en: "HALST cohort (linkable to NHI)" }, dbkey: "halst", m: { zh: "世代＋影像中介", en: "cohort + imaging mediation" }, mkey: "med" },
+    db: { zh: "HALST 世代（可串健保）", en: "HALST cohort (linkable to NHI)" }, dbkey: "halst", m: { zh: "前瞻世代＋中介分析", en: "prospective cohort + mediation" }, mkey: "med" },
 ];
 
 let dbtreeStack = [{ id: "d1", ans: null }];
@@ -3870,8 +3870,10 @@ function renderDbSummary(hitDb) {
     `<div class="db-scn-grid">` +
     DB_SCENARIOS.map((s) =>
       `<div class="db-scn"><div class="db-scn-q">${L(s.s)}</div>` +
-      `<div class="db-scn-a"><span class="db-scn-db">${L(s.db)}</span>` +
-      `<button class="db-chip" data-go="${s.mkey}">${L(s.m)}</button></div></div>`).join("") +
+      `<div class="db-scn-meta">` +
+      `<div class="db-scn-row"><span class="db-scn-k">${tr("資料庫", "Database")}</span><span class="db-scn-db">${L(s.db)}</span></div>` +
+      `<div class="db-scn-row"><span class="db-scn-k">${tr("方法", "Method")}</span><button class="db-chip" data-go="${s.mkey}">${L(s.m)}</button></div>` +
+      `</div></div>`).join("") +
     `</div>`;
   box.innerHTML =
     `<h3 class="fc-title">${tr("資料庫總表（你剛選到的會被標亮）", "Full comparison table (your pick is highlighted)")}</h3>` +
