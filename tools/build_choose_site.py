@@ -101,7 +101,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <div class="sa-tabs" role="tablist">
     <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Pick a method">① 選方法</button>
     <button class="sa-tab" id="saTabDb" type="button" data-en="② Pick a database">② 選資料庫</button>
-    <button class="sa-tab" id="saTabAlign" type="button" data-en="③ Align time zero">③ 對齊時間零</button>
+    <button class="sa-tab" id="saTabAlign" type="button" data-en="③ Align Time Zero">③ Align Time Zero</button>
     <button class="sa-tab" id="saTabBias" type="button" data-en="④ Spot the bias">④ 抓偏誤</button>
   </div>
 
@@ -144,7 +144,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 
   <!-- ===================== TAB 3 · 對齊時間零 ===================== -->
   <section class="sa-panel" id="paneAlign" hidden>
-    <h2 class="sa-h2" data-en="Five designs that align time zero (so there is no immortal time)">五種「對齊時間零」的設計（讓不死時間消失）</h2>
+    <h2 class="sa-h2" data-en="Align Time Zero — click an approach and watch the timeline">Align Time Zero：點一個做法，看時間軸怎麼變</h2>
     <div id="alignStage"></div>
   </section>
 

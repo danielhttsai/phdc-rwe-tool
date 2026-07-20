@@ -3926,23 +3926,138 @@ const ALIGN_METHODS = [
     pro: { zh: "能處理靜態策略配不出來的動態策略；目標試驗模擬的常見實作。", en: "Handles dynamic strategies a static grouping can't; a common target-trial implementation." },
     con: { zh: "需要時變共變量把設限的 IPCW 建對；重複納入 → bootstrap 變異。", en: "Needs time-varying covariates to model the censoring IPCW correctly; repeated inclusion → bootstrap variance." } },
 ];
+// interactive timeline demo: one config per approach ('naive' shows the bug).
+const ALIGN_ORDER = [
+  { k: "naive", short: { zh: "天真做法（錯）", en: "Naive (wrong)" } },
+  { k: "tvc", short: { zh: "時變暴露", en: "Time-varying" } },
+  { k: "acnu", short: { zh: "主動對照", en: "Active comparator" } },
+  { k: "landmark", short: { zh: "地標", en: "Landmark" } },
+  { k: "seq", short: { zh: "序列試驗", en: "Sequential" } },
+  { k: "ccw", short: { zh: "複製-設限-加權", en: "Clone-censor-weight" } },
+];
+const ALIGN_DEMO = {
+  naive: {
+    title: { zh: "天真做法：曾用藥物X ＝ 暴露，時間零放在診斷（← 這裡出錯）", en: "Naive: ever-use = exposed, time zero at diagnosis (← the mistake)" },
+    rows: [
+      { label: { zh: "用藥物X者（第3月起用）", en: "Drug-X user (starts m3)" }, t0: 0, segs: [[0, 90, "im"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "沒用藥物X者", en: "Non-user" }, t0: 0, segs: [[0, 150, "un"]], ev: { x: 150, type: "dead" } },
+    ],
+    note: { zh: "兩人時間零都放在<b>診斷（第0天）</b>，但「曾用藥」被當成整段暴露。用藥者第 0–3 月<b>還沒用藥、卻算暴露、而且保證活著才等得到用藥</b>，這段紅色就是<b>不死時間</b>，會讓藥物X 看起來能延命。", en: "Both clocks start at <b>diagnosis (day 0)</b>, but 'ever-use' is counted as exposed throughout. The user's first 3 months are <b>not yet treated, counted as exposed, and guaranteed alive</b> (they had to survive to start) — that red stretch is <b>immortal time</b>, making drug X look protective." },
+  },
+  tvc: {
+    title: { zh: "時變暴露：時間零仍在診斷，但暴露隨時間開關", en: "Time-varying: same time zero, exposure switches on over time" },
+    rows: [
+      { label: { zh: "用藥物X者（第3月起用）", en: "Drug-X user (starts m3)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "沒用藥物X者", en: "Non-user" }, t0: 0, segs: [[0, 150, "un"]], ev: { x: 150, type: "dead" } },
+    ],
+    note: { zh: "同一個時間零（第0天），但把暴露當<b>時變</b>：用藥者第 0–3 月正確算成<b>未暴露人時</b>（灰），第3月真正用藥後才轉<b>暴露</b>（青）。紅色的不死時間消失了。", en: "Same time zero, but exposure is <b>time-varying</b>: the user's first 3 months are correctly booked as <b>unexposed</b> (grey) and only flip to <b>exposed</b> (teal) when they actually start. The immortal red is gone." },
+  },
+  acnu: {
+    title: { zh: "主動對照新使用者：時間零＝起始日，兩組都從起始起算", en: "Active-comparator new-user: time zero = initiation, both arms start there" },
+    rows: [
+      { label: { zh: "藥物X 新使用者", en: "Drug-X new user" }, t0: 60, segs: [[60, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "對照藥 新使用者", en: "Comparator new user" }, t0: 60, segs: [[60, 300, "ctrl"]], ev: { x: 300, type: "dead" } },
+    ],
+    note: { zh: "兩組都是「<b>剛起始</b>」的新使用者，時間零＝<b>起始日</b>（不是診斷），時鐘在同一種時點對齊，起始前不納入 → 沒有不死時間；又因同適應症，順帶壓低適應症混淆。", en: "Both arms are <b>new</b> users; time zero = the <b>initiation day</b> (not diagnosis), so the clocks align and pre-initiation time is not enrolled → no immortal time. The shared indication also curbs confounding by indication." },
+  },
+  landmark: {
+    title: { zh: "地標分析：時間零＝地標（第6月），從地標才起算", en: "Landmark: time zero = the landmark (m6), follow-up starts there" },
+    rows: [
+      { label: { zh: "地標前已用→暴露", en: "Used before landmark → exposed" }, t0: 180, segs: [[0, 180, "ex0"], [180, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "地標前未用→未暴露", en: "Not used by landmark → unexposed" }, t0: 180, segs: [[0, 180, "ex0"], [180, 300, "un"]], ev: { x: 300, type: "dead" } },
+      { label: { zh: "地標前就過世→排除", en: "Died before landmark → excluded" }, t0: 180, segs: [[0, 120, "ex0"]], ev: { x: 120, type: "dead" } },
+    ],
+    note: { zh: "選第6月為<b>地標</b>：到地標才依「地標前是否已用藥物X」分組，追蹤<b>從地標起算</b>。地標前的時間不計（斜線），地標前就過世者被<b>排除</b> → 沒有不死時間。代價：丟掉地標前的資訊與人。", en: "Pick m6 as the <b>landmark</b>: classify by use before it, and start follow-up <b>at</b> it. Pre-landmark time is not counted (hatched) and anyone who died before it is <b>excluded</b> → no immortal time. Cost: pre-landmark information and people are discarded." },
+  },
+  seq: {
+    title: { zh: "序列試驗：每個合格時點各開一場，各自對齊時間零", en: "Sequential trials: one at each eligibility time, each with its own aligned time zero" },
+    rows: [
+      { label: { zh: "試驗①（第0月合格）", en: "Trial 1 (eligible m0)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "試驗②（第3月合格）", en: "Trial 2 (eligible m3)" }, t0: 90, segs: [[90, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "試驗③（第6月合格）", en: "Trial 3 (eligible m6)" }, t0: 180, segs: [[180, 360, "ex"]], ev: { x: 360, type: "end" } },
+    ],
+    note: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」，每場的時間零＝該合格時點，<b>場內完全對齊</b>（當下用 vs 不用），再把多場<b>合併</b>。等於在許多對齊的時間零上模擬 RCT；同一人可在多場重複納入 → 變異用 bootstrap。", en: "Open a mini-trial at <b>each eligibility time</b>; each trial's time zero = its eligibility moment, <b>perfectly aligned within the trial</b> (start now vs not), then <b>pool</b>. Many aligned time zeros, each an emulated RCT; a person can re-enter, so variance needs bootstrap." },
+  },
+  ccw: {
+    title: { zh: "複製-設限-加權：時間零複製到各策略，偏離就設限", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
+    rows: [
+      { label: { zh: "複製A（策略：早用）", en: "Clone A (strategy: treat early)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "複製B（策略：不用；此人第3月卻用了）", en: "Clone B (strategy: no use; but starts m3)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "cen"]], ev: { x: 90, type: "cen" } },
+    ],
+    note: { zh: "時間零把<b>每個人複製</b>到各策略，所有複製體都<b>從第0天起算</b>（完美對齊）。當某複製體<b>偏離</b>它的策略（如「不用」策略的人第3月卻用了），就在該時點<b>設限</b>（斜線），再用 <b>IPCW</b> 加權校正這個人為設限。最適合動態／持續策略。", en: "Time zero <b>clones each person</b> into every strategy; all clones <b>start at day 0</b> (perfect alignment). When a clone <b>deviates</b> from its strategy (the 'no-use' clone starts at m3), it is <b>censored</b> there (hatched) and the artificial censoring is reweighted with <b>IPCW</b>. Best for dynamic / sustained strategies." },
+  },
+};
+let alignSel = null;
+function _ax(d) { return 168 + d / 360 * 536; }
+function drawAlignSVG(cfg) {
+  const FILL = { un: "#cbd5e1", ex: "#3f8268", im: "#ef4444", ctrl: "#7c3aed", cen: "url(#hcen)", ex0: "url(#hex0)" };
+  const rows = cfg.rows, rh = 46, H = rows.length * rh + 58;
+  let s = '<svg viewBox="0 0 720 ' + H + '" class="align-svg" xmlns="http://www.w3.org/2000/svg">';
+  s += '<defs>' +
+    '<pattern id="hcen" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff7ed"/><line x1="0" y1="0" x2="0" y2="6" stroke="#f59e0b" stroke-width="2.2"/></pattern>' +
+    '<pattern id="hex0" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#f1f5f9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#cbd5e1" stroke-width="2.2"/></pattern>' +
+    '</defs>';
+  rows.forEach((r, i) => {
+    const y = 26 + i * rh;
+    s += '<text x="6" y="' + (y + 4) + '" font-size="11" fill="#334155">' + L(r.label) + '</text>';
+    s += '<line x1="168" y1="' + y + '" x2="704" y2="' + y + '" stroke="#e2e8f0" stroke-width="1"/>';
+    (r.segs || []).forEach((seg) => {
+      s += '<rect x="' + _ax(seg[0]) + '" y="' + (y - 9) + '" width="' + (_ax(seg[1]) - _ax(seg[0])) + '" height="18" rx="3" fill="' + FILL[seg[2]] + '"/>';
+    });
+    if (r.t0 != null) {
+      const x = _ax(r.t0);
+      s += '<path d="M' + (x - 5) + ' ' + (y - 15) + ' L' + (x + 5) + ' ' + (y - 15) + ' L' + x + ' ' + (y - 8) + ' Z" fill="#0f172a"/>';
+      s += '<text x="' + x + '" y="' + (y - 18) + '" font-size="9" text-anchor="middle" fill="#0f172a">T0</text>';
+    }
+    if (r.ev) {
+      const x = _ax(r.ev.x);
+      if (r.ev.type === "dead") s += '<text x="' + x + '" y="' + (y + 4) + '" font-size="12" text-anchor="middle" fill="#b91c1c">✕</text>';
+      else if (r.ev.type === "cen") s += '<text x="' + x + '" y="' + (y + 4) + '" font-size="12" text-anchor="middle" fill="#b45309">╎</text>';
+      else s += '<text x="' + (x + 3) + '" y="' + (y + 4) + '" font-size="12" fill="#64748b">▶</text>';
+    }
+  });
+  const ay = rows.length * rh + 34;
+  ["0", "3m", "6m", "9m", "12m"].forEach((lab, i) => {
+    const x = _ax(i * 90);
+    s += '<line x1="' + x + '" y1="' + (ay - 6) + '" x2="' + x + '" y2="' + ay + '" stroke="#94a3b8"/>';
+    s += '<text x="' + x + '" y="' + (ay + 12) + '" font-size="9" text-anchor="middle" fill="#64748b">' + lab + '</text>';
+  });
+  s += '<text x="168" y="' + (ay + 26) + '" font-size="9" fill="#94a3b8">' + tr("診斷／進入世代後的時間", "time since diagnosis / cohort entry") + '</text>';
+  return s + '</svg>';
+}
 function renderAlign() {
   const stage = document.getElementById("alignStage");
   if (!stage) return;
-  const card = (m) => {
-    const chip = m.method
-      ? `<button class="db-chip" data-go="${m.method}">${tr("看教學", "Open tab")} →</button>` : "";
-    return `<div class="align-card"><h3>${L(m.name)}${chip}</h3>` +
-      `<p><b>${tr("怎麼做：", "What it does: ")}</b>${L(m.idea)}</p>` +
-      `<p class="align-zero"><b>${tr("如何對齊時間零：", "How it aligns time zero: ")}</b>${L(m.zero)}</p>` +
+  if (!alignSel) alignSel = "naive";
+  const chips = ALIGN_ORDER.map((o) =>
+    `<button class="align-pick${o.k === alignSel ? " active" : ""}" data-k="${o.k}">${L(o.short)}</button>`).join("");
+  const cfg = ALIGN_DEMO[alignSel];
+  const legend =
+    `<div class="align-legend">` +
+    `<span><i class="sw" style="background:#cbd5e1"></i>${tr("未暴露人時", "unexposed")}</span>` +
+    `<span><i class="sw" style="background:#3f8268"></i>${tr("暴露人時", "exposed")}</span>` +
+    `<span><i class="sw" style="background:#ef4444"></i>${tr("不死時間（錯算）", "immortal (mis-assigned)")}</span>` +
+    `<span><i class="sw" style="background:#7c3aed"></i>${tr("對照藥", "comparator")}</span>` +
+    `<span><i class="sw sw-cen"></i>${tr("設限", "censored")}</span>` +
+    `<span><i class="sw sw-ex0"></i>${tr("不計／排除", "not counted / excluded")}</span></div>`;
+  const m = ALIGN_METHODS.find((x) => x.key === alignSel);
+  const methodBox = m
+    ? `<div class="align-zero"><b>${tr("如何對齊時間零：", "How it aligns time zero: ")}</b>${L(m.zero)}</div>` +
       `<div class="align-pc"><span class="align-pro"><b>＋</b> ${L(m.pro)}</span>` +
-      `<span class="align-con"><b>－</b> ${L(m.con)}</span></div></div>`;
-  };
+      `<span class="align-con"><b>－</b> ${L(m.con)}</span></div>` +
+      (m.method ? `<button class="db-chip" data-go="${m.method}">${tr("看「" + L(m.name).replace(/（.*/, "") + "」教學", "Open the method tab")} →</button>` : "")
+    : "";
   stage.innerHTML =
     `<div class="align-lead">${tr(
-      "<b>不死時間偏誤（immortal time bias）</b>就是<b>時間零沒對齊</b>：如果你把「日後會用藥物X」當成暴露、卻從更早的時點起算，暴露組就被硬塞了一段「還沒用藥、卻保證活著」的時間，看起來像藥物X 讓人活更久。下面五種設計，都是用<b>同一招</b>解決它，替每個人挑一個<b>一致的時間零</b>。",
-      "<b>Immortal time bias</b> is simply a <b>misaligned time zero</b>: if you call people 'exposed' because they will later start drug X but start their clock earlier, the exposed group is handed a stretch of guaranteed-alive, not-yet-treated time that makes drug X look protective. The five designs below all fix it the <b>same way</b> — by giving every person one <b>consistent time zero</b>.")}</div>` +
-    `<div class="align-grid">` + ALIGN_METHODS.map(card).join("") + `</div>`;
+      "<b>不死時間偏誤（immortal time bias）</b>就是<b>時間零沒對齊</b>：把「日後會用藥物X」當暴露、卻從更早的時點起算，暴露組就被硬塞一段「還沒用藥、卻保證活著」的時間。<b>點下面的做法</b>，看時間軸怎麼變，同一招都是替每個人挑一個<b>一致的時間零</b>。",
+      "<b>Immortal time bias</b> is a <b>misaligned time zero</b>: call people exposed because they will later start drug X but start their clock earlier, and the exposed group is handed guaranteed-alive, not-yet-treated time. <b>Click an approach below</b> and watch the timeline change — each fixes it by giving everyone one <b>consistent time zero</b>.")}</div>` +
+    `<div class="align-picks">${chips}</div>` +
+    `<div class="align-viz"><h4 class="align-title">${L(cfg.title)}</h4>${drawAlignSVG(cfg)}</div>` +
+    legend +
+    `<div class="align-note ${alignSel === "naive" ? "bad" : "good"}">${L(cfg.note)}</div>` +
+    methodBox;
+  stage.querySelectorAll(".align-pick").forEach((b) =>
+    b.addEventListener("click", () => { alignSel = b.dataset.k; renderAlign(); }));
   stage.querySelectorAll(".db-chip").forEach((b) =>
     b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
 }
