@@ -92,10 +92,9 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 <div class="sa-wrap">
 
   <header class="sa-top">
-    <h1 data-en="Which design &amp; which database? A teaching picker">怎麼選：研究設計與資料庫
-      <span class="sa-sub" data-en="Two clickable pickers, framed around a generic drug X for a chronic disease.">兩個可點擊的挑選器，以「藥物X 對某慢性病」的通用情境示範。</span>
+    <h1>怎麼選：研究設計與資料庫
+      <span class="sa-sub">四個可點擊的挑選器，以「藥物X 對某慢性病」的通用情境示範。</span>
     </h1>
-    <button id="saLang" class="sa-langbtn" type="button">EN</button>
   </header>
 
   <div class="sa-tabs" role="tablist">
@@ -159,21 +158,11 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 </div>
 
 <script>
-/* ---------- minimal i18n shim (the full toolbox uses i18n.js) ---------- */
-var _lang = (function () {{
-  try {{ return localStorage.getItem("iv-lang") || "zh"; }} catch (e) {{ return "zh"; }}
-}})();
+/* ---------- Chinese-only teaching site (no language toggle) ---------- */
+var _lang = "zh";
 function lang() {{ return _lang; }}
-function tr(zh, en) {{ return _lang === "en" ? en : zh; }}
-function applyLang() {{
-  document.querySelectorAll("[data-en]").forEach(function (el) {{
-    if (el.dataset.zh === undefined) el.dataset.zh = el.innerHTML;
-    el.innerHTML = _lang === "en" ? el.dataset.en : el.dataset.zh;
-  }});
-  document.documentElement.lang = _lang === "en" ? "en" : "zh-Hant";
-  var b = document.getElementById("saLang");
-  if (b) b.textContent = _lang === "en" ? "中文" : "EN";
-}}
+function tr(zh, en) {{ return zh; }}
+function applyLang() {{ document.documentElement.lang = "zh-Hant"; }}
 
 /* ---------- leaf "go to the method" opens the full toolbox ---------- */
 var TOOLBOX_URL = {json.dumps(TOOLBOX_URL)};
@@ -213,16 +202,6 @@ initBiasGame();
     document.getElementById(t.btn).addEventListener("click", function () {{ show(t.btn); }});
   }});
 }})();
-
-document.getElementById("saLang").addEventListener("click", function () {{
-  _lang = _lang === "en" ? "zh" : "en";
-  try {{ localStorage.setItem("iv-lang", _lang); }} catch (e) {{}}
-  applyLang();
-  renderDtree();        // re-render all dynamic content in the new language
-  renderDbtree();
-  renderAlign();
-  renderBiasGame();
-}});
 </script>
 </body>
 </html>

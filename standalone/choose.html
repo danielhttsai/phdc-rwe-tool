@@ -773,10 +773,9 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
 <div class="sa-wrap">
 
   <header class="sa-top">
-    <h1 data-en="Which design &amp; which database? A teaching picker">怎麼選：研究設計與資料庫
-      <span class="sa-sub" data-en="Two clickable pickers, framed around a generic drug X for a chronic disease.">兩個可點擊的挑選器，以「藥物X 對某慢性病」的通用情境示範。</span>
+    <h1>怎麼選：研究設計與資料庫
+      <span class="sa-sub">四個可點擊的挑選器，以「藥物X 對某慢性病」的通用情境示範。</span>
     </h1>
-    <button id="saLang" class="sa-langbtn" type="button">EN</button>
   </header>
 
   <div class="sa-tabs" role="tablist">
@@ -840,21 +839,11 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
 </div>
 
 <script>
-/* ---------- minimal i18n shim (the full toolbox uses i18n.js) ---------- */
-var _lang = (function () {
-  try { return localStorage.getItem("iv-lang") || "zh"; } catch (e) { return "zh"; }
-})();
+/* ---------- Chinese-only teaching site (no language toggle) ---------- */
+var _lang = "zh";
 function lang() { return _lang; }
-function tr(zh, en) { return _lang === "en" ? en : zh; }
-function applyLang() {
-  document.querySelectorAll("[data-en]").forEach(function (el) {
-    if (el.dataset.zh === undefined) el.dataset.zh = el.innerHTML;
-    el.innerHTML = _lang === "en" ? el.dataset.en : el.dataset.zh;
-  });
-  document.documentElement.lang = _lang === "en" ? "en" : "zh-Hant";
-  var b = document.getElementById("saLang");
-  if (b) b.textContent = _lang === "en" ? "中文" : "EN";
-}
+function tr(zh, en) { return zh; }
+function applyLang() { document.documentElement.lang = "zh-Hant"; }
 
 /* ---------- leaf "go to the method" opens the full toolbox ---------- */
 var TOOLBOX_URL = "https://danielhttsai.github.io/phdc-rwe-tool/";
@@ -1902,11 +1891,11 @@ const ALIGN_METHODS = [
     pro: { zh: "同一人可在多場重複納入 → 放大有效樣本；是目標試驗模擬的一員。", en: "A person can re-enter several trials → boosts effective N; part of the target-trial family." },
     con: { zh: "重複納入 → 變異要用 bootstrap；適合「點治療決定」而非持續策略。", en: "Repeated entry → variance needs bootstrap; fits a point decision, not a sustained strategy." } },
   { key: "ccw", method: "ccw",
-    name: { zh: "複製-設限-加權（clone-censor-weight）", en: "Clone-censor-weight (CCW)" },
-    idea: { zh: "時間零把每個人<b>複製</b>到各策略，當某複製體的資料不再吻合它的策略時<b>設限</b>，再用 <b>IPCW</b> 加權校正這個人為設限。", en: "At time zero <b>clone</b> each person into every strategy, <b>censor</b> a clone when its data stop matching its strategy, then reweight the artificial censoring with <b>IPCW</b>." },
+    name: { zh: "複製-中斷-加權（clone-censor-weight）", en: "Clone-censor-weight (CCW)" },
+    idea: { zh: "時間零把每個人<b>複製</b>到各策略，當某複製體的資料不再吻合它的策略時<b>中斷</b>（設限），再用 <b>IPCW</b> 加權校正這個人為中斷。", en: "At time zero <b>clone</b> each person into every strategy, <b>censor</b> a clone when its data stop matching its strategy, then reweight the artificial censoring with <b>IPCW</b>." },
     zero: { zh: "所有複製體都<b>從同一個時間零起算</b> → 完美對齊；最適合「診斷後早用 vs 晚用」「持續 vs 停藥」這類動態／持續策略。", en: "Every clone starts the clock at the <b>same time zero</b> → perfect alignment; best for dynamic / sustained strategies like early-vs-late or stay-on-vs-discontinue." },
     pro: { zh: "能處理靜態策略配不出來的動態策略；目標試驗模擬的常見實作。", en: "Handles dynamic strategies a static grouping can't; a common target-trial implementation." },
-    con: { zh: "需要時變共變量把設限的 IPCW 建對；重複納入 → bootstrap 變異。", en: "Needs time-varying covariates to model the censoring IPCW correctly; repeated inclusion → bootstrap variance." } },
+    con: { zh: "需要時變共變量把中斷（設限）的 IPCW 建對；重複納入 → bootstrap 變異。", en: "Needs time-varying covariates to model the censoring IPCW correctly; repeated inclusion → bootstrap variance." } },
 ];
 // interactive timeline demo: one config per approach ('naive' shows the bug).
 const ALIGN_ORDER = [
@@ -1915,7 +1904,7 @@ const ALIGN_ORDER = [
   { k: "acnu", short: { zh: "主動對照", en: "Active comparator" } },
   { k: "landmark", short: { zh: "地標", en: "Landmark" } },
   { k: "seq", short: { zh: "序列試驗", en: "Sequential" } },
-  { k: "ccw", short: { zh: "複製-設限-加權", en: "Clone-censor-weight" } },
+  { k: "ccw", short: { zh: "複製-中斷-加權", en: "Clone-censor-weight" } },
 ];
 const ALIGN_DEMO = {
   naive: {
@@ -1961,12 +1950,12 @@ const ALIGN_DEMO = {
     note: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」，每場的時間零＝該合格時點，<b>場內完全對齊</b>（當下用 vs 不用），再把多場<b>合併</b>。等於在許多對齊的時間零上模擬 RCT；同一人可在多場重複納入 → 變異用 bootstrap。", en: "Open a mini-trial at <b>each eligibility time</b>; each trial's time zero = its eligibility moment, <b>perfectly aligned within the trial</b> (start now vs not), then <b>pool</b>. Many aligned time zeros, each an emulated RCT; a person can re-enter, so variance needs bootstrap." },
   },
   ccw: {
-    title: { zh: "複製-設限-加權：時間零複製到各策略，偏離就設限", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
+    title: { zh: "複製-中斷-加權：時間零複製到各策略，偏離就中斷", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
     rows: [
       { label: { zh: "複製A（策略：早用）", en: "Clone A (strategy: treat early)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
-      { label: { zh: "複製B（策略：不用；此人第3月卻用了）", en: "Clone B (strategy: no use; but starts m3)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "cen"]], ev: { x: 90, type: "cen" } },
+      { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "cen"]], ev: { x: 90, type: "cen" } },
     ],
-    note: { zh: "時間零把<b>每個人複製</b>到各策略，所有複製體都<b>從第0天起算</b>（完美對齊）。當某複製體<b>偏離</b>它的策略（如「不用」策略的人第3月卻用了），就在該時點<b>設限</b>（斜線），再用 <b>IPCW</b> 加權校正這個人為設限。最適合動態／持續策略。", en: "Time zero <b>clones each person</b> into every strategy; all clones <b>start at day 0</b> (perfect alignment). When a clone <b>deviates</b> from its strategy (the 'no-use' clone starts at m3), it is <b>censored</b> there (hatched) and the artificial censoring is reweighted with <b>IPCW</b>. Best for dynamic / sustained strategies." },
+    note: { zh: "時間零把<b>每個人複製</b>到各策略，所有複製體都<b>從第0天起算</b>（完美對齊）。當某複製體<b>偏離</b>它的策略（如「不用」策略的複製B 第3月卻用了藥），就在該時點<b>中斷</b>（設限，斜線），再用 <b>IPCW</b> 加權校正這個人為中斷。最適合動態／持續策略。", en: "Time zero <b>clones each person</b> into every strategy; all clones <b>start at day 0</b> (perfect alignment). When a clone <b>deviates</b> from its strategy (the 'no-use' clone starts at m3), it is <b>censored</b> there (hatched) and the artificial censoring is reweighted with <b>IPCW</b>. Best for dynamic / sustained strategies." },
   },
 };
 let alignSel = null;
@@ -1981,7 +1970,7 @@ function drawAlignSVG(cfg) {
     '</defs>';
   rows.forEach((r, i) => {
     const y = 26 + i * rh;
-    s += '<text x="6" y="' + (y + 4) + '" font-size="11" fill="#334155">' + L(r.label) + '</text>';
+    s += '<text x="6" y="' + (y + 4) + '" font-size="10" fill="#334155">' + L(r.label) + '</text>';
     s += '<line x1="168" y1="' + y + '" x2="704" y2="' + y + '" stroke="#e2e8f0" stroke-width="1"/>';
     (r.segs || []).forEach((seg) => {
       s += '<rect x="' + _ax(seg[0]) + '" y="' + (y - 9) + '" width="' + (_ax(seg[1]) - _ax(seg[0])) + '" height="18" rx="3" fill="' + FILL[seg[2]] + '"/>';
@@ -2020,7 +2009,7 @@ function renderAlign() {
     `<span><i class="sw" style="background:#3f8268"></i>${tr("暴露人時", "exposed")}</span>` +
     `<span><i class="sw" style="background:#ef4444"></i>${tr("不死時間（錯算）", "immortal (mis-assigned)")}</span>` +
     `<span><i class="sw" style="background:#7c3aed"></i>${tr("對照藥", "comparator")}</span>` +
-    `<span><i class="sw sw-cen"></i>${tr("設限", "censored")}</span>` +
+    `<span><i class="sw sw-cen"></i>${tr("中斷（設限）", "censored")}</span>` +
     `<span><i class="sw sw-ex0"></i>${tr("不計／排除", "not counted / excluded")}</span></div>`;
   const m = ALIGN_METHODS.find((x) => x.key === alignSel);
   const methodBox = m
@@ -2058,7 +2047,7 @@ const BIAS_SCENARIOS = [
   { s: { zh: "把「確診後<b>曾用過</b>藥物X」的人算成暴露組，<b>時間零設在確診日</b>、一路追蹤到死亡，再和從頭到尾沒用過藥的人比存活。", en: "Call people 'exposed' if they <b>ever started</b> drug X after diagnosis, put <b>time zero at the diagnosis day</b>, follow to death, and compare survival with never-users." },
     ans: ["immortal", "indication"],
     why: { zh: "暴露組必須<b>活到能用藥的那天</b>，所以確診到用藥之間那段「保證存活」的時間被錯算給暴露組 → 不死時間；又因「用藥 vs 從不用藥」，用藥者往往病況不同 → 適應症混淆。", en: "The exposed had to <b>survive until they could start</b>, so the guaranteed-alive gap from diagnosis to initiation is mis-booked as exposed → immortal time; and 'users vs never-users' differ in prognosis → confounding by indication." },
-    fix: { zh: "把暴露當<b>時變</b>，或改用<b>地標</b>／<b>複製-設限-加權</b>對齊時間零；對照改成<b>主動對照</b>解適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
+    fix: { zh: "把暴露當<b>時變</b>，或改用<b>地標</b>／<b>複製-中斷-加權</b>對齊時間零；對照改成<b>主動對照</b>解適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
   { s: { zh: "在健保資料裡比較「用藥物X 的人」和「完全沒用任何藥的人」的結果，並用年齡、性別校正。", en: "In claims data, compare drug-X users with people on <b>no drug at all</b>, adjusting for age and sex." },
     ans: ["indication"],
     why: { zh: "會被開藥物X 的人，通常本來就比「完全不用藥」的人病得重（或輕）→ 兩組的<b>基礎風險</b>不同，這是典型的適應症混淆。時間零若都從起始／合格對齊，就沒有不死時間。", en: "People who get prescribed drug X differ in baseline severity from those on nothing → different underlying risk, the classic confounding by indication. With aligned initiation/eligibility time zero there is no immortal time here." },
@@ -2074,7 +2063,7 @@ const BIAS_SCENARIOS = [
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
     why: { zh: "『整個追蹤期都規律用藥』<b>必須活很久且沒中斷</b> → 嚴重不死時間；『用 vs 從不用』→ 適應症混淆；規律用藥者往往<b>更健康守規矩（healthy adherer）</b>，這種傾向常沒被測到 → 無法被測量的干擾因子。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
-    fix: { zh: "用<b>時變暴露</b>或<b>複製-設限-加權</b>處理規律性/時間零，配<b>主動對照</b>，再對 healthy-adherer 做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
+    fix: { zh: "用<b>時變暴露</b>或<b>複製-中斷-加權</b>處理規律性/時間零，配<b>主動對照</b>，再對 healthy-adherer 做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
   { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，時間零對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
     ans: [],
     why: { zh: "新使用者對齊時間零 → 無不死時間；同適應症對照 → 適應症混淆很小；重要混淆都測到 → 無法被測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
@@ -2158,16 +2147,6 @@ initBiasGame();
     document.getElementById(t.btn).addEventListener("click", function () { show(t.btn); });
   });
 })();
-
-document.getElementById("saLang").addEventListener("click", function () {
-  _lang = _lang === "en" ? "zh" : "en";
-  try { localStorage.setItem("iv-lang", _lang); } catch (e) {}
-  applyLang();
-  renderDtree();        // re-render all dynamic content in the new language
-  renderDbtree();
-  renderAlign();
-  renderBiasGame();
-});
 </script>
 </body>
 </html>
