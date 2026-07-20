@@ -7189,9 +7189,9 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
 
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
   <section id="choose" class="panel">
-    <h1 data-en="Many designs, one vaccine question — which to use?">怎麼選：同一個疫苗問題，多種攻法</h1>
-    <p class="lead" data-en="Throughout this whole toolbox we asked <b>one</b> causal question — <b>does the vaccine actually improve health / prevent the event?</b> The ideal way would be a randomised trial, but often we can't run one. So a range of <b>real-world-evidence &amp; quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
-      整個工具箱我們只問<b>一個</b>因果問題，<b>疫苗真的能改善健康／預防那個事件嗎？</b>
+    <h1 data-en="Many designs, one drug-X question — which to use?">怎麼選：同一個藥物X 問題，多種攻法</h1>
+    <p class="lead" data-en="Throughout this whole toolbox we ask <b>one</b> causal question, framed generically as <b>does drug X actually improve a chronic-disease outcome?</b> The ideal way would be a randomised trial, but often we can't run one. So a range of <b>real-world-evidence &amp; quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
+      整個工具箱我們只問<b>一個</b>因果問題，用通用的說法就是<b>藥物X 真的能改善某慢性病的結果嗎？</b>
       最理想的做法是隨機試驗，但我們常常做不到。於是多種<b>真實世界證據／準實驗</b>設計，各自從<b>不同的地方</b>「借」一點
       近似隨機的變異來回答。這裡把它們並排，幫你挑出你的資料撐得起的那一個。
     </p>
@@ -7232,8 +7232,8 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
     <div class="card scene">
       <h3 data-en="Same family, same logic">同一家族、同一套邏輯</h3>
       <ul>
-        <li data-en="<b>They all fake a randomised trial.</b> None truly randomises who gets the vaccine; each finds a source of variation (or a self-controlled / sampling trick) that is <b>as good as random</b> and uses it as a stand-in.">
-          <b>每一種都在「假裝」做隨機試驗。</b>沒有一個真的隨機分派誰接種，而是各自找到一段<b>近似隨機</b>的變異（或自我對照／抽樣的把戲）來頂替。
+        <li data-en="<b>They all fake a randomised trial.</b> None truly randomises who gets drug X; each finds a source of variation (or a self-controlled / sampling trick) that is <b>as good as random</b> and uses it as a stand-in.">
+          <b>每一種都在「假裝」做隨機試驗。</b>沒有一個真的隨機分派誰用藥，而是各自找到一段<b>近似隨機</b>的變異（或自我對照／抽樣的把戲）來頂替。
         </li>
         <li data-en="<b>Each hinges on one untestable core assumption.</b> Exclusion, continuity, parallel trends, no-synchronised-confounder-trend, no-coincident-event, time-invariant confounding, sequential exchangeability, the active comparator's shared indication, time-conditional exchangeability — each design rests on one thing you can't prove from data, plus testable supports. So every method has a ④ dashboard you must run.">
           <b>每一種都押在一條不可檢驗的核心假設上。</b>排除限制、連續性、平行趨勢、無同步混淆趨勢、無同時代事件、
@@ -7282,91 +7282,91 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       </ul>
     </div>
 
-    <h2 data-en="One vaccine question, many ways to borrow randomness (by family)">同一個疫苗問題，多種「借隨機」的方式（按家族）</h2>
+    <h2 data-en="One drug-X question, many ways to borrow randomness (by family)">同一個藥物X 問題，多種「借隨機」的方式（按家族）</h2>
     <div class="table-wrap">
       <table class="cmp">
         <thead><tr>
           <th data-en="Method">方法</th>
-          <th data-en="Its vaccine scenario in this tool">這個工具裡的疫苗情境</th>
+          <th data-en="Its drug-X scenario in this tool">這個工具裡的藥物X 情境</th>
           <th data-en="Where the &quot;randomness&quot; is borrowed">「隨機」從哪借</th>
           <th data-en="The one untestable assumption">最關鍵、不可檢驗的假設</th>
         </tr></thead>
         <tbody>
           <tr><td colspan="4" class="famhdr" data-en="Family · borrowed exogenous variation (an instrument / a cutoff)">家族 · 借外生變異（工具／斷點）</td></tr>
           <tr><td>IV</td>
-            <td data-en="A randomly mailed reminder nudged some people to get vaccinated">隨機寄出的接種提醒，推了一部分人去打疫苗</td>
-            <td data-en="A genuinely exogenous instrument (the random reminder)">一個真正外生的工具（隨機提醒）</td>
-            <td data-en="Exclusion: the reminder affects health only through vaccination">排除限制：提醒只透過「接種」影響健康</td></tr>
+            <td data-en="A near-random physician preference nudged some patients toward drug X">近乎隨機的醫師用藥偏好，推了一部分病人去用藥物X</td>
+            <td data-en="A genuinely exogenous instrument (physician preference)">一個真正外生的工具（醫師偏好）</td>
+            <td data-en="Exclusion: preference affects the outcome only through drug X">排除限制：偏好只透過「用藥物X」影響結果</td></tr>
           <tr><td>RDD</td>
-            <td data-en="A free vaccination programme offered only at age 65+">免費接種計畫只開放給滿 65 歲的人</td>
-            <td data-en="A sharp rule at a cutoff (age 65)">分數上的明確門檻（年齡 65）</td>
-            <td data-en="Continuity: people just below vs above 65 are otherwise alike">連續性：剛好 65 歲上下的人其他條件相同</td></tr>
+            <td data-en="Drug X is reimbursed only above a lab-value threshold">藥物X 只在檢驗值超過門檻時才給付</td>
+            <td data-en="A sharp rule at a cutoff (a lab threshold)">分數上的明確門檻（檢驗值）</td>
+            <td data-en="Continuity: people just below vs above the threshold are otherwise alike">連續性：剛好門檻上下的人其他條件相同</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · borrowed timing / trends (a policy date, a pre-trend, before-vs-after)">家族 · 借時間（政策時點／前後趨勢）</td></tr>
           <tr><td>DiD</td>
-            <td data-en="Some communities switch on a vaccination drive at a known time">某些社區在某個時點開啟接種推廣政策</td>
-            <td data-en="Timing: a policy turned on for some groups at a known date">時間：政策在已知時點對部分社區開啟</td>
+            <td data-en="Some hospitals adopt drug X into routine care at a known time">某些醫院在某個時點把藥物X 納入常規</td>
+            <td data-en="Timing: adoption turned on for some groups at a known date">時間：導入在已知時點對部分醫院開啟</td>
             <td data-en="Parallel trends: absent the policy, the groups would move together">平行趨勢：沒政策時兩組會一起變</td></tr>
           <tr><td>ITS</td>
-            <td data-en="A county launches a vaccination programme at a known month, tracked monthly">某縣市在已知月份推出接種計畫，逐月追蹤健康指標</td>
+            <td data-en="A system adds drug X to prescribing at a known month, tracked monthly">某體系在已知月份把藥物X 納入處方，逐月追蹤結果</td>
             <td data-en="Timing: the pre-intervention trend extrapolated as the counterfactual">時間：介入前趨勢外推當反事實</td>
-            <td data-en="No other event coincides with the launch">介入的同時沒有別的事也發生</td></tr>
+            <td data-en="No other event coincides with the adoption">導入的同時沒有別的事也發生</td></tr>
           <tr><td>PERR</td>
-            <td data-en="Higher-risk people get vaccinated more; compare rates before vs after">高風險者較常被接種；比較接種 vs 未接種者在接種前後的事件率</td>
-            <td data-en="The same people's pre-vaccination ratio as the confounding benchmark">同一群人「接種前」的率比當混淆基準</td>
+            <td data-en="Sicker patients use drug X more; compare rates before vs after">病重者較常用藥物X；比較用 vs 未用者在用藥前後的事件率</td>
+            <td data-en="The same people's pre-treatment ratio as the confounding benchmark">同一群人「用藥前」的率比當混淆基準</td>
             <td data-en="The confounding is time-invariant and multiplicative">混淆時間不變且乘法</td></tr>
           <tr><td>TiT</td>
-            <td data-en="A new vaccine's uptake rises over calendar quarters, faster in some groups">一支新疫苗的接種率隨季逐漸上升，不同族群快慢不同</td>
-            <td data-en="A differential time-trend in vaccination prevalence across strata">接種盛行率隨時間、跨層不同的趨勢</td>
-            <td data-en="No unmeasured confounder trends in step with the uptake">沒有與接種趨勢同步的未測混淆趨勢</td></tr>
+            <td data-en="Drug X's uptake rises over calendar quarters, faster in some groups">藥物X 的使用率隨季逐漸上升，不同族群快慢不同</td>
+            <td data-en="A differential time-trend in drug-X use across strata">藥物X 使用率隨時間、跨層不同的趨勢</td>
+            <td data-en="No unmeasured confounder trend in step with the uptake">沒有與使用趨勢同步的未測混淆趨勢</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · self-controlled (each person is their own control)">家族 · 自我對照（同一個人前後比）</td></tr>
           <tr><td>CCTC</td>
             <td data-en="The same person's hazard window before an acute event vs an earlier reference window, while exposure prevalence drifts over calendar time">同一人「急性事件前的危險窗」vs「更早的參考窗」，且暴露盛行率隨日曆時間漂移</td>
             <td data-en="Within-person comparison + a control series to divide out the exposure time-trend">同一人前後比＋對照序列把暴露時間趨勢除掉</td>
             <td data-en="The reference window is exchangeable and the trend is divided out correctly">參考窗可交換、時間趨勢扣得對</td></tr>
           <tr><td>SCCS</td>
-            <td data-en="Only people who had the event; compare their post-vaccination risk window vs their own other time">只用發生過事件的人，比較他們「接種後危險窗」vs「自己其他時間」</td>
+            <td data-en="Only people who had the event; compare their post-drug-X risk window vs their own other time">只用發生過事件的人，比較他們「用藥後危險窗」vs「自己其他時間」</td>
             <td data-en="Conditioning on the person — all time-fixed factors cancel">條件在「人」，所有時間不變因子相消</td>
             <td data-en="The event does not change later exposure probability">事件不改變日後的暴露機率</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · target-trial emulation (sustained / point treatment strategies)">家族 · 目標試驗模擬（持續／點治療策略）</td></tr>
           <tr><td>CCW</td>
-            <td data-en="Compare a dynamic strategy: start early vs start late (or stay-on vs discontinue)">比較動態策略：早接種 vs 晚接種（或持續 vs 停藥）</td>
+            <td data-en="Compare a dynamic strategy: start drug X early vs late (or stay-on vs discontinue)">比較動態策略：早用 vs 晚用藥物X（或持續 vs 停藥）</td>
             <td data-en="Time-zero alignment + IPCW for the artificial censoring (g-methods)">對齊時間零點＋對人為設限做 IPCW（g-methods）</td>
             <td data-en="Sequential exchangeability — no unmeasured time-varying confounding">序列可交換，無未測的時變混淆</td></tr>
           <tr><td>Seq</td>
-            <td data-en="A point decision (vaccinate now vs not); open one emulated trial each eligibility month, then pool">點決定（現在接種 vs 不接種）；每個資格月開一場模擬試驗，再合併</td>
+            <td data-en="A point decision (start drug X now vs not); open one emulated trial each eligibility month, then pool">點決定（現在用藥物X vs 不用）；每個資格月開一場模擬試驗，再合併</td>
             <td data-en="Emulate a trial at each eligibility time, aligning time zero">在每個資格時點模擬一場試驗、對齊時間零點</td>
             <td data-en="Baseline exchangeability within each emulated trial">每場模擬試驗內的基線可交換</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · active-comparator new-user cohort (a comparator drug for the same indication)">家族 · 主動對照新使用者世代（同適應症的對照藥）</td></tr>
           <tr><td>ACNU</td>
-            <td data-en="New recipients of vaccine brand A vs new recipients of brand B (same indication)">A 廠牌的新接種者 vs B 廠牌的新接種者（同適應症）</td>
+            <td data-en="New users of drug X vs new users of a same-class comparator (same indication)">藥物X 的新使用者 vs 同類對照藥的新使用者（同適應症）</td>
             <td data-en="An active comparator with the same indication + a clear new-user time zero">同適應症的主動對照＋明確的新使用者時間零點</td>
             <td data-en="The comparator shares the indication and is neutral for the outcome">對照藥同適應症、且對該結果中性</td></tr>
           <tr><td>PNU</td>
-            <td data-en="Bring back people already vaccinated a while ago (prevalent users) by matching on time-since-vaccination">把已接種一段時間的人（盛行使用者）依「距接種時間」對齊納回來</td>
+            <td data-en="Bring back people already on drug X a while ago (prevalent users) by matching on time-since-initiation">把已用藥物X 一段時間的人（盛行使用者）依「距起始時間」對齊納回來</td>
             <td data-en="Time-conditional matching + a time-conditional propensity score">時間條件配對＋時間條件傾向分數</td>
             <td data-en="Time-conditional exchangeability; the treatment-start history is available">時間條件可交換、且拿得到暴露起始史</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="Family · sampling design / vaccine effectiveness (efficient outcome- or care-seeking-based sampling)">家族 · 抽樣設計／疫苗效力（依結果或求醫檢驗者做有效率抽樣）</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="Family · sampling design / preventive effectiveness (efficient outcome- or care-seeking-based sampling)">家族 · 抽樣設計／預防效力（依結果或求醫檢驗者做有效率抽樣）</td></tr>
           <tr><td>CC</td>
-            <td data-en="Find people who had the event (cases) vs who didn't (controls), then look back at vaccination">找有事件的人（病例）vs 沒事件的人（對照），再回頭看接種史</td>
+            <td data-en="Find people who had the event (cases) vs who didn't (controls), then look back at drug-X use">找有事件的人（病例）vs 沒事件的人（對照），再回頭看用藥物X 史</td>
             <td data-en="Efficient sampling of a target-trial cohort by outcome, then adjust">依結果對「模擬目標試驗的世代」做有效率抽樣，再校正</td>
             <td data-en="Controls represent the source population; measured confounders adjusted">對照代表來源族群；已測混淆校正</td></tr>
           <tr><td>TND</td>
-            <td data-en="Among people who seek care and get tested: target-pathogen positives are cases, negatives are controls; compare vaccination odds">求醫且接受檢驗的人之中：目標病原陽性為病例、陰性為對照，比兩者的接種勝算</td>
-            <td data-en="Conditioning on 'being tested' — test-negative controls make care-seeking non-differential w.r.t. vaccination">條件在「有來檢驗」這個選樣，陰性對照讓就醫傾向相對接種非差別</td>
-            <td data-en="A neutral control disease, an accurate test, and equal care-seeking given the same symptoms">對照疾病中性、檢驗準確、相同症狀下就醫無差別</td></tr>
+            <td data-en="Among people who seek care and get tested: target-positives are cases, negatives are controls; compare drug-X-use odds">求醫且接受檢驗的人之中：目標陽性為病例、陰性為對照，比兩者的藥物X 使用勝算</td>
+            <td data-en="Conditioning on 'being tested' — test-negative controls make care-seeking non-differential w.r.t. drug-X use">條件在「有來檢驗」這個選樣，陰性對照讓就醫傾向相對用藥物X 非差別</td>
+            <td data-en="A neutral control condition, an accurate test, and equal care-seeking given the same symptoms">對照病症中性、檢驗準確、相同症狀下就醫無差別</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · proxies / negative controls (proximal causal inference)">家族 · 代理／陰性對照（近端因果）</td></tr>
           <tr><td>NC/PCI</td>
-            <td data-en="Health-seeking (unmeasured) drives both vaccination and the outcome; you have a negative-control outcome (a pre-vaccination event) and a negative-control exposure">健康／就醫傾向（未測）同時影響接種與結果；你有陰性對照結果（接種前事件）與陰性對照暴露</td>
+            <td data-en="Care-seeking (unmeasured) drives both drug-X use and the outcome; you have a negative-control outcome (a pre-treatment event) and a negative-control exposure">就醫傾向（未測）同時影響用藥物X 與結果；你有陰性對照結果（用藥前事件）與陰性對照暴露</td>
             <td data-en="A pair of negative controls — proxies of the unmeasured confounder (no A→W, no Z→Y)">一對陰性對照，未測混淆的代理（A 不影響 W、Z 不影響 Y）</td>
             <td data-en="The negative controls' 'no causal effect' + a confounding bridge / completeness">陰性對照的「無因果」＋混淆橋／完備性</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · mechanism (a decomposition that follows any design above)">家族 · 機制（接在上面任一設計之後的效果分解）</td></tr>
           <tr><td>MED</td>
-            <td data-en="An effect is already known (vaccine → infection); you also measured a mediator M (antibody titer) on the path A → M → Y">已知有效果（疫苗 → 感染）；你還量了一個中介 M（抗體效價），位在 A → M → Y 的路徑上</td>
+            <td data-en="An effect is already known (drug X → outcome); you also measured a mediator M (a biomarker) on the path A → M → Y">已知有效果（藥物X → 結果）；你還量了一個中介 M（生物標記），位在 A → M → Y 的路徑上</td>
             <td data-en="Nothing — mediation is not a confounding-control design; it decomposes a known effect">不借，中介分析不是控制混淆的設計，而是把已知效果做分解</td>
             <td data-en="No unmeasured M–Y confounding (+ A–Y, A–M) and no exposure-induced M–Y confounder — untestable, not fixed by randomising A">無未測的 M–Y（＋A–Y、A–M）混淆、且無暴露誘發的 M–Y 混淆，不可檢，隨機化 A 也換不到</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · adjustment / propensity / doubly-robust (rich measured covariates)">家族 · 共變項校正／傾向分數／雙重穩健（已測共變項夠豐富）</td></tr>
           <tr><td>PS</td>
-            <td data-en="Sicker people get vaccinated more (confounding by indication); model the probability of vaccination from measured covariates">病重者較易接種（適應症混淆）；用已測共變項建「接種機率」（傾向分數）</td>
+            <td data-en="Sicker people use drug X more (confounding by indication); model the probability of drug-X use from measured covariates">病重者較易用藥物X（適應症混淆）；用已測共變項建「用藥機率」（傾向分數）</td>
             <td data-en="No exogenous variation — rebalance on the measured covariates (matching / IPTW / overlap weights)">不借外生變異，在已測共變項上重建平衡（配對／IPTW／重疊加權）</td>
             <td data-en="No unmeasured confounding + positivity (overlap) — the PS cannot fix what you didn't measure">無未測混淆＋正性（重疊），傾向分數救不了沒量到的混淆</td></tr>
           <tr><td>TMLE</td>
@@ -7375,34 +7375,34 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
             <td data-en="No unmeasured confounding + positivity; and at least one nuisance model correct (a rich Super Learner library)">無未測混淆＋正性；且至少一個輔助模型正確（Super Learner 函式庫要夠）</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · time-varying treatment / g-methods (treatment–confounder feedback over time)">家族 · 時變治療／g-methods（治療與混淆隨時間互相回饋）</td></tr>
           <tr><td>G-methods</td>
-            <td data-en="Whether to keep vaccinating changes period to period; a time-varying health state is affected by past vaccination and also predicts future vaccination & the outcome">是否持續接種逐期變動；時變的健康狀態受過去接種影響、又預測未來接種與結果（接種-健康回饋）</td>
+            <td data-en="Whether to keep taking drug X changes period to period; a time-varying disease state is affected by past use and also predicts future use & the outcome">是否持續用藥逐期變動；時變的疾病狀態受過去用藥影響、又預測未來用藥與結果（用藥-疾病回饋）</td>
             <td data-en="No exogenous variation — sequential adjustment: standardisation (g-formula) or IP-weighting (MSM); you cannot just condition on Lₜ">不借外生變異，序列校正：標準化（g-formula）或反機率加權（MSM）；不能直接「條件在 Lₜ」</td>
             <td data-en="Sequential exchangeability (no unmeasured time-varying confounding) + positivity at each time + correct models">序列可交換（無未測時變混淆）＋每時點正性＋模型正確</td></tr>
           <tr><td>WCE</td>
-            <td data-en="Repeated vaccination (multiple doses over time); how does the effect depend on the timing & accumulation of doses (the recent dose vs long-ago ones)">重複接種（多劑、隨時間給）；效果如何隨「接種的時間與累積」變化（最近一劑 vs 很久以前的劑）</td>
+            <td data-en="A chronic drug X (many doses over time); how does the effect depend on the timing & accumulation of doses (the recent dose vs long-ago ones)">長期用藥物X（多劑、隨時間給）；效果如何隨「用藥的時間與累積」變化（最近一劑 vs 很久以前的劑）</td>
             <td data-en="No exogenous variation — summarise the exposure history with a weight curve learned from the data, then estimate">不借外生變異，把暴露史用「從資料學出的權重曲線」加權成摘要再估效果</td>
             <td data-en="A well-measured exposure history, a wide-enough window, a correct hazard form, and — the key one — no time-varying confounding by indication">暴露史量得準、時間窗夠長、風險模型形式正確，且最關鍵，無時變的適應症混淆</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · signal detection (hypothesis-generating screening, not a single estimate)">家族 · 訊號偵測（產生假說的篩檢，不是單一估計）</td></tr>
           <tr><td>PSSA</td>
-            <td data-en="After a vaccine, do people more often start a 'marker' drug (a post-vaccination prescribing cascade)? Look only at people who newly start both within a window">接種某疫苗後，是否更常開始用某種「標記藥」（接種後的處方瀑布）？只看在一個時窗內疫苗與該藥都新起始的人</td>
+            <td data-en="After drug X, do people more often start a 'marker' drug (a prescribing cascade)? Look only at people who newly start both within a window">用藥物X 後，是否更常開始用某種「標記藥」（處方瀑布）？只看在一個時窗內藥物X 與該藥都新起始的人</td>
             <td data-en="Self-controlled — time-invariant confounders cancel within-person; only the calendar trend needs removing (SRnull)">自我對照，時間不變混淆在個人內相消；只需用 SRnull 除掉日曆趨勢</td>
             <td data-en="A plausible cascade direction, a correctly modelled trend, new users, and a sensible time window">瀑布方向合理、趨勢建模正確、新使用者、時間窗合適</td></tr>
           <tr><td>TreeScan</td>
-            <td data-en="Screen one vaccine against a whole hierarchy of adverse events (an ICD tree) — which outcome nodes show an excess too extreme for the 'vaccine does nothing' world">用一劑疫苗對「一整棵分層的不良事件（ICD 樹）」做安全性篩檢，哪些結果節點的超額極端到不像「疫苗沒作用」的世界</td>
+            <td data-en="Screen drug X against a whole hierarchy of adverse events (an ICD tree) — which outcome nodes show an excess too extreme for the 'drug X does nothing' world">用藥物X 對「一整棵分層的不良事件（ICD 樹）」做安全性篩檢，哪些結果節點的超額極端到不像「藥物X 沒作用」的世界</td>
             <td data-en="No single effect — a label-permutation null is the control; scan the whole tree for the most extreme node (multiplicity-controlled)">不估單一效果，用「打亂暴露標籤的排列虛無」當對照，掃描整棵樹找最極端節點（已控多重比較）</td>
             <td data-en="A meaningful tree, a constant baseline across nodes, and no unmodelled confounding (else the permutation null is wrong)">樹有意義、各節點基準為常數、無未建模混淆（否則排列虛無不對）</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · transportability / external control (borrow external info, then adjust for who differs)">家族 · 可轉移性／外部對照（借外部資訊，再校正「誰不一樣」）</td></tr>
           <tr><td>Transportability</td>
-            <td data-en="A vaccine's efficacy was measured in a (randomised) study in one population, but your target population has a different mix of effect modifiers (e.g. older, more comorbid)">疫苗效力是在某個族群的（隨機）研究裡量到的，但你的目標族群效果修飾子分布不同（例如更年長、共病更多）</td>
+            <td data-en="Drug X's efficacy was measured in a (randomised) study in one population, but your target population has a different mix of effect modifiers (e.g. older, more comorbid)">藥物X 的效力是在某個族群的（隨機）研究裡量到的，但你的目標族群效果修飾子分布不同（例如更年長、共病更多）</td>
             <td data-en="Not for confounding — the study is already unbiased; you borrow the measured effect-modifier distribution to re-weight / standardise to the target">不是用來校混淆，研究本身已無偏；借的是已測效果修飾子的分布，用來把效果加權／標準化到目標族群</td>
             <td data-en="Conditional transportability: every effect modifier that differs between the two populations is measured, plus overlap of their distributions">條件可轉移性：兩族群間有差異的效果修飾子全部都測得到，且兩者分布有重疊</td></tr>
           <tr><td><a class="xref" data-m="extctrl">External control</a></td>
-            <td data-en="A single-arm vaccine study (everyone vaccinated, no concurrent controls); you borrow an external/historical untreated cohort as the control arm">單臂疫苗研究（全部接種、沒有同期對照）；你借一個外部／歷史的未接種世代當對照臂</td>
+            <td data-en="A single-arm drug-X study (everyone treated, no concurrent controls); you borrow an external/historical untreated cohort as the control arm">單臂藥物X 研究（全部用藥、沒有同期對照）；你借一個外部／歷史的未用藥世代當對照臂</td>
             <td data-en="Borrow a whole control arm — then standardise / propensity-weight the external controls to match the trial's covariates">借的是整個對照臂，再用標準化／傾向加權把外部對照校到試驗的共變項分布</td>
             <td data-en="The external controls are exchangeable given measured covariates, with no era/source drift and consistent outcomes, plus overlap">扣掉已測共變項後外部對照可交換、無時代／來源漂移、結果定義一致，且有重疊</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · borrowed exogenous variation — Mendelian randomization is IV with a genetic instrument">家族 · 借外生變異：MR（孟德爾隨機化）就是「以基因為工具」的 IV</td></tr>
           <tr><td><a class="xref" data-m="mr">MR</a></td>
-            <td data-en="Instead of a mailed reminder, use a genetic variant that raises the chance of (or proxies) the exposure as the instrument, asking whether the exposure itself affects the outcome">不用寄出的提醒，而是用一個會提高暴露機率（或代理暴露）的遺傳變異當工具，問暴露本身是否影響結果</td>
+            <td data-en="Instead of physician preference, use a genetic variant that raises the chance of (or proxies) the exposure as the instrument, asking whether the exposure itself affects the outcome">不用醫師偏好，而是用一個會提高暴露機率（或代理暴露）的遺傳變異當工具，問暴露本身是否影響結果</td>
             <td data-en="Randomisation at conception: alleles are allocated roughly at random with respect to lifestyle/confounders and fixed for life (an IV with a genetic instrument)">受孕時的隨機：等位基因相對於生活型態／混淆近似隨機分派且終生固定（以遺傳變異為工具的 IV）</td>
             <td data-en="The IV trio — relevance, independence, and exclusion (no pleiotropy: the variant affects the outcome only through the exposure)">IV 三條，相關性、獨立性、排除限制（無多效性：變異只透過暴露影響結果）</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · digital twin (a model-predicted control trajectory)">家族 · 數位孿生（模型預測的對照軌跡）</td></tr>
@@ -7430,7 +7430,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <tr><td>DiD</td><td data-en="A panel of units × periods, with a control group">單位×期別的面板，含對照組</td><td data-en="ATT — the effect on the treated communities">介入社區的平均處置效果（ATT）</td></tr>
           <tr><td>ITS</td><td data-en="One series with many points before & after a known interruption">一條序列、介入前後都有許多時間點</td><td data-en="Level &amp; slope change for the treated population">該母體的水準與斜率變化</td></tr>
           <tr><td>PERR</td><td data-en="Event counts & person-time for a prior and a post period, by group">分組的事前/事後期事件數與人時</td><td data-en="A causal rate ratio for the treated">處置者的因果率比</td></tr>
-          <tr><td>TiT</td><td data-en="Individual data over many periods, a rare outcome, a strong uptake trend">多期個體資料、罕見結果、夠強的接種趨勢</td><td data-en="A population causal odds ratio (≈ relative risk)">母體層級的因果勝算比（≈相對風險）</td></tr>
+          <tr><td>TiT</td><td data-en="Individual data over many periods, a rare outcome, a strong uptake trend">多期個體資料、罕見結果、夠強的使用趨勢</td><td data-en="A population causal odds ratio (≈ relative risk)">母體層級的因果勝算比（≈相對風險）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · self-controlled">家族 · 自我對照</td></tr>
           <tr><td>CCTC</td><td data-en="Acute events with a transient exposure recorded in multiple windows; an exposure time-trend">急性事件＋多時窗的短暫暴露紀錄；暴露有日曆時間趨勢</td><td data-en="A within-person odds ratio (with the time-trend divided out)">個人內勝算比（已扣掉時間趨勢）</td></tr>
           <tr><td>SCCS</td><td data-en="Only people who had the event; a well-defined exposure risk window">只要發生過事件的人；暴露有明確的危險時窗</td><td data-en="A within-person incidence rate ratio (IRR)">個人內的相對速率（IRR）</td></tr>
@@ -7440,9 +7440,9 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <tr><td colspan="3" class="famhdr" data-en="Family · active-comparator new-user cohort">家族 · 主動對照新使用者世代</td></tr>
           <tr><td>ACNU</td><td data-en="A new-user cohort of two drugs for the same indication, with covariates">同一適應症兩種藥的新使用者世代，含共變項</td><td data-en="A's effect relative to the active comparator B">A 相對於主動對照藥 B 的效應</td></tr>
           <tr><td>PNU</td><td data-en="A cohort including prevalent users, with time-since-start &amp; start history">含盛行使用者的世代，含距起始時間與起始史</td><td data-en="A-vs-B rate ratio in a population that includes prevalent users">含盛行使用者族群中 A vs B 的率比</td></tr>
-          <tr><td colspan="3" class="famhdr" data-en="Family · sampling design / vaccine effectiveness">家族 · 抽樣設計／疫苗效力</td></tr>
+          <tr><td colspan="3" class="famhdr" data-en="Family · sampling design / preventive effectiveness">家族 · 抽樣設計／預防效力</td></tr>
           <tr><td>CC</td><td data-en="Cases + controls representing the source population, with exposure history">病例＋代表來源族群的對照，含暴露史</td><td data-en="An odds ratio (≈ relative risk when the outcome is rare)">勝算比（結果罕見時 ≈ 相對風險）</td></tr>
-          <tr><td>TND</td><td data-en="People who sought care and were tested, with the test result (target-pathogen +/−) and vaccination history">求醫且做了檢驗的人，含檢驗結果（目標病原陽／陰）與接種史</td><td data-en="Vaccine effectiveness, VE = 1 − odds ratio">疫苗效力 VE = 1 − 勝算比</td></tr>
+          <tr><td>TND</td><td data-en="People who sought care and were tested, with the test result (target +/−) and drug-X use history">求醫且做了檢驗的人，含檢驗結果（目標陽／陰）與藥物X 使用史</td><td data-en="Preventive effectiveness, 1 − odds ratio">預防效力 = 1 − 勝算比</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · proxies / negative controls">家族 · 代理／陰性對照（近端因果）</td></tr>
           <tr><td>NC/PCI</td><td data-en="Treatment, outcome, covariates + a negative-control outcome (NCO) and a negative-control exposure (NCE)">治療、結果、共變項＋一個陰性對照結果（NCO）與一個陰性對照暴露（NCE）</td><td data-en="The causal effect under unmeasured confounding (identified proximally via the NC pair)">在未測混淆下的因果效應（用陰性對照對近端辨識）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · mechanism (decomposition)">家族 · 機制（分解）</td></tr>
