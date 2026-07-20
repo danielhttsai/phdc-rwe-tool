@@ -3989,8 +3989,8 @@ const ALIGN_DEMO = {
     note: { zh: "時間零把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 繼續（轉暴露、青）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat' (Clone A continues, now exposed) and <b>violates</b> 'no use' (Clone B is <b>censored</b> here). Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
   },
 };
-let alignSel = null;
-// the estimated drug-X survival HR each approach yields for Dr. Lin's study —
+let alignSel = null, aprStep = 0, aprGuess = null;
+// the estimated drug-X survival HR each approach yields for Dr. Lai's study —
 // the naive one is dragged below 1 by immortal time; every fix returns to ≈1
 // (drug X has no real survival effect in this teaching example).
 const ALIGN_HR = {
@@ -4068,34 +4068,56 @@ function renderAlign() {
       (m.method ? `<button class="db-chip" data-go="${m.method}">${tr("看「" + L(m.name).replace(/（.*/, "") + "」教學", "Open the method tab")} →</button>` : "")
     : "";
   const hr = ALIGN_HR[alignSel];
-  const intro =
+  const introTop =
     `<div class="apr-intro">` +
-    `<p><b>研究者的問題：</b>Dr. 林想知道，在某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？</p>` +
-    `<p class="apr-say">🧑‍🔬「我把『確診後<b>曾用過</b>藥物X』的人當暴露、從<b>確診日</b>起算，跟從沒用過的人比存活。用藥的人死亡風險<b>少了 40%</b>，太好了！……等等，審查委員問我：user 是不是<b>本來就得先活著</b>才領得到藥？我心一沉。」</p>` +
-    `<p><b>點下面的做法</b>，看時間軸與估出的 HR 怎麼變 — 幫 Dr. 林把時間零對齊。</p></div>`;
+    `<p><b>小賴醫師的問題：</b>在某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？</p>` +
+    `<p class="apr-say">🧑‍⚕️ 小賴醫師：「我把『確診後<b>曾用過</b>藥物X』的人當暴露、<b>從確診日起算</b>，跟從沒用過的人比存活。跑出來──」</p>` +
+    `<div class="apr-result bad"><span class="apr-hr">藥物X 死亡 HR ≈ 0.60</span><span class="apr-hr-say">用藥的人死亡風險看起來<b>少 40%</b>。</span></div></div>`;
+
+  // ---- Phase 0: let the learner judge before the reveal ----
+  if (aprStep === 0) {
+    stage.innerHTML = introTop +
+      `<div class="apr-ask"><p>🤔 <b>換你當審查委員：小賴醫師這個「少 40%」，你信不信？</b></p>` +
+      `<div class="apr-choices">` +
+      `<button class="apr-choice" data-g="trust">看起來有效，我信</button>` +
+      `<button class="apr-choice" data-g="doubt">怪怪的，好像有問題</button>` +
+      `</div></div>`;
+    stage.querySelectorAll(".apr-choice").forEach((b) =>
+      b.addEventListener("click", () => { aprGuess = b.dataset.g; aprStep = 1; alignSel = "naive"; renderAlign(); }));
+    return;
+  }
+
+  // ---- Phase 1: reveal + let them fix it ----
+  const react = aprGuess === "doubt"
+    ? `<div class="apr-react good">👍 <b>直覺很準！</b>問題就在<b>時間零沒對齊</b>：user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算給了暴露組，就是<b>不死時間</b>。</div>`
+    : `<div class="apr-react warn">🧑‍⚕️ <b>審查委員：先別急。</b>user 是不是<b>本來就得先活著</b>才領得到藥？這段「還沒用藥、卻保證活著」的時間，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`;
+  const prompt = `<p class="apr-prompt"><b>幫小賴醫師把時間零對齊。</b>點下面的做法，看時間軸與估出的 HR 怎麼變：</p>`;
   const resultBanner =
-    `<div class="apr-result ${hr.tone}"><span class="apr-hr">藥物X 死亡 HR ≈ ${hr.hr}</span>` +
+    `<div class="apr-result ${hr.tone}"><span class="apr-hr">${L(ALIGN_ORDER.find((o) => o.k === alignSel).short)}：HR ≈ ${hr.hr}</span>` +
     `<span class="apr-hr-say">${hr.say}</span></div>`;
   const checklist =
-    `<details class="apr-check"><summary>📋 評讀重點（Dr. 林該問自己的四件事）</summary><ul>` +
+    `<details class="apr-check"><summary>📋 評讀重點（小賴醫師該問自己的四件事）</summary><ul>` +
     `<li><b>時間零對齊了嗎？</b>暴露組有沒有被塞進「還沒用藥、卻保證活著」的時間（不死時間）？</li>` +
     `<li><b>是不是新使用者？</b>有沒有把已經用藥很久、存活下來的<b>盛行使用者</b>混進來？</li>` +
     `<li><b>對照選得對嗎？</b>是「用 vs 完全不用」（適應症混淆），還是同適應症的<b>主動對照</b>？</li>` +
     `<li><b>重要混淆都測到了嗎？</b>疾病嚴重度、健康守規矩傾向有沒有被觀察到（否則是無法被測量的干擾因子）？</li>` +
     `</ul></details>`;
   stage.innerHTML =
-    intro +
+    introTop + react + prompt +
     `<div class="align-picks">${chips}</div>` +
     resultBanner +
     `<div class="align-viz"><h4 class="align-title">${L(cfg.title)}</h4>${drawAlignSVG(cfg)}</div>` +
     legend +
     `<div class="align-note ${alignSel === "naive" ? "bad" : "good"}">${L(cfg.note)}</div>` +
     methodBox +
-    checklist;
+    checklist +
+    `<button class="apr-reset">↩ 重新想一次</button>`;
   stage.querySelectorAll(".align-pick").forEach((b) =>
     b.addEventListener("click", () => { alignSel = b.dataset.k; renderAlign(); }));
   stage.querySelectorAll(".db-chip").forEach((b) =>
     b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
+  const rst = stage.querySelector(".apr-reset");
+  if (rst) rst.addEventListener("click", () => { aprStep = 0; aprGuess = null; alignSel = "naive"; renderAlign(); });
 }
 
 // ======================================================================
@@ -4149,7 +4171,7 @@ function renderBiasGame() {
   };
   stage.innerHTML =
     `<div class="align-lead">${tr(
-      "第 1 題就是 Dr. 林<b>最初那一版</b>研究；後面幾題是同一個「藥物X 用 vs 不用」問題的變形。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」，看研究者哪裡跌倒、又該怎麼爬起來。三種偏誤：<b>不死時間</b>（時間零錯位）、<b>適應症混淆</b>、<b>無法被測量的干擾因子</b>。",
+      "第 1 題就是小賴醫師<b>最初那一版</b>研究；後面幾題是同一個「藥物X 用 vs 不用」問題的變形。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」，看研究者哪裡跌倒、又該怎麼爬起來。三種偏誤：<b>不死時間</b>（時間零錯位）、<b>適應症混淆</b>、<b>無法被測量的干擾因子</b>。",
       "Each scenario is 'drug X for a chronic disease'. Tick the biases you think are <b>present</b> (multi-select, or none), then check. The three: <b>immortal time</b> (time-zero misalignment), <b>confounding by indication</b>, <b>unmeasured confounder</b>.")}</div>` +
     `<div class="bias-grid">` + BIAS_SCENARIOS.map(card).join("") + `</div>`;
   stage.querySelectorAll(".bias-check").forEach((btn) => {

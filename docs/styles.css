@@ -248,6 +248,19 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .apr-check summary { cursor: pointer; padding: .6rem .9rem; font-weight: 700; font-size: .92rem; }
 .apr-check ul { margin: 0; padding: 0 1.2rem 1rem 2rem; }
 .apr-check li { font-size: .88rem; line-height: 1.7; margin: .35rem 0; }
+.apr-ask { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; }
+.apr-ask p { margin: 0 0 .6rem; font-size: .95rem; }
+.apr-choices { display: flex; flex-wrap: wrap; gap: .6rem; }
+.apr-choice { border: 1.5px solid var(--z); background: var(--card); color: var(--z); border-radius: 999px;
+  padding: .5rem 1.2rem; font-size: .92rem; font-weight: 700; cursor: pointer; }
+.apr-choice:hover { background: var(--z); color: #fff; }
+.apr-react { border-radius: 12px; padding: .7rem 1rem; margin: 0 0 .9rem; font-size: .92rem; line-height: 1.75; }
+.apr-react.good { background: #ecfdf5; border: 1px solid #86efac; }
+.apr-react.warn { background: #fffbeb; border: 1px solid #fcd34d; }
+.apr-prompt { font-size: .95rem; margin: 0 0 .7rem; }
+.apr-reset { margin-top: 1rem; border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  border-radius: 999px; padding: .4rem 1rem; font-size: .86rem; font-weight: 700; cursor: pointer; }
+.apr-reset:hover { border-color: var(--z); color: var(--z); }
 
 /* --- spot the bias game (tab 4) --- */
 .bias-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .9rem; }

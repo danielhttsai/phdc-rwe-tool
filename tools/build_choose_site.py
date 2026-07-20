@@ -114,8 +114,8 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 
   <!-- ===================== TAB 2 · Database ===================== -->
   <section class="sa-panel" id="paneDb" hidden>
-    <h2 class="sa-h2">Database：Dr. 林要重做這個分析，需要對的資料</h2>
-    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：Dr. 林想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（新使用者、時變暴露、對齊時間零），得先有<b>撐得起這種設計的資料</b>。<b>你手上是哪種資料庫？</b></div>
+    <h2 class="sa-h2">Database：小賴醫師要重做這個分析，需要對的資料</h2>
+    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：小賴醫師想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（新使用者、時變暴露、對齊時間零），得先有<b>撐得起這種設計的資料</b>。<b>你手上是哪種資料庫？</b></div>
 
     <div id="dbtree" class="dtree">
       <div id="dbtreePath" class="dtree-path"></div>
@@ -132,14 +132,15 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 3 · Bias ===================== -->
   <section class="sa-panel" id="paneBias" hidden>
     <h2 class="sa-h2">Bias：這些研究各中了哪些偏誤？</h2>
-    <div class="sa-scenario">同一個故事的延伸：先評讀 Dr. 林<b>最初那一版</b>（第 1 題），再看幾個變形。每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者哪裡跌倒、又該怎麼爬起來。</div>
+    <div class="sa-scenario">同一個故事的延伸：先評讀小賴醫師<b>最初那一版</b>（第 1 題），再看幾個變形。每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者哪裡跌倒、又該怎麼爬起來。</div>
     <div id="biasGame"></div>
   </section>
 
   <!-- ===================== TAB 4 · Method ===================== -->
   <section class="sa-panel" id="paneMethods" hidden>
-    <h2 class="sa-h2">Method：同一個問題，多種攻法</h2>
-    <p class="caption">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法</b>合進<b>同一棵可點擊的樹</b>。順著你的「藥物X」研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
+    <h2 class="sa-h2">Method：小賴醫師的問題，該用哪種設計？</h2>
+    <div class="sa-scenario">收尾：小賴醫師想<b>正確</b>回答「藥物X 用 vs 不用，誰活得久？」。這是一個「暴露隨時間開關、要避免不死時間」的問題 → 順著樹點下去，你會落在<b>時變暴露 / 主動對照新使用者 / CCW</b> 這一類「錨定暴露起始、對齊時間零」的設計。試試看樹會不會帶你到同樣的答案。</div>
+    <p class="caption">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
     <div class="flow-legend">
       <span><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
