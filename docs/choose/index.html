@@ -2080,7 +2080,7 @@ function renderAlign() {
   const introTop =
     `<div class="apr-intro">` +
     `<p><b>小賴醫師的問題：</b>在某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？</p>` +
-    `<p class="apr-say">🧑‍⚕️ 小賴醫師：「我把『確診後<b>曾用過</b>藥物X』的人當暴露、<b>從確診日起算</b>，跟從沒用過的人比存活。跑出來──」</p>` +
+    `<p class="apr-say">🩺 小賴醫師：「我把『確診後<b>曾用過</b>藥物X』的人當暴露、<b>從確診日起算</b>，跟從沒用過的人比存活。跑出來──」</p>` +
     `<div class="apr-result bad"><span class="apr-hr">藥物X 死亡 HR ≈ 0.60</span><span class="apr-hr-say">用藥的人死亡風險看起來<b>少 40%</b>。</span></div></div>`;
 
   // ---- Phase 0: let the learner judge before the reveal ----
@@ -2099,7 +2099,7 @@ function renderAlign() {
   // ---- Phase 1: reveal + let them fix it ----
   const react = aprGuess === "doubt"
     ? `<div class="apr-react good">👍 <b>直覺很準！</b>問題就在<b>時間零沒對齊</b>：user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算給了暴露組，就是<b>不死時間</b>。</div>`
-    : `<div class="apr-react warn">🧑‍⚕️ <b>審查委員：先別急。</b>user 是不是<b>本來就得先活著</b>才領得到藥？這段「還沒用藥、卻保證活著」的時間，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`;
+    : `<div class="apr-react warn">🩺 <b>審查委員：先別急。</b>user 是不是<b>本來就得先活著</b>才領得到藥？這段「還沒用藥、卻保證活著」的時間，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`;
   const prompt = `<p class="apr-prompt"><b>幫小賴醫師把時間零對齊。</b>點下面的做法，看時間軸與估出的 HR 怎麼變：</p>`;
   const resultBanner =
     `<div class="apr-result ${hr.tone}"><span class="apr-hr">${L(ALIGN_ORDER.find((o) => o.k === alignSel).short)}：HR ≈ ${hr.hr}</span>` +
