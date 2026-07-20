@@ -193,6 +193,21 @@ b { color: #0b1020; }
 .dtree-controls { display: flex; gap: .6rem; margin-top: .9rem; }
 .dtree-controls .btn:disabled { opacity: .4; cursor: not-allowed; }
 
+/* --- database chooser: reuses .dtree/.dtree-map; these are the extra bits --- */
+.db-designs { margin-top: .7rem; font-size: .92rem; }
+.db-chips { display: inline-flex; flex-wrap: wrap; gap: .4rem; margin-left: .3rem; vertical-align: middle; }
+.db-chip { background: var(--z); color: #fff; border: none; border-radius: 999px;
+  padding: .2rem .7rem; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.db-chip:hover { filter: brightness(1.08); }
+table.db-summary td, table.db-summary th { font-size: .84rem; vertical-align: top; }
+table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0 0 #16a34a; }
+.db-scn-h { margin: 1.1rem 0 .5rem; font-size: 1rem; }
+.db-scn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .6rem; }
+.db-scn { border: 1px solid var(--line); border-radius: 10px; padding: .6rem .75rem; background: var(--card); }
+.db-scn-q { font-size: .9rem; line-height: 1.55; }
+.db-scn-a { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: .5rem; }
+.db-scn-db { font-weight: 700; color: var(--z); font-size: .86rem; }
+
 /* the full decision-tree map that pops out at a leaf */
 .dtree-map { max-width: 100%; margin: 1rem auto 0; background: #f8fafc; border: 1px solid var(--line);
   border-radius: 14px; padding: 1rem 1.1rem; }

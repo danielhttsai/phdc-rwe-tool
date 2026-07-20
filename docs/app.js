@@ -570,6 +570,7 @@ if (dataTab) dataTab.addEventListener("click", () => {
   dataTab.classList.add("active");
   showPanel("dbpanel");
   if (typeof filterRefs === "function") filterRefs("db");
+  if (typeof initDbtree === "function") initDbtree();   // interactive database chooser
   setHash("#db");
 });
 window.addEventListener("hashchange", applyHash);
@@ -3660,6 +3661,234 @@ function downloadFlowchartHTML(css, clone) {
 // ======================================================================
 // Four added methods' ② interactive demos (Plotly, deterministic synthetic data).
 // ======================================================================
+
+// ======================================================================
+// DATABASE CHOOSER (資料庫怎麼選) — a click-through tree that mirrors the design
+// tree above, but lands on one of the databases the group actually uses, then
+// shows a full comparison table (總表). Examples are framed around a generic
+// "drug X for a chronic disease" (藥物X), not any specific product.
+// Reuses L / tr / lang / gotoMethod and the .dtree* / .cmp CSS from the design
+// tree. Kept in this extracted region so the standalone site picks it up too.
+// ======================================================================
+const DBNODES = {
+  d1: {
+    step: { zh: "先問：你的研究最需要什麼？", en: "First: what does your study most need?" },
+    q: { zh: "你手上（或想申請）的資料，<b>最關鍵</b>要能提供什麼？", en: "What must your data (in hand or to apply for) <b>most</b> be able to provide?" },
+    opts: [
+      { l: { zh: "近乎全民的給藥＋診斷，要抓罕見結果、或用「同一個人前後比」", en: "Near-whole-population dispensing + diagnoses, for rare outcomes or within-person before/after" }, to: "dNHI" },
+      { l: { zh: "結果是<b>癌症</b>（期別、確診日、存活）", en: "The outcome is <b>cancer</b> (stage, diagnosis date, survival)" }, to: "dCancer" },
+      { l: { zh: "需要<b>檢驗值／生物標記</b>（血脂、血糖、影像…）", en: "You need <b>lab values / biomarkers</b> (lipids, glucose, imaging…)" }, to: "dLabs" },
+      { l: { zh: "需要<b>長期前瞻</b>＋問卷／生物檢體（尤其高齡、老化結果）", en: "A <b>long prospective</b> cohort with questionnaires / biospecimens (esp. ageing outcomes)" }, to: "dHALST" },
+      { l: { zh: "需要<b>跨國、超大樣本</b>、罕見暴露、要能快速複製", en: "<b>Multi-country, very large N</b>, a rare exposure, fast to replicate" }, to: "dTriNetX" },
+      { l: { zh: "只有<b>小規模／單一診所</b>，要人工抄錄的深度病歷", en: "Only a <b>small / single-clinic</b> setting needing hand-abstracted deep charts" }, to: "dChart" },
+    ],
+  },
+  dLabs: {
+    step: { zh: "檢驗值要從哪來？", en: "Where do the lab values come from?" },
+    q: { zh: "那些<b>檢驗值／生物標記</b>你想從哪一種資料拿？", en: "Which kind of data should those <b>lab values / biomarkers</b> come from?" },
+    opts: [
+      { l: { zh: "全國<b>成人健檢</b>，要代表性與大樣本，再串健保用藥／結果", en: "A national <b>adult health-check</b>, representative and large, then linked to NHI drugs/outcomes" }, to: "dHealthCheck" },
+      { l: { zh: "<b>單一體系深度臨床</b>（多院 EHR、含嚴重度、完整檢驗）", en: "<b>One health-system's deep clinical EHR</b> (multi-hospital, severity, full labs)" }, to: "dCGRD" },
+    ],
+  },
+};
+
+// leaf recommendations: db key + why + a drug-X scenario + the designs it powers
+const DBRECS = {
+  dNHI: { db: "nhi",
+    title: { zh: "健保資料庫（NHIRD）", en: "Taiwan NHI claims (NHIRD)" },
+    why: { zh: "近乎全民的給藥與診斷，最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。可再串<b>癌登、死亡檔</b>。缺點是<b>沒有檢驗值</b>與臨床細節、看不到處方的適應症。", en: "Near-census dispensing + diagnoses: ideal for <b>rare outcomes</b> and <b>self-controlled</b> designs needing within-person variation; can be linked to the <b>cancer registry and death file</b>. Weak on <b>lab values</b>, clinical detail and the prescribing indication." },
+    scenario: { zh: "藥物X 情境：藥物X 是否短暫升高某慢性病患者的<b>急性住院</b>風險？用同一個人「用藥前後」比。", en: "Drug-X scenario: does drug X transiently raise the risk of an <b>acute hospitalisation</b> in a chronic-disease population? Compare each person before vs after their own use." },
+    watch: { zh: "沒有檢驗值 → 適應症／嚴重度混淆難校正；診斷碼的效度要驗證。", en: "No labs → hard to adjust confounding by indication/severity; validate the diagnosis codes." },
+    designs: [{ m: "sccs", l: "SCCS" }, { m: "cctc", l: "CCTC" }, { m: "cc", l: "CC" }, { m: "perr", l: "PERR" }, { m: "seq", l: "Seq" }] },
+  dCancer: { db: "nhicancer",
+    title: { zh: "健保串癌症登記（NHI × 癌登）", en: "NHI linked to the Cancer Registry" },
+    why: { zh: "健保用藥＋癌登的<b>期別、組織型、確診日、存活</b>，能做真正的<b>存活</b>結果與治療門檻的準實驗。再串死亡檔補足結果。", en: "NHI drugs plus the registry's <b>stage, histology, diagnosis date and survival</b> support genuine <b>survival</b> outcomes and quasi-experiments at treatment thresholds; link the death file to complete outcomes." },
+    scenario: { zh: "藥物X 情境：慢性病患者用藥物X 後的<b>癌症發生或存活</b>，用「新使用者」世代並比較存活曲線。", en: "Drug-X scenario: <b>cancer incidence or survival</b> after drug X in a chronic-disease population, as a new-user cohort comparing survival curves." },
+    watch: { zh: "領先時間／偵測偏誤；時間零與合格條件要對齊（免不死時間）。", en: "Lead-time / detection bias; align time zero and eligibility to avoid immortal time." },
+    designs: [{ m: "ccw", l: "CCW" }, { m: "rdd", l: "RDD" }, { m: "med", l: "MED" }, { m: "acnu", l: "ACNU" }] },
+  dHealthCheck: { db: "healthcheck",
+    title: { zh: "成人健檢串健保", en: "Adult health-check linked to NHI" },
+    why: { zh: "健檢帶來<b>檢驗值（血脂、血糖、BMI）與生活型態</b>，串健保後有用藥與結果，且比單院<b>更有代表性</b>。最適合<b>中介分析</b>（有量到的生物標記 M）與含檢驗值的傾向分數校正。", en: "The check-up brings <b>lab values (lipids, glucose, BMI) and lifestyle</b>; linked to NHI it gains drugs + outcomes and is <b>more representative</b> than a single hospital. Best for <b>mediation</b> (a measured biomarker M) and lab-informed propensity adjustment." },
+    scenario: { zh: "藥物X 情境：藥物X 是否<b>透過降低 LDL／血糖</b>來改善某慢性病結果？把檢驗值當中介 M。", en: "Drug-X scenario: does drug X improve a chronic-disease outcome <b>by lowering LDL / glucose</b>? Treat the lab value as the mediator M." },
+    watch: { zh: "自願受檢者選擇；健檢與用藥的時間先後要理清（免反向因果）。", en: "Self-selection into screening; sort out the timing of check-up vs drug use to avoid reverse causation." },
+    designs: [{ m: "med", l: "MED" }, { m: "ps", l: "PS" }, { m: "acnu", l: "ACNU" }, { m: "rdd", l: "RDD" }] },
+  dCGRD: { db: "cgrd",
+    title: { zh: "長庚研究資料庫（CGRD）", en: "Chang Gung Research Database (CGRD)" },
+    why: { zh: "多院 EHR 帶<b>檢驗值、嚴重度、豐富診斷</b>，最適合<b>校正適應症混淆</b>與<b>主動對照新使用者（ACNU）</b>，也能做中介。缺點是<b>跨院完整度</b>與代表性。", en: "Multi-hospital EHR with <b>lab values, severity and rich diagnoses</b>: best for <b>adjusting confounding by indication</b> and <b>active-comparator new-user (ACNU)</b>, and can do mediation. Weak on completeness across providers and representativeness." },
+    scenario: { zh: "藥物X 情境：藥物X vs 同類<b>主動對照藥</b>對某慢性病結果，用檢驗值校正基線嚴重度。", en: "Drug-X scenario: drug X vs a same-class <b>active comparator</b> for a chronic-disease outcome, using labs to adjust baseline severity." },
+    watch: { zh: "單一體系選擇；院外用藥／結果看不到（除非串健保）。", en: "Single-system selection; out-of-system drugs/outcomes are invisible unless linked to NHI." },
+    designs: [{ m: "acnu", l: "ACNU" }, { m: "ps", l: "PS" }, { m: "med", l: "MED" }, { m: "tmle", l: "TMLE" }] },
+  dChart: { db: "chart",
+    title: { zh: "診所病例抄錄", en: "Clinic chart abstraction" },
+    why: { zh: "人工抄錄能拿到<b>資料庫沒有的深度細節</b>（用藥原因、臨床判斷），但<b>樣本小、難串接、追蹤短</b>。適合<b>小型世代／病例對照</b>、前導或<b>效度驗證</b>研究。", en: "Hand abstraction captures <b>depth the databases lack</b> (reasons for prescribing, clinical judgement), but is <b>small, hard to link, short follow-up</b>. Good for a <b>small cohort / case-control</b>, a pilot, or a <b>validation</b> study." },
+    scenario: { zh: "藥物X 情境：在一家診所抄錄用藥物X 與未用者的病歷，做小型<b>病例對照</b>或驗證健保碼的效度。", en: "Drug-X scenario: abstract charts of drug-X users vs non-users at one clinic for a small <b>case-control</b>, or to validate the NHI codes." },
+    watch: { zh: "樣本量與檢定力有限；抄錄者間信度；選擇偏誤。", en: "Limited N and power; inter-abstractor reliability; selection bias." },
+    designs: [{ m: "cc", l: "CC" }, { m: "ps", l: "PS" }] },
+  dHALST: { db: "halst",
+    title: { zh: "HALST 高齡社區世代", en: "HALST ageing cohort" },
+    why: { zh: "前瞻的高齡社區世代，帶<b>問卷、體檢、認知、生物檢體</b>，可串健保。最適合<b>老化結果</b>（認知、衰弱）的世代與中介；若有基因也能做工具變數。", en: "A prospective community cohort of older adults with <b>questionnaires, exams, cognition and biospecimens</b>, linkable to NHI. Best for <b>ageing outcomes</b> (cognition, frailty) as cohorts and mediation; with genotypes it can also do instrumental variables." },
+    scenario: { zh: "藥物X 情境：藥物X 與某慢性病長者的<b>認知衰退／衰弱</b>，用前瞻世代並以生物標記做中介。", en: "Drug-X scenario: drug X and <b>cognitive decline / frailty</b> in older chronic-disease patients, as a prospective cohort with a biomarker mediator." },
+    watch: { zh: "自願者選擇、年齡範圍窄；樣本量小於健保。", en: "Volunteer selection, narrow age range; smaller than NHI." },
+    designs: [{ m: "ps", l: "PS" }, { m: "med", l: "MED" }, { m: "iv", l: "IV/MR" }] },
+  dTriNetX: { db: "trinetx",
+    title: { zh: "TriNetX 聯邦式 EHR 網路", en: "TriNetX federated EHR network" },
+    why: { zh: "跨國多機構、<b>上億筆</b>即時 EHR，含<b>檢驗值、診斷、用藥</b>。最適合<b>罕見暴露／結果</b>、大樣本傾向分數世代與<b>快速複製</b>；平台內即時做傾向配對。", en: "A multi-country, multi-institution network of <b>hundreds of millions</b> of near-real-time EHRs with <b>labs, diagnoses and drugs</b>. Best for a <b>rare exposure/outcome</b>, large propensity-score cohorts and <b>fast replication</b>; on-platform propensity matching." },
+    scenario: { zh: "藥物X 情境：藥物X 與某少見結果（如<b>骨質疏鬆</b>）跟其他同類藥比較，用傾向配對的大樣本世代跨國複製。", en: "Drug-X scenario: drug X vs other same-class drugs for a less-common outcome (e.g. <b>osteoporosis</b>), as a propensity-matched large cohort replicated across countries." },
+    watch: { zh: "各站資料異質、缺失不一；黑箱處理與可重現性；代表性未知。", en: "Site heterogeneity and uneven missingness; black-box processing and reproducibility; unknown representativeness." },
+    designs: [{ m: "ps", l: "PS" }, { m: "acnu", l: "ACNU" }, { m: "tmle", l: "TMLE" }] },
+};
+
+// 總表 rows (one per database) — coverage · key variables · linkage · designs · drug-X example
+const DB_SUMMARY = [
+  { name: { zh: "健保 NHIRD", en: "NHI NHIRD" }, kind: { zh: "理賠", en: "Claims" }, cover: { zh: "近全民 ~2300萬", en: "~23M, near-census" },
+    vars: { zh: "給藥、診斷、處置（無檢驗值）", en: "drugs, dx, procedures (no labs)" }, link: { zh: "可串癌登、死亡", en: "cancer registry, deaths" }, follow: { zh: "長（2000-）", en: "long (2000-)" },
+    designs: "SCCS · CCTC · CC · PERR · Seq · CCW", eg: { zh: "急性事件的自我對照", en: "self-control for acute events" } },
+  { name: { zh: "健保串癌登", en: "NHI × Cancer Registry" }, kind: { zh: "理賠＋登錄", en: "Claims + registry" }, cover: { zh: "全癌症個案", en: "all cancer cases" },
+    vars: { zh: "期別、組織型、確診、存活", en: "stage, histology, dx date, survival" }, link: { zh: "已串（＋死亡）", en: "linked (+ deaths)" }, follow: { zh: "長", en: "long" },
+    designs: "存活世代 · RDD · CCW · MED", eg: { zh: "用藥後癌症存活", en: "cancer survival after a drug" } },
+  { name: { zh: "成人健檢串健保", en: "Health-check × NHI" }, kind: { zh: "健檢＋理賠", en: "Screening + claims" }, cover: { zh: "受檢成人", en: "screened adults" },
+    vars: { zh: "檢驗值、生活型態＋用藥/結果", en: "labs, lifestyle + drugs/outcomes" }, link: { zh: "已串健保", en: "linked to NHI" }, follow: { zh: "中-長", en: "medium-long" },
+    designs: "MED · PS · ACNU · RDD", eg: { zh: "經降 LDL/血糖的中介", en: "mediation via LDL/glucose" } },
+  { name: { zh: "長庚 CGRD", en: "Chang Gung CGRD" }, kind: { zh: "多院 EHR", en: "Multi-hospital EHR" }, cover: { zh: "~150萬（2011-）", en: "~1.5M (2011-)" },
+    vars: { zh: "檢驗值、嚴重度、臨床細節", en: "labs, severity, clinical detail" }, link: { zh: "院內（可串健保）", en: "in-system (linkable)" }, follow: { zh: "中", en: "medium" },
+    designs: "ACNU · PS · MED · TMLE", eg: { zh: "vs 主動對照校正嚴重度", en: "vs active comparator, adjust severity" } },
+  { name: { zh: "診所病例抄錄", en: "Clinic chart abstraction" }, kind: { zh: "人工抄錄", en: "Hand abstraction" }, cover: { zh: "小樣本／單診所", en: "small / single clinic" },
+    vars: { zh: "自訂、深度臨床", en: "custom, deep clinical" }, link: { zh: "難串", en: "hard to link" }, follow: { zh: "短-中", en: "short-medium" },
+    designs: "小型 CC · PS · 驗證", eg: { zh: "小型病例對照／驗證碼效度", en: "small case-control / code validation" } },
+  { name: { zh: "HALST 世代", en: "HALST cohort" }, kind: { zh: "前瞻世代", en: "Prospective cohort" }, cover: { zh: "高齡社區樣本", en: "older community sample" },
+    vars: { zh: "問卷、體檢、認知、檢體", en: "survey, exam, cognition, biospecimens" }, link: { zh: "可串健保", en: "linkable to NHI" }, follow: { zh: "長期前瞻", en: "long prospective" },
+    designs: "世代 · MED · IV/MR", eg: { zh: "用藥與認知衰退", en: "drug & cognitive decline" } },
+  { name: { zh: "TriNetX", en: "TriNetX" }, kind: { zh: "聯邦式 EHR", en: "Federated EHR" }, cover: { zh: "跨國、上億", en: "multi-country, 100Ms" },
+    vars: { zh: "檢驗值、診斷、用藥（即時）", en: "labs, dx, drugs (near real-time)" }, link: { zh: "平台內", en: "on-platform" }, follow: { zh: "中", en: "medium" },
+    designs: "PS · ACNU · TMLE", eg: { zh: "罕見結果跨國複製", en: "rare outcome, replicated" } },
+];
+
+// The 5 real-world study contexts (from the workshop slide) reframed as drug X /
+// chronic disease, each mapped to a fitting database + design.
+const DB_SCENARIOS = [
+  { s: { zh: "藥物X 對某慢性病患者的<b>心血管結果</b>（真實世界）", en: "Drug X and <b>cardiovascular outcomes</b> in a chronic-disease population (real world)" },
+    db: { zh: "健保串死亡／長庚", en: "NHI+deaths / CGRD" }, dbkey: "nhicancer", m: { zh: "新使用者世代／CCW", en: "new-user cohort / CCW" }, mkey: "ccw" },
+  { s: { zh: "藥物X 與<b>骨質疏鬆</b>風險，和其他同類藥比較", en: "Drug X and <b>osteoporosis</b> risk vs other same-class drugs" },
+    db: { zh: "TriNetX", en: "TriNetX" }, dbkey: "trinetx", m: { zh: "傾向配對／ACNU", en: "propensity matching / ACNU" }, mkey: "acnu" },
+  { s: { zh: "藥物X 在<b>非典型適應症</b>族群的真實世界使用與效果", en: "Real-world use and effectiveness of drug X in an <b>off-label / atypical</b> population" },
+    db: { zh: "TriNetX／長庚", en: "TriNetX / CGRD" }, dbkey: "trinetx", m: { zh: "描述性＋傾向分數", en: "descriptive + propensity score" }, mkey: "ps" },
+  { s: { zh: "三種同類<b>藥物X 頭對頭比較</b>療效", en: "<b>Head-to-head</b> comparison of three same-class drug-X options" },
+    db: { zh: "健保串癌登／長庚", en: "NHI×registry / CGRD" }, dbkey: "nhicancer", m: { zh: "主動對照新使用者", en: "active-comparator new-user" }, mkey: "acnu" },
+  { s: { zh: "藥物X 在<b>失智症</b>的影像結果與臨床追蹤", en: "Drug X in <b>dementia</b>: imaging outcomes and clinical follow-up" },
+    db: { zh: "HALST／長庚", en: "HALST / CGRD" }, dbkey: "halst", m: { zh: "世代＋影像中介", en: "cohort + imaging mediation" }, mkey: "med" },
+];
+
+let dbtreeStack = [{ id: "d1", ans: null }];
+function initDbtree() {
+  if (!document.getElementById("dbtreeStage")) return;
+  const back = document.getElementById("dbtreeBack");
+  const restart = document.getElementById("dbtreeRestart");
+  const tbtn = document.getElementById("dbtreeTableBtn");
+  if (back && !back.dataset.wired) {
+    back.dataset.wired = "1";
+    back.addEventListener("click", () => { if (dbtreeStack.length > 1) { dbtreeStack.pop(); renderDbtree(); } });
+    restart.addEventListener("click", () => { dbtreeStack = [{ id: "d1", ans: null }]; renderDbtree(); });
+    if (tbtn) tbtn.addEventListener("click", () => {
+      const box = document.getElementById("dbtreeSummary");
+      if (box && !box.hidden) { box.hidden = true; return; }
+      renderDbSummary(null);
+    });
+  }
+  renderDbtree();
+}
+
+function _dbChips(designs) {
+  return `<div class="db-chips">` + designs.map((d) =>
+    `<button class="db-chip" data-go="${d.m}">${d.l}</button>`).join("") + `</div>`;
+}
+
+function renderDbtree() {
+  const stage = document.getElementById("dbtreeStage");
+  const pathEl = document.getElementById("dbtreePath");
+  if (!stage) return;
+  const sumBox = document.getElementById("dbtreeSummary");
+  if (sumBox) sumBox.hidden = true;
+  const cur = dbtreeStack[dbtreeStack.length - 1];
+  const node = DBNODES[cur.id];
+  pathEl.innerHTML =
+    `<span class="dtree-crumb start">${tr("開始", "Start")}</span>` +
+    dbtreeStack.slice(1).map((s) => `<span class="dtree-crumb">${L(s.ans)}</span>`).join("");
+
+  if (!node) {                                  // leaf: a database recommendation
+    const r = DBRECS[cur.id];
+    stage.innerHTML =
+      `<div class="dtree-rec toolbox">` +
+      `<span class="rec-tag">${tr("建議資料庫", "Recommended database")}</span>` +
+      `<h3>${L(r.title)}</h3>` +
+      `<p>${L(r.why)}</p>` +
+      `<div class="rec-scenario">${L(r.scenario)}</div>` +
+      `<div class="db-designs"><b>${tr("撐得起的設計：", "Powers these designs: ")}</b>${_dbChips(r.designs)}</div>` +
+      `<div class="rec-watch">${tr("⚠ 弱點／要注意：", "⚠ Weak spots to watch: ")}${L(r.watch)}</div>` +
+      `<div class="rec-actions">` +
+      `<button class="dtree-showmap" id="dbShowTable">${tr("📊 看資料庫總表", "📊 Show the full comparison table")}</button>` +
+      `</div></div>`;
+    stage.querySelectorAll(".db-chip").forEach((b) =>
+      b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
+    const t = stage.querySelector("#dbShowTable");
+    if (t) t.addEventListener("click", () => renderDbSummary(r.db));
+  } else {
+    stage.innerHTML =
+      `<div class="dtree-step">${L(node.step)}</div>` +
+      `<div class="dtree-q">${L(node.q)}</div>` +
+      `<div class="dtree-opts">` +
+      node.opts.map((o, i) =>
+        `<button class="dtree-opt" data-i="${i}">${L(o.l)}<span class="arrow">→</span></button>`
+      ).join("") +
+      `</div>`;
+    stage.querySelectorAll(".dtree-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const o = node.opts[Number(btn.dataset.i)];
+        dbtreeStack.push({ id: o.to, ans: o.l });
+        renderDbtree();
+      });
+    });
+  }
+  const back = document.getElementById("dbtreeBack");
+  if (back) back.disabled = dbtreeStack.length <= 1;
+}
+
+// The 總表 (comparison table), with the reached database row highlighted.
+function renderDbSummary(hitDb) {
+  const box = document.getElementById("dbtreeSummary");
+  if (!box) return;
+  const th = (a, b) => `<th data-en2="${b}">${tr(a, b)}</th>`;
+  const head =
+    `<tr>${th("資料庫", "Database")}${th("類型", "Type")}${th("涵蓋", "Coverage")}` +
+    `${th("關鍵變數", "Key variables")}${th("可串接", "Linkage")}${th("追蹤", "Follow-up")}` +
+    `${th("撐得起的設計", "Designs it powers")}${th("藥物X 情境", "Drug-X example")}</tr>`;
+  const rows = DB_SUMMARY.map((d) =>
+    `<tr class="${hitDb && _dbKey(d) === hitDb ? "db-row-hit" : ""}">` +
+    `<td><b>${L(d.name)}</b></td><td>${L(d.kind)}</td><td>${L(d.cover)}</td><td>${L(d.vars)}</td>` +
+    `<td>${L(d.link)}</td><td>${L(d.follow)}</td><td>${d.designs}</td><td>${L(d.eg)}</td></tr>`).join("");
+  const scen =
+    `<h4 class="db-scn-h">${tr("研究情境 → 資料庫 × 方法（藥物X／慢性病）", "Study context → database × method (drug X / chronic disease)")}</h4>` +
+    `<div class="db-scn-grid">` +
+    DB_SCENARIOS.map((s) =>
+      `<div class="db-scn"><div class="db-scn-q">${L(s.s)}</div>` +
+      `<div class="db-scn-a"><span class="db-scn-db">${L(s.db)}</span>` +
+      `<button class="db-chip" data-go="${s.mkey}">${L(s.m)}</button></div></div>`).join("") +
+    `</div>`;
+  box.innerHTML =
+    `<h3 class="fc-title">${tr("資料庫總表（你剛選到的會被標亮）", "Full comparison table (your pick is highlighted)")}</h3>` +
+    `<div class="table-wrap"><table class="cmp db-summary">` +
+    `<thead>${head}</thead><tbody>${rows}</tbody></table></div>` + scen;
+  box.hidden = false;
+  box.querySelectorAll(".db-chip").forEach((b) =>
+    b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
+  box.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function _dbKey(d) {
+  const map = { "NHI NHIRD": "nhi", "NHI × Cancer Registry": "nhicancer", "Health-check × NHI": "healthcheck",
+    "Chang Gung CGRD": "cgrd", "Clinic chart abstraction": "chart", "HALST cohort": "halst", "TriNetX": "trinetx" };
+  return map[d.name.en] || "";
+}
+
 function initMr() {
   const card = document.getElementById("mrCard"); if (!card) return;
   if (!card._wired) { card._wired = true; card.querySelector(".mr-scn").addEventListener("change", refreshMr); }
