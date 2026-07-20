@@ -1951,11 +1951,12 @@ const ALIGN_DEMO = {
   },
   ccw: {
     title: { zh: "複製-中斷-加權：時間零複製到各策略，偏離就中斷", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
+    grace: { end: 90 },
     rows: [
-      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
-      { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "cen"]], ev: { x: 90, type: "cen" } },
+      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 60, "un"], [60, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 60, "un"], [60, 360, "cen"]], ev: { x: 60, type: "cen" } },
     ],
-    note: { zh: "時間零把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>（完美對齊）。此人第3月才用藥：頭3個月還沒用藥，對「用藥」和「不用」兩個策略<b>都還沒違背</b>（灰）。到第3月他用了藥 → <b>符合</b>「用藥」策略，複製A 繼續追蹤（轉暴露、青）；<b>違背</b>「不用」策略，複製B 就在此<b>中斷</b>（設限，斜線）。中斷後再用 <b>IPCW</b> 加權校正。<b>只有真的偏離自己的策略時才中斷</b>。", en: "Time zero <b>clones each person</b> into every strategy; <b>both clones are followed from day 0</b> (perfect alignment). This person starts the drug at m3: for the first 3 months they have <b>not yet violated</b> either strategy (grey). At m3 they start — which <b>matches</b> 'treat', so Clone A keeps going (now exposed, teal), and <b>violates</b> 'no use', so Clone B is <b>censored</b> there (hatched). IPCW then reweights the artificial censoring. <b>A clone is censored only when the person actually deviates from its strategy.</b>" },
+    note: { zh: "時間零把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 繼續（轉暴露、青）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat' (Clone A continues, now exposed) and <b>violates</b> 'no use' (Clone B is <b>censored</b> here). Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
   },
 };
 let alignSel = null;
@@ -1968,6 +1969,13 @@ function drawAlignSVG(cfg) {
     '<pattern id="hcen" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff7ed"/><line x1="0" y1="0" x2="0" y2="6" stroke="#f59e0b" stroke-width="2.2"/></pattern>' +
     '<pattern id="hex0" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#f1f5f9"/><line x1="0" y1="0" x2="0" y2="6" stroke="#cbd5e1" stroke-width="2.2"/></pattern>' +
     '</defs>';
+  // optional grace-period band (drawn first, behind the rows)
+  if (cfg.grace) {
+    const gx0 = _ax(0), gx1 = _ax(cfg.grace.end), gyb = rows.length * rh + 4;
+    s += '<rect x="' + gx0 + '" y="10" width="' + (gx1 - gx0) + '" height="' + gyb + '" fill="#fef3c7" opacity="0.55"/>';
+    s += '<line x1="' + gx1 + '" y1="10" x2="' + gx1 + '" y2="' + (gyb + 6) + '" stroke="#d97706" stroke-width="1" stroke-dasharray="3 3"/>';
+    s += '<text x="' + ((gx0 + gx1) / 2) + '" y="8" font-size="9" text-anchor="middle" fill="#b45309">' + tr("寬限期（3 個月）", "grace period (3 mo)") + '</text>';
+  }
   rows.forEach((r, i) => {
     const y = 26 + i * rh;
     s += '<text x="6" y="' + (y + 4) + '" font-size="10" fill="#334155">' + L(r.label) + '</text>';
