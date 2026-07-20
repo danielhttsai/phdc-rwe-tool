@@ -99,10 +99,10 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   </header>
 
   <div class="sa-tabs" role="tablist">
-    <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Pick a method">① 選方法</button>
-    <button class="sa-tab" id="saTabDb" type="button" data-en="② Pick a database">② 選資料庫</button>
+    <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Method">① Method</button>
+    <button class="sa-tab" id="saTabDb" type="button" data-en="② Database">② Database</button>
     <button class="sa-tab" id="saTabAlign" type="button" data-en="③ Align Time Zero">③ Align Time Zero</button>
-    <button class="sa-tab" id="saTabBias" type="button" data-en="④ Spot the bias">④ 抓偏誤</button>
+    <button class="sa-tab" id="saTabBias" type="button" data-en="④ Bias">④ Bias</button>
   </div>
 
   <!-- ===================== TAB 1 · 選方法 ===================== -->
@@ -150,7 +150,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 
   <!-- ===================== TAB 4 · 抓偏誤 ===================== -->
   <section class="sa-panel" id="paneBias" hidden>
-    <h2 class="sa-h2" data-en="Spot the bias: immortal time · confounding by indication · unmeasured confounding">抓偏誤：不死時間 · 適應症混淆 · 未測混淆</h2>
+    <h2 class="sa-h2" data-en="Bias: immortal time · confounding by indication · unmeasured confounder">抓偏誤：不死時間 · 適應症混淆 · 無法被測量的干擾因子</h2>
     <div id="biasGame"></div>
   </section>
 

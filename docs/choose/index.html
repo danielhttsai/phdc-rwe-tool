@@ -780,10 +780,10 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
   </header>
 
   <div class="sa-tabs" role="tablist">
-    <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Pick a method">① 選方法</button>
-    <button class="sa-tab" id="saTabDb" type="button" data-en="② Pick a database">② 選資料庫</button>
+    <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Method">① Method</button>
+    <button class="sa-tab" id="saTabDb" type="button" data-en="② Database">② Database</button>
     <button class="sa-tab" id="saTabAlign" type="button" data-en="③ Align Time Zero">③ Align Time Zero</button>
-    <button class="sa-tab" id="saTabBias" type="button" data-en="④ Spot the bias">④ 抓偏誤</button>
+    <button class="sa-tab" id="saTabBias" type="button" data-en="④ Bias">④ Bias</button>
   </div>
 
   <!-- ===================== TAB 1 · 選方法 ===================== -->
@@ -831,7 +831,7 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
 
   <!-- ===================== TAB 4 · 抓偏誤 ===================== -->
   <section class="sa-panel" id="paneBias" hidden>
-    <h2 class="sa-h2" data-en="Spot the bias: immortal time · confounding by indication · unmeasured confounding">抓偏誤：不死時間 · 適應症混淆 · 未測混淆</h2>
+    <h2 class="sa-h2" data-en="Bias: immortal time · confounding by indication · unmeasured confounder">抓偏誤：不死時間 · 適應症混淆 · 無法被測量的干擾因子</h2>
     <div id="biasGame"></div>
   </section>
 
@@ -1170,7 +1170,7 @@ const DNODES = {
       { l: { zh: "用<b>模型預測的對照軌跡（數位孿生）</b>當比較基準", en: "Use a <b>model-predicted control (digital twin)</b> as the comparator" }, to: "rDT" },
     ],
   },
-  rMR: { rec: { kind: "toolbox", method: "mr", badge: "MR ✓",
+  rMR: { rec: { kind: "toolbox", method: "mr", badge: "IV/MR ✓",
     title: { zh: "最適合：孟德爾隨機化 MR ✓（本工具）", en: "Best fit: Mendelian randomization (MR) ✓ (this tool)" },
     why: { zh: "你有一個與暴露穩健相關的<b>遺傳變異</b>。等位基因在受孕時近乎隨機分派、且終生固定，所以一個有效的遺傳工具沒有混淆、也沒有反向因果。它就是把工具變數的工具換成基因：每個變異的 β<sub>Y</sub>/β<sub>X</sub> 是一個 Wald 比值，用 IVW 合併、再以 MR-Egger／加權中位數檢查多效性。",
            en: "You have a <b>genetic variant</b> robustly associated with the exposure. Alleles are allocated near-randomly at conception and fixed for life, so a valid genetic instrument is unconfounded and free of reverse causation. It is instrumental variables with a gene as the instrument: each variant's β<sub>Y</sub>/β<sub>X</sub> is a Wald ratio, combined by IVW and stress-tested for pleiotropy with MR-Egger / weighted median." },
@@ -1751,15 +1751,15 @@ const DB_SUMMARY = [
 // chronic disease, each mapped to a fitting database + design.
 const DB_SCENARIOS = [
   { s: { zh: "藥物X 對某慢性病患者的<b>心血管結果</b>（真實世界）", en: "Drug X and <b>cardiovascular outcomes</b> in a chronic-disease population (real world)" },
-    db: { zh: "健保串死亡／長庚", en: "NHI+deaths / CGRD" }, dbkey: "nhicancer", m: { zh: "新使用者世代／CCW", en: "new-user cohort / CCW" }, mkey: "ccw" },
+    db: { zh: "健保（串接死亡檔）", en: "NHI claims linked to the death registry" }, dbkey: "nhi", m: { zh: "新使用者世代／CCW", en: "new-user cohort / CCW" }, mkey: "ccw" },
   { s: { zh: "藥物X 與<b>骨質疏鬆</b>風險，和其他同類藥比較", en: "Drug X and <b>osteoporosis</b> risk vs other same-class drugs" },
     db: { zh: "TriNetX", en: "TriNetX" }, dbkey: "trinetx", m: { zh: "傾向配對／ACNU", en: "propensity matching / ACNU" }, mkey: "acnu" },
   { s: { zh: "藥物X 在<b>非典型適應症</b>族群的真實世界使用與效果", en: "Real-world use and effectiveness of drug X in an <b>off-label / atypical</b> population" },
-    db: { zh: "TriNetX／長庚", en: "TriNetX / CGRD" }, dbkey: "trinetx", m: { zh: "描述性＋傾向分數", en: "descriptive + propensity score" }, mkey: "ps" },
+    db: { zh: "TriNetX 或長庚 CGRD", en: "TriNetX or Chang Gung CGRD" }, dbkey: "trinetx", m: { zh: "描述性＋傾向分數", en: "descriptive + propensity score" }, mkey: "ps" },
   { s: { zh: "三種同類<b>藥物X 頭對頭比較</b>療效", en: "<b>Head-to-head</b> comparison of three same-class drug-X options" },
-    db: { zh: "健保串癌登／長庚", en: "NHI×registry / CGRD" }, dbkey: "nhicancer", m: { zh: "主動對照新使用者", en: "active-comparator new-user" }, mkey: "acnu" },
+    db: { zh: "健保串接癌症登記", en: "NHI claims linked to the Cancer Registry" }, dbkey: "nhicancer", m: { zh: "主動對照新使用者", en: "active-comparator new-user" }, mkey: "acnu" },
   { s: { zh: "藥物X 在<b>失智症</b>的影像結果與臨床追蹤", en: "Drug X in <b>dementia</b>: imaging outcomes and clinical follow-up" },
-    db: { zh: "HALST／長庚", en: "HALST / CGRD" }, dbkey: "halst", m: { zh: "世代＋影像中介", en: "cohort + imaging mediation" }, mkey: "med" },
+    db: { zh: "HALST 世代（可串健保）", en: "HALST cohort (linkable to NHI)" }, dbkey: "halst", m: { zh: "世代＋影像中介", en: "cohort + imaging mediation" }, mkey: "med" },
 ];
 
 let dbtreeStack = [{ id: "d1", ans: null }];
@@ -1806,7 +1806,6 @@ function renderDbtree() {
       `<h3>${L(r.title)}</h3>` +
       `<p>${L(r.why)}</p>` +
       `<div class="rec-scenario">${L(r.scenario)}</div>` +
-      `<div class="db-designs"><b>${tr("撐得起的設計：", "Powers these designs: ")}</b>${_dbChips(r.designs)}</div>` +
       `<div class="rec-watch">${tr("⚠ 弱點／要注意：", "⚠ Weak spots to watch: ")}${L(r.watch)}</div>` +
       `<div class="rec-actions">` +
       `<button class="dtree-showmap" id="dbShowTable">${tr("📊 看資料庫總表", "📊 Show the full comparison table")}</button>` +
@@ -1895,7 +1894,7 @@ const ALIGN_METHODS = [
     idea: { zh: "選一個<b>地標時間</b>（如診斷後 6 個月）：到地標時才依「地標前是否已用藥物X」分組，追蹤<b>從地標才開始</b>。", en: "Pick a <b>landmark time</b> (e.g. 6 months after diagnosis): classify exposure by whether drug X was started <b>before</b> the landmark, and begin follow-up <b>at</b> the landmark." },
     zero: { zh: "時間零＝<b>地標</b>，對所有人一致；地標前就發生結果／死亡的人被排除，暴露組不再「必須活到用藥」。", en: "Time zero = the <b>landmark</b>, the same for all; anyone with the outcome/death before it is excluded, so the exposed group no longer has to survive to treatment." },
     pro: { zh: "概念簡單、容易解釋、不需複雜模型。", en: "Simple, easy to explain, no heavy modelling." },
-    con: { zh: "<b>丟掉地標前的資訊與人</b>、對地標選擇敏感、暴露錯分（地標後才用藥者）。", en: "<b>Discards pre-landmark information and people</b>, is sensitive to the landmark choice, and misclassifies those who start after it." } },
+    con: { zh: "<b>地標之前那段時間的資料就用不到了</b>，也會少算一些人；而且「地標要設在哪」很難拿捏，地標之後才開始用藥的人也可能被分錯組。", en: "<b>The time before the landmark just can't be used</b>, and you lose some people too; the landmark is also hard to place, and those who start after it can be misclassified." } },
   { key: "seq", method: "seq",
     name: { zh: "序列試驗（sequential / nested trials）", en: "Sequential (nested) trials" },
     idea: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」：當下用藥物X vs 不用，對齊該場的時間零，再把多場<b>合併</b>。", en: "Open a <b>mini-trial at each eligibility time</b>: start drug X now vs not, align that trial's time zero, then <b>pool</b> across trials." },
@@ -1950,7 +1949,7 @@ const ALIGN_DEMO = {
       { label: { zh: "地標前未用→未暴露", en: "Not used by landmark → unexposed" }, t0: 180, segs: [[0, 180, "ex0"], [180, 300, "un"]], ev: { x: 300, type: "dead" } },
       { label: { zh: "地標前就過世→排除", en: "Died before landmark → excluded" }, t0: 180, segs: [[0, 120, "ex0"]], ev: { x: 120, type: "dead" } },
     ],
-    note: { zh: "選第6月為<b>地標</b>：到地標才依「地標前是否已用藥物X」分組，追蹤<b>從地標起算</b>。地標前的時間不計（斜線），地標前就過世者被<b>排除</b> → 沒有不死時間。代價：丟掉地標前的資訊與人。", en: "Pick m6 as the <b>landmark</b>: classify by use before it, and start follow-up <b>at</b> it. Pre-landmark time is not counted (hatched) and anyone who died before it is <b>excluded</b> → no immortal time. Cost: pre-landmark information and people are discarded." },
+    note: { zh: "選第6月為<b>地標</b>：到地標才依「地標前是否已用藥物X」分組，追蹤<b>從地標起算</b>。地標前的時間不計（斜線），地標前就過世者被<b>排除</b> → 沒有不死時間。代價是：地標之前那段的資料就用不到、也少算了一些人。", en: "Pick m6 as the <b>landmark</b>: classify by use before it, and start follow-up <b>at</b> it. Pre-landmark time is not counted (hatched) and anyone who died before it is <b>excluded</b> → no immortal time. The trade-off: the time before the landmark simply can't be used, and you drop some people." },
   },
   seq: {
     title: { zh: "序列試驗：每個合格時點各開一場，各自對齊時間零", en: "Sequential trials: one at each eligibility time, each with its own aligned time zero" },
@@ -2053,10 +2052,10 @@ function renderAlign() {
 const BIAS_TYPES = [
   { key: "immortal", zh: "不死時間（時間零錯位）", en: "Immortal time (time-zero misalignment)" },
   { key: "indication", zh: "適應症混淆", en: "Confounding by indication" },
-  { key: "unmeasured", zh: "未測混淆", en: "Unmeasured confounder" },
+  { key: "unmeasured", zh: "無法被測量的干擾因子", en: "Unmeasured confounder" },
 ];
 const BIAS_SCENARIOS = [
-  { s: { zh: "把「確診後<b>曾用過</b>藥物X」的人算成暴露組，追蹤<b>從確診日</b>起算，和從沒用過的人比存活。", en: "Call people 'exposed' if they <b>ever started</b> drug X after diagnosis, start follow-up <b>at diagnosis</b>, and compare survival with never-users." },
+  { s: { zh: "把「確診後<b>曾用過</b>藥物X」的人算成暴露組，<b>時間零設在確診日</b>、一路追蹤到死亡，再和從頭到尾沒用過藥的人比存活。", en: "Call people 'exposed' if they <b>ever started</b> drug X after diagnosis, put <b>time zero at the diagnosis day</b>, follow to death, and compare survival with never-users." },
     ans: ["immortal", "indication"],
     why: { zh: "暴露組必須<b>活到能用藥的那天</b>，所以確診到用藥之間那段「保證存活」的時間被錯算給暴露組 → 不死時間；又因「用藥 vs 從不用藥」，用藥者往往病況不同 → 適應症混淆。", en: "The exposed had to <b>survive until they could start</b>, so the guaranteed-alive gap from diagnosis to initiation is mis-booked as exposed → immortal time; and 'users vs never-users' differ in prognosis → confounding by indication." },
     fix: { zh: "把暴露當<b>時變</b>，或改用<b>地標</b>／<b>複製-設限-加權</b>對齊時間零；對照改成<b>主動對照</b>解適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
@@ -2066,20 +2065,20 @@ const BIAS_SCENARIOS = [
     fix: { zh: "改用<b>主動對照新使用者</b>（跟同適應症的對照藥比，而不是跟「沒用藥」比）。", en: "Use an <b>active-comparator new-user</b> design (compare with a same-indication drug, not with 'no drug')." }, fixMethod: "acnu" },
   { s: { zh: "用健保資料比較兩種同類藥物X，設計良好（新使用者、主動對照、時間零對齊），但健保<b>沒有檢驗值</b>（疾病嚴重度）。", en: "Compare two same-class drug-X options in claims with a good design (new-user, active comparator, aligned time zero) — but claims have <b>no lab values</b> (disease severity)." },
     ans: ["unmeasured"],
-    why: { zh: "設計已消掉不死時間，主動對照也壓低適應症混淆；但「疾病嚴重度」沒被測到，若它同時影響選藥與結果，就是<b>未測混淆</b>。", en: "The design removes immortal time and the active comparator curbs confounding by indication; but severity is unmeasured — if it drives both drug choice and outcome, that is an <b>unmeasured confounder</b>." },
+    why: { zh: "設計已消掉不死時間，主動對照也壓低適應症混淆；但「疾病嚴重度」沒被測到，若它同時影響選藥與結果，就是<b>無法被測量的干擾因子</b>。", en: "The design removes immortal time and the active comparator curbs confounding by indication; but severity is unmeasured — if it drives both drug choice and outcome, that is an <b>unmeasured confounder</b>." },
     fix: { zh: "串<b>成人健檢／長庚</b>拿檢驗值，或用<b>陰性對照／E-value</b> 做敏感度分析。", en: "Link a <b>health-check / CGRD</b> source for labs, or run a <b>negative-control / E-value</b> sensitivity analysis." }, fixMethod: "nc" },
   { s: { zh: "選診斷後 <b>6 個月</b>為地標：到 6 個月時，把「6 個月內已開始用藥物X」歸為暴露組，追蹤<b>從第 6 個月</b>開始。", en: "Use a <b>6-month landmark</b>: at 6 months, classify anyone who started drug X within the first 6 months as exposed, and begin follow-up <b>at month 6</b>." },
     ans: [],
-    why: { zh: "時間零＝地標，對所有人一致，且地標前就出事的人被排除 → <b>沒有</b>不死時間。若同時是主動對照、且重要混淆都測到，這個設計是乾淨的（代價：丟掉地標前資訊）。", en: "Time zero = the landmark, the same for all, and those with the event before it are excluded → <b>no</b> immortal time. If it's also an active comparator with key confounders measured, the design is clean (cost: it discards pre-landmark information)." },
+    why: { zh: "時間零＝地標，對所有人一致，且地標前就出事的人被排除 → <b>沒有</b>不死時間。若同時是主動對照、且重要混淆都測到，這個設計是乾淨的（代價是地標之前那段的資料就用不到）。", en: "Time zero = the landmark, the same for all, and those with the event before it are excluded → <b>no</b> immortal time. If it's also an active comparator with key confounders measured, the design is clean (the trade-off: the time before the landmark can't be used)." },
     fix: { zh: "這題示範<b>正確</b>的對齊；沒有明顯偏誤要修。", en: "This one demonstrates a <b>correct</b> alignment; there is no obvious bias to fix." }, fixMethod: null },
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
-    why: { zh: "『整個追蹤期都規律用藥』<b>必須活很久且沒中斷</b> → 嚴重不死時間；『用 vs 從不用』→ 適應症混淆；規律用藥者往往<b>更健康守規矩（healthy adherer）</b>，這種傾向常沒被測到 → 未測混淆。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
+    why: { zh: "『整個追蹤期都規律用藥』<b>必須活很久且沒中斷</b> → 嚴重不死時間；『用 vs 從不用』→ 適應症混淆；規律用藥者往往<b>更健康守規矩（healthy adherer）</b>，這種傾向常沒被測到 → 無法被測量的干擾因子。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
     fix: { zh: "用<b>時變暴露</b>或<b>複製-設限-加權</b>處理規律性/時間零，配<b>主動對照</b>，再對 healthy-adherer 做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
   { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，時間零對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
     ans: [],
-    why: { zh: "新使用者對齊時間零 → 無不死時間；同適應症對照 → 適應症混淆很小；重要混淆都測到 → 未測混淆風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
-    fix: { zh: "無明顯偏誤；仍可用 E-value 量化「萬一有殘餘未測混淆」的穩健度。", en: "No obvious bias; still worth an E-value to quantify robustness to any residual unmeasured confounding." }, fixMethod: null },
+    why: { zh: "新使用者對齊時間零 → 無不死時間；同適應症對照 → 適應症混淆很小；重要混淆都測到 → 無法被測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
+    fix: { zh: "無明顯偏誤；仍可用 E-value 量化「萬一有殘餘無法被測量的干擾因子」的穩健度。", en: "No obvious bias; still worth an E-value to quantify robustness to any residual unmeasured confounding." }, fixMethod: null },
 ];
 function initBiasGame() { renderBiasGame(); }
 function renderBiasGame() {
@@ -2096,7 +2095,7 @@ function renderBiasGame() {
   };
   stage.innerHTML =
     `<div class="align-lead">${tr(
-      "每個情境都以「藥物X 對某慢性病」為例。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」。三種偏誤：<b>不死時間</b>（時間零錯位）、<b>適應症混淆</b>、<b>未測混淆</b>。",
+      "每個情境都以「藥物X 對某慢性病」為例。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」。三種偏誤：<b>不死時間</b>（時間零錯位）、<b>適應症混淆</b>、<b>無法被測量的干擾因子</b>。",
       "Each scenario is 'drug X for a chronic disease'. Tick the biases you think are <b>present</b> (multi-select, or none), then check. The three: <b>immortal time</b> (time-zero misalignment), <b>confounding by indication</b>, <b>unmeasured confounder</b>.")}</div>` +
     `<div class="bias-grid">` + BIAS_SCENARIOS.map(card).join("") + `</div>`;
   stage.querySelectorAll(".bias-check").forEach((btn) => {
