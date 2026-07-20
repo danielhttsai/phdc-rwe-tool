@@ -3860,11 +3860,11 @@ function renderDbSummary(hitDb) {
   const head =
     `<tr>${th("資料庫", "Database")}${th("類型", "Type")}${th("涵蓋", "Coverage")}` +
     `${th("關鍵變數", "Key variables")}${th("可串接", "Linkage")}${th("追蹤", "Follow-up")}` +
-    `${th("撐得起的設計", "Designs it powers")}${th("藥物X 情境", "Drug-X example")}</tr>`;
+    `${th("藥物X 情境", "Drug-X example")}</tr>`;
   const rows = DB_SUMMARY.map((d) =>
     `<tr class="${hitDb && _dbKey(d) === hitDb ? "db-row-hit" : ""}">` +
     `<td><b>${L(d.name)}</b></td><td>${L(d.kind)}</td><td>${L(d.cover)}</td><td>${L(d.vars)}</td>` +
-    `<td>${L(d.link)}</td><td>${L(d.follow)}</td><td>${d.designs}</td><td>${L(d.eg)}</td></tr>`).join("");
+    `<td>${L(d.link)}</td><td>${L(d.follow)}</td><td>${L(d.eg)}</td></tr>`).join("");
   const scen =
     `<h4 class="db-scn-h">${tr("研究情境 → 資料庫 × 方法（藥物X／慢性病）", "Study context → database × method (drug X / chronic disease)")}</h4>` +
     `<div class="db-scn-grid">` +
