@@ -78,6 +78,8 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 .sa-tab.active {{ background: var(--z, #2f6f57); color: #fff; border-color: var(--z, #2f6f57); }}
 .sa-panel[hidden] {{ display: none; }}
 .sa-h2 {{ font-size: 1.1rem; margin: 0 0 1rem; color: var(--ink, #14283c); }}
+.sa-scenario {{ background: #eef2ff; border: 1px solid #c7d2fe; border-left: 4px solid #6366f1;
+  border-radius: 12px; padding: .8rem 1rem; font-size: .92rem; line-height: 1.8; margin: 0 0 1.1rem; }}
 .sa-foot {{ margin-top: 2.2rem; padding-top: .9rem; border-top: 1px solid var(--line, #dfe7e4);
   font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }}
 .sa-foot a {{ color: var(--z, #2f6f57); }}
@@ -93,64 +95,67 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 
   <header class="sa-top">
     <h1>Lilly RWE workshop
-      <span class="sa-sub">四個可點擊的挑選器（選方法 · 選資料庫 · 對齊時間零 · 抓偏誤），以「藥物X 對某慢性病」的通用情境示範。</span>
+      <span class="sa-sub">用一個「藥物X 用 vs 不用」的不死時間故事貫穿四個互動分頁：Appraisal（評讀）· Database（選資料庫）· Bias（抓偏誤）· Method（選方法）。</span>
     </h1>
   </header>
 
   <div class="sa-tabs" role="tablist">
-    <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Method">① Method</button>
-    <button class="sa-tab" id="saTabDb" type="button" data-en="② Database">② Database</button>
-    <button class="sa-tab" id="saTabAlign" type="button" data-en="③ Align Time Zero">③ Align Time Zero</button>
-    <button class="sa-tab" id="saTabBias" type="button" data-en="④ Bias">④ Bias</button>
+    <button class="sa-tab active" id="saTabAlign" type="button">① Appraisal</button>
+    <button class="sa-tab" id="saTabDb" type="button">② Database</button>
+    <button class="sa-tab" id="saTabBias" type="button">③ Bias</button>
+    <button class="sa-tab" id="saTabMethods" type="button">④ Method</button>
   </div>
 
-  <!-- ===================== TAB 1 · 選方法 ===================== -->
-  <section class="sa-panel" id="paneMethods">
-    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and the toolbox's methods (incl. mediation, transportability &amp; external control) into <b>one clickable tree</b>. Answer each question about your study of drug X and it lands on a best-fit recommendation, then open the <b>full flowchart</b> with your endpoint highlighted. <b>✓</b> = covered in the full toolbox (opens in a new tab); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法（含中介分析、可轉移性與外部對照）</b>合進<b>同一棵可點擊的樹</b>。順著你的「藥物X」研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>、標出你的位置。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
+  <!-- ===================== TAB 1 · Appraisal ===================== -->
+  <section class="sa-panel" id="paneAlign">
+    <h2 class="sa-h2">Appraisal：評讀一個「藥物X 用 vs 不用」的研究</h2>
+    <div id="alignStage"></div>
+  </section>
+
+  <!-- ===================== TAB 2 · Database ===================== -->
+  <section class="sa-panel" id="paneDb" hidden>
+    <h2 class="sa-h2">Database：Dr. 林要重做這個分析，需要對的資料</h2>
+    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：Dr. 林想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（新使用者、時變暴露、對齊時間零），得先有<b>撐得起這種設計的資料</b>。<b>你手上是哪種資料庫？</b></div>
+
+    <div id="dbtree" class="dtree">
+      <div id="dbtreePath" class="dtree-path"></div>
+      <div id="dbtreeStage" class="dtree-stage"></div>
+      <div class="dtree-controls">
+        <button id="dbtreeBack" class="btn" type="button">← 上一步</button>
+        <button id="dbtreeRestart" class="btn" type="button">重新開始</button>
+        <button id="dbtreeTableBtn" class="btn" type="button">📊 看資料庫總表</button>
+      </div>
+    </div>
+    <div id="dbtreeSummary" class="dtree-map" hidden></div>
+  </section>
+
+  <!-- ===================== TAB 3 · Bias ===================== -->
+  <section class="sa-panel" id="paneBias" hidden>
+    <h2 class="sa-h2">Bias：這些研究各中了哪些偏誤？</h2>
+    <div class="sa-scenario">同一個故事的延伸：先評讀 Dr. 林<b>最初那一版</b>（第 1 題），再看幾個變形。每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者哪裡跌倒、又該怎麼爬起來。</div>
+    <div id="biasGame"></div>
+  </section>
+
+  <!-- ===================== TAB 4 · Method ===================== -->
+  <section class="sa-panel" id="paneMethods" hidden>
+    <h2 class="sa-h2">Method：同一個問題，多種攻法</h2>
+    <p class="caption">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法</b>合進<b>同一棵可點擊的樹</b>。順著你的「藥物X」研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
     <div class="flow-legend">
-      <span data-en="<b>✓</b> covered in the full toolbox (clickable)"><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
-      <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
+      <span><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
+      <span><b>↗</b> 其他延伸設計，供參考</span>
     </div>
 
     <div id="dtree" class="dtree">
       <div id="dtreePath" class="dtree-path"></div>
       <div id="dtreeStage" class="dtree-stage"></div>
       <div class="dtree-controls">
-        <button id="dtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
-        <button id="dtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
-        <button id="dtreeFullmap" class="btn" type="button" data-en="🌳 Full flowchart">🌳 看完整流程圖</button>
+        <button id="dtreeBack" class="btn" type="button">← 上一步</button>
+        <button id="dtreeRestart" class="btn" type="button">重新開始</button>
+        <button id="dtreeFullmap" class="btn" type="button">🌳 看完整流程圖</button>
       </div>
     </div>
     <div id="dtreeMap" class="dtree-map" hidden></div>
-  </section>
-
-  <!-- ===================== TAB 2 · 選資料庫 ===================== -->
-  <section class="sa-panel" id="paneDb" hidden>
-    <p class="caption" data-en="Answer what your study of drug X most needs; it lands on one of the databases this group uses — NHI, NHI×Cancer Registry, health-check×NHI, Chang Gung CGRD, clinic chart abstraction, HALST, TriNetX — with a drug-X example and chips linking to the designs it powers. Open the <b>full comparison table (總表)</b> at the end, with your pick highlighted and the workshop study contexts mapped to database × method.">回答「你的『藥物X』研究最需要什麼」，它會落在本組常用的一個資料庫（健保、健保串癌登、成人健檢串健保、長庚 CGRD、診所病例抄錄、HALST、TriNetX），附一個藥物X 範例與「撐得起的設計」連結。最後可打開<b>資料庫總表</b>，標出你選到的，並把研究情境對到「資料庫 × 方法」。</p>
-
-    <div id="dbtree" class="dtree">
-      <div id="dbtreePath" class="dtree-path"></div>
-      <div id="dbtreeStage" class="dtree-stage"></div>
-      <div class="dtree-controls">
-        <button id="dbtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
-        <button id="dbtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
-        <button id="dbtreeTableBtn" class="btn" type="button" data-en="📊 Full comparison table">📊 看資料庫總表</button>
-      </div>
-    </div>
-    <div id="dbtreeSummary" class="dtree-map" hidden></div>
-  </section>
-
-  <!-- ===================== TAB 3 · 對齊時間零 ===================== -->
-  <section class="sa-panel" id="paneAlign" hidden>
-    <h2 class="sa-h2" data-en="Align Time Zero — click an approach and watch the timeline">Align Time Zero：點一個做法，看時間軸怎麼變</h2>
-    <div id="alignStage"></div>
-  </section>
-
-  <!-- ===================== TAB 4 · 抓偏誤 ===================== -->
-  <section class="sa-panel" id="paneBias" hidden>
-    <h2 class="sa-h2" data-en="Bias: immortal time · confounding by indication · unmeasured confounder">抓偏誤：不死時間 · 適應症混淆 · 無法被測量的干擾因子</h2>
-    <div id="biasGame"></div>
   </section>
 
   <p class="sa-foot">所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>

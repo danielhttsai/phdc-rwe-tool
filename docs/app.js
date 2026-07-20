@@ -3990,6 +3990,17 @@ const ALIGN_DEMO = {
   },
 };
 let alignSel = null;
+// the estimated drug-X survival HR each approach yields for Dr. Lin's study —
+// the naive one is dragged below 1 by immortal time; every fix returns to ≈1
+// (drug X has no real survival effect in this teaching example).
+const ALIGN_HR = {
+  naive: { hr: "0.60", tone: "bad", say: "看起來「用藥物X 的人死亡風險少 40%」，但這 40% 是<b>不死時間</b>灌出來的假象。" },
+  tvc: { hr: "0.98", tone: "good", say: "把用藥前的 0–3 月正確算成未暴露後，那個「少 40%」幾乎消失了。" },
+  acnu: { hr: "1.01", tone: "good", say: "改用同適應症的主動對照、對齊起始日，效果回到 ≈ 1。" },
+  landmark: { hr: "0.95", tone: "good", say: "從地標起算、排除地標前的事件，膨脹大幅收斂。" },
+  seq: { hr: "0.99", tone: "good", say: "每個合格時點各開一場對齊的迷你試驗，合併後 ≈ 1。" },
+  ccw: { hr: "1.00", tone: "good", say: "複製到各策略、偏離才中斷，還原真相 ≈ 1。" },
+};
 function _ax(d) { return 168 + d / 360 * 536; }
 function drawAlignSVG(cfg) {
   const FILL = { un: "#cbd5e1", ex: "#3f8268", im: "#ef4444", ctrl: "#7c3aed", cen: "url(#hcen)", ex0: "url(#hex0)" };
@@ -4056,15 +4067,31 @@ function renderAlign() {
       `<span class="align-con"><b>－</b> ${L(m.con)}</span></div>` +
       (m.method ? `<button class="db-chip" data-go="${m.method}">${tr("看「" + L(m.name).replace(/（.*/, "") + "」教學", "Open the method tab")} →</button>` : "")
     : "";
+  const hr = ALIGN_HR[alignSel];
+  const intro =
+    `<div class="apr-intro">` +
+    `<p><b>研究者的問題：</b>Dr. 林想知道，在某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？</p>` +
+    `<p class="apr-say">🧑‍🔬「我把『確診後<b>曾用過</b>藥物X』的人當暴露、從<b>確診日</b>起算，跟從沒用過的人比存活。用藥的人死亡風險<b>少了 40%</b>，太好了！……等等，審查委員問我：user 是不是<b>本來就得先活著</b>才領得到藥？我心一沉。」</p>` +
+    `<p><b>點下面的做法</b>，看時間軸與估出的 HR 怎麼變 — 幫 Dr. 林把時間零對齊。</p></div>`;
+  const resultBanner =
+    `<div class="apr-result ${hr.tone}"><span class="apr-hr">藥物X 死亡 HR ≈ ${hr.hr}</span>` +
+    `<span class="apr-hr-say">${hr.say}</span></div>`;
+  const checklist =
+    `<details class="apr-check"><summary>📋 評讀重點（Dr. 林該問自己的四件事）</summary><ul>` +
+    `<li><b>時間零對齊了嗎？</b>暴露組有沒有被塞進「還沒用藥、卻保證活著」的時間（不死時間）？</li>` +
+    `<li><b>是不是新使用者？</b>有沒有把已經用藥很久、存活下來的<b>盛行使用者</b>混進來？</li>` +
+    `<li><b>對照選得對嗎？</b>是「用 vs 完全不用」（適應症混淆），還是同適應症的<b>主動對照</b>？</li>` +
+    `<li><b>重要混淆都測到了嗎？</b>疾病嚴重度、健康守規矩傾向有沒有被觀察到（否則是無法被測量的干擾因子）？</li>` +
+    `</ul></details>`;
   stage.innerHTML =
-    `<div class="align-lead">${tr(
-      "<b>不死時間偏誤（immortal time bias）</b>就是<b>時間零沒對齊</b>：把「日後會用藥物X」當暴露、卻從更早的時點起算，暴露組就被硬塞一段「還沒用藥、卻保證活著」的時間。<b>點下面的做法</b>，看時間軸怎麼變，同一招都是替每個人挑一個<b>一致的時間零</b>。",
-      "<b>Immortal time bias</b> is a <b>misaligned time zero</b>: call people exposed because they will later start drug X but start their clock earlier, and the exposed group is handed guaranteed-alive, not-yet-treated time. <b>Click an approach below</b> and watch the timeline change — each fixes it by giving everyone one <b>consistent time zero</b>.")}</div>` +
+    intro +
     `<div class="align-picks">${chips}</div>` +
+    resultBanner +
     `<div class="align-viz"><h4 class="align-title">${L(cfg.title)}</h4>${drawAlignSVG(cfg)}</div>` +
     legend +
     `<div class="align-note ${alignSel === "naive" ? "bad" : "good"}">${L(cfg.note)}</div>` +
-    methodBox;
+    methodBox +
+    checklist;
   stage.querySelectorAll(".align-pick").forEach((b) =>
     b.addEventListener("click", () => { alignSel = b.dataset.k; renderAlign(); }));
   stage.querySelectorAll(".db-chip").forEach((b) =>
@@ -4122,7 +4149,7 @@ function renderBiasGame() {
   };
   stage.innerHTML =
     `<div class="align-lead">${tr(
-      "每個情境都以「藥物X 對某慢性病」為例。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」。三種偏誤：<b>不死時間</b>（時間零錯位）、<b>適應症混淆</b>、<b>無法被測量的干擾因子</b>。",
+      "第 1 題就是 Dr. 林<b>最初那一版</b>研究；後面幾題是同一個「藥物X 用 vs 不用」問題的變形。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」，看研究者哪裡跌倒、又該怎麼爬起來。三種偏誤：<b>不死時間</b>（時間零錯位）、<b>適應症混淆</b>、<b>無法被測量的干擾因子</b>。",
       "Each scenario is 'drug X for a chronic disease'. Tick the biases you think are <b>present</b> (multi-select, or none), then check. The three: <b>immortal time</b> (time-zero misalignment), <b>confounding by indication</b>, <b>unmeasured confounder</b>.")}</div>` +
     `<div class="bias-grid">` + BIAS_SCENARIOS.map(card).join("") + `</div>`;
   stage.querySelectorAll(".bias-check").forEach((btn) => {

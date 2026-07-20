@@ -234,6 +234,20 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .align-zero { background: rgba(47,111,87,.06); border-radius: 8px; padding: .5rem .7rem; font-size: .9rem; line-height: 1.7; }
 .align-pc { display: flex; flex-direction: column; gap: .25rem; margin: .5rem 0; font-size: .86rem; }
 .align-pro { color: #047857; } .align-con { color: #b45309; }
+/* appraisal narrative (tab Appraisal) */
+.apr-intro { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; }
+.apr-intro p { margin: .4rem 0; font-size: .92rem; line-height: 1.8; }
+.apr-say { background: #fff; border-left: 3px solid #6366f1; border-radius: 8px; padding: .5rem .75rem; color: #3730a3; font-style: italic; }
+.apr-result { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; border-radius: 12px; padding: .7rem 1rem; margin: 0 0 .9rem; }
+.apr-result.bad { background: #fef2f2; border: 1px solid #fca5a5; }
+.apr-result.good { background: #ecfdf5; border: 1px solid #86efac; }
+.apr-hr { font-size: 1.15rem; font-weight: 800; }
+.apr-result.bad .apr-hr { color: #b91c1c; } .apr-result.good .apr-hr { color: #047857; }
+.apr-hr-say { font-size: .88rem; line-height: 1.6; color: #334155; }
+.apr-check { margin-top: 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.apr-check summary { cursor: pointer; padding: .6rem .9rem; font-weight: 700; font-size: .92rem; }
+.apr-check ul { margin: 0; padding: 0 1.2rem 1rem 2rem; }
+.apr-check li { font-size: .88rem; line-height: 1.7; margin: .35rem 0; }
 
 /* --- spot the bias game (tab 4) --- */
 .bias-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .9rem; }
