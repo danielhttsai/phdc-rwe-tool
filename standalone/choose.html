@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>怎麼選：因果研究設計決策樹 · Which design? A decision tree</title>
-<meta name="description" content="A standalone, clickable decision tree for choosing a causal / real-world-evidence study design, ending in the full flowchart. 因果推論研究設計的可點擊決策樹。">
+<title>怎麼選：研究設計與資料庫 · Which design &amp; which database?</title>
+<meta name="description" content="A standalone, clickable teaching site: pick a causal / real-world-evidence study design, and pick a database, each ending in a full map/table. Framed around a generic drug X for a chronic disease. 因果研究設計與資料庫的可點擊挑選器。">
 <style>
 :root {
   --bg: #f3f6f7;
@@ -708,12 +708,19 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
 .sa-langbtn { border: 1px solid var(--z, #2f6f57); background: var(--z, #2f6f57); color: #fff;
   border-radius: 999px; padding: .34rem .9rem; font-size: .84rem; cursor: pointer; }
 .sa-langbtn:hover { filter: brightness(1.08); }
+/* two-tab switcher */
+.sa-tabs { display: flex; gap: .5rem; margin: 0 0 1.1rem; flex-wrap: wrap; }
+.sa-tab { border: 1.5px solid var(--line, #dfe7e4); background: var(--card, #fff); color: var(--ink, #14283c);
+  border-radius: 999px; padding: .5rem 1.2rem; font-size: 1rem; font-weight: 700; cursor: pointer; }
+.sa-tab.active { background: var(--z, #2f6f57); color: #fff; border-color: var(--z, #2f6f57); }
+.sa-panel[hidden] { display: none; }
 .sa-foot { margin-top: 2.2rem; padding-top: .9rem; border-top: 1px solid var(--line, #dfe7e4);
   font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }
 .sa-foot a { color: var(--z, #2f6f57); }
 @media print {
-  .dtree-controls, .sa-langbtn, .fc-toolbar { display: none !important; }
-  #dtreeMap[hidden] { display: block !important; }
+  .dtree-controls, .sa-langbtn, .sa-tabs, .fc-toolbar { display: none !important; }
+  .sa-panel[hidden] { display: block !important; }
+  #dtreeMap[hidden], #dbtreeSummary[hidden] { display: block !important; }
 }
 </style>
 </head>
@@ -721,31 +728,55 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
 <div class="sa-wrap">
 
   <header class="sa-top">
-    <h1 data-en="Which design? A causal-inference decision tree">怎麼選：因果研究設計決策樹
-      <span class="sa-sub" data-en="Click through the questions; the full flowchart is at the end.">一題一題點下去，最後會給你完整流程圖。</span>
+    <h1 data-en="Which design &amp; which database? A teaching picker">怎麼選：研究設計與資料庫
+      <span class="sa-sub" data-en="Two clickable pickers, framed around a generic drug X for a chronic disease.">兩個可點擊的挑選器，以「藥物X 對某慢性病」的通用情境示範。</span>
     </h1>
     <button id="saLang" class="sa-langbtn" type="button">EN</button>
   </header>
 
-  <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and the toolbox's methods (incl. mediation, transportability &amp; external control) into <b>one clickable tree</b>. Answer each question about your study and it lands on a best-fit recommendation, then open the <b>full flowchart</b> with your endpoint highlighted. <b>✓</b> = covered in the full toolbox (opens in a new tab); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法（含中介分析、可轉移性與外部對照）</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>、標出你的位置。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
-
-  <div class="flow-legend">
-    <span data-en="<b>✓</b> covered in the full toolbox (clickable)"><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
-    <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
+  <div class="sa-tabs" role="tablist">
+    <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Pick a method">① 選方法</button>
+    <button class="sa-tab" id="saTabDb" type="button" data-en="② Pick a database">② 選資料庫</button>
   </div>
 
-  <div id="dtree" class="dtree">
-    <div id="dtreePath" class="dtree-path"></div>
-    <div id="dtreeStage" class="dtree-stage"></div>
-    <div class="dtree-controls">
-      <button id="dtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
-      <button id="dtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
-      <button id="dtreeFullmap" class="btn" type="button" data-en="🌳 Full flowchart">🌳 看完整流程圖</button>
+  <!-- ===================== TAB 1 · 選方法 ===================== -->
+  <section class="sa-panel" id="paneMethods">
+    <p class="caption" data-en="Built on the pharmacoepidemiology &quot;anchor&quot; approach, this puts the common study designs and the toolbox's methods (incl. mediation, transportability &amp; external control) into <b>one clickable tree</b>. Answer each question about your study of drug X and it lands on a best-fit recommendation, then open the <b>full flowchart</b> with your endpoint highlighted. <b>✓</b> = covered in the full toolbox (opens in a new tab); <b>↗</b> = related design, for reference.">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法（含中介分析、可轉移性與外部對照）</b>合進<b>同一棵可點擊的樹</b>。順著你的「藥物X」研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>、標出你的位置。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
+
+    <div class="flow-legend">
+      <span data-en="<b>✓</b> covered in the full toolbox (clickable)"><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
+      <span data-en="<b>↗</b> other related design, for reference"><b>↗</b> 其他延伸設計，供參考</span>
     </div>
-  </div>
-  <div id="dtreeMap" class="dtree-map" hidden></div>
 
-  <p class="sa-foot" data-en="A standalone extract of the &quot;Which one?&quot; tab from the RWE &amp; Quasi-experimental Toolbox — for teaching use. Full toolbox (32 methods, each with six learning tabs): https://danielhttsai.github.io/phdc-rwe-tool/ · All built-in data is fictional synthetic demo data.">這是「真實世界證據與準實驗工具箱」中「怎麼選」分頁的獨立版，供授課使用。完整工具箱（32 種方法、每種六個學習分頁）：<a href="https://danielhttsai.github.io/phdc-rwe-tool/" target="_blank" rel="noopener">https://danielhttsai.github.io/phdc-rwe-tool/</a>　·　所有內建資料皆為純屬虛構的合成示範資料。</p>
+    <div id="dtree" class="dtree">
+      <div id="dtreePath" class="dtree-path"></div>
+      <div id="dtreeStage" class="dtree-stage"></div>
+      <div class="dtree-controls">
+        <button id="dtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
+        <button id="dtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
+        <button id="dtreeFullmap" class="btn" type="button" data-en="🌳 Full flowchart">🌳 看完整流程圖</button>
+      </div>
+    </div>
+    <div id="dtreeMap" class="dtree-map" hidden></div>
+  </section>
+
+  <!-- ===================== TAB 2 · 選資料庫 ===================== -->
+  <section class="sa-panel" id="paneDb" hidden>
+    <p class="caption" data-en="Answer what your study of drug X most needs; it lands on one of the databases this group uses — NHI, NHI×Cancer Registry, health-check×NHI, Chang Gung CGRD, clinic chart abstraction, HALST, TriNetX — with a drug-X example and chips linking to the designs it powers. Open the <b>full comparison table (總表)</b> at the end, with your pick highlighted and the workshop study contexts mapped to database × method.">回答「你的『藥物X』研究最需要什麼」，它會落在本組常用的一個資料庫（健保、健保串癌登、成人健檢串健保、長庚 CGRD、診所病例抄錄、HALST、TriNetX），附一個藥物X 範例與「撐得起的設計」連結。最後可打開<b>資料庫總表</b>，標出你選到的，並把研究情境對到「資料庫 × 方法」。</p>
+
+    <div id="dbtree" class="dtree">
+      <div id="dbtreePath" class="dtree-path"></div>
+      <div id="dbtreeStage" class="dtree-stage"></div>
+      <div class="dtree-controls">
+        <button id="dbtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
+        <button id="dbtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
+        <button id="dbtreeTableBtn" class="btn" type="button" data-en="📊 Full comparison table">📊 看資料庫總表</button>
+      </div>
+    </div>
+    <div id="dbtreeSummary" class="dtree-map" hidden></div>
+  </section>
+
+  <p class="sa-foot" data-en="A standalone extract of the &quot;Which one?&quot; and &quot;Databases&quot; tabs from the RWE &amp; Quasi-experimental Toolbox — for teaching use. Full toolbox (32 methods, each with six learning tabs): https://danielhttsai.github.io/phdc-rwe-tool/ · All built-in data is fictional synthetic demo data; drug X is a generic placeholder, not a real product.">這是「真實世界證據與準實驗工具箱」中「怎麼選」與「資料庫」分頁的獨立版，供授課使用。完整工具箱（32 種方法、每種六個學習分頁）：<a href="https://danielhttsai.github.io/phdc-rwe-tool/" target="_blank" rel="noopener">https://danielhttsai.github.io/phdc-rwe-tool/</a>　·　所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
 
 </div>
 
@@ -1785,11 +1816,31 @@ function _dbKey(d) {
 
 applyLang();
 initDtree();
+initDbtree();
+
+/* ---------- two-tab switch ---------- */
+(function () {
+  var tM = document.getElementById("saTabMethods");
+  var tD = document.getElementById("saTabDb");
+  var pM = document.getElementById("paneMethods");
+  var pD = document.getElementById("paneDb");
+  function show(which) {
+    var methods = which === "methods";
+    tM.classList.toggle("active", methods);
+    tD.classList.toggle("active", !methods);
+    pM.hidden = !methods;
+    pD.hidden = methods;
+  }
+  tM.addEventListener("click", function () { show("methods"); });
+  tD.addEventListener("click", function () { show("db"); });
+})();
+
 document.getElementById("saLang").addEventListener("click", function () {
   _lang = _lang === "en" ? "zh" : "en";
   try { localStorage.setItem("iv-lang", _lang); } catch (e) {}
   applyLang();
-  renderDtree();                       // re-render the dynamic tree in the new language
+  renderDtree();        // re-render both dynamic trees in the new language
+  renderDbtree();
 });
 </script>
 </body>
