@@ -77,6 +77,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   border-radius: 999px; padding: .5rem 1.2rem; font-size: 1rem; font-weight: 700; cursor: pointer; }}
 .sa-tab.active {{ background: var(--z, #2f6f57); color: #fff; border-color: var(--z, #2f6f57); }}
 .sa-panel[hidden] {{ display: none; }}
+.sa-h2 {{ font-size: 1.1rem; margin: 0 0 1rem; color: var(--ink, #14283c); }}
 .sa-foot {{ margin-top: 2.2rem; padding-top: .9rem; border-top: 1px solid var(--line, #dfe7e4);
   font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }}
 .sa-foot a {{ color: var(--z, #2f6f57); }}
@@ -100,6 +101,8 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <div class="sa-tabs" role="tablist">
     <button class="sa-tab active" id="saTabMethods" type="button" data-en="① Pick a method">① 選方法</button>
     <button class="sa-tab" id="saTabDb" type="button" data-en="② Pick a database">② 選資料庫</button>
+    <button class="sa-tab" id="saTabAlign" type="button" data-en="③ Align time zero">③ 對齊時間零</button>
+    <button class="sa-tab" id="saTabBias" type="button" data-en="④ Spot the bias">④ 抓偏誤</button>
   </div>
 
   <!-- ===================== TAB 1 · 選方法 ===================== -->
@@ -139,6 +142,18 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
     <div id="dbtreeSummary" class="dtree-map" hidden></div>
   </section>
 
+  <!-- ===================== TAB 3 · 對齊時間零 ===================== -->
+  <section class="sa-panel" id="paneAlign" hidden>
+    <h2 class="sa-h2" data-en="Five designs that align time zero (so there is no immortal time)">五種「對齊時間零」的設計（讓不死時間消失）</h2>
+    <div id="alignStage"></div>
+  </section>
+
+  <!-- ===================== TAB 4 · 抓偏誤 ===================== -->
+  <section class="sa-panel" id="paneBias" hidden>
+    <h2 class="sa-h2" data-en="Spot the bias: immortal time · confounding by indication · unmeasured confounding">抓偏誤：不死時間 · 適應症混淆 · 未測混淆</h2>
+    <div id="biasGame"></div>
+  </section>
+
   <p class="sa-foot" data-en="A standalone extract of the &quot;Which one?&quot; and &quot;Databases&quot; tabs from the RWE &amp; Quasi-experimental Toolbox — for teaching use. Full toolbox (32 methods, each with six learning tabs): {TOOLBOX_URL} · All built-in data is fictional synthetic demo data; drug X is a generic placeholder, not a real product.">這是「真實世界證據與準實驗工具箱」中「怎麼選」與「資料庫」分頁的獨立版，供授課使用。完整工具箱（32 種方法、每種六個學習分頁）：<a href="{TOOLBOX_URL}" target="_blank" rel="noopener">{TOOLBOX_URL}</a>　·　所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
 
 </div>
@@ -176,30 +191,37 @@ var __DTREE_CSS = {json.dumps(css_src)};
 applyLang();
 initDtree();
 initDbtree();
+renderAlign();
+initBiasGame();
 
-/* ---------- two-tab switch ---------- */
+/* ---------- tab switch (four panels) ---------- */
 (function () {{
-  var tM = document.getElementById("saTabMethods");
-  var tD = document.getElementById("saTabDb");
-  var pM = document.getElementById("paneMethods");
-  var pD = document.getElementById("paneDb");
-  function show(which) {{
-    var methods = which === "methods";
-    tM.classList.toggle("active", methods);
-    tD.classList.toggle("active", !methods);
-    pM.hidden = !methods;
-    pD.hidden = methods;
+  var TABS = [
+    {{ btn: "saTabMethods", pane: "paneMethods" }},
+    {{ btn: "saTabDb", pane: "paneDb" }},
+    {{ btn: "saTabAlign", pane: "paneAlign" }},
+    {{ btn: "saTabBias", pane: "paneBias" }},
+  ];
+  function show(active) {{
+    TABS.forEach(function (t) {{
+      var on = t.btn === active;
+      document.getElementById(t.btn).classList.toggle("active", on);
+      document.getElementById(t.pane).hidden = !on;
+    }});
   }}
-  tM.addEventListener("click", function () {{ show("methods"); }});
-  tD.addEventListener("click", function () {{ show("db"); }});
+  TABS.forEach(function (t) {{
+    document.getElementById(t.btn).addEventListener("click", function () {{ show(t.btn); }});
+  }});
 }})();
 
 document.getElementById("saLang").addEventListener("click", function () {{
   _lang = _lang === "en" ? "zh" : "en";
   try {{ localStorage.setItem("iv-lang", _lang); }} catch (e) {{}}
   applyLang();
-  renderDtree();        // re-render both dynamic trees in the new language
+  renderDtree();        // re-render all dynamic content in the new language
   renderDbtree();
+  renderAlign();
+  renderBiasGame();
 }});
 </script>
 </body>

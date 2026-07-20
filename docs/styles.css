@@ -208,6 +208,40 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .db-scn-a { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; margin-top: .5rem; }
 .db-scn-db { font-weight: 700; color: var(--z); font-size: .86rem; }
 
+/* --- align time zero (tab 3) --- */
+.align-lead { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: .8rem 1rem;
+  font-size: .92rem; line-height: 1.75; margin: 0 0 1rem; }
+.align-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .8rem; }
+.align-card { border: 1px solid var(--line); border-left: 3px solid var(--z); border-radius: 12px;
+  padding: .8rem 1rem; background: var(--card); }
+.align-card h3 { margin: 0 0 .5rem; font-size: 1.02rem; color: var(--ink); display: flex; align-items: baseline;
+  gap: .5rem; flex-wrap: wrap; }
+.align-card p { margin: .35rem 0; font-size: .9rem; line-height: 1.7; }
+.align-card .align-zero { background: rgba(47,111,87,.06); border-radius: 8px; padding: .45rem .65rem; }
+.align-pc { display: flex; flex-direction: column; gap: .25rem; margin-top: .5rem; font-size: .86rem; }
+.align-pro { color: #047857; } .align-con { color: #b45309; }
+
+/* --- spot the bias game (tab 4) --- */
+.bias-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .9rem; }
+.bias-card { border: 1px solid var(--line); border-radius: 12px; padding: .9rem 1rem; background: var(--card); }
+.bias-q { font-size: .95rem; line-height: 1.7; }
+.bias-n { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem;
+  border-radius: 999px; background: var(--z); color: #fff; font-weight: 800; font-size: .82rem; margin-right: .5rem; }
+.bias-opts { display: flex; flex-direction: column; gap: .35rem; margin: .7rem 0; }
+.bias-opt { display: flex; align-items: center; gap: .45rem; font-size: .9rem; padding: .3rem .5rem;
+  border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.bias-opt.bias-good { background: #ecfdf5; border-color: #34d399; color: #047857; font-weight: 700; }
+.bias-opt.bias-bad { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+.bias-opt.bias-miss { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+.bias-check { background: var(--z); color: #fff; border: none; border-radius: 999px; padding: .45rem 1.1rem;
+  font-weight: 700; font-size: .9rem; cursor: pointer; }
+.bias-check:hover { filter: brightness(1.08); }
+.bias-feedback { margin-top: .7rem; border-top: 1px dashed var(--line); padding-top: .6rem; font-size: .88rem; line-height: 1.7; }
+.bias-feedback p { margin: .35rem 0; }
+.bias-verdict { font-weight: 800; margin-bottom: .3rem; }
+.bias-verdict.ok { color: #047857; } .bias-verdict.no { color: #b45309; }
+.bias-fix { background: rgba(47,111,87,.06); border-radius: 8px; padding: .45rem .65rem; }
+
 /* the full decision-tree map that pops out at a leaf */
 .dtree-map { max-width: 100%; margin: 1rem auto 0; background: #f8fafc; border: 1px solid var(--line);
   border-radius: 14px; padding: 1rem 1.1rem; }
