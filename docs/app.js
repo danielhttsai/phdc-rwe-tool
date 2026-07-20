@@ -3980,10 +3980,10 @@ const ALIGN_DEMO = {
   ccw: {
     title: { zh: "複製-中斷-加權：時間零複製到各策略，偏離就中斷", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
     rows: [
-      { label: { zh: "複製A（策略：早用）", en: "Clone A (strategy: treat early)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "cen"]], ev: { x: 90, type: "cen" } },
     ],
-    note: { zh: "時間零把<b>每個人複製</b>到各策略，所有複製體都<b>從第0天起算</b>（完美對齊）。當某複製體<b>偏離</b>它的策略（如「不用」策略的複製B 第3月卻用了藥），就在該時點<b>中斷</b>（設限，斜線），再用 <b>IPCW</b> 加權校正這個人為中斷。最適合動態／持續策略。", en: "Time zero <b>clones each person</b> into every strategy; all clones <b>start at day 0</b> (perfect alignment). When a clone <b>deviates</b> from its strategy (the 'no-use' clone starts at m3), it is <b>censored</b> there (hatched) and the artificial censoring is reweighted with <b>IPCW</b>. Best for dynamic / sustained strategies." },
+    note: { zh: "時間零把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>（完美對齊）。此人第3月才用藥：頭3個月還沒用藥，對「用藥」和「不用」兩個策略<b>都還沒違背</b>（灰）。到第3月他用了藥 → <b>符合</b>「用藥」策略，複製A 繼續追蹤（轉暴露、青）；<b>違背</b>「不用」策略，複製B 就在此<b>中斷</b>（設限，斜線）。中斷後再用 <b>IPCW</b> 加權校正。<b>只有真的偏離自己的策略時才中斷</b>。", en: "Time zero <b>clones each person</b> into every strategy; <b>both clones are followed from day 0</b> (perfect alignment). This person starts the drug at m3: for the first 3 months they have <b>not yet violated</b> either strategy (grey). At m3 they start — which <b>matches</b> 'treat', so Clone A keeps going (now exposed, teal), and <b>violates</b> 'no use', so Clone B is <b>censored</b> there (hatched). IPCW then reweights the artificial censoring. <b>A clone is censored only when the person actually deviates from its strategy.</b>" },
   },
 };
 let alignSel = null;
