@@ -202,7 +202,7 @@ b { color: #0b1020; }
 table.db-summary td, table.db-summary th { font-size: .84rem; vertical-align: top; }
 table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0 0 #16a34a; }
 /* --- align time zero (tab 3, interactive timeline) --- */
-.align-lead { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: .8rem 1rem;
+.align-lead { background: #f0f7f4; border: 1px solid #cfe3da; border-radius: 12px; padding: .8rem 1rem;
   font-size: .92rem; line-height: 1.75; margin: 0 0 1rem; }
 .align-picks { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
 .align-pick { border: 1.5px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
@@ -218,29 +218,29 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .align-legend .sw-cen { background: repeating-linear-gradient(45deg, #fff7ed, #fff7ed 2px, #f59e0b 2px, #f59e0b 4px); }
 .align-legend .sw-ex0 { background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 2px, #cbd5e1 2px, #cbd5e1 4px); }
 .align-note { border-radius: 12px; padding: .7rem 1rem; font-size: .9rem; line-height: 1.75; margin: .8rem 0; }
-.align-note.bad { background: #fef2f2; border: 1px solid #fca5a5; }
+.align-note.bad { background: #f4f6f8; border: 1px solid #cbd5e1; }
 .align-note.good { background: #ecfdf5; border: 1px solid #86efac; }
 .align-zero { background: rgba(47,111,87,.06); border-radius: 8px; padding: .5rem .7rem; font-size: .9rem; line-height: 1.7; }
 .align-pc { display: flex; flex-direction: column; gap: .25rem; margin: .5rem 0; font-size: .86rem; }
-.align-pro { color: #047857; } .align-con { color: #b45309; }
+.align-pro { color: #047857; } .align-con { color: #5f6b7a; }
 /* appraisal narrative (tab Appraisal) */
-.apr-intro { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; }
+.apr-intro { background: #f0f7f4; border: 1px solid #cfe3da; border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; }
 .apr-intro p { margin: .4rem 0; font-size: .92rem; line-height: 1.8; }
 /* speech line: a name badge instead of italics (Chinese italics look bad and
    emoji glyphs are not reliably available on every OS) */
-.apr-say { background: #fff; border-left: 3px solid #6366f1; border-radius: 8px;
+.apr-say { background: #fff; border-left: 3px solid #3f8268; border-radius: 8px;
   padding: .55rem .8rem; color: #312e81; }
-.apr-who { display: inline-block; background: #6366f1; color: #fff; border-radius: 999px;
+.apr-who { display: inline-block; background: #3f8268; color: #fff; border-radius: 999px;
   padding: .08rem .6rem; font-size: .76rem; font-weight: 700; margin-right: .5rem;
   vertical-align: .08em; white-space: nowrap; }
-.apr-who.rev { background: #b45309; }
-.apr-stepno { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 999px;
+.apr-who.rev { background: #1f4f3f; }
+.apr-stepno { display: inline-block; background: #dff0e8; color: #255c47; border-radius: 999px;
   padding: .1rem .6rem; font-size: .74rem; font-weight: 800; margin: 0 .5rem .4rem 0; }
 .apr-result { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; border-radius: 12px; padding: .7rem 1rem; margin: 0 0 .9rem; }
-.apr-result.bad { background: #fef2f2; border: 1px solid #fca5a5; }
+.apr-result.bad { background: #f4f6f8; border: 1px solid #cbd5e1; }
 .apr-result.good { background: #ecfdf5; border: 1px solid #86efac; }
 .apr-hr { font-size: 1.15rem; font-weight: 800; }
-.apr-result.bad .apr-hr { color: #b91c1c; } .apr-result.good .apr-hr { color: #047857; }
+.apr-result.bad .apr-hr { color: #475569; } .apr-result.good .apr-hr { color: #047857; }
 .apr-hr-say { font-size: .88rem; line-height: 1.6; color: #334155; }
 .apr-check { margin-top: 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
 .apr-check summary { cursor: pointer; padding: .6rem .9rem; font-weight: 700; font-size: .92rem; }
@@ -254,7 +254,7 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .apr-choice:hover { background: var(--z); color: #fff; }
 .apr-react { border-radius: 12px; padding: .7rem 1rem; margin: 0 0 .9rem; font-size: .92rem; line-height: 1.75; }
 .apr-react.good { background: #ecfdf5; border: 1px solid #86efac; }
-.apr-react.warn { background: #fffbeb; border: 1px solid #fcd34d; }
+.apr-react.warn { background: #f4f6f8; border: 1px solid #cbd5e1; }
 .apr-prompt { font-size: .95rem; margin: 0 0 .7rem; }
 .apr-reset { margin-top: 1rem; border: 1px solid var(--line); background: var(--card); color: var(--muted);
   border-radius: 999px; padding: .4rem 1rem; font-size: .86rem; font-weight: 700; cursor: pointer; }
