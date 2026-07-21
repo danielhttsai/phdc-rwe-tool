@@ -3956,10 +3956,10 @@ const ALIGN_DEMO = {
     title: { zh: "複製-中斷-加權：Time Zero複製到各策略，偏離就中斷", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
     grace: { end: 90 },
     rows: [
-      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
-      { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 60, "un"], [60, 360, "cen"]], ev: { x: 60, type: "cen" } },
+      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 60, "adh"], [60, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 60, "adh"], [60, 360, "cen"]], ev: { x: 60, type: "cen" } },
     ],
-    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 一路追下去，而且<b>從第0天起，整段人時都算在「用藥」策略底下</b>（不是等到真的開始吃才算，否則又製造一段不死時間）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。<br><b>顏色看的是「策略」，不是那天有沒有吃藥：</b>兩個複製體在 T0 都是同一個還沒用藥的人，複製A 整段算「用藥策略」的人時（綠），複製B 整段算「不用策略」的人時（灰），所以複製B 從頭到尾都不會變綠。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat', so Clone A keeps going and <b>all of its person-time counts as treated from day 0</b> (not only from the actual start date, which would re-create immortal time); it <b>violates</b> 'no use', so Clone B is <b>censored</b> here. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring.<br><b>The colour is the strategy, not what the person took that day:</b> at T0 both clones are the same untreated person; Clone A's whole follow-up counts as 'treat'-strategy person-time (green) and Clone B's as 'no use'-strategy person-time (grey), so Clone B never turns green." },
+    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。第0～2月這個人還沒用藥，<b>兩個複製體都還遵從自己的策略</b>（淺綠），所以<b>都在追蹤</b>。第2月他開始用藥：<b>符合</b>「用藥」策略 → 複製A 繼續追到底（深綠）；<b>偏離</b>「不用」策略 → 複製B 就在這一刻<b>中斷</b>（設限，斜線）。分析時複製A <b>從第0天起整段人時都記在「用藥」策略底下</b>（不是等真的開始吃才算，否則又造出一段不死時間），這正是<b>目標試驗</b>的精神：Time Zero先分派策略，之後照策略追蹤、偏離才中斷。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. From m0 to m2 the person has not started, so <b>both clones are still adherent</b> (pale green) and <b>both keep being followed</b>. At m2 they start: this <b>matches</b> 'treat', so Clone A continues (dark green), and <b>deviates</b> from 'no use', so Clone B is <b>censored</b> right there. In the analysis all of Clone A's person-time counts under the 'treat' strategy <b>from day 0</b> (not from the actual start date, which would re-create immortal time) — the <b>target-trial</b> logic: assign strategies at time zero, then follow accordingly and censor only on deviation. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
   },
 };
 let alignSel = null, aprStep = 0, aprGuess = null, aprDx = null;
@@ -3977,7 +3977,7 @@ const ALIGN_HR = {
 };
 function _ax(d) { return 168 + d / 360 * 536; }
 function drawAlignSVG(cfg) {
-  const FILL = { un: "#cbd5e1", ex: "#3f8268", im: "#ef4444", ctrl: "#7c3aed", cen: "url(#hcen)", ex0: "url(#hex0)" };
+  const FILL = { un: "#cbd5e1", ex: "#3f8268", im: "#ef4444", ctrl: "#7c3aed", cen: "url(#hcen)", ex0: "url(#hex0)", adh: "#a7d7c5" };
   const rows = cfg.rows, rh = 46, H = rows.length * rh + 58;
   let s = '<svg viewBox="0 0 720 ' + H + '" class="align-svg" xmlns="http://www.w3.org/2000/svg">';
   s += '<defs>' +
@@ -4032,8 +4032,9 @@ function renderAlign() {
   const isCcw = alignSel === "ccw";
   const legend =
     `<div class="align-legend">` +
-    `<span><i class="sw" style="background:#cbd5e1"></i>${isCcw ? tr("「策略：不用」的人時", "person-time under the 'no use' strategy") : tr("未暴露人時", "unexposed")}</span>` +
-    `<span><i class="sw" style="background:#3f8268"></i>${isCcw ? tr("「策略：用藥」的人時", "person-time under the 'treat' strategy") : tr("暴露人時", "exposed")}</span>` +
+    (isCcw ? `<span><i class="sw" style="background:#a7d7c5"></i>${tr("兩個複製體都還遵從（寬限期內、尚未用藥）", "both clones still adherent (in grace, not yet started)")}</span>` : "") +
+    (isCcw ? "" : `<span><i class="sw" style="background:#cbd5e1"></i>${tr("未暴露人時", "unexposed")}</span>`) +
+    `<span><i class="sw" style="background:#3f8268"></i>${isCcw ? tr("複製A：已開始用藥、仍遵從", "Clone A: started, still adherent") : tr("暴露人時", "exposed")}</span>` +
     `<span><i class="sw" style="background:#ef4444"></i>${tr("不死時間（錯算）", "immortal (mis-assigned)")}</span>` +
     `<span><i class="sw" style="background:#7c3aed"></i>${tr("對照藥", "comparator")}</span>` +
     `<span><i class="sw sw-cen"></i>${tr("中斷（設限）", "censored")}</span>` +
