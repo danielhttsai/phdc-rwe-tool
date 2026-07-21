@@ -259,6 +259,12 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .apr-reset { margin-top: 1rem; border: 1px solid var(--line); background: var(--card); color: var(--muted);
   border-radius: 999px; padding: .4rem 1rem; font-size: .86rem; font-weight: 700; cursor: pointer; }
 .apr-reset:hover { border-color: var(--z); color: var(--z); }
+.apr-next { display: block; margin: 1rem 0 0; border: 0; background: var(--z); color: #fff;
+  border-radius: 999px; padding: .5rem 1.2rem; font-size: .9rem; font-weight: 800; cursor: pointer; }
+.apr-next:hover { filter: brightness(1.12); }
+.apr-hintline { margin: .9rem 0 0; font-size: .84rem; color: var(--muted); }
+.apr-done { margin-top: 1rem; border: 1px solid #a7f3d0; background: #ecfdf5; border-radius: 10px;
+  padding: .7rem .9rem; font-size: .9rem; line-height: 1.75; color: #064e3b; }
 
 /* --- spot the bias game (tab 4) --- */
 .bias-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: .9rem; }

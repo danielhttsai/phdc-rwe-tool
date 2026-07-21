@@ -3963,6 +3963,7 @@ const ALIGN_DEMO = {
   },
 };
 let alignSel = null, aprStep = 0, aprGuess = null, aprDx = null;
+let aprWho = null, aprDir = null, aprTried = null, aprFinal = null;
 // the estimated drug-X survival HR each approach yields for Dr. Lai's study —
 // the naive one is dragged below 1 by immortal time; every fix returns to ≈1
 // (drug X has no real survival effect in this teaching example).
@@ -4047,17 +4048,30 @@ function renderAlign() {
     `<p class="apr-say"><span class="apr-who">小賴醫師</span>「我把『確診後<b>曾用過</b>藥物X』的人當暴露、<b>從確診日起算</b>，跟從沒用過的人比存活。跑出來……」</p>` +
     `<div class="apr-result bad"><span class="apr-hr">藥物X 死亡 HR ≈ 0.60</span><span class="apr-hr-say">用藥的人死亡風險看起來<b>少 40%</b>。</span></div></div>`;
 
-  // ---- Step 1 of 3: judge the result ----
+  const NSTEP = 6;
+  const stepno = (n) => `<span class="apr-stepno">第 ${n} 步 / 共 ${NSTEP} 步</span>`;
+  const resetBtn = `<button class="apr-reset">↩ 重新想一次</button>`;
+  // Wire the choice buttons of the current step, plus the reset button.
+  const wire = (attr, set) => {
+    stage.querySelectorAll(".apr-choice").forEach((b) =>
+      b.addEventListener("click", () => { set(b.dataset[attr]); alignSel = "naive"; renderAlign(); }));
+    const r = stage.querySelector(".apr-reset");
+    if (r) r.addEventListener("click", () => {
+      aprStep = 0; aprGuess = null; aprDx = null; aprWho = null; aprDir = null;
+      aprTried = null; aprFinal = null; alignSel = "naive"; renderAlign();
+    });
+  };
+
+  // ---- Step 1: judge the result ----
   if (aprStep === 0) {
     stage.innerHTML = introTop +
-      `<div class="apr-ask"><p class="apr-stepno">第 1 步 / 共 3 步</p>` +
+      `<div class="apr-ask"><p class="apr-stepno">第 1 步 / 共 ${NSTEP} 步</p>` +
       `<p><b>換你當審查委員：小賴醫師這個「少 40%」，你信不信？</b></p>` +
       `<div class="apr-choices">` +
       `<button class="apr-choice" data-g="trust">看起來有效，我信</button>` +
       `<button class="apr-choice" data-g="doubt">怪怪的，好像有問題</button>` +
       `</div></div>`;
-    stage.querySelectorAll(".apr-choice").forEach((b) =>
-      b.addEventListener("click", () => { aprGuess = b.dataset.g; aprStep = 1; alignSel = "naive"; renderAlign(); }));
+    wire("g", (v) => { aprGuess = v; aprStep = 1; });
     return;
   }
 
@@ -4065,31 +4079,68 @@ function renderAlign() {
     ? `<div class="apr-react good"><b>直覺很準。</b>這個數字確實不對勁，問題出在研究的<b>設計</b>，不是統計。</div>`
     : `<div class="apr-react warn"><span class="apr-who rev">審查委員</span><b>先別急。</b>再看一次他怎麼定義暴露、又從哪天開始算。</div>`;
 
-  // ---- Step 2 of 3: diagnose where it went wrong ----
+  // ---- Step 2: diagnose where it went wrong ----
   if (aprStep === 1) {
     stage.innerHTML = introTop + react +
-      `<div class="apr-ask"><p class="apr-stepno">第 2 步 / 共 3 步</p>` +
+      `<div class="apr-ask">${stepno(2)}` +
       `<p><b>那問題最可能出在哪裡？</b></p>` +
       `<div class="apr-choices">` +
       `<button class="apr-choice" data-d="zero">Time Zero 沒對齊</button>` +
       `<button class="apr-choice" data-d="comp">對照選錯（用 vs 完全不用）</button>` +
       `<button class="apr-choice" data-d="n">樣本數不夠大</button>` +
-      `</div></div>` +
-      `<button class="apr-reset">↩ 重新想一次</button>`;
-    stage.querySelectorAll(".apr-choice").forEach((b) =>
-      b.addEventListener("click", () => { aprDx = b.dataset.d; aprStep = 2; alignSel = "naive"; renderAlign(); }));
-    const r0 = stage.querySelector(".apr-reset");
-    if (r0) r0.addEventListener("click", () => { aprStep = 0; aprGuess = null; aprDx = null; renderAlign(); });
+      `</div></div>` + resetBtn;
+    wire("d", (v) => { aprDx = v; aprStep = 2; });
     return;
   }
 
-  // ---- Step 3 of 3: fix it ----
   const dxFeedback = aprDx === "zero"
     ? `<div class="apr-react good"><b>答對了。</b>user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算進暴露組，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`
     : aprDx === "comp"
       ? `<div class="apr-react warn"><b>接近了。</b>對照確實也有問題（用 vs 完全不用＝<b>適應症混淆</b>），但讓 HR 掉到 0.60 的<b>主因</b>是<b>Time Zero 沒對齊</b>造成的<b>不死時間</b>。</div>`
       : `<div class="apr-react warn"><b>不是樣本數。</b>樣本再大也修不了<b>Time Zero 沒對齊</b>，反而會把<b>不死時間</b>造成的假效果估得更「精準」。</div>`;
-  const prompt = `<p class="apr-prompt"><span class="apr-stepno">第 3 步 / 共 3 步</span><b>幫小賴醫師把 Time Zero 對齊。</b>點下面的做法，看時間軸與估出的 HR 怎麼變：</p>`;
+
+  // ---- Step 3: who gets the pre-initiation person-time? ----
+  if (aprStep === 2) {
+    stage.innerHTML = introTop + react + dxFeedback +
+      `<div class="apr-ask">${stepno(3)}` +
+      `<p class="apr-say"><span class="apr-who">小賴醫師</span>「我查了一下，暴露組平均在<b>確診後 3 個月</b>才第一次領到藥物X。」</p>` +
+      `<p><b>那確診到第一次領藥的這 3 個月，在他的分析裡被算成誰的人時？</b></p>` +
+      `<div class="apr-choices">` +
+      `<button class="apr-choice" data-w="ex">算成暴露（用藥）人時</button>` +
+      `<button class="apr-choice" data-w="un">算成未暴露人時</button>` +
+      `<button class="apr-choice" data-w="drop">完全不計入</button>` +
+      `</div></div>` + resetBtn;
+    wire("w", (v) => { aprWho = v; aprStep = 3; });
+    return;
+  }
+
+  const whoFeedback = aprWho === "ex"
+    ? `<div class="apr-react good"><b>對，就是這裡。</b>他一開始就把人貼上「暴露」標籤、又<b>從確診日起算</b>，所以這 3 個月被算成<b>暴露人時</b>。但在這 3 個月裡，這些人<b>依定義不可能死</b>（死了就領不到藥、也就不會被分到暴露組）。</div>`
+    : aprWho === "un"
+      ? `<div class="apr-react warn"><b>那是正確做法，可惜他沒這樣做。</b>把這段算成未暴露人時，正是<b>時變暴露</b>的處理方式。小賴醫師是先貼標籤再從確診日起算，所以這 3 個月被算給了<b>暴露組</b>。</div>`
+      : `<div class="apr-react warn"><b>那也是一種正解，但不是他做的。</b>把這段丟掉（或改從第 3 個月起算）接近<b>地標分析</b>。小賴醫師沒有丟，他把這 3 個月算給了<b>暴露組</b>。</div>`;
+
+  // ---- Step 4: which way does the bias push? ----
+  if (aprStep === 3) {
+    stage.innerHTML = introTop + react + dxFeedback + whoFeedback +
+      `<div class="apr-ask">${stepno(4)}` +
+      `<p><b>把一段「保證活著」的時間送給暴露組，會讓 HR 往哪邊偏？</b></p>` +
+      `<div class="apr-choices">` +
+      `<button class="apr-choice" data-r="low">偏低（看起來比較有效，HR&lt;1）</button>` +
+      `<button class="apr-choice" data-r="high">偏高（看起來比較有害，HR&gt;1）</button>` +
+      `<button class="apr-choice" data-r="none">不影響，只是精確度變差</button>` +
+      `</div></div>` + resetBtn;
+    wire("r", (v) => { aprDir = v; aprStep = 4; });
+    return;
+  }
+
+  const dirFeedback = aprDir === "low"
+    ? `<div class="apr-react good"><b>正確。</b>暴露組的分母（人時）被灌水、分子（死亡數）卻沒增加，<b>死亡率被稀釋</b> → HR 被壓到 1 以下。0.60 就是這樣來的。</div>`
+    : aprDir === "high"
+      ? `<div class="apr-react warn"><b>方向反了。</b>多出來的是<b>沒有死亡的人時</b>，只加分母不加分子，暴露組的死亡率被<b>稀釋</b> → HR 偏<b>低</b>，藥看起來更有效。</div>`
+      : `<div class="apr-react warn"><b>不只是精確度。</b>這是<b>系統性偏誤</b>：分母灌水、分子不變 → 暴露組死亡率被稀釋，HR 系統性偏<b>低</b>。樣本越大，這個假效果只會看起來越「顯著」。</div>`;
+
+  const prompt = `<p class="apr-prompt">${stepno(5)}<b>幫小賴醫師把 Time Zero 對齊。</b>點下面每一種做法，看時間軸與估出的 HR 怎麼變；至少試一種<b>非天真</b>的做法再進到最後一題。</p>`;
   const resultBanner =
     `<div class="apr-result ${hr.tone}"><span class="apr-hr">${L(ALIGN_ORDER.find((o) => o.k === alignSel).short)}：HR ≈ ${hr.hr}</span>` +
     `<span class="apr-hr-say">${hr.say}</span></div>`;
@@ -4100,22 +4151,66 @@ function renderAlign() {
     `<li><b>對照選得對嗎？</b>是「用 vs 完全不用」（適應症混淆），還是同適應症的<b>主動對照</b>？</li>` +
     `<li><b>重要干擾因子都測到了嗎？</b>疾病嚴重度、健康守規矩傾向有沒有被觀察到（否則是無法被測量的干擾因子）？</li>` +
     `</ul></details>`;
-  stage.innerHTML =
-    introTop + react + dxFeedback + prompt +
+  const head = introTop + react + dxFeedback + whoFeedback + dirFeedback;
+  const board =
     `<div class="align-picks">${chips}</div>` +
     resultBanner +
     `<div class="align-viz"><h4 class="align-title">${L(cfg.title)}</h4>${drawAlignSVG(cfg)}</div>` +
     legend +
     `<div class="align-note ${alignSel === "naive" ? "bad" : "good"}">${L(cfg.note)}</div>` +
-    methodBox +
-    checklist +
-    `<button class="apr-reset">↩ 重新想一次</button>`;
+    methodBox;
+
+  // ---- Step 5: try the fixes on the timeline ----
+  if (aprStep === 4) {
+    stage.innerHTML = head + prompt + board +
+      (aprTried
+        ? `<button class="apr-next">下一步：最後一題 →</button>`
+        : `<p class="apr-hintline">（試一個「天真做法」以外的選項，就會出現下一步。）</p>`) +
+      resetBtn;
+    stage.querySelectorAll(".align-pick").forEach((b) =>
+      b.addEventListener("click", () => {
+        alignSel = b.dataset.k;
+        if (alignSel !== "naive") aprTried = alignSel;
+        renderAlign();
+      }));
+    const nx = stage.querySelector(".apr-next");
+    if (nx) nx.addEventListener("click", () => { aprStep = 5; renderAlign(); });
+    wire("_", () => {});
+    stage.querySelectorAll(".db-chip").forEach((b) =>
+      b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
+    return;
+  }
+
+  // ---- Step 6: the one thing Time Zero alignment cannot fix ----
+  if (aprStep === 5) {
+    stage.innerHTML = head +
+      `<div class="apr-ask">${stepno(6)}` +
+      `<p class="apr-say"><span class="apr-who">小賴醫師</span>「Time Zero 對齊之後 HR 變回 1.0 附近了。那我這篇是不是就沒問題了？」</p>` +
+      `<p><b>最後一題：對齊 Time Zero <u>解決不了</u>下面哪一個問題？</b></p>` +
+      `<div class="apr-choices">` +
+      `<button class="apr-choice" data-f="immortal">不死時間</button>` +
+      `<button class="apr-choice" data-f="unmeas">健保裡量不到的疾病嚴重度</button>` +
+      `<button class="apr-choice" data-f="prev">把盛行使用者混進來</button>` +
+      `</div></div>` + resetBtn;
+    wire("f", (v) => { aprFinal = v; aprStep = 6; });
+    return;
+  }
+
+  const finalFeedback = aprFinal === "unmeas"
+    ? `<div class="apr-react good"><b>答對，這才是剩下的那一關。</b>對齊 Time Zero 只處理<b>時間</b>怎麼算；疾病嚴重度<b>根本沒被記錄</b>，任何對齊或校正都變不出來。要嘛去串有檢驗值的資料庫，要嘛用<b>陰性對照／E-value</b> 評估它能不能解釋掉這個結果。</div>`
+    : aprFinal === "immortal"
+      ? `<div class="apr-react warn"><b>這個剛好相反。</b>不死時間<b>正是</b>對齊 Time Zero 要解決的問題，你在第 5 步已經看到 HR 從 0.60 回到 1.0 附近了。真正剩下的是<b>量不到的疾病嚴重度</b>。</div>`
+      : `<div class="apr-react warn"><b>這個其實會一起解決。</b>從「開始用藥／合格那天」重新起算，本來就會把已經用很久的<b>盛行使用者</b>排除掉。真正剩下的是<b>量不到的疾病嚴重度</b>。</div>`;
+
+  stage.innerHTML = head + finalFeedback +
+    `<div class="apr-done"><b>小賴醫師的結論：</b>0.60 是<b>設計</b>造出來的，不是藥效。把 Time Zero 對齊後效果就消失了；而<b>無法被測量的干擾因子</b>要靠換資料庫或敏感度分析，不是靠再多跑一個模型。</div>` +
+    `<p class="apr-prompt"><b>回頭再玩一次各種對齊做法：</b></p>` + board +
+    checklist + resetBtn;
   stage.querySelectorAll(".align-pick").forEach((b) =>
     b.addEventListener("click", () => { alignSel = b.dataset.k; renderAlign(); }));
   stage.querySelectorAll(".db-chip").forEach((b) =>
     b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
-  const rst = stage.querySelector(".apr-reset");
-  if (rst) rst.addEventListener("click", () => { aprStep = 0; aprGuess = null; aprDx = null; alignSel = "naive"; renderAlign(); });
+  wire("_", () => {});
 }
 
 // ======================================================================
