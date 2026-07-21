@@ -2227,15 +2227,16 @@ function renderDbIntro() {
   if (!el) return;
   if (!dbGuess) {
     el.innerHTML =
-      `<div class="apr-ask"><p>🩺 小賴醫師手上只有<b>健保理賠（沒有檢驗值）</b>。他<b>能不能</b>用它，做出「新使用者＋時變暴露、對齊 Time Zero」的<b>正確</b>分析？</p>` +
-      `<div class="apr-choices"><button class="apr-choice" data-g="yes">能，撐得起</button>` +
-      `<button class="apr-choice" data-g="no">不能，資料不夠</button></div></div>`;
+      `<div class="apr-ask"><p>🩺 小賴醫師要正確重做這個分析。你覺得「<b>他能用哪種設計</b>（自我對照、時變暴露、新使用者、IV…）」，<b>最主要</b>是由什麼決定的？</p>` +
+      `<div class="apr-choices"><button class="apr-choice" data-g="data">手上的<b>資料庫</b>撐不撐得起</button>` +
+      `<button class="apr-choice" data-g="stat">想用的<b>統計方法</b></button>` +
+      `<button class="apr-choice" data-g="n">樣本數夠不夠大</button></div></div>`;
     el.querySelectorAll(".apr-choice").forEach((b) =>
       b.addEventListener("click", () => { dbGuess = b.dataset.g; renderDbIntro(); }));
   } else {
     el.innerHTML =
-      `<div class="apr-react ${dbGuess === "yes" ? "good" : "warn"}">${dbGuess === "yes" ? "👍 <b>對，能！</b>" : "🤔 <b>其實能。</b>"}` +
-      `近全人口理賠撐得起<b>自我對照、時變暴露、新使用者</b>設計，用藥的時間軸都在。它<b>唯一缺</b>的是<b>檢驗值</b>來校正疾病嚴重度，得靠<b>成人健檢／長庚</b>，或用 <b>E-value</b> 檢查殘餘干擾。` +
+      `<div class="apr-react ${dbGuess === "data" ? "good" : "warn"}">${dbGuess === "data" ? "👍 <b>對，是資料庫。</b>" : "🤔 <b>其實是資料庫。</b>"}` +
+      `統計方法和樣本數固然重要，但<b>你能不能做某個設計，是資料的特性先決定的</b>：有沒有<b>用藥的時間先後</b>、有沒有<b>檢驗值</b>、能不能<b>串接</b>死亡／癌登／健檢、能<b>追蹤多久</b>、有沒有<b>基因</b>。同一個「藥物X 用 vs 不用」問題，理賠、EHR、健檢、生物資料庫各撐得起不同設計。` +
       `那麼，<b>你手上是哪種資料庫？往下挑 ↓</b> <button class="apr-reset" id="dbIntroReset">↩ 重問</button></div>`;
     const r = el.querySelector("#dbIntroReset");
     if (r) r.addEventListener("click", () => { dbGuess = null; renderDbIntro(); });
