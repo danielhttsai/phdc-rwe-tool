@@ -202,10 +202,10 @@ b { color: #0b1020; }
 table.db-summary td, table.db-summary th { font-size: .84rem; vertical-align: top; }
 table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0 0 #16a34a; }
 .db-scn-h { margin: 1.1rem 0 .5rem; font-size: 1rem; }
-.db-scn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: .7rem; }
+.db-scn-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .7rem; justify-content: center; }
 .db-scn { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px;
   padding: .75rem .85rem; background: var(--card); box-shadow: var(--shadow); }
-.db-scn-q { font-size: .9rem; line-height: 1.6; flex: 1 1 auto; }
+.db-scn-q { font-size: .9rem; line-height: 1.6; flex: 1 1 auto; min-height: 2.6em; }
 .db-scn-meta { margin-top: .7rem; padding-top: .55rem; border-top: 1px solid var(--line);
   display: flex; flex-direction: column; gap: .35rem; }
 .db-scn-row { display: flex; align-items: center; gap: .5rem; }
