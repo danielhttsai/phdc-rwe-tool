@@ -3349,7 +3349,10 @@ function initDtree() {
     if (fullmap) fullmap.addEventListener("click", () => {
       const box = document.getElementById("dtreeMap");
       if (box && !box.hidden) { box.hidden = true; return; }   // toggle off if already showing
-      renderFullMap(null);                                     // whole tree, no endpoint highlighted
+      // If the walk is already sitting on a design, light that one up — the
+      // toolbar button used to always pass null, so the map came up blank.
+      const cur = dtreeStack[dtreeStack.length - 1];
+      renderFullMap(DNODES[cur.id] && DNODES[cur.id].rec ? cur.id : null);
     });
   }
   renderDtree();
@@ -3436,10 +3439,16 @@ function renderFullMap(hitKey) {
       return h;
     }).join("") +
     `</div>`;
+  // Only promise a highlight when the endpoint actually appears on the map;
+  // a couple of tree endpoints (MR, decision-theoretic) have no box here.
+  const onMap = !!hitKey && JSON.stringify(FULLMAP).includes(`"key":"${hitKey}"`);
+  const title = onMap ? L(FULLMAP.title)
+    : tr("完整決策樹（流程圖）", "Full decision tree (flowchart)");
   box.innerHTML =
     `<div class="fc-toolbar"><button type="button" class="btn fc-dl">⬇ ${tr("下載完整流程圖", "Download full flowchart")}</button></div>` +
-    `<h3 class="fc-title">${L(FULLMAP.title)}</h3>` +
-    `<div class="fc${hitKey ? " has-hit" : ""}">` +
+    `<h3 class="fc-title">${title}</h3>` +
+    (hitKey && !onMap ? `<p class="fc-nohit">${tr("你走到的設計沒有畫在這張圖上（這張圖只放核心的因果設計）。", "Your endpoint is not drawn on this map — it only shows the core causal designs.")}</p>` : "") +
+    `<div class="fc${onMap ? " has-hit" : ""}">` +
     `<div class="fc-start">${L(FULLMAP.start)}</div>` +
     `<div class="fc-lanes">${FULLMAP.lanes.map(laneHtml).join("")}</div>` +
     `</div>`;
@@ -4347,9 +4356,6 @@ function renderBiasGame() {
       `<div class="bias-feedback" hidden></div></div>`;
   };
   stage.innerHTML =
-    `<div class="align-lead">${tr(
-      "第 1 題就是小賴醫師<b>最初那一版</b>研究；後面幾題是同一個「藥物X 用 vs 不用」問題的變形。勾出你認為<b>存在</b>的偏誤（可複選，也可能一個都沒有），再按「對答案」，看研究者哪裡跌倒、又該怎麼爬起來。三種偏誤：<b>不死時間</b>（Time Zero錯位）、<b>適應症混淆</b>、<b>無法被測量的干擾因子</b>。",
-      "Each scenario is 'drug X for a chronic disease'. Tick the biases you think are <b>present</b> (multi-select, or none), then check. The three: <b>immortal time</b> (time-zero misalignment), <b>confounding by indication</b>, <b>unmeasured confounder</b>.")}</div>` +
     `<div class="bias-grid">` + BIAS_SCENARIOS.map(card).join("") + `</div>`;
   stage.querySelectorAll(".bias-check").forEach((btn) => {
     btn.addEventListener("click", () => {
