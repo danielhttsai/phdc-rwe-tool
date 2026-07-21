@@ -144,6 +144,8 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
     <div class="sa-scenario">收尾：小賴醫師想<b>正確</b>回答「藥物X 用 vs 不用，誰活得久？」。這是一個「暴露隨時間開關、要避免不死時間」的問題 → 順著樹點下去，你會落在<b>時變暴露 / 主動對照新使用者 / CCW</b> 這一類「錨定暴露起始、對齊 Time Zero」的設計。試試看樹會不會帶你到同樣的答案。</div>
     <p class="caption">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
+    <div id="mtIntro"></div>
+
     <div class="flow-legend">
       <span><b>✓</b> 完整工具箱有教學（可點擊前往）</span>
       <span><b>↗</b> 其他延伸設計，供參考</span>
@@ -192,6 +194,7 @@ renderAlign();
 initBiasGame();
 renderDbIntro();
 renderBiasIntro();
+renderMethodIntro();
 
 /* ---------- tab switch (four panels) ---------- */
 (function () {{
