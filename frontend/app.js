@@ -3764,21 +3764,6 @@ const DB_SUMMARY = [
     designs: "PS · ACNU · TMLE", eg: { zh: "罕見結果跨國複製", en: "rare outcome, replicated" } },
 ];
 
-// The 5 real-world study contexts (from the workshop slide) reframed as drug X /
-// chronic disease, each mapped to a fitting database + design.
-const DB_SCENARIOS = [
-  { s: { zh: "藥物X 對某慢性病患者的<b>心血管結果</b>（真實世界）", en: "Drug X and <b>cardiovascular outcomes</b> in a chronic-disease population (real world)" },
-    db: { zh: "健保（串接死亡檔）", en: "NHI claims linked to the death registry" }, dbkey: "nhi", m: { zh: "新使用者世代／CCW", en: "new-user cohort / CCW" }, mkey: "ccw" },
-  { s: { zh: "藥物X 與<b>骨質疏鬆</b>風險，和其他同類藥比較", en: "Drug X and <b>osteoporosis</b> risk vs other same-class drugs" },
-    db: { zh: "TriNetX", en: "TriNetX" }, dbkey: "trinetx", m: { zh: "傾向配對／ACNU", en: "propensity matching / ACNU" }, mkey: "acnu" },
-  { s: { zh: "藥物X 在<b>非典型適應症</b>族群的真實世界使用與效果", en: "Real-world use and effectiveness of drug X in an <b>off-label / atypical</b> population" },
-    db: { zh: "TriNetX 或長庚 CGRD", en: "TriNetX or Chang Gung CGRD" }, dbkey: "trinetx", m: { zh: "描述性＋傾向分數", en: "descriptive + propensity score" }, mkey: "ps" },
-  { s: { zh: "三種同類<b>藥物X 頭對頭比較</b>療效", en: "<b>Head-to-head</b> comparison of three same-class drug-X options" },
-    db: { zh: "健保串接癌症登記", en: "NHI claims linked to the Cancer Registry" }, dbkey: "nhicancer", m: { zh: "主動對照新使用者", en: "active-comparator new-user" }, mkey: "acnu" },
-  { s: { zh: "藥物X 在<b>失智症</b>的影像結果與臨床追蹤", en: "Drug X in <b>dementia</b>: imaging outcomes and clinical follow-up" },
-    db: { zh: "HALST 世代（可串健保）", en: "HALST cohort (linkable to NHI)" }, dbkey: "halst", m: { zh: "前瞻世代＋中介分析", en: "prospective cohort + mediation" }, mkey: "med" },
-];
-
 let dbtreeStack = [{ id: "d1", ans: null }];
 function initDbtree() {
   if (!document.getElementById("dbtreeStage")) return;
@@ -3865,23 +3850,11 @@ function renderDbSummary(hitDb) {
     `<tr class="${hitDb && _dbKey(d) === hitDb ? "db-row-hit" : ""}">` +
     `<td><b>${L(d.name)}</b></td><td>${L(d.kind)}</td><td>${L(d.cover)}</td><td>${L(d.vars)}</td>` +
     `<td>${L(d.link)}</td><td>${L(d.follow)}</td><td>${L(d.eg)}</td></tr>`).join("");
-  const scen =
-    `<h4 class="db-scn-h">${tr("研究情境 → 資料庫 × 方法（藥物X／慢性病）", "Study context → database × method (drug X / chronic disease)")}</h4>` +
-    `<div class="db-scn-grid">` +
-    DB_SCENARIOS.map((s) =>
-      `<div class="db-scn"><div class="db-scn-q">${L(s.s)}</div>` +
-      `<div class="db-scn-meta">` +
-      `<div class="db-scn-row"><span class="db-scn-k">${tr("資料庫", "Database")}</span><span class="db-scn-db">${L(s.db)}</span></div>` +
-      `<div class="db-scn-row"><span class="db-scn-k">${tr("方法", "Method")}</span><button class="db-chip" data-go="${s.mkey}">${L(s.m)}</button></div>` +
-      `</div></div>`).join("") +
-    `</div>`;
   box.innerHTML =
     `<h3 class="fc-title">${tr("資料庫總表（你剛選到的會被標亮）", "Full comparison table (your pick is highlighted)")}</h3>` +
     `<div class="table-wrap"><table class="cmp db-summary">` +
-    `<thead>${head}</thead><tbody>${rows}</tbody></table></div>` + scen;
+    `<thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
   box.hidden = false;
-  box.querySelectorAll(".db-chip").forEach((b) =>
-    b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function _dbKey(d) {
