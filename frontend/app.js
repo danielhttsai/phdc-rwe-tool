@@ -3679,7 +3679,7 @@ const DBNODES = {
       { l: { zh: "結果是<b>癌症</b>（期別、確診日、存活）", en: "The outcome is <b>cancer</b> (stage, diagnosis date, survival)" }, to: "dCancer" },
       { l: { zh: "需要<b>檢驗值／生物標記</b>（血脂、血糖、影像…）", en: "You need <b>lab values / biomarkers</b> (lipids, glucose, imaging…)" }, to: "dLabs" },
       { l: { zh: "需要<b>長期前瞻</b>＋問卷／生物檢體（尤其高齡、老化結果）", en: "A <b>long prospective</b> cohort with questionnaires / biospecimens (esp. ageing outcomes)" }, to: "dHALST" },
-      { l: { zh: "需要<b>跨國、超大樣本</b>、罕見暴露、要能快速複製", en: "<b>Multi-country, very large N</b>, a rare exposure, fast to replicate" }, to: "dTriNetX" },
+      { l: { zh: "要用<b>國際／商業 RWD</b>（跨國大樣本、腫瘤、專科、或法規等級的試驗仿真）", en: "You need <b>international / commercial RWD</b> (multi-country scale, oncology, a specialty, or regulatory-grade trial emulation)" }, to: "dGlobal" },
       { l: { zh: "只有<b>小規模／單一診所</b>，要人工抄錄的深度病歷", en: "Only a <b>small / single-clinic</b> setting needing hand-abstracted deep charts" }, to: "dChart" },
     ],
   },
@@ -3689,6 +3689,16 @@ const DBNODES = {
     opts: [
       { l: { zh: "全國<b>成人健檢</b>，要代表性與大樣本，再串健保用藥／結果", en: "A national <b>adult health-check</b>, representative and large, then linked to NHI drugs/outcomes" }, to: "dHealthCheck" },
       { l: { zh: "<b>單一體系深度臨床</b>（多院 EHR、含嚴重度、完整檢驗）", en: "<b>One health-system's deep clinical EHR</b> (multi-hospital, severity, full labs)" }, to: "dCGRD" },
+    ],
+  },
+  dGlobal: {
+    step: { zh: "國際／商業 RWD：你要的是哪一種？", en: "International / commercial RWD: which kind?" },
+    q: { zh: "這四個常被放在一起講，但性質不同（三個是<b>資料</b>，一個是<b>分析平台</b>）。你最需要的是？", en: "These four are often lumped together but differ (three are <b>data</b>, one is an <b>analytics platform</b>). What do you most need?" },
+    opts: [
+      { l: { zh: "<b>跨國、上億筆</b>的一般 EHR，罕見暴露／結果、要快速複製", en: "<b>Multi-country, hundreds of millions</b> of general EHRs; rare exposure/outcome, fast replication" }, to: "dTriNetX" },
+      { l: { zh: "<b>腫瘤</b>：期別、生物標記、真實世界存活（rwOS）與治療線別", en: "<b>Oncology</b>: stage, biomarkers, real-world survival (rwOS) and lines of therapy" }, to: "dFlatiron" },
+      { l: { zh: "<b>單一專科</b>（視網膜）：每次注射與每次視力，密集回診紀錄", en: "A <b>single specialty</b> (retina): every injection and every visual acuity, dense visits" }, to: "dVestrum" },
+      { l: { zh: "資料已經有了，要的是<b>可稽核、可重現</b>地把同一個設計跑遍多個資料庫", en: "You already have data; you need to run one design across many databases <b>auditably and reproducibly</b>" }, to: "dAetion" },
     ],
   },
 };
@@ -3708,7 +3718,7 @@ const DBRECS = {
     watch: { zh: "領先時間／偵測偏誤；Time Zero與合格條件要對齊（免不死時間）。", en: "Lead-time / detection bias; align time zero and eligibility to avoid immortal time." },
     designs: [{ m: "ccw", l: "CCW" }, { m: "rdd", l: "RDD" }, { m: "med", l: "MED" }, { m: "acnu", l: "ACNU" }] },
   dHealthCheck: { db: "healthcheck",
-    title: { zh: "成人健檢串健保", en: "Adult health-check linked to NHI" },
+    title: { zh: "健保串成人健檢", en: "NHI linked to the adult health-check" },
     why: { zh: "健檢帶來<b>檢驗值（血脂、血糖、BMI）與生活型態</b>，串健保後有用藥與結果，且比單院<b>更有代表性</b>。最適合<b>中介分析</b>（有量到的生物標記 M）與含檢驗值的傾向分數校正。", en: "The check-up brings <b>lab values (lipids, glucose, BMI) and lifestyle</b>; linked to NHI it gains drugs + outcomes and is <b>more representative</b> than a single hospital. Best for <b>mediation</b> (a measured biomarker M) and lab-informed propensity adjustment." },
     scenario: { zh: "藥物X 情境：藥物X 是否<b>透過降低 LDL／血糖</b>來改善某慢性病結果？把檢驗值當中介 M。", en: "Drug-X scenario: does drug X improve a chronic-disease outcome <b>by lowering LDL / glucose</b>? Treat the lab value as the mediator M." },
     watch: { zh: "自願受檢者選擇；健檢與用藥的時間先後要理清（免反向因果）。", en: "Self-selection into screening; sort out the timing of check-up vs drug use to avoid reverse causation." },
@@ -3737,6 +3747,24 @@ const DBRECS = {
     scenario: { zh: "藥物X 情境：藥物X 與某少見結果（如<b>骨質疏鬆</b>）跟其他同類藥比較，用傾向配對的大樣本世代跨國複製。", en: "Drug-X scenario: drug X vs other same-class drugs for a less-common outcome (e.g. <b>osteoporosis</b>), as a propensity-matched large cohort replicated across countries." },
     watch: { zh: "各站資料異質、缺失不一；黑箱處理與可重現性；代表性未知。", en: "Site heterogeneity and uneven missingness; black-box processing and reproducibility; unknown representativeness." },
     designs: [{ m: "ps", l: "PS" }, { m: "acnu", l: "ACNU" }, { m: "tmle", l: "TMLE" }] },
+  dFlatiron: { db: "flatiron",
+    title: { zh: "Flatiron Health 腫瘤 EHR 資料庫", en: "Flatiron Health oncology EHR database" },
+    why: { zh: "美國腫瘤專科診所與醫學中心的 EHR，關鍵欄位（<b>期別、生物標記、治療線別、死亡日</b>）是<b>人工抄錄</b>回填的，所以拿得到理賠資料沒有的臨床深度；死亡結果是把 EHR、商業資料與社會安全死亡檔<b>合成</b>後對照國家死亡index 驗證過的。最適合<b>真實世界存活（rwOS）</b>與依生物標記分層的比較。", en: "EHR from US oncology practices and academic centres, where the key fields (<b>stage, biomarkers, line of therapy, date of death</b>) are <b>human-abstracted</b> back into the record — clinical depth claims cannot give. Its mortality endpoint is a composite of EHR, commercial and Social Security death data, benchmarked against the National Death Index. Best for <b>real-world overall survival</b> and biomarker-stratified comparisons." },
+    scenario: { zh: "藥物X 情境：藥物X 在<b>某個生物標記陽性</b>的次族群，相對於同線別的主動對照藥，真實世界存活如何？", en: "Drug-X scenario: in a <b>biomarker-positive</b> subgroup, what is real-world survival on drug X versus a same-line active comparator?" },
+    watch: { zh: "以社區腫瘤診所為主，<b>代表性</b>要另外評估；抄錄欄位有缺失與延遲；<b>指標時間（index date）</b>常需自訂，容易做出不死時間。", en: "Skewed towards community oncology, so <b>representativeness</b> must be assessed separately; abstracted fields have missingness and lag; the <b>index date</b> is usually researcher-defined, which readily creates immortal time." },
+    designs: [{ m: "acnu", l: "ACNU" }, { m: "ps", l: "PS" }, { m: "ccw", l: "CCW" }, { m: "extctrl", l: "外部對照" }] },
+  dVestrum: { db: "vestrum",
+    title: { zh: "Vestrum Health 視網膜資料庫", en: "Vestrum Health Retina Database" },
+    why: { zh: "美國視網膜專科的 EHR 匯總，特色是<b>單一專科、單一結果測得極密</b>：每一次抗 VEGF 注射與每一次<b>最佳矯正視力</b>都有日期。等於把「暴露強度」與「連續結果」同時記到很細，很適合做<b>劑量／治療強度</b>與結果的關係。", en: "A pooled EHR of US retina specialists. Its strength is being <b>one specialty with one densely measured outcome</b>: every anti-VEGF injection and every <b>best-corrected visual acuity</b> is dated. Exposure intensity and a continuous outcome are both recorded finely, which suits <b>dose / treatment-intensity</b> questions." },
+    scenario: { zh: "藥物X 情境：注射<b>打得越密</b>，一年後視力進步越多嗎？把注射次數當時變暴露、視力當重複測量結果。", en: "Drug-X scenario: does a <b>higher injection frequency</b> buy more visual-acuity gain at one year? Treat injection count as time-varying exposure and acuity as a repeated outcome." },
+    watch: { zh: "打得密的人通常<b>病況也不同</b>（適應症混淆）；只看得到眼科端，全身共病與死亡看不到；失去追蹤與真正的停藥分不清楚。", en: "People injected more often <b>differ clinically</b> (confounding by indication); only the eye-care side is visible, so systemic comorbidity and death are not; loss to follow-up is hard to tell from genuine discontinuation." },
+    designs: [{ m: "ps", l: "PS" }, { m: "gbtm", l: "GBTM" }, { m: "wce", l: "WCE" }, { m: "med", l: "MED" }] },
+  dAetion: { db: "aetion",
+    title: { zh: "Aetion Evidence Platform（分析平台，不是資料庫）", en: "Aetion Evidence Platform (an analytics platform, not a database)" },
+    why: { zh: "它<b>本身不擁有病人資料</b>，而是接上你既有的理賠／EHR，用<b>點選式</b>把設計參數（合格條件、Time Zero、暴露定義、隨訪規則）明確寫下來再執行，所以整個分析可稽核、可重跑、可換資料庫複製。這正是<b>目標試驗仿真</b>需要的紀律：先把協定寫死，再看結果。", en: "It <b>owns no patient data</b>; it connects to your existing claims/EHR and makes you declare the design parameters (eligibility, time zero, exposure definition, follow-up rules) explicitly through a point-and-click protocol before running. The whole analysis is therefore auditable, re-runnable and portable to another database — the discipline <b>target-trial emulation</b> demands: fix the protocol first, look at the answer second." },
+    scenario: { zh: "藥物X 情境：把「藥物X vs 主動對照」的同一份協定，在健保與另一個 EHR 各跑一次，看結果穩不穩。", en: "Drug-X scenario: run one and the same 'drug X vs active comparator' protocol in claims and in a second EHR, and see whether the answer holds." },
+    watch: { zh: "平台<b>不會</b>幫你解決偏誤：資料裡沒有的干擾因子，點再多選項也校正不了；它保證的是<b>你做了什麼被記錄下來</b>，不是<b>你做得對</b>。", en: "The platform does <b>not</b> remove bias: a confounder absent from the data cannot be adjusted however many boxes you tick. It guarantees that <b>what you did is recorded</b>, not that <b>what you did was right</b>." },
+    designs: [{ m: "acnu", l: "ACNU" }, { m: "ps", l: "PS" }, { m: "seq", l: "Seq" }, { m: "ccw", l: "CCW" }] },
 };
 
 // 總表 rows (one per database) — coverage · key variables · linkage · designs · drug-X example
@@ -3747,7 +3775,7 @@ const DB_SUMMARY = [
   { name: { zh: "健保串癌登", en: "NHI × Cancer Registry" }, kind: { zh: "理賠＋癌症登記", en: "Claims + cancer registry" }, cover: { zh: "全國新發癌症個案", en: "all incident cancers, nationwide" },
     vars: { zh: "健保給藥與診斷＋癌登的期別、組織型、診斷日、初次治療與存活", en: "NHI drugs & diagnoses + the registry's stage, histology, diagnosis date, first-line treatment and survival" }, link: { zh: "已與健保、死亡檔串接", en: "linked to NHI claims and the death file" }, follow: { zh: "長期", en: "long-term" },
     designs: "存活世代 · RDD · CCW · MED", eg: { zh: "用藥物X 後的癌症發生或存活", en: "cancer incidence or survival after drug X" } },
-  { name: { zh: "成人健檢串健保", en: "Health-check × NHI" }, kind: { zh: "預防保健健檢＋理賠", en: "Health-screening + claims" }, cover: { zh: "參加成人健檢的成人", en: "adults who attended a health check" },
+  { name: { zh: "健保串成人健檢", en: "NHI × health-check" }, kind: { zh: "預防保健健檢＋理賠", en: "Health-screening + claims" }, cover: { zh: "參加成人健檢的成人", en: "adults who attended a health check" },
     vars: { zh: "健檢的檢驗值（血脂、血糖、BMI）與生活型態問卷＋串健保後的用藥與結果", en: "check-up labs (lipids, glucose, BMI) and a lifestyle questionnaire + NHI drugs and outcomes after linkage" }, link: { zh: "已與健保串接", en: "linked to NHI" }, follow: { zh: "中～長期", en: "medium to long" },
     designs: "MED · PS · ACNU · RDD", eg: { zh: "藥物X 經降 LDL／血糖影響結果的中介", en: "mediation of drug X via lowering LDL / glucose" } },
   { name: { zh: "長庚 CGRD", en: "Chang Gung CGRD" }, kind: { zh: "多院 EHR", en: "Multi-hospital EHR" }, cover: { zh: "~150萬（2011-）", en: "~1.5M (2011-)" },
@@ -3762,6 +3790,44 @@ const DB_SUMMARY = [
   { name: { zh: "TriNetX", en: "TriNetX" }, kind: { zh: "聯邦式 EHR", en: "Federated EHR" }, cover: { zh: "跨國、上億", en: "multi-country, 100Ms" },
     vars: { zh: "檢驗值、診斷、用藥（即時）", en: "labs, dx, drugs (near real-time)" }, link: { zh: "平台內", en: "on-platform" }, follow: { zh: "中", en: "medium" },
     designs: "PS · ACNU · TMLE", eg: { zh: "罕見結果跨國複製", en: "rare outcome, replicated" } },
+  { name: { zh: "Flatiron Health", en: "Flatiron Health" }, kind: { zh: "腫瘤專科 EHR＋人工抄錄", en: "Oncology EHR + human abstraction" }, cover: { zh: "美國腫瘤病人，逾 280 家診所、約 220 萬人", en: "US cancer patients; 280+ practices, ~2.2M people" },
+    vars: { zh: "期別、組織型、生物標記、治療線別、驗證過的死亡日", en: "stage, histology, biomarkers, line of therapy, a validated date of death" }, link: { zh: "可與基因體（Foundation Medicine）併為 clinico-genomic", en: "linkable to genomics (Foundation Medicine) as a clinico-genomic database" }, follow: { zh: "中（診療期間）", en: "medium (while in care)" },
+    designs: "ACNU · PS · CCW · 外部對照", eg: { zh: "生物標記次族群的真實世界存活", en: "real-world survival in a biomarker subgroup" } },
+  { name: { zh: "Vestrum Health", en: "Vestrum Health" }, kind: { zh: "單一專科（視網膜）EHR", en: "Single-specialty (retina) EHR" }, cover: { zh: "美國視網膜專科病人，逾 13 萬眼", en: "US retina patients; 130k+ eyes" },
+    vars: { zh: "每次注射日期與藥別、每次最佳矯正視力、影像厚度", en: "every injection date and agent, every best-corrected acuity, imaging thickness" }, link: { zh: "限眼科端，難串全身結果", en: "eye-care only; systemic outcomes hard to link" }, follow: { zh: "長（密集回診）", en: "long (dense visits)" },
+    designs: "PS · GBTM · WCE · MED", eg: { zh: "注射強度與一年視力變化", en: "injection intensity vs 1-year acuity change" } },
+  { name: { zh: "Aetion（分析平台）", en: "Aetion (analytics platform)" }, kind: { zh: "分析平台，不擁有資料", en: "Analytics platform; owns no data" }, cover: { zh: "看你接哪個理賠／EHR", en: "whatever claims/EHR you connect" },
+    vars: { zh: "無自有變數；把設計參數（合格、Time Zero、暴露）明確化", en: "no data of its own; it makes the design parameters explicit" }, link: { zh: "同一協定可換資料庫重跑", en: "one protocol, re-run on another database" }, follow: { zh: "由來源資料決定", en: "set by the source data" },
+    designs: "ACNU · PS · Seq · CCW", eg: { zh: "同一份協定在兩個資料庫複製", en: "one protocol replicated in two databases" } },
+];
+
+// Extended write-ups for the three international sources, each anchored to a
+// peer-reviewed paper that actually describes or uses that source.
+const DB_NOTES = [
+  { key: "flatiron", name: "Flatiron Health",
+    what: `美國腫瘤照護的 EHR 匯總，涵蓋 <b>280 家以上</b>的腫瘤診所與醫學中心、約 <b>220 萬</b>名癌症病人。它跟一般 EHR 最大的差別是<b>人工抄錄</b>：期別、組織型、生物標記檢測結果、治療線別、死亡日這些「藏在病歷文字與報告裡」的欄位，是由受訓人員讀病歷回填成結構化變數的。`,
+    strength: `拿得到理賠資料<b>永遠沒有</b>的腫瘤臨床深度，因此可以做<b>真實世界存活（rwOS）</b>、依生物標記分層比較、以及單臂試驗的<b>外部對照</b>。死亡結果不是只靠 EHR，而是把 EHR、商業死亡資料與社會安全死亡檔<b>合成</b>，再對照國家死亡index 驗證過（合成後敏感度由 66% 提升到 91%）。`,
+    weak: `以<b>社區腫瘤診所</b>為主，代表性要自己評估、不能假設等於全美癌症病人；抄錄欄位有缺失與時間延遲；最容易出事的是<b>index date 由研究者自訂</b>（例如「用過某藥」才回頭定起點），一不小心就是不死時間。`,
+    refs: [
+      { t: `Curtis MD, Griffith SD, Tucker M, et al. Development and Validation of a High-Quality Composite Real-World Mortality Endpoint. <i>Health Serv Res</i>. 2018;53(6):4460-4476.`, u: "https://pubmed.ncbi.nlm.nih.gov/29756355/" },
+      { t: `Ma X, Long L, Moon S, Adamson BJS, Baxi SS. Comparison of Population Characteristics in Real-World Clinical Oncology Databases in the US: Flatiron Health, SEER, and NPCR. <i>medRxiv</i> 2020（資料庫代表性的常被引用比較，注意是 preprint）。`, u: "https://www.medrxiv.org/content/10.1101/2020.03.16.20037143v3.full" },
+    ] },
+  { key: "vestrum", name: "Vestrum Health",
+    what: `美國視網膜專科醫師的 EHR 匯總。它的價值不在「大」，而在<b>窄而密</b>：同一個專科、同一組結果，每一次抗 VEGF 注射（日期＋藥別）與每一次<b>最佳矯正視力</b>都有紀錄，已發表的分析規模可達<b>十三萬眼</b>以上。`,
+    strength: `暴露強度（打幾針、隔多久）與連續結果（視力）同時被密集測到，很適合處理<b>治療強度—結果</b>這種在其他資料庫做不動的問題，也適合<b>軌跡分析（GBTM）</b>與<b>加權累積暴露（WCE）</b>。它最出名的貢獻，就是讓大家看到臨床試驗的注射頻率在真實世界達不到、視力進步也因此小得多。`,
+    weak: `打得密的病人<b>本來病況就不同</b>（典型適應症混淆）；只看得到<b>眼科端</b>，全身共病、住院與死亡都在視野外；病人不再回診時，<b>失去追蹤</b>和<b>真的停藥</b>混在一起，會直接影響你怎麼定義結果。`,
+    refs: [
+      { t: `Ciulla TA, et al. Longer-Term Anti-VEGF Therapy Outcomes in Neovascular AMD, Diabetic Macular Edema, and Vein Occlusion-Related Macular Edema: Clinical Outcomes in 130 247 Eyes. <i>Ophthalmol Retina</i>. 2022;6(9):796-806.（明確以 Vestrum Health Retina Database 為資料來源）`, u: "https://www.sciencedirect.com/science/article/pii/S2468653022001506" },
+      { t: `Ciulla TA, Hussain RM, Pollack JS, Williams DF. Visual Acuity Outcomes and Anti-VEGF Therapy Intensity in Neovascular Age-Related Macular Degeneration Patients: A Real-World Analysis of 49 485 Eyes. <i>Ophthalmol Retina</i>. 2020;4(1):19-30.（同一系列的治療強度分析）`, u: "https://pubmed.ncbi.nlm.nih.gov/31386921/" },
+    ] },
+  { key: "aetion", name: "Aetion Evidence Platform",
+    what: `這一個<b>不是資料庫</b>，放在這裡是因為它常和上面兩個一起被提到，容易搞混。Aetion 是<b>分析平台</b>：它不擁有病人資料，而是接上你既有的理賠或 EHR，強迫你用點選式協定把<b>合格條件、Time Zero、暴露定義、隨訪與設限規則</b>一條一條寫明，再執行分析。`,
+    strength: `整個分析<b>可稽核、可重跑、可換資料庫複製</b>，這正是<b>目標試驗仿真</b>的紀律：協定先寫死，再看結果。最有名的用例是 <b>RCT-DUPLICATE</b>：研究團隊先登記協定，再用這個平台在理賠資料裡仿真 32 個已完成的隨機試驗；當試驗設計和真實照護流程對得上時，觀察性結果和 RCT 的結論大致一致。`,
+    weak: `平台<b>不會替你消除偏誤</b>。資料裡沒有的干擾因子（例如疾病嚴重度），點再多選項也校正不出來；它保證的是「<b>你做了什麼被完整記錄下來</b>」，不是「<b>你做得對</b>」。工具讓你透明，判斷還是你的。`,
+    refs: [
+      { t: `Wang SV, Schneeweiss S, et al.; RCT-DUPLICATE Initiative. Emulation of Randomized Clinical Trials With Nonrandomized Database Analyses: Results of 32 Clinical Trials. <i>JAMA</i>. 2023;329(16):1376-1385.`, u: "https://pubmed.ncbi.nlm.nih.gov/37097356/" },
+      { t: `Wang SV, Verpillat P, Rassen JA, Patrick A, Garry EM, Bartels DB. Transparency and Reproducibility of Observational Cohort Studies Using Large Healthcare Databases. <i>Clin Pharmacol Ther</i>. 2016;99(3):325-332.`, u: "https://pubmed.ncbi.nlm.nih.gov/26690726/" },
+    ] },
 ];
 
 let dbtreeStack = [{ id: "d1", ans: null }];
@@ -3850,16 +3916,29 @@ function renderDbSummary(hitDb) {
     `<tr class="${hitDb && _dbKey(d) === hitDb ? "db-row-hit" : ""}">` +
     `<td><b>${L(d.name)}</b></td><td>${L(d.kind)}</td><td>${L(d.cover)}</td><td>${L(d.vars)}</td>` +
     `<td>${L(d.link)}</td><td>${L(d.follow)}</td><td>${L(d.eg)}</td></tr>`).join("");
+  const notes = DB_NOTES.map((n) =>
+    `<details class="db-note${hitDb === n.key ? " db-note-hit" : ""}"${hitDb === n.key ? " open" : ""}>` +
+    `<summary>${n.name}</summary>` +
+    `<p><b>它是什麼：</b>${n.what}</p>` +
+    `<p><b>強在哪：</b>${n.strength}</p>` +
+    `<p><b>要注意：</b>${n.weak}</p>` +
+    `<p class="db-refs"><b>參考文獻</b></p><ol class="db-refs-list">` +
+    n.refs.map((r) => `<li><a href="${r.u}" target="_blank" rel="noopener">${r.t}</a></li>`).join("") +
+    `</ol></details>`).join("");
   box.innerHTML =
     `<h3 class="fc-title">${tr("資料庫總表（你剛選到的會被標亮）", "Full comparison table (your pick is highlighted)")}</h3>` +
     `<div class="table-wrap"><table class="cmp db-summary">` +
-    `<thead>${head}</thead><tbody>${rows}</tbody></table></div>`;
+    `<thead>${head}</thead><tbody>${rows}</tbody></table></div>` +
+    `<h4 class="db-notes-title">${tr("國際資料庫／平台：延伸說明與參考文獻", "International sources: extended notes and references")}</h4>` +
+    `<p class="db-notes-lead">${tr("這三個常被混在一起講，但兩個是<b>資料</b>、一個是<b>分析平台</b>。點開看它是什麼、強在哪、要注意什麼；每一則都附已發表的論文。", "These three get lumped together, but two are <b>data</b> and one is an <b>analytics platform</b>. Each note is anchored to published papers.")}</p>` +
+    notes;
   box.hidden = false;
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function _dbKey(d) {
-  const map = { "NHI NHIRD": "nhi", "NHI × Cancer Registry": "nhicancer", "Health-check × NHI": "healthcheck",
-    "Chang Gung CGRD": "cgrd", "Clinic chart abstraction": "chart", "HALST cohort": "halst", "TriNetX": "trinetx" };
+  const map = { "NHI NHIRD": "nhi", "NHI × Cancer Registry": "nhicancer", "NHI × health-check": "healthcheck",
+    "Chang Gung CGRD": "cgrd", "Clinic chart abstraction": "chart", "HALST cohort": "halst", "TriNetX": "trinetx",
+    "Flatiron Health": "flatiron", "Vestrum Health": "vestrum", "Aetion (analytics platform)": "aetion" };
   return map[d.name.en] || "";
 }
 

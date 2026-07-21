@@ -259,6 +259,16 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .apr-reset { margin-top: 1rem; border: 1px solid var(--line); background: var(--card); color: var(--muted);
   border-radius: 999px; padding: .4rem 1rem; font-size: .86rem; font-weight: 700; cursor: pointer; }
 .apr-reset:hover { border-color: var(--z); color: var(--z); }
+.db-notes-title { margin: 1.6rem 0 .3rem; font-size: 1rem; }
+.db-notes-lead { margin: 0 0 .7rem; font-size: .88rem; color: var(--muted); line-height: 1.7; }
+.db-note { border: 1px solid var(--line); border-radius: 10px; background: var(--card); margin-bottom: .6rem; }
+.db-note > summary { cursor: pointer; padding: .55rem .9rem; font-weight: 700; font-size: .92rem; }
+.db-note > p { margin: 0 .9rem .6rem; font-size: .88rem; line-height: 1.8; }
+.db-note-hit { border-color: var(--z); box-shadow: 0 0 0 2px rgba(99, 102, 241, .18); }
+.db-refs { margin-top: .8rem !important; }
+.db-refs-list { margin: 0 .9rem .8rem; padding-left: 1.3rem; }
+.db-refs-list li { font-size: .84rem; line-height: 1.7; margin: .3rem 0; }
+.db-refs-list a { color: var(--z); }
 .apr-next { display: block; margin: 1rem 0 0; border: 0; background: var(--z); color: #fff;
   border-radius: 999px; padding: .5rem 1.2rem; font-size: .9rem; font-weight: 800; cursor: pointer; }
 .apr-next:hover { filter: brightness(1.12); }
