@@ -3962,7 +3962,7 @@ const ALIGN_DEMO = {
     note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 繼續（轉暴露、青）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat' (Clone A continues, now exposed) and <b>violates</b> 'no use' (Clone B is <b>censored</b> here). Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
   },
 };
-let alignSel = null, aprStep = 0, aprGuess = null;
+let alignSel = null, aprStep = 0, aprGuess = null, aprDx = null;
 // the estimated drug-X survival HR each approach yields for Dr. Lai's study —
 // the naive one is dragged below 1 by immortal time; every fix returns to ≈1
 // (drug X has no real survival effect in this teaching example).
@@ -4044,13 +4044,14 @@ function renderAlign() {
   const introTop =
     `<div class="apr-intro">` +
     `<p><b>小賴醫師的問題：</b>在某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？</p>` +
-    `<p class="apr-say">🩺 小賴醫師：「我把『確診後<b>曾用過</b>藥物X』的人當暴露、<b>從確診日起算</b>，跟從沒用過的人比存活。跑出來──」</p>` +
+    `<p class="apr-say"><span class="apr-who">小賴醫師</span>「我把『確診後<b>曾用過</b>藥物X』的人當暴露、<b>從確診日起算</b>，跟從沒用過的人比存活。跑出來……」</p>` +
     `<div class="apr-result bad"><span class="apr-hr">藥物X 死亡 HR ≈ 0.60</span><span class="apr-hr-say">用藥的人死亡風險看起來<b>少 40%</b>。</span></div></div>`;
 
-  // ---- Phase 0: let the learner judge before the reveal ----
+  // ---- Step 1 of 3: judge the result ----
   if (aprStep === 0) {
     stage.innerHTML = introTop +
-      `<div class="apr-ask"><p>🤔 <b>換你當審查委員：小賴醫師這個「少 40%」，你信不信？</b></p>` +
+      `<div class="apr-ask"><p class="apr-stepno">第 1 步 / 共 3 步</p>` +
+      `<p><b>換你當審查委員：小賴醫師這個「少 40%」，你信不信？</b></p>` +
       `<div class="apr-choices">` +
       `<button class="apr-choice" data-g="trust">看起來有效，我信</button>` +
       `<button class="apr-choice" data-g="doubt">怪怪的，好像有問題</button>` +
@@ -4060,11 +4061,35 @@ function renderAlign() {
     return;
   }
 
-  // ---- Phase 1: reveal + let them fix it ----
   const react = aprGuess === "doubt"
-    ? `<div class="apr-react good">👍 <b>直覺很準！</b>問題就在<b>Time Zero沒對齊</b>：user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算給了暴露組，就是<b>不死時間</b>。</div>`
-    : `<div class="apr-react warn">🩺 <b>審查委員：先別急。</b>user 是不是<b>本來就得先活著</b>才領得到藥？這段「還沒用藥、卻保證活著」的時間，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`;
-  const prompt = `<p class="apr-prompt"><b>幫小賴醫師把Time Zero對齊。</b>點下面的做法，看時間軸與估出的 HR 怎麼變：</p>`;
+    ? `<div class="apr-react good"><b>直覺很準。</b>這個數字確實不對勁，問題出在研究的<b>設計</b>，不是統計。</div>`
+    : `<div class="apr-react warn"><span class="apr-who rev">審查委員</span><b>先別急。</b>再看一次他怎麼定義暴露、又從哪天開始算。</div>`;
+
+  // ---- Step 2 of 3: diagnose where it went wrong ----
+  if (aprStep === 1) {
+    stage.innerHTML = introTop + react +
+      `<div class="apr-ask"><p class="apr-stepno">第 2 步 / 共 3 步</p>` +
+      `<p><b>那問題最可能出在哪裡？</b></p>` +
+      `<div class="apr-choices">` +
+      `<button class="apr-choice" data-d="zero">Time Zero 沒對齊</button>` +
+      `<button class="apr-choice" data-d="comp">對照選錯（用 vs 完全不用）</button>` +
+      `<button class="apr-choice" data-d="n">樣本數不夠大</button>` +
+      `</div></div>` +
+      `<button class="apr-reset">↩ 重新想一次</button>`;
+    stage.querySelectorAll(".apr-choice").forEach((b) =>
+      b.addEventListener("click", () => { aprDx = b.dataset.d; aprStep = 2; alignSel = "naive"; renderAlign(); }));
+    const r0 = stage.querySelector(".apr-reset");
+    if (r0) r0.addEventListener("click", () => { aprStep = 0; aprGuess = null; aprDx = null; renderAlign(); });
+    return;
+  }
+
+  // ---- Step 3 of 3: fix it ----
+  const dxFeedback = aprDx === "zero"
+    ? `<div class="apr-react good"><b>答對了。</b>user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算進暴露組，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`
+    : aprDx === "comp"
+      ? `<div class="apr-react warn"><b>接近了。</b>對照確實也有問題（用 vs 完全不用＝<b>適應症混淆</b>），但讓 HR 掉到 0.60 的<b>主因</b>是<b>Time Zero 沒對齊</b>造成的<b>不死時間</b>。</div>`
+      : `<div class="apr-react warn"><b>不是樣本數。</b>樣本再大也修不了<b>Time Zero 沒對齊</b>，反而會把<b>不死時間</b>造成的假效果估得更「精準」。</div>`;
+  const prompt = `<p class="apr-prompt"><span class="apr-stepno">第 3 步 / 共 3 步</span><b>幫小賴醫師把 Time Zero 對齊。</b>點下面的做法，看時間軸與估出的 HR 怎麼變：</p>`;
   const resultBanner =
     `<div class="apr-result ${hr.tone}"><span class="apr-hr">${L(ALIGN_ORDER.find((o) => o.k === alignSel).short)}：HR ≈ ${hr.hr}</span>` +
     `<span class="apr-hr-say">${hr.say}</span></div>`;
@@ -4076,7 +4101,7 @@ function renderAlign() {
     `<li><b>重要干擾因子都測到了嗎？</b>疾病嚴重度、健康守規矩傾向有沒有被觀察到（否則是無法被測量的干擾因子）？</li>` +
     `</ul></details>`;
   stage.innerHTML =
-    introTop + react + prompt +
+    introTop + react + dxFeedback + prompt +
     `<div class="align-picks">${chips}</div>` +
     resultBanner +
     `<div class="align-viz"><h4 class="align-title">${L(cfg.title)}</h4>${drawAlignSVG(cfg)}</div>` +
@@ -4090,7 +4115,7 @@ function renderAlign() {
   stage.querySelectorAll(".db-chip").forEach((b) =>
     b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
   const rst = stage.querySelector(".apr-reset");
-  if (rst) rst.addEventListener("click", () => { aprStep = 0; aprGuess = null; alignSel = "naive"; renderAlign(); });
+  if (rst) rst.addEventListener("click", () => { aprStep = 0; aprGuess = null; aprDx = null; alignSel = "naive"; renderAlign(); });
 }
 
 // ======================================================================
@@ -4189,7 +4214,7 @@ function renderDbIntro() {
   if (!el) return;
   if (!dbGuess) {
     el.innerHTML =
-      `<div class="apr-ask"><p>🩺 小賴醫師要正確重做這個分析。你覺得「<b>他能用哪種設計</b>（自我對照、時變暴露、新使用者、IV…）」，<b>最主要</b>是由什麼決定的？</p>` +
+      `<div class="apr-ask"><p>小賴醫師要正確重做這個分析。你覺得「<b>他能用哪種設計</b>（自我對照、時變暴露、新使用者、IV…）」，<b>最主要</b>是由什麼決定的？</p>` +
       `<div class="apr-choices"><button class="apr-choice" data-g="data">手上的<b>資料庫</b>撐不撐得起</button>` +
       `<button class="apr-choice" data-g="stat">想用的<b>統計方法</b></button>` +
       `<button class="apr-choice" data-g="n">樣本數夠不夠大</button></div></div>`;
@@ -4197,7 +4222,7 @@ function renderDbIntro() {
       b.addEventListener("click", () => { dbGuess = b.dataset.g; renderDbIntro(); }));
   } else {
     el.innerHTML =
-      `<div class="apr-react ${dbGuess === "data" ? "good" : "warn"}">${dbGuess === "data" ? "👍 <b>對，是資料庫。</b>" : "🤔 <b>其實是資料庫。</b>"}` +
+      `<div class="apr-react ${dbGuess === "data" ? "good" : "warn"}">${dbGuess === "data" ? "<b>對，是資料庫。</b>" : "<b>其實是資料庫。</b>"}` +
       `統計方法和樣本數固然重要，但<b>你能不能做某個設計，是資料的特性先決定的</b>：有沒有<b>用藥的時間先後</b>、有沒有<b>檢驗值</b>、能不能<b>串接</b>死亡／癌登／健檢、能<b>追蹤多久</b>、有沒有<b>基因</b>。同一個「藥物X 用 vs 不用」問題，理賠、EHR、健檢、生物資料庫各撐得起不同設計。` +
       `那麼，<b>你手上是哪種資料庫？往下挑 ↓</b> <button class="apr-reset" id="dbIntroReset">↩ 重問</button></div>`;
     const r = el.querySelector("#dbIntroReset");
@@ -4209,7 +4234,7 @@ function renderBiasIntro() {
   if (!el) return;
   if (!biasGuess) {
     el.innerHTML =
-      `<div class="apr-ask"><p>🩺 先猜：小賴醫師<b>最初那一版</b>（藥物X 用 vs 不用、從診斷起算），你覺得中了<b>幾種</b>偏誤？</p>` +
+      `<div class="apr-ask"><p>先猜：小賴醫師<b>最初那一版</b>（藥物X 用 vs 不用、從診斷起算），你覺得中了<b>幾種</b>偏誤？</p>` +
       `<div class="apr-choices">` +
       `<button class="apr-choice" data-g="1">1 種</button><button class="apr-choice" data-g="2">2 種</button><button class="apr-choice" data-g="3">3 種</button></div></div>`;
     el.querySelectorAll(".apr-choice").forEach((b) =>
@@ -4217,7 +4242,7 @@ function renderBiasIntro() {
   } else {
     const right = biasGuess === "2";
     el.innerHTML =
-      `<div class="apr-react ${right ? "good" : "warn"}">${right ? "👍 <b>答對！</b>" : "🤔 <b>再想想：</b>"}` +
+      `<div class="apr-react ${right ? "good" : "warn"}">${right ? "<b>答對！</b>" : "<b>再想想：</b>"}` +
       `最初那版中了<b>2 種</b>：<b>不死時間</b>（曾用藥＝暴露、從診斷起算）＋<b>適應症混淆</b>（用 vs 完全不用）。往下<b>逐題驗證</b>，看每個變形各中哪些 ↓ ` +
       `<button class="apr-reset" id="biasIntroReset">↩ 重猜</button></div>`;
     const r = el.querySelector("#biasIntroReset");

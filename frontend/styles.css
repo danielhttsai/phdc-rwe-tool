@@ -226,7 +226,16 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 /* appraisal narrative (tab Appraisal) */
 .apr-intro { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 12px; padding: .8rem 1rem; margin: 0 0 1rem; }
 .apr-intro p { margin: .4rem 0; font-size: .92rem; line-height: 1.8; }
-.apr-say { background: #fff; border-left: 3px solid #6366f1; border-radius: 8px; padding: .5rem .75rem; color: #3730a3; font-style: italic; }
+/* speech line: a name badge instead of italics (Chinese italics look bad and
+   emoji glyphs are not reliably available on every OS) */
+.apr-say { background: #fff; border-left: 3px solid #6366f1; border-radius: 8px;
+  padding: .55rem .8rem; color: #312e81; }
+.apr-who { display: inline-block; background: #6366f1; color: #fff; border-radius: 999px;
+  padding: .08rem .6rem; font-size: .76rem; font-weight: 700; margin-right: .5rem;
+  vertical-align: .08em; white-space: nowrap; }
+.apr-who.rev { background: #b45309; }
+.apr-stepno { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 999px;
+  padding: .1rem .6rem; font-size: .74rem; font-weight: 800; margin: 0 .5rem .4rem 0; }
 .apr-result { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; border-radius: 12px; padding: .7rem 1rem; margin: 0 0 .9rem; }
 .apr-result.bad { background: #fef2f2; border: 1px solid #fca5a5; }
 .apr-result.good { background: #ecfdf5; border: 1px solid #86efac; }
