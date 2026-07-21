@@ -4308,46 +4308,124 @@ function renderBiasGame() {
 
 // ---- narrative gut-checks that make the Database / Bias tabs interactive too
 // (same "you decide, then reveal" pattern as Appraisal; drawn above each tool) --
-let dbGuess = null, biasGuess = null;
-function renderDbIntro() {
-  const el = document.getElementById("dbIntro");
+// ----------------------------------------------------------------------
+// A small 6-question walkthrough engine shared by the Database and Bias
+// tabs. Only the latest feedback is shown so the card stays short; the
+// score appears once every question has been answered.
+// ----------------------------------------------------------------------
+function renderStepQuiz(elId, state, QS, outro) {
+  const el = document.getElementById(elId);
   if (!el) return;
-  if (!dbGuess) {
-    el.innerHTML =
-      `<div class="apr-ask"><p>小賴醫師要正確重做這個分析。你覺得「<b>他能用哪種設計</b>（自我對照、時變暴露、新使用者、IV…）」，<b>最主要</b>是由什麼決定的？</p>` +
-      `<div class="apr-choices"><button class="apr-choice" data-g="data">手上的<b>資料庫</b>裡有什麼資料</button>` +
-      `<button class="apr-choice" data-g="stat">想用的<b>統計方法</b></button>` +
-      `<button class="apr-choice" data-g="n">樣本數夠不夠大</button></div></div>`;
-    el.querySelectorAll(".apr-choice").forEach((b) =>
-      b.addEventListener("click", () => { dbGuess = b.dataset.g; renderDbIntro(); }));
-  } else {
-    el.innerHTML =
-      `<div class="apr-react ${dbGuess === "data" ? "good" : "warn"}">${dbGuess === "data" ? "<b>對，是資料庫。</b>" : "<b>其實是資料庫。</b>"}` +
-      `統計方法和樣本數固然重要，但<b>你能不能做某個設計，是資料的特性先決定的</b>：有沒有<b>用藥的時間先後</b>、有沒有<b>檢驗值</b>、能不能<b>串接</b>死亡／癌登／健檢、能<b>追蹤多久</b>、有沒有<b>基因</b>。同一個「藥物X 用 vs 不用」問題，理賠、EHR、健檢、生物資料庫能做的設計就不一樣。` +
-      `那麼，<b>你手上是哪種資料庫？往下挑 ↓</b> <button class="apr-reset" id="dbIntroReset">↩ 重問</button></div>`;
-    const r = el.querySelector("#dbIntroReset");
-    if (r) r.addEventListener("click", () => { dbGuess = null; renderDbIntro(); });
+  const i = state.i;
+  let html = "";
+  if (i > 0) {
+    const prev = QS[i - 1], picked = prev.opts.find((o) => o.k === state.ans[i - 1]);
+    html += `<div class="apr-react ${picked.ok ? "good" : "warn"}">${picked.fb}</div>`;
   }
+  if (i < QS.length) {
+    html += `<div class="apr-ask"><span class="apr-stepno">第 ${i + 1} 題 / 共 ${QS.length} 題</span>` +
+      `<p>${QS[i].q}</p><div class="apr-choices">` +
+      QS[i].opts.map((o) => `<button class="apr-choice" data-k="${o.k}">${o.t}</button>`).join("") +
+      `</div></div>`;
+  } else {
+    const score = QS.filter((q, n) => q.opts.find((o) => o.k === state.ans[n]).ok).length;
+    html += `<div class="apr-done"><b>答對 ${score} / ${QS.length}。</b>${outro}</div>`;
+  }
+  if (i > 0) html += `<button class="apr-reset">↩ 重來</button>`;
+  el.innerHTML = html;
+  el.querySelectorAll(".apr-choice").forEach((b) =>
+    b.addEventListener("click", () => { state.ans[state.i] = b.dataset.k; state.i += 1; renderStepQuiz(elId, state, QS, outro); }));
+  const r = el.querySelector(".apr-reset");
+  if (r) r.addEventListener("click", () => { state.i = 0; state.ans = []; renderStepQuiz(elId, state, QS, outro); });
+}
+
+const dbQuiz = { i: 0, ans: [] };
+const DB_QS = [
+  { q: `小賴醫師要正確重做這個分析。你覺得「<b>他能用哪種設計</b>（自我對照、時變暴露、新使用者、IV…）」，<b>最主要</b>是由什麼決定的？`,
+    opts: [
+      { k: "data", ok: 1, t: "資料庫裡<b>有什麼資料</b>", fb: `<b>對，是資料庫。</b>統計方法和樣本數固然重要，但<b>你能不能做某個設計，是資料的特性先決定的</b>：有沒有用藥的時間先後、有沒有檢驗值、能不能串接死亡／癌登／健檢、能追蹤多久、有沒有基因。` },
+      { k: "stat", ok: 0, t: "想用的<b>統計方法</b>", fb: `<b>反過來了。</b>是資料先決定你能做哪些設計，統計方法是設計定了以後才選的。資料裡沒有領藥日期，再厲害的模型也做不出時變暴露。` },
+      { k: "n", ok: 0, t: "樣本數夠不夠大", fb: `<b>不是樣本數。</b>人再多，資料裡沒有的東西還是沒有；決定你能做哪些設計的是<b>資料裡有什麼欄位、串得到什麼</b>。` },
+    ] },
+  { q: `他決定改用<b>新使用者＋時變暴露</b>重做。資料裡<b>最起碼</b>要有什麼？`,
+    opts: [
+      { k: "date", ok: 1, t: "每一次<b>領藥的日期</b>", fb: `<b>對。</b>新使用者要找得到「第一次領藥那天」當Time Zero，時變暴露要知道每天到底在不在藥物X 底下，兩件事都靠<b>逐筆處方的日期與天數</b>。` },
+      { k: "text", ok: 0, t: "醫師寫的<b>病歷文字</b>", fb: `<b>不是必要條件。</b>病歷文字有幫助，但沒有<b>逐筆領藥日期</b>就切不出Time Zero、也拼不出時變暴露。` },
+      { k: "spec", ok: 0, t: "開藥醫師的<b>專科別</b>", fb: `<b>那是額外資訊。</b>真正不可或缺的是<b>逐筆領藥日期</b>：沒有它就定不出Time Zero，也做不了時變暴露。` },
+    ] },
+  { q: `他還想校正<b>疾病嚴重度</b>（例如檢驗值）。<b>健保申報資料</b>裡拿得到嗎？`,
+    opts: [
+      { k: "no", ok: 1, t: "拿不到，要<b>串健檢或醫院 EHR</b>", fb: `<b>對。</b>健保是<b>申報</b>資料，有診斷碼、處置、用藥，但<b>沒有檢驗數值</b>。要嚴重度就得串成人健檢、或改用醫院 EHR（例如長庚 CGRD）。` },
+      { k: "yes", ok: 0, t: "拿得到，申報檔裡就有", fb: `<b>沒有。</b>健保申報記的是「做了什麼、申報了什麼」，<b>檢驗有做但沒有數值</b>。要數值得串健檢或醫院 EHR。` },
+      { k: "apply", ok: 0, t: "有，只是要另外申請", fb: `<b>不是申請的問題。</b>健保申報檔裡<b>本來就沒有檢驗數值</b>，申請也變不出來；要嚴重度得串健檢或醫院 EHR。` },
+    ] },
+  { q: `如果他把結果換成「<b>新發癌症</b>」，只用健保資料夠嗎？`,
+    opts: [
+      { k: "link", ok: 1, t: "不夠，要<b>串癌症登記檔</b>", fb: `<b>對。</b>健保的癌症診斷碼會被「疑似／排除」寫進去，發生日也不準；<b>癌登</b>才有確診日、期別、組織型，是癌症結果的標準做法。` },
+      { k: "icd", ok: 0, t: "夠，用診斷碼就好", fb: `<b>會出事。</b>健保的癌症碼常常是「疑似／要排除」也照打，發生日不準、期別也沒有。癌症結果要<b>串癌登</b>。` },
+      { k: "none", ok: 0, t: "健保根本沒有癌症診斷", fb: `<b>有，但不夠好。</b>健保<b>有</b>癌症診斷碼，只是含疑似個案、發生日不準、沒有期別；要正確就<b>串癌登</b>。` },
+    ] },
+  { q: `他改用一家醫學中心的 <b>EHR</b>（長庚 CGRD），檢驗值終於有了。最大的代價是什麼？`,
+    opts: [
+      { k: "loss", ok: 1, t: "病人跑到<b>別家醫院</b>就看不到了", fb: `<b>對，這是 EHR 最大的痛。</b>它只看得到<b>在這家醫院發生的事</b>：外院的處方、住院、死亡都會消失，追蹤變得不完整，也不代表全國。所以常見做法是 <b>EHR 串健保</b>，一邊拿檢驗值一邊補全追蹤。` },
+      { k: "lab", ok: 0, t: "沒有檢驗值", fb: `<b>正好相反。</b>檢驗值正是 EHR 的強項；它的痛點是<b>追蹤不完整</b>：病人一離開這家醫院，資料就斷了。` },
+      { k: "rx", ok: 0, t: "沒有用藥紀錄", fb: `<b>有用藥紀錄。</b>真正的代價是<b>只看得到院內</b>：病人在外院拿的藥、住的院、甚至死亡都看不到。` },
+    ] },
+  { q: `最後，他想用 <b>IV／MR</b> 對付「量不到的疾病嚴重度」。資料裡必須<b>多出</b>什麼？`,
+    opts: [
+      { k: "gene", ok: 1, t: "<b>基因型</b>（生物資料庫，如 HALST／TWB）", fb: `<b>對。</b>孟德爾隨機化把<b>基因變異</b>當工具變數，所以資料裡必須有<b>基因型</b>，這只有生物資料庫（世代型）才有，這也是為什麼「要不要串生物資料庫」是設計層級的決定。` },
+      { k: "years", ok: 0, t: "更多<b>年份</b>的資料", fb: `<b>年份不夠用。</b>IV／MR 需要一個和暴露相關、又不透過其他路徑影響結果的<b>工具</b>；MR 用的是<b>基因型</b>，那要生物資料庫。` },
+      { k: "more", ok: 0, t: "更多<b>病人</b>", fb: `<b>人多也生不出工具變數。</b>MR 要的是<b>基因型</b>，得有生物資料庫；沒有工具，量不到的干擾因子就只能靠敏感度分析評估。` },
+    ] },
+];
+
+const biasQuiz = { i: 0, ans: [] };
+const BIAS_QS = [
+  { q: `先猜：小賴醫師<b>最初那一版</b>（藥物X 用 vs 不用、從診斷起算），你覺得中了<b>幾種</b>偏誤？`,
+    opts: [
+      { k: "1", ok: 0, t: "1 種", fb: `<b>不只一種。</b>是 <b>2 種</b>：<b>不死時間</b>（曾用藥＝暴露、從診斷起算）＋<b>適應症混淆</b>（用 vs 完全不用）。` },
+      { k: "2", ok: 1, t: "2 種", fb: `<b>答對。</b><b>不死時間</b>（曾用藥＝暴露、從診斷起算）＋<b>適應症混淆</b>（用 vs 完全不用），兩個一起發作。` },
+      { k: "3", ok: 0, t: "3 種", fb: `<b>接近了。</b>明確中的是 <b>2 種</b>：不死時間＋適應症混淆。量不到的干擾因子要等前兩個修好之後才會浮上來（等一下會問到）。` },
+    ] },
+  { q: `「<b>確診後曾用過藥物X</b>＝暴露、Time Zero 設在<b>確診日</b>」，這一句本身製造了哪一種偏誤？`,
+    opts: [
+      { k: "imm", ok: 1, t: "不死時間", fb: `<b>對。</b>要被分到暴露組，就得<b>活到領藥那天</b>；確診到領藥之間那段「保證活著」的時間被算成暴露人時，分母灌水、分子不變 → HR 被壓低。` },
+      { k: "ind", ok: 0, t: "適應症混淆", fb: `<b>那是下一題。</b>這一句的問題出在<b>時間怎麼算</b>：先貼暴露標籤、又從確診日起算 → <b>不死時間</b>。` },
+      { k: "sel", ok: 0, t: "轉診／選擇偏誤", fb: `<b>不是選誰進來的問題。</b>這一句錯在<b>時間怎麼算</b>：先貼標籤、又從確診日起算 → <b>不死時間</b>。` },
+    ] },
+  { q: `那「拿<b>用藥的人</b>去比<b>從頭到尾都沒用藥的人</b>」，又是哪一種？`,
+    opts: [
+      { k: "ind", ok: 1, t: "適應症混淆", fb: `<b>對。</b>會被開藥的人，本來病況就跟「完全不用藥」的人不同；兩組的<b>基礎風險</b>不一樣。解法是換成<b>同適應症的主動對照藥</b>，不是跟「沒吃藥」比。` },
+      { k: "imm", ok: 0, t: "不死時間", fb: `<b>不死時間是上一題。</b>這一題錯在<b>對照選錯</b>：用藥的人和完全不用藥的人本來就不一樣 → <b>適應症混淆</b>。` },
+      { k: "info", ok: 0, t: "資訊偏誤", fb: `<b>不是測量的問題。</b>問題在<b>拿誰來比</b>：用藥者和從不用藥者的基礎風險不同 → <b>適應症混淆</b>。` },
+    ] },
+  { q: `小賴醫師的暴露組裡，還混了<b>已經吃藥五年、活得好好的</b>老病人。這會造成什麼？`,
+    opts: [
+      { k: "prev", ok: 1, t: "盛行使用者偏誤（挑到耐受良好的存活者）", fb: `<b>對。</b>能吃五年還在的人，本來就是<b>沒出事、也沒停藥</b>的那一群；把他們收進來等於挑存活者，藥會看起來更好。解法是<b>新使用者設計</b>：只收第一次開始用藥的人。` },
+      { k: "none", ok: 0, t: "沒差，人多比較準", fb: `<b>有差，而且是系統性的。</b>能吃五年還在的人是<b>耐受良好的存活者</b>，收進來會把藥效灌得更好，這叫<b>盛行使用者偏誤</b>，要用<b>新使用者設計</b>擋掉。` },
+      { k: "info", ok: 0, t: "資訊偏誤", fb: `<b>不是測量的問題。</b>是<b>收錯人</b>：老使用者已經篩掉了早期出事和不耐受的人 → <b>盛行使用者偏誤</b>，要用<b>新使用者設計</b>。` },
+    ] },
+  { q: `以上都修好了（新使用者、主動對照、Time Zero 對齊），但健保<b>沒有檢驗值</b>，疾病嚴重度量不到。這是什麼？`,
+    opts: [
+      { k: "unm", ok: 1, t: "無法被測量的干擾因子", fb: `<b>對。</b>嚴重度同時影響「醫師開不開這個藥」和「病人會不會死」，卻<b>根本沒被記錄下來</b>。這是設計修不掉的那一關。` },
+      { k: "imm", ok: 0, t: "不死時間", fb: `<b>不死時間已經被 Time Zero 對齊解決了。</b>剩下的是<b>量不到的東西</b>：嚴重度沒被記錄，卻同時影響用藥與死亡 → <b>無法被測量的干擾因子</b>。` },
+      { k: "sel", ok: 0, t: "選擇偏誤", fb: `<b>不是選誰進來。</b>人選對了，但<b>嚴重度沒被記錄</b>，而它同時影響用藥與死亡 → <b>無法被測量的干擾因子</b>。` },
+    ] },
+  { q: `最後一題：上面四種毛病，哪一種可以靠「<b>換一個更厲害的統計模型</b>」解決？`,
+    opts: [
+      { k: "none", ok: 1, t: "一個都不行", fb: `<b>對，這就是重點。</b>不死時間、適應症混淆、盛行使用者要靠<b>設計</b>（對齊 Time Zero、主動對照、新使用者）；量不到的干擾因子要靠<b>換／串資料</b>或<b>敏感度分析</b>。模型只能處理<b>你已經量到</b>的東西。` },
+      { k: "imm", ok: 0, t: "不死時間", fb: `<b>那是設計，不是模型。</b>不死時間要靠<b>重新定義Time Zero</b>（時變暴露／地標／複製-中斷-加權）才會消失；模型只能處理你已經量到的東西，所以答案是<b>一個都不行</b>。` },
+      { k: "unm", ok: 0, t: "無法被測量的干擾因子", fb: `<b>這個最不可能。</b>資料裡<b>根本沒有</b>那個變數，任何模型都變不出來；只能<b>換／串資料</b>或用陰性對照／E-value 評估。答案是<b>一個都不行</b>。` },
+    ] },
+];
+
+function renderDbIntro() {
+  renderStepQuiz("dbIntro", dbQuiz, DB_QS,
+    `同一個「藥物X 用 vs 不用」問題，理賠、EHR、健檢、生物資料庫能做的設計就不一樣。<b>那你手上是哪一種？往下挑 ↓</b>`);
 }
 function renderBiasIntro() {
-  const el = document.getElementById("biasIntro");
-  if (!el) return;
-  if (!biasGuess) {
-    el.innerHTML =
-      `<div class="apr-ask"><p>先猜：小賴醫師<b>最初那一版</b>（藥物X 用 vs 不用、從診斷起算），你覺得中了<b>幾種</b>偏誤？</p>` +
-      `<div class="apr-choices">` +
-      `<button class="apr-choice" data-g="1">1 種</button><button class="apr-choice" data-g="2">2 種</button><button class="apr-choice" data-g="3">3 種</button></div></div>`;
-    el.querySelectorAll(".apr-choice").forEach((b) =>
-      b.addEventListener("click", () => { biasGuess = b.dataset.g; renderBiasIntro(); }));
-  } else {
-    const right = biasGuess === "2";
-    el.innerHTML =
-      `<div class="apr-react ${right ? "good" : "warn"}">${right ? "<b>答對！</b>" : "<b>再想想：</b>"}` +
-      `最初那版中了<b>2 種</b>：<b>不死時間</b>（曾用藥＝暴露、從診斷起算）＋<b>適應症混淆</b>（用 vs 完全不用）。往下<b>逐題驗證</b>，看每個變形各中哪些 ↓ ` +
-      `<button class="apr-reset" id="biasIntroReset">↩ 重猜</button></div>`;
-    const r = el.querySelector("#biasIntroReset");
-    if (r) r.addEventListener("click", () => { biasGuess = null; renderBiasIntro(); });
-  }
+  renderStepQuiz("biasIntro", biasQuiz, BIAS_QS,
+    `這四種毛病會以各種變形出現在真實論文裡。往下<b>逐題驗證</b>，看每個情境各中哪些 ↓`);
 }
 
 function initMr() {
