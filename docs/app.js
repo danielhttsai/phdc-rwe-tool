@@ -3959,7 +3959,7 @@ const ALIGN_DEMO = {
       { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 60, "un"], [60, 360, "cen"]], ev: { x: 60, type: "cen" } },
     ],
-    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 一路追下去，而且<b>從第0天起，整段人時都算在「用藥」策略底下</b>（不是等到真的開始吃才算，否則又製造一段不死時間）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat', so Clone A keeps going and <b>all of its person-time counts as treated from day 0</b> (not only from the actual start date, which would re-create immortal time); it <b>violates</b> 'no use', so Clone B is <b>censored</b> here. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
+    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 一路追下去，而且<b>從第0天起，整段人時都算在「用藥」策略底下</b>（不是等到真的開始吃才算，否則又製造一段不死時間）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。<br><b>顏色看的是「策略」，不是那天有沒有吃藥：</b>兩個複製體在 T0 都是同一個還沒用藥的人，複製A 整段算「用藥策略」的人時（綠），複製B 整段算「不用策略」的人時（灰），所以複製B 從頭到尾都不會變綠。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat', so Clone A keeps going and <b>all of its person-time counts as treated from day 0</b> (not only from the actual start date, which would re-create immortal time); it <b>violates</b> 'no use', so Clone B is <b>censored</b> here. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring.<br><b>The colour is the strategy, not what the person took that day:</b> at T0 both clones are the same untreated person; Clone A's whole follow-up counts as 'treat'-strategy person-time (green) and Clone B's as 'no use'-strategy person-time (grey), so Clone B never turns green." },
   },
 };
 let alignSel = null, aprStep = 0, aprGuess = null, aprDx = null;
@@ -4026,10 +4026,14 @@ function renderAlign() {
   const chips = ALIGN_ORDER.map((o) =>
     `<button class="align-pick${o.k === alignSel ? " active" : ""}" data-k="${o.k}">${L(o.short)}</button>`).join("");
   const cfg = ALIGN_DEMO[alignSel];
+  // In the clone-censor-weight panel the colour is the STRATEGY each clone is
+  // assigned to, not what the person actually swallowed that day — both clones
+  // are the same untreated person at T0, so the labels have to say so.
+  const isCcw = alignSel === "ccw";
   const legend =
     `<div class="align-legend">` +
-    `<span><i class="sw" style="background:#cbd5e1"></i>${tr("未暴露人時", "unexposed")}</span>` +
-    `<span><i class="sw" style="background:#3f8268"></i>${tr("暴露人時", "exposed")}</span>` +
+    `<span><i class="sw" style="background:#cbd5e1"></i>${isCcw ? tr("「策略：不用」的人時", "person-time under the 'no use' strategy") : tr("未暴露人時", "unexposed")}</span>` +
+    `<span><i class="sw" style="background:#3f8268"></i>${isCcw ? tr("「策略：用藥」的人時", "person-time under the 'treat' strategy") : tr("暴露人時", "exposed")}</span>` +
     `<span><i class="sw" style="background:#ef4444"></i>${tr("不死時間（錯算）", "immortal (mis-assigned)")}</span>` +
     `<span><i class="sw" style="background:#7c3aed"></i>${tr("對照藥", "comparator")}</span>` +
     `<span><i class="sw sw-cen"></i>${tr("中斷（設限）", "censored")}</span>` +
@@ -4097,7 +4101,7 @@ function renderAlign() {
     ? `<div class="apr-react good"><b>答對了。</b>user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算進暴露組，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`
     : aprDx === "comp"
       ? `<div class="apr-react warn"><b>接近了。</b>對照確實也有問題（用 vs 完全不用＝<b>適應症混淆</b>），但讓 HR 掉到 0.60 的<b>主因</b>是<b>Time Zero 沒對齊</b>造成的<b>不死時間</b>。</div>`
-      : `<div class="apr-react warn"><b>不是樣本數。</b>樣本再大也修不了<b>Time Zero 沒對齊</b>，反而會把<b>不死時間</b>造成的假效果估得更「精準」。</div>`;
+      : `<div class="apr-react warn"><b>不是樣本數的問題。</b><b>Time Zero 沒對齊</b>是設計錯了，收再多人也修不回來；人越多，反而只是把<b>不死時間</b>造出來的假效果算得越漂亮、看起來越顯著。</div>`;
 
   // ---- Step 3: who gets the pre-initiation person-time? ----
   if (aprStep === 2) {
@@ -4310,7 +4314,7 @@ function renderDbIntro() {
   if (!dbGuess) {
     el.innerHTML =
       `<div class="apr-ask"><p>小賴醫師要正確重做這個分析。你覺得「<b>他能用哪種設計</b>（自我對照、時變暴露、新使用者、IV…）」，<b>最主要</b>是由什麼決定的？</p>` +
-      `<div class="apr-choices"><button class="apr-choice" data-g="data">手上的<b>資料庫</b>撐不撐得起</button>` +
+      `<div class="apr-choices"><button class="apr-choice" data-g="data">手上的<b>資料庫</b>裡有什麼資料</button>` +
       `<button class="apr-choice" data-g="stat">想用的<b>統計方法</b></button>` +
       `<button class="apr-choice" data-g="n">樣本數夠不夠大</button></div></div>`;
     el.querySelectorAll(".apr-choice").forEach((b) =>
@@ -4318,7 +4322,7 @@ function renderDbIntro() {
   } else {
     el.innerHTML =
       `<div class="apr-react ${dbGuess === "data" ? "good" : "warn"}">${dbGuess === "data" ? "<b>對，是資料庫。</b>" : "<b>其實是資料庫。</b>"}` +
-      `統計方法和樣本數固然重要，但<b>你能不能做某個設計，是資料的特性先決定的</b>：有沒有<b>用藥的時間先後</b>、有沒有<b>檢驗值</b>、能不能<b>串接</b>死亡／癌登／健檢、能<b>追蹤多久</b>、有沒有<b>基因</b>。同一個「藥物X 用 vs 不用」問題，理賠、EHR、健檢、生物資料庫各撐得起不同設計。` +
+      `統計方法和樣本數固然重要，但<b>你能不能做某個設計，是資料的特性先決定的</b>：有沒有<b>用藥的時間先後</b>、有沒有<b>檢驗值</b>、能不能<b>串接</b>死亡／癌登／健檢、能<b>追蹤多久</b>、有沒有<b>基因</b>。同一個「藥物X 用 vs 不用」問題，理賠、EHR、健檢、生物資料庫能做的設計就不一樣。` +
       `那麼，<b>你手上是哪種資料庫？往下挑 ↓</b> <button class="apr-reset" id="dbIntroReset">↩ 重問</button></div>`;
     const r = el.querySelector("#dbIntroReset");
     if (r) r.addEventListener("click", () => { dbGuess = null; renderDbIntro(); });

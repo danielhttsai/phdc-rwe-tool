@@ -115,7 +115,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 2 · Database ===================== -->
   <section class="sa-panel" id="paneDb" hidden>
     <h2 class="sa-h2">Database：小賴醫師要重做這個分析，需要對的資料</h2>
-    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：小賴醫師想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（新使用者、時變暴露、對齊 Time Zero），得先有<b>撐得起這種設計的資料</b>。<b>你手上是哪種資料庫？</b></div>
+    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：小賴醫師想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（新使用者、時變暴露、對齊 Time Zero），資料裡就得有<b>這些設計需要的東西</b>。<b>你手上是哪種資料庫？</b></div>
     <div id="dbIntro"></div>
 
     <div id="dbtree" class="dtree">
