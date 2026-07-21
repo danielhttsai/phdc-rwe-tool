@@ -67,7 +67,10 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 .sa-top {{ display: flex; align-items: center; gap: .8rem; flex-wrap: wrap;
   padding: .9rem 0 .5rem; border-bottom: 1px solid var(--line, #dfe7e4); margin-bottom: 1.1rem; }}
 .sa-top h1 {{ font-size: 1.18rem; margin: 0; flex: 1 1 auto; color: var(--ink, #14283c); }}
-.sa-top .sa-sub {{ display: block; font-size: .82rem; font-weight: 500; color: var(--muted, #64748b); margin-top: .2rem; }}
+.sa-top .sa-date {{ display: inline-block; margin-left: .6rem; padding: .1rem .55rem; border-radius: 999px;
+  background: #dff0e8; color: #255c47; font-size: .74rem; font-weight: 800; letter-spacing: .04em;
+  vertical-align: .12em; white-space: nowrap; }}
+.sa-top .sa-sub {{ display: block; font-size: .82rem; font-weight: 500; color: var(--muted, #64748b); margin-top: .2rem; line-height: 1.7; }}
 .sa-langbtn {{ border: 1px solid var(--z, #2f6f57); background: var(--z, #2f6f57); color: #fff;
   border-radius: 999px; padding: .34rem .9rem; font-size: .84rem; cursor: pointer; }}
 .sa-langbtn:hover {{ filter: brightness(1.08); }}
@@ -95,7 +98,8 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 
   <header class="sa-top">
     <h1>Lilly RWE workshop
-      <span class="sa-sub">用一個「藥物X 用 vs 不用」的不死時間故事貫穿四個互動分頁：Appraisal（評讀）· Database（選資料庫）· Bias（抓偏誤）· Method（選方法）。</span>
+      <span class="sa-date">2026 / 07 / 22</span>
+      <span class="sa-sub">一個小賴醫師都可能犯的錯：他發現「有吃藥物X 的人死亡風險少 40%」，但那 40% 是假的。四個分頁帶你把這個錯找出來、修好：Appraisal 讀出問題 · Database 找對資料 · Bias 認出偏誤 · Method 選對設計。</span>
     </h1>
   </header>
 
