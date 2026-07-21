@@ -124,7 +124,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
       <div class="dtree-controls">
         <button id="dbtreeBack" class="btn" type="button">← 上一步</button>
         <button id="dbtreeRestart" class="btn" type="button">重新開始</button>
-        <button id="dbtreeTableBtn" class="btn" type="button">📊 看資料庫總表</button>
+        <button id="dbtreeTableBtn" class="btn" type="button">看資料庫總表</button>
       </div>
     </div>
     <div id="dbtreeSummary" class="dtree-map" hidden></div>
@@ -155,7 +155,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
       <div class="dtree-controls">
         <button id="dtreeBack" class="btn" type="button">← 上一步</button>
         <button id="dtreeRestart" class="btn" type="button">重新開始</button>
-        <button id="dtreeFullmap" class="btn" type="button">🌳 看完整流程圖</button>
+        <button id="dtreeFullmap" class="btn" type="button">看完整流程圖</button>
       </div>
     </div>
     <div id="dtreeMap" class="dtree-map" hidden></div>

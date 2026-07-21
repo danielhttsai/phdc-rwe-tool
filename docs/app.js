@@ -3382,9 +3382,9 @@ function renderDtree() {
       `<h3>${L(r.title)}</h3>` +
       `<p>${L(r.why)}</p>` +
       scenario +
-      `<div class="rec-watch">${tr("⚠ 要盯住的關鍵假設：", "⚠ Key assumption to watch: ")}${L(r.watch)}</div>` +
+      `<div class="rec-watch">${tr("要盯住的關鍵假設：", "Key assumption to watch: ")}${L(r.watch)}</div>` +
       `<div class="rec-actions">` + goto +
-      `<button class="dtree-showmap" data-mapkey="${cur.id}">${tr("🌳 看完整決策樹（標出你的位置）", "🌳 Show the full tree (your spot marked)")}</button>` +
+      `<button class="dtree-showmap" data-mapkey="${cur.id}">${tr("看完整決策樹（標出你的位置）", "Show the full tree (your spot marked)")}</button>` +
       `</div></div>`;
     const gb = stage.querySelector(".dtree-goto");
     if (gb) gb.addEventListener("click", () => gotoMethod(gb.dataset.go, "learn"));
@@ -3808,9 +3808,9 @@ function renderDbtree() {
       `<h3>${L(r.title)}</h3>` +
       `<p>${L(r.why)}</p>` +
       `<div class="rec-scenario">${L(r.scenario)}</div>` +
-      `<div class="rec-watch">${tr("⚠ 弱點／要注意：", "⚠ Weak spots to watch: ")}${L(r.watch)}</div>` +
+      `<div class="rec-watch">${tr("弱點／要注意：", "Weak spots to watch: ")}${L(r.watch)}</div>` +
       `<div class="rec-actions">` +
-      `<button class="dtree-showmap" id="dbShowTable">${tr("📊 看資料庫總表", "📊 Show the full comparison table")}</button>` +
+      `<button class="dtree-showmap" id="dbShowTable">${tr("看資料庫總表", "Show the full comparison table")}</button>` +
       `</div></div>`;
     stage.querySelectorAll(".db-chip").forEach((b) =>
       b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
@@ -3956,10 +3956,10 @@ const ALIGN_DEMO = {
     title: { zh: "複製-中斷-加權：Time Zero複製到各策略，偏離就中斷", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
     grace: { end: 90 },
     rows: [
-      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 60, "un"], [60, 360, "ex"]], ev: { x: 360, type: "end" } },
+      { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 60, "un"], [60, 360, "cen"]], ev: { x: 60, type: "cen" } },
     ],
-    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 繼續（轉暴露、青）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat' (Clone A continues, now exposed) and <b>violates</b> 'no use' (Clone B is <b>censored</b> here). Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
+    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。此人第2月開始用藥 → <b>符合</b>「用藥」策略，複製A 一路追下去，而且<b>從第0天起，整段人時都算在「用藥」策略底下</b>（不是等到真的開始吃才算，否則又製造一段不死時間）；<b>違背</b>「不用」策略，複製B 在此<b>中斷</b>（設限，斜線）。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. This person starts at m2 → <b>matches</b> 'treat', so Clone A keeps going and <b>all of its person-time counts as treated from day 0</b> (not only from the actual start date, which would re-create immortal time); it <b>violates</b> 'no use', so Clone B is <b>censored</b> here. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
   },
 };
 let alignSel = null, aprStep = 0, aprGuess = null, aprDx = null;
@@ -4094,7 +4094,7 @@ function renderAlign() {
     `<div class="apr-result ${hr.tone}"><span class="apr-hr">${L(ALIGN_ORDER.find((o) => o.k === alignSel).short)}：HR ≈ ${hr.hr}</span>` +
     `<span class="apr-hr-say">${hr.say}</span></div>`;
   const checklist =
-    `<details class="apr-check"><summary>📋 評讀重點（小賴醫師該問自己的四件事）</summary><ul>` +
+    `<details class="apr-check"><summary>評讀重點（小賴醫師該問自己的四件事）</summary><ul>` +
     `<li><b>Time Zero對齊了嗎？</b>暴露組有沒有被塞進「還沒用藥、卻保證活著」的時間（不死時間）？</li>` +
     `<li><b>是不是新使用者？</b>有沒有把已經用藥很久、存活下來的<b>盛行使用者</b>混進來？</li>` +
     `<li><b>對照選得對嗎？</b>是「用 vs 完全不用」（適應症混淆），還是同適應症的<b>主動對照</b>？</li>` +
