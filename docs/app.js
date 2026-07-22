@@ -2960,7 +2960,7 @@ const DNODES = {
   },
   exSelf: {
     step: { zh: "自身對照／趨勢", en: "Self-control / trend" },
-    q: { zh: "結果是急性、會反覆又會好，你想怎麼利用「個人自身」或「日曆趨勢」？", en: "The outcome is acute and recurrent/resolving — how do you want to use 'the person as their own control' or a calendar trend?" },
+    q: { zh: "你是想<b>估一個效果</b>（用個人自身或日曆趨勢當對照），還是還沒有特定結果、想先<b>篩出訊號</b>？", en: "Do you want to <b>estimate an effect</b> (using the person or a calendar trend as the control), or do you have no specific outcome yet and want to <b>screen for signals</b> first?" },
     opts: [
       { l: { zh: "用個人自身當對照、暴露有明確時窗（非致命、可復發）", en: "Person as own control, exposure has a clear window (non-fatal, recurrent)" }, to: "rSCCS" },
       { l: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見", en: "Exposure spreads over calendar time at different rates; rare outcome" }, to: "rTiT" },
@@ -3274,6 +3274,9 @@ const FULLMAP = {
               leaves: [
                 { key: "rSCCS", cond: { zh: "個人自身當對照＋暴露有明確時窗", en: "person as own control + clear exposure window" }, tag: "SCCS ✓", kind: "tb" },
                 { key: "rTiT", cond: { zh: "暴露隨日曆趨勢、跨族群速度不同、結果罕見", en: "exposure has a calendar trend, rare outcome" }, tag: "TiT ✓", kind: "tb" },
+              ] },
+            { edge: { zh: "還不知道要找什麼 → 先篩訊號（產生假說，不估效果）", en: "no specific outcome in mind → screen for signals (hypothesis-generating, not an effect estimate)" },
+              leaves: [
                 { key: "rPSSA", cond: { zh: "快速篩處方瀑布訊號（先 A 後 B 不對稱；aSR＝cSR÷SRnull）", en: "fast screen for a prescribing cascade (A-then-B asymmetry; aSR = cSR ÷ SRnull)" }, tag: "PSSA ✓", kind: "tb" },
                 { key: "rTSCAN", cond: { zh: "一次掃整棵結果樹找安全訊號、控制多重比較（最大 LLR＋排列 p）", en: "scan a whole outcome tree for safety signals with multiplicity control (max LLR + permutation p)" }, tag: "TreeScan ✓", kind: "tb" },
               ] },
