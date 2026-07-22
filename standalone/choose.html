@@ -2384,7 +2384,7 @@ const BIAS_SCENARIOS = [
   { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，Time Zero對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
     ans: [],
     why: { zh: "新使用者對齊Time Zero → 無不死時間；同適應症對照 → 適應症混淆很小；重要干擾因子都測到 → 無法被測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
-    fix: { zh: "無明顯偏誤；仍可用 E-value 量化「萬一有殘餘無法被測量的干擾因子」的穩健度。", en: "No obvious bias; still worth an E-value to quantify robustness to any residual unmeasured confounding." }, fixMethod: null },
+    fix: { zh: "無明顯偏誤，但「看不出偏誤」不等於「沒有偏誤」。用<b>量化偏誤分析（QBA）</b>把殘餘的<b>無法被測量的干擾因子</b>算成數字：E-value 告訴你它要<b>多強</b>才能把結果解釋掉，機率式偏誤分析則把你對它的假設整組跑一遍，看結論撐不撐得住。", en: "No obvious bias — but 'no visible bias' is not 'no bias'. Use <b>quantitative bias analysis</b> to put a number on the residual unmeasured confounding: an E-value says how strong it would have to be to explain the result away, and a probabilistic bias analysis runs your assumptions about it end to end to see whether the conclusion survives." }, fixMethod: "evalue" },
 ];
 function initBiasGame() { renderBiasGame(); }
 function renderBiasGame() {
