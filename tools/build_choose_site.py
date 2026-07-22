@@ -14,6 +14,7 @@ Output (both are the same self-contained file, no external assets, works offline
 Run:
     python tools/build_choose_site.py
 """
+import base64
 import json
 import os
 import re
@@ -22,6 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 APP = os.path.join(ROOT, "frontend", "app.js")
 CSS = os.path.join(ROOT, "frontend", "styles.css")
+LOGO = os.path.join(ROOT, "frontend", "assets", "phdc-logo.png")
 OUT_STANDALONE = os.path.join(ROOT, "standalone", "choose.html")
 OUT_DOCS = os.path.join(ROOT, "docs", "choose", "index.html")
 
@@ -49,8 +51,15 @@ def extract_tree_js(app_src: str) -> str:
     return js
 
 
+def logo_data_uri() -> str:
+    """Inline the PHDc mark, so the single file still shows it offline."""
+    with open(LOGO, "rb") as fh:
+        return "data:image/png;base64," + base64.b64encode(fh.read()).decode("ascii")
+
+
 def build(app_src: str, css_src: str) -> str:
     tree_js = extract_tree_js(app_src)
+    logo = logo_data_uri()
     return f"""<!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -86,6 +95,8 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 .sa-foot {{ margin-top: 2.2rem; padding-top: .9rem; border-top: 1px solid var(--line, #dfe7e4);
   font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }}
 .sa-foot a {{ color: var(--z, #2f6f57); }}
+.sa-brand {{ display: flex; justify-content: center; padding: .6rem 0 2.4rem; }}
+.sa-brand-logo {{ height: 54px; width: auto; max-width: 100%; opacity: .9; }}
 @media print {{
   .dtree-controls, .sa-langbtn, .sa-tabs, .fc-toolbar {{ display: none !important; }}
   .sa-panel[hidden] {{ display: block !important; }}
@@ -168,6 +179,10 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   </section>
 
   <p class="sa-foot">所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
+
+  <footer class="sa-brand">
+    <img class="sa-brand-logo" src="{logo}" alt="PHDc">
+  </footer>
 
 </div>
 
