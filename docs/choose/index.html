@@ -2104,7 +2104,9 @@ const ALIGN_HR = {
 function _ax(d) { return 168 + d / 360 * 536; }
 function drawAlignSVG(cfg) {
   const FILL = { un: "#cbd5e1", ex: "#3f8268", im: "#ef4444", ctrl: "#1f4f3f", cen: "url(#hcen)", ex0: "url(#hex0)", adh: "#a7d7c5" };
-  const rows = cfg.rows, rh = 46, H = rows.length * rh + 58;
+  // +74 leaves room for the axis ticks (ay+12) AND the caption under them
+  // (ay+26); at +58 the caption fell outside the viewBox and got clipped.
+  const rows = cfg.rows, rh = 46, H = rows.length * rh + 74;
   let s = '<svg viewBox="0 0 720 ' + H + '" class="align-svg" xmlns="http://www.w3.org/2000/svg">';
   s += '<defs>' +
     '<pattern id="hcen" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff7ed"/><line x1="0" y1="0" x2="0" y2="6" stroke="#f59e0b" stroke-width="2.2"/></pattern>' +
@@ -2142,7 +2144,8 @@ function drawAlignSVG(cfg) {
     s += '<line x1="' + x + '" y1="' + (ay - 6) + '" x2="' + x + '" y2="' + ay + '" stroke="#94a3b8"/>';
     s += '<text x="' + x + '" y="' + (ay + 12) + '" font-size="9" text-anchor="middle" fill="#64748b">' + lab + '</text>';
   });
-  s += '<text x="168" y="' + (ay + 26) + '" font-size="9" fill="#94a3b8">' + tr("診斷／進入世代後的時間", "time since diagnosis / cohort entry") + '</text>';
+  // sits in the left label gutter, clear of the "0" tick underneath the axis
+  s += '<text x="6" y="' + (ay + 26) + '" font-size="9" fill="#94a3b8">' + tr("診斷／進入世代後的時間", "time since diagnosis / cohort entry") + '</text>';
   return s + '</svg>';
 }
 function renderAlign() {
