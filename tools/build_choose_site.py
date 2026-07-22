@@ -23,7 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 APP = os.path.join(ROOT, "frontend", "app.js")
 CSS = os.path.join(ROOT, "frontend", "styles.css")
-LOGO = os.path.join(ROOT, "frontend", "assets", "phdc-logo.png")
+LOGO = os.path.join(ROOT, "frontend", "assets", "phdc-logo-name.png")
 OUT_STANDALONE = os.path.join(ROOT, "standalone", "choose.html")
 OUT_DOCS = os.path.join(ROOT, "docs", "choose", "index.html")
 
@@ -96,7 +96,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }}
 .sa-foot a {{ color: var(--z, #2f6f57); }}
 .sa-brand {{ display: flex; justify-content: center; padding: .6rem 0 2.4rem; }}
-.sa-brand-logo {{ height: 54px; width: auto; max-width: 100%; opacity: .9; }}
+.sa-brand-logo {{ height: 84px; width: auto; max-width: 100%; opacity: .95; }}
 @media print {{
   .dtree-controls, .sa-langbtn, .sa-tabs, .fc-toolbar {{ display: none !important; }}
   .sa-panel[hidden] {{ display: block !important; }}
@@ -181,7 +181,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <p class="sa-foot">所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
 
   <footer class="sa-brand">
-    <img class="sa-brand-logo" src="{logo}" alt="PHDc">
+    <img class="sa-brand-logo" src="{logo}" alt="PHDc — Population Health Data Center">
   </footer>
 
 </div>
