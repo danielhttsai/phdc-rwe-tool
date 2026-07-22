@@ -90,7 +90,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
 .sa-tab.active {{ background: var(--z, #2f6f57); color: #fff; border-color: var(--z, #2f6f57); }}
 .sa-panel[hidden] {{ display: none; }}
 .sa-h2 {{ font-size: 1.1rem; margin: 0 0 1rem; color: var(--ink, #14283c); }}
-.sa-scenario {{ background: #eef2ff; border: 1px solid #c7d2fe; border-left: 4px solid #6366f1;
+.sa-scenario {{ background: #f0f7f4; border: 1px solid #cfe3da; border-left: 4px solid #3f8268;
   border-radius: 12px; padding: .8rem 1rem; font-size: .92rem; line-height: 1.8; margin: 0 0 1.1rem; }}
 .sa-foot {{ margin-top: 2.2rem; padding-top: .9rem; border-top: 1px solid var(--line, #dfe7e4);
   font-size: .82rem; color: var(--muted, #64748b); line-height: 1.7; }}
@@ -130,7 +130,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 2 · Database ===================== -->
   <section class="sa-panel" id="paneDb" hidden>
     <h2 class="sa-h2">Database：小賴醫師要重做這個分析，需要對的資料</h2>
-    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：小賴醫師想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（新使用者、時變暴露、對齊 Time Zero），資料裡就得有<b>這些設計需要的東西</b>。<b>你手上是哪種資料庫？</b></div>
+    <div class="sa-scenario">延續 <b>Appraisal</b> 的故事：小賴醫師想知道「某慢性病患者中，<b>有用藥物X vs 沒用</b>的人是不是活得比較久？」第一版（曾用藥＝暴露、從診斷起算）看起來「用藥的人死亡風險少 40%」，但那其實是<b>不死時間</b>灌出來的。要<b>正確重做</b>（只收新開始用藥的人、用藥那天才算暴露、大家的起算日對齊），資料裡就得有<b>這些設計需要的東西</b>。<b>你手上是哪種資料庫？</b></div>
     <div id="dbIntro"></div>
 
     <div id="dbtree" class="dtree">
@@ -156,7 +156,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 4 · Method ===================== -->
   <section class="sa-panel" id="paneMethods" hidden>
     <h2 class="sa-h2">Method：小賴醫師的問題，該用哪種設計？</h2>
-    <div class="sa-scenario">收尾：小賴醫師想<b>正確</b>回答「藥物X 用 vs 不用，誰活得久？」。這是一個「暴露隨時間開關、要避免不死時間」的問題 → 順著樹點下去，你會落在<b>時變暴露 / 主動對照新使用者 / CCW</b> 這一類「錨定暴露起始、對齊 Time Zero」的設計。試試看樹會不會帶你到同樣的答案。</div>
+    <div class="sa-scenario">收尾：小賴醫師想<b>正確</b>回答「藥物X 用 vs 不用，誰活得久？」。這是一個「暴露隨時間開關、要避免不死時間」的問題 → 順著樹點下去，你會落在<b>用藥那天才算暴露 / 主動對照新使用者 / 複製-中斷-加權</b> 這一類「從開始用藥那天起算、大家對齊」的設計。試試看樹會不會帶你到同樣的答案。</div>
     <p class="caption">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
     <div id="mtIntro"></div>

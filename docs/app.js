@@ -3765,7 +3765,7 @@ const DBRECS = {
   dVestrum: { db: "vestrum",
     title: { zh: "Vestrum Health 視網膜資料庫", en: "Vestrum Health Retina Database" },
     why: { zh: "美國視網膜專科的 EHR 匯總，特色是<b>單一專科、單一結果測得極密</b>：每一次抗 VEGF 注射與每一次<b>最佳矯正視力</b>都有日期。等於把「暴露強度」與「連續結果」同時記到很細，很適合做<b>劑量／治療強度</b>與結果的關係。", en: "A pooled EHR of US retina specialists. Its strength is being <b>one specialty with one densely measured outcome</b>: every anti-VEGF injection and every <b>best-corrected visual acuity</b> is dated. Exposure intensity and a continuous outcome are both recorded finely, which suits <b>dose / treatment-intensity</b> questions." },
-    scenario: { zh: "藥物X 情境：注射<b>打得越密</b>，一年後視力進步越多嗎？把注射次數當時變暴露、視力當重複測量結果。", en: "Drug-X scenario: does a <b>higher injection frequency</b> buy more visual-acuity gain at one year? Treat injection count as time-varying exposure and acuity as a repeated outcome." },
+    scenario: { zh: "藥物X 情境：注射<b>打得越密</b>，一年後視力進步越多嗎？把注射次數當成隨時間變動的暴露、視力當重複測量的結果。", en: "Drug-X scenario: does a <b>higher injection frequency</b> buy more visual-acuity gain at one year? Treat injection count as time-varying exposure and acuity as a repeated outcome." },
     watch: { zh: "打得密的人通常<b>病況也不同</b>（適應症混淆）；只看得到眼科端，全身共病與死亡看不到；失去追蹤與真正的停藥分不清楚。", en: "People injected more often <b>differ clinically</b> (confounding by indication); only the eye-care side is visible, so systemic comorbidity and death are not; loss to follow-up is hard to tell from genuine discontinuation." },
     designs: [{ m: "ps", l: "PS" }, { m: "gbtm", l: "GBTM" }, { m: "wce", l: "WCE" }, { m: "med", l: "MED" }] },
   dAetion: { db: "aetion",
@@ -3958,7 +3958,7 @@ function _dbKey(d) {
 // ======================================================================
 const ALIGN_METHODS = [
   { key: "tvc", method: "gm",
-    name: { zh: "時變暴露（time-varying exposure）", en: "Time-varying exposure" },
+    name: { zh: "用藥那天才算暴露（時變暴露）", en: "Time-varying exposure" },
     idea: { zh: "把暴露當成<b>會隨時間開關的共變量</b>：每個人一進世代都先算「未暴露人時」，直到真正用藥物X 那天，才把後續轉成「暴露人時」。", en: "Treat exposure as a <b>covariate that switches on over time</b>: everyone starts contributing <b>unexposed</b> person-time and only flips to <b>exposed</b> on the day they actually start drug X." },
     zero: { zh: "Time Zero＝進入世代（符合合格）那天，對<b>每個人一致</b>；用藥前的存活時間正確地記在「未暴露」那一格，不會被送給暴露組。", en: "Time zero = cohort entry (eligibility), the <b>same for everyone</b>; pre-treatment survival is correctly booked as unexposed time, never handed to the exposed group." },
     pro: { zh: "用上全部人時、不丟資料；直接對付 immortal time。", en: "Uses all person-time, discards nothing; tackles immortal time head-on." },
@@ -3991,7 +3991,7 @@ const ALIGN_METHODS = [
 // interactive timeline demo: one config per approach ('naive' shows the bug).
 const ALIGN_ORDER = [
   { k: "naive", short: { zh: "天真做法（錯）", en: "Naive (wrong)" } },
-  { k: "tvc", short: { zh: "時變暴露", en: "Time-varying" } },
+  { k: "tvc", short: { zh: "用藥那天才算暴露", en: "Time-varying" } },
   { k: "acnu", short: { zh: "主動對照", en: "Active comparator" } },
   { k: "landmark", short: { zh: "地標", en: "Landmark" } },
   { k: "seq", short: { zh: "序列試驗", en: "Sequential" } },
@@ -4007,7 +4007,7 @@ const ALIGN_DEMO = {
     note: { zh: "兩人Time Zero都放在<b>診斷（第0天）</b>，但「曾用藥」被當成整段暴露。用藥者第 0–3 月<b>還沒用藥、卻算暴露、而且保證活著才等得到用藥</b>，這段紅色就是<b>不死時間</b>，會讓藥物X 看起來能延命。", en: "Both clocks start at <b>diagnosis (day 0)</b>, but 'ever-use' is counted as exposed throughout. The user's first 3 months are <b>not yet treated, counted as exposed, and guaranteed alive</b> (they had to survive to start) — that red stretch is <b>immortal time</b>, making drug X look protective." },
   },
   tvc: {
-    title: { zh: "時變暴露：Time Zero仍在診斷，但暴露隨時間開關", en: "Time-varying: same time zero, exposure switches on over time" },
+    title: { zh: "用藥那天才算暴露：Time Zero仍在診斷，但用藥前後分開算", en: "Time-varying: same time zero, exposure switches on over time" },
     rows: [
       { label: { zh: "用藥物X者（第3月起用）", en: "Drug-X user (starts m3)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "沒用藥物X者", en: "Non-user" }, t0: 0, segs: [[0, 150, "un"]], ev: { x: 150, type: "dead" } },
@@ -4210,7 +4210,7 @@ function renderAlign() {
   const whoFeedback = aprWho === "ex"
     ? `<div class="apr-react good"><b>對，就是這裡。</b>他一開始就把人貼上「暴露」標籤、又<b>從確診日起算</b>，所以這 3 個月被算成<b>暴露人時</b>。但在這 3 個月裡，這些人<b>依定義不可能死</b>（死了就領不到藥、也就不會被分到暴露組）。</div>`
     : aprWho === "un"
-      ? `<div class="apr-react warn"><b>那是正確做法，可惜他沒這樣做。</b>把這段算成未暴露人時，正是<b>時變暴露</b>的處理方式。小賴醫師是先貼標籤再從確診日起算，所以這 3 個月被算給了<b>暴露組</b>。</div>`
+      ? `<div class="apr-react warn"><b>那是正確做法，可惜他沒這樣做。</b>把這段算成未暴露人時，正是「<b>用藥那天才算暴露</b>」的做法（時變暴露）。小賴醫師是先貼標籤再從確診日起算，所以這 3 個月被算給了<b>暴露組</b>。</div>`
       : `<div class="apr-react warn"><b>那也是一種正解，但不是他做的。</b>把這段丟掉（或改從第 3 個月起算）接近<b>地標分析</b>。小賴醫師沒有丟，他把這 3 個月算給了<b>暴露組</b>。</div>`;
 
   // ---- Step 4: which way does the bias push? ----
@@ -4336,7 +4336,7 @@ const BIAS_SCENARIOS = [
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
     why: { zh: "『整個追蹤期都規律用藥』<b>必須活很久且沒中斷</b> → 嚴重不死時間；『用 vs 從不用』→ 適應症混淆；規律用藥者往往<b>更健康守規矩（healthy adherer）</b>，這種傾向常沒被測到 → 無法被測量的干擾因子。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
-    fix: { zh: "用<b>時變暴露</b>或<b>複製-中斷-加權</b>處理規律性/Time Zero，配<b>主動對照</b>，再對 healthy-adherer 做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
+    fix: { zh: "改成<b>用藥那天才算暴露</b>（時變暴露）或<b>複製-中斷-加權</b>來處理規律性與Time Zero，配<b>主動對照</b>，再對 healthy-adherer 做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
   { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，Time Zero對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
     ans: [],
     why: { zh: "新使用者對齊Time Zero → 無不死時間；同適應症對照 → 適應症混淆很小；重要干擾因子都測到 → 無法被測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
@@ -4499,7 +4499,7 @@ const BIAS_QS = [
   { q: `最後一題：上面四種毛病，哪一種可以靠「<b>換一個更厲害的統計模型</b>」解決？`,
     opts: [
       { k: "none", ok: 1, t: "一個都不行", fb: `<b>對，這就是重點。</b>不死時間、適應症混淆、盛行使用者要靠<b>設計</b>（對齊 Time Zero、主動對照、新使用者）；量不到的干擾因子要靠<b>換／串資料</b>或<b>敏感度分析</b>。模型只能處理<b>你已經量到</b>的東西。` },
-      { k: "imm", ok: 0, t: "不死時間", fb: `<b>那是設計，不是模型。</b>不死時間要靠<b>重新定義Time Zero</b>（時變暴露／地標／複製-中斷-加權）才會消失；模型只能處理你已經量到的東西，所以答案是<b>一個都不行</b>。` },
+      { k: "imm", ok: 0, t: "不死時間", fb: `<b>那是設計，不是模型。</b>不死時間要靠<b>重新定義Time Zero</b>（用藥那天才算暴露／地標／複製-中斷-加權）才會消失；模型只能處理你已經量到的東西，所以答案是<b>一個都不行</b>。` },
       { k: "unm", ok: 0, t: "無法被測量的干擾因子", fb: `<b>這個最不可能。</b>資料裡<b>根本沒有</b>那個變數，任何模型都變不出來；只能<b>換／串資料</b>或用陰性對照／E-value 評估。答案是<b>一個都不行</b>。` },
     ] },
 ];
