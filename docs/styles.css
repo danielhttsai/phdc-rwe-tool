@@ -252,6 +252,8 @@ table.db-summary tr.db-row-hit td { background: #ecfdf5; box-shadow: inset 3px 0
 .apr-choice { border: 1.5px solid var(--z); background: var(--card); color: var(--z); border-radius: 999px;
   padding: .5rem 1.2rem; font-size: .92rem; font-weight: 700; cursor: pointer; }
 .apr-choice:hover { background: var(--z); color: #fff; }
+/* the global `b { color }` otherwise splits each option into two colours */
+.apr-choice b { color: inherit; }
 .apr-react { border-radius: 12px; padding: .7rem 1rem; margin: 0 0 .9rem; font-size: .92rem; line-height: 1.75; }
 .apr-react.good { background: #ecfdf5; border: 1px solid #86efac; }
 .apr-react.warn { background: #f4f6f8; border: 1px solid #cbd5e1; }
