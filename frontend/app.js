@@ -4318,6 +4318,7 @@ const BIAS_TYPES = [
   { key: "immortal", zh: "不死時間（Time Zero錯位）", en: "Immortal time (time-zero misalignment)" },
   { key: "indication", zh: "適應症混淆", en: "Confounding by indication" },
   { key: "unmeasured", zh: "無法被測量的干擾因子", en: "Unmeasured confounder" },
+  { key: "selection", zh: "選樣本的偏差（selection bias）", en: "Selection bias" },
 ];
 const BIAS_SCENARIOS = [
   { s: { zh: "把「確診後<b>曾用過</b>藥物X」的人算成暴露組，<b>Time Zero設在確診日</b>、一路追蹤到死亡，再和從頭到尾沒用過藥的人比存活。", en: "Call people 'exposed' if they <b>ever started</b> drug X after diagnosis, put <b>time zero at the diagnosis day</b>, follow to death, and compare survival with never-users." },
@@ -4334,7 +4335,7 @@ const BIAS_SCENARIOS = [
     fix: { zh: "串<b>成人健檢／長庚</b>拿檢驗值，或用<b>陰性對照／E-value</b> 做敏感度分析。", en: "Link a <b>health-check / CGRD</b> source for labs, or run a <b>negative-control / E-value</b> sensitivity analysis." }, fixMethod: "nc" },
   { s: { zh: "選診斷後 <b>6 個月</b>為地標：到 6 個月時，把「6 個月內已開始用藥物X」歸為暴露組，追蹤<b>從第 6 個月</b>開始。", en: "Use a <b>6-month landmark</b>: at 6 months, classify anyone who started drug X within the first 6 months as exposed, and begin follow-up <b>at month 6</b>." },
     ans: [],
-    why: { zh: "Time Zero＝地標，對所有人一致，且地標前就出事的人被排除 → <b>沒有</b>不死時間。若同時是主動對照、且重要干擾因子都測到，這個設計是乾淨的（代價是地標之前那段的資料就用不到）。", en: "Time zero = the landmark, the same for all, and those with the event before it are excluded → <b>no</b> immortal time. If it's also an active comparator with key confounders measured, the design is clean (the trade-off: the time before the landmark can't be used)." },
+    why: { zh: "Time Zero＝地標，對所有人一致，且地標前就出事的人被排除 → <b>沒有</b>不死時間。若同時是主動對照、且重要干擾因子都測到，這個設計是乾淨的（代價是地標之前那段的資料就用不到）。<br><b>那排除掉那些人算不算選樣本的偏差？</b>不算。它<b>對兩組一視同仁</b>、而且是在<b>看結果之前</b>就用一條明確規則排除的。它改變的是<b>結論適用到誰身上</b>（只適用於活過 6 個月的人），不是把兩組之間的比較弄歪。<b>選樣本的偏差是「誰能留在分析裡，取決於他的暴露或結果」</b>，這裡不是。", en: "Time zero = the landmark, the same for all, and those with the event before it are excluded → <b>no</b> immortal time. If it's also an active comparator with key confounders measured, the design is clean (the trade-off: the time before the landmark can't be used).<br><b>Isn't excluding those people selection bias?</b> No. The rule is applied <b>identically to both groups</b> and <b>before looking at outcomes</b>. It changes <b>who the answer applies to</b> (people alive at 6 months), it does not skew the comparison between the groups. <b>Selection bias is when staying in the analysis depends on your exposure or your outcome</b> — which is not the case here." },
     fix: { zh: "這題示範<b>正確</b>的對齊；沒有明顯偏誤要修。", en: "This one demonstrates a <b>correct</b> alignment; there is no obvious bias to fix." }, fixMethod: null },
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
@@ -4344,6 +4345,10 @@ const BIAS_SCENARIOS = [
     ans: [],
     why: { zh: "新使用者對齊Time Zero → 無不死時間；同適應症對照 → 適應症混淆很小；重要干擾因子都測到 → 無法被測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
     fix: { zh: "無明顯偏誤；仍可用 E-value 量化「萬一有殘餘無法被測量的干擾因子」的穩健度。", en: "No obvious bias; still worth an E-value to quantify robustness to any residual unmeasured confounding." }, fixMethod: null },
+  { s: { zh: "主動對照、Time Zero對齊，追蹤兩年。但用藥物X 的人有<b>三成中途從健保看不到了</b>（轉自費、換院），分析時把這些人<b>直接刪掉</b>，只留下追滿兩年的人。", en: "Active comparator, aligned time zero, two years of follow-up. But <b>30% of drug-X users disappear from the data</b> partway through (self-pay, changed hospital), and the analysis simply <b>drops them</b>, keeping only those with a full two years." },
+    ans: ["selection"],
+    why: { zh: "「能留在分析裡」變成<b>取決於你有沒有消失</b>，而會消失的人往往<b>病況不同</b>（好轉了所以不回診、或惡化了轉去別處），兩組消失的比例又不一樣 → 剩下來的人已經不能代表原本的兩組，這就是<b>選樣本的偏差</b>。<br>注意它<b>不是</b>不死時間（Time Zero有對齊）、也不是適應症混淆（對照選對了）；問題出在<b>後面誰被留下</b>，不是<b>一開始誰被納入</b>。", en: "Whether you stay in the analysis now <b>depends on whether you dropped out</b>, and people who drop out differ clinically (recovered and stopped attending, or worsened and went elsewhere) — and the two arms drop out at different rates. Those left no longer represent the original groups: <b>selection bias</b>.<br>Note this is <b>not</b> immortal time (time zero is aligned) nor confounding by indication (the comparator is right). The damage is in <b>who remains</b>, not in who was enrolled." },
+    fix: { zh: "不要刪人：把消失當<b>設限</b>並用 <b>IPCW</b> 依可觀察特徵加權補回來，或做<b>最好／最壞情況</b>的敏感度分析看結論撐不撐得住。", en: "Do not delete them: treat disappearance as <b>censoring</b> and reweight with <b>IPCW</b> on observed characteristics, or run a <b>best-case / worst-case</b> sensitivity analysis to see whether the conclusion survives." }, fixMethod: "miss" },
 ];
 function initBiasGame() { renderBiasGame(); }
 function renderBiasGame() {
