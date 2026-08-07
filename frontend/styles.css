@@ -787,3 +787,6 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .sccsvio-tab:hover { border-color: var(--z); color: var(--z); }
 .sccsvio-tab.active { background: var(--z); color: #fff; border-color: var(--z); }
 #sccsVioText p { margin: .5rem 0; font-size: .92rem; line-height: 1.8; }
+/* the violation diagram is an inline SVG, not a Plotly div: let it size itself */
+#sccsVioChart { height: auto; padding: .6rem .9rem; }
+#sccsVioChart svg { display: block; width: 100%; max-width: 920px; height: auto; margin: 0 auto; }

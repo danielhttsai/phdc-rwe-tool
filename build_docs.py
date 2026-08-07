@@ -52,8 +52,13 @@ BACKEND_PY = ["i18n.py", "iv_core.py", "assumptions.py", "ml_iv.py", "gen_data.p
 
 
 def _clean_docs():
+    # Remove the CONTENTS of docs/, not docs/ itself: a dev server (or a
+    # shell) whose working directory is docs/ holds the root open on Windows,
+    # and rmtree(DOCS) then dies on the final os.rmdir.
     if os.path.isdir(DOCS):
-        shutil.rmtree(DOCS)
+        for name in os.listdir(DOCS):
+            p = os.path.join(DOCS, name)
+            shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
     os.makedirs(os.path.join(DOCS, "py"), exist_ok=True)
 
 

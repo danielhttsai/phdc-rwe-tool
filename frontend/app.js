@@ -7270,7 +7270,38 @@ function renderSccsVio() {
   document.getElementById("sccsVioNaiveFoot").textContent = txt.naiveFoot();
   document.getElementById("sccsVioFixedFoot").textContent = txt.fixedFoot();
   document.getElementById("sccsVioText").innerHTML = txt.body();
-  drawSccsVioSVG(kind, x);
+  animateSccsVio(kind, x);
+}
+
+// Tween the strips from their previous shape to the new one (~260 ms), so
+// dragging the slider visibly bends the distributions instead of snapping.
+let _svAnim = null, _svShown = null;
+function animateSccsVio(kind, x) {
+  const target = _svSeries(kind, x);
+  const from = _svShown && _svShown.ev.length === target.ev.length ? _svShown : target;
+  if (_svAnim) cancelAnimationFrame(_svAnim);
+  // draw the starting frame synchronously — rAF does not fire in a throttled
+  // tab, and the diagram must exist even if the tween never runs
+  drawSccsVioSVG(kind, x, { ev0: target.ev0, ev: from.ev, pt: from.pt });
+  if (from === target) { _svShown = target; return; }
+  // safety net: if rAF is throttled and the tween stalls, land on the target
+  setTimeout(() => {
+    if (_svShown !== target) {
+      if (_svAnim) cancelAnimationFrame(_svAnim);
+      _svAnim = null; _svShown = target;
+      drawSccsVioSVG(kind, x, target);
+    }
+  }, 320);
+  const t0 = performance.now(), DUR = 260;
+  const lerp = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+  const step = (now) => {
+    const t = Math.min((now - t0) / DUR, 1), e = 1 - (1 - t) * (1 - t);   // ease-out
+    const cur = { ev0: target.ev0, ev: lerp(from.ev, target.ev, e), pt: lerp(from.pt, target.pt, e) };
+    drawSccsVioSVG(kind, x, cur);
+    if (t < 1) _svAnim = requestAnimationFrame(step);
+    else { _svAnim = null; _svShown = target; }
+  };
+  _svAnim = requestAnimationFrame(step);
 }
 
 // Per-day curves for the violation diagram: how many events are OBSERVED on
@@ -7299,11 +7330,11 @@ function _svSeries(kind, x) {
   return { ev0, ev, pt };
 }
 
-function drawSccsVioSVG(kind, x) {
+function drawSccsVioSVG(kind, x, series) {
   const box = document.getElementById("sccsVioChart");
   if (!box) return;
   const { T, E, W } = SCCS_VIO;
-  const { ev0, ev, pt } = _svSeries(kind, x);
+  const { ev0, ev, pt } = series || _svSeries(kind, x);
   const X0 = 46, X1 = 706, PW = X1 - X0;
   const px = (d) => X0 + (d - 1) / (T - 1) * PW;
   const SH = 74, GAP = 40;                     // strip height / gap between strips
