@@ -7270,21 +7270,84 @@ function renderSccsVio() {
   document.getElementById("sccsVioNaiveFoot").textContent = txt.naiveFoot();
   document.getElementById("sccsVioFixedFoot").textContent = txt.fixedFoot();
   document.getElementById("sccsVioText").innerHTML = txt.body();
-  const off = Math.abs(naive - SCCS_VIO.RHO) > 0.05;
-  if (document.getElementById("sccsVioChart") && window.Plotly) {
-    Plotly.react("sccsVioChart", [{
-      x: [tr("真值", "truth"), tr("天真 SCCS", "naive SCCS"), tr("處理後", "after fix")],
-      y: [SCCS_VIO.RHO, naive, fixed], type: "bar",
-      marker: { color: [SLATE, off ? RED : TEAL, TEAL] },
-      text: [SCCS_VIO.RHO.toFixed(2), naive.toFixed(2), fixed.toFixed(2)],
-      textposition: "outside",
-    }], sceneLayout({
-      height: 280, margin: { t: 26, r: 18, b: 40, l: 55 },
-      yaxis: { title: "IRR", range: [0, Math.max(3.2, naive * 1.25)] },
-      shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: SCCS_VIO.RHO, y1: SCCS_VIO.RHO,
-                 line: { color: INK, width: 1, dash: "dot" } }],
-    }), SCENE_CFG);
+  drawSccsVioSVG(kind, x);
+}
+
+// Per-day curves for the violation diagram: how many events are OBSERVED on
+// each day, and how much person-time is still under observation — the shape
+// of these two strips is what the violation actually distorts.
+function _svSeries(kind, x) {
+  const { T, E } = SCCS_VIO;
+  const ev0 = [], ev = [], pt = [];
+  let tot = 0;
+  for (let d = 1; d <= T; d++) tot += _svDayWeight(d);
+  let cum = 0;
+  for (let d = 1; d <= T; d++) {
+    const w = _svDayWeight(d);
+    ev0.push(w);
+    if (kind === "exp") { ev.push(w * (d <= E ? 1 - x : 1)); pt.push(1); }
+    else if (kind === "cen") { cum += w / tot; ev.push(w); pt.push(1 - x * cum); }
+    else ev.push(w), pt.push(1);
   }
+  if (kind === "dep") {                       // add the recurrence wave
+    const boost = 3 * x;
+    if (boost > 0) for (let d = 1; d <= T; d++) {
+      const w = _svDayWeight(d);
+      for (let k = d + 1; k <= Math.min(d + 60, T); k++) ev[k - 1] += w * boost * _svDayWeight(k) / 60;
+    }
+  }
+  return { ev0, ev, pt };
+}
+
+function drawSccsVioSVG(kind, x) {
+  const box = document.getElementById("sccsVioChart");
+  if (!box) return;
+  const { T, E, W } = SCCS_VIO;
+  const { ev0, ev, pt } = _svSeries(kind, x);
+  const X0 = 46, X1 = 706, PW = X1 - X0;
+  const px = (d) => X0 + (d - 1) / (T - 1) * PW;
+  const SH = 74, GAP = 40;                     // strip height / gap between strips
+  const strips = [
+    { title: tr("每天被「觀察到」的事件數", "events observed per day"), base: ev0, cur: ev, y0: 24,
+      changed: kind !== "cen" && x > 0,
+      label: { exp: tr("暴露前的事件消失了", "pre-exposure events vanish"),
+               dep: tr("復發潮（跟著第一次事件走）", "the recurrence wave follows first events") }[kind] },
+    { title: tr("還在被觀察的人時（比例）", "person-time still observed (fraction)"), base: ev0.map(() => 1), cur: pt, y0: 24 + SH + GAP,
+      changed: kind === "cen" && x > 0,
+      label: kind === "cen" ? tr("死亡把事件後的（多為基準期）人時砍掉", "death removes the (mostly baseline) time after events") : null },
+  ];
+  const H = strips[1].y0 + SH + 34;
+  const maxEv = Math.max(...ev, ...ev0);
+  let s = `<svg viewBox="0 0 720 ${H}" class="align-svg" xmlns="http://www.w3.org/2000/svg">`;
+  // risk-window band + exposure marker, spanning both strips
+  const gx0 = px(E + 1), gx1 = px(E + W);
+  s += `<rect x="${gx0}" y="12" width="${gx1 - gx0}" height="${H - 40}" fill="#dff0e8" opacity="0.75"/>`;
+  s += `<text x="${(gx0 + gx1) / 2}" y="10" font-size="9" text-anchor="middle" fill="#255c47">${tr("危險窗（28 天，真實 IRR＝2）", "risk window (28 d, true IRR = 2)")}</text>`;
+  s += `<line x1="${px(E)}" y1="12" x2="${px(E)}" y2="${H - 28}" stroke="#3f8268" stroke-width="1.4" stroke-dasharray="4 3"/>`;
+  s += `<text x="${px(E)}" y="${H - 16}" font-size="9" text-anchor="middle" fill="#3f8268">${tr("暴露（第 90 天）", "exposure (day 90)")}</text>`;
+  strips.forEach((st) => {
+    const yB = st.y0 + SH;                     // strip baseline (y of zero)
+    const maxV = st.cur === pt ? 1 : maxEv;
+    const yOf = (v) => yB - v / maxV * (SH - 14);
+    const path = (arr) => arr.map((v, i) => `${i ? "L" : "M"}${px(i + 1).toFixed(1)} ${yOf(v).toFixed(1)}`).join(" ");
+    s += `<text x="${X0}" y="${st.y0 - 4}" font-size="10" fill="#334155">${st.title}</text>`;
+    s += `<line x1="${X0}" y1="${yB}" x2="${X1}" y2="${yB}" stroke="#e2e8f0"/>`;
+    // what the shape SHOULD look like (assumption holds) — grey dashed
+    s += `<path d="${path(st.base)}" fill="none" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 4"/>`;
+    // what you actually observe — filled, red when the violation bends it
+    const col = st.changed ? "#ef4444" : "#3f8268";
+    s += `<path d="${path(st.cur)} L${X1} ${yB} L${X0} ${yB} Z" fill="${col}" opacity="0.16"/>`;
+    s += `<path d="${path(st.cur)}" fill="none" stroke="${col}" stroke-width="2"/>`;
+    if (st.changed && st.label) s += `<text x="${X1}" y="${st.y0 + 8}" font-size="9.5" text-anchor="end" fill="#b91c1c">${st.label}</text>`;
+  });
+  ["0", "3m", "6m", "9m", "12m"].forEach((lab, i) => {
+    const xx = X0 + PW * i / 4;
+    s += `<line x1="${xx}" y1="${H - 40}" x2="${xx}" y2="${H - 36}" stroke="#94a3b8"/>`;
+    s += `<text x="${xx}" y="${H - 28}" font-size="9" text-anchor="middle" fill="#64748b">${lab}</text>`;
+  });
+  s += `<text x="${X0}" y="${H - 4}" font-size="9" fill="#94a3b8">${tr("灰虛線＝假設成立時該有的樣子；實線＝違反之下實際觀察到的", "grey dashed = what the shape should be; solid = what you actually observe")}</text>`;
+  s += "</svg>";
+  box.innerHTML = s;
 }
 async function runSccsAssumptions(req) {
   const body = req ? { ...req, lang: lang() } : { source: "example_sccs", lang: lang() };
