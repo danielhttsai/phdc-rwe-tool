@@ -7271,6 +7271,39 @@ function renderSccsVio() {
   document.getElementById("sccsVioFixedFoot").textContent = txt.fixedFoot();
   document.getElementById("sccsVioText").innerHTML = txt.body();
   animateSccsVio(kind, x);
+  sccsVioCaption(kind, x, naive);
+}
+
+// Live arithmetic under the diagram — the same three-step sentence for every
+// scenario: what the violation removed/added, what that does to the two
+// rates, and where the naive IRR therefore lands.
+function sccsVioCaption(kind, x, naive) {
+  const el = document.getElementById("sccsVioCap");
+  if (!el) return;
+  const { ev0, ev, pt } = _svSeries(kind, x);
+  const base = (arr) => arr.reduce((a, v, i) => a + (_svInRisk(i + 1) ? 0 : v), 0);
+  const risk = (arr) => arr.reduce((a, v, i) => a + (_svInRisk(i + 1) ? v : 0), 0);
+  const pc = (v) => Math.round(v * 100) + "%";
+  let msg;
+  if (x === 0) {
+    msg = tr("目前假設成立：兩條實線跟灰虛線完全重合，天真 SCCS 就等於真值 2.00。把滑桿拉大，看紅斜線（被吃掉／多出來的部分）怎麼把估計帶跑。",
+             "The assumption currently holds: both solid lines sit on the grey dashed shape and the naive SCCS equals the truth, 2.00. Drag the slider and watch the red hatch pull the estimate away.");
+  } else if (kind === "exp") {
+    const lost = 1 - base(ev) / base(ev0);
+    msg = tr(`現在基準期的事件被吃掉了 <b>${pc(lost)}</b>（紅斜線），但分析用的基準期<b>人時一天都沒少</b> → 基準期的速率被低估 ${pc(lost)} → 相除之下危險窗顯得更高，天真 IRR 從 2.00 變成 <b>${naive.toFixed(2)}</b>。`,
+             `The baseline period has lost <b>${pc(lost)}</b> of its events (red hatch) while its <b>person-time is fully counted</b> → the baseline rate is understated by ${pc(lost)} → the naive IRR climbs from 2.00 to <b>${naive.toFixed(2)}</b>.`);
+  } else if (kind === "cen") {
+    const lost = 1 - base(pt) / (SCCS_VIO.T - SCCS_VIO.W);
+    const lostR = 1 - risk(pt) / SCCS_VIO.W;
+    msg = tr(`事件都有被記到（上條沒變），但死亡砍掉了 <b>${pc(lost)}</b> 的基準期人時、只砍掉 ${pc(lostR)} 的危險窗人時（紅斜線在下條）→ 基準期「每一天」顯得事件更密 → 天真 IRR 從 2.00 被壓成 <b>${naive.toFixed(2)}</b>，藥看起來比實際安全。`,
+             `Every event is still recorded (top strip unchanged), but death removes <b>${pc(lost)}</b> of the baseline person-time and only ${pc(lostR)} of the risk-window time (red hatch, lower strip) → baseline days look denser in events → the naive IRR sinks from 2.00 to <b>${naive.toFixed(2)}</b>: the drug looks safer than it is.`);
+  } else {
+    const extraR = risk(ev) - risk(ev0), extraB = base(ev) - base(ev0);
+    const shareR = extraR / (extraR + extraB);
+    msg = tr(`第一次事件招來的復發（紅斜線那一坨）有 <b>${pc(shareR)}</b> 落在危險窗裡、${pc(1 - shareR)} 落在基準期，落點只看日曆、跟藥無關 → 兩邊的事件數都被灌了水，天真 IRR 變成 <b>${naive.toFixed(2)}</b>；換一個暴露日，方向可能整個反過來。`,
+             `The recurrences bred by first events (the red hatched bulge) land <b>${pc(shareR)}</b> inside the risk window and ${pc(1 - shareR)} in baseline — placement is pure calendar, nothing to do with the drug → both counts are inflated and the naive IRR becomes <b>${naive.toFixed(2)}</b>; move the exposure day and the direction can flip.`);
+  }
+  el.innerHTML = msg;
 }
 
 // Tween the strips from their previous shape to the new one (~260 ms), so
@@ -7350,6 +7383,8 @@ function drawSccsVioSVG(kind, x, series) {
   const H = strips[1].y0 + SH + 34;
   const maxEv = Math.max(...ev, ...ev0);
   let s = `<svg viewBox="0 0 720 ${H}" class="align-svg" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<defs><pattern id="svgap" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">` +
+       `<rect width="6" height="6" fill="none"/><line x1="0" y1="0" x2="0" y2="6" stroke="#ef4444" stroke-width="2"/></pattern></defs>`;
   // risk-window band + exposure marker, spanning both strips
   const gx0 = px(E + 1), gx1 = px(E + W);
   s += `<rect x="${gx0}" y="12" width="${gx1 - gx0}" height="${H - 40}" fill="#dff0e8" opacity="0.75"/>`;
@@ -7368,6 +7403,11 @@ function drawSccsVioSVG(kind, x, series) {
     // what you actually observe — filled, red when the violation bends it
     const col = st.changed ? "#ef4444" : "#3f8268";
     s += `<path d="${path(st.cur)} L${X1} ${yB} L${X0} ${yB} Z" fill="${col}" opacity="0.16"/>`;
+    // the GAP between the two curves = what the violation ate / added (hatched)
+    if (st.changed) {
+      const rev = st.base.map((v, i) => `L${px(st.base.length - i).toFixed(1)} ${yOf(st.base[st.base.length - 1 - i]).toFixed(1)}`).join(" ");
+      s += `<path d="${path(st.cur)} ${rev} Z" fill="url(#svgap)" opacity="0.55"/>`;
+    }
     s += `<path d="${path(st.cur)}" fill="none" stroke="${col}" stroke-width="2"/>`;
     if (st.changed && st.label) s += `<text x="${X1}" y="${st.y0 + 8}" font-size="9.5" text-anchor="end" fill="#b91c1c">${st.label}</text>`;
   });
@@ -7376,7 +7416,7 @@ function drawSccsVioSVG(kind, x, series) {
     s += `<line x1="${xx}" y1="${H - 40}" x2="${xx}" y2="${H - 36}" stroke="#94a3b8"/>`;
     s += `<text x="${xx}" y="${H - 28}" font-size="9" text-anchor="middle" fill="#64748b">${lab}</text>`;
   });
-  s += `<text x="${X0}" y="${H - 4}" font-size="9" fill="#94a3b8">${tr("灰虛線＝假設成立時該有的樣子；實線＝違反之下實際觀察到的", "grey dashed = what the shape should be; solid = what you actually observe")}</text>`;
+  s += `<text x="${X0}" y="${H - 4}" font-size="9" fill="#94a3b8">${tr("灰虛線＝假設成立時該有的樣子；實線＝實際觀察到的；紅斜線＝兩者的差（被吃掉或多出來的部分）", "grey dashed = the shape under the assumption; solid = what you observe; red hatch = the gap (what was eaten or added)")}</text>`;
   s += "</svg>";
   box.innerHTML = s;
 }
