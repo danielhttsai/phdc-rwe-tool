@@ -780,3 +780,10 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .cb-ch .cb-secmap > b { color: #15803d; }
 .cb-ch .cb-secmap p { margin: .5rem 0; }
 .cb-ch .cb-secmap .cb-sec { font-weight: 600; color: #166534; display: block; margin-top: .6rem; }
+/* SCCS ④ assumption-violation demo */
+.sccsvio-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin: .3rem 0 .9rem; }
+.sccsvio-tab { border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 999px; padding: .45rem 1rem; font-size: .9rem; font-weight: 700; cursor: pointer; }
+.sccsvio-tab:hover { border-color: var(--z); color: var(--z); }
+.sccsvio-tab.active { background: var(--z); color: #fff; border-color: var(--z); }
+#sccsVioText p { margin: .5rem 0; font-size: .92rem; line-height: 1.8; }

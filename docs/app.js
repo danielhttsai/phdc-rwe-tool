@@ -7122,7 +7122,169 @@ function drawSccsAnalyze(a) {
 function initSccsAssume() {
   if (sccsAssumeReady) return;
   sccsAssumeReady = true;
+  initSccsVio();
   runSccsAssumptions(sccsState.req || { source: "example_sccs", lang: lang() });
+}
+
+// ---------------------------------------------------------------------
+// SCCS ④ interactive: break one assumption, watch the IRR move.
+// Deterministic expected-value model (no random numbers): 365 days of
+// observation, exposure on day 90, risk window days 91–118 at a true
+// IRR of 2. The baseline rate cancels, so only relative weights matter.
+// ---------------------------------------------------------------------
+const SCCS_VIO = {
+  T: 365, E: 90, W: 28, RHO: 2,
+  cur: "exp", x: 0,
+};
+function _svInRisk(d) { return d > SCCS_VIO.E && d <= SCCS_VIO.E + SCCS_VIO.W; }
+// per-day weight of the FIRST event landing on day d (rate 1 at baseline)
+function _svDayWeight(d) { return _svInRisk(d) ? SCCS_VIO.RHO : 1; }
+
+// naive SCCS estimator from expected events + person-time in each bucket
+function _svIRR(evRisk, tRisk, evBase, tBase) {
+  return (evRisk / tRisk) / (evBase / tBase);
+}
+
+function sccsVioCompute(kind, x) {
+  const { T, E, W, RHO } = SCCS_VIO;
+  const tRiskFull = W, tBaseFull = T - W;
+
+  if (kind === "exp") {
+    // Event before the scheduled exposure cancels it with probability x
+    // (contra-indication). Cancelled people are never exposed, so they
+    // drop out of the exposed case series: pre-exposure events go missing.
+    let evRisk = 0, evBase = 0;
+    for (let d = 1; d <= T; d++) {
+      let w = _svDayWeight(d);
+      if (d <= E) w *= (1 - x);              // pre-exposure case may vanish
+      if (_svInRisk(d)) evRisk += w; else evBase += w;
+    }
+    const naive = _svIRR(evRisk, tRiskFull, evBase, tBaseFull);
+    return { naive, fixed: RHO };             // fix: start the clock at exposure
+  }
+
+  if (kind === "cen") {
+    // The event is fatal with probability x: observation stops that day,
+    // so each fatal case contributes only its pre-event person-time.
+    let evRisk = 0, evBase = 0, tRisk = 0, tBase = 0;
+    for (let d = 1; d <= T; d++) {
+      const w = _svDayWeight(d);
+      const riskSeen = Math.min(Math.max(d - E, 0), W);   // risk days ≤ d
+      const baseSeen = d - riskSeen;                       // baseline days ≤ d
+      if (_svInRisk(d)) evRisk += w; else evBase += w;
+      tRisk += w * (x * riskSeen + (1 - x) * W);
+      tBase += w * (x * baseSeen + (1 - x) * (T - W));
+    }
+    const naive = _svIRR(evRisk, tRisk / (evRisk + evBase), evBase, tBase / (evRisk + evBase));
+    return { naive, fixed: RHO };             // fix: censoring-adjusted SCCS
+  }
+
+  // kind === "dep": a first event multiplies the next 60 days' event rate
+  // by (1 + 3x), exposure or not. One generation of recurrences is enough
+  // to show the direction; recurrences land wherever the calendar says.
+  let evRisk = 0, evBase = 0;
+  const boost = 3 * x;                        // extra rate above baseline
+  for (let d = 1; d <= SCCS_VIO.T; d++) {
+    const w = _svDayWeight(d);
+    if (_svInRisk(d)) evRisk += w; else evBase += w;
+    if (boost > 0) {
+      // each first event spawns recurrences over the next 60 days, at the
+      // day's own rate scaled by the dependence boost
+      for (let k = d + 1; k <= Math.min(d + 60, SCCS_VIO.T); k++) {
+        const extra = w * boost * _svDayWeight(k) / 60;
+        if (_svInRisk(k)) evRisk += extra; else evBase += extra;
+      }
+    }
+  }
+  const naive = _svIRR(evRisk, SCCS_VIO.W, evBase, SCCS_VIO.T - SCCS_VIO.W);
+  return { naive, fixed: SCCS_VIO.RHO };      // fix: first event per person only
+}
+
+const SCCS_VIO_TEXT = {
+  exp: {
+    slider: () => tr("事件發生後，原訂的暴露被取消的機率：", "Chance the event cancels the planned exposure: "),
+    note: () => tr("0%＝事件不影響會不會用藥。拉大＝出事的人之後就不用藥（禁忌症），確診前出事的人整批從序列裡消失。", "0% = the event never affects later dispensing. Larger = people who have the event stop being exposed (contra-indication), so pre-exposure cases vanish from the series."),
+    naiveFoot: () => tr("確診前的事件被吃掉 → 偏高", "pre-exposure events go missing → biased up"),
+    fixedFoot: () => tr("只用暴露後的時間／預先切 pre-exposure 窗", "post-exposure time only / a pre-exposure window"),
+    body: () => tr(
+      "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>" +
+      "<p><b>為什麼會偏：</b>SCCS 通常只收「有暴露的個案」。事件發生在暴露<b>之前</b>的人，因為暴露被取消，整個人從序列裡消失；留下來的個案裡，事件就顯得特別集中在暴露之後 → 危險窗的 IRR <b>被灌高</b>。滑桿拉到 100% 時，你看到天真估計從 2.0 一路漂上去。</p>" +
+      "<p><b>怎麼處理：</b>① 把追蹤改成<b>從暴露那天才開始</b>（只用暴露後的時間，這在暴露幾乎必然發生時最乾淨）；② 在暴露前切一段 <b>pre-exposure window</b> 單獨估計，不讓它汙染基準期；③ 用 Farrington 的<b>反事實延伸</b>模型直接把「事件影響暴露」建進去。</p>",
+      "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b> — e.g. after severe hypoglycemia nobody re-dispenses the same drug X.</p>" +
+      "<p><b>Why it biases:</b> SCCS usually includes exposed cases only. People whose event precedes the (now cancelled) exposure vanish from the series, so among those remaining, events look concentrated after exposure → the risk-window IRR is <b>inflated</b>.</p>" +
+      "<p><b>The fixes:</b> start observation <b>at exposure</b>; carve out a separate <b>pre-exposure window</b>; or model it directly with Farrington's counterfactual extension.</p>"),
+  },
+  cen: {
+    slider: () => tr("事件的致死率（事件當天結束觀察）：", "Case fatality of the event (observation ends that day): "),
+    note: () => tr("0%＝事件不影響追蹤。拉大＝越多人在事件當天死亡，之後的（大多是基準期的）人時整段消失。", "0% = the event never ends follow-up. Larger = more cases die on the event day, wiping out the (mostly baseline) person-time after it."),
+    naiveFoot: () => tr("事件後的基準人時消失 → 偏低（看起來更安全）", "post-event baseline time is lost → biased down (looks safer)"),
+    fixedFoot: () => tr("censoring-adjusted SCCS（Farrington 2011）", "censoring-adjusted SCCS (Farrington 2011)"),
+    body: () => tr(
+      "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡（例如藥物X 與心肌梗死，一部分 MI 當場致死）。</p>" +
+      "<p><b>為什麼會偏：</b>SCCS 拿「事件落在危險窗 vs 基準期」跟「兩段人時的長短」相比。死亡把事件<b>之後</b>的人時整段砍掉，而在這個情境（暴露在第 90 天、危險窗很早）被砍掉的大多是基準期 → 基準期的人時縮水、事件密度被灌高 → 危險窗 IRR 反而<b>被壓低</b>：一顆有害的藥看起來更安全，這是最危險的方向。偏誤的方向取決於暴露落在觀察期的早晚，重點是它<b>一定會偏</b>、而且你不拉桿不會發現。</p>" +
+      "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 的甜蜜點）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
+      "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring. Mechanism: <b>the event itself ends follow-up</b> — death being the extreme case.</p>" +
+      "<p><b>Why it biases:</b> death removes the person-time <b>after</b> the event — here (early exposure) mostly baseline → the baseline denominator shrinks and its event density inflates → the risk-window IRR is <b>pushed down</b>: a harmful drug looks safer, the most dangerous direction. The direction depends on where exposure sits in the observation period; the point is it always biases.</p>" +
+      "<p><b>The fixes:</b> prefer non-fatal recurrent outcomes; otherwise the censoring-adjusted SCCS of <b>Farrington, Whitaker &amp; Hocine (2011)</b> (<code>eventdepenobs</code> in the R package <code>SCCS</code>); and rerun on non-fatal cases as a sensitivity check.</p>"),
+  },
+  dep: {
+    slider: () => tr("第一次事件把之後 60 天的復發風險放大：", "How much a first event multiplies the next 60 days' risk: "),
+    note: () => tr("0%＝每次事件互相獨立。拉大＝出過事的人短期內更容易再出事（例如癲癇、跌倒），而且跟藥物X 無關。", "0% = events are independent. Larger = one event begets another within 60 days (seizures, falls), regardless of drug X."),
+    naiveFoot: () => tr("復發亂落（本設定下偏高，實務方向不定）", "recurrences land by the calendar (up here; direction varies)"),
+    fixedFoot: () => tr("每人只取第一次事件", "first event per person only"),
+    body: () => tr(
+      "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>：跌倒過的人更容易再跌倒、癲癇發作會帶來下一次發作。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>" +
+      "<p><b>為什麼會偏：</b>把所有事件都算進去時，第一次事件之後的「復發潮」落在日曆上的哪裡，就決定偏誤方向：復發潮蓋到危險窗 → 偏高；大多落在基準期 → 反而<b>偏低</b>。方向不定、信賴區間也會過窄，這比單純偏高更陰險。</p>" +
+      "<p><b>怎麼處理：</b>最實用的一招：<b>每人只取第一次事件</b>重跑（配合上面兩種修正一起看）；或改用允許相依的模型。把「全部事件」和「只取第一次」兩版都報出來，讀者自己就能看出相依性影響多大。</p>",
+      "<p><b>The term:</b> there is no single settled name — papers say event dependence or non-independent recurrences: <b>one event begets the next</b> (falls, seizures). Standard SCCS assumes independent recurrences (Poisson); this breaks that.</p>" +
+      "<p><b>Why it biases:</b> counting every event, the post-first-event 'recurrence wave' lands wherever the calendar puts it: overlap the risk window → biased up; mostly baseline → biased <b>down</b>. Direction varies and intervals shrink — sneakier than plain inflation.</p>" +
+      "<p><b>The fixes:</b> rerun with the <b>first event per person</b>; or a model allowing dependence. Reporting both versions lets the reader see how much dependence matters.</p>"),
+  },
+};
+
+let sccsVioReady = false;
+function initSccsVio() {
+  if (sccsVioReady) return;
+  const slider = document.getElementById("sccsVioSlider");
+  if (!slider) return;
+  sccsVioReady = true;
+  document.querySelectorAll(".sccsvio-tab").forEach((b) =>
+    b.addEventListener("click", () => {
+      SCCS_VIO.cur = b.dataset.v;
+      document.querySelectorAll(".sccsvio-tab").forEach((t) => t.classList.toggle("active", t === b));
+      renderSccsVio();
+    }));
+  slider.addEventListener("input", () => { SCCS_VIO.x = Number(slider.value) / 100; renderSccsVio(); });
+  document.addEventListener("iv-lang", () => { if (sccsVioReady) renderSccsVio(); });
+  renderSccsVio();
+}
+function renderSccsVio() {
+  const kind = SCCS_VIO.cur, x = SCCS_VIO.x, txt = SCCS_VIO_TEXT[kind];
+  const { naive, fixed } = sccsVioCompute(kind, x);
+  document.getElementById("sccsVioSliderLabel").textContent = txt.slider();
+  document.getElementById("sccsVioVal").textContent =
+    kind === "dep" ? "×" + (1 + 3 * x).toFixed(1) : Math.round(x * 100) + "%";
+  document.getElementById("sccsVioSliderNote").textContent = txt.note();
+  document.getElementById("sccsVioNaive").textContent = naive.toFixed(2);
+  document.getElementById("sccsVioFixed").textContent = fixed.toFixed(2);
+  document.getElementById("sccsVioNaiveFoot").textContent = txt.naiveFoot();
+  document.getElementById("sccsVioFixedFoot").textContent = txt.fixedFoot();
+  document.getElementById("sccsVioText").innerHTML = txt.body();
+  const off = Math.abs(naive - SCCS_VIO.RHO) > 0.05;
+  if (document.getElementById("sccsVioChart") && window.Plotly) {
+    Plotly.react("sccsVioChart", [{
+      x: [tr("真值", "truth"), tr("天真 SCCS", "naive SCCS"), tr("處理後", "after fix")],
+      y: [SCCS_VIO.RHO, naive, fixed], type: "bar",
+      marker: { color: [SLATE, off ? RED : TEAL, TEAL] },
+      text: [SCCS_VIO.RHO.toFixed(2), naive.toFixed(2), fixed.toFixed(2)],
+      textposition: "outside",
+    }], sceneLayout({
+      height: 280, margin: { t: 26, r: 18, b: 40, l: 55 },
+      yaxis: { title: "IRR", range: [0, Math.max(3.2, naive * 1.25)] },
+      shapes: [{ type: "line", x0: -0.5, x1: 2.5, y0: SCCS_VIO.RHO, y1: SCCS_VIO.RHO,
+                 line: { color: INK, width: 1, dash: "dot" } }],
+    }), SCENE_CFG);
+  }
 }
 async function runSccsAssumptions(req) {
   const body = req ? { ...req, lang: lang() } : { source: "example_sccs", lang: lang() };

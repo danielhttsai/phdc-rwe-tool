@@ -3775,6 +3775,33 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
       核心假設大多關於研究<b>設計</b>（藍卡）：事件不可改變日後暴露、不可中斷觀察（事件要罕見／可復發）、危險窗要選對、
       時變因子要靠切分處理。可檢的是危險窗裡的事件夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
+    <div class="card scene">
+      <h3 data-en="Interactive: break one assumption at a time, and watch the IRR move">互動：一次弄壞一個假設，看 IRR 怎麼被帶跑</h3>
+      <p class="lead" data-en="Three ways an SCCS goes wrong, each with the term you'll meet in papers — the labels are shorthand, so what matters is the <b>mechanism</b> written on each card. Pick a violation, drag the slider to make it worse, and compare three numbers: the <b>truth</b> (built in at IRR = 2.0), the <b>naive SCCS</b> under the violation, and the estimate <b>after the standard fix</b>.">
+        SCCS 出錯的三種方式，各附上論文裡會遇到的術語。這些名字只是簡稱、不一定精準，重點是每張卡上寫的<b>機制</b>。
+        選一種違反、把滑桿拉大，比較三個數字：<b>內建的真值</b>（IRR＝2.0）、違反之下的<b>天真 SCCS</b>、以及<b>用標準解法處理後</b>的估計。
+      </p>
+      <div class="sccsvio-tabs">
+        <button class="sccsvio-tab active" data-v="exp" data-en="① Event changes later exposure">① 事件改變日後暴露</button>
+        <button class="sccsvio-tab" data-v="cen" data-en="② Event ends observation">② 事件中斷觀察</button>
+        <button class="sccsvio-tab" data-v="dep" data-en="③ Events breed events">③ 事件會招來下一次事件</button>
+      </div>
+      <div class="controls">
+        <label>
+          <span id="sccsVioSliderLabel"></span><b id="sccsVioVal">0%</b>
+          <input type="range" id="sccsVioSlider" min="0" max="100" value="0" step="5" />
+          <small id="sccsVioSliderNote"></small>
+        </label>
+      </div>
+      <div class="play-grid">
+        <div class="stat"><div class="stat-label" data-en="Truth (built-in)">真值（內建）</div><div class="stat-num" id="sccsVioTruth">2.00</div><div class="stat-foot" data-en="risk window is genuinely 2×">危險窗真的是 2 倍</div></div>
+        <div class="stat"><div class="stat-label" data-en="Naive SCCS">天真 SCCS</div><div class="stat-num" id="sccsVioNaive">–</div><div class="stat-foot" id="sccsVioNaiveFoot"></div></div>
+        <div class="stat"><div class="stat-label" data-en="After the fix">處理後</div><div class="stat-num" id="sccsVioFixed">–</div><div class="stat-foot" id="sccsVioFixedFoot"></div></div>
+      </div>
+      <div id="sccsVioChart" class="chart"></div>
+      <div id="sccsVioText"></div>
+    </div>
+
     <div id="sccsOverall" class="overall hidden"></div>
     <div id="sccsAssumeCards" class="assume-cards"></div>
     <p id="sccsAssumeHint" class="muted" data-en="Loading…">載入中…</p>
