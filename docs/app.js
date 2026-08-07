@@ -7208,7 +7208,7 @@ const SCCS_VIO_TEXT = {
     fixedFoot: () => tr("只用暴露後的時間／預先切 pre-exposure 窗", "post-exposure time only / a pre-exposure window"),
     body: () => tr(
       "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>" +
-      "<p><b>為什麼會偏：</b>SCCS 通常只收「有暴露的個案」。事件發生在暴露<b>之前</b>的人，因為暴露被取消，整個人從序列裡消失；留下來的個案裡，事件就顯得特別集中在暴露之後 → 危險窗的 IRR <b>被灌高</b>。滑桿拉到 100% 時，你看到天真估計從 2.0 一路漂上去。</p>" +
+      "<p><b>為什麼會偏：</b>SCCS 通常只收「有暴露的個案」。事件發生在暴露<b>之前</b>的人，因為暴露被取消，整個人從序列裡消失；留下來的個案裡，事件就顯得特別集中在暴露之後 → 危險窗的 IRR <b>被灌高</b>。</p>" +
       "<p><b>怎麼處理：</b>① 把追蹤改成<b>從暴露那天才開始</b>（只用暴露後的時間，這在暴露幾乎必然發生時最乾淨）；② 在暴露前切一段 <b>pre-exposure window</b> 單獨估計，不讓它汙染基準期；③ 用 Farrington 的<b>反事實延伸</b>模型直接把「事件影響暴露」建進去。</p>",
       "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b> — e.g. after severe hypoglycemia nobody re-dispenses the same drug X.</p>" +
       "<p><b>Why it biases:</b> SCCS usually includes exposed cases only. People whose event precedes the (now cancelled) exposure vanish from the series, so among those remaining, events look concentrated after exposure → the risk-window IRR is <b>inflated</b>.</p>" +
@@ -7221,7 +7221,7 @@ const SCCS_VIO_TEXT = {
     fixedFoot: () => tr("censoring-adjusted SCCS（Farrington 2011）", "censoring-adjusted SCCS (Farrington 2011)"),
     body: () => tr(
       "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡（例如藥物X 與心肌梗死，一部分 MI 當場致死）。</p>" +
-      "<p><b>為什麼會偏：</b>SCCS 拿「事件落在危險窗 vs 基準期」跟「兩段人時的長短」相比。死亡把事件<b>之後</b>的人時整段砍掉，而在這個情境（暴露在第 90 天、危險窗很早）被砍掉的大多是基準期 → 基準期的人時縮水、事件密度被灌高 → 危險窗 IRR 反而<b>被壓低</b>：一顆有害的藥看起來更安全，這是最危險的方向。偏誤的方向取決於暴露落在觀察期的早晚，重點是它<b>一定會偏</b>、而且你不拉桿不會發現。</p>" +
+      "<p><b>為什麼會偏：</b>SCCS 拿「事件落在危險窗 vs 基準期」跟「兩段人時的長短」相比。死亡把事件<b>之後</b>的人時整段砍掉，而在這個情境（暴露在第 90 天、危險窗很早）被砍掉的大多是基準期 → 基準期的人時縮水、事件密度被灌高 → 危險窗 IRR 反而<b>被壓低</b>：一顆有害的藥看起來更安全，這是最危險的方向。偏誤的方向取決於暴露落在觀察期的早晚。</p>" +
       "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 的甜蜜點）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
       "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring. Mechanism: <b>the event itself ends follow-up</b> — death being the extreme case.</p>" +
       "<p><b>Why it biases:</b> death removes the person-time <b>after</b> the event — here (early exposure) mostly baseline → the baseline denominator shrinks and its event density inflates → the risk-window IRR is <b>pushed down</b>: a harmful drug looks safer, the most dangerous direction. The direction depends on where exposure sits in the observation period; the point is it always biases.</p>" +
@@ -7234,7 +7234,7 @@ const SCCS_VIO_TEXT = {
     fixedFoot: () => tr("每人只取第一次事件", "first event per person only"),
     body: () => tr(
       "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>：跌倒過的人更容易再跌倒、癲癇發作會帶來下一次發作。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>" +
-      "<p><b>為什麼會偏：</b>把所有事件都算進去時，第一次事件之後的「復發潮」落在日曆上的哪裡，就決定偏誤方向：復發潮蓋到危險窗 → 偏高；大多落在基準期 → 反而<b>偏低</b>。方向不定、信賴區間也會過窄，這比單純偏高更陰險。</p>" +
+      "<p><b>為什麼會偏：</b>把所有事件都算進去時，第一次事件之後的「復發潮」落在日曆上的哪裡，就決定偏誤方向：復發潮蓋到危險窗 → 偏高；大多落在基準期 → 反而<b>偏低</b>。方向不定、信賴區間也會過窄。</p>" +
       "<p><b>怎麼處理：</b>最實用的一招：<b>每人只取第一次事件</b>重跑（配合上面兩種修正一起看）；或改用允許相依的模型。把「全部事件」和「只取第一次」兩版都報出來，讀者自己就能看出相依性影響多大。</p>",
       "<p><b>The term:</b> there is no single settled name — papers say event dependence or non-independent recurrences: <b>one event begets the next</b> (falls, seizures). Standard SCCS assumes independent recurrences (Poisson); this breaks that.</p>" +
       "<p><b>Why it biases:</b> counting every event, the post-first-event 'recurrence wave' lands wherever the calendar puts it: overlap the risk window → biased up; mostly baseline → biased <b>down</b>. Direction varies and intervals shrink — sneakier than plain inflation.</p>" +
