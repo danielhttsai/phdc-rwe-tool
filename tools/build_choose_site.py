@@ -157,7 +157,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <section class="sa-panel" id="paneMethods" hidden>
     <h2 class="sa-h2">Method：小賴醫師的問題，該用哪種設計？</h2>
     <div class="sa-scenario">最後一站：資料有了，那到底要用哪一種設計？先答六題，再往下用那棵樹走一次，看看你們會不會走到同一個答案。</div>
-    <p class="caption">建構在藥物流行病學的「錨點（anchor）」取向上，把<b>常見研究設計</b>與<b>工具箱的方法</b>合進<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
+    <p class="caption">以藥物流行病學的「錨點（anchor）」概念為主軸，把<b>常見研究設計</b>與<b>工具箱的方法</b>整理成<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
     <div id="mtIntro"></div>
 
@@ -178,7 +178,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
     <div id="dtreeMap" class="dtree-map" hidden></div>
   </section>
 
-  <p class="sa-foot">所有內建資料皆為純屬虛構的合成示範資料；「藥物X」是通用代稱、非真實產品。</p>
+  <p class="sa-foot">內建資料都是虛構的合成示範資料；「藥物X」是通用代稱，並非真實產品。</p>
 
   <footer class="sa-brand">
     <img class="sa-brand-logo" src="{logo}" alt="成大群體健康數據中心 Population Health Data Center NCKU">

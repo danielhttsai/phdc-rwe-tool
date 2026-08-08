@@ -2907,7 +2907,7 @@ const DNODES = {
     step: { zh: "證據合併與借用", en: "Synthesis & borrowing" },
     q: { zh: "你要怎麼「用」這些已經存在的研究？（前兩個是把多篇<b>合併</b>，後兩個是<b>借一篇</b>來補你自己的研究）", en: "How will you use those already-existing studies? (the first two <b>pool</b> many; the last two <b>borrow one</b> to complete your own study)" },
     opts: [
-      { l: { zh: "合併：兩個的正面對決（或一個介入 vs 對照），先系統性回顧找出所有研究，再做統合分析", en: "Pool: two, head-to-head (or one intervention vs a control) — systematically review all studies, then meta-analyse" }, to: "rSRMA" },
+      { l: { zh: "合併：兩種治療的頭對頭比較（或一個介入 vs 對照），先系統性回顧找出所有研究，再做統合分析", en: "Pool: two, head-to-head (or one intervention vs a control) — systematically review all studies, then meta-analyse" }, to: "rSRMA" },
       { l: { zh: "合併：三個以上、而且很少有試驗直接兩兩比過，用直接＋間接證據連成網路", en: "Pool: three or more, with few head-to-head trials — connect direct + indirect evidence into a network" }, to: "rNMA" },
       { l: { zh: "借用：我自己這組<b>只有治療臂、缺對照臂</b>（單臂試驗／罕病），想借外部研究的結果當<b>對照組</b>（只有彙總結果也行）", en: "Borrow: my own study has <b>only a treated arm and no control</b> (single-arm trial / rare disease) — borrow an external study as the <b>control arm</b> (summary results are enough)" }, to: "rEXTCTRL" },
       { l: { zh: "借用：已有一場研究的結果，但它的<b>族群跟我的不一樣</b>，想把那個效果<b>轉到我的族群</b>（需要個體資料）", en: "Borrow: a study's result exists but its <b>population differs from mine</b> — <b>transport</b> that effect to my population (needs individual-level data)" }, to: "rTRANS" },
@@ -2986,7 +2986,7 @@ const DNODES = {
   // ====== recommendations (leaves) — each carries a vaccine scenario ======
   rIV: { rec: { kind: "toolbox", method: "iv", badge: "IV ✓",
     title: { zh: "最適合：工具變數 IV", en: "Best fit: Instrumental Variables (IV)" },
-    why: { zh: "你手上有一個近似隨機、只透過暴露影響結果的外生工具，這正是 IV 的引擎。用它把「被推動的順從者」的因果效果（LATE）撬出來。",
+    why: { zh: "你手上有一個近似隨機、只透過暴露影響結果的外生工具，這正是 IV 的引擎。用它估出「被推動的順從者」的因果效果（LATE）。",
            en: "You have a near-random, exclusion-respecting external instrument — exactly IV's engine. Use it to recover the causal effect for the compliers it moves (the LATE)." },
     scenario: { zh: "藥物X 情境：健保給付／醫師偏好的「近乎隨機」差異，推了一部分慢性病患者去用藥物X。用『主治醫師的用藥偏好』當工具，估藥物X 對結果的真正效果。",
                 en: "Drug-X scenario: physician preference (or a reimbursement quirk) acts like a near-random nudge toward drug X in a chronic-disease population. Use 'the treating physician's prescribing preference' as the instrument to estimate drug X's true effect." },
@@ -3051,7 +3051,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. The key price: isolating the indirect effect needs <b>no unmeasured mediator-outcome (M–Y) confounding</b> — <b>not even randomising the exposure buys this</b>; always run a sensitivity analysis." } } },
   rPS: { rec: { kind: "toolbox", method: "ps", badge: "PS ✓",
     title: { zh: "最適合：傾向分數 PS ✓（本工具）", en: "Best fit: Propensity Score (PS) ✓ (this tool)" },
-    why: { zh: "沒有準隨機結構、也不是動態策略，但你<b>測到了會驅動治療與結果的共變項</b>，那就用<b>傾向分數 PS＝P(A|X)</b> 把它們<b>平衡</b>掉：<b>配對</b>（ATT）、<b>IPTW</b>（ATE）或<b>重疊權重</b>（ATO）。平衡好不好用<b>標準化差異 SMD</b> 檢查（目標 &lt; 0.1），而不是看 PS 預測得準不準。PS 是 RWE 最核心的工作馬，後面的 TMLE／g-methods 也都以它為基礎。",
+    why: { zh: "沒有準隨機結構、也不是動態策略，但你<b>測到了會驅動治療與結果的共變項</b>，那就用<b>傾向分數 PS＝P(A|X)</b> 把它們<b>平衡</b>掉：<b>配對</b>（ATT）、<b>IPTW</b>（ATE）或<b>重疊權重</b>（ATO）。平衡好不好用<b>標準化差異 SMD</b> 檢查（目標 &lt; 0.1），而不是看 PS 預測得準不準。PS 是 RWE 最常用的主力方法，後面的 TMLE／g-methods 也都以它為基礎。",
            en: "No quasi-random structure and not a dynamic strategy, but you <b>measured the covariates that drive treatment and outcome</b> — then use the <b>propensity score PS = P(A|X)</b> to <b>balance</b> them: <b>matching</b> (ATT), <b>IPTW</b> (ATE) or <b>overlap weights</b> (ATO). Judge balance by the <b>standardized mean difference (SMD)</b> (target &lt; 0.1), not by how well the PS predicts treatment. PS is the workhorse of RWE and underpins TMLE / g-methods." },
     scenario: { zh: "藥物X 情境：病重者（已測嚴重度 X 大）較易用藥物X、也較易出結果（適應症混淆）。對 PS 做配對／加權，讓兩組在 X 上看起來一樣，再比較（見「PS」分頁 ①–⑦）。",
                 en: "Drug-X scenario: sicker people (large measured severity X) are more likely to use drug X and to have the outcome (confounding by indication). Match/weight on the PS so the groups look alike on X, then compare (see the PS tabs ①–⑦)." },
@@ -3083,7 +3083,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. Key, mostly untestable: an accurate test, the <b>vaccine not affecting the control illness</b>, and no differential care-seeking given symptoms. Other <b>measured</b> confounders (age, calendar time) still need adjustment (a causal TND / ML, see ⑤)." } } },
   rPSSA: { rec: { kind: "toolbox", method: "pssa", badge: "PSSA ✓",
     title: { zh: "最適合：處方順序對稱分析 PSSA ✓（本工具）", en: "Best fit: Prescription Sequence Symmetry Analysis (PSSA) ✓ (this tool)" },
-    why: { zh: "你想<b>快速、自我對照地篩</b>出「藥 A 引起某症狀、症狀又被藥 B 處理」的<b>處方瀑布</b>。在兩種藥都用過的人裡數「先 A 後 B」（a）與「先 B 後 A」（b）：未校正順序比 cSR ＝ a ÷ b 會被<b>處方趨勢</b>灌成假訊號，除以「只有趨勢」的 SRnull 得 <b>aSR ＝ cSR ÷ SRnull</b>；aSR＞1 且 CI 不含 1 ＝訊號。這是<b>產生假說</b>的篩檢，不是效果估計。",
+    why: { zh: "你想<b>快速、自我對照地篩</b>出「藥 A 引起某症狀、症狀又被藥 B 處理」的<b>處方瀑布</b>。在兩種藥都用過的人裡數「先 A 後 B」（a）與「先 B 後 A」（b）：未校正順序比 cSR ＝ a ÷ b 會被<b>處方趨勢</b>膨脹成假訊號，除以「只有趨勢」的 SRnull 得 <b>aSR ＝ cSR ÷ SRnull</b>；aSR＞1 且 CI 不含 1 ＝訊號。這是<b>產生假說</b>的篩檢，不是效果估計。",
            en: "You want a <b>fast, self-controlled screen</b> for a <b>prescribing cascade</b> ('drug A causes a symptom, treated with drug B'). Among people who used both, count A-then-B (a) and B-then-A (b): the crude SR = a ÷ b is inflated into a false signal by the <b>prescribing trend</b>; dividing by the trend-only SRnull gives <b>aSR = cSR ÷ SRnull</b>; aSR > 1 with a CI excluding 1 = a signal. This is a <b>hypothesis-generating</b> screen, not an effect estimate." },
     scenario: { zh: "藥物安全情境：藥物X 上市後逐年普及；想知道藥物X 是否引發某不良反應、進而被另一種藥處理。用 PSSA 快速標出候選配對，再用控混淆的設計（世代／SCCS／主動對照）追下去（見「PSSA」分頁 ①–⑦）。",
                 en: "Drug-safety scenario: drug X diffuses over calendar time; you want to flag whether drug X triggers an adverse event that gets treated with another drug. PSSA quickly flags candidate pairs, to follow up with a confounder-controlled design (cohort / SCCS / active comparator) — see the PSSA tabs ①–⑦." },
@@ -3095,7 +3095,7 @@ const DNODES = {
            en: "You want to <b>scan a whole outcome hierarchy</b> (hundreds–thousands of events forming a tree like MedDRA PT→SOC) for an exposure's safety signals, without drowning in <b>multiplicity</b> false positives. TreeScan computes a Bernoulli <b>LLR</b> at every node (leaf + parent), takes the <b>maximum LLR</b> over the tree, and gets an adjusted p by <b>permuting exposure labels</b>; that one max-statistic correction controls the <b>family-wise error</b> so only real excesses survive." },
     scenario: { zh: "藥物安全情境：藥物X 暴露後掃描整棵不良反應樹，找出哪個事件（或哪個系統）有超額，FDA Sentinel 式的主動監測（見「TreeScan」分頁 ①–⑦）。",
                 en: "Drug-safety scenario: after drug-X exposure, scan the whole adverse-event tree to find which event (or system) is in excess — FDA-Sentinel-style active surveillance (see the TreeScan tabs ①–⑦)." },
-    watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>樹建得對</b>、各節點基準為常數、排列虛無有效（無未建模混淆）。被標出的節點要用控混淆的設計追蹤；想對混淆更穩健＝自我對照樹-時序掃描（見 ⑤）。它是 PSSA 的高通量表親。",
+    watch: { zh: "✓ 本工具箱已實作。它<b>只標、不確認</b>：關鍵、多不可檢驗的是<b>樹建得對</b>、各節點基準為常數、排列虛無有效（無未建模混淆）。被標出的節點要用控混淆的設計追蹤；想對混淆更穩健＝自我對照樹-時序掃描（見 ⑤）。它可視為 PSSA 的高通量版本。",
              en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a well-built tree, a constant baseline across nodes, and a valid permutation null (no unmodelled confounding). Flagged nodes need a confounder-controlled follow-up; for confounding robustness use a self-controlled tree-temporal scan (see ⑤). It is the high-throughput cousin of PSSA." } } },
   rWCE: { rec: { kind: "toolbox", method: "wce", badge: "WCE ✓",
     title: { zh: "最適合：加權累積暴露 WCE ✓（本工具）", en: "Best fit: Weighted Cumulative Exposure (WCE) ✓ (this tool)" },
@@ -3197,7 +3197,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. The IV trio: relevance (beware weak instruments, F&lt;10), independence (population stratification), exclusion (<b>horizontal pleiotropy</b> is the main threat)." } } },
   rDT: { rec: { kind: "toolbox", method: "dt", badge: "Digital twin ✓",
     title: { zh: "最適合：數位孿生 ✓（本工具）", en: "Best fit: Digital twin ✓ (this tool)" },
-    why: { zh: "你想用一個<b>預後模型</b>，預測每位病人「未治療」時的軌跡（數位孿生），再把效果讀成「實際 − 孿生」。它可當隨機試驗的精準度調整（PROCOVA），或在缺乏同期對照時當合成對照臂。注意：孿生本身<b>不</b>消除混淆，效度全押在預後模型是否無偏、可轉移。",
+    why: { zh: "你想用一個<b>預後模型</b>，預測每位病人「未治療」時的軌跡（數位孿生），再把效果讀成「實際 − 孿生」。它可當隨機試驗的精準度調整（PROCOVA），或在缺乏同期對照時當合成對照臂。注意：孿生本身<b>不</b>消除混淆，效度完全取決於預後模型是否無偏、可轉移。",
            en: "You want a <b>prognostic model</b> that predicts each patient's untreated trajectory (a digital twin), then read the effect as observed − twin. It can be a precision adjustment in an RCT (PROCOVA) or a synthetic control arm when concurrent controls are scarce. Note: the twin removes <b>no</b> confounding by itself — validity rests on the prognostic model being unbiased and transportable." },
     scenario: { zh: "情境：罕病單臂試驗沒有同期對照；用歷史對照資料訓練預後模型，為每位治療者預測未治療軌跡當對照（見「數位孿生」分頁 ①–⑥）。",
                 en: "Scenario: a single-arm rare-disease trial with no concurrent control; train a prognostic model on historical controls to predict each treated patient's untreated trajectory as the comparator (see the Digital-twin tabs ①–⑥)." },
@@ -3325,7 +3325,7 @@ const FULLMAP = {
       steps: [
         { q: { zh: "你要怎麼用這些既有研究？", en: "How will you use those existing studies?" },
           forks: [
-            { edge: { zh: "合併多篇 · 兩個正面對決", en: "pool many · two head-to-head" },
+            { edge: { zh: "合併多篇 · 兩種治療頭對頭", en: "pool many · two head-to-head" },
               leaves: [{ key: "rSRMA", cond: { zh: "系統性回顧找出所有研究，再合併（固定／隨機效果、I²、GRADE）", en: "systematically find all studies, then pool (fixed/random effects, I², GRADE)" }, tag: "SR-MA ✓", kind: "tb", method: "srma" }] },
             { edge: { zh: "合併多篇 · 三個以上、少直接對決", en: "pool many · 3+, few head-to-head" },
               leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網路（可遞移性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
@@ -3773,7 +3773,7 @@ const DBRECS = {
     designs: [{ m: "ps", l: "PS" }, { m: "gbtm", l: "GBTM" }, { m: "wce", l: "WCE" }, { m: "med", l: "MED" }] },
   dAetion: { db: "aetion",
     title: { zh: "Aetion Evidence Platform（分析平台，不是資料庫）", en: "Aetion Evidence Platform (an analytics platform, not a database)" },
-    why: { zh: "它<b>本身不擁有病人資料</b>，而是接上你既有的理賠／EHR，用<b>點選式</b>把設計參數（合格條件、Time Zero、暴露定義、隨訪規則）明確寫下來再執行，所以整個分析可稽核、可重跑、可換資料庫複製。這正是<b>目標試驗仿真</b>需要的紀律：先把協定寫死，再看結果。", en: "It <b>owns no patient data</b>; it connects to your existing claims/EHR and makes you declare the design parameters (eligibility, time zero, exposure definition, follow-up rules) explicitly through a point-and-click protocol before running. The whole analysis is therefore auditable, re-runnable and portable to another database — the discipline <b>target-trial emulation</b> demands: fix the protocol first, look at the answer second." },
+    why: { zh: "它<b>本身不擁有病人資料</b>，而是接上你既有的理賠／EHR，用<b>點選式</b>把設計參數（合格條件、Time Zero、暴露定義、隨訪規則）明確寫下來再執行，所以整個分析可稽核、可重跑、可換資料庫複製。這正是<b>目標試驗仿真</b>需要的紀律：先把協定定案，再看結果。", en: "It <b>owns no patient data</b>; it connects to your existing claims/EHR and makes you declare the design parameters (eligibility, time zero, exposure definition, follow-up rules) explicitly through a point-and-click protocol before running. The whole analysis is therefore auditable, re-runnable and portable to another database — the discipline <b>target-trial emulation</b> demands: fix the protocol first, look at the answer second." },
     scenario: { zh: "藥物X 情境：把「藥物X vs 主動對照」的同一份協定，在健保與另一個 EHR 各跑一次，看結果穩不穩。", en: "Drug-X scenario: run one and the same 'drug X vs active comparator' protocol in claims and in a second EHR, and see whether the answer holds." },
     watch: { zh: "平台<b>不會</b>幫你解決偏誤：資料裡沒有的干擾因子，點再多選項也校正不了；它保證的是<b>你做了什麼被記錄下來</b>，不是<b>你做得對</b>。", en: "The platform does <b>not</b> remove bias: a confounder absent from the data cannot be adjusted however many boxes you tick. It guarantees that <b>what you did is recorded</b>, not that <b>what you did was right</b>." },
     designs: [{ m: "acnu", l: "ACNU" }, { m: "ps", l: "PS" }, { m: "seq", l: "Seq" }, { m: "ccw", l: "CCW" }] },
@@ -3819,14 +3819,14 @@ const DB_NOTES = [
   { key: "flatiron", name: "Flatiron Health",
     what: `美國腫瘤照護的 EHR 匯總，涵蓋 <b>280 家以上</b>的腫瘤診所與醫學中心、約 <b>220 萬</b>名癌症病人。它跟一般 EHR 最大的差別是<b>人工抄錄</b>：期別、組織型、生物標記檢測結果、治療線別、死亡日這些「藏在病歷文字與報告裡」的欄位，是由受訓人員讀病歷回填成結構化變數的。`,
     strength: `拿得到理賠資料<b>永遠沒有</b>的腫瘤臨床深度，因此可以做<b>真實世界存活（rwOS）</b>、依生物標記分層比較、以及單臂試驗的<b>外部對照</b>。死亡結果不是只靠 EHR，而是把 EHR、商業死亡資料與社會安全死亡檔<b>合成</b>，再對照國家死亡index 驗證過（合成後敏感度由 66% 提升到 91%）。`,
-    weak: `以<b>社區腫瘤診所</b>為主，代表性要自己評估、不能假設等於全美癌症病人；抄錄欄位有缺失與時間延遲；最容易出事的是<b>index date 由研究者自訂</b>（例如「用過某藥」才回頭定起點），一不小心就是不死時間。`,
+    weak: `以<b>社區腫瘤診所</b>為主，代表性要自己評估、不能假設等於全美癌症病人；抄錄欄位有缺失與時間延遲；最容易出問題的是<b>index date 由研究者自訂</b>（例如「用過某藥」才回頭定起點），一不小心就是不死時間。`,
     refs: [
       { t: `Curtis MD, Griffith SD, Tucker M, et al. Development and Validation of a High-Quality Composite Real-World Mortality Endpoint. <i>Health Serv Res</i>. 2018;53(6):4460-4476.`, u: "https://pubmed.ncbi.nlm.nih.gov/29756355/" },
       { t: `Ma X, Long L, Moon S, Adamson BJS, Baxi SS. Comparison of Population Characteristics in Real-World Clinical Oncology Databases in the US: Flatiron Health, SEER, and NPCR. <i>medRxiv</i> 2020（資料庫代表性的常被引用比較，注意是 preprint）。`, u: "https://www.medrxiv.org/content/10.1101/2020.03.16.20037143v3.full" },
     ] },
   { key: "vestrum", name: "Vestrum Health",
     what: `美國視網膜專科醫師的 EHR 匯總。它的價值不在「大」，而在<b>窄而密</b>：同一個專科、同一組結果，每一次抗 VEGF 注射（日期＋藥別）與每一次<b>最佳矯正視力</b>都有紀錄，已發表的分析規模可達<b>十三萬眼</b>以上。`,
-    strength: `暴露強度（打幾針、隔多久）與連續結果（視力）同時被密集測到，很適合處理<b>治療強度—結果</b>這種在其他資料庫做不動的問題，也適合<b>軌跡分析（GBTM）</b>與<b>加權累積暴露（WCE）</b>。它最出名的貢獻，就是讓大家看到臨床試驗的注射頻率在真實世界達不到、視力進步也因此小得多。`,
+    strength: `暴露強度（打幾針、隔多久）與連續結果（視力）同時被密集測到，很適合處理<b>治療強度—結果</b>這種在其他資料庫很難做的問題，也適合<b>軌跡分析（GBTM）</b>與<b>加權累積暴露（WCE）</b>。它最出名的貢獻，就是讓大家看到臨床試驗的注射頻率在真實世界達不到、視力進步也因此小得多。`,
     weak: `打得密的病人<b>本來病況就不同</b>（典型適應症混淆）；只看得到<b>眼科端</b>，全身共病、住院與死亡都在視野外；病人不再回診時，<b>失去追蹤</b>和<b>真的停藥</b>混在一起，會直接影響你怎麼定義結果。`,
     refs: [
       { t: `Ciulla TA, et al. Longer-Term Anti-VEGF Therapy Outcomes in Neovascular AMD, Diabetic Macular Edema, and Vein Occlusion-Related Macular Edema: Clinical Outcomes in 130 247 Eyes. <i>Ophthalmol Retina</i>. 2022;6(9):796-806.（明確以 Vestrum Health Retina Database 為資料來源）`, u: "https://www.sciencedirect.com/science/article/pii/S2468653022001506" },
@@ -3834,7 +3834,7 @@ const DB_NOTES = [
     ] },
   { key: "aetion", name: "Aetion Evidence Platform",
     what: `這一個<b>不是資料庫</b>，放在這裡是因為它常和上面兩個一起被提到，容易搞混。Aetion 是<b>分析平台</b>：它不擁有病人資料，而是接上你既有的理賠或 EHR，強迫你用點選式協定把<b>合格條件、Time Zero、暴露定義、隨訪與設限規則</b>一條一條寫明，再執行分析。`,
-    strength: `整個分析<b>可稽核、可重跑、可換資料庫複製</b>，這正是<b>目標試驗仿真</b>的紀律：協定先寫死，再看結果。最有名的用例是 <b>RCT-DUPLICATE</b>：研究團隊先登記協定，再用這個平台在理賠資料裡仿真 32 個已完成的隨機試驗；當試驗設計和真實照護流程對得上時，觀察性結果和 RCT 的結論大致一致。`,
+    strength: `整個分析<b>可稽核、可重跑、可換資料庫複製</b>，這正是<b>目標試驗仿真</b>的紀律：協定先定案，再看結果。最有名的用例是 <b>RCT-DUPLICATE</b>：研究團隊先登記協定，再用這個平台在理賠資料裡仿真 32 個已完成的隨機試驗；當試驗設計和真實照護流程對得上時，觀察性結果和 RCT 的結論大致一致。`,
     weak: `平台<b>不會替你消除偏誤</b>。資料裡沒有的干擾因子（例如疾病嚴重度），點再多選項也校正不出來；它保證的是「<b>你做了什麼被完整記錄下來</b>」，不是「<b>你做得對</b>」。工具讓你透明，判斷還是你的。`,
     refs: [
       { t: `Wang SV, Schneeweiss S, et al.; RCT-DUPLICATE Initiative. Emulation of Randomized Clinical Trials With Nonrandomized Database Analyses: Results of 32 Clinical Trials. <i>JAMA</i>. 2023;329(16):1376-1385.`, u: "https://pubmed.ncbi.nlm.nih.gov/37097356/" },
@@ -4059,12 +4059,12 @@ let aprWho = null, aprDir = null, aprTried = null, aprFinal = null;
 // the naive one is dragged below 1 by immortal time; every fix returns to ≈1
 // (drug X has no real survival effect in this teaching example).
 const ALIGN_HR = {
-  naive: { hr: "0.60", tone: "bad", say: "看起來「用藥物X 的人死亡風險少 40%」，但這 40% 是<b>不死時間</b>灌出來的假象。" },
+  naive: { hr: "0.60", tone: "bad", say: "看起來「用藥物X 的人死亡風險少 40%」，但這 40% 是<b>不死時間</b>造成的假象。" },
   tvc: { hr: "0.98", tone: "good", say: "把用藥前的 0–3 月正確算成未暴露後，那個「少 40%」幾乎消失了。" },
   acnu: { hr: "1.01", tone: "good", say: "改用同適應症的主動對照、對齊起始日，效果回到 ≈ 1。" },
-  landmark: { hr: "0.95", tone: "good", say: "從地標起算、排除地標前的事件，膨脹大幅收斂。" },
+  landmark: { hr: "0.95", tone: "good", say: "從地標起算、排除地標前的事件，高估的效果大幅縮小。" },
   seq: { hr: "0.99", tone: "good", say: "每個合格時點各開一場對齊的迷你試驗，合併後 ≈ 1。" },
-  ccw: { hr: "1.00", tone: "good", say: "複製到各策略、偏離才中斷，還原真相 ≈ 1。" },
+  ccw: { hr: "1.00", tone: "good", say: "複製到各策略、偏離才中斷，效果回到 ≈ 1。" },
 };
 function _ax(d) { return 168 + d / 360 * 536; }
 function drawAlignSVG(cfg) {
@@ -4193,7 +4193,7 @@ function renderAlign() {
   }
 
   const dxFeedback = aprDx === "zero"
-    ? `<div class="apr-react good"><b>答對了。</b>user 必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算進暴露組，就是<b>不死時間</b>，它把 HR 一路灌到 0.60。</div>`
+    ? `<div class="apr-react good"><b>答對了。</b>病人必須先<b>活到領藥那天</b>，這段「還沒用藥、卻保證活著」的時間被算進暴露組，就是<b>不死時間</b>，它把 HR 壓低到 0.60。</div>`
     : aprDx === "comp"
       ? `<div class="apr-react warn"><b>接近了。</b>對照確實也有問題（用 vs 完全不用＝<b>適應症混淆</b>），但讓 HR 掉到 0.60 的<b>主因</b>是<b>Time Zero 沒對齊</b>造成的<b>不死時間</b>。</div>`
       : `<div class="apr-react warn"><b>不是樣本數的問題。</b><b>Time Zero 沒對齊</b>是設計錯了，收再多人也修不回來；人越多，反而只是把<b>不死時間</b>造出來的假效果算得越漂亮、看起來越顯著。</div>`;
@@ -4234,7 +4234,7 @@ function renderAlign() {
   }
 
   const dirFeedback = aprDir === "low"
-    ? `<div class="apr-react good"><b>正確。</b>暴露組的分母（人時）被灌水、分子（死亡數）卻沒增加，<b>死亡率被稀釋</b> → HR 被壓到 1 以下。0.60 就是這樣來的。</div>`
+    ? `<div class="apr-react good"><b>正確。</b>暴露組的分母（人時）平白多了一段、分子（死亡數）卻沒增加，<b>死亡率被稀釋</b> → HR 被壓到 1 以下。0.60 就是這樣來的。</div>`
     : aprDir === "high"
       ? `<div class="apr-react warn"><b>方向反了。</b>多出來的是<b>沒有死亡的人時</b>，只加分母不加分子，暴露組的死亡率被<b>稀釋</b> → HR 偏<b>低</b>，藥看起來更有效。</div>`
       : `<div class="apr-react warn"><b>不只是精確度。</b>這是<b>系統性偏誤</b>：分母灌水、分子不變 → 暴露組死亡率被稀釋，HR 系統性偏<b>低</b>。樣本越大，這個假效果只會看起來越「顯著」。</div>`;
@@ -4330,7 +4330,7 @@ const BIAS_SCENARIOS = [
     fix: { zh: "把暴露當<b>時變</b>，或改用<b>地標</b>／<b>複製-中斷-加權</b>對齊Time Zero；對照改成<b>主動對照</b>解適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
   { s: { zh: "藥物X 是<b>病情控制不好時才會加開</b>的藥。研究拿「<b>有加開藥物X 的人</b>」去比「同樣診斷、但整段期間<b>一種藥都沒開過</b>的人」，看誰比較容易死，只用<b>年齡、性別</b>校正。研究者<b>已經乖乖照老師說的處理好 Time Zero 了</b>。", en: "Drug X is <b>only added when the disease is not well controlled</b>. The study compares people who got drug X added with people who have the same diagnosis but were <b>never prescribed anything at all</b>, and asks who dies sooner, adjusting only for <b>age and sex</b>. The investigator <b>has already done time zero properly this time</b>." },
     ans: ["indication", "unmeasured"],
-    why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②無法被測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度、醫師看了病人一眼的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多丟幾個共變數」，而是<b>換一個比得動的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
+    why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②無法被測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度、醫師看了病人一眼的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多放幾個共變數」，而是<b>換一個能公平比較的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
     fix: { zh: "改用<b>主動對照新使用者</b>（跟同適應症的對照藥比，而不是跟「沒用藥」比）。", en: "Use an <b>active-comparator new-user</b> design (compare with a same-indication drug, not with 'no drug')." }, fixMethod: "acnu" },
   { s: { zh: "用健保資料比較兩種同類藥物X，設計良好（新使用者、主動對照、Time Zero對齊），但健保<b>沒有檢驗值</b>（疾病嚴重度）。", en: "Compare two same-class drug-X options in claims with a good design (new-user, active comparator, aligned time zero) — but claims have <b>no lab values</b> (disease severity)." },
     ans: ["unmeasured"],
@@ -4483,7 +4483,7 @@ const BIAS_QS = [
     opts: [
       { k: "ind", ok: 0, t: "適應症混淆", fb: `<b>那是下一題。</b>這一句的問題出在<b>時間怎麼算</b>：先貼暴露標籤、又從確診日起算 → <b>不死時間</b>。` },
       { k: "sel", ok: 0, t: "轉診／選擇偏誤", fb: `<b>不是選誰進來的問題。</b>這一句錯在<b>時間怎麼算</b>：先貼標籤、又從確診日起算 → <b>不死時間</b>。` },
-      { k: "imm", ok: 1, t: "不死時間", fb: `<b>對。</b>要被分到暴露組，就得<b>活到領藥那天</b>；確診到領藥之間那段「保證活著」的時間被算成暴露人時，分母灌水、分子不變 → HR 被壓低。` },
+      { k: "imm", ok: 1, t: "不死時間", fb: `<b>對。</b>要被分到暴露組，就得<b>活到領藥那天</b>；確診到領藥之間那段「保證活著」的時間被算成暴露人時，分母被多算、分子不變 → HR 被壓低。` },
     ] },
   { q: `那「拿<b>用藥的人</b>去比<b>從頭到尾都沒用藥的人</b>」，又是哪一種？`,
     opts: [
@@ -4493,7 +4493,7 @@ const BIAS_QS = [
     ] },
   { q: `小賴醫師的暴露組裡，還混了<b>已經吃藥五年、活得好好的</b>老病人。這會造成什麼？`,
     opts: [
-      { k: "none", ok: 0, t: "沒差，人多比較準", fb: `<b>有差，而且是系統性的。</b>能吃五年還在的人是<b>耐受良好的存活者</b>，收進來會把藥效灌得更好，這叫<b>盛行使用者偏誤</b>，要用<b>新使用者設計</b>擋掉。` },
+      { k: "none", ok: 0, t: "沒差，人多比較準", fb: `<b>有差，而且是系統性的。</b>能吃五年還在的人是<b>耐受良好的存活者</b>，收進來會讓藥效被高估，這叫<b>盛行使用者偏誤</b>，要用<b>新使用者設計</b>擋掉。` },
       { k: "prev", ok: 1, t: "盛行使用者偏誤（挑到耐受良好的存活者）", fb: `<b>對。</b>能吃五年還在的人，本來就是<b>沒出事、也沒停藥</b>的那一群；把他們收進來等於挑存活者，藥會看起來更好。解法是<b>新使用者設計</b>：只收第一次開始用藥的人。` },
       { k: "info", ok: 0, t: "資訊偏誤", fb: `<b>不是測量的問題。</b>是<b>收錯人</b>：老使用者已經篩掉了早期出事和不耐受的人 → <b>盛行使用者偏誤</b>，要用<b>新使用者設計</b>。` },
     ] },
@@ -4537,7 +4537,7 @@ const METHOD_QS = [
     ] },
   { q: `他發現健保有一條規定：<b>某個檢驗值低於切點</b>才給付藥物X。這是什麼機會？`,
     opts: [
-      { k: "drop", ok: 0, t: "麻煩，這種人要排除掉", fb: `<b>別排除，那是寶。</b>切點兩側的人幾乎一樣，只因為一個數字之差就一邊給付一邊不給付，這是天然的<b>準隨機</b>，可以做<b>斷點迴歸（RDD）</b>。` },
+      { k: "drop", ok: 0, t: "麻煩，這種人要排除掉", fb: `<b>別急著排除，這是難得的機會。</b>切點兩側的人幾乎一樣，只因為一個數字之差就一邊給付一邊不給付，這是天然的<b>準隨機</b>，可以做<b>斷點迴歸（RDD）</b>。` },
       { k: "rdd", ok: 1, t: "可以做<b>斷點迴歸（RDD）</b>", fb: `<b>對。</b>切點<b>剛好上下</b>的人在其他方面幾乎一樣，卻因為規則被分到不同治療，等於一個小範圍的隨機實驗。代價是結論只適用於<b>切點附近</b>的人。` },
       { k: "adj", ok: 0, t: "把那個檢驗值當共變數校正掉就好", fb: `<b>那就浪費掉了。</b>校正只是把它當成一般干擾因子；但「規則造成的<b>不連續</b>」本身是準隨機的來源，拿來做 <b>RDD</b> 比校正有力得多。` },
     ] },
@@ -4550,7 +4550,7 @@ const METHOD_QS = [
   { q: `最後：健保<b>某年某月起全國一起</b>放寬了藥物X 的給付，沒有任何一群人是「沒被影響到」的。這適合哪一種設計？`,
     opts: [
       { k: "its", ok: 1, t: "中斷時間序列（ITS）", fb: `<b>對。</b>全國一起改，就找不到對照組，只能拿<b>這群人自己改制前的趨勢</b>當基準：先畫出改制前每個月的用藥率或事件率，延長那條線當作「如果沒改制會怎樣」，再看改制後有沒有<b>跳一階</b>或<b>轉個彎</b>。要注意的是同一時間有沒有別的事情也在發生。` },
-      { k: "before", ok: 0, t: "直接比改制前一年 vs 後一年的平均", fb: `<b>太粗了。</b>只比前後兩個平均，會把<b>本來就在走的趨勢</b>整碗算到政策頭上。<b>ITS</b> 的重點就是先把改制前的趨勢畫出來，再看改制後有沒有偏離那條線。` },
+      { k: "before", ok: 0, t: "直接比改制前一年 vs 後一年的平均", fb: `<b>太粗了。</b>只比前後兩個平均，會把<b>本來就在走的趨勢</b>全都算到政策頭上。<b>ITS</b> 的重點就是先把改制前的趨勢畫出來，再看改制後有沒有偏離那條線。` },
       { k: "ps", ok: 0, t: "傾向分數配對", fb: `<b>沒得配。</b>全國同時改，找不到「沒被影響到」的人來配對。這時只能用自己的過去當對照，也就是<b>ITS</b>。` },
     ] },
 ];
@@ -7204,7 +7204,7 @@ const SCCS_VIO_TEXT = {
   exp: {
     slider: () => tr("事件發生後，原訂的暴露被取消的機率：", "Chance the event cancels the planned exposure: "),
     note: () => tr("0%＝事件不影響會不會用藥。拉大＝出事的人之後就不用藥（禁忌症），確診前出事的人整批從序列裡消失。", "0% = the event never affects later dispensing. Larger = people who have the event stop being exposed (contra-indication), so pre-exposure cases vanish from the series."),
-    naiveFoot: () => tr("確診前的事件被吃掉 → 偏高", "pre-exposure events go missing → biased up"),
+    naiveFoot: () => tr("確診前的事件遺失 → 偏高", "pre-exposure events go missing → biased up"),
     fixedFoot: () => tr("只用暴露後的時間／預先切 pre-exposure 窗", "post-exposure time only / a pre-exposure window"),
     body: () => tr(
       "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>" +
@@ -7222,7 +7222,7 @@ const SCCS_VIO_TEXT = {
     body: () => tr(
       "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡（例如藥物X 與心肌梗死，一部分 MI 當場致死）。</p>" +
       "<p><b>為什麼會偏：</b>SCCS 拿「事件落在危險窗 vs 基準期」跟「兩段人時的長短」相比。死亡把事件<b>之後</b>的人時整段砍掉，而在這個情境（暴露在第 90 天、危險窗很早）被砍掉的大多是基準期 → 基準期的人時縮水、事件密度被灌高 → 危險窗 IRR 反而<b>被壓低</b>：一顆有害的藥看起來更安全，這是最危險的方向。偏誤的方向取決於暴露落在觀察期的早晚。</p>" +
-      "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 的甜蜜點）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
+      "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 最適合的情境）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
       "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring. Mechanism: <b>the event itself ends follow-up</b> — death being the extreme case.</p>" +
       "<p><b>Why it biases:</b> death removes the person-time <b>after</b> the event — here (early exposure) mostly baseline → the baseline denominator shrinks and its event density inflates → the risk-window IRR is <b>pushed down</b>: a harmful drug looks safer, the most dangerous direction. The direction depends on where exposure sits in the observation period; the point is it always biases.</p>" +
       "<p><b>The fixes:</b> prefer non-fatal recurrent outcomes; otherwise the censoring-adjusted SCCS of <b>Farrington, Whitaker &amp; Hocine (2011)</b> (<code>eventdepenobs</code> in the R package <code>SCCS</code>); and rerun on non-fatal cases as a sensitivity check.</p>"),
@@ -7230,7 +7230,7 @@ const SCCS_VIO_TEXT = {
   dep: {
     slider: () => tr("第一次事件把之後 60 天的復發風險放大：", "How much a first event multiplies the next 60 days' risk: "),
     note: () => tr("0%＝每次事件互相獨立。拉大＝出過事的人短期內更容易再出事（例如癲癇、跌倒），而且跟藥物X 無關。", "0% = events are independent. Larger = one event begets another within 60 days (seizures, falls), regardless of drug X."),
-    naiveFoot: () => tr("復發亂落（本設定下偏高，實務方向不定）", "recurrences land by the calendar (up here; direction varies)"),
+    naiveFoot: () => tr("復發落點不定（本設定下偏高，實務方向不定）", "recurrences land by the calendar (up here; direction varies)"),
     fixedFoot: () => tr("每人只取第一次事件", "first event per person only"),
     body: () => tr(
       "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>：跌倒過的人更容易再跌倒、癲癇發作會帶來下一次發作。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>" +
@@ -7290,7 +7290,7 @@ function sccsVioCaption(kind, x, naive) {
              "The assumption currently holds: both solid lines sit on the grey dashed shape and the naive SCCS equals the truth, 2.00. Drag the slider and watch the red hatch pull the estimate away.");
   } else if (kind === "exp") {
     const lost = 1 - base(ev) / base(ev0);
-    msg = tr(`現在基準期的事件被吃掉了 <b>${pc(lost)}</b>（紅斜線），但分析用的基準期<b>人時一天都沒少</b> → 基準期的速率被低估 ${pc(lost)} → 相除之下危險窗顯得更高，天真 IRR 從 2.00 變成 <b>${naive.toFixed(2)}</b>。`,
+    msg = tr(`現在基準期的事件遺失了 <b>${pc(lost)}</b>（紅斜線），但分析用的基準期<b>人時一天都沒少</b> → 基準期的速率被低估 ${pc(lost)} → 相除之下危險窗顯得更高，天真 IRR 從 2.00 變成 <b>${naive.toFixed(2)}</b>。`,
              `The baseline period has lost <b>${pc(lost)}</b> of its events (red hatch) while its <b>person-time is fully counted</b> → the baseline rate is understated by ${pc(lost)} → the naive IRR climbs from 2.00 to <b>${naive.toFixed(2)}</b>.`);
   } else if (kind === "cen") {
     const lost = 1 - base(pt) / (SCCS_VIO.T - SCCS_VIO.W);
@@ -7300,7 +7300,7 @@ function sccsVioCaption(kind, x, naive) {
   } else {
     const extraR = risk(ev) - risk(ev0), extraB = base(ev) - base(ev0);
     const shareR = extraR / (extraR + extraB);
-    msg = tr(`第一次事件招來的復發（紅斜線那一坨）有 <b>${pc(shareR)}</b> 落在危險窗裡、${pc(1 - shareR)} 落在基準期，落點只看日曆、跟藥無關 → 兩邊的事件數都被灌了水，天真 IRR 變成 <b>${naive.toFixed(2)}</b>；換一個暴露日，方向可能整個反過來。`,
+    msg = tr(`第一次事件引發的復發（紅斜線標出的部分）有 <b>${pc(shareR)}</b> 落在危險窗裡、${pc(1 - shareR)} 落在基準期，落點只看日曆、跟藥無關 → 兩邊的事件數都被墊高，天真 IRR 變成 <b>${naive.toFixed(2)}</b>；換一個暴露日，方向可能整個反過來。`,
              `The recurrences bred by first events (the red hatched bulge) land <b>${pc(shareR)}</b> inside the risk window and ${pc(1 - shareR)} in baseline — placement is pure calendar, nothing to do with the drug → both counts are inflated and the naive IRR becomes <b>${naive.toFixed(2)}</b>; move the exposure day and the direction can flip.`);
   }
   el.innerHTML = msg;

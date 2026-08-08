@@ -291,7 +291,7 @@
       <div class="tdef">
         <h4>95% 信賴區間 <span class="en">95% confidence interval</span></h4>
         <p data-en="A single number like &quot;LATE = 2.4&quot; is your best guess, but a different sample of people would have given a slightly different guess — the 95% confidence interval is the honest margin of error around it. Read it as the range of effect sizes the data cannot rule out: the wider it is, the less the data has actually pinned the answer down. For IV this matters even more than for ordinary analysis, because the width is driven by instrument strength — a weak reminder or few compliers makes it balloon, which is the data's way of warning you not to over-read the point estimate. For example, LATE = 2.4 with interval 1.1–3.7 means the effect is fairly clearly positive but its size is fuzzy, whereas an interval of −1 to 6 means you can barely even tell its sign. The textbook version is <code>estimate ± 1.96 × standard error</code>, and its meaning is that such intervals would capture the true value 95% of the time across repeated samples. Under weak instruments that promise breaks, which is why weak-instrument-robust intervals (Anderson–Rubin) — valid no matter how strong the reminder is — are preferred.">
-          「LATE = 2.4」這種單一數字是你的最佳猜測，但換一批人來抽樣，猜測會稍微不同，95% 信賴區間就是這個猜測真實的誤差範圍。把它讀成「資料無法排除的效果大小範圍」：越寬，代表資料越沒把答案釘死。對 IV 來說這比一般分析更重要，因為區間寬窄是由工具強度決定的，弱提醒或順從者少，區間就爆寬，這正是資料在提醒你「別太相信那個點估計」。舉例來說，LATE=2.4、區間 1.1–3.7，表示效果相當明確為正、但大小模糊；若區間是 −1 到 6，那連正負號都看不太出來。課本版的算法是 <code>估計 ± 1.96 × 標準誤</code>，它的意思是「這類區間在重複抽樣下有 95% 機率涵蓋真值」。弱工具下這個保證會失效，所以才偏好不論提醒強弱都有效的弱工具穩健區間（Anderson–Rubin）。
+          「LATE = 2.4」這種單一數字是你的最佳猜測，但換一批人來抽樣，猜測會稍微不同，95% 信賴區間就是這個猜測真實的誤差範圍。把它讀成「資料無法排除的效果大小範圍」：越寬，代表資料越沒把答案釘死。對 IV 來說這比一般分析更重要，因為區間寬窄是由工具強度決定的，弱提醒或順從者少，區間就會變得非常寬，這正是資料在提醒你「別太相信那個點估計」。舉例來說，LATE=2.4、區間 1.1–3.7，表示效果相當明確為正、但大小模糊；若區間是 −1 到 6，那連正負號都看不太出來。課本版的算法是 <code>估計 ± 1.96 × 標準誤</code>，它的意思是「這類區間在重複抽樣下有 95% 機率涵蓋真值」。弱工具下這個保證會失效，所以才偏好不論提醒強弱都有效的弱工具穩健區間（Anderson–Rubin）。
         </p>
       </div>
     </details>
@@ -574,7 +574,7 @@ estat firststage
       <div id="fbChart" class="chart"></div>
       <p class="caption" data-en="See it? The <b>peeking version</b> sticks almost exactly to the contaminated &quot;unadjusted&quot; number with a narrow error bar (looks super accurate, but it carried the whole confounder back — this is the forbidden regression); the <b>cross-fit version</b> is pulled back near the truth 1.80. <b>Same model, the only difference is whether it peeked.</b>">
         看出來了嗎？<b>偷看版</b>幾乎黏在「未調整」那根被汙染的數字上、誤差棒還很窄
-        （看起來超準，其實把干擾因子整包背了回來，這就是禁止迴歸）；
+        （看起來很準，其實把干擾因子整個背了回來，這就是禁止迴歸）；
         <b>交叉擬合版</b>則被拉回真值 1.80 附近。<b>同一個模型，差別只在有沒有偷看。</b>
       </p>
     </div>
@@ -985,7 +985,7 @@ rdplot health_score_change age, c(65)</code></pre>
       <p data-en="x is age, y is the outcome. There is a clear <b>upward trend with age</b> on both sides, plus a small <b>jump</b> right at 65 (the dotted line) — that jump is the real effect we want. The trouble: outcome already rises with age, so if you open a <b>wide window</b> (amber band) and just compare left-grey vs right-teal averages, the age trend <b>inflates</b> the jump. DML subtracts the trend first, so the estimate stays honest even with a wide window.">
         橫軸是年齡、縱軸是結果。兩側都有明顯的<b>隨年齡上升的趨勢</b>，再加上 65 歲（虛線）處一個小<b>跳階</b>
       ，那個跳階就是我們要的真效果。麻煩在於：結果本來就隨年齡上升，所以若把<b>視窗開寬</b>（琥珀色帶），
-        只比左側灰點與右側青點的平均，年齡趨勢會把跳階<b>灌水</b>。DML 先把趨勢扣掉，視窗再寬估計也誠實。
+        只比左側灰點與右側青點的平均，年齡趨勢會把跳階<b>誇大</b>。DML 先把趨勢扣掉，視窗再寬估計也誠實。
       </p>
       <div id="sceneTrend" class="chart"></div>
     </div>
@@ -1156,7 +1156,7 @@ rdplot health_score_change age, c(65)</code></pre>
     </p>
     <div class="cards">
       <div class="card"><h3 data-en="① RDFlex — flexible covariate adjustment for precision (Noack, Olma &amp; Rothe 2024)">① RDFlex：用彈性共變項調整換精度（Noack, Olma &amp; Rothe 2024）</h3>
-        <p data-en="Standard RDD throws covariates away (or adds them linearly). <b>RDFlex</b> uses <b>double/debiased ML</b> to flexibly residualise the outcome on baseline covariates first, then runs the local-linear RDD on the adjusted outcome. The cutoff jump is <b>unchanged in expectation</b> (covariates are continuous at the cutoff, so they cannot create the jump) but the residual is <b>less noisy</b>, so the confidence interval is <b>tighter</b> — more precision for free, with cross-fitting guarding against over-fitting. It covers <b>sharp and fuzzy</b> RDD and is implemented in the <b>DoubleML</b> package (<code>RDFlex</code>). This is the precision-focused cousin of Remedy 1's bandwidth-robust DML.">標準 RDD 把共變項丟掉（或只線性放入）。<b>RDFlex</b> 用<b>雙重／去偏 ML</b> 先把結果對基線共變項做彈性殘差化，再對「調整後的結果」跑局部線性 RDD。斷點跳幅<b>期望值不變</b>（共變項在斷點處連續、製造不出跳幅），但殘差<b>變小、噪音變低</b>，信賴區間<b>更窄</b>，白賺精度，並用交叉擬合防過度配適。它<b>sharp 與 fuzzy</b> 都適用，已實作於 <b>DoubleML</b> 套件（<code>RDFlex</code>）。它是藥方一「對頻寬穩健 DML」的<b>精度版</b>表親。</p></div>
+        <p data-en="Standard RDD throws covariates away (or adds them linearly). <b>RDFlex</b> uses <b>double/debiased ML</b> to flexibly residualise the outcome on baseline covariates first, then runs the local-linear RDD on the adjusted outcome. The cutoff jump is <b>unchanged in expectation</b> (covariates are continuous at the cutoff, so they cannot create the jump) but the residual is <b>less noisy</b>, so the confidence interval is <b>tighter</b> — more precision for free, with cross-fitting guarding against over-fitting. It covers <b>sharp and fuzzy</b> RDD and is implemented in the <b>DoubleML</b> package (<code>RDFlex</code>). This is the precision-focused cousin of Remedy 1's bandwidth-robust DML.">標準 RDD 把共變項丟掉（或只線性放入）。<b>RDFlex</b> 用<b>雙重／去偏 ML</b> 先把結果對基線共變項做彈性殘差化，再對「調整後的結果」跑局部線性 RDD。斷點跳幅<b>期望值不變</b>（共變項在斷點處連續、製造不出跳幅），但殘差<b>變小、噪音變低</b>，信賴區間<b>更窄</b>，等於平白多出精度，並用交叉擬合防過度配適。它<b>sharp 與 fuzzy</b> 都適用，已實作於 <b>DoubleML</b> 套件（<code>RDFlex</code>）。它是藥方一「對頻寬穩健 DML」的<b>精度版</b>表親。</p></div>
       <div class="card"><h3 data-en="② DR-RDD — a doubly-robust RD estimator with faster convergence (Kato 2024)">② DR-RDD：雙重穩健、收斂更快的 RD 估計（Kato 2024）</h3>
         <p data-en="Local-linear RDD is nonparametric, so its rate is slower than √n and inference is delicate. Kato's <b>DR-RDD</b> combines <b>two</b> estimators of the conditional outcome with a debiasing (doubly-robust) correction: it stays consistent if <b>either</b> estimator is right, and — when both are merely decent — achieves <b>√n-consistency</b>, faster than the usual nonparametric rate, which also <b>simplifies the inference</b>. Same RD identification, a better-behaved estimator. (Same doubly-robust spirit as the AIPW score in Remedy 1, here aimed at the convergence rate.)">局部線性 RDD 是無母數的，收斂率比 √n 慢、推論也較棘手。Kato 的 <b>DR-RDD</b> 把<b>兩個</b>條件結果的估計式用去偏（雙重穩健）校正結合：<b>其一</b>對就一致；而當<b>兩個都只是還可以</b>時，能達到 <b>√n 一致性</b>（比一般無母數率快），也讓<b>推論更簡單</b>。同一套 RD 識別、更好駕馭的估計式。（與藥方一 AIPW 分數同樣的雙重穩健精神，這裡瞄準的是收斂率。）</p></div>
     </div>
@@ -1243,7 +1243,7 @@ rdplot health_score_change age, c(65)</code></pre>
       <div class="tdef">
         <h4>事件研究 <span class="en">event study</span></h4>
         <p data-en="Rather than squash everything into one before-vs-after number, an event study estimates a separate effect for each period — measured against the moment just before the policy — and plots them as a line through time. One picture does two jobs. The periods <i>before</i> the policy are a check: if the two groups really moved in parallel, those points should sit flat near zero, so any pre-policy drift is a visible red flag that parallel trends has failed. The periods <i>after</i> show the effect's <b>shape</b> — whether it lands at once, builds up slowly, or fades away. Example: the dots for years −3, −2, −1 are about 0 (good, flat before), then 1, 3, 4 for years 0, 1, 2 (an effect that grows). Technically you fit <code>Y = Σ_k δ_k·1{period = k} + unit &amp; time fixed effects</code>, dropping one base period (usually the one just before, k = −1) so every other period is read relative to it; the before-period δ's test parallel trends and the after-period δ's trace the effect over time. With staggered start dates, extra care is needed so that already-treated towns don't quietly contaminate the comparison (Sun &amp; Abraham 2021).">
-          事件研究不把一切壓成一個「前 vs 後」的數字，而是以「政策前一刻」為基準，替每一期各估一個效果，再畫成一條穿越時間的線。一張圖做兩件事。政策<i>之前</i>的那些期是一個檢查：若兩組真的並肩移動，這些點就該平貼在 0 附近，所以政策前任何漂移都是「平行趨勢失敗」的可見紅旗。政策<i>之後</i>的那些期則顯示效果的<b>形狀</b>，是立刻發生、慢慢累積、還是逐漸消退。例子：第 −3、−2、−1 年的點約為 0（好，事前是平的），第 0、1、2 年為 1、3、4（效果在成長）。技術上你配 <code>Y = Σ_k δ_k·1{期別 = k} ＋ 單位與時間固定效果</code>，丟掉一個基期（通常是政策前一刻 k = −1），讓其他每期都相對它來讀；前期的 δ 檢定平行趨勢，後期的 δ 描出效果隨時間的軌跡。當各鎮開始時間不一致時，要特別小心別讓「已受政策的鎮」悄悄汙染比較（Sun &amp; Abraham 2021）。
+          事件研究不把一切壓成一個「前 vs 後」的數字，而是以「政策前一刻」為基準，替每一期各估一個效果，再畫成一條穿越時間的線。一張圖做兩件事。政策<i>之前</i>的那些期是一個檢查：若兩組真的並肩移動，這些點就該平貼在 0 附近，所以政策前只要有漂移，就是「平行趨勢失敗」的明顯警訊。政策<i>之後</i>的那些期則顯示效果的<b>形狀</b>，是立刻發生、慢慢累積、還是逐漸消退。例子：第 −3、−2、−1 年的點約為 0（好，事前是平的），第 0、1、2 年為 1、3、4（效果在成長）。技術上你配 <code>Y = Σ_k δ_k·1{期別 = k} ＋ 單位與時間固定效果</code>，丟掉一個基期（通常是政策前一刻 k = −1），讓其他每期都相對它來讀；前期的 δ 檢定平行趨勢，後期的 δ 描出效果隨時間的軌跡。當各鎮開始時間不一致時，要特別小心別讓「已受政策的鎮」悄悄汙染比較（Sun &amp; Abraham 2021）。
         </p>
       </div>
       <div class="tdef">
@@ -1567,7 +1567,7 @@ xtreg health_score i.treated#i.post urban baseline_burden i.period, fe cluster(u
     <h1 data-en="Interactive TiT: weaken the trend and watch the method run out of signal">互動式 TiT：把趨勢調弱，看方法怎麼「沒訊號」</h1>
     <p class="lead" data-en="Trend-in-trend lives entirely on the strength of the exposure trend. Drag the slider to make the vaccine spread more slowly. Watch the uptake curves flatten, and watch the estimate lose its grip — the confidence interval blows up and the point estimate wanders away from the true OR of 2.0. That is assumption A1 (and statistical power) in action.">
       趨勢中的趨勢完全靠暴露趨勢的強度活著。拉動滑桿，讓疫苗普及得更慢。看接種率曲線變平，
-      也看估計失去著力點，信賴區間爆開、點估計從真值 OR=2.0 飄走。這就是假設 A1（與檢定力）的現場示範。
+      也看估計失去著力點，信賴區間大幅變寬、點估計從真值 OR=2.0 飄走。這就是假設 A1（與檢定力）的現場示範。
     </p>
 
     <div class="controls">
@@ -2145,7 +2145,7 @@ newey outcome time post t_since, lag(1)
     <div id="perrPlayChart" class="chart"></div>
     <p class="caption" data-en="Bars: the prior-period ratio (confounding), the naive post ratio, and PERR. The green dashed line is the true 0.70; the grey dashed line is 1.0 (no association). At drift 0, PERR sits on 0.70; as drift grows, it climbs away — the assumption failing in real time.">
       長條：事前期率比（混淆）、未校正事後率比、PERR。綠虛線是真值 0.70；灰虛線是 1.0（無關聯）。
-      漂移為 0 時 PERR 落在 0.70；漂移變大，它就往上爬離，假設正在實時崩壞。
+      漂移為 0 時 PERR 落在 0.70；漂移變大，它就往上爬離，你會親眼看到假設失效。
     </p>
   </section>
 
@@ -2347,7 +2347,7 @@ poisson events_post  i.group, exposure(pt_post) irr
       <div class="tdef">
         <h4>不死時間偏誤 <span class="en">immortal-time bias</span></h4>
         <p data-en="To end up in the &quot;vaccinated early&quot; group, a person first had to stay alive and event-free long enough to actually get the vaccine — anyone who had the event first never made it into that group. So before we've measured anything, the early group is stacked with survivors and looks healthier for free; that stretch of time when they were guaranteed to be event-free is the &quot;immortal&quot; time. The danger is that it makes starting early (or staying on treatment) look protective even when it does nothing at all — and undoing this illusion is the whole reason CCW exists. A classic tell: &quot;people who ever vaccinated early&quot; obviously lived long enough to vaccinate. The fix is to line up time zero, eligibility, and assignment correctly, which is exactly what clone-censor-weight does.">
-          要被分進「早接種組」，一個人得先活著、沒發生事件、一路撐到真的去接種，任何先發生事件的人，根本進不了這一組。於是還沒開始測量，早接種組就被一堆「存活者」灌滿，憑空看起來更健康；那段保證不會出事的時間，就是所謂的「不死時間」。它的危險在於：會讓「早開始」或「持續治療」看起來有保護效果，即使其實毫無作用，而拆穿這個假象，正是 CCW 存在的全部理由。一個典型的破綻：「曾經早接種的人」當然活夠久才去接種。解法是把時間零點、資格、指派三者正確對齊，這正是複製-設限-加權在做的事。
+          要被分進「早接種組」，一個人得先活著、沒發生事件、一路撐到真的去接種，任何先發生事件的人，根本進不了這一組。於是還沒開始測量，早接種組裡自然擠滿了「存活者」，憑空看起來更健康；那段保證不會出事的時間，就是所謂的「不死時間」。它的危險在於：會讓「早開始」或「持續治療」看起來有保護效果，即使其實毫無作用，而拆穿這個假象，正是 CCW 存在的全部理由。一個典型的破綻：「曾經早接種的人」當然活夠久才去接種。解法是把時間零點、資格、指派三者正確對齊，這正是複製-設限-加權在做的事。
         </p>
       </div>
       <div class="tdef">
@@ -2725,7 +2725,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
       <div class="tdef">
         <h4>暴露時間趨勢 <span class="en">exposure time trend</span></h4>
         <p data-en="Here is the catch that can break the simple case-crossover. Suppose the drug just became more popular over the years — almost nobody used it early in the study, lots of people did later. Now the recent window (the hazard window) sits in a time when the drug is common, while the older reference window sits in a time when it was rare. So people look &quot;more exposed&quot; right before the event purely because the calendar moved on, not because the drug did anything. That false signal pushes the case-crossover answer too high. For example, uptake might climb from 10% early on to 40% late in the study. You can spot this trap in a group that the drug genuinely cannot affect: if even their windows show more exposure recently — a pure-trend OR above 1 — you know the calendar, not the drug, is doing it. This is exactly the leak that the next term is built to plug.">
-          這就是會讓「單純案例交叉」翻車的陷阱。假設這個藥這些年越來越流行，研究早期幾乎沒人用，後期一大堆人用。於是近期那一窗（危險窗）剛好落在藥很普遍的時候，較早的參考窗卻落在藥還很罕見的時候。結果一個人「事件前看起來比較常用藥」，純粹是因為日曆往前走了，不是藥真的做了什麼。這個假訊號會把案例交叉的答案往上推。舉例來說，使用率可能從早期的 10% 一路爬到後期的 40%。要抓這個陷阱，可以看一群「藥根本不可能影響到的人」：如果連他們的窗也是近期暴露比較多，也就是純趨勢 OR 大於 1，你就知道是日曆在搗鬼，不是藥。這正是下一個名詞要堵住的漏洞。
+          這就是會讓「單純案例交叉」失準的陷阱。假設這個藥這些年越來越流行，研究早期幾乎沒人用，後期一大堆人用。於是近期那一窗（危險窗）剛好落在藥很普遍的時候，較早的參考窗卻落在藥還很罕見的時候。結果一個人「事件前看起來比較常用藥」，純粹是因為日曆往前走了，不是藥真的做了什麼。這個假訊號會把案例交叉的答案往上推。舉例來說，使用率可能從早期的 10% 一路爬到後期的 40%。要抓這個陷阱，可以看一群「藥根本不可能影響到的人」：如果連他們的窗也是近期暴露比較多，也就是純趨勢 OR 大於 1，你就知道是日曆在搗鬼，不是藥。這正是下一個名詞要堵住的漏洞。
         </p>
       </div>
       <div class="tdef">
@@ -2915,7 +2915,7 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="tdef">
         <h4>序列試驗 <span class="en">sequential trials</span></h4>
         <p data-en="A treatment that you could start at many different moments creates a trap: if you just compare &quot;people who ever started&quot; against &quot;people who never did&quot;, the ever-started group had to survive long enough to start at all — that built-in survival makes treatment look better than it is (immortal-time bias). The fix is to stop treating it as one big comparison and instead open a small make-believe trial at every moment someone becomes eligible: at that exact moment, line everyone up at the same starting clock (time-zero), split them into &quot;starts now&quot; vs &quot;doesn't&quot;, and follow each forward. Do this month after month — a mini-trial at month 0, month 1, and so on — then combine the answers, weighting the more precise trials more (inverse-variance pooling). Because the same person can re-qualify and join several of these trials, you get more usable data out of the same people.">
-          一個「可以在很多不同時間點開始」的治療藏著一個陷阱：如果你只是拿「曾經用過藥的人」跟「從來沒用過的人」相比，曾用藥的那群人必須先活得夠久、撐到能開始用藥，這種「先天就活下來」會讓治療看起來比實際更有效（這就是 immortal-time bias）。解法是別把它當成一場大比較，而是每當有人符合資格，就開一場小型的假想試驗：在那一刻，把大家對齊在同一個起跑時鐘（時間零點），分成「現在開始」與「現在不開始」兩組，各自往前追蹤。一個月一個月地做，第 0 月一場、第 1 月一場……，再把各場的答案合併，讓越精準的試驗占越大份量（反變異加權）。因為同一個人可以重複符合資格、參加好幾場，你能從同一批人榨出更多可用的資料。
+          一個「可以在很多不同時間點開始」的治療藏著一個陷阱：如果你只是拿「曾經用過藥的人」跟「從來沒用過的人」相比，曾用藥的那群人必須先活得夠久、撐到能開始用藥，這種「先天就活下來」會讓治療看起來比實際更有效（這就是 immortal-time bias）。解法是別把它當成一場大比較，而是每當有人符合資格，就開一場小型的假想試驗：在那一刻，把大家對齊在同一個起跑時鐘（時間零點），分成「現在開始」與「現在不開始」兩組，各自往前追蹤。一個月一個月地做，第 0 月一場、第 1 月一場……，再把各場的答案合併，讓越精準的試驗占越大份量（反變異加權）。因為同一個人可以重複符合資格、參加好幾場，你能從同一批人得到更多可用的資料。
         </p>
       </div>
       <div class="tdef">
@@ -2939,7 +2939,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <h1 data-en="Interactive: sequential trials stay on target while the naive contrast drifts">互動：序列試驗穩住目標，未校正比較卻飄走</h1>
     <p class="lead" data-en="Drag the slider to change how strongly treatment is confounded by indication (frail patients initiate sooner). The <b>sequential</b> pooled estimate tracks the truth at every setting; the <b>naive</b> ever-vs-never comparison is badly immortal-time biased throughout. Watch the per-trial risk differences and the numbers.">
       拉動滑桿，改變治療被適應症混淆的程度（體弱者較早啟動）。<b>序列</b>合併估計在每個設定下都緊貼真值；
-      <b>未校正</b>的曾 vs 從未比較則整段都嚴重中 immortal-time bias。看各場的風險差與數字。
+      <b>未校正</b>的曾 vs 從未比較則整段都帶著嚴重的 immortal-time bias。看各場的風險差與數字。
     </p>
 
     <div class="controls">
@@ -2959,7 +2959,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <div id="seqPlayChart" class="chart"></div>
     <p class="caption" data-en="Each dot is one sequential trial's IPTW risk difference (treat-now vs not) at its eligibility month; the teal line is their inverse-variance pooled estimate; the green dashed line is the truth. The amber line is the naive ever-vs-never contrast — far below, inflated by immortal time.">
       每個點是一場序列試驗在其資格月的 IPTW 風險差（當下治療 vs 不治療）；青線是它們的反變異合併估計；綠虛線是真值。
-      琥珀線是未校正的曾 vs 從未比較，遠在下方，被 immortal time 吹大。
+      琥珀線是未校正的曾 vs 從未比較，遠在下方，被 immortal time 誇大。
     </p>
   </section>
 
@@ -3461,7 +3461,7 @@ clogit case exposed comorbidity, group(match_id) or</code></pre>
     <details class="ext-card"><summary data-en="① Event-dependent exposure (short / long-term) <span class='ext-tag'>— is the violation temporary or permanent?</span>">① 事件相依暴露（短期／長期）<span class="ext-tag">， 違反是「暫時」還是「永久」？</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
-        <p data-en="The event itself changes later exposure. <b>Permanent</b> (an MI stops statins for good): <b>no fix — don't use SCCS</b>. <b>Temporary</b> (a seizure briefly delays the next vaccine; rotavirus vaccine &amp; intussusception): add a <b>pre-exposure window [−τ,0)</b> so the biased time is taken out of baseline; if its RR ≠ 1, exposure is event-dependent. Long-term dependence needs a counterfactual exposure history solved by estimating equations (book §7.1).">事件本身改變了日後暴露。<b>永久</b>（心肌梗塞讓 statin 永遠停掉）：<b>沒救、別用 SCCS</b>。<b>暫時</b>（抽搐短暫延後下一劑疫苗；輪狀病毒疫苗 vs 腸套疊）：加一段<b>暴露前風險窗 [−τ,0)</b>，把被偏的時間移出基線；若它的 RR ≠ 1，就代表暴露是事件相依的。長期相依要用反事實暴露史＋估計方程式求解（書 §7.1）。</p>
+        <p data-en="The event itself changes later exposure. <b>Permanent</b> (an MI stops statins for good): <b>no fix — don't use SCCS</b>. <b>Temporary</b> (a seizure briefly delays the next vaccine; rotavirus vaccine &amp; intussusception): add a <b>pre-exposure window [−τ,0)</b> so the biased time is taken out of baseline; if its RR ≠ 1, exposure is event-dependent. Long-term dependence needs a counterfactual exposure history solved by estimating equations (book §7.1).">事件本身改變了日後暴露。<b>永久</b>（心肌梗塞讓 statin 永遠停掉）：<b>無法補救，別用 SCCS</b>。<b>暫時</b>（抽搐短暫延後下一劑疫苗；輪狀病毒疫苗 vs 腸套疊）：加一段<b>暴露前風險窗 [−τ,0)</b>，把被偏的時間移出基線；若它的 RR ≠ 1，就代表暴露是事件相依的。長期相依要用反事實暴露史＋估計方程式求解（書 §7.1）。</p>
         <h5 data-en="What the data looks like">資料長相</h5>
         <table class="mini">
           <caption data-en="Long format — one person cut into intervals; a pre-exposure interval is added before the risk window.">長格式，一個人切成多段；危險窗之前多加一段「暴露前」。</caption>
@@ -3600,10 +3600,10 @@ run;</code></pre>
       </div>
     </details>
 
-    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 既有暴露 <span class="ext-tag">， 盛行使用者也會把 SCCS 拉淡（Jung 2025）</span></summary>
+    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 既有暴露 <span class="ext-tag">， 盛行使用者也會稀釋 SCCS 的估計（Jung 2025）</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
-        <p data-en="SCCS removes time-fixed confounding but is <b>not</b> immune to <b>prevalent-user bias</b>. Jung et al. (PDS 2025) showed that defining exposure as <b>prevalent</b> (rather than incident/new use) attenuates the IRR toward the null — fluoroquinolone &amp; retinal detachment fell from <b>1.83 → 1.70</b> — via depletion of susceptibles. Practical rule: prefer an <b>incident</b> exposure with a long enough washout, and report sensitivity.">SCCS 消掉時間不變的混淆，但<b>不</b>能免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）顯示把暴露定義成<b>既有（盛行）</b>（而非初次／新使用）會把 IRR 往虛無拉淡，氟喹諾酮與視網膜剝離從 <b>1.83 → 1.70</b>，機制是易感者耗竭。實務原則：盡量用<b>初次</b>暴露＋夠長的洗滌期，並報告敏感度。</p>
+        <p data-en="SCCS removes time-fixed confounding but is <b>not</b> immune to <b>prevalent-user bias</b>. Jung et al. (PDS 2025) showed that defining exposure as <b>prevalent</b> (rather than incident/new use) attenuates the IRR toward the null — fluoroquinolone &amp; retinal detachment fell from <b>1.83 → 1.70</b> — via depletion of susceptibles. Practical rule: prefer an <b>incident</b> exposure with a long enough washout, and report sensitivity.">SCCS 消掉時間不變的混淆，但<b>不</b>能免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）顯示把暴露定義成<b>既有（盛行）</b>（而非初次／新使用）會把 IRR 往虛無值稀釋，氟喹諾酮與視網膜剝離從 <b>1.83 → 1.70</b>，機制是易感者耗竭。實務原則：盡量用<b>初次</b>暴露＋夠長的洗滌期，並報告敏感度。</p>
         <h5 data-en="What the data looks like">資料長相</h5>
         <table class="mini">
           <caption data-en="Add a first-ever-use flag from a washout; keep incident (incident=1) exposures before splitting.">由洗滌窗加一個「首次使用」旗標；切段前只留初次（incident=1）暴露。</caption>
@@ -3776,7 +3776,7 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
       時變因子要靠切分處理。可檢的是危險窗裡的事件夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div class="card scene">
-      <h3 data-en="Interactive: break one assumption at a time, and watch the IRR move">互動：一次弄壞一個假設，看 IRR 怎麼被帶跑</h3>
+      <h3 data-en="Interactive: break one assumption at a time, and watch the IRR move">互動：一次弄壞一個假設，看 IRR 怎麼被帶偏</h3>
       <p class="lead" data-en="Three ways an SCCS goes wrong, each with the term you'll meet in papers — the labels are shorthand, so what matters is the <b>mechanism</b> written on each card. Pick a violation, drag the slider to make it worse, and compare three numbers: the <b>truth</b> (built in at IRR = 2.0), the <b>naive SCCS</b> under the violation, and the estimate <b>after the standard fix</b>.">
         SCCS 出錯的三種方式，各附上論文裡會遇到的術語。這些名字只是簡稱、不一定精準，重點是每張卡上寫的<b>機制</b>。
         選一種違反、把滑桿拉大，比較三個數字：<b>內建的真值</b>（IRR＝2.0）、違反之下的<b>天真 SCCS</b>、以及<b>用標準解法處理後</b>的估計。
@@ -4138,7 +4138,7 @@ proc phreg data=d;
         drug prevalent time_since_start frailty age / risklimits;
     hazardratio drug;
 run;</code></pre>
-      <p data-en="Prevalent users are retained but balanced via time_since_start and frailty.">保留盛行使用者，並透過 time_since_start 與 frailty 加以平衡。</p></div>
+      <p data-en="Prevalent users are retained but balanced via time_since_start and frailty.">保留盛行使用者，再用 time_since_start 與 frailty 把兩組拉平。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — survival::coxph">R — survival::coxph</h3>
       <pre class="sas"><code><span class="cm"># read data and fit prevalent new-user Cox model</span>
 library(survival)
@@ -4231,7 +4231,7 @@ stcox i.drug prevalent time_since_start frailty age</code></pre>
       <div class="tdef">
         <h4>近端因果推論／混淆橋 <span class="en">proximal causal inference / confounding bridge</span></h4>
         <p data-en="Detecting bias is one thing; this card actually removes it. The two negative controls are both &quot;shadows&quot; of the unmeasured confounder, so by watching how they move together we can reconstruct what that hidden factor was doing and subtract it out — even though we never measured it. The bookkeeping that links the shadows back to the confounder is the &quot;confounding bridge&quot;, and the formal version solves an equation for it under a technical richness condition that the proxies carry enough information (Miao 2018; Tchetgen Tchetgen et al.). When everything is linear there's a simple two-step recipe, P2SLS: <code>step 1: W ~ A+Z+X → Ŵ</code> (predict the negative-control outcome), then <code>step 2: Y ~ A+Ŵ+X</code>; the coefficient on A in step 2 is the de-biased causal effect. The point of all this: it doesn't just flag unmeasured confounding, it corrects for it.">
-          偵測偏誤是一回事，這張卡是真的把偏誤拿掉。兩個陰性對照都是那個未測混淆的「影子」，所以只要觀察它們怎麼一起變動，就能把藏起來的因素當時在做什麼反推回來、再扣掉，即使我們從沒量到它。把這些影子和混淆連回去的那套帳，就叫<b>混淆橋</b>；嚴謹版是在一個「代理帶的資訊夠豐富」的技術條件下，解一道方程把它求出來（Miao 2018；Tchetgen Tchetgen 等）。當一切是線性時，有個簡單的兩步驟做法 P2SLS：<code>第一步：W ~ A+Z+X → Ŵ</code>（先預測陰性對照結果），再<code>第二步：Y ~ A+Ŵ+X</code>；第二步裡 A 的係數，就是去偏後的因果效應。重點是：它不只是標出未測混淆，而是把它<b>校正</b>掉。
+          偵測偏誤是一回事，這張卡是真的把偏誤拿掉。兩個陰性對照都是那個未測混淆的「影子」，所以只要觀察它們怎麼一起變動，就能把藏起來的因素當時在做什麼反推回來、再扣掉，即使我們從沒量到它。把這些影子和混淆連回去的那套換算關係，就叫<b>混淆橋</b>；嚴謹版是在一個「代理帶的資訊夠豐富」的技術條件下，解一道方程把它求出來（Miao 2018；Tchetgen Tchetgen 等）。當一切是線性時，有個簡單的兩步驟做法 P2SLS：<code>第一步：W ~ A+Z+X → Ŵ</code>（先預測陰性對照結果），再<code>第二步：Y ~ A+Ŵ+X</code>；第二步裡 A 的係數，就是去偏後的因果效應。重點是：它不只是標出未測混淆，而是把它<b>校正</b>掉。
         </p>
       </div>
       <div class="tdef">
@@ -4600,13 +4600,13 @@ paramed Y, avar(A) mvar(M) cvars(X) ///
       <div class="tdef">
         <h4>IPTW／重疊權重／估計目標 <span class="en">IPTW / overlap weights / estimand</span></h4>
         <p data-en="These are three ways to use the score, and they answer slightly different questions. <b>IPTW</b> gives each person a weight of 1 divided by their chance of getting the treatment they actually got (w = A/PS + (1−A)/(1−PS)) — rare cases count for more, building a make-believe population where treatment no longer depends on background, which gives the average effect across everyone (the <b>ATE</b>). <b>Overlap weighting</b> instead gives the most say to the people who genuinely could have gone either way — the borderline cases — and almost ignores the foregone-conclusion ones (w = A·(1−PS) + (1−A)·PS); its weights can never blow up, so it&apos;s the most stable choice (Li, Morgan &amp; Zaslavsky 2018). <b>PS matching</b> pairs each treated person with the nearest untreated one, answering the effect just among the treated (the <b>ATT</b>). Same score, different recipe, different exact question.">
-          這是用分數的三種方式，回答的問題略有不同。<b>IPTW</b> 給每個人一個權重，等於「拿到自己實際拿到的那種處置」機率的倒數（w ＝ A/PS + (1−A)/(1−PS)），稀有的情況算得更重，藉此造出一個「處置不再跟背景有關」的假想母體，得到的是「全體平均」的效果（<b>ATE</b>）。<b>重疊權重</b>則把最大發言權給那些「兩邊都真有可能」的邊緣人，幾乎忽略結果早已註定的人（w ＝ A·(1−PS) + (1−A)·PS）；它的權重永遠不會爆掉，所以最穩（Li, Morgan &amp; Zaslavsky 2018）。<b>PS 配對</b>則替每個接種者找最接近的未接種者配對，回答的是「只在接種者身上」的效果（<b>ATT</b>）。同一個分數，不同做法，回答的精確問題也不同。
+          這是用分數的三種方式，回答的問題略有不同。<b>IPTW</b> 給每個人一個權重，等於「拿到自己實際拿到的那種處置」機率的倒數（w ＝ A/PS + (1−A)/(1−PS)），稀有的情況算得更重，藉此造出一個「處置不再跟背景有關」的假想母體，得到的是「全體平均」的效果（<b>ATE</b>）。<b>重疊權重</b>則把最大發言權給那些「兩邊都真有可能」、處在邊界上的人，幾乎忽略結果早已註定的人（w ＝ A·(1−PS) + (1−A)·PS）；它的權重不會無限膨脹，所以最穩定（Li, Morgan &amp; Zaslavsky 2018）。<b>PS 配對</b>則替每個接種者找最接近的未接種者配對，回答的是「只在接種者身上」的效果（<b>ATT</b>）。同一個分數，不同做法，回答的精確問題也不同。
         </p>
       </div>
       <div class="tdef">
         <h4>平衡 vs 預測／正性 <span class="en">balance vs prediction / positivity</span></h4>
         <p data-en="A natural mistake is to judge the score by how well it <b>guesses</b> who got vaccinated — but that&apos;s the wrong test. What you actually want is <b>balance</b>: after matching or weighting, the vaccinated and unvaccinated groups should look alike on every background variable. The usual yardstick is the <b>standardized mean difference (SMD)</b> — roughly, the gap between the two groups measured in standard-deviation units — and you want it under about 0.1 for each variable. How sharply the score predicts treatment (its AUC) simply doesn&apos;t matter. The other requirement is <b>positivity (overlap)</b>: every kind of person must have at least some real chance of being in either group — a score strictly between 0 and 1. If someone is all-but-certain to be vaccinated, dividing by their tiny chance makes their IPTW weight explode and one person hijacks the answer. Fixes: trim those extreme cases, or switch to overlap weights, which are immune to this.">
-          一個很自然的誤會，是用分數「猜得多準」（猜中誰接種）來評斷它好不好，但這是錯的測試。你真正要的是<b>平衡</b>：配對或加權之後，接種組與未接種組在每一項背景變項上都該長得一樣。常用的尺是<b>標準化差異（SMD）</b>，大致就是兩組的差距用「標準差」當單位來量，每一項都希望壓在大約 0.1 以下。分數能多銳利地預測接種（它的 AUC）根本不重要。另一個必要條件是<b>正性（重疊）</b>：每一種人都得至少有一點真實機會落入任一組，也就是分數要嚴格落在 0 與 1 之間。如果某個人「幾乎一定」會接種，拿他那極小的機率去當分母，IPTW 權重就會爆大，整個答案被這一個人綁架。修法：把這些極端的人截斷掉，或改用不怕這問題的重疊權重。
+          一個很自然的誤會，是用分數「猜得多準」（猜中誰接種）來評斷它好不好，但這是錯的測試。你真正要的是<b>平衡</b>：配對或加權之後，接種組與未接種組在每一項背景變項上都該長得一樣。常用的尺是<b>標準化差異（SMD）</b>，大致就是兩組的差距用「標準差」當單位來量，每一項都希望壓在大約 0.1 以下。分數能多銳利地預測接種（它的 AUC）根本不重要。另一個必要條件是<b>正性（重疊）</b>：每一種人都得至少有一點真實機會落入任一組，也就是分數要嚴格落在 0 與 1 之間。如果某個人「幾乎一定」會接種，拿他那極小的機率去當分母，IPTW 權重就會變得極大，整個答案幾乎被這一個人左右。修法：把這些極端的人截斷掉，或改用不怕這問題的重疊權重。
         </p>
       </div>
     </details>
@@ -4755,7 +4755,7 @@ teffects ipw (Y) (A X)</code></pre>
       <div class="card"><h3 data-en="③ The gains over a good logistic PS are often modest">③ 比起設定良好的邏輯斯 PS，增益常常不大</h3>
         <p data-en="When the true propensity is roughly linear, a well-specified logistic PS is hard to beat; ML mainly pays off when the relationship is non-linear / high-order (as in this demo). In a long-term-unemployment programme evaluation, ML-estimated propensity scores improved matching only modestly over a carefully built logistic model (Goller, Lechner, Moczall &amp; Wolff, Labour Economics 2020). Don't reach for ML reflexively — reach for it when the design (interactions, thresholds, many covariates) demands flexibility.">當真實傾向大致線性時，設定良好的邏輯斯 PS 很難被超越；ML 主要在關係<b>非線性／高階</b>時才划算（就像本頁示範）。一項長期失業計畫評估顯示，用 ML 估的傾向分數相對於精心建好的邏輯斯模型，<b>只小幅改善</b>配對（Goller、Lechner、Moczall &amp; Wolff, Labour Economics 2020）。別反射性地用 ML，當設計（交互、門檻、共變項眾多）需要彈性時再用。</p></div>
       <div class="card"><h3 data-en="④ Benchmark against a trial; follow reporting guidelines">④ 拿試驗當標準、照報告指引走</h3>
-        <p data-en="A benchmarking study that estimated PS by several ML methods and compared the answer to a <b>randomized trial</b> found the same lesson: methods that balanced covariates best — not those that predicted treatment best — recovered the trial estimate (Wang, Rosman &amp; Lu 2025). A systematic review of ML-for-PS adds <b>reporting guidelines</b>: pre-specify the estimand, the covariates, the balance metric and trimming, and report them — flexible ML makes p-hacking the model easy if you don't (Leite et al., Psychological Methods 2025). On large healthcare-claims data, super-learner / high-dimensional PS is the practical instantiation (Ju, under van der Laan; Fan, Beemer, Yan &amp; Levine).">一項把 PS 用多種 ML 估出、再和<b>隨機試驗</b>對答案的基準研究得到同一課：把共變項<b>平衡</b>得最好的方法（而非把治療<b>預測</b>得最準的）才還原試驗結果（Wang、Rosman &amp; Lu 2025）。一篇 ML-PS 系統性回顧再補上<b>報告指引</b>：事先指定估計目標、共變項、平衡指標與截斷並如實報告，否則彈性 ML 很容易讓你「挑模型」（Leite 等, Psychological Methods 2025）。在大型健保理賠資料上，super learner／高維 PS 是其務實落地（Ju，師承 van der Laan；Fan、Beemer、Yan &amp; Levine）。</p></div>
+        <p data-en="A benchmarking study that estimated PS by several ML methods and compared the answer to a <b>randomized trial</b> found the same lesson: methods that balanced covariates best — not those that predicted treatment best — recovered the trial estimate (Wang, Rosman &amp; Lu 2025). A systematic review of ML-for-PS adds <b>reporting guidelines</b>: pre-specify the estimand, the covariates, the balance metric and trimming, and report them — flexible ML makes p-hacking the model easy if you don't (Leite et al., Psychological Methods 2025). On large healthcare-claims data, super-learner / high-dimensional PS is the practical instantiation (Ju, under van der Laan; Fan, Beemer, Yan &amp; Levine).">一項把 PS 用多種 ML 估出、再和<b>隨機試驗</b>對答案的基準研究得到同一課：把共變項<b>平衡</b>得最好的方法（而非把治療<b>預測</b>得最準的）才還原試驗結果（Wang、Rosman &amp; Lu 2025）。一篇 ML-PS 系統性回顧再補上<b>報告指引</b>：事先指定估計目標、共變項、平衡指標與截斷並如實報告，否則彈性 ML 很容易讓你「挑模型」（Leite 等, Psychological Methods 2025）。在大型健保理賠資料上，super learner／高維 PS 就是這個想法務實的做法（Ju，師承 van der Laan；Fan、Beemer、Yan &amp; Levine）。</p></div>
     </div>
 
     <h2 data-en="Spotlight: the high-dimensional propensity score (hdPS) algorithm">聚焦：高維傾向分數（hdPS）演算法</h2>
@@ -4778,7 +4778,7 @@ teffects ipw (Y) (A X)</code></pre>
     <h1 data-en="TMLE &amp; doubly-robust estimation: two models, two chances to be right">TMLE 與雙重穩健：兩個模型、兩次機會</h1>
     <p class="lead" data-en="To estimate a vaccine's effect on outcome Y we must adjust for confounding by severity X. Two models can help: the <b>outcome regression</b> Q(A,X)=E[Y|A,X] (used by g-computation) and the <b>propensity score</b> PS=P(A=1|X) (used by IPTW). Use just one and a mis-specified model biases you. <b>Augmented IPW (AIPW)</b> combines both and is <b>doubly robust</b> — unbiased if <b>either</b> model is correct. <b>TMLE</b> takes the g-computation plug-in and adds a one-step <b>targeting</b> update (a ‘clever covariate’ fluctuation), giving a doubly-robust, semiparametric-efficient, bounded estimate (van der Laan &amp; Rubin 2006; Luque-Fernandez et al. 2018).">
       要估疫苗對結果 Y 的效果，得校正嚴重度 X 的混淆。兩個模型能幫忙：<b>結果迴歸</b> Q(A,X)=E[Y|A,X]（g-computation 用它）與
-      <b>傾向分數</b> PS=P(A=1|X)（IPTW 用它）。只用其一、若設定錯就偏。<b>擴增反機率加權（AIPW）</b>把兩者合起來、<b>雙重穩健</b>，
+      <b>傾向分數</b> PS=P(A=1|X)（IPTW 用它）。只用其中一個，模型設錯就會偏。<b>擴增反機率加權（AIPW）</b>把兩者合起來、<b>雙重穩健</b>，
       <b>其一</b>對就不偏。<b>TMLE</b> 在 g-computation 插入式估計上，再做一步<b>targeting</b> 微調（clever covariate 擾動），
       得到雙重穩健、半參數有效率、且邊界安全的估計（van der Laan &amp; Rubin 2006；Luque-Fernandez 等 2018）。
     </p>
@@ -4892,7 +4892,7 @@ eltmle Y A X, tmle</code></pre>
   <section id="tmleassume" class="panel">
     <h1 data-en="Can we trust this TMLE? Five checks">這個 TMLE 可不可信？五道體檢</h1>
     <p class="lead" data-en="Double robustness protects against MODELLING error, not against unmeasured confounding. The key assumption — no unmeasured confounding — is untestable (blue), as are consistency and the ‘at least one model correct’ condition. What you can check: positivity/overlap and enough data. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      雙重穩健只防<b>模型設定錯</b>，不防未測混淆。最關鍵的假設，無未測混淆，不可檢（藍），一致性與「至少一個模型對」也是。
+      雙重穩健只防<b>模型設定錯</b>，不防未測混淆。最關鍵的假設「無未測混淆」不可檢（藍），一致性與「至少一個模型對」也是。
       可以檢的是：正性／重疊、與資料量。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="tmleOverall" class="overall hidden"></div>
@@ -4942,7 +4942,7 @@ eltmle Y A X, tmle</code></pre>
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef"><h4>時變混淆／治療-混淆回饋 <span class="en">time-varying confounding / treatment-confounder feedback</span></h4>
         <p data-en="Think of a marker like disease activity (call it Lₜ) measured between two rounds of treatment. It plays three roles at once: it decides who gets the drug next (sicker people get treated), it is itself pushed around by the earlier dose (the drug changes how sick you are), and it affects the final outcome. That triple role is the trap. If you ignore it, sicker treated patients make the drug look bad — that's plain confounding. But if you 'adjust for it' the usual regression way, you do two harms: you block part of the drug's real benefit (the drug worked partly by improving Lₜ, so controlling Lₜ erases that path), and you accidentally open a fake link between things that share Lₜ as a common effect (a collider). So here the everyday fix — &quot;just put the confounder in the model&quot; — is wrong no matter which way you turn, which is exactly why special methods are needed.">
-          想像在兩輪治療之間量到一個指標，例如「疾病活動度」（叫它 Lₜ）。它同時扮演三個角色：它決定下一輪誰拿到藥（病重的人較常被治療）、它本身又被前一劑藥改變（藥讓你變好或變壞）、而且它影響最後結果。麻煩就在這「一身三職」。若你忽略它，病重又有治療的人會把藥拖成像沒效，這是單純的混淆。但若你照一般迴歸「把它放進模型校正」，反而做了兩件壞事：你擋掉藥的部分真效果（藥有一部分正是靠改善 Lₜ 才有用，控制 Lₜ 就抹掉這條路），又意外牽起一條假關聯（Lₜ 是兩件事的共同結果，控制它就打開了「對撞」這道假門）。所以這裡日常的直覺修法，「把混淆放進模型就好」，不管往哪邊轉都會錯，這正是要動用特殊方法的原因。</p></div>
+          想像在兩輪治療之間量到一個指標，例如「疾病活動度」（叫它 Lₜ）。它同時扮演三個角色：它決定下一輪誰拿到藥（病重的人較常被治療）、它本身又被前一劑藥改變（藥讓你變好或變壞）、而且它影響最後結果。麻煩就在這「一身三職」。若你忽略它，病重又接受治療的人會讓藥看起來像沒效，這是單純的混淆。但若你照一般迴歸「把它放進模型校正」，反而做了兩件壞事：你擋掉藥的部分真效果（藥有一部分正是靠改善 Lₜ 才有用，控制 Lₜ 就抹掉這條路），又意外牽起一條假關聯（Lₜ 是兩件事的共同結果，控制它就打開了「對撞」這道假門）。所以這裡日常的直覺修法，「把混淆放進模型就好」，不管往哪邊轉都會錯，這正是要動用特殊方法的原因。</p></div>
       <div class="tdef"><h4>g-formula／IPTW-MSM <span class="en">parametric g-formula / marginal structural model</span></h4>
         <p data-en="Two honest ways to get the answer the ordinary regression can't. The <b>g-formula</b> is &quot;build a little simulator&quot;: you learn from the data how the marker L tends to change and how the outcome Y depends on the whole history, then you replay the world twice — everyone always treated vs. everyone never treated — and average the outcomes. Because you simulate the marker as it would actually unfold, you neither ignore it nor wrongly block it. The <b>IPTW-MSM</b> takes a different route: instead of modelling the outcome, you re-weight people so the population looks as if treatment had been handed out at random. Someone treated against the odds (sick yet untreated, say) counts for more, by the inverse of their treatment probability; this deletes the arrows from L into treatment. On that re-balanced crowd you then fit one plain summary line, <code>E[Yᵃ]=β₀+β₁·(a₀+a₁)</code>, where the slope is the per-dose effect. Same target, two estimators.">
           兩種能拿到「一般迴歸做不到」答案的正確做法。<b>g-formula</b> 是「自己蓋一台小模擬器」：先從資料學會指標 L 大致怎麼變、結果 Y 怎麼隨整段病史走，然後把世界重播兩次，「人人全程用藥」對「人人全程不用」，再平均兩邊的結果。因為你是照 L 真實的演變去模擬，所以既沒忽略它、也沒錯誤地擋掉它。<b>IPTW-MSM</b> 走另一條路：不去建結果模型，而是把每個人「重新加權」，讓整群人看起來像是「治療是隨機發的」。那些反著常理被分到組別的人（例如病重卻沒治療）權重就放大，倍率正是其治療機率的倒數；這一招把「L 指向治療」的箭頭刪掉。在這群重新平衡過的人身上，再配一條簡單的總結線 <code>E[Yᵃ]=β₀+β₁·(a₀+a₁)</code>，斜率就是每多一劑的效果。同一個目標，兩種估法。</p></div>
@@ -5054,7 +5054,7 @@ gformula Y A1 L1 A0 L0, ///
   <section id="gmassume" class="panel">
     <h1 data-en="Can we trust this g-methods analysis? Five checks">這個 g-methods 分析可不可信？五道體檢</h1>
     <p class="lead" data-en="g-methods rest on <b>sequential exchangeability</b> — no unmeasured time-varying confounding — which is untestable (blue), as are consistency / well-defined regimes. The nuisance models must be right (improvable with ML, see ⑤). What you can check: positivity at each time and enough treated/untreated. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      g-methods 建立在<b>序列可交換</b>，無未測時變混淆，之上，不可檢（藍），一致性／策略定義明確也是。輔助模型要設定正確（可用 ML 改善，見 ⑤）。
+      g-methods 建立在<b>序列可交換</b>（無未測時變混淆）之上，這一條不可檢（藍），一致性／策略定義明確也是。輔助模型要設定正確（可用 ML 改善，見 ⑤）。
       可以檢的是：每個時點的正性、以及治療／未治療人數。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="gmOverall" class="overall hidden"></div>
@@ -5071,7 +5071,7 @@ gformula Y A1 L1 A0 L0, ///
         <b>超越單一平均效果。</b>傳統方法估一個<b>平均處置效果（ATE）</b>。因果機器學習更進一步，瞄準<b>個體化／條件效果（CATE）</b>。<b>Meta-learners</b> 把彈性 ML 放進<b>輔助</b>模型，而<b>因果識別仍靠相同假設</b>，這裡是序列可交換、正性、一致性。本頁 ⑤ 用 ML 配 g-formula 的 L 與 Y 模型。<i>出處：Feuerriegel 等, Nature Medicine 2024；Naimi, Cole &amp; Kennedy 2017。</i></p></div>
     </details>
     <p class="lead" data-en="When the time-varying confounder's evolution and the outcome depend on history <b>non-linearly</b>, a linear g-formula mis-specifies its nuisance models and stays biased. Using <b>gradient boosting</b> for the Lₜ and Y models (the spirit of ML / Super Learner in the g-formula) learns the non-linearity and recovers the regime effect. Click to run (loads scikit-learn the first time, ~5–10 s):">
-      當時變混淆的演變與結果對史是<b>非線性</b>時，線性 g-formula 把輔助模型配錯而偏。用<b>梯度提升</b>當 Lₜ 與 Y 的模型（g-formula 裡 ML／Super Learner 的精神），把非線性學對、還原策略效果。按下執行（首次會載入 scikit-learn，約 5–10 秒）：
+      當時變混淆的演變與結果隨病史呈<b>非線性</b>變化時，線性 g-formula 的輔助模型就配錯而有偏。用<b>梯度提升</b>當 Lₜ 與 Y 的模型（g-formula 裡 ML／Super Learner 的精神），把非線性學對、還原策略效果。按下執行（首次會載入 scikit-learn，約 5–10 秒）：
     </p>
     <button id="runGmMl" class="btn primary" data-en="Run the real-ML g-formula demo">跑真正的 ML g-formula 示範</button>
     <div id="gmMlOut" class="hidden">
@@ -5105,7 +5105,7 @@ gformula Y A1 L1 A0 L0, ///
           我們想知道疫苗能把你得到某隻病原（例如流感）的機會降低多少。麻煩在於：愛看醫生的人，既比較可能已經接種、也比較可能在生病時真的去檢驗、被記錄到，所以單純在一般人群裡比「接種 vs 沒接種」，會把「保護力」和「誰會跑來被檢驗」攪在一起。陰性檢驗設計的做法是只看那些「已經帶著症狀來、也做了檢驗」的人。在他們之中，驗出目標病原陽性的就是 case，驗出陰性（其實是別的病）的就是 control。因為兩組都跨過了同一道「願意就醫並接受檢驗」的門檻，這個就醫習慣就不再左右比較。接著看 case 和 control 之間「有接種」的勝算差多少，這個比值就是勝算比（OR），效力就是 VE ＝ 1 − OR。例如 OR ＝ 0.4，代表疫苗把感染降了六成（Jackson &amp; Nelson 2013）。</p></div>
       <div class="tdef"><h4>就醫傾向混淆 <span class="en">care-seeking (health-care-seeking) confounding</span></h4>
         <p data-en="This is the troublemaker the whole design is built to defeat. &quot;Care-seeking&quot; just means how readily a person goes to the doctor — and that single habit pushes on two things at once: people who seek care more are more likely to have been vaccinated in the first place, and they are also more likely to have an infection actually caught and confirmed by a test. Because the same hidden trait feeds both vaccination and being detected, a naïve comparison can make the vaccine look better or worse than it really is even when nobody measured &quot;care-seeking&quot; directly. The test-negative design is engineered precisely to cancel this: by studying only people who already sought care and got tested, it holds that habit roughly constant across cases and controls so it stops distorting the answer.">
-          這就是整個設計專門要打敗的搗蛋鬼。「就醫傾向」說白了就是一個人多容易跑去看醫生，而這單一習慣會同時推動兩件事：愛就醫的人原本就比較可能已經接種，也比較可能在感染時真的被檢驗、被確診。因為同一個看不見的特質同時餵養了「接種」和「被發現」，未校正的比較就可能讓疫苗看起來比實際更好或更差，即使根本沒人直接量過「就醫傾向」。陰性檢驗設計正是為了消掉它而打造：只研究那些已經就醫並做了檢驗的人，讓這個習慣在 case 與 control 之間大致拉平，就不再扭曲答案。</p></div>
+          這就是整個設計專門要對付的麻煩根源。「就醫傾向」說白了就是一個人多容易跑去看醫生，而這單一習慣會同時推動兩件事：愛就醫的人原本就比較可能已經接種，也比較可能在感染時真的被檢驗、被確診。因為同一個看不見的特質同時餵養了「接種」和「被發現」，未校正的比較就可能讓疫苗看起來比實際更好或更差，即使根本沒人直接量過「就醫傾向」。陰性檢驗設計正是為了消掉它而打造：只研究那些已經就醫並做了檢驗的人，讓這個習慣在 case 與 control 之間大致拉平，就不再扭曲答案。</p></div>
       <div class="tdef"><h4>對照疾病中性 <span class="en">neutral control disease</span></h4>
         <p data-en="The controls are the people who came in, got tested, and turned out to have some other illness — not the target bug. For the design to work, that &quot;other illness&quot; has to be one the vaccine doesn't touch at all; that's what &quot;neutral&quot; means. Think of it as a fair yardstick: it tells you what vaccination looks like among tested people who simply weren't infected by the target. The danger is if the vaccine secretly changes the control illness too — for example by making those other infections more or less likely or more or less testable. Then your yardstick is bent, the controls are contaminated, and the OR (and hence VE) drifts off the truth. This is exactly the kind of thing the ④ checks watch for (see ④, C2).">
           對照組就是那些來看診、做了檢驗，結果得的是別的病、而非目標病原的人。設計要成立，這個「別的病」必須是疫苗完全碰不到的，這就是「中性」的意思。可以把它想成一把公平的量尺：它告訴你在「有來檢驗但其實沒被目標病原感染」的人裡，接種長什麼樣子。危險在於疫苗偷偷也影響了對照疾病，例如讓那些別的感染變多變少、或變得更容易或更不容易被驗出。那麼這把量尺就彎了、對照被污染，OR（連帶 VE）就會偏離真值。這正是 ④ 體檢要盯的事（見 ④ C2）。</p></div>
@@ -5229,9 +5229,9 @@ logit case vaccinated if tested == 1, or</code></pre>
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Prescription sequence symmetry: a fast screen for prescribing cascades">處方順序對稱分析：快速篩出「處方瀑布」的訊號</h1>
     <p class="lead" data-en="Some adverse drug effects show up as a <b>prescribing cascade</b>: drug A causes a symptom, and the symptom gets treated with drug B. If A really triggers B, then among people who used <b>both</b>, &quot;A-then-B&quot; should outnumber &quot;B-then-A&quot;. The <b>crude sequence ratio (cSR)</b> = (A-then-B) ÷ (B-then-A) captures this — but it is <b>confounded by the prescribing trend</b>: if B's use is simply rising over calendar time, B tends to come &quot;later&quot; for everyone, inflating the cSR into a <b>false signal</b>. PSSA divides out that trend: the <b>null sequence ratio (SRnull)</b> is what the cSR would be under the trend <b>alone</b>, and the <b>adjusted sequence ratio</b> <b>aSR = cSR ÷ SRnull</b> ≈ 1 when there is no cascade and rises above 1 for a real one (Hallas 1996).">
-      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>未校正順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個，但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 灌成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>無效果順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
+      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>未校正順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個，但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 撐高成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>無效果順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
     </p>
-    <div class="card scene"><h3 data-en="The crude SR is inflated by the prescribing trend; SRnull removes it → aSR">未校正順序比被處方趨勢灌大；SRnull 把它除掉 → aSR</h3>
+    <div class="card scene"><h3 data-en="The crude SR is inflated by the prescribing trend; SRnull removes it → aSR">未校正順序比被處方趨勢撐高；SRnull 把它除掉 → aSR</h3>
       <div id="pssaScene" class="chart"></div></div>
     <details class="term">
       <summary data-en="Show terminology">看專有名詞解釋</summary>
@@ -5252,7 +5252,7 @@ logit case vaccinated if tested == 1, or</code></pre>
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive: turn up the cascade, watch the crude SR stay high but the aSR separate signal from trend">互動：加大瀑布，看未校正 SR 一直高、aSR 把訊號從趨勢中分出來</h1>
     <p class="lead" data-en="Drag the slider for the strength of the <b>real cascade</b> (how often A actually triggers B). The <b>crude SR</b> is <b>high throughout</b> — even at 0 cascade — because the prescribing trend alone inflates it (a false signal). The <b>adjusted SR (aSR)</b> sits at the null (≈1) when there is no cascade and climbs only as the real cascade grows. That gap is the whole point: aSR, not cSR, is the real signal.">
-      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>未校正 SR</b> <b>從頭到尾都高</b>，連瀑布為 0 時也是，因為光是處方趨勢就把它灌大（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：真正的訊號是 aSR，不是 cSR。
+      拉動滑桿改變<b>真實瀑布</b>的強度（A 實際引發 B 的頻率）。<b>未校正 SR</b> <b>從頭到尾都高</b>，連瀑布為 0 時也是，因為光是處方趨勢就把它撐高（假訊號）。<b>校正 SR（aSR）</b>在沒有瀑布時落在虛無（≈1），只有真瀑布變大時才往上爬。這個落差就是重點：真正的訊號是 aSR，不是 cSR。
     </p>
     <div class="controls"><label>
       <span data-en="Real cascade strength:">真實瀑布強度：</span><b id="pssaCascVal">1.0</b>
@@ -5260,7 +5260,7 @@ logit case vaccinated if tested == 1, or</code></pre>
       <small data-en="0 = no cascade (A never triggers B); the crude SR is still &gt; 1 from the trend alone — a false signal — but the aSR sits at 1. Larger = a stronger real cascade, which only the aSR tracks.">0＝沒有瀑布（A 從不引發 B）；未校正 SR 仍因趨勢 &gt; 1，假訊號，但 aSR 落在 1。越大＝真瀑布越強，只有 aSR 跟得上。</small>
     </label></div>
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Crude SR">未校正 SR</div><div class="stat-num" id="pssaCsr">–</div><div class="stat-foot" data-en="trend-inflated">趨勢灌大</div></div>
+      <div class="stat"><div class="stat-label" data-en="Crude SR">未校正 SR</div><div class="stat-num" id="pssaCsr">–</div><div class="stat-foot" data-en="trend-inflated">趨勢撐高</div></div>
       <div class="stat"><div class="stat-label" data-en="Null SR (trend)">SRnull（趨勢）</div><div class="stat-num" id="pssaSrnull">–</div><div class="stat-foot" data-en="trend baseline">趨勢基準</div></div>
       <div class="stat"><div class="stat-label" data-en="Adjusted SR">校正 SR（aSR）</div><div class="stat-num" id="pssaAsr">–</div><div class="stat-foot" data-en="the real signal">真正的訊號</div></div>
     </div>
@@ -5376,7 +5376,7 @@ summarize index_first</code></pre>
           想像有成千上萬種可能的副作用，像家族樹一樣排好，具體症狀掛在比較大的身體系統底下。你想一次在<b>每一個</b>位置問：「暴露組在這裡的病例是不是多得異常？」對每個位置我們算一個數字，叫<b>對數概似比（LLR）</b>：它衡量「該位置暴露組的病例比例，比碰運氣該有的多出多少」，LLR 越大，代表這個超額越令人意外。巧妙之處在於不只看單一葉節點，也看它們的<b>父分支</b>：一個分散在好幾個相關症狀上的弱訊號（每個單看都太小、看不出來），在共同的父節點底下就會加總起來、被看見。接著我們把<b>整棵樹裡最大的那個 LLR</b> 當作頭條數字，最響的那聲警報，再由下一步判斷連這一個是不是真的（Kulldorff 等 2003）。</p></div>
       <div class="tdef"><h4>排列法 p 值／族系錯誤率 <span class="en">permutation p-value / family-wise error rate</span></h4>
         <p data-en="If you test thousands of spots, some will look &quot;significant&quot; purely by luck — the more lottery tickets you buy, the more likely one wins by accident. <b>Family-wise error</b> is exactly that risk: the chance of <b>any</b> false alarm across the whole tree. To guard against it, we play out a pure-chance world: <b>shuffle the exposure labels at random</b> (so nobody's exposure has any real link to their outcome) and record the biggest LLR the tree throws up by luck alone; do this thousands of times to build a picture of &quot;how loud can the loudest fluke get.&quot; A node's <b>adjusted p-value</b> is then just where its real LLR ranks against that pile of flukes — small p means louder than chance could plausibly manage. Because we always compare against the <b>biggest</b> fluke each round, the correction for &quot;we looked everywhere&quot; is already baked in, so it controls the family-wise error in one shot.">
-          如果你檢驗了上千個位置，總有一些純粹靠運氣看起來「顯著」，買越多張彩券，越可能有一張碰巧中獎。<b>族系錯誤率</b>講的正是這個風險：整棵樹上出現<b>任何一個</b>假警報的機會。為了防它，我們模擬一個「純屬碰運氣」的世界：把<b>暴露標籤隨機打亂</b>（讓每個人的暴露和他的結果再無真實關聯），記下這時整棵樹靠運氣能冒出的最大 LLR；重複幾千次，就拼出「最吵的那個運氣最吵能多吵」的全貌。某節點的<b>校正後 p 值</b>，就是它真實的 LLR 在這堆「運氣值」裡排第幾，p 越小，代表它吵到運氣很難辦到。因為每一輪都拿<b>最大</b>的運氣值來比，「我們到處都看了」這件事的校正已經內建，於是一次就把族系錯誤率守住。</p></div>
+          如果你檢驗了上千個位置，總有一些純粹靠運氣看起來「顯著」，買越多張彩券，越可能有一張碰巧中獎。<b>族系錯誤率</b>講的正是這個風險：整棵樹上出現<b>任何一個</b>假警報的機會。為了防它，我們模擬一個「純屬碰運氣」的世界：把<b>暴露標籤隨機打亂</b>（讓每個人的暴露和他的結果再無真實關聯），記下這時整棵樹靠運氣能冒出的最大 LLR；重複幾千次，就拼出「光靠運氣，警報最響能有多響」的全貌。某節點的<b>校正後 p 值</b>，就是它真實的 LLR 在這堆「運氣值」裡排第幾，p 越小，代表光靠運氣很難達到這麼響。因為每一輪都拿<b>最大</b>的運氣值來比，「我們到處都看了」這件事的校正已經內建，於是一次就把族系錯誤率守住。</p></div>
       <div class="tdef"><h4>訊號偵測（產生假說）<span class="en">signal detection (hypothesis-generating)</span></h4>
         <p data-en="TreeScan is a <b>screen, not a verdict.</b> Like a metal detector sweeping a beach, it tells you where to dig — which drug–outcome pairs are worth a closer, confounder-controlled study — but it does not prove the drug <b>caused</b> the event; sicker patients getting the drug could still explain a flagged excess. Think of it as the big-scale cousin of PSSA, the sequence-symmetry screen: PSSA inspects <b>one</b> drug–outcome pair at a time, while TreeScan sweeps an <b>entire hierarchy</b> of outcomes in a single pass and still keeps false alarms in check. Its job is to <b>generate hypotheses</b> for follow-up, not to settle them.">
           TreeScan 是<b>篩檢，不是定論。</b>它像在沙灘上掃金屬探測器，告訴你「哪裡值得挖」，哪些藥物–結果配對值得做更仔細、控制混淆的研究，但它不證明這個藥<b>造成</b>了該事件；被標出的超額，也可能只是因為病比較重的人本來就比較會拿到這個藥。可以把它想成 PSSA（序列對稱篩檢）的放大版表親：PSSA 一次只看<b>一對</b>藥物–結果，而 TreeScan 一趟就掃過<b>整個結果階層</b>、同時把假警報壓住。它的任務是<b>產生待驗證的假說</b>，而不是替你下結論。</p></div>
@@ -5388,7 +5388,7 @@ summarize index_first</code></pre>
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive: inject a real excess at one node, watch the naive scan over-flag but TreeScan stay controlled">互動：在一個節點注入真超額，看未校正掃描亂標、TreeScan 卻穩住</h1>
     <p class="lead" data-en="Drag the slider for the <b>signal strength</b> at the one target node (the exposure-odds multiplier there). At strength <b>1</b> there is <b>no</b> real excess anywhere — yet a <b>naive</b> uncorrected scan still flags a node or two by chance (false alarms), while <b>TreeScan</b> correctly flags <b>none</b>. As the signal grows, the max LLR climbs and TreeScan's permutation p drops below 0.05 — flagging the true node (and its parent system) while still holding the family-wise error.">
-      拉動滑桿改變那一個目標節點的<b>訊號強度</b>（該節點的暴露勝算乘數）。強度為 <b>1</b> 時<b>到處都沒有</b>真超額，但<b>未校正</b>未校正的掃描仍會因運氣標出一兩個節點（假警報），而 <b>TreeScan</b> 正確地<b>一個都不標</b>。訊號變大時，最大 LLR 往上爬、TreeScan 的排列 p 掉到 0.05 以下，標出真節點（與其父系統），同時仍守住族系錯誤率。
+      拉動滑桿改變那一個目標節點的<b>訊號強度</b>（該節點的暴露勝算乘數）。強度為 <b>1</b> 時<b>到處都沒有</b>真超額，但<b>未校正</b>的掃描仍會因運氣標出一兩個節點（假警報），而 <b>TreeScan</b> 正確地<b>一個都不標</b>。訊號變大時，最大 LLR 往上爬、TreeScan 的排列 p 掉到 0.05 以下，標出真節點（與其父系統），同時仍守住族系錯誤率。
     </p>
     <div class="controls"><label>
       <span data-en="Signal strength at the target node:">目標節點的訊號強度：</span><b id="tscanSigVal">3.0</b>
@@ -5409,7 +5409,7 @@ summarize index_first</code></pre>
   <section id="tscananalyze" class="panel">
     <h1 data-en="Data analysis: scan the tree, rank the nodes, count naive vs FWER-controlled flags">資料分析：掃描樹、把節點排名、數未校正 vs FWER 控制的標記</h1>
     <p class="lead" data-en="Load the built-in exposed-vs-control cohort over the outcome tree (one real excess is hidden at a single node). The tool scans every leaf and system node, ranks them by LLR, gives each a permutation-adjusted p, and contrasts how many nodes a <b>naive</b> uncorrected scan would flag vs how many survive the <b>FWER-controlled</b> TreeScan.">
-      載入內建的「暴露 vs 對照」世代（在某一個節點藏了一個真超額）。工具掃描每個葉節點與系統節點、依 LLR 排名、給每個節點排列校正 p，並對比<b>未校正</b>未校正掃描會標幾個 vs <b>FWER 控制</b>的 TreeScan 存活幾個。
+      載入內建的「暴露 vs 對照」世代（在某一個節點藏了一個真超額）。工具掃描每個葉節點與系統節點、依 LLR 排名、給每個節點排列校正 p，並對比<b>未校正</b>掃描會標幾個 vs <b>FWER 控制</b>的 TreeScan 存活幾個。
     </p>
     <div class="datasource">
       <button id="useTscanExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
@@ -5835,7 +5835,7 @@ data d; set d;
     else e_ci = 1;
 run;
 proc print data=d; var outcome rr e_point e_ci; run;</code></pre>
-      <p data-en="A data step applies the closed-form E-value to the point estimate and to the confidence limit nearest the null."><以資料步驟對點估計值與最接近虛無的信賴界限套用封閉式 E 值公式。></p></div>
+      <p data-en="A data step applies the closed-form E-value to the point estimate and to the confidence limit nearest the null.">用一個資料步驟，對點估計值和最接近虛無值的信賴區間端點套用封閉式 E-value 公式。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — EValue::evalues.RR">R — EValue::evalues.RR</h3>
       <pre class="sas"><code><span class="cm"># E-value for each outcome's RR and its confidence interval</span>
 library(EValue)
@@ -5844,7 +5844,7 @@ for (i in seq_len(nrow(d))) {
     cat(as.character(d$outcome[i]), "\n")
     print(evalues.RR(est = d$rr[i], lo = d$lo[i], hi = d$hi[i]))
 }</code></pre>
-      <p data-en="evalues.RR() returns the E-value for the point estimate and for the CI limit closest to the null, looping over every outcome."><evalues.RR() 對每個結果回傳點估計值與最接近虛無之信賴界限的 E 值。></p></div>
+      <p data-en="evalues.RR() returns the E-value for the point estimate and for the CI limit closest to the null, looping over every outcome.">evalues.RR() 逐一處理每個結果，回傳點估計值與最接近虛無值那端信賴區間的 E-value。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — closed-form via generate">Stata — 以 generate 計算封閉式</h3>
       <pre class="sas"><code><span class="cm">* Same closed-form E-value computed with generate</span>
 import delimited "evalue_sample.csv", clear case(preserve)
@@ -5854,7 +5854,7 @@ gen b = cond(lo &lt; 1 &amp; hi &lt; 1, hi, lo)
 gen e_ci = cond(b &gt; 1, b + sqrt(b*(b-1)), ///
             cond(b &lt; 1, (1/b) + sqrt((1/b)*((1/b)-1)), 1))
 list outcome rr e_point e_ci</code></pre>
-      <p data-en="generate applies the same VanderWeele &amp; Ding formula to the estimate and the CI limit nearest 1."><以 generate 對估計值與最接近 1 的信賴界限套用相同的 VanderWeele &amp; Ding 公式。></p></div>
+      <p data-en="generate applies the same VanderWeele &amp; Ding formula to the estimate and the CI limit nearest 1.">用 generate 對估計值和最接近 1 的信賴區間端點套用同一條 VanderWeele &amp; Ding 公式。</p></div>
   </section>
 
   <!-- ===================== E-value ④ 假設檢驗 ===================== -->
@@ -6098,7 +6098,7 @@ regress y treated external x, level(90)</code></pre>
   <section id="perrwhatif" class="panel">
     <h1 data-en="⑥ What if…? PERR in the language of counterfactuals">⑥ 如果……？用反事實的語言看「事前事件率比 PERR」</h1>
     <p class="lead" data-en="We want the treated group's <b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>, but stable differences in frailty confound the contrast. PERR's trick: take the rate ratio in a <b>prior (untreated) period</b> and divide it out, so any <b>time-fixed, multiplicative</b> confounding cancels.">
-      我們要受處置組的<b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>，但穩定的體質差異會混淆對比。PERR 的把戲：在<b>事前（未處置）期</b>也算一次率比、再相除，讓<b>時間不變、乘法型</b>的混淆相消。
+      我們要受處置組的<b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>，但穩定的體質差異會混淆對比。PERR 的招式：在<b>事前（未處置）期</b>也算一次率比、再相除，讓<b>時間不變、乘法型</b>的混淆相消。
     </p>
     <div class="card scene"><h3 data-en="Cancelling stable confounding by a ratio of ratios">用比值的比值消掉穩定混淆</h3>
       <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_perr" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the drug node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：用藥節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_perr" class="chart"></div></div></div></div>
@@ -6595,7 +6595,7 @@ regress y treated external x, level(90)</code></pre>
     <div class="cards">
       <div class="card"><h3 data-en="① Counterfactual &amp; estimand">① 反事實與估計目標</h3><p data-en="The treatment effect in the trial population E[Yᵃ⁼¹ − Yᵃ⁼⁰]; the trial gives Yᵃ⁼¹, the external arm gives Yᵃ⁼⁰.">試驗族群的治療效果 E[Yᵃ⁼¹ − Yᵃ⁼⁰]；試驗給 Yᵃ⁼¹，外部臂給 Yᵃ⁼⁰。</p></div>
       <div class="card"><h3 data-en="② Identification conditions">② 辨識條件</h3><p data-en="Exchangeability of the external controls given X (S ⫫ Yᵃ⁼⁰ | X), positivity (trial ⊆ external support), consistent &amp; well-defined outcome, no era/source effect.">外部對照在 X 下可交換（S ⫫ Yᵃ⁼⁰ | X）、正性（試驗 ⊆ 外部支持）、結果定義一致且良好、無時代／來源效應。</p></div>
-      <div class="card"><h3 data-en="③ Where exchangeability comes from">③ 可交換性從哪借</h3><p data-en="From measuring every prognostic factor that differs between the arms — then standardising / weighting removes the imbalance. (Concurrent randomisation would supply it for free; here you must earn it.)">來自「量到每一個在兩臂間不同的預後因子」，標準化／加權再把不平衡消掉。（同期隨機化會免費給你；這裡得自己掙。）</p></div>
+      <div class="card"><h3 data-en="③ Where exchangeability comes from">③ 可交換性從哪借</h3><p data-en="From measuring every prognostic factor that differs between the arms — then standardising / weighting removes the imbalance. (Concurrent randomisation would supply it for free; here you must earn it.)">來自「量到每一個在兩臂間不同的預後因子」，標準化／加權再把不平衡消掉。（同期隨機化會免費給你；這裡得靠自己做到。）</p></div>
       <div class="card"><h3 data-en="④ In the literature">④ 對應文獻</h3><p data-en="ICH E10; Pocock 1976; Schmidli et al. 2014 (dynamic borrowing); Burcu et al. 2020; Jahanshahi et al. 2021. Free book: Hernán &amp; Robins, <i>What If</i> (target-trial &amp; transportability).">ICH E10；Pocock 1976；Schmidli 等 2014（動態借用）；Burcu 等 2020；Jahanshahi 等 2021。免費書：Hernán &amp; Robins, <i>What If</i>（目標試驗與可轉移性）。</p></div>
     </div>
   </section>
@@ -6822,7 +6822,7 @@ run;
 <span class="cm">/* SAS has no standard QCA procedure; just view the calibrated memberships. */</span>
 <span class="cm">/* The truth-table minimization is run in R (QCA package) below. */</span>
 proc print data=d; run;</code></pre>
-      <p data-en="SAS lacks a standard QCA implementation; the canonical analysis is the R QCA package.">SAS 無標準 QCA 實作；標準分析為 R QCA 套件。</p></div>
+      <p data-en="SAS lacks a standard QCA implementation; the canonical analysis is the R QCA package.">SAS 沒有標準的 QCA 實作；標準做法是用 R 的 QCA 套件。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — truthTable() + minimize()">R — truthTable() + minimize()</h3>
       <pre class="sas"><code><span class="cm"># read the sample file (A,B,C,Y are calibrated 0-1 memberships)</span>
 d &lt;- read.csv("fsqca_sample.csv", row.names = "case")
@@ -7004,7 +7004,7 @@ display exp(r(estimate)), exp(r(lb)), exp(r(ub))</code></pre>
 </section>
   <section id="babeml" class="panel">
   <h1 data-en="Where modelling and ML meet BA/BE">建模與機器學習在 BA/BE 的交會處</h1>
-  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗，中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。要誠實面對哪些目前已被主管機關接受。</p>
+  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗，中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。也要老實說清楚：這些做法當中，哪些是主管機關目前已經接受的。</p>
   <div class="cards cards-3">
     <div class="card">
       <h3 data-en="Population-PK / model-informed BE">族群藥動／模型導向 BE</h3>
@@ -7042,7 +7042,7 @@ display exp(r(estimate)), exp(r(lb)), exp(r(ub))</code></pre>
   <!-- ===================== wetlab (adjacent · full ①–⑥) ===================== -->
   <section id="wetlablearn" class="panel">
   <h1 data-en="Wet lab experiments: build the cause, then watch the effect">濕式實驗：把「因」造出來，再看「果」</h1>
-  <p class="lead" data-en="A wet lab experiment is the experimental complement to observational causal inference: instead of adjusting for confounders in messy human data, you go to the bench or the animal and <b>deliberately intervene</b> — knock a gene out, titrate a dose, randomize animals to treatment — and read the effect on a mechanism you can measure. The pay-off is very high internal validity (you made the cause, so confounding is designed away) and direct evidence of mechanism; the price is uncertain transportability to humans. Its real power is in <b>triangulation</b>: when a bench result and an epidemiological estimate point the same way despite failing in completely different ways, the causal claim gets much stronger.">濕式實驗是觀察性因果推論的「實驗版互補」：不是在雜亂的人類資料裡硬校正混淆，而是直接到實驗檯或動物身上<b>刻意介入</b>，敲除一個基因、滴定劑量、把動物隨機分派到處理組，再讀出你量得到的機制反應。好處是內部效度極高（因是你造的，混淆被設計掉了）並能直接看到機制；代價是對人類的可轉移性不確定。它真正的威力在於<b>三角驗證</b>：當實驗檯結果與流行病學估計、儘管各自有完全不同的弱點、卻指向同一方向時，因果主張會大大加強。</p>
+  <p class="lead" data-en="A wet lab experiment is the experimental complement to observational causal inference: instead of adjusting for confounders in messy human data, you go to the bench or the animal and <b>deliberately intervene</b> — knock a gene out, titrate a dose, randomize animals to treatment — and read the effect on a mechanism you can measure. The pay-off is very high internal validity (you made the cause, so confounding is designed away) and direct evidence of mechanism; the price is uncertain transportability to humans. Its real power is in <b>triangulation</b>: when a bench result and an epidemiological estimate point the same way despite failing in completely different ways, the causal claim gets much stronger.">濕式實驗是觀察性因果推論的「實驗版互補」：不是在雜亂的人類資料裡硬校正混淆，而是直接到實驗檯或動物身上<b>刻意介入</b>，敲除一個基因、滴定劑量、把動物隨機分派到處理組，再讀出你量得到的機制反應。好處是內部效度極高（因是你造的，混淆被設計掉了）並能直接看到機制；代價是對人類的可轉移性不確定。它真正的威力在於<b>三角驗證</b>：當實驗檯結果與流行病學估計各自的弱點完全不同、卻指向同一方向時，因果主張會大大加強。</p>
   <div class="card info"><h3 data-en="The workflow">工作流程</h3><p data-en="Pick a manipulable cause (a gene, a compound, a dose); randomize and blind the experimental units (cells, dishes, animals) so groups differ only by the intervention; apply graded doses; measure the mechanistic and phenotypic outcome; then analyze with ANOVA/regression and a dose–response curve, and replicate. The design — not the statistics — is what buys the causal claim.">挑一個可操弄的因（一個基因、一種化合物、一個劑量）；把實驗單位（細胞、培養皿、動物）隨機分派並設盲，使各組僅在介入上不同；施加分級劑量；量測機制與表型結果；再用 ANOVA／迴歸與劑量反應曲線分析，並重複驗證。買到因果主張的是「設計」，不是統計。</p></div>
   <div class="cards cards-3">
     <div class="card"><h3 data-en="Genetic manipulation">基因操弄</h3><p data-en="Knock-out / knock-in (CRISPR, conditional alleles) removes or installs the candidate cause, then asks whether the phenotype follows. Necessity and sufficiency tests at the level of the molecule itself.">敲除／敲入（CRISPR、條件型等位基因）把候選的因拿掉或裝上，再看表型是否隨之改變。這是在分子層級直接做「必要性」與「充分性」檢驗。</p></div>
@@ -7121,7 +7121,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
 </section>
   <section id="wetlabml" class="panel">
   <h1 data-en="Boost with AI: phenotyping, screening triage, and in-silico pre-screen">用 AI 強化：表型判讀、篩選分流、與電腦預篩</h1>
-  <p class="lead" data-en="Machine learning does not replace the experimental logic of a wet lab study — randomization is still what buys causation. What it changes is throughput and measurement: reading phenotypes from images and omics, triaging which conditions are worth a full assay, and pre-screening compounds in silico so the bench focuses on the most promising candidates. Each helps generate and prioritize hypotheses; none confirms them.">機器學習不取代濕式實驗的實驗邏輯，買到因果的仍是隨機化。它改變的是通量與量測：從影像與體學讀出表型、分流哪些條件值得做完整試驗、用電腦預篩化合物讓實驗檯聚焦最有希望的候選。每一項都在幫忙產生與排序假說，沒有一項能確認假說。</p>
+  <p class="lead" data-en="Machine learning does not replace the experimental logic of a wet lab study — randomization is still what buys causation. What it changes is throughput and measurement: reading phenotypes from images and omics, triaging which conditions are worth a full assay, and pre-screening compounds in silico so the bench focuses on the most promising candidates. Each helps generate and prioritize hypotheses; none confirms them.">機器學習不取代濕式實驗的實驗邏輯，買到因果的仍是隨機化。它改變的是通量與量測：從影像與體學讀出表型、分流哪些條件值得做完整試驗、用電腦預篩化合物讓實驗檯聚焦最有希望的候選。每一項都在幫忙產生假說、排出優先順序，但沒有一項能確認假說。</p>
   <div class="cards cards-3">
     <div class="card"><h3 data-en="① Image / omics phenotyping">① 影像／體學表型判讀</h3><p data-en="Deep models score subtle morphological or molecular phenotypes from microscopy and omics far faster and more reproducibly than manual scoring, giving sensitive, unbiased outcome measurements. Limit: a learned phenotype is only as meaningful as the labels and biology behind it — validate against ground truth.">深度模型能從顯微影像與體學評分細微的形態或分子表型，比人工評分更快、更可重現，提供敏感且無偏的結果量測。限制：學出來的表型只和它背後的標註與生物學一樣可靠，要對照金標準驗證。</p></div>
     <div class="card"><h3 data-en="② High-content screening triage">② 高內涵篩選分流</h3><p data-en="In large screens, ML ranks wells/conditions so scarce bench effort goes to the most promising hits and obvious artifacts are filtered out. Limit: this is prioritization, not proof — every ML-flagged hit still needs a randomized confirmatory experiment, and the ranking can inherit screen-specific batch biases.">在大規模篩選中，ML 把孔位／條件排序，讓稀缺的實驗檯資源用在最有希望的命中、並濾掉明顯偽影。限制：這是排序、不是證明，每個被 ML 標出的命中仍需隨機化的確認實驗，且排序可能繼承篩選特有的批次偏差。</p></div>
@@ -7626,12 +7626,12 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
 <section id="mrlearn" class="panel">
   <h1 data-en="Mendelian randomization: let nature run the randomized trial">孟德爾隨機化：讓大自然替你做隨機試驗</h1>
   <p class="lead" data-en="We want to know whether an <b>exposure</b> (say, lifelong LDL cholesterol) <i>causes</i> a disease. A real trial that randomizes people's cholesterol from birth is impossible. But genes <i>are</i> handed out almost at random at conception — so a genetic variant that nudges cholesterol up acts like a tiny natural randomizer. Mendelian randomization (MR) uses such variants as <b>instrumental variables</b>: if the variant raises the exposure <b>and</b> raises the disease in proportion, the exposure is doing the causing.">
-    我們想知道某個<b>暴露</b>（例如終生的 LDL 膽固醇）是否<i>導致</i>某疾病。要做一個從出生就隨機分配膽固醇的真實試驗是不可能的。但基因在受精時幾乎是<b>隨機</b>分發的，所以一個會把膽固醇往上推的遺傳變異，就像一台微型的天然隨機分配器。孟德爾隨機化（MR）把這類變異當成<b>工具變數</b>：若變異提高了暴露、<b>又</b>按比例提高了疾病，那暴露就是在做因果。
+    我們想知道某個<b>暴露</b>（例如終生的 LDL 膽固醇）是否<i>導致</i>某疾病。要做一個從出生就隨機分配膽固醇的真實試驗是不可能的。但基因在受精時幾乎是<b>隨機</b>分發的，所以一個會把膽固醇往上推的遺傳變異，就像一台微型的天然隨機分配器。孟德爾隨機化（MR）把這類變異當成<b>工具變數</b>：若變異提高了暴露、<b>又</b>按比例提高了疾病，那就表示是暴露在發揮因果作用。
   </p>
   <div class="card info">
     <h3 data-en="The workflow">工作流程</h3>
     <p data-en="Pick genetic variants (SNPs) robustly associated with the exposure → get each variant's effect on the exposure (β<sub>X</sub>) and on the outcome (β<sub>Y</sub>), usually from two big GWAS → for each variant the ratio β<sub>Y</sub>/β<sub>X</sub> is a causal estimate (a Wald ratio) → combine them by inverse-variance weighting (IVW) into one number → run sensitivity methods (MR-Egger, weighted median) to check the answer isn't driven by misbehaving variants.">
-      挑選與暴露穩健相關的遺傳變異（SNP）→ 取得每個變異對暴露的效果（β<sub>X</sub>）與對結果的效果（β<sub>Y</sub>），通常來自兩個大型 GWAS → 每個變異的比值 β<sub>Y</sub>/β<sub>X</sub> 就是一個因果估計（Wald 比值）→ 用反變異加權（IVW）把它們合成一個數字 → 跑敏感度方法（MR-Egger、加權中位數）確認答案不是被行為不良的變異帶歪。
+      挑選與暴露穩健相關的遺傳變異（SNP）→ 取得每個變異對暴露的效果（β<sub>X</sub>）與對結果的效果（β<sub>Y</sub>），通常來自兩個大型 GWAS → 每個變異的比值 β<sub>Y</sub>/β<sub>X</sub> 就是一個因果估計（Wald 比值）→ 用反變異加權（IVW）把它們合成一個數字 → 跑敏感度方法（MR-Egger、加權中位數）確認答案沒有被不符合假設的變異帶偏。
     </p>
   </div>
   <div class="cards cards-3">
@@ -7666,7 +7666,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
 </section>
 
 <section id="mrplay" class="panel">
-  <h1 data-en="Interactive MR: read the causal slope, and watch pleiotropy bend it">互動式 MR：讀出因果斜率，再看多效性把它弄歪</h1>
+  <h1 data-en="Interactive MR: read the causal slope, and watch pleiotropy bend it">互動式 MR：讀出因果斜率，再看多效性怎麼讓它偏掉</h1>
   <p class="lead" data-en="Each dot is one genetic variant: its horizontal position is how strongly it raises the <b>exposure</b> (β<sub>X</sub>), its vertical position is how strongly it raises the <b>outcome</b> (β<sub>Y</sub>). When the instruments are valid the dots line up through the origin and the <b>slope of that line is the causal effect</b> (the IVW estimate). Switch the menu to &quot;some pleiotropy&quot; and several dots lift <b>off</b> the line — they push the outcome through a second pathway, so the IVW slope is biased; but MR-Egger lets the line start away from the origin, and its <b>non-zero intercept flags the pleiotropy</b>.">
     每個點是一個遺傳變異：水平位置是它把<b>暴露</b>提高多少（β<sub>X</sub>），垂直位置是它把<b>結果</b>提高多少（β<sub>Y</sub>）。當工具有效時，這些點會沿著過原點的直線排好，而<b>那條線的斜率就是因果效果</b>（IVW 估計）。把選單切到「部分多效性」，會有幾個點<b>偏離</b>直線，它們透過第二條路徑推動結果，於是 IVW 斜率有偏；但 MR-Egger 允許直線不從原點出發，它<b>不為 0 的截距就標記出多效性</b>。
   </p>
@@ -7709,7 +7709,7 @@ proc reg data=d;
     model beta_out = beta_exp / noint;
 run;
 quit;</code></pre>
-      <p data-en="The no-intercept weighted regression slope is the IVW causal estimate; adding an intercept gives MR-Egger."><無截距加權迴歸的斜率即 IVW 因果估計值；加入截距即 MR-Egger。></p></div>
+      <p data-en="The no-intercept weighted regression slope is the IVW causal estimate; adding an intercept gives MR-Egger.">無截距加權迴歸的斜率就是 IVW 因果估計值；加入截距就是 MR-Egger。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — MendelianRandomization">R — MendelianRandomization</h3>
       <pre class="sas"><code><span class="cm"># IVW and MR-Egger from summary statistics, plus scatter plot</span>
 library(MendelianRandomization)
@@ -7726,7 +7726,7 @@ import delimited "mr_sample.csv", clear case(preserve)
 gen w = 1/(se_out^2)
 regress beta_out beta_exp [aw=w], noconstant
 <span class="cm">* add a constant for MR-Egger: regress beta_out beta_exp [aw=w]</span></code></pre>
-      <p data-en="regress with analytic weights and noconstant reproduces the IVW slope; the dedicated mrrobust package offers mregger if installed."><加上分析權重與 noconstant 的 regress 可重現 IVW 斜率；若安裝 mrrobust 套件則可用 mregger。></p></div>
+      <p data-en="regress with analytic weights and noconstant reproduces the IVW slope; the dedicated mrrobust package offers mregger if installed.">加上分析權重與 noconstant 的 regress 就能重現 IVW 斜率；若有安裝 mrrobust 套件，也可以用 mregger。</p></div>
   </section>
 
 <section id="mrassume" class="panel">
@@ -7792,7 +7792,7 @@ regress beta_out beta_exp [aw=w], noconstant
     <div class="card">
       <h3 data-en="What if there is pleiotropy?">如果有多效性？</h3>
       <p data-en="If variants hit the outcome through a second pathway, IVW is biased and the scatter points scatter off the origin line. Compare IVW with <b>MR-Egger</b> (check its intercept), the <b>weighted median</b>, and <b>MR-PRESSO</b>: if all roughly agree, the conclusion is robust; if they diverge, distrust IVW.">
-        若變異透過第二條路徑打到結果，IVW 就有偏、散佈點會偏離過原點的直線。把 IVW 與 <b>MR-Egger</b>（看它的截距）、<b>加權中位數</b>與 <b>MR-PRESSO</b> 互相比較：若大致一致，結論就穩健；若彼此分歧，就別信 IVW。
+        若變異透過第二條路徑影響到結果，IVW 就有偏、散佈點會偏離過原點的直線。把 IVW 與 <b>MR-Egger</b>（看它的截距）、<b>加權中位數</b>與 <b>MR-PRESSO</b> 互相比較：若大致一致，結論就穩健；若彼此分歧，就別信 IVW。
       </p>
     </div>
     <div class="card">
@@ -8135,7 +8135,7 @@ proc mixed data=d method=reml;
     repeated / group=study;
     parms / parmsdata=d eqcons=1;
 run;</code></pre>
-      <p data-en="PROC MIXED estimates the pooled effect with a random study intercept; the fixed-intercept solution is the pooled REML estimate."><PROC MIXED 以隨機 study 截距估計合併效應，固定截距的解即為 REML 合併估計值。></p></div>
+      <p data-en="PROC MIXED estimates the pooled effect with a random study intercept; the fixed-intercept solution is the pooled REML estimate."><PROC MIXED 以隨機 study 截距估計合併效應，固定截距的解就是 REML 合併估計值。></p></div>
     <div data-lang="r" class="card"><h3 data-en="R — metafor::rma + forest">R — metafor::rma 與森林圖</h3>
       <pre class="sas"><code><span class="cm"># Random-effects (REML) meta-analysis and forest plot</span>
 library(metafor)
@@ -8312,7 +8312,7 @@ proc means data=d sum;
     class treatment;
     var events n;
 run;</code></pre>
-      <p data-en="The canonical frequentist NMA is netmeta in R; in SAS one would build a Bayesian model in PROC MCMC, so only the data summary is shown here."><頻率學派 NMA 的標準工具是 R 的 netmeta；在 SAS 中需以 PROC MCMC 自建貝氏模型，故此處僅作資料彙總。></p></div>
+      <p data-en="The canonical frequentist NMA is netmeta in R; in SAS one would build a Bayesian model in PROC MCMC, so only the data summary is shown here."><頻率學派 NMA 的標準工具是 R 的 netmeta；在 SAS 中得用 PROC MCMC 自己建貝氏模型，所以這裡只先做資料彙總。></p></div>
     <div data-lang="r" class="card"><h3 data-en="R — netmeta">R — netmeta</h3>
       <pre class="sas"><code><span class="cm"># Arm-level data -&gt; pairwise contrasts -&gt; network meta-analysis</span>
 library(netmeta)
@@ -8329,7 +8329,7 @@ import delimited "nma_sample.csv", clear case(preserve)
 <span class="cm">* network setup events n, studyvar(study) trtvar(treatment) or</span>
 <span class="cm">* network meta consistency</span>
 list study treatment events n in 1/8</code></pre>
-      <p data-en="In Stata, install the network and mvmeta packages, then network setup builds the contrasts and network meta fits the model; commented here to keep the snippet self-contained."><在 Stata 中需安裝 network 與 mvmeta 套件，network setup 建立對比、network meta 配適模型；此處以註解保持片段可獨立執行。></p></div>
+      <p data-en="In Stata, install the network and mvmeta packages, then network setup builds the contrasts and network meta fits the model; commented here to keep the snippet self-contained."><在 Stata 中需安裝 network 與 mvmeta 套件，network setup 建立對比、network meta 配適模型；這兩行先註解起來，沒裝套件也能執行這段。></p></div>
   </section>
 
   <section id="nmaml" class="panel">
@@ -8445,7 +8445,7 @@ reshape wide y, i(pid) j(time)
 <span class="cm">* traj, var(y0-y4) indep(0 1 2 3 4) model(cnorm) min(0) max(100) order(2 2 2)</span>
 <span class="cm">* trajplot, xtitle("time") ytitle("y")</span>
 list in 1/5</code></pre>
-      <p data-en="After reshaping wide, the traj plugin fits three quadratic groups and trajplot draws them; commented to keep the snippet runnable without the add-on."><轉為寬資料後，traj 外掛配適三個二次群組，trajplot 繪圖；以註解保持片段在未裝外掛時仍可執行。></p></div>
+      <p data-en="After reshaping wide, the traj plugin fits three quadratic groups and trajplot draws them; commented to keep the snippet runnable without the add-on."><轉為寬資料後，traj 外掛配適三個二次群組，trajplot 繪圖；先註解起來，沒裝外掛也能執行這段。></p></div>
   </section>
 
   <section id="gbtmassume" class="panel">
@@ -8526,7 +8526,7 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
     <h1 data-en="③ Data analysis: estimating the CATE">③ 資料分析：估計 CATE</h1>
     <h2 data-en="The meta-learner toolbox">Meta-learner 工具箱</h2>
     <div class="cards cards-3">
-      <div class="card"><h3 data-en="S- and T-learners">S-／T-learner</h3><p data-en="<b>S-learner</b>: one model with treatment as a feature; predict at A=1 and A=0 and subtract. <b>T-learner</b> (the demo): two separate models, one per arm. Simple and model-agnostic, but can be noisy where one arm is thin."><b>S-learner</b>：一個模型把治療當特徵，分別預測 A=1、A=0 再相減。<b>T-learner</b>（本頁示範）：兩個分開的模型，每臂一個。簡單、model-agnostic，但在某臂資料少時會吵雜。</p></div>
+      <div class="card"><h3 data-en="S- and T-learners">S-／T-learner</h3><p data-en="<b>S-learner</b>: one model with treatment as a feature; predict at A=1 and A=0 and subtract. <b>T-learner</b> (the demo): two separate models, one per arm. Simple and model-agnostic, but can be noisy where one arm is thin."><b>S-learner</b>：一個模型把治療當特徵，分別預測 A=1、A=0 再相減。<b>T-learner</b>（本頁示範）：兩個分開的模型，每臂一個。簡單、model-agnostic，但在某一臂資料較少時估計會比較不穩定。</p></div>
       <div class="card"><h3 data-en="X- and DR-learners">X-／DR-learner</h3><p data-en="<b>X-learner</b> (Künzel 2019) imputes each unit's missing counterfactual and cross-fits — strong when arms are imbalanced. <b>DR-learner</b> uses a doubly-robust pseudo-outcome, so the CATE stays valid if either nuisance model is right. Both are more efficient than the T-learner."><b>X-learner</b>（Künzel 2019）為每個個體補上缺失的反事實再交叉擬合，臂不平衡時很強。<b>DR-learner</b> 用雙重穩健的擬結果，只要兩個輔助模型其一對，CATE 就有效。兩者都比 T-learner 更有效率。</p></div>
       <div class="card"><h3 data-en="Causal forests &amp; R-learner">因果森林與 R-learner</h3><p data-en="<b>Causal forests</b> (Wager &amp; Athey 2018; grf) grow trees that split on effect <b>heterogeneity</b> and give CATE with honest confidence intervals. The <b>R-learner</b> (Nie &amp; Wager 2021) and <b>double/debiased ML</b> (Chernozhukov 2018) orthogonalise out the nuisances with cross-fitting — the same DML idea already used in this toolbox's ⑤ panels."><b>因果森林</b>（Wager &amp; Athey 2018；grf）讓樹依效果<b>異質性</b>分裂，給出帶有效信賴區間的 CATE。<b>R-learner</b>（Nie &amp; Wager 2021）與<b>雙重／去偏 ML</b>（Chernozhukov 2018）用交叉擬合把輔助部分正交掉，正是本工具箱 ⑤ 已用的 DML 想法。</p></div>
     </div>
@@ -8583,7 +8583,7 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="Same identifying assumptions">同樣的識別假設</h3><p data-en="No unmeasured confounding, overlap/positivity and consistency are still required — they come from the <b>design</b>, not the algorithm. Causal ML on a biased design just gives you a <b>precise, heterogeneous</b> wrong answer.">無未測混淆、重疊／正性、一致性仍是必要的，它們來自<b>設計</b>、不是演算法。把因果 ML 用在有偏的設計上，只會給你一個<b>精確、有異質性</b>的錯答案。</p></div>
       <div class="card"><h3 data-en="Honesty &amp; cross-fitting">誠實切分與交叉擬合</h3><p data-en="To get valid intervals for a data-adaptively found CATE, use <b>sample-splitting / honesty</b> (grow the model on one part, estimate effects on another) and <b>cross-fitting</b>. Skipping this is how flexible ML over-fits heterogeneity that isn't real.">要對「資料自適應找到的 CATE」給出有效區間，要用<b>樣本切分／誠實</b>（一部分長模型、另一部分估效果）與<b>交叉擬合</b>。省略這步，彈性 ML 就會過度擬合不存在的異質性。</p></div>
-      <div class="card"><h3 data-en="Cautions for real-world data">真實世界資料的提醒</h3><p data-en="On EHRs / registries, Feuerriegel et al. (Nature Medicine 2024) warn: rich features tempt you to trust a good predictor as a causal effect, overlap can fail in subgroups, and selection / missingness bite harder at the individual level. Validate against a trial benchmark when you can.">在 EHR／登錄上，Feuerriegel 等（Nature Medicine 2024）提醒：豐富特徵會誘你把好預測當因果效果、次群可能沒有重疊、選樣／缺失在個體層級咬得更兇。能對試驗基準驗證就驗證。</p></div>
+      <div class="card"><h3 data-en="Cautions for real-world data">真實世界資料的提醒</h3><p data-en="On EHRs / registries, Feuerriegel et al. (Nature Medicine 2024) warn: rich features tempt you to trust a good predictor as a causal effect, overlap can fail in subgroups, and selection / missingness bite harder at the individual level. Validate against a trial benchmark when you can.">在 EHR／登錄上，Feuerriegel 等（Nature Medicine 2024）提醒：豐富特徵會誘你把好預測當因果效果、次群可能沒有重疊、選樣與缺失在個體層級的影響更嚴重。能對試驗基準驗證就驗證。</p></div>
     </div>
 
   </section>
@@ -8604,7 +8604,7 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
     <p class="lead" data-en="A CATE model will always paint a picture of “who benefits more”. The counterfactual to keep asking: <b>what if</b> there is no real heterogeneity — or what if the whole effect is just leftover confounding the ML estimated very precisely?">CATE 模型一定會畫出一幅「誰受益更多」的圖。要一直問的反事實是：<b>如果</b>其實沒有真正的異質性呢，或者整個效果只是 ML 估得很精準的殘留混淆呢？</p>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="What if there's no real heterogeneity?">如果根本沒有異質性？</h3><p data-en="Flexible learners can manufacture heterogeneity from noise. Check it: a <b>best-linear-projection</b> of the CATE on covariates, a <b>calibration / RATE</b> curve, or simply whether the same subgroups re-appear on a held-out split. If the “winners” don't replicate, treat the flat ATE as the honest answer.">彈性學習器會把雜訊變成假異質性。檢查：把 CATE 對共變項做<b>最佳線性投影</b>、畫<b>校準／RATE</b> 曲線、或單純看同樣的次群在保留樣本上會不會再出現。若「受益者」無法重現，就把平的 ATE 當成可靠答案。</p></div>
-      <div class="card"><h3 data-en="What if confounding remains?">如果還有殘留混淆？</h3><p data-en="ML sharpens precision, not identification — leftover confounding becomes a confident, detailed wrong CATE. Stress it with the same sensitivity tools as a single effect (e.g. an E-value on the ATE, negative-control checks). A finding that dissolves under modest unmeasured confounding isn't real.">ML 提升的是精度、不是識別，殘留混淆會變成一個有信心、有細節的錯 CATE。用和單一效果相同的敏感度工具去壓它（如對 ATE 算 E-value、陰性對照檢查）。在輕微未測混淆下就瓦解的發現，不是真的。</p></div>
+      <div class="card"><h3 data-en="What if confounding remains?">如果還有殘留混淆？</h3><p data-en="ML sharpens precision, not identification — leftover confounding becomes a confident, detailed wrong CATE. Stress it with the same sensitivity tools as a single effect (e.g. an E-value on the ATE, negative-control checks). A finding that dissolves under modest unmeasured confounding isn't real.">ML 提升的是精度、不是識別，殘留混淆會變成一個有信心、有細節的錯 CATE。用和單一效果相同的敏感度工具對它做壓力測試（如對 ATE 算 E-value、陰性對照檢查）。在輕微未測混淆下就瓦解的發現，不是真的。</p></div>
       <div class="card"><h3 data-en="What if you act on it?">如果照它行動？</h3><p data-en="The point of a CATE is usually a <b>policy</b> (treat the predicted gainers). Evaluate that policy honestly — <b>policy value</b> / uplift on a held-out set, against the “treat-all” and “treat-none” baselines — before trusting individual-level targeting. Good average prediction does not guarantee good decisions.">估 CATE 通常是為了一個<b>政策</b>（治療被預測會獲益的人）。在相信個體層級的精準分配前，先確實評估那個政策，在保留樣本上算<b>政策價值</b>／uplift，對照「全部治療」與「全部不治療」基準。平均預測準，不保證決策好。</p></div>
     </div>
   </section>
