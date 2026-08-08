@@ -7127,119 +7127,91 @@ function initSccsAssume() {
 }
 
 // ---------------------------------------------------------------------
-// SCCS ④ interactive: break one assumption, watch the IRR move.
-// Deterministic expected-value model (no random numbers): 365 days of
-// observation, exposure on day 90, risk window days 91–118 at a true
-// IRR of 2. The baseline rate cancels, so only relative weights matter.
+// SCCS ④ interactive — the "god view vs data view" design that won the
+// four-way explainer debate: 12 patients on one timeline, ghosts stay in
+// place instead of vanishing, a marginal dot band shows where events pile
+// up, and a four-cell scoreboard shows exactly which cell of
+// (window events / window days / baseline events / baseline days) the
+// violation tampers with. Numbers are precomputed expected values for
+// ~400 patients, so the 4-detent slider is fully deterministic.
 // ---------------------------------------------------------------------
-const SCCS_VIO = {
-  T: 365, E: 90, W: 28, RHO: 2,
-  cur: "exp", x: 0,
+const SCCS_VIO = { T: 365, E: 90, W: 28, cur: "exp", det: 0 };
+// 12 illustrative patients (event day); P1-P3 pre-exposure, P4-P5 in-window
+const SV_DAYS = [38, 63, 80, 96, 110, 125, 150, 190, 228, 265, 301, 340];
+// scoreboard table: [winEv, winPD, winDen, baseEv, basePD, baseDen, irr] per detent
+const SV_BOARD = {
+  exp: [[56, 11004, 5.1, 337, 132441, 2.5, 2.00], [56, 10164, 5.5, 307, 122331, 2.5, 2.20],
+        [56, 9324, 6.0, 277, 112221, 2.5, 2.43], [56, 8484, 6.6, 247, 102111, 2.4, 2.73]],
+  cen: [[56, 11004, 5.1, 337, 132441, 2.5, 2.00], [56, 11004, 5.1, 337, 120325, 2.8, 1.82],
+        [56, 11004, 5.1, 337, 108209, 3.1, 1.63], [56, 11004, 5.1, 337, 96093, 3.5, 1.45]],
+  dep: [[56, 11004, 5.1, 337, 132441, 2.5, 2.00], [69, 11004, 6.3, 455, 132441, 3.4, 1.83],
+        [82, 11004, 7.5, 573, 132441, 4.3, 1.72], [95, 11004, 8.7, 691, 132441, 5.2, 1.66]],
 };
-function _svInRisk(d) { return d > SCCS_VIO.E && d <= SCCS_VIO.E + SCCS_VIO.W; }
-// per-day weight of the FIRST event landing on day d (rate 1 at baseline)
-function _svDayWeight(d) { return _svInRisk(d) ? SCCS_VIO.RHO : 1; }
+// which patients are affected at each detent (cumulative), per scenario
+const SV_HIT = {
+  exp: [[], [2], [2, 0], [2, 0, 1]],
+  cen: [[], [5, 7, 9], [5, 7, 9, 6, 8, 10], [5, 7, 9, 6, 8, 10, 3, 4, 11]],
+  dep: [[], [2, 3, 4, 8], [2, 3, 4, 8, 0, 1, 6, 10], [2, 3, 4, 8, 0, 1, 6, 10, 5, 7, 9, 11]],
+};
+// echo (recurrence) day per patient for scenario 3; star marks a border-crosser
+const SV_ECHO = { 0: 59, 1: 84, 2: 101, 3: 112, 4: 132, 5: 146, 6: 171, 7: 211, 8: 249, 9: 286, 10: 322, 11: 361 };
+const SV_STAR = { 2: true, 4: true };
 
-// naive SCCS estimator from expected events + person-time in each bucket
-function _svIRR(evRisk, tRisk, evBase, tBase) {
-  return (evRisk / tRisk) / (evBase / tBase);
-}
-
-function sccsVioCompute(kind, x) {
-  const { T, E, W, RHO } = SCCS_VIO;
-  const tRiskFull = W, tBaseFull = T - W;
-
-  if (kind === "exp") {
-    // Event before the scheduled exposure cancels it with probability x
-    // (contra-indication). Cancelled people are never exposed, so they
-    // drop out of the exposed case series: pre-exposure events go missing.
-    let evRisk = 0, evBase = 0;
-    for (let d = 1; d <= T; d++) {
-      let w = _svDayWeight(d);
-      if (d <= E) w *= (1 - x);              // pre-exposure case may vanish
-      if (_svInRisk(d)) evRisk += w; else evBase += w;
-    }
-    const naive = _svIRR(evRisk, tRiskFull, evBase, tBaseFull);
-    return { naive, fixed: RHO };             // fix: start the clock at exposure
-  }
-
-  if (kind === "cen") {
-    // The event is fatal with probability x: observation stops that day,
-    // so each fatal case contributes only its pre-event person-time.
-    let evRisk = 0, evBase = 0, tRisk = 0, tBase = 0;
-    for (let d = 1; d <= T; d++) {
-      const w = _svDayWeight(d);
-      const riskSeen = Math.min(Math.max(d - E, 0), W);   // risk days ≤ d
-      const baseSeen = d - riskSeen;                       // baseline days ≤ d
-      if (_svInRisk(d)) evRisk += w; else evBase += w;
-      tRisk += w * (x * riskSeen + (1 - x) * W);
-      tBase += w * (x * baseSeen + (1 - x) * (T - W));
-    }
-    const naive = _svIRR(evRisk, tRisk / (evRisk + evBase), evBase, tBase / (evRisk + evBase));
-    return { naive, fixed: RHO };             // fix: censoring-adjusted SCCS
-  }
-
-  // kind === "dep": a first event multiplies the next 60 days' event rate
-  // by (1 + 3x), exposure or not. One generation of recurrences is enough
-  // to show the direction; recurrences land wherever the calendar says.
-  let evRisk = 0, evBase = 0;
-  const boost = 3 * x;                        // extra rate above baseline
-  for (let d = 1; d <= SCCS_VIO.T; d++) {
-    const w = _svDayWeight(d);
-    if (_svInRisk(d)) evRisk += w; else evBase += w;
-    if (boost > 0) {
-      // each first event spawns recurrences over the next 60 days, at the
-      // day's own rate scaled by the dependence boost
-      for (let k = d + 1; k <= Math.min(d + 60, SCCS_VIO.T); k++) {
-        const extra = w * boost * _svDayWeight(k) / 60;
-        if (_svInRisk(k)) evRisk += extra; else evBase += extra;
-      }
-    }
-  }
-  const naive = _svIRR(evRisk, SCCS_VIO.W, evBase, SCCS_VIO.T - SCCS_VIO.W);
-  return { naive, fixed: SCCS_VIO.RHO };      // fix: first event per person only
-}
-
-const SCCS_VIO_TEXT = {
+const SCCS_VIO_META = {
   exp: {
-    slider: () => tr("事件發生後，原訂的暴露被取消的機率：", "Chance the event cancels the planned exposure: "),
-    note: () => tr("0%＝事件不影響會不會用藥。拉大＝出事的人之後就不用藥（禁忌症），確診前出事的人整批從序列裡消失。", "0% = the event never affects later dispensing. Larger = people who have the event stop being exposed (contra-indication), so pre-exposure cases vanish from the series."),
-    naiveFoot: () => tr("確診前的事件遺失 → 偏高", "pre-exposure events go missing → biased up"),
-    fixedFoot: () => tr("只用暴露後的時間／預先切 pre-exposure 窗", "post-exposure time only / a pre-exposure window"),
-    body: () => tr(
-      "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>" +
-      "<p><b>為什麼會偏：</b>SCCS 通常只收「有暴露的個案」。事件發生在暴露<b>之前</b>的人，因為暴露被取消，整個人從序列裡消失；留下來的個案裡，事件就顯得特別集中在暴露之後 → 危險窗的 IRR <b>被灌高</b>。</p>" +
-      "<p><b>怎麼處理：</b>① 把追蹤改成<b>從暴露那天才開始</b>（只用暴露後的時間，這在暴露幾乎必然發生時最乾淨）；② 在暴露前切一段 <b>pre-exposure window</b> 單獨估計，不讓它汙染基準期；③ 用 Farrington 的<b>反事實延伸</b>模型直接把「事件影響暴露」建進去。</p>",
-      "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b> — e.g. after severe hypoglycemia nobody re-dispenses the same drug X.</p>" +
-      "<p><b>Why it biases:</b> SCCS usually includes exposed cases only. People whose event precedes the (now cancelled) exposure vanish from the series, so among those remaining, events look concentrated after exposure → the risk-window IRR is <b>inflated</b>.</p>" +
-      "<p><b>The fixes:</b> start observation <b>at exposure</b>; carve out a separate <b>pre-exposure window</b>; or model it directly with Farrington's counterfactual extension.</p>"),
+    slider: () => tr("出過事之後就不去打針的人，占多少？", "Of people whose event comes first, how many never get the jab?"),
+    note: () => tr("0＝出過事照樣去打。拉大＝越多「打針前就出過事」的人取消打針，整個人退出資料。", "0 = the event never cancels the jab. Higher = more pre-jab cases cancel and drop out of the data."),
+    key: () => tr(
+      `<p><b>主句：事件一顆都沒有搬家，是名單被篩過了。</b></p>` +
+      `<p><b>機制：</b>打針前就出過事的人，之後不會去打針，所以根本進不了這份資料。他們一變灰，留下來的名單裡幾乎人人都是「打針之後才出事」，你看到的資料，事件當然集中在打針後。</p>` +
+      `<p><b>看記分板：</b>每個被篩掉的人，帶走 1 顆基準期的 ✕、0 顆窗內的 ✕，天數卻是兩邊等比例帶走。<b>事件走得不均、天數走得均勻</b>：窗內的 ✕ 一顆沒少、分攤的人日卻變少 → 窗密度被推高，比值從 2 爬到 2.7。</p>`,
+      `<p><b>Main point: not one event moved — the roster got filtered.</b></p>` +
+      `<p><b>Mechanism:</b> people whose event precedes the jab never get the jab, so they never enter this data. Once they grey out, nearly everyone left had their event after the jab — of course the data you see is concentrated post-jab.</p>` +
+      `<p><b>Scoreboard:</b> each filtered person takes away 1 baseline event and 0 window events, but the days go proportionally from both sides. Events leave unevenly, days leave evenly: window events intact, fewer person-days to share — window density up, ratio climbs from 2 to 2.7.</p>`),
   },
   cen: {
-    slider: () => tr("事件的致死率（事件當天結束觀察）：", "Case fatality of the event (observation ends that day): "),
-    note: () => tr("0%＝事件不影響追蹤。拉大＝越多人在事件當天死亡，之後的（大多是基準期的）人時整段消失。", "0% = the event never ends follow-up. Larger = more cases die on the event day, wiping out the (mostly baseline) person-time after it."),
-    naiveFoot: () => tr("事件後的基準人時消失 → 偏低（看起來更安全）", "post-event baseline time is lost → biased down (looks safer)"),
-    fixedFoot: () => tr("censoring-adjusted SCCS（Farrington 2011）", "censoring-adjusted SCCS (Farrington 2011)"),
-    body: () => tr(
-      "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡（例如藥物X 與心肌梗死，一部分 MI 當場致死）。</p>" +
-      "<p><b>為什麼會偏：</b>SCCS 拿「事件落在危險窗 vs 基準期」跟「兩段人時的長短」相比。死亡把事件<b>之後</b>的人時整段砍掉，而在這個情境（暴露在第 90 天、危險窗很早）被砍掉的大多是基準期 → 基準期的人時縮水、事件密度被灌高 → 危險窗 IRR 反而<b>被壓低</b>：一顆有害的藥看起來更安全，這是最危險的方向。偏誤的方向取決於暴露落在觀察期的早晚。</p>" +
-      "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 最適合的情境）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
-      "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring. Mechanism: <b>the event itself ends follow-up</b> — death being the extreme case.</p>" +
-      "<p><b>Why it biases:</b> death removes the person-time <b>after</b> the event — here (early exposure) mostly baseline → the baseline denominator shrinks and its event density inflates → the risk-window IRR is <b>pushed down</b>: a harmful drug looks safer, the most dangerous direction. The direction depends on where exposure sits in the observation period; the point is it always biases.</p>" +
-      "<p><b>The fixes:</b> prefer non-fatal recurrent outcomes; otherwise the censoring-adjusted SCCS of <b>Farrington, Whitaker &amp; Hocine (2011)</b> (<code>eventdepenobs</code> in the R package <code>SCCS</code>); and rerun on non-fatal cases as a sensitivity check.</p>"),
+    slider: () => tr("打針後出事的人裡，事件後 30 天內死亡的占多少？", "Of post-jab cases, how many die within 30 days of the event?"),
+    note: () => tr("0＝事件不影響追蹤。拉大＝越多人在事件後 30 天死亡，之後的日子從資料裡消失。", "0 = the event never ends follow-up. Higher = more cases die 30 days after the event; the days after vanish from the data."),
+    key: () => tr(
+      `<p><b>主句：這次沒有人偷事件，被剪掉的是「事件後面那段平安日子」。</b></p>` +
+      `<p><b>機制：</b>死亡讓觀察在事件後 30 天就停了。事件都還在（它們發生在死亡之前），但事件後面本來要算進基準期的那幾百天，灰掉了。</p>` +
+      `<p><b>看記分板：</b>危險窗那格一動也不動；基準期的事件沒變、<b>人日卻縮水</b>，基準密度被墊高。分母變大，比值就被壓低：IRR 從 2 掉到 1.5，藥看起來比實際安全。</p>` +
+      `<p class="muted" style="font-size:.85em">若打針前的事件也會致死，那個人連針都沒打、連資料都進不了，那就回到情境①的劇本。（偏移方向會隨事件落點改變；這裡示範的是最常見的情形。）</p>`,
+      `<p><b>Main point: nobody steals events this time — what gets cut is the quiet stretch after the event.</b></p>` +
+      `<p><b>Mechanism:</b> death stops observation 30 days after the event. The events themselves remain (they happened before death), but the hundreds of days after them — which should have counted as baseline — grey out.</p>` +
+      `<p><b>Scoreboard:</b> the window cell does not move at all; baseline events unchanged but <b>baseline person-days shrink</b>, so baseline density is propped up. Bigger denominator, smaller ratio: IRR falls from 2 to 1.5 and the drug looks safer than it is.</p>` +
+      `<p class="muted" style="font-size:.85em">If pre-jab events were also fatal, that person never gets the jab and never enters the data — scenario 1 again. (The direction depends on where events fall; shown here is the common case.)</p>`),
   },
   dep: {
-    slider: () => tr("第一次事件把之後 60 天的復發風險放大：", "How much a first event multiplies the next 60 days' risk: "),
-    note: () => tr("0%＝每次事件互相獨立。拉大＝出過事的人短期內更容易再出事（例如癲癇、跌倒），而且跟藥物X 無關。", "0% = events are independent. Larger = one event begets another within 60 days (seizures, falls), regardless of drug X."),
-    naiveFoot: () => tr("復發落點不定（本設定下偏高，實務方向不定）", "recurrences land by the calendar (up here; direction varies)"),
-    fixedFoot: () => tr("每人只取第一次事件", "first event per person only"),
-    body: () => tr(
-      "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>：跌倒過的人更容易再跌倒、癲癇發作會帶來下一次發作。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>" +
-      "<p><b>為什麼會偏：</b>把所有事件都算進去時，第一次事件之後的「復發潮」落在日曆上的哪裡，就決定偏誤方向：復發潮蓋到危險窗 → 偏高；大多落在基準期 → 反而<b>偏低</b>。方向不定、信賴區間也會過窄。</p>" +
-      "<p><b>怎麼處理：</b>最實用的一招：<b>每人只取第一次事件</b>重跑（配合上面兩種修正一起看）；或改用允許相依的模型。把「全部事件」和「只取第一次」兩版都報出來，讀者自己就能看出相依性影響多大。</p>",
-      "<p><b>The term:</b> there is no single settled name — papers say event dependence or non-independent recurrences: <b>one event begets the next</b> (falls, seizures). Standard SCCS assumes independent recurrences (Poisson); this breaks that.</p>" +
-      "<p><b>Why it biases:</b> counting every event, the post-first-event 'recurrence wave' lands wherever the calendar puts it: overlap the risk window → biased up; mostly baseline → biased <b>down</b>. Direction varies and intervals shrink — sneakier than plain inflation.</p>" +
-      "<p><b>The fixes:</b> rerun with the <b>first event per person</b>; or a model allowing dependence. Reporting both versions lets the reader see how much dependence matters.</p>"),
+    slider: () => tr("一次發作之後，30 天內再發一次的機率？", "After one attack, how likely is another within 30 days?"),
+    note: () => tr("前提：這個研究把每次發作都算一次事件。0＝發作彼此獨立。", "Premise: this study counts every attack as an event. 0 = attacks are independent."),
+    key: () => tr(
+      `<p><b>主句：事件會生回音，回音不挑期別，掉進窗裡的，就被記在藥的帳上。</b></p>` +
+      `<p><b>機制：</b>看那顆 ★：第 80 天的發作把回音丟進了危險窗，它不是藥造成的，是上一次發作的餘震。反過來，窗內發作的回音多半掉到窗外，窗只有 28 天，留不住自己的回音。</p>` +
+      `<p><b>看記分板：</b>兩格的事件都被灌了票，但基準期灌得更多（窗內 +70%、基準 +105%）：比值被往 1 稀釋，IRR 從 2 掉到 1.7。更麻煩的是，回音窗多長、掉在哪裡，方向就跟著變。事件一旦不獨立，連「錯往哪邊」都難預測，這正是這條假設難纏的地方。</p>`,
+      `<p><b>Main point: events breed echoes, and echoes don't respect the window — whichever lands inside gets billed to the drug.</b></p>` +
+      `<p><b>Mechanism:</b> see the star: the day-80 attack throws its echo into the risk window — not the drug, the aftershock of the previous attack. Conversely, echoes of in-window attacks mostly land outside: a 28-day window can't hold its own echoes.</p>` +
+      `<p><b>Scoreboard:</b> both event cells get padded, baseline more (+70% in-window vs +105% baseline): the ratio is diluted toward 1, IRR falls from 2 to 1.7. Worse, the direction changes with the echo window and where events sit — once events aren't independent, even the direction of the error is unpredictable.</p>`),
   },
+};
+
+// the term / why / fix bodies shown under the key sentences (kept from before)
+const SCCS_VIO_BODY = {
+  exp: () => tr(
+    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>" +
+    "<p><b>怎麼處理：</b>① 把追蹤改成<b>從暴露那天才開始</b>（只用暴露後的時間，這在暴露幾乎必然發生時最乾淨）；② 在暴露前切一段 <b>pre-exposure window</b> 單獨估計，不讓它汙染基準期；③ 用 Farrington 的<b>反事實延伸</b>模型直接把「事件影響暴露」建進去。</p>",
+    "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b>.</p>" +
+    "<p><b>The fixes:</b> start observation <b>at exposure</b>; carve out a separate <b>pre-exposure window</b>; or model it directly with Farrington's counterfactual extension.</p>"),
+  cen: () => tr(
+    "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡。</p>" +
+    "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 最適合的情境）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
+    "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring: <b>the event itself ends follow-up</b> — death being the extreme case.</p>" +
+    "<p><b>The fixes:</b> prefer non-fatal recurrent outcomes; otherwise the censoring-adjusted SCCS of <b>Farrington, Whitaker &amp; Hocine (2011)</b> (<code>eventdepenobs</code> in the R package <code>SCCS</code>); and rerun on non-fatal cases as a sensitivity check.</p>"),
+  dep: () => tr(
+    "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>" +
+    "<p><b>怎麼處理：</b>最實用的一招：<b>每人只取第一次事件</b>重跑（配合上面兩種修正一起看）；或改用允許相依的模型。把「全部事件」和「只取第一次」兩版都報出來，讀者自己就能看出相依性影響多大。</p>",
+    "<p><b>The term:</b> papers say event dependence or non-independent recurrences: <b>one event begets the next</b>. Standard SCCS assumes independent recurrences; this breaks that.</p>" +
+    "<p><b>The fixes:</b> rerun with the <b>first event per person</b>; or a model allowing dependence. Reporting both versions shows how much dependence matters.</p>"),
 };
 
 let sccsVioReady = false;
@@ -7254,176 +7226,125 @@ function initSccsVio() {
       document.querySelectorAll(".sccsvio-tab").forEach((t) => t.classList.toggle("active", t === b));
       renderSccsVio();
     }));
-  slider.addEventListener("input", () => { SCCS_VIO.x = Number(slider.value) / 100; renderSccsVio(); });
+  slider.addEventListener("input", () => { SCCS_VIO.det = Number(slider.value); renderSccsVio(); });
   document.addEventListener("iv-lang", () => { if (sccsVioReady) renderSccsVio(); });
   renderSccsVio();
 }
+
 function renderSccsVio() {
-  const kind = SCCS_VIO.cur, x = SCCS_VIO.x, txt = SCCS_VIO_TEXT[kind];
-  const { naive, fixed } = sccsVioCompute(kind, x);
-  document.getElementById("sccsVioSliderLabel").textContent = txt.slider();
-  document.getElementById("sccsVioVal").textContent =
-    kind === "dep" ? "×" + (1 + 3 * x).toFixed(1) : Math.round(x * 100) + "%";
-  document.getElementById("sccsVioSliderNote").textContent = txt.note();
-  document.getElementById("sccsVioNaive").textContent = naive.toFixed(2);
-  document.getElementById("sccsVioFixed").textContent = fixed.toFixed(2);
-  document.getElementById("sccsVioNaiveFoot").textContent = txt.naiveFoot();
-  document.getElementById("sccsVioFixedFoot").textContent = txt.fixedFoot();
-  document.getElementById("sccsVioText").innerHTML = txt.body();
-  drawSccsVioSVG(kind, x);
-  sccsVioCaption(kind, x, naive);
+  const kind = SCCS_VIO.cur, det = SCCS_VIO.det, meta = SCCS_VIO_META[kind];
+  const PCT = ["0%", "33%", "67%", "100%"];
+  document.getElementById("sccsVioSliderLabel").textContent = meta.slider();
+  document.getElementById("sccsVioVal").textContent = PCT[det];
+  document.getElementById("sccsVioSliderNote").textContent = meta.note();
+  drawSccsVioSVG(kind, det);
+  renderSccsVioBoard(kind, det);
+  document.getElementById("sccsVioCap").innerHTML = det === 0
+    ? `<p><b>${tr("目前假設成立：三個情境在 0% 時畫面與數字完全一樣，IRR＝2.00（你可以核對：5.1 ÷ 2.5 ≈ 2）。拉動滑桿，看是哪一格被動了手腳。", "The assumption holds: at 0% all three scenarios look identical and IRR = 2.00 (check it: 5.1 / 2.5 = 2). Drag the slider and watch which cell gets tampered with.")}</b></p>`
+    : meta.key();
+  document.getElementById("sccsVioText").innerHTML = SCCS_VIO_BODY[kind]();
 }
 
-// Live arithmetic under the diagram — the same three-step sentence for every
-// scenario: what the violation removed/added, what that does to the two
-// rates, and where the naive IRR therefore lands.
-function sccsVioCaption(kind, x, naive) {
-  const el = document.getElementById("sccsVioCap");
-  if (!el) return;
-  const { ev0, ev, pt } = _svSeries(kind, x);
-  const base = (arr) => arr.reduce((a, v, i) => a + (_svInRisk(i + 1) ? 0 : v), 0);
-  const risk = (arr) => arr.reduce((a, v, i) => a + (_svInRisk(i + 1) ? v : 0), 0);
-  const pc = (v) => Math.round(v * 100) + "%";
-  let msg;
-  if (x === 0) {
-    msg = tr("目前假設成立：兩條實線跟灰虛線完全重合，天真 SCCS 就等於真值 2.00。把滑桿拉大，看紅斜線（被吃掉／多出來的部分）怎麼把估計帶跑。",
-             "The assumption currently holds: both solid lines sit on the grey dashed shape and the naive SCCS equals the truth, 2.00. Drag the slider and watch the red hatch pull the estimate away.");
-  } else if (kind === "exp") {
-    const lost = 1 - base(ev) / base(ev0);
-    msg = tr(`現在基準期的事件遺失了 <b>${pc(lost)}</b>（紅斜線），但分析用的基準期<b>人時一天都沒少</b> → 基準期的速率被低估 ${pc(lost)} → 相除之下危險窗顯得更高，天真 IRR 從 2.00 變成 <b>${naive.toFixed(2)}</b>。`,
-             `The baseline period has lost <b>${pc(lost)}</b> of its events (red hatch) while its <b>person-time is fully counted</b> → the baseline rate is understated by ${pc(lost)} → the naive IRR climbs from 2.00 to <b>${naive.toFixed(2)}</b>.`);
-  } else if (kind === "cen") {
-    const lost = 1 - base(pt) / (SCCS_VIO.T - SCCS_VIO.W);
-    const lostR = 1 - risk(pt) / SCCS_VIO.W;
-    msg = tr(`事件都有被記到（上條沒變），但死亡砍掉了 <b>${pc(lost)}</b> 的基準期人時、只砍掉 ${pc(lostR)} 的危險窗人時（紅斜線在下條）→ 基準期「每一天」顯得事件更密 → 天真 IRR 從 2.00 被壓成 <b>${naive.toFixed(2)}</b>，藥看起來比實際安全。`,
-             `Every event is still recorded (top strip unchanged), but death removes <b>${pc(lost)}</b> of the baseline person-time and only ${pc(lostR)} of the risk-window time (red hatch, lower strip) → baseline days look denser in events → the naive IRR sinks from 2.00 to <b>${naive.toFixed(2)}</b>: the drug looks safer than it is.`);
-  } else {
-    const extraR = risk(ev) - risk(ev0), extraB = base(ev) - base(ev0);
-    const shareR = extraR / (extraR + extraB);
-    msg = tr(`第一次事件引發的復發（紅斜線標出的部分）有 <b>${pc(shareR)}</b> 落在危險窗裡、${pc(1 - shareR)} 落在基準期，落點只看日曆、跟藥無關 → 兩邊的事件數都被墊高，天真 IRR 變成 <b>${naive.toFixed(2)}</b>；換一個暴露日，方向可能整個反過來。`,
-             `The recurrences bred by first events (the red hatched bulge) land <b>${pc(shareR)}</b> inside the risk window and ${pc(1 - shareR)} in baseline — placement is pure calendar, nothing to do with the drug → both counts are inflated and the naive IRR becomes <b>${naive.toFixed(2)}</b>; move the exposure day and the direction can flip.`);
-  }
-  el.innerHTML = msg;
+// ---- scoreboard: window card + baseline card + IRR pointer bar ----
+function renderSccsVioBoard(kind, det) {
+  const box = document.getElementById("sccsVioBoard");
+  if (!box) return;
+  const b0 = SV_BOARD[kind][0], b = SV_BOARD[kind][det];
+  const fmt = (v) => v >= 1000 ? v.toLocaleString("en-US") : String(v);
+  const cell = (lab, god, cur, unit, big) => {
+    const changed = god !== cur;
+    const col = cur < god ? "#2563eb" : "#dc2626";
+    return `<div class="svb-cell"><span class="svb-lab">${lab}</span>` +
+      (changed ? `<span class="svb-god">${fmt(god)} →</span>` : "") +
+      `<b class="svb-val${big ? " svb-big" : ""}"${changed ? ` style="color:${col}"` : ""}>${fmt(cur)}</b>` +
+      `<span class="svb-unit">${unit}</span></div>`;
+  };
+  const irr = b[6];
+  const truthX = 50, curX = Math.min(Math.max((irr - 1) / 2, 0), 1) * 100;
+  const dir = irr > 2.02 ? tr("高估 ↑", "overestimate ↑") : irr < 1.98 ? tr("低估 ↓", "underestimate ↓") : tr("不偏", "unbiased");
+  box.innerHTML =
+    `<div class="svb-cards">` +
+    `<div class="svb-card"><h4>${tr("危險窗", "Risk window")}</h4>` +
+    cell(tr("事件", "events"), b0[0], b[0], "✕") + cell(tr("人日", "person-days"), b0[1], b[1], tr("天", "d")) +
+    cell(tr("密度", "density"), b0[2], b[2], tr("件/千人日", "per 1000 pd"), true) + `</div>` +
+    `<div class="svb-card"><h4>${tr("基準期", "Baseline")}</h4>` +
+    cell(tr("事件", "events"), b0[3], b[3], "✕") + cell(tr("人日", "person-days"), b0[4], b[4], tr("天", "d")) +
+    cell(tr("密度", "density"), b0[5], b[5], tr("件/千人日", "per 1000 pd"), true) + `</div>` +
+    `</div>` +
+    `<div class="svb-irr"><span class="svb-irrlab">IRR＝${tr("窗密度 ÷ 基準密度", "window ÷ baseline density")}</span>` +
+    `<div class="svb-rail"><div class="svb-truth" style="left:${truthX}%"><i></i><em>${tr("真值 2", "truth 2")}</em></div>` +
+    `<div class="svb-pin" style="left:${curX}%"><b>${irr.toFixed(2)}</b><span>${dir}</span></div></div>` +
+    `<div class="svb-ticks"><span>1</span><span>2</span><span>3</span></div></div>`;
 }
 
-// Per-day curves for the violation diagram: how many events are OBSERVED on
-// each day, and how much person-time is still under observation — the shape
-// of these two strips is what the violation actually distorts.
-function _svSeries(kind, x) {
-  const { T, E } = SCCS_VIO;
-  const ev0 = [], ev = [], pt = [];
-  let tot = 0;
-  for (let d = 1; d <= T; d++) tot += _svDayWeight(d);
-  let cum = 0;
-  for (let d = 1; d <= T; d++) {
-    const w = _svDayWeight(d);
-    ev0.push(w);
-    if (kind === "exp") { ev.push(w * (d <= E ? 1 - x : 1)); pt.push(1); }
-    else if (kind === "cen") { cum += w / tot; ev.push(w); pt.push(1 - x * cum); }
-    else ev.push(w), pt.push(1);
-  }
-  if (kind === "dep") {                       // add the recurrence wave
-    const boost = 3 * x;
-    if (boost > 0) for (let d = 1; d <= T; d++) {
-      const w = _svDayWeight(d);
-      for (let k = d + 1; k <= Math.min(d + 60, T); k++) ev[k - 1] += w * boost * _svDayWeight(k) / 60;
-    }
-  }
-  return { ev0, ev, pt };
-}
-
-// Three concrete patients on a 365-day timeline — the same trio for every
-// scenario — so the violation is something happening to PEOPLE, not to an
-// abstract curve. Opacity/red marks scale with the slider value x.
-function drawSccsVioSVG(kind, x) {
+// ---- the 12-patient diagram + marginal dot band ----
+function drawSccsVioSVG(kind, det) {
   const box = document.getElementById("sccsVioChart");
   if (!box) return;
   const { T, E, W } = SCCS_VIO;
-  const X0 = 92, X1 = 700, PW = X1 - X0;
+  const X0 = 56, X1 = 706, PW = X1 - X0;
   const px = (d) => X0 + d / T * PW;
-  const rh = 52, rows = 3, H = rows * rh + 92;
-  const yRow = (i) => 40 + i * rh;
+  const rh = 19, top = 46, bandY = top + 12 * rh + 16, H = bandY + 66;
+  const hits = SV_HIT[kind][det];
   let s = `<svg viewBox="0 0 720 ${H}" class="align-svg" xmlns="http://www.w3.org/2000/svg">`;
-  s += `<defs><pattern id="svcut" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">` +
-       `<rect width="6" height="6" fill="#fef2f2"/><line x1="0" y1="0" x2="0" y2="6" stroke="#ef4444" stroke-width="2"/></pattern></defs>`;
-  // shared scaffolding: risk-window band + exposure line + axis
-  const gx0 = px(E), gx1 = px(E + W), yBot = yRow(rows - 1) + 22;
-  s += `<rect x="${gx0}" y="26" width="${gx1 - gx0}" height="${yBot - 22}" fill="#dff0e8" opacity="0.8"/>`;
-  s += `<text x="${(gx0 + gx1) / 2}" y="22" font-size="9" text-anchor="middle" fill="#255c47">${tr("危險窗（第90–118天，真實 IRR＝2）", "risk window (days 90–118, true IRR = 2)")}</text>`;
-  s += `<line x1="${gx0}" y1="26" x2="${gx0}" y2="${yBot + 8}" stroke="#3f8268" stroke-width="1.4" stroke-dasharray="4 3"/>`;
-  s += `<text x="${gx0}" y="${yBot + 20}" font-size="9" text-anchor="middle" fill="#3f8268">${tr("暴露（第90天領藥）", "exposure (day 90)")}</text>`;
+  const gx0 = px(E), gx1 = px(E + W);
+  s += `<rect x="${X0}" y="${top - 8}" width="${gx0 - X0}" height="${bandY - top - 2}" fill="#eff6ff" opacity="0.7"/>`;
+  s += `<rect x="${gx1}" y="${top - 8}" width="${X1 - gx1}" height="${bandY - top - 2}" fill="#eff6ff" opacity="0.7"/>`;
+  s += `<rect x="${gx0}" y="${top - 8}" width="${gx1 - gx0}" height="${bandY - top - 2}" fill="#ffedd5" opacity="0.85"/>`;
+  s += `<text x="${(X0 + gx0) / 2}" y="${top - 14}" font-size="9" text-anchor="middle" fill="#1d4ed8">${tr("基準期（前段）", "baseline (before)")}</text>`;
+  s += `<text x="${(gx0 + gx1) / 2}" y="${top - 14}" font-size="9" text-anchor="middle" fill="#c2410c">${tr("危險窗 28 天", "risk window 28 d")}</text>`;
+  s += `<text x="${(gx1 + X1) / 2}" y="${top - 14}" font-size="9" text-anchor="middle" fill="#1d4ed8">${tr("基準期（後段）", "baseline (after)")}</text>`;
+  s += `<line x1="${gx0}" y1="${top - 8}" x2="${gx0}" y2="${bandY + 44}" stroke="#3f8268" stroke-width="1.4" stroke-dasharray="4 3"/>`;
+  s += `<text x="${gx0}" y="${bandY + 56}" font-size="9" text-anchor="middle" fill="#3f8268">${tr("打針（第 90 天）", "jab (day 90)")}</text>`;
+  const obs = [], ghost = [], echo = [];
+  SV_DAYS.forEach((d, i) => {
+    const y = top + i * rh, hit = hits.includes(i);
+    let dead = null;
+    if (kind === "cen" && hit) dead = Math.min(d + 30, T);
+    const rowGhost = kind === "exp" && hit;
+    s += `<text x="6" y="${y + 3}" font-size="8.5" fill="${rowGhost ? "#b6c2cf" : "#64748b"}">P${i + 1}</text>`;
+    if (rowGhost) {
+      s += `<line x1="${X0}" y1="${y}" x2="${X1}" y2="${y}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>`;
+      s += `<text x="${px(d)}" y="${y + 4}" font-size="11" text-anchor="middle" fill="#b6c2cf">✕</text>`;
+      s += `<text x="${px(d) + 8}" y="${y + 3}" font-size="8" fill="#b6c2cf">${tr("沒打針，進不了資料", "no jab — never enters the data")}</text>`;
+      ghost.push(d);
+    } else {
+      s += `<line x1="${X0}" y1="${y}" x2="${px(dead === null ? T : dead)}" y2="${y}" stroke="#94a3b8" stroke-width="1.4"/>`;
+      if (dead !== null) {
+        s += `<line x1="${px(dead)}" y1="${y}" x2="${X1}" y2="${y}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>`;
+        s += `<text x="${px(dead)}" y="${y + 4}" font-size="10" text-anchor="middle" fill="#b91c1c">✝</text>`;
+        if (i === 11) s += `<text x="${px(dead) + 8}" y="${y + 3}" font-size="8" fill="#b91c1c">${tr("事件越晚，被剪走的越少", "the later the event, the less is cut")}</text>`;
+      }
+      s += `<text x="${px(d)}" y="${y + 4}" font-size="11" font-weight="bold" text-anchor="middle" fill="#0f172a">✕</text>`;
+      obs.push(d);
+      if (kind === "dep" && hit) {
+        const ed = SV_ECHO[i];
+        s += `<path d="M${px(d)} ${y - 6} Q${(px(d) + px(ed)) / 2} ${y - 15} ${px(ed)} ${y - 6}" fill="none" stroke="#d97706" stroke-width="1"/>`;
+        s += `<circle cx="${px(ed)}" cy="${y}" r="4.2" fill="none" stroke="#d97706" stroke-width="1.8"/>`;
+        if (SV_STAR[i]) s += `<text x="${px(ed) + 7}" y="${y - 5}" font-size="10" fill="#d97706">★</text>`;
+        echo.push(ed);
+      }
+    }
+  });
+  s += `<text x="${X0}" y="${bandY - 4}" font-size="9.5" fill="#334155">${tr("把 12 個人壓到同一條線上看", "all 12 patients projected onto one line")}</text>`;
+  s += `<line x1="${X0}" y1="${bandY + 30}" x2="${X1}" y2="${bandY + 30}" stroke="#e2e8f0"/>`;
+  const stack = {};
+  const dot = (d, kd) => {
+    const bin = Math.floor(d / 14);
+    stack[bin] = (stack[bin] || 0) + 1;
+    const cx = X0 + (bin + 0.5) * 14 / T * PW, cy = bandY + 30 - (stack[bin] - 0.5) * 9;
+    if (kd === "obs") return `<circle cx="${cx}" cy="${cy}" r="3.4" fill="#0f172a"/>`;
+    if (kd === "ghost") return `<circle cx="${cx}" cy="${cy}" r="3.4" fill="none" stroke="#b6c2cf" stroke-width="1.4"/>`;
+    return `<circle cx="${cx}" cy="${cy}" r="3.4" fill="none" stroke="#d97706" stroke-width="1.8"/>`;
+  };
+  obs.forEach((d) => { s += dot(d, "obs"); });
+  ghost.forEach((d) => { s += dot(d, "ghost"); });
+  echo.forEach((d) => { s += dot(d, "echo"); });
   ["0", "3m", "6m", "9m", "12m"].forEach((lab, i) => {
     const xx = X0 + PW * i / 4;
-    s += `<line x1="${xx}" y1="${yBot + 4}" x2="${xx}" y2="${yBot + 8}" stroke="#94a3b8"/>`;
-    if (i !== 1) s += `<text x="${xx}" y="${yBot + 20}" font-size="9" text-anchor="middle" fill="#64748b">${lab}</text>`;
+    s += `<line x1="${xx}" y1="${bandY + 32}" x2="${xx}" y2="${bandY + 36}" stroke="#94a3b8"/>`;
+    if (i !== 1) s += `<text x="${xx}" y="${bandY + 46}" font-size="9" text-anchor="middle" fill="#64748b">${lab}</text>`;
   });
-
-  const bar = (i, opac) => {
-    const y = yRow(i);
-    let b = `<g opacity="${opac.toFixed(2)}">`;
-    b += `<rect x="${X0}" y="${y - 8}" width="${PW}" height="16" rx="3" fill="#cbd5e1"/>`;
-    b += `<rect x="${gx0}" y="${y - 8}" width="${gx1 - gx0}" height="16" rx="0" fill="#3f8268" opacity="0.85"/>`;
-    return b;
-  };
-  const evMark = (i, d, col, lab) => {
-    const y = yRow(i), xx = px(d);
-    let m = `<text x="${xx}" y="${y + 5}" font-size="15" font-weight="bold" text-anchor="middle" fill="${col}">✕</text>`;
-    if (lab) m += `<text x="${xx}" y="${y - 13}" font-size="8.5" text-anchor="middle" fill="${col}">${lab}</text>`;
-    return m;
-  };
-  const name = (i, t) => `<text x="6" y="${yRow(i) + 4}" font-size="10" fill="#334155">${t}</text>`;
-  const sideNote = (i, txt, col) => `<text x="${X1 + 4}" y="${yRow(i) + 4}" font-size="9" fill="${col}" text-anchor="start"></text>` +
-    `<text x="${X0 + 4}" y="${yRow(i) + 22}" font-size="9" fill="${col}">${txt}</text>`;
-
-  if (kind === "exp") {
-    // A: event at day 40 cancels the planned day-90 exposure → A leaves the series
-    s += name(0, tr("病人 A（第40天出事）", "Patient A (event day 40)"));
-    s += bar(0, 1 - 0.85 * x) + `</g>`;
-    s += `<g opacity="${(1 - 0.85 * x).toFixed(2)}">` + evMark(0, 40, "#b91c1c") + `</g>`;
-    if (x > 0.02) s += sideNote(0, tr(`出事後醫師取消了原訂第90天的藥 → 沒有暴露，整個人退出 SCCS（消失中，${Math.round(x*100)}%）`, `the event cancels the planned exposure → no exposure, drops out of the SCCS (${Math.round(x*100)}%)`), "#b91c1c");
-    s += name(1, tr("病人 B（第100天出事）", "Patient B (event day 100)"));
-    s += bar(1, 1) + `</g>` + evMark(1, 100, "#b91c1c", tr("危險窗內", "in window"));
-    s += name(2, tr("病人 C（第250天出事）", "Patient C (event day 250)"));
-    s += bar(2, 1) + `</g>` + evMark(2, 250, "#334155");
-    s += `<text x="${X0}" y="${H - 4}" font-size="9.5" fill="#b91c1c">${x > 0.02 ? tr("A 這種「暴露前就出事」的人不見了 → 留下來的 B、C 裡，事件顯得集中在暴露之後 → IRR 被高估。", "People like A vanish → among B and C events look concentrated after exposure → IRR overestimated.") : tr("三個人都在資料裡：暴露前後的事件都看得到，估計不偏。", "All three are in the data: events before and after exposure are all seen — unbiased.")}</text>`;
-  } else if (kind === "cen") {
-    // fatal events truncate follow-up: the hatched tail is the lost person-time
-    const rowsCen = [
-      { d: 100, lab: tr("病人 A（第100天出事）", "Patient A (event day 100)"), note: tr("死亡 → 之後 265 天（幾乎全是基準期）看不到了", "dies → the next 265 days (almost all baseline) are gone") },
-      { d: 60, lab: tr("病人 B（第60天出事）", "Patient B (event day 60)"), note: tr("死亡 → 連危險窗都沒活到", "dies → never even reaches the risk window") },
-      { d: 300, lab: tr("病人 C（第300天出事，沒死）", "Patient C (event day 300, survives)"), note: null },
-    ];
-    rowsCen.forEach((r, i) => {
-      s += name(i, r.lab);
-      s += bar(i, 1) + `</g>`;
-      if (r.note && x > 0.02) {
-        const cx = px(r.d);
-        s += `<rect x="${cx}" y="${yRow(i) - 8}" width="${X1 - cx}" height="16" fill="url(#svcut)" opacity="${(x).toFixed(2)}"/>`;
-        s += sideNote(i, r.note + tr("（致死率 ", " (fatality ") + Math.round(x * 100) + "%)", "#b91c1c");
-      }
-      s += evMark(i, r.d, r.note ? "#b91c1c" : "#334155");
-    });
-    s += `<text x="${X0}" y="${H - 4}" font-size="9.5" fill="#b91c1c">${x > 0.02 ? tr("被砍掉的（紅斜線）幾乎都是基準期 → 基準期顯得事件特別密 → IRR 被低估，藥看起來更安全。", "What is cut (red hatch) is almost all baseline → baseline looks event-dense → IRR underestimated; the drug looks safer.") : tr("沒有人因事件而中斷觀察：每個人 365 天都看得到，估計不偏。", "Nobody's observation is cut short: all 365 days are seen for everyone — unbiased.")}</text>`;
-  } else {
-    // dependence: first events breed recurrences that land by the calendar
-    const rowsDep = [
-      { first: 50, rec: [72, 96], note: tr("第96天的復發剛好落在危險窗 → 被記到藥頭上", "the day-96 recurrence lands in the risk window → booked to the drug") },
-      { first: 105, rec: [130, 158], note: tr("復發落在基準期 → 墊高基準期", "recurrences land in baseline → inflate baseline") },
-      { first: 220, rec: [], note: null },
-    ];
-    rowsDep.forEach((r, i) => {
-      s += name(i, tr(`病人 ${"ABC"[i]}（第${r.first}天首次出事）`, `Patient ${"ABC"[i]} (first event day ${r.first})`));
-      s += bar(i, 1) + `</g>`;
-      if (r.rec.length && x > 0.02) {
-        const bx0 = px(r.first), bx1 = px(Math.min(r.first + 60, T));
-        s += `<rect x="${bx0}" y="${yRow(i) - 8}" width="${bx1 - bx0}" height="16" fill="#f59e0b" opacity="${(0.25 * x).toFixed(2)}"/>`;
-      }
-      s += evMark(i, r.first, "#334155", tr("首次", "first"));
-      if (x > 0.02) r.rec.forEach((d) => { s += `<g opacity="${x.toFixed(2)}">` + evMark(i, d, "#d97706", tr("復發", "recur")) + `</g>`; });
-      if (r.note && x > 0.02) s += sideNote(i, r.note, "#b45309");
-    });
-    s += `<text x="${X0}" y="${H - 4}" font-size="9.5" fill="#b45309">${x > 0.02 ? tr("橘色復發（首次事件後 60 天內較易再發）跟藥無關，落點只看日曆：A 的落進危險窗、B 的落在基準期 → 兩邊都被墊高，方向難料。", "Orange recurrences (likelier within 60 days of the first event) have nothing to do with the drug; placement is pure calendar → both sides inflated, direction unpredictable.") : tr("每次事件互相獨立：沒有復發潮，估計不偏。", "Events are independent: no recurrence wave — unbiased.")}</text>`;
-  }
   s += "</svg>";
   box.innerHTML = s;
 }
