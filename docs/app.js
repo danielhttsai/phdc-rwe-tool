@@ -7270,7 +7270,7 @@ function renderSccsVio() {
   document.getElementById("sccsVioNaiveFoot").textContent = txt.naiveFoot();
   document.getElementById("sccsVioFixedFoot").textContent = txt.fixedFoot();
   document.getElementById("sccsVioText").innerHTML = txt.body();
-  animateSccsVio(kind, x);
+  drawSccsVioSVG(kind, x);
   sccsVioCaption(kind, x, naive);
 }
 
@@ -7306,37 +7306,6 @@ function sccsVioCaption(kind, x, naive) {
   el.innerHTML = msg;
 }
 
-// Tween the strips from their previous shape to the new one (~260 ms), so
-// dragging the slider visibly bends the distributions instead of snapping.
-let _svAnim = null, _svShown = null;
-function animateSccsVio(kind, x) {
-  const target = _svSeries(kind, x);
-  const from = _svShown && _svShown.ev.length === target.ev.length ? _svShown : target;
-  if (_svAnim) cancelAnimationFrame(_svAnim);
-  // draw the starting frame synchronously — rAF does not fire in a throttled
-  // tab, and the diagram must exist even if the tween never runs
-  drawSccsVioSVG(kind, x, { ev0: target.ev0, ev: from.ev, pt: from.pt });
-  if (from === target) { _svShown = target; return; }
-  // safety net: if rAF is throttled and the tween stalls, land on the target
-  setTimeout(() => {
-    if (_svShown !== target) {
-      if (_svAnim) cancelAnimationFrame(_svAnim);
-      _svAnim = null; _svShown = target;
-      drawSccsVioSVG(kind, x, target);
-    }
-  }, 320);
-  const t0 = performance.now(), DUR = 260;
-  const lerp = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
-  const step = (now) => {
-    const t = Math.min((now - t0) / DUR, 1), e = 1 - (1 - t) * (1 - t);   // ease-out
-    const cur = { ev0: target.ev0, ev: lerp(from.ev, target.ev, e), pt: lerp(from.pt, target.pt, e) };
-    drawSccsVioSVG(kind, x, cur);
-    if (t < 1) _svAnim = requestAnimationFrame(step);
-    else { _svAnim = null; _svShown = target; }
-  };
-  _svAnim = requestAnimationFrame(step);
-}
-
 // Per-day curves for the violation diagram: how many events are OBSERVED on
 // each day, and how much person-time is still under observation — the shape
 // of these two strips is what the violation actually distorts.
@@ -7363,60 +7332,98 @@ function _svSeries(kind, x) {
   return { ev0, ev, pt };
 }
 
-function drawSccsVioSVG(kind, x, series) {
+// Three concrete patients on a 365-day timeline — the same trio for every
+// scenario — so the violation is something happening to PEOPLE, not to an
+// abstract curve. Opacity/red marks scale with the slider value x.
+function drawSccsVioSVG(kind, x) {
   const box = document.getElementById("sccsVioChart");
   if (!box) return;
   const { T, E, W } = SCCS_VIO;
-  const { ev0, ev, pt } = series || _svSeries(kind, x);
-  const X0 = 46, X1 = 706, PW = X1 - X0;
-  const px = (d) => X0 + (d - 1) / (T - 1) * PW;
-  const SH = 74, GAP = 40;                     // strip height / gap between strips
-  const strips = [
-    { title: tr("每天被「觀察到」的事件數", "events observed per day"), base: ev0, cur: ev, y0: 24,
-      changed: kind !== "cen" && x > 0,
-      label: { exp: tr("暴露前的事件消失了", "pre-exposure events vanish"),
-               dep: tr("復發潮（跟著第一次事件走）", "the recurrence wave follows first events") }[kind] },
-    { title: tr("還在被觀察的人時（比例）", "person-time still observed (fraction)"), base: ev0.map(() => 1), cur: pt, y0: 24 + SH + GAP,
-      changed: kind === "cen" && x > 0,
-      label: kind === "cen" ? tr("死亡把事件後的（多為基準期）人時砍掉", "death removes the (mostly baseline) time after events") : null },
-  ];
-  const H = strips[1].y0 + SH + 34;
-  const maxEv = Math.max(...ev, ...ev0);
+  const X0 = 92, X1 = 700, PW = X1 - X0;
+  const px = (d) => X0 + d / T * PW;
+  const rh = 52, rows = 3, H = rows * rh + 92;
+  const yRow = (i) => 40 + i * rh;
   let s = `<svg viewBox="0 0 720 ${H}" class="align-svg" xmlns="http://www.w3.org/2000/svg">`;
-  s += `<defs><pattern id="svgap" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">` +
-       `<rect width="6" height="6" fill="none"/><line x1="0" y1="0" x2="0" y2="6" stroke="#ef4444" stroke-width="2"/></pattern></defs>`;
-  // risk-window band + exposure marker, spanning both strips
-  const gx0 = px(E + 1), gx1 = px(E + W);
-  s += `<rect x="${gx0}" y="12" width="${gx1 - gx0}" height="${H - 40}" fill="#dff0e8" opacity="0.75"/>`;
-  s += `<text x="${(gx0 + gx1) / 2}" y="10" font-size="9" text-anchor="middle" fill="#255c47">${tr("危險窗（28 天，真實 IRR＝2）", "risk window (28 d, true IRR = 2)")}</text>`;
-  s += `<line x1="${px(E)}" y1="12" x2="${px(E)}" y2="${H - 28}" stroke="#3f8268" stroke-width="1.4" stroke-dasharray="4 3"/>`;
-  s += `<text x="${px(E)}" y="${H - 16}" font-size="9" text-anchor="middle" fill="#3f8268">${tr("暴露（第 90 天）", "exposure (day 90)")}</text>`;
-  strips.forEach((st) => {
-    const yB = st.y0 + SH;                     // strip baseline (y of zero)
-    const maxV = st.cur === pt ? 1 : maxEv;
-    const yOf = (v) => yB - v / maxV * (SH - 14);
-    const path = (arr) => arr.map((v, i) => `${i ? "L" : "M"}${px(i + 1).toFixed(1)} ${yOf(v).toFixed(1)}`).join(" ");
-    s += `<text x="${X0}" y="${st.y0 - 4}" font-size="10" fill="#334155">${st.title}</text>`;
-    s += `<line x1="${X0}" y1="${yB}" x2="${X1}" y2="${yB}" stroke="#e2e8f0"/>`;
-    // what the shape SHOULD look like (assumption holds) — grey dashed
-    s += `<path d="${path(st.base)}" fill="none" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="5 4"/>`;
-    // what you actually observe — filled, red when the violation bends it
-    const col = st.changed ? "#ef4444" : "#3f8268";
-    s += `<path d="${path(st.cur)} L${X1} ${yB} L${X0} ${yB} Z" fill="${col}" opacity="0.16"/>`;
-    // the GAP between the two curves = what the violation ate / added (hatched)
-    if (st.changed) {
-      const rev = st.base.map((v, i) => `L${px(st.base.length - i).toFixed(1)} ${yOf(st.base[st.base.length - 1 - i]).toFixed(1)}`).join(" ");
-      s += `<path d="${path(st.cur)} ${rev} Z" fill="url(#svgap)" opacity="0.55"/>`;
-    }
-    s += `<path d="${path(st.cur)}" fill="none" stroke="${col}" stroke-width="2"/>`;
-    if (st.changed && st.label) s += `<text x="${X1}" y="${st.y0 + 8}" font-size="9.5" text-anchor="end" fill="#b91c1c">${st.label}</text>`;
-  });
+  s += `<defs><pattern id="svcut" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">` +
+       `<rect width="6" height="6" fill="#fef2f2"/><line x1="0" y1="0" x2="0" y2="6" stroke="#ef4444" stroke-width="2"/></pattern></defs>`;
+  // shared scaffolding: risk-window band + exposure line + axis
+  const gx0 = px(E), gx1 = px(E + W), yBot = yRow(rows - 1) + 22;
+  s += `<rect x="${gx0}" y="26" width="${gx1 - gx0}" height="${yBot - 22}" fill="#dff0e8" opacity="0.8"/>`;
+  s += `<text x="${(gx0 + gx1) / 2}" y="22" font-size="9" text-anchor="middle" fill="#255c47">${tr("危險窗（第90–118天，真實 IRR＝2）", "risk window (days 90–118, true IRR = 2)")}</text>`;
+  s += `<line x1="${gx0}" y1="26" x2="${gx0}" y2="${yBot + 8}" stroke="#3f8268" stroke-width="1.4" stroke-dasharray="4 3"/>`;
+  s += `<text x="${gx0}" y="${yBot + 20}" font-size="9" text-anchor="middle" fill="#3f8268">${tr("暴露（第90天領藥）", "exposure (day 90)")}</text>`;
   ["0", "3m", "6m", "9m", "12m"].forEach((lab, i) => {
     const xx = X0 + PW * i / 4;
-    s += `<line x1="${xx}" y1="${H - 40}" x2="${xx}" y2="${H - 36}" stroke="#94a3b8"/>`;
-    s += `<text x="${xx}" y="${H - 28}" font-size="9" text-anchor="middle" fill="#64748b">${lab}</text>`;
+    s += `<line x1="${xx}" y1="${yBot + 4}" x2="${xx}" y2="${yBot + 8}" stroke="#94a3b8"/>`;
+    if (i !== 1) s += `<text x="${xx}" y="${yBot + 20}" font-size="9" text-anchor="middle" fill="#64748b">${lab}</text>`;
   });
-  s += `<text x="${X0}" y="${H - 4}" font-size="9" fill="#94a3b8">${tr("灰虛線＝假設成立時該有的樣子；實線＝實際觀察到的；紅斜線＝兩者的差（被吃掉或多出來的部分）", "grey dashed = the shape under the assumption; solid = what you observe; red hatch = the gap (what was eaten or added)")}</text>`;
+
+  const bar = (i, opac) => {
+    const y = yRow(i);
+    let b = `<g opacity="${opac.toFixed(2)}">`;
+    b += `<rect x="${X0}" y="${y - 8}" width="${PW}" height="16" rx="3" fill="#cbd5e1"/>`;
+    b += `<rect x="${gx0}" y="${y - 8}" width="${gx1 - gx0}" height="16" rx="0" fill="#3f8268" opacity="0.85"/>`;
+    return b;
+  };
+  const evMark = (i, d, col, lab) => {
+    const y = yRow(i), xx = px(d);
+    let m = `<text x="${xx}" y="${y + 5}" font-size="15" font-weight="bold" text-anchor="middle" fill="${col}">✕</text>`;
+    if (lab) m += `<text x="${xx}" y="${y - 13}" font-size="8.5" text-anchor="middle" fill="${col}">${lab}</text>`;
+    return m;
+  };
+  const name = (i, t) => `<text x="6" y="${yRow(i) + 4}" font-size="10" fill="#334155">${t}</text>`;
+  const sideNote = (i, txt, col) => `<text x="${X1 + 4}" y="${yRow(i) + 4}" font-size="9" fill="${col}" text-anchor="start"></text>` +
+    `<text x="${X0 + 4}" y="${yRow(i) + 22}" font-size="9" fill="${col}">${txt}</text>`;
+
+  if (kind === "exp") {
+    // A: event at day 40 cancels the planned day-90 exposure → A leaves the series
+    s += name(0, tr("病人 A（第40天出事）", "Patient A (event day 40)"));
+    s += bar(0, 1 - 0.85 * x) + `</g>`;
+    s += `<g opacity="${(1 - 0.85 * x).toFixed(2)}">` + evMark(0, 40, "#b91c1c") + `</g>`;
+    if (x > 0.02) s += sideNote(0, tr(`出事後醫師取消了原訂第90天的藥 → 沒有暴露，整個人退出 SCCS（消失中，${Math.round(x*100)}%）`, `the event cancels the planned exposure → no exposure, drops out of the SCCS (${Math.round(x*100)}%)`), "#b91c1c");
+    s += name(1, tr("病人 B（第100天出事）", "Patient B (event day 100)"));
+    s += bar(1, 1) + `</g>` + evMark(1, 100, "#b91c1c", tr("危險窗內", "in window"));
+    s += name(2, tr("病人 C（第250天出事）", "Patient C (event day 250)"));
+    s += bar(2, 1) + `</g>` + evMark(2, 250, "#334155");
+    s += `<text x="${X0}" y="${H - 4}" font-size="9.5" fill="#b91c1c">${x > 0.02 ? tr("A 這種「暴露前就出事」的人不見了 → 留下來的 B、C 裡，事件顯得集中在暴露之後 → IRR 被高估。", "People like A vanish → among B and C events look concentrated after exposure → IRR overestimated.") : tr("三個人都在資料裡：暴露前後的事件都看得到，估計不偏。", "All three are in the data: events before and after exposure are all seen — unbiased.")}</text>`;
+  } else if (kind === "cen") {
+    // fatal events truncate follow-up: the hatched tail is the lost person-time
+    const rowsCen = [
+      { d: 100, lab: tr("病人 A（第100天出事）", "Patient A (event day 100)"), note: tr("死亡 → 之後 265 天（幾乎全是基準期）看不到了", "dies → the next 265 days (almost all baseline) are gone") },
+      { d: 60, lab: tr("病人 B（第60天出事）", "Patient B (event day 60)"), note: tr("死亡 → 連危險窗都沒活到", "dies → never even reaches the risk window") },
+      { d: 300, lab: tr("病人 C（第300天出事，沒死）", "Patient C (event day 300, survives)"), note: null },
+    ];
+    rowsCen.forEach((r, i) => {
+      s += name(i, r.lab);
+      s += bar(i, 1) + `</g>`;
+      if (r.note && x > 0.02) {
+        const cx = px(r.d);
+        s += `<rect x="${cx}" y="${yRow(i) - 8}" width="${X1 - cx}" height="16" fill="url(#svcut)" opacity="${(x).toFixed(2)}"/>`;
+        s += sideNote(i, r.note + tr("（致死率 ", " (fatality ") + Math.round(x * 100) + "%)", "#b91c1c");
+      }
+      s += evMark(i, r.d, r.note ? "#b91c1c" : "#334155");
+    });
+    s += `<text x="${X0}" y="${H - 4}" font-size="9.5" fill="#b91c1c">${x > 0.02 ? tr("被砍掉的（紅斜線）幾乎都是基準期 → 基準期顯得事件特別密 → IRR 被低估，藥看起來更安全。", "What is cut (red hatch) is almost all baseline → baseline looks event-dense → IRR underestimated; the drug looks safer.") : tr("沒有人因事件而中斷觀察：每個人 365 天都看得到，估計不偏。", "Nobody's observation is cut short: all 365 days are seen for everyone — unbiased.")}</text>`;
+  } else {
+    // dependence: first events breed recurrences that land by the calendar
+    const rowsDep = [
+      { first: 50, rec: [72, 96], note: tr("第96天的復發剛好落在危險窗 → 被記到藥頭上", "the day-96 recurrence lands in the risk window → booked to the drug") },
+      { first: 105, rec: [130, 158], note: tr("復發落在基準期 → 墊高基準期", "recurrences land in baseline → inflate baseline") },
+      { first: 220, rec: [], note: null },
+    ];
+    rowsDep.forEach((r, i) => {
+      s += name(i, tr(`病人 ${"ABC"[i]}（第${r.first}天首次出事）`, `Patient ${"ABC"[i]} (first event day ${r.first})`));
+      s += bar(i, 1) + `</g>`;
+      if (r.rec.length && x > 0.02) {
+        const bx0 = px(r.first), bx1 = px(Math.min(r.first + 60, T));
+        s += `<rect x="${bx0}" y="${yRow(i) - 8}" width="${bx1 - bx0}" height="16" fill="#f59e0b" opacity="${(0.25 * x).toFixed(2)}"/>`;
+      }
+      s += evMark(i, r.first, "#334155", tr("首次", "first"));
+      if (x > 0.02) r.rec.forEach((d) => { s += `<g opacity="${x.toFixed(2)}">` + evMark(i, d, "#d97706", tr("復發", "recur")) + `</g>`; });
+      if (r.note && x > 0.02) s += sideNote(i, r.note, "#b45309");
+    });
+    s += `<text x="${X0}" y="${H - 4}" font-size="9.5" fill="#b45309">${x > 0.02 ? tr("橘色復發（首次事件後 60 天內較易再發）跟藥無關，落點只看日曆：A 的落進危險窗、B 的落在基準期 → 兩邊都被墊高，方向難料。", "Orange recurrences (likelier within 60 days of the first event) have nothing to do with the drug; placement is pure calendar → both sides inflated, direction unpredictable.") : tr("每次事件互相獨立：沒有復發潮，估計不偏。", "Events are independent: no recurrence wave — unbiased.")}</text>`;
+  }
   s += "</svg>";
   box.innerHTML = s;
 }
