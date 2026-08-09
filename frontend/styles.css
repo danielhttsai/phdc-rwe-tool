@@ -855,3 +855,16 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .fig-lb-nav.prev { left: .8rem; } .fig-lb-nav.next { right: .8rem; }
 .fig-lb-x:hover, .fig-lb-nav:hover { background: #fff; }
 @media (max-width: 640px) { .fig-lb { padding: 1rem .6rem; } .fig-lb-nav { width: 34px; height: 48px; } }
+/* click-through reading steps inside the figure viewer */
+.fig-steps { margin-top: .8rem; border-top: 1px solid var(--line); padding-top: .7rem; }
+.fig-steps-lab { font-size: .8rem; font-weight: 800; color: var(--z); margin-bottom: .4rem; }
+.fig-steps-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.fig-step { border: 1.5px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 999px; padding: .3rem .8rem; font-size: .85rem; cursor: pointer; }
+.fig-step b { display: inline-block; margin-right: .35rem; color: var(--z); }
+.fig-step.on { background: var(--z); color: #fff; border-color: var(--z); }
+.fig-step.on b { color: #fff; }
+.fig-step-text { margin-top: .55rem; font-size: .9rem; line-height: 1.8;
+  background: #f0f7f4; border-radius: 8px; padding: .55rem .8rem; }
+.fig-lb-count { margin-top: .5rem; font-size: .8rem; color: var(--muted); }
+.cb-figure .cb-fig-steps { margin-top: .4rem; font-size: .8rem; color: var(--z); }

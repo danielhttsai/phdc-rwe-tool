@@ -101,6 +101,11 @@ def _copy_assets():
     if os.path.isdir(data_src):
         shutil.copytree(data_src, os.path.join(DOCS, "data"))
 
+    # the encrypted book blobs are fetched on demand, not inlined in app.js
+    books_src = os.path.join(FRONTEND, "books")
+    if os.path.isdir(books_src):
+        shutil.copytree(books_src, os.path.join(DOCS, "books"))
+
     for name in BACKEND_PY:
         shutil.copyfile(os.path.join(BACKEND, name), os.path.join(DOCS, "py", name))
     shutil.copyfile(os.path.join(WEB, "api.py"), os.path.join(DOCS, "py", "api.py"))
