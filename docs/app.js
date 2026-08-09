@@ -7199,8 +7199,22 @@ const SCCS_VIO_META = {
 // drawn as mini-timelines by renderSccsVioFixes below
 const SCCS_VIO_BODY = {
   exp: () => tr(
-    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>",
-    "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b>.</p>"),
+    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X；教科書的經典例子是輪狀病毒疫苗與腸套疊：得過腸套疊的孩子，之後幾乎不會再接種。也有反方向的：車禍受傷之後才開始用鴉片類止痛藥，事件反而<b>促成</b>暴露。方向是可預測的：事件<b>阻止</b>後續暴露 → IRR 偏高；事件<b>促成</b>後續暴露 → IRR 偏低。</p>" +
+    "<details class=\"term\"><summary>Farrington 反事實延伸：原理（點開看）</summary><div class=\"tdef\">" +
+    "<p><b>問題出在哪：</b>標準 SCCS 的 likelihood 靠一個條件化的技巧：把「整段暴露史」當作已知條件。但暴露會被事件改變時，<b>事件之後的暴露史本身就是事件的函數</b>，拿它來當條件等於用結果解釋結果，這一步在數學上就不成立了，這才是偏誤的根源。</p>" +
+    "<p><b>反事實暴露史：</b>方法的核心是問「<b>如果事件沒有發生，這個人的暴露史會長什麼樣？</b>」並刻意選一個<b>不受事件影響</b>的版本當基準：「此後不再有任何暴露」。這個版本無論事件何時發生都一樣，所以可以安全地當作條件。</p>" +
+    "<p><b>那實際上觀察到的後續暴露怎麼辦？</b>不刪掉。有些人事件之後真的又暴露了（例如又接種了第二劑），做法是把那些「多出來的危險期」裡的期望事件數<b>乘上 exp(β) 的校正因子縮回去</b>，讓它符合反事實世界的帳。整套推導出來的不是標準 likelihood，而是一組<b>估計方程（estimating equations）</b>，解它得到參數與信賴區間。</p>" +
+    "<p><b>使用條件：</b>事件要<b>罕見且不復發</b>（每人一次）；<b>觀察期本身不能也被事件改變</b>（那是情境②，要用另一個修正）；每段危險期長度<b>有限且已知</b>。</p>" +
+    "<p><b>工具與出處：</b>R 套件 <code>SCCS</code> 的 <code>eventdepenexp()</code>；Farrington, Whitaker &amp; Ghebremichael-Weldeselassie,<i> Self-Controlled Case Series Studies: A Modelling Guide with R</i>（CRC Press, 2018）第 7 章。</p>" +
+    "</div></details>",
+    "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b> — the textbook example is rotavirus vaccine and intussusception. It can run the other way too (a car-crash injury precipitates opioid use). The direction is predictable: event <b>precludes</b> later exposure → IRR biased up; event <b>precipitates</b> it → biased down.</p>" +
+    "<details class=\"term\"><summary>Farrington's counterfactual extension: the principle</summary><div class=\"tdef\">" +
+    "<p><b>Where it breaks:</b> the standard SCCS likelihood conditions on the whole exposure history. Once events change exposures, the post-event history is itself a function of the event, so conditioning on it is circular — that is the root of the bias.</p>" +
+    "<p><b>The counterfactual exposure history:</b> ask what the history would have looked like had the event not occurred, and deliberately pick a version unaffected by the event: <b>no further exposures</b>. That version is the same whenever the event happens, so it is safe to condition on.</p>" +
+    "<p><b>Observed later exposures are not deleted:</b> where a later risk period does occur, the expected event count in it is <b>scaled back by exp(β)</b> to match the counterfactual bookkeeping. The result is a set of <b>estimating equations</b> rather than a standard likelihood.</p>" +
+    "<p><b>Requirements:</b> rare, non-recurrent events; the observation period itself must not be event-dependent (that is scenario 2, with its own fix); finite risk periods of known length.</p>" +
+    "<p><b>Tooling:</b> <code>eventdepenexp()</code> in the R package <code>SCCS</code>; Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, <i>Self-Controlled Case Series Studies</i> (CRC Press, 2018), Chapter 7.</p>" +
+    "</div></details>"),
   cen: () => tr(
     "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡。</p>",
     "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring: <b>the event itself ends follow-up</b> — death being the extreme case.</p>"),
@@ -7237,7 +7251,7 @@ function svFixRows(kind) {
         `<rect x="${p60}" y="14" width="${b.g0 - p60}" height="12" fill="#ede9fe"/>` +
         `<text x="${(p60 + b.g0) / 2}" y="9" font-size="8" text-anchor="middle" fill="#6d28d9">${tr("暴露前窗（單獨估計）", "pre-exposure window")}</text>` +
         X(75, "#6d28d9") + X(104) + X(230) + b.close; })(), r: "≈ 2.00" },
-    { t: tr("<b>③ Farrington 反事實延伸。</b>不刪不切，直接把「事件會影響之後的暴露」寫進模型，把變灰的人「算回來」。", "<b>3. Farrington's counterfactual extension:</b> model the event-exposure dependence directly, effectively counting the greyed-out people back in."),
+    { t: tr("<b>③ Farrington 反事實延伸（R：eventdepenexp）。</b>不刪不切：改用「事件沒發生的話，之後不再暴露」這個<b>反事實暴露史</b>當條件（它不會被事件影響，所以可以安全條件化）；真的觀察到的後續危險期，期望事件數乘 exp(β) 縮回去。原理見上方「點開看」。", "<b>3. Farrington's counterfactual extension (R: eventdepenexp):</b> condition on the counterfactual history 'no further exposures had the event not occurred' — which the event cannot influence — and scale observed later risk periods back by exp(β). Principle in the fold-out above."),
       svg: (() => { const b = B(); return b.open +
         X(40, "#b6c2cf") +
         `<path d="M${b.px(40)} 10 Q${b.px(60)} 2 ${b.px(72)} 12" fill="none" stroke="#3f8268" stroke-width="1.2" marker-end="none"/>` +
@@ -7353,7 +7367,7 @@ function renderSccsVioBoard(kind, det) {
     `<div class="svb-irr"><span class="svb-irrlab">IRR＝${tr("窗密度 ÷ 基準密度", "window ÷ baseline density")}</span>` +
     `<div class="svb-rail"><div class="svb-truth" style="left:${truthX}%"><i></i><em>${tr("真值 2", "truth 2")}</em></div>` +
     `<div class="svb-pin" style="left:${curX}%"><b>${irr.toFixed(2)}</b><span>${dir}</span></div></div>` +
-    `<div class="svb-ticks"><span>1</span><span>2</span><span>3</span></div></div>`;
+    `<div class="svb-ticks"><span>1</span><span></span><span>3</span></div></div>`;
 }
 
 // ---- the 12-patient diagram + marginal dot band ----

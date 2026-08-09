@@ -803,14 +803,16 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .svb-unit { font-size: .76rem; color: var(--muted); }
 .svb-irr { margin: .6rem 0 .8rem; }
 .svb-irrlab { font-size: .84rem; color: var(--muted); }
-.svb-rail { position: relative; height: 34px; margin: .5rem 0 0; border-bottom: 2px solid var(--line); }
-.svb-truth { position: absolute; bottom: 0; transform: translateX(-50%); text-align: center; }
-.svb-truth i { display: block; width: 0; height: 22px; border-left: 2px dashed #94a3b8; margin: 0 auto; }
-.svb-truth em { font-size: .72rem; color: var(--muted); font-style: normal; }
-.svb-pin { position: absolute; bottom: 2px; transform: translateX(-50%); text-align: center; transition: left .3s ease; }
-.svb-pin b { display: block; font-size: .95rem; color: var(--z); }
-.svb-pin span { font-size: .72rem; color: #b45309; }
-.svb-ticks { display: flex; justify-content: space-between; font-size: .74rem; color: var(--muted); margin-top: .15rem; }
+.svb-rail { position: relative; height: 42px; margin: .5rem 0 1.3rem; border-bottom: 2px solid var(--line); }
+.svb-truth { position: absolute; top: 0; bottom: 0; transform: translateX(-50%); }
+.svb-truth i { display: block; width: 0; height: 100%; border-left: 2px dashed #94a3b8; margin: 0 auto; }
+.svb-truth em { position: absolute; top: calc(100% + 3px); left: 50%; transform: translateX(-50%);
+  font-size: .72rem; color: var(--muted); font-style: normal; white-space: nowrap; }
+.svb-pin { position: absolute; bottom: 5px; transform: translateX(-50%); text-align: center; transition: left .3s ease;
+  background: var(--card); border: 1px solid var(--z); border-radius: 8px; padding: .1rem .45rem; }
+.svb-pin b { display: block; font-size: .95rem; color: var(--z); line-height: 1.2; }
+.svb-pin span { font-size: .7rem; color: #b45309; white-space: nowrap; }
+.svb-ticks { display: flex; justify-content: space-between; font-size: .74rem; color: var(--muted); margin-top: .1rem; }
 /* SCCS fix rows: mini timeline + label + result chip */
 .svfix-title { font-size: 1rem; margin: 1.3rem 0 .5rem; }
 .svfix-row { display: flex; align-items: center; gap: .9rem; border: 1px solid var(--line);
