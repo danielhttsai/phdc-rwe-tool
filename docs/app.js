@@ -7195,24 +7195,102 @@ const SCCS_VIO_META = {
   },
 };
 
-// the term / why / fix bodies shown under the key sentences (kept from before)
+// the terminology paragraph shown under the key sentences; the fixes are
+// drawn as mini-timelines by renderSccsVioFixes below
 const SCCS_VIO_BODY = {
   exp: () => tr(
-    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>" +
-    "<p><b>怎麼處理：</b>① 把追蹤改成<b>從暴露那天才開始</b>（只用暴露後的時間，這在暴露幾乎必然發生時最乾淨）；② 在暴露前切一段 <b>pre-exposure window</b> 單獨估計，不讓它汙染基準期；③ 用 Farrington 的<b>反事實延伸</b>模型直接把「事件影響暴露」建進去。</p>",
-    "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b>.</p>" +
-    "<p><b>The fixes:</b> start observation <b>at exposure</b>; carve out a separate <b>pre-exposure window</b>; or model it directly with Farrington's counterfactual extension.</p>"),
+    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X。</p>",
+    "<p><b>The term:</b> event-dependent exposure. The mechanism is concrete: <b>after the event, the doctor stops prescribing</b>.</p>"),
   cen: () => tr(
-    "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡。</p>" +
-    "<p><b>怎麼處理：</b>① 結果盡量選<b>非致命、會復發</b>的事件（這本來就是 SCCS 最適合的情境）；② 若躲不掉，用 <b>Farrington, Whitaker &amp; Hocine (2011)</b> 的修正版 SCCS，把「觀察期被事件截斷」直接放進 likelihood（R 套件 <code>SCCS</code> 的 <code>eventdepenobs</code>）；③ 敏感度分析：只留非致死個案重跑一次，看 IRR 動多少。</p>",
-    "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring: <b>the event itself ends follow-up</b> — death being the extreme case.</p>" +
-    "<p><b>The fixes:</b> prefer non-fatal recurrent outcomes; otherwise the censoring-adjusted SCCS of <b>Farrington, Whitaker &amp; Hocine (2011)</b> (<code>eventdepenobs</code> in the R package <code>SCCS</code>); and rerun on non-fatal cases as a sensitivity check.</p>"),
+    "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡。</p>",
+    "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring: <b>the event itself ends follow-up</b> — death being the extreme case.</p>"),
   dep: () => tr(
-    "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>" +
-    "<p><b>怎麼處理：</b>最實用的一招：<b>每人只取第一次事件</b>重跑（配合上面兩種修正一起看）；或改用允許相依的模型。把「全部事件」和「只取第一次」兩版都報出來，讀者自己就能看出相依性影響多大。</p>",
-    "<p><b>The term:</b> papers say event dependence or non-independent recurrences: <b>one event begets the next</b>. Standard SCCS assumes independent recurrences; this breaks that.</p>" +
-    "<p><b>The fixes:</b> rerun with the <b>first event per person</b>; or a model allowing dependence. Reporting both versions shows how much dependence matters.</p>"),
+    "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>",
+    "<p><b>The term:</b> papers say event dependence or non-independent recurrences: <b>one event begets the next</b>. Standard SCCS assumes independent recurrences; this breaks that.</p>"),
 };
+
+// ---- the fixes, drawn: one mini-timeline per remedy, same day scale ----
+function _svfBase(extra) {
+  // 320x44 mini timeline: baseline blue, window orange, jab dashed at day 90
+  const px = (d) => 8 + d / 365 * 304;
+  const g0 = px(90), g1 = px(118);
+  return { px, g0, g1,
+    open: `<svg viewBox="0 0 320 44" class="svfix-mini" xmlns="http://www.w3.org/2000/svg">` +
+      `<rect x="8" y="14" width="${g0 - 8}" height="12" fill="#eff6ff"/>` +
+      `<rect x="${g1}" y="14" width="${312 - g1}" height="12" fill="#eff6ff"/>` +
+      `<rect x="${g0}" y="14" width="${g1 - g0}" height="12" fill="#ffedd5"/>` +
+      `<line x1="${g0}" y1="8" x2="${g0}" y2="36" stroke="#3f8268" stroke-width="1.2" stroke-dasharray="3 2"/>` +
+      `<line x1="8" y1="20" x2="312" y2="20" stroke="#94a3b8" stroke-width="1.2"/>` + (extra || ""),
+    close: `</svg>` };
+}
+function svFixRows(kind) {
+  const B = _svfBase, X = (d, col, extra) => `<text x="${_svfBase().px(d)}" y="24" font-size="10" font-weight="bold" text-anchor="middle" fill="${col || '#0f172a'}"${extra || ''}>✕</text>`;
+  if (kind === "exp") return [
+    { t: tr("<b>① 追蹤從暴露那天才開始。</b>暴露前的時間整段不用，被篩掉的人本來就只影響那一段，問題跟著消失（暴露幾乎必然發生時最乾淨）。", "<b>1. Start observation at exposure.</b> The pre-exposure stretch is not used at all, and the filtering only ever touched that stretch."),
+      svg: (() => { const b = B(); return b.open +
+        `<rect x="8" y="12" width="${b.g0 - 8}" height="16" fill="#f1f5f9"/>` +
+        `<line x1="8" y1="12" x2="${b.g0}" y2="28" stroke="#94a3b8" stroke-width="1"/><line x1="8" y1="28" x2="${b.g0}" y2="12" stroke="#94a3b8" stroke-width="1"/>` +
+        `<text x="${(8 + b.g0) / 2}" y="9" font-size="8" text-anchor="middle" fill="#64748b">${tr("這段不用", "not used")}</text>` +
+        X(104) + X(230) + b.close; })(), r: "≈ 2.00" },
+    { t: tr("<b>② 暴露前切一段 pre-exposure window 單獨估計。</b>「快出事所以先停藥」的那段時間有自己的格子，不再汙染基準期。", "<b>2. Carve out a pre-exposure window</b> with its own estimate, so it stops contaminating baseline."),
+      svg: (() => { const b = B(); const p60 = b.px(60); return b.open +
+        `<rect x="${p60}" y="14" width="${b.g0 - p60}" height="12" fill="#ede9fe"/>` +
+        `<text x="${(p60 + b.g0) / 2}" y="9" font-size="8" text-anchor="middle" fill="#6d28d9">${tr("暴露前窗（單獨估計）", "pre-exposure window")}</text>` +
+        X(75, "#6d28d9") + X(104) + X(230) + b.close; })(), r: "≈ 2.00" },
+    { t: tr("<b>③ Farrington 反事實延伸。</b>不刪不切，直接把「事件會影響之後的暴露」寫進模型，把變灰的人「算回來」。", "<b>3. Farrington's counterfactual extension:</b> model the event-exposure dependence directly, effectively counting the greyed-out people back in."),
+      svg: (() => { const b = B(); return b.open +
+        X(40, "#b6c2cf") +
+        `<path d="M${b.px(40)} 10 Q${b.px(60)} 2 ${b.px(72)} 12" fill="none" stroke="#3f8268" stroke-width="1.2" marker-end="none"/>` +
+        `<text x="${b.px(76)}" y="9" font-size="8" fill="#3f8268">${tr("模型把消失的人算回來", "the model counts them back in")}</text>` +
+        X(104) + X(230) + b.close; })(), r: "≈ 2.00" },
+  ];
+  if (kind === "cen") return [
+    { t: tr("<b>① 換一個非致命、會復發的結果。</b>事件不終止追蹤，就沒有天數被剪：這本來就是 SCCS 最適合的情境。", "<b>1. Pick a non-fatal, recurrent outcome.</b> If the event never ends follow-up, no days get cut."),
+      svg: (() => { const b = B(); return b.open +
+        X(104, "#047857") + X(200, "#047857") + X(300, "#047857") +
+        `<text x="${b.px(330)}" y="9" font-size="8" text-anchor="middle" fill="#047857">${tr("追到年底", "followed to the end")}</text>` + b.close; })(), r: "≈ 2.00" },
+    { t: tr("<b>② censoring-adjusted SCCS（Farrington 2011）。</b>把「觀察期被事件截斷」直接放進 likelihood（R 套件 SCCS 的 eventdepenobs），被剪掉的天數在模型裡補回來。", "<b>2. Censoring-adjusted SCCS (Farrington 2011):</b> the truncation goes into the likelihood (eventdepenobs in the R package SCCS); the cut days are handled inside the model."),
+      svg: (() => { const b = B(); const cut = b.px(155); return b.open +
+        X(125, "#b91c1c") +
+        `<text x="${cut}" y="24" font-size="9" text-anchor="middle" fill="#b91c1c">✝</text>` +
+        `<line x1="${cut}" y1="20" x2="312" y2="20" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="4 3"/>` +
+        `<text x="${(cut + 312) / 2}" y="9" font-size="8" text-anchor="middle" fill="#2563eb">${tr("被剪的天數放進 likelihood 補回", "cut days recovered in the likelihood")}</text>` + b.close; })(), r: "≈ 2.00" },
+    { t: tr("<b>③ 敏感度分析：只留非致死個案重跑。</b>兩個 IRR 差多少，就是截斷咬掉多少。", "<b>3. Sensitivity analysis: rerun on non-fatal cases only.</b> The gap between the two IRRs is the size of the bite."),
+      svg: (() => { const b = B(); return b.open +
+        X(104) + X(230) +
+        `<g opacity="0.35">${X(150, "#b91c1c")}<text x="${b.px(150) + 9}" y="24" font-size="9" fill="#b91c1c">✝</text></g>` +
+        `<line x1="${b.px(140)}" y1="12" x2="${b.px(162)}" y2="28" stroke="#64748b" stroke-width="1.4"/>` +
+        `<text x="${b.px(185)}" y="9" font-size="8" fill="#64748b">${tr("致死個案先排除", "fatal cases set aside")}</text>` + b.close; })(), r: tr("兩版對照", "two versions") },
+  ];
+  return [
+    { t: tr("<b>① 每人只取第一次事件。</b>回音（復發）根本不進資料，獨立性假設自動成立；代價是事件數變少。", "<b>1. First event per person.</b> Echoes never enter the data, so independence holds by construction; the price is fewer events."),
+      svg: (() => { const b = B(); return b.open +
+        X(80) +
+        `<circle cx="${b.px(101)}" cy="20" r="4" fill="none" stroke="#d97706" stroke-width="1.6"/>` +
+        `<line x1="${b.px(95)}" y1="13" x2="${b.px(107)}" y2="27" stroke="#64748b" stroke-width="1.6"/>` +
+        `<text x="${b.px(130)}" y="9" font-size="8" fill="#64748b">${tr("回音不算", "echoes not counted")}</text>` +
+        X(230) + b.close; })(), r: "≈ 2.00" },
+    { t: tr("<b>② 改用允許相依的模型。</b>把「一次發作提高短期再發率」本身當成模型的一部分去估。", "<b>2. A model that allows dependence,</b> estimating the short-term recurrence boost as part of the model."),
+      svg: (() => { const b = B(); return b.open +
+        X(80) + `<circle cx="${b.px(101)}" cy="20" r="4" fill="none" stroke="#d97706" stroke-width="1.6"/>` +
+        `<path d="M${b.px(80)} 12 Q${b.px(90)} 4 ${b.px(101)} 12" fill="none" stroke="#d97706" stroke-width="1"/>` +
+        `<text x="${b.px(150)}" y="9" font-size="8" fill="#d97706">${tr("母子關係寫進模型", "the mother-echo link modelled")}</text>` +
+        X(230) + b.close; })(), r: "≈ 2.00" },
+    { t: tr("<b>③ 兩版並報：</b>「全部事件」和「只取第一次」都給讀者。兩個數字差多遠，相依性就有多重。", "<b>3. Report both versions</b> — all events, and first-only. The distance between them is how much dependence matters."),
+      svg: null, r: null,
+      html: `<div class="svfix-two"><span class="svfix-chip bad">${tr("全部事件", "all events")} 1.66</span><span class="svfix-chip good">${tr("只取第一次", "first only")} ≈ 2.00</span></div>` },
+  ];
+}
+function renderSccsVioFixes(kind) {
+  const box = document.getElementById("sccsVioFix");
+  if (!box) return;
+  box.innerHTML = svFixRows(kind).map((f) =>
+    `<div class="svfix-row">` +
+    (f.svg ? `<div class="svfix-pic">${f.svg}</div>` : (f.html ? `<div class="svfix-pic">${f.html}</div>` : "")) +
+    `<div class="svfix-txt">${f.t}</div>` +
+    (f.r ? `<span class="svfix-res">IRR ${f.r}</span>` : "") +
+    `</div>`).join("");
+}
 
 let sccsVioReady = false;
 function initSccsVio() {
@@ -7243,6 +7321,7 @@ function renderSccsVio() {
     ? `<p><b>${tr("目前假設成立：三個情境在 0% 時畫面與數字完全一樣，IRR＝2.00（你可以核對：5.1 ÷ 2.5 ≈ 2）。拉動滑桿，看是哪一格被動了手腳。", "The assumption holds: at 0% all three scenarios look identical and IRR = 2.00 (check it: 5.1 / 2.5 = 2). Drag the slider and watch which cell gets tampered with.")}</b></p>`
     : meta.key();
   document.getElementById("sccsVioText").innerHTML = SCCS_VIO_BODY[kind]();
+  renderSccsVioFixes(kind);
 }
 
 // ---- scoreboard: window card + baseline card + IRR pointer bar ----

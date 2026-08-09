@@ -811,3 +811,16 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .svb-pin b { display: block; font-size: .95rem; color: var(--z); }
 .svb-pin span { font-size: .72rem; color: #b45309; }
 .svb-ticks { display: flex; justify-content: space-between; font-size: .74rem; color: var(--muted); margin-top: .15rem; }
+/* SCCS fix rows: mini timeline + label + result chip */
+.svfix-title { font-size: 1rem; margin: 1.3rem 0 .5rem; }
+.svfix-row { display: flex; align-items: center; gap: .9rem; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--card); padding: .55rem .8rem; margin-bottom: .55rem; flex-wrap: wrap; }
+.svfix-pic { flex: 0 0 260px; }
+.svfix-mini { width: 100%; height: auto; display: block; }
+.svfix-txt { flex: 1 1 260px; font-size: .88rem; line-height: 1.7; }
+.svfix-res { flex: 0 0 auto; background: #dff0e8; color: #255c47; border-radius: 999px;
+  padding: .25rem .7rem; font-size: .82rem; font-weight: 800; white-space: nowrap; }
+.svfix-two { display: flex; gap: .5rem; flex-wrap: wrap; }
+.svfix-chip { border-radius: 999px; padding: .3rem .8rem; font-size: .84rem; font-weight: 700; }
+.svfix-chip.bad { background: #f4f6f8; color: #475569; border: 1px solid #cbd5e1; }
+.svfix-chip.good { background: #dff0e8; color: #255c47; border: 1px solid #a7d7c5; }
