@@ -826,3 +826,10 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .svfix-chip { border-radius: 999px; padding: .3rem .8rem; font-size: .84rem; font-weight: 700; }
 .svfix-chip.bad { background: #f4f6f8; color: #475569; border: 1px solid #cbd5e1; }
 .svfix-chip.good { background: #dff0e8; color: #255c47; border: 1px solid #a7d7c5; }
+/* figures extracted from the source books (inside the encrypted notes) */
+.cb-figs { margin-top: 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
+.cb-figs > summary { cursor: pointer; padding: .55rem .9rem; font-weight: 700; font-size: .9rem; }
+.cb-figs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .8rem; padding: .8rem; }
+.cb-fig { margin: 0; border: 1px solid var(--line); border-radius: 8px; padding: .5rem; background: #fff; }
+.cb-fig img { width: 100%; height: auto; display: block; }
+.cb-fig figcaption { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
