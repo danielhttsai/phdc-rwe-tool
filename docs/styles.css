@@ -833,3 +833,25 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .cb-fig { margin: 0; border: 1px solid var(--line); border-radius: 8px; padding: .5rem; background: #fff; }
 .cb-fig img { width: 100%; height: auto; display: block; }
 .cb-fig figcaption { font-size: .78rem; color: var(--muted); margin-top: .3rem; }
+/* ---- inline book figures + click-to-enlarge lightbox ---- */
+.cb-figure { margin: 1rem 0; border: 1px solid var(--line); border-radius: 12px;
+  background: #fff; padding: .7rem .8rem; }
+.cb-figure img { width: 100%; height: auto; display: block; cursor: zoom-in;
+  border-radius: 6px; background: #fff; }
+.cb-figure figcaption { margin-top: .5rem; font-size: .86rem; line-height: 1.75; color: var(--ink); }
+.cb-figure .cb-fig-h { display: block; font-weight: 700; color: var(--z); margin-bottom: .2rem; }
+.cb-figure .cb-fig-zoom { float: right; font-size: .76rem; color: var(--muted); font-weight: 400; }
+.fig-lb { position: fixed; inset: 0; z-index: 120; background: rgba(15, 23, 42, .88);
+  display: flex; align-items: center; justify-content: center; padding: 2.5rem 3.5rem; }
+.fig-lb[hidden] { display: none; }
+.fig-lb-inner { margin: 0; max-width: 1100px; max-height: 100%; overflow: auto;
+  background: #fff; border-radius: 12px; padding: 1rem 1.1rem; }
+.fig-lb-inner img { width: 100%; height: auto; display: block; }
+.fig-lb-inner figcaption { margin-top: .7rem; font-size: .92rem; line-height: 1.8; color: var(--ink); }
+.fig-lb-x, .fig-lb-nav { position: absolute; background: rgba(255,255,255,.9); border: none;
+  border-radius: 999px; cursor: pointer; color: var(--ink); }
+.fig-lb-x { top: 1rem; right: 1.2rem; width: 38px; height: 38px; font-size: 1.05rem; }
+.fig-lb-nav { top: 50%; transform: translateY(-50%); width: 42px; height: 62px; font-size: 1.8rem; line-height: 1; }
+.fig-lb-nav.prev { left: .8rem; } .fig-lb-nav.next { right: .8rem; }
+.fig-lb-x:hover, .fig-lb-nav:hover { background: #fff; }
+@media (max-width: 640px) { .fig-lb { padding: 1rem .6rem; } .fig-lb-nav { width: 34px; height: 48px; } }

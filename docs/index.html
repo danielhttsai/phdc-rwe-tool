@@ -9035,6 +9035,18 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
 <!-- What If notes: concept explainer. Must sit OUTSIDE the panels — .panel
      carries a transform, which would make it the containing block for
      position:fixed and anchor the drawer to the panel instead of the viewport. -->
+<!-- Figure lightbox: click any book figure to see it full size, with its
+     explanation and arrows to walk the chapter's figures. Lives outside the
+     panels for the same reason the concept drawer does (panel transforms). -->
+<div id="figLb" class="fig-lb" hidden>
+  <button id="figLbClose" class="fig-lb-x" type="button" aria-label="關閉 / Close">✕</button>
+  <button id="figLbPrev" class="fig-lb-nav prev" type="button" aria-label="上一張 / Previous">‹</button>
+  <button id="figLbNext" class="fig-lb-nav next" type="button" aria-label="下一張 / Next">›</button>
+  <figure class="fig-lb-inner">
+    <img id="figLbImg" alt="">
+    <figcaption id="figLbCap"></figcaption>
+  </figure>
+</div>
 <div id="cbDrawerScrim" class="cb-drawer-scrim" hidden></div>
 <aside id="cbDrawer" class="cb-drawer" hidden aria-hidden="true" role="dialog" aria-labelledby="cbDrawerTitle">
   <div class="cb-drawer-head">
