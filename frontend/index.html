@@ -80,6 +80,7 @@
     <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
     <button class="tab" id="glossaryTab" data-en="Glossary">名詞表</button>
     <button class="tab" id="cbookTab" data-en="What If (book)">What If 課本 🔒</button>
+    <button class="tab" id="sbookTab" data-en="SCCS (book)">SCCS 課本 🔒</button>
   </nav>
   <button id="langToggle" class="lang-toggle" type="button" title="切換中／英文" aria-label="Language">EN</button>
 </header>
@@ -108,6 +109,21 @@
       <p id="cbMsg" class="cb-msg" role="status"></p>
     </div>
     <div id="cbBody" hidden></div>
+  </section>
+
+  <section id="sbook" class="panel">
+    <h1 data-en="Self-Controlled Case Series Studies — chapter study notes">SCCS 自我對照病例系列：分章讀書筆記</h1>
+    <p class="lead" data-en="Original bilingual study notes summarising each chapter of Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, <i>Self-Controlled Case Series Studies: A Modelling Guide with R</i> (CRC Press, 2018). Our own summaries of the key ideas, not the book's text.">這是 Farrington、Whitaker 與 Ghebremichael-Weldeselassie《Self-Controlled Case Series Studies: A Modelling Guide with R》（CRC Press, 2018）逐章重點的雙語讀書筆記，屬於我們自己整理的摘要，並非書本原文。</p>
+    <div id="sbGate" class="cb-gate">
+      <h3 data-en="🔒 Password required">🔒 需要密碼</h3>
+      <p class="muted" data-en="These notes are shared with our group. Enter the password to read them.">這份筆記僅供本組閱讀，請輸入密碼。</p>
+      <div class="cb-gate-row">
+        <input id="sbPass" type="password" autocomplete="off" placeholder="密碼 / password" aria-label="password" />
+        <button id="sbEnter" class="btn primary" type="button" data-en="Unlock">解鎖</button>
+      </div>
+      <p id="sbMsg" class="cb-msg" role="status"></p>
+    </div>
+    <div id="sbBody" hidden></div>
   </section>
 
   <!-- ===================== 名詞表 / Glossary ===================== -->
@@ -8632,6 +8648,7 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
 
     <p class="muted" id="refsIntro" data-en="References for this page:">本頁的參考文獻：</p>
     <ul class="reflist" id="refsList">
+      <li data-ref="all" id="refSccsBook"><b data-en="SCCS textbook">SCCS 教科書</b> · Farrington, C. P., Whitaker, H. J., &amp; Ghebremichael-Weldeselassie, Y. (2018). <i>Self-Controlled Case Series Studies: A Modelling Guide with R.</i> Boca Raton: Chapman &amp; Hall/CRC.</li>
       <li data-ref="all" id="refWhatIf"><b data-en="Causal-inference foundations (tab ⑥)">因果推論基礎（分頁 ⑥）</b> · Hernán, M. A., &amp; Robins, J. M. (2020). <i>Causal Inference: What If.</i> Boca Raton: Chapman &amp; Hall/CRC. <span data-en="〔counterfactuals; exchangeability / positivity / consistency; g-methods; target trial — free book: hsph.harvard.edu/miguel-hernan/causal-inference-book〕">〔反事實；可交換性／正性／一致性；g-methods；目標試驗：免費電子書：<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">hsph.harvard.edu/miguel-hernan/causal-inference-book</a>〕</span></li>
       <li data-ref="all"><b data-en="Causal machine learning (tab ⑤ framing)">因果機器學習（⑤ 框架）</b> · Feuerriegel, S., Frauen, D., Melnychuk, V., Schweisthal, J., Hess, K., Curth, A., Bauer, S., Kilbertus, N., Kohane, I. S., &amp; van der Schaar, M. (2024). Causal machine learning for predicting treatment outcomes. <i>Nature Medicine, 30</i>, 958–968. https://doi.org/10.1038/s41591-024-02902-1. <span data-en="〔Nature Medicine review on causal ML for predicting treatment outcomes.〕">〔《自然醫學》綜述：因果機器學習如何預測治療成效。〕</span></li>
       <li data-ref="all">Kaddour, J., Lynch, A., Liu, Q., Kusner, M. J., &amp; Silva, R. (2022). Causal Machine Learning: A Survey and Open Problems. <i>arXiv</i>:2206.15475. <span data-en="〔Broad survey mapping causal machine learning methods and open problems.〕">〔因果機器學習的調查與開放問題綜述。〕</span></li>
