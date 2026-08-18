@@ -252,10 +252,15 @@ async function cbEncrypt(password, plaintext) {     // used once to generate CBO
 // The ciphertext blobs are big (they carry the books' figures), so they are
 // served as separate files and fetched the first time someone tries to unlock,
 // instead of sitting inside app.js and slowing every page load.
+// Bumped by tools/encrypt_books.py on every re-encrypt. It busts BOTH the HTTP
+// cache for the blob and the sessionStorage copy of the decrypted HTML, which
+// otherwise keep serving a previous edition of the notes to anyone who already
+// opened a book.
+const BOOK_VER = "f86edb7900";
 const _bookEncCache = {};
 async function bookEnc(which) {
   if (_bookEncCache[which]) return _bookEncCache[which];
-  const r = await fetch("books/" + which + ".enc", { cache: "force-cache" });
+  const r = await fetch("books/" + which + ".enc?v=" + BOOK_VER, { cache: "force-cache" });
   if (!r.ok) throw new Error("blob " + r.status);
   const t = (await r.text()).trim();
   _bookEncCache[which] = t;
@@ -505,7 +510,7 @@ async function _cbTryUnlock() {
   try {
     const html = await cbDecrypt(inp.value, await bookEnc("cbook"));
     _cbUnlocked = html;
-    try { sessionStorage.setItem("cbook", html); } catch (e) {}
+    try { sessionStorage.setItem("cbook:" + BOOK_VER, html); } catch (e) {}
     _cbReveal(html);
   } catch (e) {
     msg.className = "cb-msg err"; msg.textContent = tr("密碼錯誤，請再試一次。", "Wrong password, try again.");
@@ -532,7 +537,7 @@ if (cbookTab) cbookTab.addEventListener("click", showCbook);
   const inp = document.getElementById("cbPass");
   if (enter) enter.addEventListener("click", _cbTryUnlock);
   if (inp) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") _cbTryUnlock(); });
-  try { const cached = sessionStorage.getItem("cbook"); if (cached) _cbUnlocked = cached; } catch (e) {}
+  try { const cached = sessionStorage.getItem("cbook:" + BOOK_VER); if (cached) _cbUnlocked = cached; } catch (e) {}
 })();
 
 // ---- SCCS textbook notes: same gate, its own ciphertext and password ------
@@ -556,7 +561,7 @@ async function _sbTryUnlock() {
   try {
     const html = await cbDecrypt(inp.value, await bookEnc("sbook"));
     _sbUnlocked = html;
-    try { sessionStorage.setItem("sbook", html); } catch (e) {}
+    try { sessionStorage.setItem("sbook:" + BOOK_VER, html); } catch (e) {}
     _sbReveal(html);
   } catch (e) {
     msg.className = "cb-msg err"; msg.textContent = tr("密碼錯誤，請再試一次。", "Wrong password, try again.");
@@ -583,7 +588,7 @@ if (sbookTab) sbookTab.addEventListener("click", showSbook);
   const inp = document.getElementById("sbPass");
   if (enter) enter.addEventListener("click", _sbTryUnlock);
   if (inp) inp.addEventListener("keydown", (e) => { if (e.key === "Enter") _sbTryUnlock(); });
-  try { const cached = sessionStorage.getItem("sbook"); if (cached) _sbUnlocked = cached; } catch (e) {}
+  try { const cached = sessionStorage.getItem("sbook:" + BOOK_VER); if (cached) _sbUnlocked = cached; } catch (e) {}
 })();
 
 // ---- Self-check quiz ----------------------------------------------------------
