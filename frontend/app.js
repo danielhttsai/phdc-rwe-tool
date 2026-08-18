@@ -3937,7 +3937,7 @@ const DBRECS = {
     designs: [{ m: "ps", l: "PS" }, { m: "acnu", l: "ACNU" }, { m: "tmle", l: "TMLE" }] },
   dFlatiron: { db: "flatiron",
     title: { zh: "Flatiron Health 腫瘤 EHR 資料庫", en: "Flatiron Health oncology EHR database" },
-    why: { zh: "美國腫瘤專科診所與醫學中心的 EHR，關鍵欄位（<b>期別、生物標記、治療線別、死亡日</b>）是<b>人工抄錄</b>回填的，所以拿得到理賠資料沒有的臨床深度；死亡結果是把 EHR、商業資料與社會安全死亡檔<b>合成</b>後對照國家死亡index 驗證過的。最適合<b>真實世界存活（rwOS）</b>與依生物標記分層的比較。", en: "EHR from US oncology practices and academic centres, where the key fields (<b>stage, biomarkers, line of therapy, date of death</b>) are <b>human-abstracted</b> back into the record — clinical depth claims cannot give. Its mortality endpoint is a composite of EHR, commercial and Social Security death data, benchmarked against the National Death Index. Best for <b>real-world overall survival</b> and biomarker-stratified comparisons." },
+    why: { zh: "美國腫瘤專科診所與醫學中心的 EHR，關鍵欄位（<b>期別、生物標記、治療線別、死亡日</b>）是<b>人工抄錄</b>回填的，所以拿得到理賠資料沒有的臨床深度；死亡結果是把 EHR、商業資料與社會安全死亡檔<b>合成</b>後對照國家死亡指數（National Death Index）驗證過的。最適合<b>真實世界存活（rwOS）</b>與依生物標記分層的比較。", en: "EHR from US oncology practices and academic centres, where the key fields (<b>stage, biomarkers, line of therapy, date of death</b>) are <b>human-abstracted</b> back into the record — clinical depth claims cannot give. Its mortality endpoint is a composite of EHR, commercial and Social Security death data, benchmarked against the National Death Index. Best for <b>real-world overall survival</b> and biomarker-stratified comparisons." },
     scenario: { zh: "藥物X 情境：藥物X 在<b>某個生物標記陽性</b>的次族群，相對於同線別的主動對照藥，真實世界存活如何？", en: "Drug-X scenario: in a <b>biomarker-positive</b> subgroup, what is real-world survival on drug X versus a same-line active comparator?" },
     watch: { zh: "以社區腫瘤診所為主，<b>代表性</b>要另外評估；抄錄欄位有缺失與延遲；<b>指標時間（index date）</b>常需自訂，容易做出不死時間。", en: "Skewed towards community oncology, so <b>representativeness</b> must be assessed separately; abstracted fields have missingness and lag; the <b>index date</b> is usually researcher-defined, which readily creates immortal time." },
     designs: [{ m: "acnu", l: "ACNU" }, { m: "ps", l: "PS" }, { m: "ccw", l: "CCW" }, { m: "extctrl", l: "外部對照" }] },
@@ -3994,7 +3994,7 @@ const DB_SUMMARY = [
 const DB_NOTES = [
   { key: "flatiron", name: "Flatiron Health",
     what: `美國腫瘤照護的 EHR 匯總，涵蓋 <b>280 家以上</b>的腫瘤診所與醫學中心、約 <b>220 萬</b>名癌症病人。它跟一般 EHR 最大的差別是<b>人工抄錄</b>：期別、組織型、生物標記檢測結果、治療線別、死亡日這些「藏在病歷文字與報告裡」的欄位，是由受訓人員讀病歷回填成結構化變數的。`,
-    strength: `拿得到理賠資料<b>永遠沒有</b>的腫瘤臨床深度，因此可以做<b>真實世界存活（rwOS）</b>、依生物標記分層比較、以及單臂試驗的<b>外部對照</b>。死亡結果不是只靠 EHR，而是把 EHR、商業死亡資料與社會安全死亡檔<b>合成</b>，再對照國家死亡index 驗證過（合成後敏感度由 66% 提升到 91%）。`,
+    strength: `拿得到理賠資料<b>永遠沒有</b>的腫瘤臨床深度，因此可以做<b>真實世界存活（rwOS）</b>、依生物標記分層比較、以及單臂試驗的<b>外部對照</b>。死亡結果不是只靠 EHR，而是把 EHR、商業死亡資料與社會安全死亡檔<b>合成</b>，再對照國家死亡指數（National Death Index）驗證過（合成後敏感度由 66% 提升到 91%）。`,
     weak: `以<b>社區腫瘤診所</b>為主，代表性要自己評估、不能假設等於全美癌症病人；抄錄欄位有缺失與時間延遲；最容易出問題的是<b>index date 由研究者自訂</b>（例如「用過某藥」才回頭定起點），一不小心就是不死時間。`,
     refs: [
       { t: `Curtis MD, Griffith SD, Tucker M, et al. Development and Validation of a High-Quality Composite Real-World Mortality Endpoint. <i>Health Serv Res</i>. 2018;53(6):4460-4476.`, u: "https://pubmed.ncbi.nlm.nih.gov/29756355/" },
@@ -7387,7 +7387,7 @@ const SCCS_VIO_META = {
 // drawn as mini-timelines by renderSccsVioFixes below
 const SCCS_VIO_BODY = {
   exp: () => tr(
-    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過severe hypoglycemia的病人，之後多半不會再拿到同一顆藥物X；教科書的經典例子是輪狀病毒疫苗與腸套疊：得過腸套疊的孩子，之後幾乎不會再接種。也有反方向的：車禍受傷之後才開始用鴉片類止痛藥，事件反而<b>促成</b>暴露。方向是可預測的：事件<b>阻止</b>後續暴露 → IRR 偏高；事件<b>促成</b>後續暴露 → IRR 偏低。</p>" +
+    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過嚴重低血糖（severe hypoglycemia）的病人，之後多半不會再拿到同一顆藥物X；教科書的經典例子是輪狀病毒疫苗與腸套疊：得過腸套疊的孩子，之後幾乎不會再接種。也有反方向的：車禍受傷之後才開始用鴉片類止痛藥，事件反而<b>促成</b>暴露。方向是可預測的：事件<b>阻止</b>後續暴露 → IRR 偏高；事件<b>促成</b>後續暴露 → IRR 偏低。</p>" +
     "<details class=\"term\"><summary>Farrington 反事實延伸：原理（點開看）</summary><div class=\"tdef\">" +
     "<p><b>問題出在哪：</b>標準 SCCS 的 likelihood 靠一個條件化的技巧：把「整段暴露史」當作已知條件。但暴露會被事件改變時，<b>事件之後的暴露史本身就是事件的函數</b>，拿它來當條件等於用結果解釋結果，這一步在數學上就不成立了，這才是偏誤的根源。</p>" +
     "<p><b>反事實暴露史：</b>方法的核心是問「<b>如果事件沒有發生，這個人的暴露史會長什麼樣？</b>」並刻意選一個<b>不受事件影響</b>的版本當基準：「此後不再有任何暴露」。這個版本無論事件何時發生都一樣，所以可以安全地當作條件。</p>" +

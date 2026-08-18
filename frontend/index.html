@@ -86,7 +86,7 @@
   <!-- ===================== 首頁 / Home ===================== -->
   <section id="home" class="panel active">
     <h1 data-en="RWE &amp; Quasi-experimental Toolbox">真實世界證據與準實驗工具箱</h1>
-    <p class="lead" data-en="An interactive teaching toolbox for real-world-evidence and quasi-experimental methods. Every method has six layers — ① what it is · ② an interactive demo · ③ data analysis · ④ assumption checks · ⑤ AI/ML boosts · ⑥ a counterfactual “what if”. Pick a method below, search it by name, or use “Which one?” for a guided decision tree.">一個真實世界證據與準實驗方法的互動教學工具箱。每個方法都有六層，① 是什麼 · ② 互動講解 · ③ 資料分析 · ④ 假設檢驗 · ⑤ 用 AI 強化 · ⑥ 如果……？。在下面挑一個方法、用名稱搜尋，或用「怎麼選」走一遍決策樹。</p>
+    <p class="lead" data-en="An interactive teaching toolbox for real-world-evidence and quasi-experimental methods. Every method has six layers — ① what it is · ② an interactive demo · ③ data analysis · ④ assumption checks · ⑤ AI/ML boosts · ⑥ a counterfactual “what if”. Pick a method below, search it by name, or use “Which one?” for a guided decision tree.">一個真實世界證據與準實驗方法的互動教學工具箱。每個方法都有六層，① 是什麼 · ② 互動講解 · ③ 資料分析 · ④ 假設檢驗 · ⑤ 用 AI 強化 · ⑥ 如果……？在下面挑一個方法、用名稱搜尋，或用「怎麼選」走一遍決策樹。</p>
     <input id="homeSearch" class="home-search" type="search" placeholder="搜尋方法… / Search methods…" aria-label="Search methods" />
     <div id="homeGrid" class="home-grid"></div>
     <p class="caption" data-en="⚠ All built-in data is purely fictional synthetic demo data, for teaching only.">⚠ 本工具所有內建資料皆為純屬虛構的合成示範資料，僅供教學展示。</p>
@@ -396,7 +396,7 @@ estat firststage
       </div>
     </details>
     <p class="lead" data-en="Remember the biggest trap from ② Interactive? — <b>when the nudge is too weak, the answer jumps around</b>. AI / machine learning can help in two ways here; below we walk through them step by step, using <b>the same vaccine story</b>.">
-      還記得 ② 互動講解裡那個最大的陷阱嗎？，<b>外力（提醒）太弱，答案就會亂跳</b>。
+      還記得 ② 互動講解裡那個最大的陷阱嗎？<b>外力（提醒）太弱，答案就會亂跳</b>。
       AI／機器學習能在這裡幫上兩個忙，下面我們用<b>同一個疫苗的故事</b>，一步一步看懂。
     </p>
 
@@ -968,7 +968,7 @@ rdplot health_score_change age, c(65)</code></pre>
       </div>
     </details>
     <p class="lead" data-en="Remember RDD's two soft spots? — ② Interactive showed the estimate <b>depends on the window (bandwidth)</b> you pick, and ③ Data analysis showed that a <b>censored survival</b> outcome needs IPCW / doubly-robust correction. AI / machine learning sharpens exactly these two (it doesn't re-teach them — see ② and ③ for the basics), using <b>the same age-65 vaccine story</b>.">
-      還記得 RDD 的兩個痛處嗎？， ② 互動講解裡，估計會<b>隨你挑的視窗（頻寬）而變</b>；
+      還記得 RDD 的兩個痛處嗎？② 互動講解裡，估計會<b>隨你挑的視窗（頻寬）而變</b>；
       ③ 資料分析裡，<b>帶設限的存活</b>結果需要 IPCW／雙重穩健校正。AI／機器學習正好能把這兩個再<b>磨利</b>
       （不重講基礎，基礎見 ② 與 ③），下面用<b>同一個「滿 65 歲」的疫苗故事</b>來看。
     </p>
@@ -1363,7 +1363,7 @@ rdplot health_score_change age, c(65)</code></pre>
       <h3 data-en="② Universal DiD for binary / count outcomes">② 二元／計數結果的 Universal DiD</h3>
       <div class="card scene">
         <p data-en="When the outcome is a yes/no event and the two groups start at very different baseline rates (say 17% vs 55%), even the SAME change in odds converts to a non-parallel change in risk — so additive DiD is biased. Universal DiD works on the odds-ratio scale, which suits binary / count / ordinal outcomes.">
-          當結果是是非事件、兩組基準比率差很多（例如 17% vs 55%），就算<b>相同的勝算變化</b>換算成風險差也會不平行，加法 DiD 會偏。
+          當結果是二元事件、兩組基準比率差很多（例如 17% vs 55%），就算<b>相同的勝算變化</b>換算成風險差也會不平行，加法 DiD 會偏。
           Universal DiD 在勝算比尺度上運作，適合二元／計數／順序結果。
         </p>
         <div id="sceneDidUniv" class="chart"></div>
@@ -4833,7 +4833,7 @@ teffects ipw (Y) (A X)</code></pre>
     <p class="lead" data-en="To estimate a vaccine's effect on outcome Y we must adjust for confounding by severity X. Two models can help: the <b>outcome regression</b> Q(A,X)=E[Y|A,X] (used by g-computation) and the <b>propensity score</b> PS=P(A=1|X) (used by IPTW). Use just one and a mis-specified model biases you. <b>Augmented IPW (AIPW)</b> combines both and is <b>doubly robust</b> — unbiased if <b>either</b> model is correct. <b>TMLE</b> takes the g-computation plug-in and adds a one-step <b>targeting</b> update (a ‘clever covariate’ fluctuation), giving a doubly-robust, semiparametric-efficient, bounded estimate (van der Laan &amp; Rubin 2006; Luque-Fernandez et al. 2018).">
       要估疫苗對結果 Y 的效果，得校正嚴重度 X 的混淆。兩個模型能幫忙：<b>結果迴歸</b> Q(A,X)=E[Y|A,X]（g-computation 用它）與
       <b>傾向分數</b> PS=P(A=1|X)（IPTW 用它）。只用其中一個，模型設錯就會偏。<b>擴增反機率加權（AIPW）</b>把兩者合起來、<b>雙重穩健</b>，
-      <b>其一</b>對就不偏。<b>TMLE</b> 在 g-computation 插入式估計上，再做一步<b>targeting</b> 微調（clever covariate 擾動），
+      <b>其一</b>對就不偏。<b>TMLE</b> 在 g-computation 插入式估計上，再做一步<b>目標化（targeting）</b>微調（用「聰明共變項」擾動），
       得到雙重穩健、半參數有效率、且邊界安全的估計（van der Laan &amp; Rubin 2006；Luque-Fernandez 等 2018）。
     </p>
     <div class="card scene"><h3 data-en="Confounding by indication: X drives both treatment A and outcome Y (non-linearly)">適應症混淆：X 同時驅動治療 A 與結果 Y（且為非線性）</h3>
