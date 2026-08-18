@@ -78,7 +78,7 @@ const PANEL_INIT = {
   home: () => initHome(), glossary: () => initGlossary(),
   choose: () => initChoose(),
 };
-let curMethod = "iv", curSub = "learn";
+let curMethod = "iv", curSub = "concept";
 const methodSelect = document.getElementById("methodSelect");
 const subtabBtns = [...document.querySelectorAll(".subtab")];
 const subtabsRow = document.querySelector(".subtabs");
@@ -95,6 +95,31 @@ function setSubtabs(show) { if (subtabsRow) subtabsRow.style.display = show ? ""
 // method with the ①–⑥ sub-tabs. TOPICS is kept (empty) so the legacy openTopic /
 // #topic= paths stay harmless no-ops.
 const TOPICS = {};
+
+// The six layers a method used to have are now three tabs: each one shows two
+// of the original panels stacked, so no content moved and every PANEL_INIT
+// still fires against its own panel id.
+const SUB_GROUPS = {
+  concept:  ["learn", "whatif"],    // ① what it is + the counterfactual framing
+  play:     ["play", "assume"],     // ② the demo + breaking its assumptions
+  practice: ["analyze", "ml"],      // ③ running it on data + the ML extension
+};
+const LEGACY_SUB = { learn: "concept", whatif: "concept", play: "play", assume: "play",
+                     analyze: "practice", ml: "practice" };
+function subGroup(sub) { return SUB_GROUPS[sub] ? sub : (LEGACY_SUB[sub] || "concept"); }
+
+// Show several panels at once (the group's members, in order).
+function showPanels(panelIds) {
+  document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
+  panelIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add("active");
+    if (PANEL_INIT[id]) PANEL_INIT[id]();
+    labelCharts(el);
+  });
+  window.scrollTo(0, 0);
+}
 
 function showPanel(panelId) {
   document.querySelectorAll(".panel").forEach((x) => x.classList.remove("active"));
@@ -146,7 +171,8 @@ function applyHash() {
     const p = new URLSearchParams(raw);
     if (p.has("topic") && TOPICS[p.get("topic")]) { openTopic(p.get("topic")); return true; }
     if (p.has("m") && METHOD_PREFIX[p.get("m")] !== undefined) {
-      const t = p.get("t"); gotoMethod(p.get("m"), HASH_SUBS.includes(t) ? t : "learn"); return true;
+      // accept both the old six-layer names and the three group names
+      const t = p.get("t"); gotoMethod(p.get("m"), subGroup(t)); return true;
     }
   } finally { _suppressHash = false; }
   return false;
@@ -671,10 +697,11 @@ function showMethodSub() {
   chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
   if (dataTab) dataTab.classList.remove("active");
   subtabBtns.forEach((b) => { const on = b.dataset.sub === curSub; b.classList.toggle("active", on); b.setAttribute("aria-selected", on ? "true" : "false"); });
-  showPanel(METHOD_PREFIX[curMethod] + curSub);
-  if (curSub === "learn") renderQuiz(curMethod);            // ①: optional self-check quiz
-  if (curSub === "analyze") renderDataPreview(curMethod);   // ③: show the real data rows on top
-  if (curSub === "assume" && EVALUE_METHODS.includes(curMethod)) ensureEvalueCard(curMethod);  // ④: E-value sensitivity
+  const members = SUB_GROUPS[curSub] || SUB_GROUPS.concept;
+  showPanels(members.map((x) => METHOD_PREFIX[curMethod] + x));
+  if (members.includes("learn")) renderQuiz(curMethod);            // self-check quiz
+  if (members.includes("analyze")) renderDataPreview(curMethod);   // real data rows on top
+  if (members.includes("assume") && EVALUE_METHODS.includes(curMethod)) ensureEvalueCard(curMethod);
   if (typeof filterRefs === "function") filterRefs(curMethod);
   setHash("#m=" + curMethod + "&t=" + curSub);
 }
@@ -685,7 +712,7 @@ methodSelect.addEventListener("change", () => {
 });
 subtabBtns.forEach((b) => b.addEventListener("click", () => {
   if (subtabsRow && subtabsRow.style.display === "none") return;  // ignore clicks while on a topic / choose / db page
-  curSub = b.dataset.sub; showMethodSub();
+  curSub = subGroup(b.dataset.sub); showMethodSub();
 }));
 if (flowTab) flowTab.addEventListener("click", () => {
   subtabBtns.forEach((x) => x.classList.remove("active"));
@@ -3029,7 +3056,7 @@ function initChoose() {
 function gotoMethod(m, sub) {
   if (TOPICS[m]) { openTopic(m); return; }   // standalone topics (miss / causalml) have no ①–⑥ sub-tabs
   curMethod = m;
-  curSub = sub || "learn";
+  curSub = subGroup(sub || "concept");
   methodSelect.value = m;
   showMethodSub();
 }
@@ -10630,7 +10657,7 @@ window.addEventListener("iv-lang", async () => {
   filterRefs(refsContext);                         // re-scope refs + citation in new language
   initHome();                                      // rebuild the home grid in the new language
   initGlossary();                                  // rebuild the glossary in the new language
-  if (curSub === "learn") renderQuiz(curMethod);   // rebuild the quiz in the new language
+  if ((SUB_GROUPS[curSub] || []).includes("learn")) renderQuiz(curMethod);   // rebuild the quiz in the new language
   { const ec = document.getElementById("evalueCard"); if (ec) { _evRecompute(ec); drawEvalueChart(ec); } } // E-value ② re-render
   if (evalueArrayReady) refreshEvalueArray();           // QBA ④ array-approach re-render
   if (mcdaReady) refreshMcda();                         // MCDA ② ranking re-render
@@ -10782,7 +10809,7 @@ window.addEventListener("iv-lang", async () => {
   else if (extctrlAssumeReady) runExtctrlAssumptions();
   whatifShown.forEach((m) => drawWhatif(m));            // ⑥ What-if DAGs (re-render)
   swigShown.forEach((m) => drawSwig(m));                // ⑥ SWIGs (re-render)
-  if (curSub === "analyze") renderDataPreview(curMethod); // ③ data-preview table (re-translate header/caption)
+  if ((SUB_GROUPS[curSub] || []).includes("analyze")) renderDataPreview(curMethod); // data-preview table (re-translate header/caption)
   EVALUE_METHODS.forEach((m) => { const c = document.getElementById(METHOD_PREFIX[m] + "_evalue"); if (c) _evRecompute(c); }); // ④ E-value readings
   if (missReady) refreshMiss();                          // 缺失資料 demo (re-fetch + redraw in new lang)
   if (srmaReady) refreshSrma();                          // SR/MA meta-analysis (re-fetch + redraw in new lang)

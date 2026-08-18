@@ -149,11 +149,25 @@ def test_no_casual_slang(html):
     assert "「GG」" not in html and "&quot;GG&quot;" not in html, "casual 'GG' slang in shipped copy"
 
 
-def test_subtab_buttons_match_the_six_subs(html):
+# The six layers are now three tabs, each showing two of the original panels
+# (see SUB_GROUPS in app.js). The panels themselves are unchanged, so the six
+# ids are still asserted elsewhere; here we check the three buttons exist and
+# that every one of the six layers is claimed by exactly one group.
+SUB_GROUPS = {"concept": ("learn", "whatif"), "play": ("play", "assume"),
+              "practice": ("analyze", "ml")}
+
+
+def test_subtab_buttons_are_the_three_groups(html):
     found = set(re.findall(r'class="tab subtab[^"]*"\s+data-sub="(\w+)"', html))
-    found |= set(re.findall(r'data-sub="(\w+)"', html))
-    for sub in SUBS:
-        assert sub in found, f"subtab button for '{sub}' missing"
+    assert found == set(SUB_GROUPS), f"expected the three group buttons, got {found}"
+
+
+def test_every_layer_belongs_to_exactly_one_group(appjs):
+    claimed = [layer for members in SUB_GROUPS.values() for layer in members]
+    assert sorted(claimed) == sorted(SUBS), "a layer is unclaimed or claimed twice"
+    flat = appjs.replace(" ", "")
+    for group in SUB_GROUPS:
+        assert group + ":[" in flat, f"SUB_GROUPS in app.js is missing '{group}'"
 
 
 # --- Round 3: every method ships a downloadable sample CSV, and the ③ code -----
