@@ -5347,7 +5347,7 @@ logit case vaccinated if tested == 1, or</code></pre>
     </div>
   
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Prescription sequence symmetry analysis">程式（SAS · R · Stata）：處方序列對稱性分析</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Prescription sequence symmetry analysis">程式（SAS · R · Stata）：處方順序對稱分析</h2>
     <!-- code-src hidden by the citation audit: the code here is our own
          minimal runnable example, not the cited work's code.
          原標註為「出處 — Hallas 1996（序列對稱性分析，Epidemiology）；以零效應序列比校正粗序列比，並以二項檢定檢驗。R 基礎 table + binom.test、SAS PROC FREQ、Stata bitest。」此處程式碼為依方法自行編寫的最小可執行範例（通用二項檢定函式），非該文獻提供的程式碼。 -->
@@ -7910,7 +7910,7 @@ regress beta_out beta_exp [aw=w], noconstant
   <h1 data-en="Data analysis: build the twin, then contrast or adjust">資料分析：建立孿生，再做對比或調整</h1>
   <div class="card info"><h3 data-en="Steps">步驟</h3><p data-en="(1) Train a prognostic model for the untreated outcome on control / historical patients. (2) Predict each current patient's twin Ŷ₀ from baseline covariates. (3) Estimate the effect as mean(observed − Ŷ₀) among the treated, or carry Ŷ₀ in as a covariate (PROCOVA-style g-computation). (4) Validate calibration of Ŷ₀ in held-out controls before trusting the contrast.">（1）在對照／歷史病人上，為未治療結果訓練一個預後模型。（2）用基線共變項為每位當前病人預測孿生 Ŷ₀。（3）把效果估成治療組的 mean(實際 − Ŷ₀)，或把 Ŷ₀ 當共變項帶入（PROCOVA 式的 g-computation）。（4）信任這個對比前，先在留存的對照資料上驗證 Ŷ₀ 的校準。</p></div>
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Digital-Twin / Prognostic-Score Adjusted Control">程式（SAS · R · Stata）：數位分身／預後分數校正對照</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Digital-Twin / Prognostic-Score Adjusted Control">程式（SAS · R · Stata）：數位孿生／預後分數校正對照</h2>
     <!-- code-src hidden by the citation audit: the code here is our own
          minimal runnable example, not the cited work's code.
          原標註為：出處 — 預後共變量校正（PROCOVA 風格）：先以歷史對照擬合預後模型，再對同期試驗做 ANCOVA；方法依據 Schuler 等人 2022「以預後分數線性校正提升隨機試驗估計效率」（Statistics in Biopharmaceutical Research）。實作使用 base R lm()／predict()。此處程式碼為依方法自行編寫的最小可執行範例（base R lm()/predict()、SAS PROC REG/GLM、Stata regress），非該文獻提供的程式碼。 -->
