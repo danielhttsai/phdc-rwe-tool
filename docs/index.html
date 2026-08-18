@@ -5506,7 +5506,7 @@ proc sql;
 quit;
 proc print data=counts; run;
 <span class="cm">/* Then load counts (+ a tree file) into TreeScan and run the Bernoulli model. */</span></code></pre>
-      <p data-en="PROC SQL produces exposed cases and totals per leaf; the actual tree-based scan is run in TreeScan under the Bernoulli model."><PROC SQL 產生各葉節點的暴露病例數與總數；實際的樹狀掃描在 TreeScan 以 Bernoulli 模型執行。></p></div>
+      <p data-en="PROC SQL produces exposed cases and totals per leaf; the actual tree-based scan is run in TreeScan under the Bernoulli model.">PROC SQL 產生各葉節點的暴露病例數與總數；實際的樹狀掃描在 TreeScan 以 Bernoulli 模型執行。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — aggregate &amp; write count file">R — 彙總並輸出計數檔</h3>
       <pre class="sas"><code><span class="cm"># Aggregate to per-leaf counts and write the TreeScan input file</span>
 d &lt;- read.csv("tscan_sample.csv")
@@ -5516,7 +5516,7 @@ write.table(counts[, c("leaf", "cases", "total")],
             "treescan_counts.cas", row.names = FALSE,
             col.names = FALSE, quote = FALSE)
 <span class="cm"># Then run TreeScan (Bernoulli model) on this count file plus the tree file.</span></code></pre>
-      <p data-en="aggregate() builds exposed-cases and totals per leaf and writes the .cas count file; the scan statistic itself is computed in TreeScan."><aggregate() 建立各葉節點的暴露病例數與總數並輸出 .cas 計數檔；掃描統計量本身於 TreeScan 計算。></p></div>
+      <p data-en="aggregate() builds exposed-cases and totals per leaf and writes the .cas count file; the scan statistic itself is computed in TreeScan.">aggregate() 建立各葉節點的暴露病例數與總數並輸出 .cas 計數檔；掃描統計量本身於 TreeScan 計算。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — collapse counts">Stata — 以 collapse 彙總</h3>
       <pre class="sas"><code><span class="cm">* Same per-leaf aggregation; the scan runs in TreeScan (Bernoulli model)</span>
 import delimited "tscan_sample.csv", clear case(preserve)
@@ -5525,7 +5525,7 @@ collapse (sum) cases=exposed (sum) total, by(leaf)
 list
 export delimited leaf cases total using "treescan_counts.cas", ///
     novarnames delimiter(space) replace</code></pre>
-      <p data-en="collapse sums exposed cases and totals per leaf and exports the count file; TreeScan then performs the tree-based scan."><collapse 彙總各葉節點的暴露病例數與總數並輸出計數檔；再由 TreeScan 執行樹狀掃描。></p></div>
+      <p data-en="collapse sums exposed cases and totals per leaf and exports the count file; TreeScan then performs the tree-based scan.">collapse 彙總各葉節點的暴露病例數與總數並輸出計數檔；再由 TreeScan 執行樹狀掃描。</p></div>
   </section>
 
   <!-- ===================== TreeScan ④ 假設檢驗 ===================== -->
@@ -5703,7 +5703,7 @@ stcox, tvc(dose) texp(_t)</code></pre>
       <div id="transportScene" class="chart"></div>
       <p class="caption" data-en="The study (blue) is shifted on the effect modifier X; the target (orange) sits elsewhere. Because the effect grows with X, the study's average effect ≠ the target's. Synthetic teaching data.">研究（藍）在效果修飾子 X 上偏一邊；目標（橘）在另一邊。因為效果會隨 X 變大，研究的平均效果 ≠ 目標的。合成教學資料。</p></div>
     <div class="card info"><h3 data-en="Transportability vs generalizability">可轉移性 vs 可推廣性</h3>
-      <p data-en="<b>Generalizability</b> = the target is a <b>subset</b> of the study population (you scale within). <b>Transportability</b> = the target is (partly) <b>outside</b> the study — a different population, country or time. Both rely on the same engine: model how the <b>effect modifiers</b> differ, then standardise or weight. (Adamson et al. 2026, ISPE framework; Inoue &amp; Hsu 2024; Bareinboim &amp; Pearl.)">"<b>可推廣性（generalizability）</b>＝目標是研究族群的<b>子集</b>（往內縮放）。<b>可轉移性（transportability）</b>＝目標（部分）<b>在研究之外</b>，不同族群、國家或年代。兩者引擎相同：把<b>效果修飾子</b>的差異建模，再標準化或加權。（Adamson 等 2026 ISPE 框架；Inoue &amp; Hsu 2024；Bareinboim &amp; Pearl。）</p></div>
+      <p data-en="<b>Generalizability</b> = the target is a <b>subset</b> of the study population (you scale within). <b>Transportability</b> = the target is (partly) <b>outside</b> the study — a different population, country or time. Both rely on the same engine: model how the <b>effect modifiers</b> differ, then standardise or weight. (Adamson et al. 2026, ISPE framework; Inoue &amp; Hsu 2024; Bareinboim &amp; Pearl.)"><b>可推廣性（generalizability）</b>＝目標是研究族群的<b>子集</b>（往內縮放）。<b>可轉移性（transportability）</b>＝目標（部分）<b>在研究之外</b>，不同族群、國家或年代。兩者引擎相同：把<b>效果修飾子</b>的差異建模，再標準化或加權。（Adamson 等 2026 ISPE 框架；Inoue &amp; Hsu 2024；Bareinboim &amp; Pearl。）</p></div>
     <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef"><h4>效果修飾子 <span class="en">effect modifier</span></h4><p data-en="A variable that changes the SIZE of the treatment effect — the drug helps younger patients more than older ones, say. It is different from a confounder (which biases the effect) and from a variable that only shifts the outcome level. Transportability is only needed when an effect modifier is distributed differently in the target than in the study.">一個會改變「治療效果<b>大小</b>」的變數，例如藥對年輕病人比對年長病人更有效。它和混淆因子（會讓效果偏掉）不同，也和「只改變結果水準」的變數不同。只有當效果修飾子在目標與研究的分布不同時，才需要可轉移性。</p></div>
       <div class="tdef"><h4>選樣反機率加權 <span class="en">inverse odds of selection weighting (IOSW)</span></h4><p data-en="Weight each study subject by the odds of belonging to the target rather than the study, given their covariates. This makes the re-weighted study sample look like the target's covariate mix, so its average effect becomes the target's. The twin approach is standardisation: fit the effect surface and average it over the target's covariates.">用每個研究受試者「在共變項之下，屬於目標 vs 屬於研究」的勝算當權重。這讓重新加權後的研究樣本長得像目標的共變項組成，平均效果就變成目標的。孿生做法是標準化：配出效果曲面，再對目標的共變項取平均。</p></div>
@@ -5763,7 +5763,7 @@ data sc; set t1 t0; ax1=A*x1; run;
 proc score data=sc score=b out=pred type=parms; var A x1 x2 ax1; run;
 proc means data=pred mean; class A; var model1; run;
 <span class="cm">/* transported ATE = mean(pred|A=1) - mean(pred|A=0) over S=0 rows */</span></code></pre>
-      <p data-en="The outcome model with an A*x1 interaction is fit on the trial and scored on the target rows under both treatments; their mean difference is the transported ATE."><含 A*x1 交互作用的結果模型在試驗資料配適，對目標列在兩種處理下計分；其平均差即移轉後的 ATE。></p></div>
+      <p data-en="The outcome model with an A*x1 interaction is fit on the trial and scored on the target rows under both treatments; their mean difference is the transported ATE.">含 A*x1 交互作用的結果模型在試驗資料配適，對目標列在兩種處理下計分；其平均差即移轉後的 ATE。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — lm + predict standardization">R — lm 與 predict 標準化</h3>
       <pre class="sas"><code><span class="cm"># Fit outcome model in the trial, average predicted contrast over the target</span>
 d &lt;- read.csv("transport_sample.csv")
@@ -5773,13 +5773,13 @@ p1 &lt;- predict(fit, transform(tgt, A = 1))
 p0 &lt;- predict(fit, transform(tgt, A = 0))
 ate &lt;- mean(p1 - p0)
 print(ate)</code></pre>
-      <p data-en="lm() fits the outcome model on trial subjects; predicting under A=1 and A=0 over the target covariates and averaging the difference gives the transported ATE."><lm() 在試驗受試者上配適結果模型；對目標共變量在 A=1 與 A=0 下預測並取差值平均，即移轉後的 ATE。></p></div>
+      <p data-en="lm() fits the outcome model on trial subjects; predicting under A=1 and A=0 over the target covariates and averaging the difference gives the transported ATE.">lm() 在試驗受試者上配適結果模型；對目標共變量在 A=1 與 A=0 下預測並取差值平均，即移轉後的 ATE。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — regress + margins">Stata — regress 與 margins</h3>
       <pre class="sas"><code><span class="cm">* Fit on the trial (S==1), then margins over the target (S==0) sample</span>
 import delimited "transport_sample.csv", clear case(preserve)
 regress Y i.A##c.x1 c.x2 if S==1
 margins, dydx(A) subpop(if S==0)</code></pre>
-      <p data-en="regress fits the interaction model on the trial; margins, dydx(A) with subpop(S==0) standardizes the A effect to the target distribution."><regress 在試驗上配適交互作用模型；margins, dydx(A) 搭配 subpop(S==0) 將 A 的效應標準化至目標分布。></p></div>
+      <p data-en="regress fits the interaction model on the trial; margins, dydx(A) with subpop(S==0) standardizes the A effect to the target distribution.">regress 在試驗上配適交互作用模型；margins, dydx(A) 搭配 subpop(S==0) 將 A 的效應標準化至目標分布。</p></div>
   </section>
 
   <!-- ===================== Transportability ④ 假設檢驗 ===================== -->
@@ -6719,7 +6719,7 @@ regress y treated external x, level(90)</code></pre>
     <h1 data-en="Multi-criteria decision analysis (MCDA): choosing when criteria conflict">多準則決策分析（MCDA）：當準則互相衝突時怎麼選</h1>
     <p class="lead" data-en="The other methods in this toolbox <b>estimate effects</b>. MCDA is the layer <b>after</b> that: once you have the numbers, how do you <b>decide</b> between options that are good on some criteria and bad on others — a drug that is more effective but riskier and pricier? MCDA makes the trade-off explicit: list the <b>criteria</b>, score each option on each, attach <b>weights</b> reflecting how much each criterion matters, and combine them into an overall score or ranking. It is the backbone of health-technology assessment and regulatory benefit–risk.">本工具箱其他方法都在<b>估計效果</b>。MCDA 是在那之後的一層：當你有了數字，要怎麼在「有些準則好、有些準則差」的選項間<b>做決定</b>，一個更有效、但更危險也更貴的藥？MCDA 把取捨攤開：列出<b>準則</b>、替每個選項在每個準則上評分、給<b>權重</b>反映各準則有多重要，再合成一個總分或排名。它是醫療科技評估（HTA）與法規效益–風險評估的骨幹。</p>
     <div class="card info"><h3 data-en="The five steps">五個步驟</h3>
-      <p data-en="<b>① Criteria</b> — pick the things that matter (efficacy, safety, cost, convenience…), ideally non-overlapping. <b>② Performance matrix</b> — score every option on every criterion. <b>③ Normalise</b> — put criteria on a common 0–1 scale (and flip 'cost-type' ones, where lower is better). <b>④ Weight &amp; aggregate</b> — multiply by weights and sum (the simple additive / MAVT model), or use TOPSIS / PROMETHEE / ELECTRE / AHP. <b>⑤ Sensitivity</b> — vary the weights and check whether the winner is robust.">"<b>① 準則</b>，挑出重要的面向（療效、安全、成本、方便性……），最好彼此不重疊。<b>② 績效矩陣</b>，替每個選項在每個準則上評分。<b>③ 正規化</b>，把準則放到共同的 0–1 尺度（並把「成本型、越低越好」的反向）。<b>④ 加權與合成</b>，乘上權重再加總（簡單加權／MAVT），或用 TOPSIS／PROMETHEE／ELECTRE／AHP。<b>⑤ 敏感度</b>，變動權重，看冠軍是否穩健。</p></div>
+      <p data-en="<b>① Criteria</b> — pick the things that matter (efficacy, safety, cost, convenience…), ideally non-overlapping. <b>② Performance matrix</b> — score every option on every criterion. <b>③ Normalise</b> — put criteria on a common 0–1 scale (and flip 'cost-type' ones, where lower is better). <b>④ Weight &amp; aggregate</b> — multiply by weights and sum (the simple additive / MAVT model), or use TOPSIS / PROMETHEE / ELECTRE / AHP. <b>⑤ Sensitivity</b> — vary the weights and check whether the winner is robust."><b>① 準則</b>，挑出重要的面向（療效、安全、成本、方便性……），最好彼此不重疊。<b>② 績效矩陣</b>，替每個選項在每個準則上評分。<b>③ 正規化</b>，把準則放到共同的 0–1 尺度（並把「成本型、越低越好」的反向）。<b>④ 加權與合成</b>，乘上權重再加總（簡單加權／MAVT），或用 TOPSIS／PROMETHEE／ELECTRE／AHP。<b>⑤ 敏感度</b>，變動權重，看冠軍是否穩健。</p></div>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="Common methods">常見方法</h3><p data-en="<b>Weighted sum / MAVT</b> (the demo here) is the most transparent. <b>AHP</b> derives weights from pairwise comparisons. <b>TOPSIS</b> ranks by closeness to an ideal point; <b>PROMETHEE / ELECTRE</b> use outranking with preference thresholds and vetoes."><b>加權總和／MAVT</b>（本頁示範）最透明。<b>AHP</b> 用兩兩比較推出權重。<b>TOPSIS</b> 依「離理想點的距離」排名；<b>PROMETHEE／ELECTRE</b> 用偏好門檻與否決的「優劣勝出」法。</p></div>
       <div class="card"><h3 data-en="Where it's used in health">在醫療的應用</h3><p data-en="Regulatory <b>benefit–risk</b> assessment (EMA, FDA frameworks), <b>HTA</b> and formulary decisions, prioritising interventions, and shared decision-making. ISPOR published good-practice guidance for MCDA in healthcare.">法規的<b>效益–風險</b>評估（EMA、FDA 框架）、<b>HTA</b> 與藥品給付決策、介入排序、以及醫病共享決策。ISPOR 出版了醫療 MCDA 的良好實務指引。</p></div>
@@ -6845,7 +6845,7 @@ list alternative score</code></pre>
     <h1 data-en="Fuzzy-set QCA (fsQCA): which combinations of conditions produce the outcome?">模糊集質性比較分析（fsQCA）：哪些「條件組合」會產生結果？</h1>
     <p class="lead" data-en="Regression asks 'what is the average net effect of each variable, holding the others fixed?'. <b>fsQCA</b> (Ragin) asks a set-theoretic question instead: <b>which combinations of conditions are sufficient (or necessary) for the outcome?</b> It embraces <b>equifinality</b> (several different recipes can lead to the same outcome) and <b>causal asymmetry</b> (the recipe for the outcome's absence is not just the mirror image). It shines with small-to-medium N and theory-driven conditions — common in health-services, policy and implementation research.">迴歸問的是「每個變數、在固定其他變數下的平均淨效果」。<b>fsQCA</b>（Ragin）改問一個集合論的問題：<b>哪些條件的組合，對結果而言是充分（或必要）的？</b>它擁抱<b>等終性（equifinality）</b>（不同的「配方」可以通往同一個結果）與<b>因果不對稱</b>（造成「結果不發生」的配方，不只是把它鏡像反過來）。它在中小樣本、且條件由理論驅動時最有用，常見於衛生服務、政策與實施研究。</p>
     <div class="card info"><h3 data-en="The workflow">工作流程</h3>
-      <p data-en="<b>① Calibrate</b> — turn each raw variable into a <b>fuzzy membership</b> score in [0,1] using substantive anchors (full membership ≈ 0.95, crossover = 0.5, full non-membership ≈ 0.05). <b>② Truth table</b> — list every logically possible configuration of conditions and how cases distribute across them. <b>③ Necessity &amp; sufficiency</b> — assess which conditions/combinations are necessary for, or sufficient to produce, the outcome. <b>④ Minimise</b> — Boolean-reduce the consistent configurations to a compact solution.">"<b>① 校準</b>，用實質定義的錨點，把每個原始變數轉成 [0,1] 的<b>模糊隸屬度</b>（完全屬於 ≈ 0.95、交叉點 = 0.5、完全不屬於 ≈ 0.05）。<b>② 真值表</b>，列出條件的所有邏輯可能組合，以及案例如何分布。<b>③ 必要性與充分性</b>，評估哪些條件／組合對結果是必要、或充分。<b>④ 最小化</b>，把一致的組合用布林邏輯化簡成精簡解。</p></div>
+      <p data-en="<b>① Calibrate</b> — turn each raw variable into a <b>fuzzy membership</b> score in [0,1] using substantive anchors (full membership ≈ 0.95, crossover = 0.5, full non-membership ≈ 0.05). <b>② Truth table</b> — list every logically possible configuration of conditions and how cases distribute across them. <b>③ Necessity &amp; sufficiency</b> — assess which conditions/combinations are necessary for, or sufficient to produce, the outcome. <b>④ Minimise</b> — Boolean-reduce the consistent configurations to a compact solution."><b>① 校準</b>，用實質定義的錨點，把每個原始變數轉成 [0,1] 的<b>模糊隸屬度</b>（完全屬於 ≈ 0.95、交叉點 = 0.5、完全不屬於 ≈ 0.05）。<b>② 真值表</b>，列出條件的所有邏輯可能組合，以及案例如何分布。<b>③ 必要性與充分性</b>，評估哪些條件／組合對結果是必要、或充分。<b>④ 最小化</b>，把一致的組合用布林邏輯化簡成精簡解。</p></div>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="Sets, not variables">是集合，不是變數</h3><p data-en="Conditions are <b>sets</b> a case belongs to by degree (fuzzy membership 0–1). Combinations use Boolean logic: <b>AND</b> = the minimum membership, <b>OR</b> = the maximum, <b>NOT</b> = 1 − membership.">條件是案例「依程度隸屬」的<b>集合</b>（模糊隸屬度 0–1）。組合用布林邏輯：<b>AND</b>＝取最小隸屬度、<b>OR</b>＝取最大、<b>NOT</b>＝1 − 隸屬度。</p></div>
       <div class="card"><h3 data-en="Sufficiency vs necessity">充分 vs 必要</h3><p data-en="<b>Sufficient</b>: whenever the configuration is present, the outcome is too (membership in X ≤ membership in Y for all cases — points on/above the diagonal). <b>Necessary</b>: the outcome only occurs when the condition is present (X ≥ Y). The ② plot shows sufficiency."><b>充分</b>：只要組合出現、結果就出現（每個案例 X 的隸屬度 ≤ Y 的隸屬度，點在對角線上方）。<b>必要</b>：結果只在該條件出現時才發生（X ≥ Y）。② 的圖示範充分性。</p></div>
@@ -7787,7 +7787,7 @@ obj &lt;- mr_input(bx = d$beta_exp, bxse = d$se_exp,
 mr_ivw(obj)
 mr_egger(obj)
 mr_plot(obj)</code></pre>
-      <p data-en="mr_input() bundles the summary statistics; mr_ivw() and mr_egger() give the causal estimates; mr_plot() draws the SNP scatter."><mr_input() 整理摘要統計量；mr_ivw() 與 mr_egger() 給出因果估計值；mr_plot() 繪製 SNP 散布圖。></p></div>
+      <p data-en="mr_input() bundles the summary statistics; mr_ivw() and mr_egger() give the causal estimates; mr_plot() draws the SNP scatter.">mr_input() 整理摘要統計量；mr_ivw() 與 mr_egger() 給出因果估計值；mr_plot() 繪製 SNP 散布圖。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — IVW via weighted regress">Stata — 以加權 regress 做 IVW</h3>
       <pre class="sas"><code><span class="cm">* IVW = weighted regression through the origin, analytic weights 1/se_out^2</span>
 import delimited "mr_sample.csv", clear case(preserve)
@@ -8205,7 +8205,7 @@ proc mixed data=d method=reml;
     repeated / group=study;
     parms / parmsdata=d eqcons=1;
 run;</code></pre>
-      <p data-en="PROC MIXED estimates the pooled effect with a random study intercept; the fixed-intercept solution is the pooled REML estimate."><PROC MIXED 以隨機 study 截距估計合併效應，固定截距的解就是 REML 合併估計值。></p></div>
+      <p data-en="PROC MIXED estimates the pooled effect with a random study intercept; the fixed-intercept solution is the pooled REML estimate.">PROC MIXED 以隨機 study 截距估計合併效應，固定截距的解就是 REML 合併估計值。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — metafor::rma + forest">R — metafor::rma 與森林圖</h3>
       <pre class="sas"><code><span class="cm"># Random-effects (REML) meta-analysis and forest plot</span>
 library(metafor)
@@ -8213,14 +8213,14 @@ d &lt;- read.csv("srma_sample.csv")
 fit &lt;- rma(yi = yi, sei = sei, data = d, method = "REML")
 print(fit)
 forest(fit, slab = d$study)</code></pre>
-      <p data-en="rma() fits the REML random-effects model; print() reports the pooled estimate, tau^2 and I^2; forest() draws the plot."><rma() 以 REML 配適隨機效應模型；print() 報告合併估計值、tau^2 與 I^2；forest() 繪製森林圖。></p></div>
+      <p data-en="rma() fits the REML random-effects model; print() reports the pooled estimate, tau^2 and I^2; forest() draws the plot.">rma() 以 REML 配適隨機效應模型；print() 報告合併估計值、tau^2 與 I^2；forest() 繪製森林圖。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — meta suite">Stata — meta 指令</h3>
       <pre class="sas"><code><span class="cm">* Declare meta data with effect size and its standard error</span>
 import delimited "srma_sample.csv", clear case(preserve)
 meta set yi sei, studylabel(study)
 meta summarize, random(reml)
 meta forestplot</code></pre>
-      <p data-en="meta set declares yi and its SE; meta summarize, random(reml) pools by REML; meta forestplot draws the forest plot."><meta set 宣告 yi 與其標準誤；meta summarize, random(reml) 以 REML 合併；meta forestplot 繪製森林圖。></p></div>
+      <p data-en="meta set declares yi and its SE; meta summarize, random(reml) pools by REML; meta forestplot draws the forest plot.">meta set 宣告 yi 與其標準誤；meta summarize, random(reml) 以 REML 合併；meta forestplot 繪製森林圖。</p></div>
   </section>
 
   <section id="srmaplay" class="panel">
@@ -8382,7 +8382,7 @@ proc means data=d sum;
     class treatment;
     var events n;
 run;</code></pre>
-      <p data-en="The canonical frequentist NMA is netmeta in R; in SAS one would build a Bayesian model in PROC MCMC, so only the data summary is shown here."><頻率學派 NMA 的標準工具是 R 的 netmeta；在 SAS 中得用 PROC MCMC 自己建貝氏模型，所以這裡只先做資料彙總。></p></div>
+      <p data-en="The canonical frequentist NMA is netmeta in R; in SAS one would build a Bayesian model in PROC MCMC, so only the data summary is shown here.">頻率學派 NMA 的標準工具是 R 的 netmeta；在 SAS 中得用 PROC MCMC 自己建貝氏模型，所以這裡只先做資料彙總。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — netmeta">R — netmeta</h3>
       <pre class="sas"><code><span class="cm"># Arm-level data -&gt; pairwise contrasts -&gt; network meta-analysis</span>
 library(netmeta)
@@ -8392,14 +8392,14 @@ p &lt;- pairwise(treat = treatment, event = events, n = n,
 net &lt;- netmeta(p)
 print(net)
 netgraph(net)</code></pre>
-      <p data-en="pairwise() turns arm-level counts into contrasts; netmeta() fits the frequentist network model (ORs); netgraph() draws the evidence network."><pairwise() 將各組計數轉為對比；netmeta() 配適頻率學派網絡模型（OR）；netgraph() 繪製證據網絡圖。></p></div>
+      <p data-en="pairwise() turns arm-level counts into contrasts; netmeta() fits the frequentist network model (ORs); netgraph() draws the evidence network.">pairwise() 將各組計數轉為對比；netmeta() 配適頻率學派網絡模型（OR）；netgraph() 繪製證據網絡圖。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — network / mvmeta (note)">Stata — network／mvmeta（說明）</h3>
       <pre class="sas"><code><span class="cm">* Stata NMA uses White's network suite built on mvmeta (user-written). </span>
 import delimited "nma_sample.csv", clear case(preserve)
 <span class="cm">* network setup events n, studyvar(study) trtvar(treatment) or</span>
 <span class="cm">* network meta consistency</span>
 list study treatment events n in 1/8</code></pre>
-      <p data-en="In Stata, install the network and mvmeta packages, then network setup builds the contrasts and network meta fits the model; commented here to keep the snippet self-contained."><在 Stata 中需安裝 network 與 mvmeta 套件，network setup 建立對比、network meta 配適模型；這兩行先註解起來，沒裝套件也能執行這段。></p></div>
+      <p data-en="In Stata, install the network and mvmeta packages, then network setup builds the contrasts and network meta fits the model; commented here to keep the snippet self-contained.">在 Stata 中需安裝 network 與 mvmeta 套件，network setup 建立對比、network meta 配適模型；這兩行先註解起來，沒裝套件也能執行這段。</p></div>
   </section>
 
   <section id="nmaml" class="panel">
@@ -8482,7 +8482,7 @@ proc traj data=wide out=of outplot=op;
     id pid; var y1-y5; indep t1-t5;
     model cnorm; min 0; max 100; ngroups 3; order 2 2 2;
 run;</code></pre>
-      <p data-en="PROC TRAJ (Nagin/Jones) fits three quadratic trajectory groups after reshaping to one row per subject."><PROC TRAJ（Nagin/Jones）在轉成每位受試者一列後，配適三個二次軌跡群組。></p></div>
+      <p data-en="PROC TRAJ (Nagin/Jones) fits three quadratic trajectory groups after reshaping to one row per subject.">PROC TRAJ（Nagin/Jones）在轉成每位受試者一列後，配適三個二次軌跡群組。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — lcmm::hlme with gridsearch (robust starts), model selection, posterior">R — lcmm::hlme＋gridsearch（穩健起始值）、選組、後驗分類</h3>
       <pre class="sas"><code><span class="cm"># Group-based trajectory model with lcmm (Proust-Lima 2017)</span>
 library(lcmm)
@@ -8515,7 +8515,7 @@ reshape wide y, i(pid) j(time)
 <span class="cm">* traj, var(y0-y4) indep(0 1 2 3 4) model(cnorm) min(0) max(100) order(2 2 2)</span>
 <span class="cm">* trajplot, xtitle("time") ytitle("y")</span>
 list in 1/5</code></pre>
-      <p data-en="After reshaping wide, the traj plugin fits three quadratic groups and trajplot draws them; commented to keep the snippet runnable without the add-on."><轉為寬資料後，traj 外掛配適三個二次群組，trajplot 繪圖；先註解起來，沒裝外掛也能執行這段。></p></div>
+      <p data-en="After reshaping wide, the traj plugin fits three quadratic groups and trajplot draws them; commented to keep the snippet runnable without the add-on.">轉為寬資料後，traj 外掛配適三個二次群組，trajplot 繪圖；先註解起來，沒裝外掛也能執行這段。</p></div>
   </section>
 
   <section id="gbtmassume" class="panel">
