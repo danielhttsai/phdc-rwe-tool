@@ -148,7 +148,6 @@ function labelCharts(panel) {
 // replaceState keeps the back-stack clean; _suppressHash guards the
 // read → navigate → write loop. The initial applyHash() runs at end of file,
 // after every module-level const (EVALUE_METHODS, gotoMethod, …) is initialised.
-const HASH_SUBS = ["learn", "play", "analyze", "assume", "ml", "whatif"];
 let _suppressHash = false;
 function setHash(h) {
   if (_suppressHash) return;
@@ -4976,6 +4975,15 @@ function filterRefs(method) {
       : sbookOnly
       ? (li.id === "refSccsBook" ? "" : "none")
       : ((showAll || li.dataset.ref === refsContext || li.dataset.ref === "all") ? "" : "none");
+  });
+  // Layer headings (方法原典 / 應用範例 / 延伸與批評) only make sense when at
+  // least one reference under them survived the filter above.
+  list.querySelectorAll("li.ref-head").forEach((h) => {
+    let any = false;
+    for (let n = h.nextElementSibling; n && !n.classList.contains("ref-head"); n = n.nextElementSibling) {
+      if (n.style.display !== "none") { any = true; break; }
+    }
+    h.style.display = any ? "" : "none";
   });
   if (intro) {
     const m = METHOD_REF[refsContext];
