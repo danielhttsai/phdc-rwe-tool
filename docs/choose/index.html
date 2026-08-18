@@ -2372,7 +2372,7 @@ function renderAlign() {
     ? `<div class="apr-react good"><b>正確。</b>暴露組的分母（人時）平白多了一段、分子（死亡數）卻沒增加，<b>死亡率被稀釋</b> → HR 被壓到 1 以下。0.60 就是這樣來的。</div>`
     : aprDir === "high"
       ? `<div class="apr-react warn"><b>方向反了。</b>多出來的是<b>沒有死亡的人時</b>，只加分母不加分子，暴露組的死亡率被<b>稀釋</b> → HR 偏<b>低</b>，藥看起來更有效。</div>`
-      : `<div class="apr-react warn"><b>不只是精確度。</b>這是<b>系統性偏誤</b>：分母灌水、分子不變 → 暴露組死亡率被稀釋，HR 系統性偏<b>低</b>。樣本越大，這個假效果只會看起來越「顯著」。</div>`;
+      : `<div class="apr-react warn"><b>不只是精確度。</b>這是<b>系統性偏誤</b>：分母被墊高、分子不變 → 暴露組死亡率被稀釋，HR 系統性偏<b>低</b>。樣本越大，這個假效果只會看起來越「顯著」。</div>`;
 
   const prompt = `<p class="apr-prompt">${stepno(5)}<b>幫小賴醫師把 Time Zero 對齊。</b>點下面每一種做法，看時間軸與估出的 HR 怎麼變；至少試一種<b>非天真</b>的做法再進到最後一題。</p>`;
   const resultBanner =
@@ -2383,7 +2383,7 @@ function renderAlign() {
     `<li><b>Time Zero對齊了嗎？</b>暴露組有沒有被塞進「還沒用藥、卻保證活著」的時間（不死時間）？</li>` +
     `<li><b>是不是新使用者？</b>有沒有把已經用藥很久、存活下來的<b>盛行使用者</b>混進來？</li>` +
     `<li><b>對照選得對嗎？</b>是「用 vs 完全不用」（適應症混淆），還是同適應症的<b>主動對照</b>？</li>` +
-    `<li><b>重要干擾因子都測到了嗎？</b>疾病嚴重度、健康守規矩傾向有沒有被觀察到（否則是無法被測量的干擾因子）？</li>` +
+    `<li><b>重要干擾因子都測到了嗎？</b>疾病嚴重度、健康服藥者（healthy-adherer）傾向有沒有被觀察到（否則是無法被測量的干擾因子）？</li>` +
     `</ul></details>`;
   const head = introTop + react + dxFeedback + whoFeedback + dirFeedback;
   const board =
@@ -2477,8 +2477,8 @@ const BIAS_SCENARIOS = [
     fix: { zh: "報告時<b>講清楚結論只適用於活過地標的人</b>；用<b>不同地標</b>（3、6、12 個月）做敏感度分析看結果穩不穩；想把地標前那段也用上，就改用<b>用藥那天才算暴露</b>或<b>複製-中斷-加權</b>。", en: "State plainly that the answer applies only to those alive at the landmark; run <b>several landmarks</b> (3, 6, 12 months) as a sensitivity analysis; and if you want the pre-landmark period back, switch to time-varying exposure or clone-censor-weight." }, fixMethod: "ccw" },
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
-    why: { zh: "『整個追蹤期都規律用藥』<b>必須活很久且沒中斷</b> → 嚴重不死時間；『用 vs 從不用』→ 適應症混淆；規律用藥者往往<b>更健康守規矩（healthy adherer）</b>，這種傾向常沒被測到 → 無法被測量的干擾因子。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
-    fix: { zh: "改成<b>用藥那天才算暴露</b>（時變暴露）或<b>複製-中斷-加權</b>來處理規律性與Time Zero，配<b>主動對照</b>，再對 healthy-adherer 做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
+    why: { zh: "『整個追蹤期都規律用藥』<b>必須活很久且沒中斷</b> → 嚴重不死時間；『用 vs 從不用』→ 適應症混淆；規律用藥者本身往往<b>更健康、生活習慣更好（healthy-adherer 效應）</b>，這種傾向常沒被測到 → 無法被測量的干擾因子。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
+    fix: { zh: "改成<b>用藥那天才算暴露</b>（時變暴露）或<b>複製-中斷-加權</b>來處理規律性與Time Zero，配<b>主動對照</b>，再對<b>健康服藥者效應（healthy-adherer effect）</b>做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
   { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，Time Zero對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
     ans: [],
     why: { zh: "新使用者對齊Time Zero → 無不死時間；同適應症對照 → 適應症混淆很小；重要干擾因子都測到 → 無法被測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
