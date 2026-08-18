@@ -109,7 +109,7 @@
   </section>
 
   <section id="sbook" class="panel">
-    <h1 data-en="Self-Controlled Case Series Studies — chapter study notes">SCCS 自我對照病例系列：分章讀書筆記</h1>
+    <h1 data-en="Self-Controlled Case Series Studies — chapter study notes">SCCS 自身對照病例系列：分章讀書筆記</h1>
     <p class="lead" data-en="Original bilingual study notes summarising each chapter of Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, <i>Self-Controlled Case Series Studies: A Modelling Guide with R</i> (CRC Press, 2018). Our own summaries of the key ideas, not the book's text.">這是 Farrington、Whitaker 與 Ghebremichael-Weldeselassie《Self-Controlled Case Series Studies: A Modelling Guide with R》（CRC Press, 2018）逐章重點的雙語讀書筆記，屬於我們自己整理的摘要，並非書本原文。</p>
     <div id="sbGate" class="cb-gate">
       <h3 data-en="🔒 Password required">🔒 需要密碼</h3>
@@ -5299,7 +5299,7 @@ logit case vaccinated if tested == 1, or</code></pre>
           這就是校正要修掉的陷阱。假設藥 B 比較新、用量年年上升，那麼對幾乎所有人來說，B 單純就傾向<i>比較晚</i>才開出來，於是「先 A 後 B」會堆積起來，就算 A 從來沒引發過 B 也一樣。這時原始計數是被日曆時間的趨勢推著走、而不是被真正的瀑布推動，它可以憑空造出一個假訊號。解法是先量出「光靠這個趨勢」順序會偏到什麼程度，這個數就是 SRnull，再把它除掉，讓校正比值 aSR 只剩下趨勢無法解釋的部分。舉個小例子：如果光是 B 用量上升就讓「先 A 後 B」變成 1.5 倍常見，那 SRnull ＝ 1.5，未校正比值要超過 1.5 才算真訊號。</p></div>
       <div class="tdef"><h4>訊號偵測（產生假說）<span class="en">signal detection (hypothesis-generating)</span></h4>
         <p data-en="PSSA is a <b>screen</b>, not a verdict — its job is to point a finger, not to convict. It is fast and <b>self-controlled</b> (each person is their own comparison, so many fixed background differences cancel out), which lets you sweep across huge numbers of drug pairs cheaply and raise a hand wherever the ordering looks suspicious. But raising a hand is not proof of cause: a flagged pair still has to be chased down with a sturdier study that actually controls for who-takes-what (a cohort study, a self-controlled case series, or an active-comparator design). Think of PSSA as the smoke detector that tells you where to send the fire crew. It is the one-pair-at-a-time relative of <b>TreeScan</b> (see ⑤), which runs the same kind of screen across a whole hierarchy of outcomes at once (Hallas 1996).">
-          PSSA 是<b>篩檢</b>、不是定論，它的工作是指出可疑方向，不是定罪。它快、而且<b>自我對照</b>（每個人當自己的對照，許多固定不變的背景差異就互相抵消），所以可以便宜地掃過大量藥物配對，只要順序看起來可疑就舉手示警。但舉手不等於證明因果：被標出的配對，還是得用更紮實、真正控制「誰會吃什麼藥」的研究追下去（世代研究、自我對照病例系列，或主動對照設計）。可以把 PSSA 想成煙霧偵測器，告訴你該把消防隊派去哪裡。它是 <b>TreeScan</b>（見 ⑤）一次只看一對的近親，後者把同一種篩檢一口氣跑遍整個結果階層（Hallas 1996）。</p></div>
+          PSSA 是<b>篩檢</b>、不是定論，它的工作是指出可疑方向，不是定罪。它快、而且<b>自我對照</b>（每個人當自己的對照，許多固定不變的背景差異就互相抵消），所以可以便宜地掃過大量藥物配對，只要順序看起來可疑就舉手示警。但舉手不等於證明因果：被標出的配對，還是得用更紮實、真正控制「誰會吃什麼藥」的研究追下去（世代研究、自身對照病例系列，或主動對照設計）。可以把 PSSA 想成煙霧偵測器，告訴你該把消防隊派去哪裡。它是 <b>TreeScan</b>（見 ⑤）一次只看一對的近親，後者把同一種篩檢一口氣跑遍整個結果階層（Hallas 1996）。</p></div>
     </details>
   </section>
 
@@ -6390,7 +6390,7 @@ regress y treated external x, level(90)</code></pre>
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The effect of <b>drug A vs an active comparator B</b> on the outcome rate, in the indicated new-user population — a relative (A-vs-B) effect, not vs 'no drug'.">在有適應症的新使用者族群中，<b>藥 A vs 主動對照藥 B</b> 對結果率的效應，是相對（A vs B）效應，不是相對於「沒用藥」。</p></div>
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability</b>: after restricting to the same indication and adjusting severity, A vs B are comparable (no unmeasured confounding). <b>Positivity</b>: both drugs are plausible choices for these patients. <b>Consistency</b>: new users, a clear time zero (first prescription)."><b>可交換性</b>：限制在同適應症＋校正嚴重度後，A 與 B 可比（無未測混淆）。<b>正性</b>：這些病人兩種藥都可能拿。<b>一致性</b>：新使用者、明確時間零點（第一張處方）。</p></div>
       <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From an <b>active comparator with the same indication</b> (which narrows severity), the <b>new-user</b> design (aligned time zero, no immortal time), and a <b>propensity score</b> for the residual severity gap between A and B.">來自<b>同適應症的主動對照</b>（縮小嚴重度範圍）、<b>新使用者</b>設計（對齊時間零點、無 immortal time），加上對 A、B 殘留嚴重度差的<b>傾向分數</b>校正。</p></div>
-      <div class="card"><h3 data-en="④ In What If">④ 對應《What If》</h3><p data-en="Confounding &amp; exchangeability; the new-user active-comparator design as a target-trial emulation (Ch. 22). Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">混淆與可交換性；新使用者主動對照設計即目標試驗模擬（第 22 章）。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
+      <div class="card"><h3 data-en="④ In What If">④ 對應《What If》</h3><p data-en="Confounding &amp; exchangeability; the new-user active-comparator design as a target-trial emulation (Ch. 22). Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">混淆與可交換性；主動對照新使用者設計即目標試驗模擬（第 22 章）。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
 
