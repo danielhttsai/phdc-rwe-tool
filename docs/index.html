@@ -1603,7 +1603,7 @@ xtreg health_score i.treated#i.post urban baseline_burden i.period, fe cluster(u
     </p>
     <div id="titOutChart" class="chart"></div>
     <p class="caption" data-en="Outcome (adverse-event) rate by the same strata. Trend-in-trend asks whether this fans out in the same pattern as uptake; the more both trends move together, the sharper the estimate.">
-      同樣各層的結果（不良事件）率。趨勢中的趨勢看它是否以和接種率相同的扇形散開；兩個趨勢越同步，估計越鋭利。
+      同樣各層的結果（不良事件）率。趨勢中的趨勢看它是否以和接種率相同的扇形散開；兩個趨勢越同步，估計越銳利。
     </p>
   </section>
 
@@ -2310,7 +2310,7 @@ poisson events_post  i.group, exposure(pt_post) irr
 
     <div class="cards">
       <div class="card"><h3 data-en="① ML for the prior-period rate（推測 / speculative）">① 用 ML 估「事前期率」（推測）</h3>
-        <p data-en="An ML model for the prior-period rate could sharpen the &quot;confounding fingerprint&quot; that PERR divides out — much as ML propensity scores help elsewhere. Unverified for PERR.">用機器學習估事前期的事件率，<b>或許</b>能讓 PERR 要除掉的「混淆指紋」更鋭利，就像 ML 傾向分數在別處的幫助。對 PERR 尚未驗證。</p></div>
+        <p data-en="An ML model for the prior-period rate could sharpen the &quot;confounding fingerprint&quot; that PERR divides out — much as ML propensity scores help elsewhere. Unverified for PERR.">用機器學習估事前期的事件率，<b>或許</b>能讓 PERR 要除掉的「混淆指紋」更銳利，就像 ML 傾向分數在別處的幫助。對 PERR 尚未驗證。</p></div>
       <div class="card"><h3 data-en="② A doubly-robust score（推測 / speculative）">② 一條雙重穩健分數（推測）</h3>
         <p data-en="Pairing a treatment model with an outcome model into a doubly-robust score <i>might</i> reduce reliance on the time-invariance assumption (P1) — provided a valid orthogonal score can be derived for this design, which is an open question.">把處置模型與結果模型配成一條雙重穩健分數，<i>或許</i>能減少對「混淆時間不變」假設（P1）的依賴，前提是能為此設計導出有效的正交分數，這仍是未解的問題。</p></div>
       <div class="card"><h3 data-en="③ E-value-style sensitivity（推測 / speculative）">③ E-value 式敏感度（推測）</h3>
