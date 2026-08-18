@@ -3900,9 +3900,9 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
     <h1 data-en="ACNU: new users of drug A vs new users of an active comparator B">主動對照新使用者（ACNU）：A 的新使用者 vs 對照藥 B 的新使用者</h1>
     <p class="lead" data-en="Does a new drug A raise the risk of an outcome? Comparing <b>A users vs non-users</b> is doubly biased: sicker patients get A (<b>confounding by indication</b>) and non-users are systematically healthier (<b>healthy-user</b> bias). The <b>active-comparator, new-user</b> design compares <b>new users of A</b> with <b>new users of an active comparator B</b> that treats the <b>same indication</b>. Both groups are indicated, both start at a clear time zero (first prescription), so confounding by indication and immortal-time / prevalent-user bias are largely removed; any residual severity difference is then handled with a propensity score.">
       新藥 A 會不會提高某個結果的風險？拿<b>用 A 的人 vs 沒用藥的人</b>比會雙重偏誤：病情重的才會被開 A
-      （<b>因適應症而生的混淆</b>），而沒用藥的人通常比較健康（<b>healthy-user</b>）。<b>主動對照新使用者</b>設計改成比
+      （<b>因適應症而生的混淆</b>），而沒用藥的人通常比較健康（<b>健康使用者偏誤</b>）。<b>主動對照新使用者</b>設計改成比
       <b>A 的新使用者</b> vs <b>主動對照藥 B</b>（治療<b>同一個適應症</b>）的新使用者：兩組都有這個病、都從明確的時間零點
-      （第一張處方）起跑，因適應症的混淆與 immortal-time／既有使用者偏誤就大幅消掉；殘留的嚴重度差再用傾向分數補掉。
+      （第一張處方）起跑，因適應症的混淆與 immortal-time／盛行使用者偏誤就大幅消掉；殘留的嚴重度差再用傾向分數補掉。
     </p>
 
     <div class="card scene">
@@ -3927,7 +3927,7 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
       <div class="tdef">
         <h4>新使用者設計 <span class="en">new-user design</span></h4>
         <p data-en="This just means you only count people from their <b>first ever</b> prescription of the drug, so everybody's stopwatch starts at zero on the same kind of day. Why bother? If you instead scoop up people who happen to already be on the drug, you've quietly selected for survivors — anyone who reacted badly early on already quit, so the ones still taking it look healthier than they really are (that's &quot;prevalent-user&quot; bias). You also avoid &quot;immortal time&quot; — stretches of follow-up where a person couldn't have had the event yet by construction, which fakes a protective effect. In practice: drop anyone who was already on the drug before your study window opened, and start each person's clock at their first dose.">
-          意思就是：每個人都只從他「這輩子第一張」處方開始算，大家的碼表都在同一種起跑點歸零。為什麼要這樣？如果你改成把「現在剛好正在用藥的人」也撈進來，等於偷偷只挑到了存活者，早早就吃出問題的人早退出了，還在吃的人看起來比實際健康（這叫「既有使用者偏誤」）。這樣做也避開了「不死時間」，那種按定義根本還不可能出事的追蹤時段，會憑空假造出一個「保護效果」。實際做法：把研究窗開始前就已經在用藥的人排除掉，每個人都從第一劑開始計時。
+          意思就是：每個人都只從他「這輩子第一張」處方開始算，大家的碼表都在同一種起跑點歸零。為什麼要這樣？如果你改成把「現在剛好正在用藥的人」也撈進來，等於偷偷只挑到了存活者，早早就吃出問題的人早退出了，還在吃的人看起來比實際健康（這叫「盛行使用者偏誤」）。這樣做也避開了「不死時間」，那種按定義根本還不可能出事的追蹤時段，會憑空假造出一個「保護效果」。實際做法：把研究窗開始前就已經在用藥的人排除掉，每個人都從第一劑開始計時。
         </p>
       </div>
     </details>
@@ -3939,7 +3939,7 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
     <h1 data-en="Interactive: the active comparator starts far less biased">互動：主動對照一開始就少偏很多</h1>
     <p class="lead" data-en="Drag the slider for how strongly disease <b>severity</b> drives the choice of A vs B (confounding by indication). The <b>naive A-vs-non-user</b> rate ratio is badly inflated even at zero (healthy-user gap); the <b>crude ACNU A-vs-B</b> contrast starts much closer and drifts up only as confounding grows; the <b>severity-adjusted ACNU</b> stays on the truth.">
       拉動滑桿改變疾病<b>嚴重度</b>左右「拿 A 還是 B」的程度（因適應症的混淆）。<b>未校正的 A vs 沒用藥</b>速率比就算在零也已經
-      嚴重偏高（healthy-user 差距）；<b>ACNU 未校正 A vs B</b> 一開始就近很多、只隨混淆變強才漂；<b>校正嚴重度後的 ACNU</b> 穩在真值。
+      嚴重偏高（健康使用者偏誤的落差）；<b>ACNU 未校正 A vs B</b> 一開始就近很多、只隨混淆變強才漂；<b>校正嚴重度後的 ACNU</b> 穩在真值。
     </p>
 
     <div class="controls">
@@ -3951,7 +3951,7 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
     </div>
 
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Naive: A vs non-users">未校正：A vs 沒用藥</div><div class="stat-num" id="acnuNaive">–</div><div class="stat-foot" data-en="indication + healthy-user bias">適應症＋healthy-user 偏誤</div></div>
+      <div class="stat"><div class="stat-label" data-en="Naive: A vs non-users">未校正：A vs 沒用藥</div><div class="stat-num" id="acnuNaive">–</div><div class="stat-foot" data-en="indication + healthy-user bias">適應症＋健康使用者偏誤</div></div>
       <div class="stat"><div class="stat-label" data-en="Crude ACNU: A vs B">ACNU 未校正：A vs B</div><div class="stat-num" id="acnuCrude">–</div><div class="stat-foot" data-en="less biased (both indicated)">較不偏（都有病）</div></div>
       <div class="stat"><div class="stat-label" data-en="Adjusted ACNU">ACNU 校正後</div><div class="stat-num" id="acnuAdj">–</div><div class="stat-foot" data-en="should hug the truth 1.6">應緊貼真值 1.6</div></div>
     </div>
