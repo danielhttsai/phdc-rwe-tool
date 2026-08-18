@@ -3822,6 +3822,26 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
       <div id="sccsVioText"></div>
       <h3 class="svfix-title" data-en="How to fix it — each remedy drawn on the same timeline">怎麼處理：每一招都畫在同一條時間線上</h3>
       <div id="sccsVioFix"></div>
+      <details class="term pdsccs">
+        <summary data-en="Further reading: PD-SCCS, the formal fix for event dependence (Simpson 2013)">延伸閱讀：事件相依的正式解法 PD-SCCS（Simpson 2013）</summary>
+        <div class="tdef">
+          <p data-en="Standard SCCS is a conditional Poisson model: within a person, events are assumed to arrive independently. Violation ③ above breaks exactly that assumption. Simpson's <b>positive dependence SCCS (PD-SCCS)</b> keeps the SCCS skeleton but lets an event raise the risk of the next one, adding one parameter (δ) for the size of that increase; δ = 0 returns the ordinary SCCS.">
+            標準 SCCS 是條件 Poisson 模型（conditional Poisson），它假設同一個人身上的事件<b>彼此獨立</b>地發生，上面第 ③ 種違反打破的就是這一條。Simpson 提出的 <b>PD-SCCS（positive dependence SCCS，正向事件相依模型）</b>保留 SCCS 的骨架，但允許「發生一次事件之後，接下來的風險會被抬高」，用一個參數 δ 描述抬高的幅度；δ＝0 時就退回一般的 SCCS。
+          </p>
+          <p data-en="Two things make it usable in practice. Individual baseline parameters still cancel out of the conditional likelihood, so it needs no per-person estimation and still scales to claims databases of tens of millions. And δ = 0 can be tested directly (a one-sided Wald test, with AIC/BIC to choose between models), so &quot;is dependence actually a problem here?&quot; becomes a question the data answers.">
+            兩個關鍵的實用性質：第一，<b>個人的基線參數一樣會從條件概似裡消掉</b>，不必逐人估計，所以在上千萬人的理賠資料庫裡照樣跑得動；第二，<b>δ＝0 可以直接檢定</b>（單尾 Wald 檢定，並用 AIC／BIC 在兩個模型間取捨），也就是說「這份資料的相依性到底要不要緊」是可以由資料回答的，不必憑感覺。
+          </p>
+          <p data-en="Why it matters: in the paper's simulations, when dependence is strong the ordinary SCCS does not merely lose precision, its 95% confidence intervals cover the truth less than 84% of the time (57.7% in the worst setting), while PD-SCCS stays near nominal. On real data the two can also part company: for rofecoxib and myocardial infarction the relative incidence was 1.17 under SCCS and 1.29 under PD-SCCS.">
+            為什麼值得在意：論文的模擬顯示，相依性強的時候，一般 SCCS 不只是精確度變差，它的 <b>95% 信賴區間覆蓋率會掉到 84% 以下</b>（最差的設定只有 57.7%），而 PD-SCCS 仍接近名目水準。真實資料上兩者也會分岔：rofecoxib 與心肌梗塞的相對發生率（relative incidence），SCCS 估 1.17、PD-SCCS 估 1.29。
+          </p>
+          <p data-en="When to reach for it: recurrent outcomes where one episode plausibly begets the next (seizures, falls, myocardial infarction), especially in postmarketing surveillance where all events are counted rather than only the first. Note it fixes dependence only; event-dependent exposure and event-dependent observation periods (violations ① and ②) still need their own remedies.">
+            <b>什麼時候用：</b>結果會復發、而且一次發作看起來確實會招來下一次的情境（癲癇、跌倒、心肌梗塞），尤其是上市後安全監測（postmarketing surveillance）這種把每次事件都計入、而不是只取第一次的分析。要注意它只解決相依性這一條，<b>事件相依暴露</b>與<b>事件相依觀察期</b>（上面第 ① 與第 ② 種違反）仍然要各自處理。
+          </p>
+          <p class="src" data-en="Source: Simpson SE. A positive event dependence model for self-controlled case series with applications in postmarketing surveillance. <i>Biometrics</i>. 2013;69(1):128-136.">
+            出處：Simpson SE. A positive event dependence model for self-controlled case series with applications in postmarketing surveillance. <i>Biometrics</i>. 2013;69(1):128-136.
+          </p>
+        </div>
+      </details>
       <div class="align-note good" style="margin-top:1rem">
         <b data-en="① People filtered → baseline ✕ taken away → IRR inflated (overestimate).">① 人被篩過 → 基準期的 ✕ 被帶走 → IRR 虛胖（高估）。</b><br>
         <b data-en="② Time cut short → baseline days cut away → IRR pushed down (underestimate).">② 時間被剪短 → 基準期的天數被剪掉 → IRR 被壓低（低估）。</b><br>
