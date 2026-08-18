@@ -7432,7 +7432,7 @@ function svFixRows(kind) {
         `<line x1="${b.px(95)}" y1="13" x2="${b.px(107)}" y2="27" stroke="#64748b" stroke-width="1.6"/>` +
         `<text x="${b.px(130)}" y="9" font-size="8" fill="#64748b">${tr("回音不算", "echoes not counted")}</text>` +
         X(230) + b.close; })(), r: "≈ 2.00" },
-    { t: tr("<b>② 改用允許相依的模型。</b>把「一次發作提高短期再發率」本身當成模型的一部分去估。", "<b>2. A model that allows dependence,</b> estimating the short-term recurrence boost as part of the model."),
+    { t: tr("<b>② 改用允許相依的模型：PD-SCCS。</b>把「一次發作會提高之後的再發風險」本身寫進模型去估（Simpson 2013, <i>Biometrics</i> 69:128）。個人基線一樣被消掉，所以照樣適用大型資料庫。", "<b>2. A model that allows dependence: PD-SCCS,</b> which estimates the post-event risk increase as part of the model (Simpson 2013, <i>Biometrics</i> 69:128); individual baselines still cancel, so it still scales."),
       svg: (() => { const b = B(); return b.open +
         X(80) + `<circle cx="${b.px(101)}" cy="20" r="4" fill="none" stroke="#d97706" stroke-width="1.6"/>` +
         `<path d="M${b.px(80)} 12 Q${b.px(90)} 4 ${b.px(101)} 12" fill="none" stroke="#d97706" stroke-width="1"/>` +
