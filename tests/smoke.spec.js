@@ -42,12 +42,18 @@ test("JS-chart methods render their ② chart", async ({ page }) => {
   expect(errors, errors.join("\n")).toEqual([]);
 });
 
-test("all six sub-tabs activate for a sample method", async ({ page }) => {
+test("all three tabs activate their six underlying panels for a sample method", async ({ page }) => {
   await page.goto("/#m=gbtm&t=learn");
-  // skip ③ analyze (it would kick off the Pyodide backend); the rest are static/JS
-  for (const s of ["learn", "play", "assume", "ml", "whatif"]) {
-    await page.locator(`.subtab[data-sub="${s}"]`).click();
-    await expect(page.locator(`#gbtm${s}`)).toHaveClass(/active/);
+  // Each visible tab now shows two of the original six panels at once (see
+  // SUB_GROUPS in app.js). gbtm's ③ practice tab (analyze + ml) is static
+  // content with no PANEL_INIT entry, so it never touches the Pyodide
+  // backend — safe to click through all three tabs here.
+  const groups = { concept: ["learn", "whatif"], play: ["play", "assume"], practice: ["analyze", "ml"] };
+  for (const [sub, panels] of Object.entries(groups)) {
+    await page.locator(`.subtab[data-sub="${sub}"]`).click();
+    for (const p of panels) {
+      await expect(page.locator(`#gbtm${p}`)).toHaveClass(/active/);
+    }
   }
 });
 
