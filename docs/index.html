@@ -1385,7 +1385,7 @@ rdplot health_score_change age, c(65)</code></pre>
     </div>
   
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Difference-in-Differences (TWFE)">程式（SAS · R · Stata）：雙重差分（雙向固定效果）</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Difference-in-Differences (TWFE)">程式（SAS · R · Stata）：差異中的差異（雙向固定效果）</h2>
     <p class="code-src" data-en="Source — R uses fixest::feols(), the two-way fixed-effects call shown in the official fixest walkthrough vignette (fixed effects after |, cluster = ~unit); Stata uses the documented xtset + xtreg, fe cluster(). For staggered adoption, the did package (Callaway &amp; Sant'Anna) is preferred.">出處 — R 使用 fixest 套件的 feols()，寫法同 fixest 官方 walkthrough vignette 的雙向固定效果示範（| 之後列固定效果 unit + period，cluster = ~unit 做群集標準誤）；Stata 為官方手冊的 xtset + xtreg, fe cluster()。分階段採用（staggered adoption）建議改用 did 套件（Callaway 與 Sant'Anna）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=fixest" target="_blank" rel="noopener">fixest (feols)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>did_sample.csv</code> (columns: unit, period, treated, post, health_score, urban, baseline_burden).">這是可直接在可下載的 <code>did_sample.csv</code> 上完整執行的程式（欄位：unit、period、treated、post、health_score、urban、baseline_burden）。</div>
@@ -1400,7 +1400,7 @@ proc glm data=d;
     class period;
     model health_score = treated*post urban baseline_burden period / solution;
 run;</code></pre>
-      <p data-en="absorb unit sweeps out unit fixed effects; class period adds period effects; the treated*post interaction is the difference-in-differences estimate.">absorb unit 消去單位固定效果；class period 加入期別效果；treated*post 交互項即為雙重差分估計值。</p></div>
+      <p data-en="absorb unit sweeps out unit fixed effects; class period adds period effects; the treated*post interaction is the difference-in-differences estimate.">absorb unit 消去單位固定效果；class period 加入期別效果；treated*post 交互項即為差異中的差異估計值。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — fixest::feols">R — fixest::feols</h3>
       <pre class="sas"><code><span class="cm"># two-way fixed-effects DiD, SE clustered by unit</span>
 library(fixest)
