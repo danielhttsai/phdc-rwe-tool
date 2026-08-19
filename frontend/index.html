@@ -2934,7 +2934,7 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="tdef">
         <h4>序列試驗 <span class="en">sequential trials</span></h4>
         <p data-en="A treatment that you could start at many different moments creates a trap: if you just compare &quot;people who ever started&quot; against &quot;people who never did&quot;, the ever-started group had to survive long enough to start at all — that built-in survival makes treatment look better than it is (immortal-time bias). The fix is to stop treating it as one big comparison and instead open a small make-believe trial at every moment someone becomes eligible: at that exact moment, line everyone up at the same starting clock (time-zero), split them into &quot;starts now&quot; vs &quot;doesn't&quot;, and follow each forward. Do this month after month — a mini-trial at month 0, month 1, and so on — then combine the answers, weighting the more precise trials more (inverse-variance pooling). Because the same person can re-qualify and join several of these trials, you get more usable data out of the same people.">
-          一個「可以在很多不同時間點開始」的治療藏著一個陷阱：如果你只是拿「曾經用過藥的人」跟「從來沒用過的人」相比，曾用藥的那群人必須先活得夠久、撐到能開始用藥，這種「先天就活下來」會讓治療看起來比實際更有效（這就是 immortal-time bias）。解法是別把它當成一場大比較，而是每當有人符合資格，就開一場小型的假想試驗：在那一刻，把大家對齊在同一個起跑時鐘（時間零點），分成「現在開始」與「現在不開始」兩組，各自往前追蹤。一個月一個月地做，第 0 月一場、第 1 月一場……，再把各場的答案合併，讓越精準的試驗占越大份量（反變異加權）。因為同一個人可以重複符合資格、參加好幾場，你能從同一批人得到更多可用的資料。
+          一個「可以在很多不同時間點開始」的治療藏著一個陷阱：如果你只是拿「曾經用過藥的人」跟「從來沒用過的人」相比，曾用藥的那群人必須先活得夠久、撐到能開始用藥，這種「先天就活下來」會讓治療看起來比實際更有效（這就是 immortal-time bias）。解法是別把它當成一場大比較，而是每當有人符合資格，就開一場小型的假想試驗：在那一刻，把大家對齊在同一個起跑時鐘（時間零點），分成「現在開始」與「現在不開始」兩組，各自往前追蹤。一個月一個月地做，第 0 月一場、第 1 月一場……，再把各場的答案合併，讓越精準的試驗占越大份量（逆變異數加權）。因為同一個人可以重複符合資格、參加好幾場，你能從同一批人得到更多可用的資料。
         </p>
       </div>
       <div class="tdef">
@@ -2977,7 +2977,7 @@ clogit y window if group==0, group(id) or</code></pre>
 
     <div id="seqPlayChart" class="chart"></div>
     <p class="caption" data-en="Each dot is one sequential trial's IPTW risk difference (treat-now vs not) at its eligibility month; the teal line is their inverse-variance pooled estimate; the green dashed line is the truth. The amber line is the naive ever-vs-never contrast — far below, inflated by immortal time.">
-      每個點是一場序列試驗在其資格月的 IPTW 風險差（當下治療 vs 不治療）；青線是它們的反變異合併估計；綠虛線是真值。
+      每個點是一場序列試驗在其資格月的 IPTW 風險差（當下治療 vs 不治療）；青線是它們的逆變異數合併估計；綠虛線是真值。
       琥珀線是未校正的曾 vs 從未比較，遠在下方，被 immortal time 誇大。
     </p>
   </section>
@@ -2987,7 +2987,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <h1 data-en="Data analysis: run full sequential trials">資料分析：跑一次完整的序列試驗</h1>
     <p class="lead" data-en="Load the built-in point-treatment example (or upload a CSV with one row per person: when they initiated treatment, whether/when the event happened, and baseline covariates). The tool opens a sequential trial at each eligibility month, applies IPTW, inverse-variance pools the per-trial effects, and contrasts the result with the immortal-time-biased naive comparison.">
       載入內建的點治療範例（或上傳每列一個人的 CSV：何時啟動治療、是否／何時發生事件、基線共變項）。
-      工具會在每個資格月開一場序列試驗、做 IPTW、把各場效果反變異合併，並與「中 immortal-time 偏誤」的
+      工具會在每個資格月開一場序列試驗、做 IPTW、把各場效果做逆變異數合併，並與「中 immortal-time 偏誤」的
       未校正比較並列。
     </p>
 
@@ -3011,7 +3011,7 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="result-cards" id="seqAnalyzeCards"></div>
       <div id="seqAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="Per-trial IPTW risk differences (dots) and their inverse-variance pooled estimate (teal line). The green dashed line is the truth; the naive number in the cards ignores immortal time.">
-        各場 IPTW 風險差（點）與其反變異合併估計（青線）。綠虛線是真值；卡片裡的未校正數字忽略了 immortal time。
+        各場 IPTW 風險差（點）與其逆變異數合併估計（青線）。綠虛線是真值；卡片裡的未校正數字忽略了 immortal time。
       </p>
     </div>
   
@@ -7697,7 +7697,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
   <div class="card info">
     <h3 data-en="The workflow">工作流程</h3>
     <p data-en="Pick genetic variants (SNPs) robustly associated with the exposure → get each variant's effect on the exposure (β<sub>X</sub>) and on the outcome (β<sub>Y</sub>), usually from two big GWAS → for each variant the ratio β<sub>Y</sub>/β<sub>X</sub> is a causal estimate (a Wald ratio) → combine them by inverse-variance weighting (IVW) into one number → run sensitivity methods (MR-Egger, weighted median) to check the answer isn't driven by misbehaving variants.">
-      挑選與暴露穩健相關的遺傳變異（SNP）→ 取得每個變異對暴露的效果（β<sub>X</sub>）與對結果的效果（β<sub>Y</sub>），通常來自兩個大型 GWAS → 每個變異的比值 β<sub>Y</sub>/β<sub>X</sub> 就是一個因果估計（Wald 比值）→ 用反變異加權（IVW）把它們合成一個數字 → 跑敏感度方法（MR-Egger、加權中位數）確認答案沒有被不符合假設的變異帶偏。
+      挑選與暴露穩健相關的遺傳變異（SNP）→ 取得每個變異對暴露的效果（β<sub>X</sub>）與對結果的效果（β<sub>Y</sub>），通常來自兩個大型 GWAS → 每個變異的比值 β<sub>Y</sub>/β<sub>X</sub> 就是一個因果估計（Wald 比值）→ 用逆變異數加權（IVW）把它們合成一個數字 → 跑敏感度方法（MR-Egger、加權中位數）確認答案沒有被不符合假設的變異帶偏。
     </p>
   </div>
   <div class="cards cards-3">
@@ -8153,7 +8153,7 @@ mi estimate: regress Y A x1 x2 x3</code></pre>
           <tr><td>7</td><td data-en="Bias &amp; conflicts of interest — the conceptual frame for what threatens each study's validity.">偏誤與利益衝突，威脅每篇研究效度的概念框架。</td></tr>
           <tr><td>8</td><td data-en="Risk of bias in randomised trials — the RoB 2 tool (5 domains; see below).">隨機試驗的偏誤風險，RoB 2 工具（5 個領域；見下）。</td></tr>
           <tr><td>9</td><td data-en="Preparing for synthesis — checking comparability, handling units &amp; missing summary data.">合併前準備，檢查可比性、處理單位與缺失的摘要資料。</td></tr>
-          <tr><td>10</td><td data-en="Meta-analysis — inverse-variance pooling, fixed vs random effects, heterogeneity (the demo below).">統合分析，反變異加權合併、固定 vs 隨機效果、異質性（下方示範）。</td></tr>
+          <tr><td>10</td><td data-en="Meta-analysis — inverse-variance pooling, fixed vs random effects, heterogeneity (the demo below).">統合分析，逆變異數加權合併、固定 vs 隨機效果、異質性（下方示範）。</td></tr>
           <tr><td>11</td><td data-en="Network meta-analysis — compare 3+ treatments at once using direct + indirect evidence.">網路統合分析，用直接＋間接證據一次比較 3 個以上的治療。</td></tr>
           <tr><td>12</td><td data-en="Synthesis using other methods — when meta-analysis isn't appropriate (SWiM, vote counting…).">用其他方法合併，不適合做統合分析時（SWiM、計票……）。</td></tr>
           <tr><td>13</td><td data-en="Bias due to missing results — reporting/publication bias, funnel plots, Egger (the funnel below).">結果缺失造成的偏誤，報告／發表偏誤、漏斗圖、Egger（下方漏斗圖）。</td></tr>
