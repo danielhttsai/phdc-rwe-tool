@@ -4906,7 +4906,7 @@ teffects ipw (Y) (A X)</code></pre>
     <p class="code-src" data-en="Source — R reproduces the standard tmle(Y, A, W) call from the CRAN tmle package reference manual/vignette; Stata uses the documented eltmle syntax. The SAS block is hand-written from the TMLE steps.">出處 — R 使用 CRAN tmle 套件的 tmle(Y, A, W) 標準呼叫（見 tmle 套件參考手冊／vignette），Stata 為 eltmle 套件說明檔的標準語法；SAS 段落為依 TMLE 步驟自行編寫。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=tmle" target="_blank" rel="noopener">tmle (CRAN)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>tmle_sample.csv</code> (columns: pid, A, Y, X).">這是可直接在可下載的 <code>tmle_sample.csv</code> 上完整執行的程式（欄位：pid, A, Y, X）。</div>
-    <div data-lang="sas" class="card"><h3 data-en="SAS — clever-covariate TMLE steps">SAS — 巧妙共變量 TMLE 步驟</h3>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — clever-covariate TMLE steps">SAS — 聰明共變項 TMLE 步驟</h3>
       <pre class="sas"><code><span class="cm">/* SAS has no native TMLE proc: do the initial + clever-covariate fits */</span>
 proc import datafile="tmle_sample.csv" out=d dbms=csv replace;
     getnames=yes;
@@ -4924,7 +4924,7 @@ run;
 <span class="cm">/* clever covariate H = A/g - (1-A)/(1-g) feeds the targeting step */</span>
 data q2; set q; H = A/g1 - (1-A)/(1-g1); run;
 proc means data=q2 mean; var qa; run;</code></pre>
-      <p data-en="Logistic PS and outcome fits plus the clever covariate H are the building blocks of TMLE in SAS.">羅吉斯傾向分數與結果模型加上巧妙共變量 H，是 SAS 中 TMLE 的組成元件。</p></div>
+      <p data-en="Logistic PS and outcome fits plus the clever covariate H are the building blocks of TMLE in SAS.">羅吉斯傾向分數與結果模型加上聰明共變項 H，是 SAS 中 TMLE 的組成元件。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — tmle package">R — tmle 套件</h3>
       <pre class="sas"><code><span class="cm"># load data and package</span>
 library(tmle)
@@ -4933,7 +4933,7 @@ d &lt;- read.csv("tmle_sample.csv")
 fit &lt;- tmle(Y = d$Y, A = d$A, W = data.frame(X = d$X))
 <span class="cm"># print the targeted ATE estimate (psi)</span>
 print(fit$estimates$ATE)</code></pre>
-      <p data-en="tmle() targets the ATE using data-adaptive nuisance fits; psi is the corrected estimate.">tmle() 以資料自適應的干擾模型標靶 ATE；psi 即修正後的估計。</p></div>
+      <p data-en="tmle() targets the ATE using data-adaptive nuisance fits; psi is the corrected estimate.">tmle() 以資料自適應的輔助模型標靶 ATE；psi 即修正後的估計。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — eltmle">Stata — eltmle</h3>
       <pre class="sas"><code><span class="cm">* import the sample (eltmle is a user package: ssc install eltmle)</span>
 import delimited "tmle_sample.csv", clear case(preserve)
@@ -6503,7 +6503,7 @@ regress y treated external x, level(90)</code></pre>
     <h1 data-en="⑥ What if…? TMLE in the language of counterfactuals">⑥ 如果……？用反事實的語言看「TMLE／雙重穩健」</h1>
     <p class="lead" data-en="The estimand is the same contrast as for the propensity score: E[Yᵃ⁼¹] − E[Yᵃ⁼⁰], the ATE. The DAG is the same back-door picture (X confounds A and Y). What's different is the <b>estimator</b>: TMLE/AIPW use <b>two</b> models of that structure — the outcome regression and the propensity — so you are unbiased if <b>either</b> matches the truth, and TMLE's targeting step makes the plug-in efficient.">
       估計目標和傾向分數相同：E[Yᵃ⁼¹] − E[Yᵃ⁼⁰]，即 ATE。DAG 也是同一張後門圖（X 混淆 A 與 Y）。不同的是<b>估計器</b>：
-      TMLE／AIPW 用<b>兩個</b>描述這個結構的模型，結果迴歸與傾向分數，所以<b>其一</b>對就不偏，而 TMLE 的 targeting 步讓插入式估計更有效率。
+      TMLE／AIPW 用<b>兩個</b>描述這個結構的模型，結果迴歸與傾向分數，所以<b>其一</b>對就不偏，而 TMLE 多做的<b>目標化（targeting）</b>步驟讓插入式估計更有效率。
     </p>
     <div class="card scene"><h3 data-en="The TMLE DAG: X is a back-door confounder; two models, two chances">TMLE 的 DAG：X 是後門混淆；兩個模型、兩次機會</h3>
       <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_tmle" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_tmle" class="chart"></div></div></div></div>
@@ -6515,7 +6515,7 @@ regress y treated external x, level(90)</code></pre>
         <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> It splits the treatment node into A∣a: the left half is the observed treatment, the small a is the value you would set it to. Every downstream outcome becomes a counterfactual Yᵃ. It draws exchangeability for you: after adjusting, the set treatment is independent of the counterfactual (A ⫫ Yᵃ), and only then does the association equal the causal effect."><b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把治療節點切成 A∣a：左半是觀察到的治療，小 a 是你介入要設的值。下游結果都變成反事實 Yᵃ。它把可交換性畫出來：校正後，被設定的治療與反事實獨立（A ⫫ Yᵃ），這時關聯才等於因果效果。</p></div>
     </details>
     <div class="cards">
-      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The contrast E[Yᵃ⁼¹] − E[Yᵃ⁼⁰] = the ATE. TMLE targets this plug-in directly; AIPW estimates it with the doubly-robust influence-function formula.">對比 E[Yᵃ⁼¹] − E[Yᵃ⁼⁰] ＝ ATE。TMLE 直接針對這個插入式目標 targeting；AIPW 用雙重穩健的影響函數公式估它。</p></div>
+      <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The contrast E[Yᵃ⁼¹] − E[Yᵃ⁼⁰] = the ATE. TMLE targets this plug-in directly; AIPW estimates it with the doubly-robust influence-function formula.">對比 E[Yᵃ⁼¹] − E[Yᵃ⁼⁰] ＝ ATE。TMLE 直接對這個插入式估計做<b>目標化（targeting）</b>；AIPW 則用雙重穩健的影響函數公式來估它。</p></div>
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="Same three as PS — conditional exchangeability (no unmeasured confounding), positivity (0&lt;PS&lt;1), consistency. Double robustness does NOT relax any of them; it only protects against getting a nuisance MODEL wrong.">和 PS 相同三條，條件可交換（無未測混淆）、正性（0&lt;PS&lt;1）、一致性。雙重穩健<b>不</b>放寬任何一條；它只防把輔助<b>模型</b>配錯。</p></div>
       <div class="card"><h3 data-en="③ Where the robustness comes from">③ 穩健性從哪來</h3><p data-en="From having <b>two</b> models of the same structure. If the outcome model is right, the augmentation term has mean zero; if the propensity is right, the plug-in bias is corrected. You only need ONE of them — that's the ‘two chances’.">來自對同一結構有<b>兩個</b>模型。結果模型對，擴增項期望為零；傾向分數對，插入式偏誤被修正。你只需要<b>其中一個</b>對，這就是「兩次機會」。</p></div>
       <div class="card"><h3 data-en="④ In What If &amp; the TMLE literature">④ 對應《What If》與 TMLE 文獻</h3><p data-en="Standardization / g-formula, IPW &amp; doubly-robust estimation (Hernán &amp; Robins, <i>What If</i>, Ch 13–15); van der Laan &amp; Rubin 2006; van der Laan &amp; Rose 2011; Luque-Fernandez et al. 2018. Free book online.">標準化／g-formula、IPW 與雙重穩健估計（Hernán &amp; Robins, <i>What If</i>, 第 13–15 章）；van der Laan &amp; Rubin 2006；van der Laan &amp; Rose 2011；Luque-Fernandez 等 2018。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
