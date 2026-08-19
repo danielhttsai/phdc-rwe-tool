@@ -209,7 +209,7 @@
       </svg>
     </div>
     <p class="caption" data-en="Key point: the reminder (Z) influences health (Y) <b>only through</b> getting people vaccinated (A), and is <b>not</b> affected by &quot;health consciousness&quot; (U). So using it as the entry point lets us bypass the contamination caused by U.">
-      重點：接種提醒(Z) <b>只透過</b> 讓人去接種(A) 來影響健康(Y)，而且 <b>不</b> 受「健康意識(U)」影響。
+      重點：接種提醒（Z） <b>只透過</b> 讓人去接種（A） 來影響健康（Y），而且 <b>不</b> 受「健康意識（U）」影響。
       因此用它當切入點，就能把 U 造成的污染繞過去。
     </p>
 
@@ -3654,7 +3654,7 @@ quit;
         <h5 data-en="What the data looks like">資料長相</h5>
         <table class="mini">
           <caption data-en="Planning inputs — not data yet: candidate risk window, expected RR, event count, observation length.">規劃輸入（還沒有資料），候選風險窗、預期 RR、事件數、觀察長度。</caption>
-          <thead><tr><th data-en="risk window">風險窗</th><th data-en="target RR">目標 RR</th><th data-en="#events">事件數</th><th data-en="obs (days)">觀察(天)</th></tr></thead>
+          <thead><tr><th data-en="risk window">風險窗</th><th data-en="target RR">目標 RR</th><th data-en="#events">事件數</th><th data-en="obs (days)">觀察（天）</th></tr></thead>
           <tbody>
             <tr><td class="lo" data-en="1–28 d">1–28 天</td><td class="lo">2.0</td><td class="lo">300</td><td class="lo">365</td></tr>
             <tr><td data-en="1–14 d">1–14 天</td><td>2.0</td><td>300</td><td>365</td></tr>
@@ -8044,7 +8044,7 @@ regress y arm progscore if source=="trial"</code></pre>
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Multiple Imputation">程式（SAS · R · Stata）：多重插補</h2>
     <p class="code-src" data-en="Source — R uses the mice package; the mice() → with() → pool() sequence follows the mice vignette and package paper (van Buuren &amp; Groothuis-Oudshoorn 2011, JSS); the SAS block is the standard proc mi / proc mianalyze workflow from SAS documentation.">出處 — R 使用 mice 套件，mice() → with() → pool() 的呼叫方式同 mice 官方 vignette 與 van Buuren & Groothuis-Oudshoorn (2011, JSS) 套件論文；SAS 段為 proc mi / proc mianalyze 官方文件的標準流程。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=mice" target="_blank" rel="noopener">mice (CRAN)</a></p>
-    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>miss_sample.csv</code> (columns: pid, A, x1, x2, x3, Y; Y and x2 contain missing values).">這是可直接在可下載的 <code>miss_sample.csv</code> 上完整執行的程式（欄位：pid, A, x1, x2, x3, Y；Y 與 x2 含遺漏值）。</div>
+    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>miss_sample.csv</code> (columns: pid, A, x1, x2, x3, Y; Y and x2 contain missing values).">這是可直接在可下載的 <code>miss_sample.csv</code> 上完整執行的程式（欄位：pid, A, x1, x2, x3, Y；Y 與 x2 含缺失值）。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — proc mi / mianalyze">SAS — proc mi / mianalyze</h3>
       <pre class="sas"><code><span class="cm">/* import the sample */</span>
 proc import datafile="miss_sample.csv" out=d dbms=csv replace;
