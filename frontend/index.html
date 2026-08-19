@@ -722,9 +722,9 @@ estat firststage
     <details class="term">
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef">
-        <h4>跑分變數與斷點 <span class="en">running variable &amp; cutoff</span></h4>
+        <h4>運行變數與斷點 <span class="en">running variable &amp; cutoff</span></h4>
         <p data-en="Lots of real-world rules switch on at a hard line drawn on one number: you get a free programme once you hit 65, a scholarship once your test score clears a bar, extra care once your risk index passes a value. That number you&#39;re measured on is the <b>running variable</b> — the same thing goes by several names in different papers: <b>running variable</b>, <b>forcing variable</b>, <b>assignment variable</b>, or simply the <b>score</b> (all four mean this one number) — and the line itself is the <b>cutoff</b> <code>c</code>. The reason this is useful: someone aged 64 years 11 months and someone aged 65 years 1 month are basically the same kind of person — same health, same habits, same unmeasured luck — yet one just barely qualifies and the other just barely doesn&#39;t. So if the outcome takes a sudden step right at the line, that step can&#39;t be &quot;the two groups are different people&quot;, because they aren&#39;t; it has to be the programme. The one thing you must believe is <b>continuity</b>: that without the rule, the outcome would glide smoothly through age 65 and never jump there on its own (Hahn, Todd &amp; van der Klaauw 2001). You can sanity-check that by looking for no jump in background traits and no suspicious pile-up of people just on the lucky side of the line (a McCrary density check).">
-          很多真實世界的規則，都是在「某個數字畫的一條硬線」上突然啟動：滿 65 歲就有免費計畫、考試分數過某條線就有獎學金、風險指標超過某值就給加強照護。你被拿來衡量的那個數字，就叫<b>跑分變數</b>，同一個東西在不同論文有好幾個名字：<b>running variable（跑分／驅動變數）</b>、<b>forcing variable（驅動變數）</b>、<b>assignment variable（指派變數）</b>，或乾脆叫 <b>score（分數）</b>，這四個講的都是這同一個數字，那條線本身就是<b>斷點</b> <code>c</code>。它之所以好用：一個 64 歲 11 個月的人，和一個 65 歲 1 個月的人，基本上是同一種人，一樣的健康、一樣的習慣、一樣看不見的運氣，但一個剛好有資格、一個剛好沒有。所以若結果<i>正好</i>在這條線上突然跳一階，這一階不可能是「兩群是不同的人」，因為他們根本一樣；只能是那個計畫造成的。唯一需要相信的事叫<b>連續性</b>：如果沒有這條規則，結果會平順地滑過 65 歲、不會自己在那裡跳（Hahn, Todd &amp; van der Klaauw 2001）。你可以這樣檢查：看其他背景特徵在線上有沒有跳、以及線的「幸運那一側」有沒有可疑地擠了一堆人（McCrary 密度檢查）。
+          很多真實世界的規則，都是在「某個數字畫的一條硬線」上突然啟動：滿 65 歲就有免費計畫、考試分數過某條線就有獎學金、風險指標超過某值就給加強照護。你被拿來衡量的那個數字，就叫<b>運行變數</b>，同一個東西在不同論文有好幾個名字：<b>running variable（運行變數）</b>、<b>forcing variable（驅動變數）</b>、<b>assignment variable（指派變數）</b>，或乾脆叫 <b>score（分數）</b>，這四個講的都是這同一個數字，那條線本身就是<b>斷點</b> <code>c</code>。它之所以好用：一個 64 歲 11 個月的人，和一個 65 歲 1 個月的人，基本上是同一種人，一樣的健康、一樣的習慣、一樣看不見的運氣，但一個剛好有資格、一個剛好沒有。所以若結果<i>正好</i>在這條線上突然跳一階，這一階不可能是「兩群是不同的人」，因為他們根本一樣；只能是那個計畫造成的。唯一需要相信的事叫<b>連續性</b>：如果沒有這條規則，結果會平順地滑過 65 歲、不會自己在那裡跳（Hahn, Todd &amp; van der Klaauw 2001）。你可以這樣檢查：看其他背景特徵在線上有沒有跳、以及線的「幸運那一側」有沒有可疑地擠了一堆人（McCrary 密度檢查）。
         </p>
       </div>
       <div class="tdef">
@@ -821,7 +821,7 @@ estat firststage
     </div>
 
     <div id="rddColMap" class="colmap hidden">
-      <div class="field"><label data-en="Running variable X">跑分變數 X（running）</label><select id="rddSelX"></select></div>
+      <div class="field"><label data-en="Running variable X">運行變數 X（running）</label><select id="rddSelX"></select></div>
       <div class="field"><label data-en="Cutoff c">斷點 c（cutoff）</label><input id="rddSelC" type="number" step="0.5" value="65" /></div>
       <div class="field"><label data-en="Outcome Y">結果 Y（outcome）</label><select id="rddSelY"></select></div>
       <div class="field"><label data-en="Treatment D (for fuzzy)">處置 D（treatment，模糊用）</label><select id="rddSelD"></select></div>
@@ -835,7 +835,7 @@ estat firststage
       <h2 data-en="Sharp / Fuzzy estimates">銳利／模糊估計</h2>
       <div class="result-cards" id="rddAnalyzeCards"></div>
       <div id="rddAnalyzePlot" class="chart"></div>
-      <p class="caption" data-en="Dots: binned outcome averages by the running variable; lines: local-linear fits on each side; dashed line: the cutoff. The vertical gap is the Sharp RD.">點：依跑分變數分組的結果平均；線：兩側局部線性配適；虛線：斷點。垂直落差即銳利 RD。</p>
+      <p class="caption" data-en="Dots: binned outcome averages by the running variable; lines: local-linear fits on each side; dashed line: the cutoff. The vertical gap is the Sharp RD.">點：依運行變數分組的結果平均；線：兩側局部線性配適；虛線：斷點。垂直落差即銳利 RD。</p>
       <div id="rddSurvBlock" class="card warn hidden">
         <h3 data-en="Survival outcome with censoring (IPCW / doubly-robust)">帶設限的存活結果（IPCW／雙重穩健）</h3>
         <p class="caption" data-en="Outcome = log(event time); censoring handled by IPCW + a doubly-robust outcome model (Cox / AFT), then the same local-linear RD. Runs on a fixed teaching sub-sample.">結果＝log（事件時間）；用 IPCW＋雙重穩健結果模型（Cox／AFT）處理設限，再做同一套局部線性 RD。於固定教學子樣本上計算。</p>
@@ -903,7 +903,7 @@ estat firststage
   
     <hr class="merge-sep" />
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Fuzzy Regression Discontinuity">程式（SAS · R · Stata）：模糊回歸不連續設計</h2>
-    <p class="code-src" data-en="Source — both R and Stata call rdrobust(), the package's main function, exactly as demonstrated in the official rdrobust package manual / R Journal software article for fuzzy RD (c = cutoff, fuzzy = take-up variable, bias-corrected robust inference by default).">出處 — R 與 Stata 皆呼叫 rdrobust 套件的主力函式 rdrobust()，寫法同 rdrobust 官方套件手冊／R Journal 說明文中模糊 RD 的示範（c 指定斷點、fuzzy 指定接受率變數，預設偏誤校正穩健推論）。</p>
+    <p class="code-src" data-en="Source — both R and Stata call rdrobust(), the package's main function, exactly as demonstrated in the official rdrobust package manual / R Journal software article for fuzzy RD (c = cutoff, fuzzy = take-up variable, bias-corrected robust inference by default).">出處 — R 與 Stata 皆呼叫 rdrobust 套件的核心函式 rdrobust()，寫法同 rdrobust 官方套件手冊／R Journal 說明文中模糊 RD 的示範（c 指定斷點、fuzzy 指定接受率變數，預設偏誤校正穩健推論）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=rdrobust" target="_blank" rel="noopener">rdrobust</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>rdd_sample.csv</code> (columns: age, eligible, vaccinated, health_score_change, event_time, event, female, bmi, chronic_conditions, income_band).">這是可直接在可下載的 <code>rdd_sample.csv</code> 上完整執行的程式（欄位：age、eligible、vaccinated、health_score_change、event_time、event、female、bmi、chronic_conditions、income_band）。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — local linear regression">SAS — 局部線性回歸</h3>
@@ -922,7 +922,7 @@ run;
 proc reg data=w;
     model health_score_change = ac right ac*right;
 run;</code></pre>
-      <p data-en="A bandwidth window of +/-10 years around 65 with the side indicator and its interaction approximates local linear RD; the right coefficient is the discontinuity.">在 65 歲附近取 +/-10 年的帶寬窗口，配合分側指標與交互項，近似局部線性 RD；right 係數即為不連續跳躍。</p></div>
+      <p data-en="A bandwidth window of +/-10 years around 65 with the side indicator and its interaction approximates local linear RD; the right coefficient is the discontinuity.">在 65 歲附近取 ±10 年的頻寬窗口，配合分側指標與交互項，近似局部線性 RD；right 係數即為不連續跳躍。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — rdrobust fuzzy RD">R — rdrobust 模糊 RD</h3>
       <pre class="sas"><code><span class="cm"># fuzzy RD at the age-65 cutoff</span>
 library(rdrobust)
@@ -931,7 +931,7 @@ fit &lt;- rdrobust(y = d$health_score_change, x = d$age, c = 65, fuzzy = d$vacci
 summary(fit)
 <span class="cm"># visualize the discontinuity</span>
 rdplot(y = d$health_score_change, x = d$age, c = 65)</code></pre>
-      <p data-en="fuzzy=d$vaccinated turns the sharp design into a fuzzy one: the jump in outcome is scaled by the jump in treatment take-up at age 65.">fuzzy=d$vaccinated 將清晰設計轉為模糊設計：結果的跳躍會除以 65 歲時治療接受率的跳躍。</p></div>
+      <p data-en="fuzzy=d$vaccinated turns the sharp design into a fuzzy one: the jump in outcome is scaled by the jump in treatment take-up at age 65.">fuzzy=d$vaccinated 將銳利設計轉為模糊設計：結果的跳躍會除以 65 歲時治療接受率的跳躍。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — rdrobust">Stata — rdrobust</h3>
       <pre class="sas"><code><span class="cm">* read CSV and fit fuzzy RD</span>
 import delimited "rdd_sample.csv", clear case(preserve)
@@ -947,7 +947,7 @@ rdplot health_score_change age, c(65)</code></pre>
     <p class="lead" data-en="RDD rests on <b>different assumptions</b> from IV. The key one — that people just below and just above the cutoff are alike — <b>cannot be proven from data</b>, so we run the supporting checks that <b>can</b> be tested: no manipulation of the running variable, balanced background characteristics, a real first-stage jump (for fuzzy), and stability across bandwidths. Green = fine, amber = watch out, red = problem.">
       RDD 依賴的假設和 IV <b>不一樣</b>。最關鍵的那一條，斷點下方與上方的人很像，
       <b>沒辦法用資料直接證明</b>，所以改跑<b>可以檢驗</b>的佐證項目：
-      跑分變數沒有被操弄、背景條件平衡、（模糊版）真的有第一階段跳躍、以及結論在不同視窗下穩不穩。
+      運行變數沒有被操弄、背景條件平衡、（模糊版）真的有第一階段跳躍、以及結論在不同視窗下穩不穩。
       綠燈沒問題、黃燈要留意、紅燈有狀況。
     </p>
     <div id="rddOverall" class="overall hidden"></div>
@@ -7519,7 +7519,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
         <tbody>
           <tr><td colspan="3" class="famhdr" data-en="Family · borrowed exogenous variation">家族 · 借外生變異</td></tr>
           <tr><td>IV</td><td data-en="A valid instrument (often the hard part)">一個合格的工具變數（通常最難找）</td><td data-en="LATE for compliers moved by the instrument">被工具推動的順從者 LATE</td></tr>
-          <tr><td>RDD</td><td data-en="A running score with a sharp eligibility rule">一個帶明確資格規則的跑分變數</td><td data-en="Sharp: LATE at the cutoff; Fuzzy: complier LATE at the cutoff">Sharp：斷點處 LATE；Fuzzy：斷點處順從者 LATE</td></tr>
+          <tr><td>RDD</td><td data-en="A running score with a sharp eligibility rule">一個帶明確資格規則的運行變數</td><td data-en="Sharp: LATE at the cutoff; Fuzzy: complier LATE at the cutoff">Sharp：斷點處 LATE；Fuzzy：斷點處順從者 LATE</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · borrowed timing / trends">家族 · 借時間（政策時點／前後趨勢）</td></tr>
           <tr><td>DiD</td><td data-en="A panel of units × periods, with a control group">單位×期別的面板，含對照組</td><td data-en="ATT — the effect on the treated communities">介入社區的平均處置效果（ATT）</td></tr>
           <tr><td>ITS</td><td data-en="One series with many points before & after a known interruption">一條序列、介入前後都有許多時間點</td><td data-en="Level &amp; slope change for the treated population">該母體的水準與斜率變化</td></tr>

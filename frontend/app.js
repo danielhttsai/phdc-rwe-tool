@@ -2661,7 +2661,7 @@ function renderRddPlotInto(elId, plot, h, fixedHalf) {
     annotations.push({ x: c + h, yref: "paper", y: 0.04, text: tr(`視窗 ±${fmt(h, 1)}`, `window ±${fmt(h, 1)}`),
                        showarrow: false, font: { color: "#3f7d62", size: 10 }, xanchor: "right", yshift: 0 });
   }
-  const xaxis = { title: tr("跑分變數", "Running variable") };
+  const xaxis = { title: tr("運行變數", "Running variable") };
   if (fixedHalf && isFinite(fixedHalf)) { xaxis.range = [c - fixedHalf, c + fixedHalf]; xaxis.autorange = false; }
 
   Plotly.react(elId, traces, sceneLayout({
@@ -4713,8 +4713,8 @@ const METHOD_QS = [
     ] },
   { q: `他發現健保有一條規定：<b>某個檢驗值低於切點</b>才給付藥物X。這是什麼機會？`,
     opts: [
-      { k: "drop", ok: 0, t: "麻煩，這種人要排除掉", fb: `<b>別急著排除，這是難得的機會。</b>切點兩側的人幾乎一樣，只因為一個數字之差就一邊給付一邊不給付，這是天然的<b>準隨機</b>，可以做<b>斷點迴歸（RDD）</b>。` },
-      { k: "rdd", ok: 1, t: "可以做<b>斷點迴歸（RDD）</b>", fb: `<b>對。</b>切點<b>剛好上下</b>的人在其他方面幾乎一樣，卻因為規則被分到不同治療，等於一個小範圍的隨機實驗。代價是結論只適用於<b>切點附近</b>的人。` },
+      { k: "drop", ok: 0, t: "麻煩，這種人要排除掉", fb: `<b>別急著排除，這是難得的機會。</b>切點兩側的人幾乎一樣，只因為一個數字之差就一邊給付一邊不給付，這是天然的<b>準隨機</b>，可以做<b>斷點回歸（RDD）</b>。` },
+      { k: "rdd", ok: 1, t: "可以做<b>斷點回歸（RDD）</b>", fb: `<b>對。</b>切點<b>剛好上下</b>的人在其他方面幾乎一樣，卻因為規則被分到不同治療，等於一個小範圍的隨機實驗。代價是結論只適用於<b>切點附近</b>的人。` },
       { k: "adj", ok: 0, t: "把那個檢驗值當共變數校正掉就好", fb: `<b>那就浪費掉了。</b>校正只是把它當成一般干擾因子；但「規則造成的<b>不連續</b>」本身是準隨機的來源，拿來做 <b>RDD</b> 比校正有力得多。` },
     ] },
   { q: `他還是擔心<b>量不到的疾病嚴重度</b>，但手上沒有基因、也沒有任何切點或政策可用。還能做什麼？`,
