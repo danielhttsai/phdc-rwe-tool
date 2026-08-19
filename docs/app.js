@@ -3903,7 +3903,7 @@ const DBRECS = {
     title: { zh: "健保串癌症登記（NHI × 癌登）", en: "NHI linked to the Cancer Registry" },
     why: { zh: "健保用藥＋癌登的<b>期別、組織型、確診日、存活</b>，能做真正的<b>存活</b>結果與治療門檻的準實驗。再串死亡檔補足結果。", en: "NHI drugs plus the registry's <b>stage, histology, diagnosis date and survival</b> support genuine <b>survival</b> outcomes and quasi-experiments at treatment thresholds; link the death file to complete outcomes." },
     scenario: { zh: "藥物X 情境：慢性病患者用藥物X 後的<b>癌症發生或存活</b>，用「新使用者」世代並比較存活曲線。", en: "Drug-X scenario: <b>cancer incidence or survival</b> after drug X in a chronic-disease population, as a new-user cohort comparing survival curves." },
-    watch: { zh: "領先時間／偵測偏誤；Time Zero與合格條件要對齊（免不死時間）。", en: "Lead-time / detection bias; align time zero and eligibility to avoid immortal time." },
+    watch: { zh: "領先時間／偵測偏誤；Time Zero 與合格條件要對齊（免不死時間）。", en: "Lead-time / detection bias; align time zero and eligibility to avoid immortal time." },
     designs: [{ m: "ccw", l: "CCW" }, { m: "rdd", l: "RDD" }, { m: "med", l: "MED" }, { m: "acnu", l: "ACNU" }] },
   dHealthCheck: { db: "healthcheck",
     title: { zh: "健保串成人健檢", en: "NHI linked to the adult health-check" },
@@ -4146,7 +4146,7 @@ const ALIGN_METHODS = [
     name: { zh: "主動對照新使用者（active comparator new-user）", en: "Active-comparator new-user" },
     idea: { zh: "兩組都是「<b>剛開始</b>用某藥」的新使用者：用藥物X 的新使用者 vs 用同類對照藥的新使用者。", en: "Both arms are <b>new</b> users of a drug: new users of drug X vs new users of a same-class comparator." },
     zero: { zh: "Time Zero＝<b>起始日</b>，兩組都在同一種時點起算，天然對齊；又因同適應症，順帶大幅削掉 confounding by indication。", en: "Time zero = the <b>initiation day</b>, so both arms start the clock at the same kind of moment — naturally aligned — and the shared indication also cuts confounding by indication." },
-    pro: { zh: "一次同時處理「Time Zero對齊」與「適應症混淆」；最實用的預設。", en: "Fixes time-zero alignment AND confounding by indication at once; the most practical default." },
+    pro: { zh: "一次同時處理「Time Zero 對齊」與「適應症混淆」；最實用的預設。", en: "Fixes time-zero alignment AND confounding by indication at once; the most practical default." },
     con: { zh: "需要一個「同適應症、對結果中性」的對照藥；估的是 X 相對對照藥的效果。", en: "Needs a same-indication, outcome-neutral comparator; you estimate X relative to it." } },
   { key: "landmark", method: null,
     name: { zh: "地標分析（landmark）", en: "Landmark analysis" },
@@ -4156,14 +4156,14 @@ const ALIGN_METHODS = [
     con: { zh: "<b>地標之前那段時間的資料就用不到了</b>，也會少算一些人；而且「地標要設在哪」很難拿捏，地標之後才開始用藥的人也可能被分錯組。", en: "<b>The time before the landmark just can't be used</b>, and you lose some people too; the landmark is also hard to place, and those who start after it can be misclassified." } },
   { key: "seq", method: "seq",
     name: { zh: "序列試驗（sequential / nested trials）", en: "Sequential (nested) trials" },
-    idea: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」：當下用藥物X vs 不用，對齊該場的Time Zero，再把多場<b>合併</b>。", en: "Open a <b>mini-trial at each eligibility time</b>: start drug X now vs not, align that trial's time zero, then <b>pool</b> across trials." },
-    zero: { zh: "每場的Time Zero＝該合格時點，<b>場內完全對齊</b>；等於在許多對齊的Time Zero上模擬 RCT。", en: "Each trial's time zero = its eligibility moment, <b>perfectly aligned within the trial</b> — many aligned time zeros, each an emulated RCT." },
+    idea: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」：當下用藥物X vs 不用，對齊該場的 Time Zero，再把多場<b>合併</b>。", en: "Open a <b>mini-trial at each eligibility time</b>: start drug X now vs not, align that trial's time zero, then <b>pool</b> across trials." },
+    zero: { zh: "每場的 Time Zero＝該合格時點，<b>場內完全對齊</b>；等於在許多對齊的 Time Zero 上模擬 RCT。", en: "Each trial's time zero = its eligibility moment, <b>perfectly aligned within the trial</b> — many aligned time zeros, each an emulated RCT." },
     pro: { zh: "同一人可在多場重複納入 → 放大有效樣本；是目標試驗模擬的一員。", en: "A person can re-enter several trials → boosts effective N; part of the target-trial family." },
     con: { zh: "重複納入 → 變異要用 bootstrap；適合「點治療決定」而非持續策略。", en: "Repeated entry → variance needs bootstrap; fits a point decision, not a sustained strategy." } },
   { key: "ccw", method: "ccw",
     name: { zh: "複製-設限-加權（clone-censor-weight）", en: "Clone-censor-weight (CCW)" },
-    idea: { zh: "Time Zero把每個人<b>複製</b>到各策略，當某複製體的資料不再吻合它的策略時<b>中斷</b>（設限），再用 <b>IPCW</b> 加權校正這個人為中斷。", en: "At time zero <b>clone</b> each person into every strategy, <b>censor</b> a clone when its data stop matching its strategy, then reweight the artificial censoring with <b>IPCW</b>." },
-    zero: { zh: "所有複製體都<b>從同一個Time Zero起算</b> → 完美對齊；最適合「診斷後早用 vs 晚用」「持續 vs 停藥」這類動態／持續策略。", en: "Every clone starts the clock at the <b>same time zero</b> → perfect alignment; best for dynamic / sustained strategies like early-vs-late or stay-on-vs-discontinue." },
+    idea: { zh: "Time Zero 把每個人<b>複製</b>到各策略，當某複製體的資料不再吻合它的策略時<b>中斷</b>（設限），再用 <b>IPCW</b> 加權校正這個人為中斷。", en: "At time zero <b>clone</b> each person into every strategy, <b>censor</b> a clone when its data stop matching its strategy, then reweight the artificial censoring with <b>IPCW</b>." },
+    zero: { zh: "所有複製體都<b>從同一個 Time Zero 起算</b> → 完美對齊；最適合「診斷後早用 vs 晚用」「持續 vs 停藥」這類動態／持續策略。", en: "Every clone starts the clock at the <b>same time zero</b> → perfect alignment; best for dynamic / sustained strategies like early-vs-late or stay-on-vs-discontinue." },
     pro: { zh: "能處理靜態策略配不出來的動態策略；目標試驗模擬的常見實作。", en: "Handles dynamic strategies a static grouping can't; a common target-trial implementation." },
     con: { zh: "需要時變共變量把中斷（設限）的 IPCW 建對；重複納入 → bootstrap 變異。", en: "Needs time-varying covariates to model the censoring IPCW correctly; repeated inclusion → bootstrap variance." } },
 ];
@@ -4178,20 +4178,20 @@ const ALIGN_ORDER = [
 ];
 const ALIGN_DEMO = {
   naive: {
-    title: { zh: "天真做法：曾用藥物X ＝ 暴露，Time Zero放在診斷（← 這裡出錯）", en: "Naive: ever-use = exposed, time zero at diagnosis (← the mistake)" },
+    title: { zh: "天真做法：曾用藥物X ＝ 暴露，Time Zero 放在診斷（← 這裡出錯）", en: "Naive: ever-use = exposed, time zero at diagnosis (← the mistake)" },
     rows: [
       { label: { zh: "用藥物X者（第3月起用）", en: "Drug-X user (starts m3)" }, t0: 0, segs: [[0, 90, "im"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "沒用藥物X者", en: "Non-user" }, t0: 0, segs: [[0, 150, "un"]], ev: { x: 150, type: "dead" } },
     ],
-    note: { zh: "兩人Time Zero都放在<b>診斷（第0天）</b>，但「曾用藥」被當成整段暴露。用藥者第 0–3 月<b>還沒用藥、卻算暴露、而且保證活著才等得到用藥</b>，這段紅色就是<b>不死時間</b>，會讓藥物X 看起來能延命。", en: "Both clocks start at <b>diagnosis (day 0)</b>, but 'ever-use' is counted as exposed throughout. The user's first 3 months are <b>not yet treated, counted as exposed, and guaranteed alive</b> (they had to survive to start) — that red stretch is <b>immortal time</b>, making drug X look protective." },
+    note: { zh: "兩人 Time Zero 都放在<b>診斷（第0天）</b>，但「曾用藥」被當成整段暴露。用藥者第 0–3 月<b>還沒用藥、卻算暴露、而且保證活著才等得到用藥</b>，這段紅色就是<b>不死時間</b>，會讓藥物X 看起來能延命。", en: "Both clocks start at <b>diagnosis (day 0)</b>, but 'ever-use' is counted as exposed throughout. The user's first 3 months are <b>not yet treated, counted as exposed, and guaranteed alive</b> (they had to survive to start) — that red stretch is <b>immortal time</b>, making drug X look protective." },
   },
   tvc: {
-    title: { zh: "用藥那天才算暴露：Time Zero仍在診斷，但用藥前後分開算", en: "Time-varying: same time zero, exposure switches on over time" },
+    title: { zh: "用藥那天才算暴露：Time Zero 仍在診斷，但用藥前後分開算", en: "Time-varying: same time zero, exposure switches on over time" },
     rows: [
       { label: { zh: "用藥物X者（第3月起用）", en: "Drug-X user (starts m3)" }, t0: 0, segs: [[0, 90, "un"], [90, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "沒用藥物X者", en: "Non-user" }, t0: 0, segs: [[0, 150, "un"]], ev: { x: 150, type: "dead" } },
     ],
-    note: { zh: "同一個Time Zero（第0天），但把暴露當<b>時變</b>：用藥者第 0–3 月正確算成<b>未暴露人時</b>（灰），第3月真正用藥後才轉<b>暴露</b>（青）。紅色的不死時間消失了。", en: "Same time zero, but exposure is <b>time-varying</b>: the user's first 3 months are correctly booked as <b>unexposed</b> (grey) and only flip to <b>exposed</b> (teal) when they actually start. The immortal red is gone." },
+    note: { zh: "同一個 Time Zero（第0天），但把暴露當<b>時變</b>：用藥者第 0–3 月正確算成<b>未暴露人時</b>（灰），第3月真正用藥後才轉<b>暴露</b>（青）。紅色的不死時間消失了。", en: "Same time zero, but exposure is <b>time-varying</b>: the user's first 3 months are correctly booked as <b>unexposed</b> (grey) and only flip to <b>exposed</b> (teal) when they actually start. The immortal red is gone." },
   },
   acnu: {
     title: { zh: "主動對照新使用者：Time Zero＝起始日，兩組都從起始起算", en: "Active-comparator new-user: time zero = initiation, both arms start there" },
@@ -4211,22 +4211,22 @@ const ALIGN_DEMO = {
     note: { zh: "選第6月為<b>地標</b>：到地標才依「地標前是否已用藥物X」分組，追蹤<b>從地標起算</b>。地標前的時間不計（斜線），地標前就過世者被<b>排除</b> → 沒有不死時間。代價是：地標之前那段的資料就用不到、也少算了一些人。", en: "Pick m6 as the <b>landmark</b>: classify by use before it, and start follow-up <b>at</b> it. Pre-landmark time is not counted (hatched) and anyone who died before it is <b>excluded</b> → no immortal time. The trade-off: the time before the landmark simply can't be used, and you drop some people." },
   },
   seq: {
-    title: { zh: "序列試驗：每個合格時點各開一場，各自對齊Time Zero", en: "Sequential trials: one at each eligibility time, each with its own aligned time zero" },
+    title: { zh: "序列試驗：每個合格時點各開一場，各自對齊 Time Zero", en: "Sequential trials: one at each eligibility time, each with its own aligned time zero" },
     rows: [
       { label: { zh: "試驗①（第0月合格）", en: "Trial 1 (eligible m0)" }, t0: 0, segs: [[0, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "試驗②（第3月合格）", en: "Trial 2 (eligible m3)" }, t0: 90, segs: [[90, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "試驗③（第6月合格）", en: "Trial 3 (eligible m6)" }, t0: 180, segs: [[180, 360, "ex"]], ev: { x: 360, type: "end" } },
     ],
-    note: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」，每場的Time Zero＝該合格時點，<b>場內完全對齊</b>（當下用 vs 不用），再把多場<b>合併</b>。等於在許多對齊的Time Zero上模擬 RCT；同一人可在多場重複納入 → 變異用 bootstrap。", en: "Open a mini-trial at <b>each eligibility time</b>; each trial's time zero = its eligibility moment, <b>perfectly aligned within the trial</b> (start now vs not), then <b>pool</b>. Many aligned time zeros, each an emulated RCT; a person can re-enter, so variance needs bootstrap." },
+    note: { zh: "在<b>每個合格時點</b>各開一場「迷你試驗」，每場的 Time Zero＝該合格時點，<b>場內完全對齊</b>（當下用 vs 不用），再把多場<b>合併</b>。等於在許多對齊的 Time Zero 上模擬 RCT；同一人可在多場重複納入 → 變異用 bootstrap。", en: "Open a mini-trial at <b>each eligibility time</b>; each trial's time zero = its eligibility moment, <b>perfectly aligned within the trial</b> (start now vs not), then <b>pool</b>. Many aligned time zeros, each an emulated RCT; a person can re-enter, so variance needs bootstrap." },
   },
   ccw: {
-    title: { zh: "複製-設限-加權：Time Zero複製到各策略，偏離就設限", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
+    title: { zh: "複製-設限-加權：Time Zero 複製到各策略，偏離就設限", en: "Clone-censor-weight: clone at time zero into each strategy, censor on deviation" },
     grace: { end: 90 },
     rows: [
       { label: { zh: "複製A（策略：用藥）", en: "Clone A (strategy: treat)" }, t0: 0, segs: [[0, 60, "adh"], [60, 360, "ex"]], ev: { x: 360, type: "end" } },
       { label: { zh: "複製B（策略：不用）", en: "Clone B (strategy: no use)" }, t0: 0, segs: [[0, 60, "adh"], [60, 360, "cen"]], ev: { x: 60, type: "cen" } },
     ],
-    note: { zh: "Time Zero把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。第0～2月這個人還沒用藥，<b>兩個複製體都還遵從自己的策略</b>（淺綠），所以<b>都在追蹤</b>。第2月他開始用藥：<b>符合</b>「用藥」策略 → 複製A 繼續追到底（深綠）；<b>偏離</b>「不用」策略 → 複製B 就在這一刻<b>中斷</b>（設限，斜線）。分析時複製A <b>從第0天起整段人時都記在「用藥」策略底下</b>（不是等真的開始吃才算，否則又造出一段不死時間），這正是<b>目標試驗</b>的精神：Time Zero先分派策略，之後照策略追蹤、偏離才中斷。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. From m0 to m2 the person has not started, so <b>both clones are still adherent</b> (pale green) and <b>both keep being followed</b>. At m2 they start: this <b>matches</b> 'treat', so Clone A continues (dark green), and <b>deviates</b> from 'no use', so Clone B is <b>censored</b> right there. In the analysis all of Clone A's person-time counts under the 'treat' strategy <b>from day 0</b> (not from the actual start date, which would re-create immortal time) — the <b>target-trial</b> logic: assign strategies at time zero, then follow accordingly and censor only on deviation. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
+    note: { zh: "Time Zero 把<b>每個人複製</b>到各策略，<b>兩個複製體都從第0天開始追蹤</b>。設一個 3 個月的<b>寬限期（grace period，黃底）</b>：寬限期內，只要還沒違背自己的策略就繼續追蹤。第0～2月這個人還沒用藥，<b>兩個複製體都還遵從自己的策略</b>（淺綠），所以<b>都在追蹤</b>。第2月他開始用藥：<b>符合</b>「用藥」策略 → 複製A 繼續追到底（深綠）；<b>偏離</b>「不用」策略 → 複製B 就在這一刻<b>中斷</b>（設限，斜線）。分析時複製A <b>從第0天起整段人時都記在「用藥」策略底下</b>（不是等真的開始吃才算，否則又造出一段不死時間），這正是<b>目標試驗</b>的精神：Time Zero 先分派策略，之後照策略追蹤、偏離才中斷。反過來，若有人<b>到寬限期結束都還沒用藥</b>，那「用藥」複製體就會在寬限期結束（第3月）時中斷。中斷後再用 <b>IPCW</b> 加權校正。", en: "Time zero <b>clones each person</b> into every strategy and <b>both clones are followed from day 0</b>. Set a 3-month <b>grace period (yellow band)</b>: within it, a clone keeps going as long as it has not yet violated its strategy. From m0 to m2 the person has not started, so <b>both clones are still adherent</b> (pale green) and <b>both keep being followed</b>. At m2 they start: this <b>matches</b> 'treat', so Clone A continues (dark green), and <b>deviates</b> from 'no use', so Clone B is <b>censored</b> right there. In the analysis all of Clone A's person-time counts under the 'treat' strategy <b>from day 0</b> (not from the actual start date, which would re-create immortal time) — the <b>target-trial</b> logic: assign strategies at time zero, then follow accordingly and censor only on deviation. Conversely, if someone <b>reaches the end of grace without starting</b>, the 'treat' clone is censored at m3. IPCW then reweights the artificial censoring." },
   },
 };
 let alignSel = null, aprStep = 0, aprGuess = null, aprDx = null;
@@ -4311,7 +4311,7 @@ function renderAlign() {
     `<span><i class="sw sw-ex0"></i>${tr("不計／排除", "not counted / excluded")}</span></div>`;
   const m = ALIGN_METHODS.find((x) => x.key === alignSel);
   const methodBox = m
-    ? `<div class="align-zero"><b>${tr("如何對齊Time Zero：", "How it aligns time zero: ")}</b>${L(m.zero)}</div>` +
+    ? `<div class="align-zero"><b>${tr("如何對齊 Time Zero：", "How it aligns time zero: ")}</b>${L(m.zero)}</div>` +
       `<div class="align-pc"><span class="align-pro"><b>＋</b> ${L(m.pro)}</span>` +
       `<span class="align-con"><b>－</b> ${L(m.con)}</span></div>` +
       (m.method ? `<button class="db-chip" data-go="${m.method}">${tr("看「" + L(m.name).replace(/（.*/, "") + "」教學", "Open the method tab")} →</button>` : "")
@@ -4421,7 +4421,7 @@ function renderAlign() {
     `<span class="apr-hr-say">${hr.say}</span></div>`;
   const checklist =
     `<details class="apr-check"><summary>評讀重點（小賴醫師該問自己的四件事）</summary><ul>` +
-    `<li><b>Time Zero對齊了嗎？</b>暴露組有沒有被塞進「還沒用藥、卻保證活著」的時間（不死時間）？</li>` +
+    `<li><b>Time Zero 對齊了嗎？</b>暴露組有沒有被塞進「還沒用藥、卻保證活著」的時間（不死時間）？</li>` +
     `<li><b>是不是新使用者？</b>有沒有把已經用藥很久、存活下來的<b>盛行使用者</b>混進來？</li>` +
     `<li><b>對照選得對嗎？</b>是「用 vs 完全不用」（適應症混淆），還是同適應症的<b>主動對照</b>？</li>` +
     `<li><b>重要干擾因子都測到了嗎？</b>疾病嚴重度、健康服藥者（healthy-adherer）傾向有沒有被觀察到（否則是未測量的干擾因子）？</li>` +
@@ -4500,15 +4500,15 @@ const BIAS_TYPES = [
   { key: "selection", zh: "選擇偏誤（selection bias）", en: "Selection bias" },
 ];
 const BIAS_SCENARIOS = [
-  { s: { zh: "把「確診後<b>曾用過</b>藥物X」的人算成暴露組，<b>Time Zero設在確診日</b>、一路追蹤到死亡，再和從頭到尾沒用過藥的人比存活。", en: "Call people 'exposed' if they <b>ever started</b> drug X after diagnosis, put <b>time zero at the diagnosis day</b>, follow to death, and compare survival with never-users." },
+  { s: { zh: "把「確診後<b>曾用過</b>藥物X」的人算成暴露組，<b>Time Zero 設在確診日</b>、一路追蹤到死亡，再和從頭到尾沒用過藥的人比存活。", en: "Call people 'exposed' if they <b>ever started</b> drug X after diagnosis, put <b>time zero at the diagnosis day</b>, follow to death, and compare survival with never-users." },
     ans: ["immortal", "indication"],
     why: { zh: "暴露組必須<b>活到能用藥的那天</b>，所以確診到用藥之間那段「保證存活」的時間被錯算給暴露組 → 不死時間；又因「用藥 vs 從不用藥」，用藥者往往病況不同 → 適應症混淆。", en: "The exposed had to <b>survive until they could start</b>, so the guaranteed-alive gap from diagnosis to initiation is mis-booked as exposed → immortal time; and 'users vs never-users' differ in prognosis → confounding by indication." },
     fix: { zh: "把暴露改成<b>時變暴露</b>，或改用<b>地標</b>／<b>複製-設限-加權</b>把 Time Zero 對齊；對照則換成<b>主動對照</b>，處理適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
   { s: { zh: "藥物X 是<b>病情控制不好時才會加開</b>的藥。研究拿「<b>有加開藥物X 的人</b>」去比「同樣診斷、但整段期間<b>一種藥都沒開過</b>的人」，看誰比較容易死，只用<b>年齡、性別</b>校正。研究者<b>已經乖乖照老師說的處理好 Time Zero 了</b>。", en: "Drug X is <b>only added when the disease is not well controlled</b>. The study compares people who got drug X added with people who have the same diagnosis but were <b>never prescribed anything at all</b>, and asks who dies sooner, adjusting only for <b>age and sex</b>. The investigator <b>has already done time zero properly this time</b>." },
     ans: ["indication", "unmeasured"],
-    why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②未測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度，以及醫師在診間形成的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多放幾個共變數」，而是<b>換一個能公平比較的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
+    why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②未測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度，以及醫師在診間形成的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多放幾個共變數」，而是<b>換一個能公平比較的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero 有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
     fix: { zh: "改用<b>主動對照新使用者</b>（跟同適應症的對照藥比，而不是跟「沒用藥」比）。", en: "Use an <b>active-comparator new-user</b> design (compare with a same-indication drug, not with 'no drug')." }, fixMethod: "acnu" },
-  { s: { zh: "用健保資料比較兩種同類藥物X，設計良好（新使用者、主動對照、Time Zero對齊），但健保<b>沒有檢驗值</b>（疾病嚴重度）。", en: "Compare two same-class drug-X options in claims with a good design (new-user, active comparator, aligned time zero) — but claims have <b>no lab values</b> (disease severity)." },
+  { s: { zh: "用健保資料比較兩種同類藥物X，設計良好（新使用者、主動對照、Time Zero 對齊），但健保<b>沒有檢驗值</b>（疾病嚴重度）。", en: "Compare two same-class drug-X options in claims with a good design (new-user, active comparator, aligned time zero) — but claims have <b>no lab values</b> (disease severity)." },
     ans: ["unmeasured"],
     why: { zh: "設計已消掉不死時間，主動對照也壓低適應症混淆；但「疾病嚴重度」沒被測到，若它同時影響選藥與結果，就是<b>未測量的干擾因子</b>。", en: "The design removes immortal time and the active comparator curbs confounding by indication; but severity is unmeasured — if it drives both drug choice and outcome, that is an <b>unmeasured confounder</b>." },
     fix: { zh: "串<b>成人健檢或長庚 CGRD</b> 取得檢驗值，或用<b>陰性對照結果（negative control outcome）／E-value</b> 做敏感度分析。", en: "Link a <b>health-check / CGRD</b> source for labs, or run a <b>negative-control / E-value</b> sensitivity analysis." }, fixMethod: "nc" },
@@ -4519,10 +4519,10 @@ const BIAS_SCENARIOS = [
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
     why: { zh: "「整個追蹤期都規律用藥」<b>必須活很久且沒中斷</b> → 嚴重不死時間；「用藥 vs 從不用藥」→ 適應症混淆；而且能長期規律用藥的人往往<b>本來就比較健康、也更注意生活習慣</b>，這就是<b>健康服藥者效應（healthy-adherer effect）</b>，這種傾向通常沒被記錄下來 → 未測量的干擾因子。三個都中。", en: "'Regular use across all of follow-up' <b>requires surviving long and never stopping</b> → severe immortal time; 'users vs never-users' → confounding by indication; and regular adherers tend to be <b>healthier and more compliant</b>, usually unmeasured → an unmeasured confounder. All three." },
-    fix: { zh: "改成<b>用藥那天才算暴露</b>（時變暴露）或<b>複製-設限-加權</b>來處理規律性與Time Zero，配<b>主動對照</b>，再針對<b>健康服藥者效應</b>做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
-  { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，Time Zero對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
+    fix: { zh: "改成<b>用藥那天才算暴露</b>（時變暴露）或<b>複製-設限-加權</b>來處理規律性與 Time Zero，配<b>主動對照</b>，再針對<b>健康服藥者效應</b>做敏感度分析。", en: "Use <b>time-varying exposure</b> or <b>clone-censor-weight</b> for adherence/time-zero, an <b>active comparator</b>, and a sensitivity analysis for the healthy-adherer effect." }, fixMethod: "ccw" },
+  { s: { zh: "在<b>主動對照新使用者</b>設計裡比較藥物X vs 對照藥，兩藥適應症幾乎相同、且資料含檢驗值與嚴重度，Time Zero 對齊。", en: "In an <b>active-comparator new-user</b> design, compare drug X vs a comparator with near-identical indications, data include labs and severity, and time zero is aligned." },
     ans: [],
-    why: { zh: "新使用者對齊Time Zero → 無不死時間；同適應症對照 → 適應症混淆很小；重要干擾因子都測到 → 未測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
+    why: { zh: "新使用者對齊 Time Zero → 無不死時間；同適應症對照 → 適應症混淆很小；重要干擾因子都測到 → 未測量的干擾因子風險低。這是接近理想的觀察性設計。", en: "New-user alignment → no immortal time; a same-indication comparator → little confounding by indication; key confounders measured → low unmeasured-confounding risk. Close to an ideal observational design." },
     fix: { zh: "無明顯偏誤，但「看不出偏誤」不等於「沒有偏誤」。用<b>量化偏誤分析（quantitative bias analysis, QBA）</b>把殘餘的<b>未測量的干擾因子</b>算成數字：E-value 告訴你它要<b>多強</b>才能把結果解釋掉，機率式偏誤分析則把你對它的假設整組跑一遍，看結論撐不撐得住。", en: "No obvious bias — but 'no visible bias' is not 'no bias'. Use <b>quantitative bias analysis</b> to put a number on the residual unmeasured confounding: an E-value says how strong it would have to be to explain the result away, and a probabilistic bias analysis runs your assumptions about it end to end to see whether the conclusion survives." }, fixMethod: "evalue" },
 ];
 function initBiasGame() { renderBiasGame(); }
@@ -4618,8 +4618,8 @@ const DB_QS = [
   { q: `他決定改用<b>新使用者</b>設計重做。資料裡<b>最起碼</b>要有什麼？`,
     opts: [
       { k: "text", ok: 0, t: "醫師寫的<b>病歷文字</b>", fb: `<b>不是必要條件。</b>病歷文字有幫助，但沒有<b>逐筆領藥日期</b>就找不到「第一次領藥那天」，新使用者設計根本起不了頭。` },
-      { k: "spec", ok: 0, t: "開藥醫師的<b>專科別</b>", fb: `<b>那是額外資訊。</b>真正不可或缺的是<b>逐筆領藥日期</b>：沒有它就定不出Time Zero，也確認不了這個人是不是新使用者。` },
-      { k: "date", ok: 1, t: "每一次<b>領藥的日期</b>", fb: `<b>對。</b>新使用者的關鍵是找得到「<b>第一次</b>領藥那天」當Time Zero；而且要確定那真的是第一次，就得往前看一段<b>沒有用過藥的空窗期</b>。這兩件事都靠逐筆處方的日期。` },
+      { k: "spec", ok: 0, t: "開藥醫師的<b>專科別</b>", fb: `<b>那是額外資訊。</b>真正不可或缺的是<b>逐筆領藥日期</b>：沒有它就定不出 Time Zero，也確認不了這個人是不是新使用者。` },
+      { k: "date", ok: 1, t: "每一次<b>領藥的日期</b>", fb: `<b>對。</b>新使用者的關鍵是找得到「<b>第一次</b>領藥那天」當 Time Zero；而且要確定那真的是第一次，就得往前看一段<b>沒有用過藥的空窗期</b>。這兩件事都靠逐筆處方的日期。` },
     ] },
   { q: `他還想校正<b>疾病嚴重度</b>（例如檢驗值）。<b>健保申報資料</b>裡拿得到嗎？`,
     opts: [
@@ -4682,7 +4682,7 @@ const BIAS_QS = [
   { q: `最後一題：上面四種問題，哪一種可以靠「<b>換一個更厲害的統計模型</b>」解決？`,
     opts: [
       { k: "none", ok: 1, t: "一個都不行", fb: `<b>對，這就是重點。</b>不死時間、適應症混淆、盛行使用者要靠<b>設計</b>（對齊 Time Zero、主動對照、新使用者）；未測量的干擾因子要靠<b>換資料庫或串接其他資料</b>，再不然就是<b>敏感度分析</b>。模型只能處理<b>你已經量到</b>的東西。` },
-      { k: "imm", ok: 0, t: "不死時間", fb: `<b>那是設計，不是模型。</b>不死時間要靠<b>重新定義Time Zero</b>（用藥那天才算暴露／地標／複製-設限-加權）才會消失；模型只能處理你已經量到的東西，所以答案是<b>一個都不行</b>。` },
+      { k: "imm", ok: 0, t: "不死時間", fb: `<b>那是設計，不是模型。</b>不死時間要靠<b>重新定義 Time Zero</b>（用藥那天才算暴露／地標／複製-設限-加權）才會消失；模型只能處理你已經量到的東西，所以答案是<b>一個都不行</b>。` },
       { k: "unm", ok: 0, t: "未測量的干擾因子", fb: `<b>這個最不可能。</b>資料裡<b>根本沒有</b>那個變數，任何模型都變不出來；只能<b>換／串資料</b>或用陰性對照／E-value 評估。答案是<b>一個都不行</b>。` },
     ] },
 ];
