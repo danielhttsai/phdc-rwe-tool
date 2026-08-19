@@ -6995,7 +6995,7 @@ list case A B C Y</code></pre>
     <p data-en="(1) <b>Non-compartmental analysis (NCA)</b> on each subject×period concentration–time curve to extract <b>Cmax</b> and <b>AUC</b>. (2) <b>Log-transform</b> both metrics. (3) Fit a <b>linear mixed model</b> with sequence, period and treatment as <b>fixed</b> effects and subject(sequence) as a <b>random</b> effect. (4) Form the <b>90% CI</b> of the treatment difference and <b>back-transform</b> it to the GMR scale. (5) Compare against <b>80.00–125.00%</b> — both Cmax and AUC must pass.">(1) 對每個受試者×期別的濃度–時間曲線做<b>非室分析（NCA）</b>，取出 <b>Cmax</b> 與 <b>AUC</b>。(2) 兩個指標皆<b>取對數</b>。(3) 配一個<b>線性混合模型</b>，以順序、期別、處置為<b>固定</b>效果，subject(sequence) 為<b>隨機</b>效果。(4) 對處置差求 <b>90% CI</b>，再<b>反轉換</b>回 GMR 尺度。(5) 與 <b>80.00–125.00%</b> 比較，Cmax 與 AUC 都要通過。</p>
   </div>
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Average Bioequivalence (2x2 Crossover)">程式（SAS · R · Stata）：平均生物等效性（2x2 交叉設計）</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Average Bioequivalence (2x2 Crossover)">程式（SAS · R · Stata）：平均生體相等性（2x2 交叉設計）</h2>
     <p class="code-src" data-en="Source — the SAS block is the standard PROC MIXED specification for a 2x2 crossover (class subject sequence period treatment; random subject(sequence); estimate ... / cl alpha=0.10), i.e. the code demonstrated in the appendix of FDA's &quot;Statistical Approaches to Establishing Bioequivalence&quot; and in the SAS/STAT PROC MIXED manual; the R block uses nlme::lme() with intervals(level = 0.90) as in the nlme reference manual; the Stata block uses official mixed and lincom (Stata Multilevel Mixed-Effects manual). The 80-125% limits follow FDA bioequivalence guidance.">出處 — SAS 段落為 PROC MIXED 於 2x2 交叉設計的標準寫法（class subject sequence period treatment；random subject(sequence)；estimate ... / cl alpha=0.10），即 FDA「Statistical Approaches to Establishing Bioequivalence」統計指引附錄所示範的程式碼，另見 SAS/STAT PROC MIXED 官方手冊；R 段使用 nlme 套件的 lme() 與 intervals(level=0.90)，用法同 nlme 官方參考手冊；Stata 段使用官方 mixed 與 lincom（Stata Multilevel Mixed-Effects 手冊）。80-125% 界限依 FDA 生體相等性指引。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=PowerTOST" target="_blank" rel="noopener">PowerTOST (CRAN)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>babe_sample.csv</code> (columns: subject, sequence, period, treatment, auc, cmax).">這是可直接在可下載的 <code>babe_sample.csv</code> 上完整執行的程式（欄位：subject, sequence, period, treatment, auc, cmax）。</div>
@@ -7028,7 +7028,7 @@ tr &lt;- ci[grep("treatment", rownames(ci)), ]
 <span class="cm"># back-transform to ratio and 90% CI; BE if within 0.80-1.25</span>
 print(exp(tr))
 <span class="cm"># PowerTOST provides power/sample-size for this TOST design</span></code></pre>
-      <p data-en="exp() of the 90% CI gives the ratio; bioequivalence holds if it lies within 80-125%.">對 90% 信賴區間取 exp() 得比值；落在 80-125% 內即判定生物等效。</p></div>
+      <p data-en="exp() of the 90% CI gives the ratio; bioequivalence holds if it lies within 80-125%.">對 90% 信賴區間取 exp() 得比值；落在 80-125% 內即判定生體相等。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — mixed on log(AUC)">Stata — 對 log(AUC) 跑 mixed</h3>
       <pre class="sas"><code><span class="cm">* read the sample file</span>
 import delimited "babe_sample.csv", clear case(preserve)
