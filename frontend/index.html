@@ -1514,7 +1514,7 @@ xtreg health_score i.treated#i.post urban baseline_burden i.period, fe cluster(u
       </p>
       <div class="rdd-twocol">
         <div><h4 data-en="① Exposure trend (vaccination rate)">① 暴露趨勢（接種率）</h4><div id="sceneTitExpo" class="chart" style="height:300px"></div></div>
-        <div><h4 data-en="② Outcome trend (event rate) — follows the exposure fan">② 結果趨勢（事件率）， 跟著暴露的扇形走</h4><div id="sceneTitOut" class="chart" style="height:300px"></div></div>
+        <div><h4 data-en="② Outcome trend (event rate) — follows the exposure fan">② 結果趨勢（事件率）：跟著暴露的扇形走</h4><div id="sceneTitOut" class="chart" style="height:300px"></div></div>
       </div>
     </div>
 
@@ -3479,7 +3479,7 @@ clogit case exposed comorbidity, group(match_id) or</code></pre>
     <h2 data-en="SCCS extensions &amp; practical judgement — when the standard assumptions break">SCCS 延伸與實務判斷：當標準假設不成立時</h2>
     <p class="lead" data-en="The standard SCCS rests on four assumptions; the book and the SCCS R package add an extension for when each is threatened. Each card below fuses the extension with a real worked example, and shows <b>what the data looks like</b> and the <b>SAS code</b> that fits it. The within-person design's core win — it removes <b>all</b> time-fixed, between-person confounding (e.g. antidepressants &amp; hip fracture: the extra SSRI risk over TCAs was frailer patients, not the drug; Hubbard et al. 2003) — is what every extension protects. (Farrington, Whitaker &amp; Ghebremichael-Weldeselassie 2018; sccs-studies.info; worked examples after Douglas 2023, citing the original papers.)">標準 SCCS 建立在四條假設上；專書與 SCCS R 套件為每一條被威脅時提供一個延伸。以下每張卡把延伸與一個真實範例結合，並展示<b>資料長相</b>與配適它的 <b>SAS code</b>。個人內設計的核心優勢，它消掉<b>所有</b>時間不變、人與人之間的混淆（如抗憂鬱藥與髖部骨折：SSRI 比 TCA 多出的風險其實是體弱病人、不是藥；Hubbard 等 2003），正是每個延伸要守住的東西。（Farrington、Whitaker &amp; Ghebremichael-Weldeselassie 2018；sccs-studies.info；範例改寫自 Douglas 2023，引用原始論文。）</p>
 
-    <details class="ext-card"><summary data-en="① Event-dependent exposure (short / long-term) <span class='ext-tag'>— is the violation temporary or permanent?</span>">① 事件相依暴露（短期／長期）<span class="ext-tag">， 違反是「暫時」還是「永久」？</span></summary>
+    <details class="ext-card"><summary data-en="① Event-dependent exposure (short / long-term) <span class='ext-tag'>— is the violation temporary or permanent?</span>">① 事件相依暴露（短期／長期）<span class="ext-tag">：違反是「暫時」還是「永久」？</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
         <p data-en="The event itself changes later exposure. <b>Permanent</b> (an MI stops statins for good): <b>no fix — don't use SCCS</b>. <b>Temporary</b> (a seizure briefly delays the next vaccine; rotavirus vaccine &amp; intussusception): add a <b>pre-exposure window [−τ,0)</b> so the biased time is taken out of baseline; if its RR ≠ 1, exposure is event-dependent. Long-term dependence needs a counterfactual exposure history solved by estimating equations (book §7.1).">事件本身改變了日後暴露。<b>永久</b>（心肌梗塞讓 statin 永遠停掉）：<b>無法補救，別用 SCCS</b>。<b>暫時</b>（抽搐短暫延後下一劑疫苗；輪狀病毒疫苗 vs 腸套疊）：加一段<b>暴露前風險窗 [−τ,0)</b>，把被偏的時間移出基線；若它的 RR ≠ 1，就代表暴露是事件相依的。長期相依要用反事實暴露史＋估計方程式求解（書 §7.1）。</p>
@@ -3504,7 +3504,7 @@ run;
       </div>
     </details>
 
-    <details class="ext-card"><summary data-en="② Event-dependent observation / SCRI <span class='ext-tag'>— censoring, death &amp; changing background</span>">② 事件相依觀察期／SCRI <span class="ext-tag">， 設限、死亡與變動的背景</span></summary>
+    <details class="ext-card"><summary data-en="② Event-dependent observation / SCRI <span class='ext-tag'>— censoring, death &amp; changing background</span>">② 事件相依觀察期／SCRI <span class="ext-tag">：設限、死亡與變動的背景</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
         <p data-en="<b>Event-dependent observation.</b> The event shortens follow-up (it raises mortality, or the outcome <i>is</i> death). Standard SCCS is biased; weight the likelihood by the event-to-end interval and fit iteratively (Farrington et al. 2011). A censoring 'fix' can flip results (antipsychotics &amp; stroke moved a subgroup from 1.31 to 1.05). For changing background prevalence you can divide the positive-test RR by the negative-test RR over the same window (a negative-control-style correction: attendance &amp; COVID-19)."><b>事件相依觀察期。</b>事件截短了追蹤（升高死亡率，或結果<i>就是</i>死亡）。標準 SCCS 會偏；用「事件→結束」間隔對概似加權、迭代擬合（Farrington 等 2011）。設限校正可能翻盤（抗精神病藥與中風讓某亞群從 1.31 變 1.05）。背景盛行率在變時，可把陽性檢驗的 RR 除以同窗陰性檢驗的 RR（陰性對照式校正：活動出席與 COVID-19）。</p>
@@ -3598,7 +3598,7 @@ run;</code></pre>
       </div>
     </details>
 
-    <details class="ext-card"><summary data-en="⑥ Active-comparator SCCS <span class='ext-tag'>— time-varying confounding by indication</span>">⑥ 主動對照 SCCS <span class="ext-tag">， 時變適應症混淆</span></summary>
+    <details class="ext-card"><summary data-en="⑥ Active-comparator SCCS <span class='ext-tag'>— time-varying confounding by indication</span>">⑥ 主動對照 SCCS <span class="ext-tag">：時變適應症混淆</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
         <p data-en="Standard SCCS removes time-<i>fixed</i> confounding but not time-<i>varying</i> confounding by indication (the disease that prompts the drug also varies the outcome rate). Carry a second exposure column for a comparator drug used for the same indication; the active-comparator RR = exp(β_drug − β_comparator) differences it out (glitazone vs sulphonylurea &amp; fracture; Hallas 2021, Schultze 2025).">標準 SCCS 消掉時間<i>不變</i>的混淆，但消不掉時<i>變</i>的適應症混淆（促使開藥的疾病也讓結果率變動）。納入一個同適應症對照藥的第二暴露欄；主動對照 RR ＝ exp(β藥 − β對照) 把它差掉（glitazone vs sulphonylurea 與骨折；Hallas 2021、Schultze 2025）。</p>
@@ -3621,7 +3621,7 @@ run;</code></pre>
       </div>
     </details>
 
-    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 既有暴露 <span class="ext-tag">， 盛行使用者也會稀釋 SCCS 的估計（Jung 2025）</span></summary>
+    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 既有暴露 <span class="ext-tag">：盛行使用者也會稀釋 SCCS 的估計（Jung 2025）</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
         <p data-en="SCCS removes time-fixed confounding but is <b>not</b> immune to <b>prevalent-user bias</b>. Jung et al. (PDS 2025) showed that defining exposure as <b>prevalent</b> (rather than incident/new use) attenuates the IRR toward the null — fluoroquinolone &amp; retinal detachment fell from <b>1.83 → 1.70</b> — via depletion of susceptibles. Practical rule: prefer an <b>incident</b> exposure with a long enough washout, and report sensitivity.">SCCS 消掉時間不變的混淆，但<b>不</b>能免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）顯示把暴露定義成<b>既有（盛行）</b>（而非初次／新使用）會把 IRR 往虛無值稀釋，氟喹諾酮與視網膜剝離從 <b>1.83 → 1.70</b>，機制是易感者耗竭。實務原則：盡量用<b>初次</b>暴露＋夠長的洗滌期，並報告敏感度。</p>
@@ -8286,7 +8286,7 @@ meta forestplot</code></pre>
       <div class="card"><h3 data-en="Machine-learning classifiers">機器學習分類器</h3><p data-en="Trained on your labelled decisions, ML classifiers reach high recall (≈98% in a preclinical review) at the screening stage, and can even <b>flag likely human errors</b> by surfacing records where the model and the human disagree. You set a recall target (miss as few includes as possible) and accept the workload saved.">用你標好的決定訓練，ML 分類器在篩選階段可達高召回（某動物研究回顧約 98%），甚至能<b>標出可能的人為錯誤</b>，把「模型與人不一致」的記錄挑出來。你設定召回目標（盡量不漏該納入的），換取省下的工作量。</p></div>
       <div class="card"><h3 data-en="Large language models (LLMs)">大型語言模型（LLM）</h3><p data-en="Recent studies test LLMs (GPT-class) to screen abstracts directly from the eligibility criteria, with promising sensitivity but variable precision — prompts and thresholds matter, and a human still adjudicates. The motivation is real: even <b>human</b> inter-reviewer agreement is imperfect, which is exactly why two reviewers + a tie-breaker exist.">近期研究測試用 LLM（GPT 級）直接依納入條件篩摘要，敏感度看好但精準度浮動，提示詞與門檻很關鍵，仍需人最終裁定。動機很實在：連<b>人類</b>審閱者之間的一致性都不完美，這正是要兩位審閱＋一位仲裁的原因。</p></div>
     </div>
-    <div data-lang="r" class="card"><h3 data-en="Do the meta-analysis (R) — the doing-meta.guide / meta &amp; metafor packages">實際做統合分析（R）， doing-meta.guide／meta 與 metafor 套件</h3>
+    <div data-lang="r" class="card"><h3 data-en="Do the meta-analysis (R) — the doing-meta.guide / meta &amp; metafor packages">實際做統合分析（R）：doing-meta.guide／meta 與 metafor 套件</h3>
       <pre class="sas"><code><span class="cm"># library(meta): inverse-variance meta-analysis with both models + I^2 + forest/funnel</span>
 m &lt;- metagen(TE = yi, seADTE = sei, studlab = trial,
              sm = "RR", common = TRUE, random = TRUE)   <span class="cm"># common = fixed, random = DL</span>
@@ -8539,7 +8539,7 @@ list in 1/5</code></pre>
       <div class="card"><h3 data-en="Stata &amp; R">Stata 與 R</h3><p data-en="Stata: the <b>traj</b> plugin (Jones &amp; Nagin) mirrors PROC TRAJ. R: <b>lcmm</b> (<code>hlme</code> for LCGA/GBTM and <code>lcmm</code> for GMM), <b>gbmt</b> for multivariate group-based trajectories, and <b>crimCV</b>. Mplus and Latent Gold also fit GBTM/GMM.">Stata：<b>traj</b> 外掛（Jones &amp; Nagin）對應 PROC TRAJ。R：<b>lcmm</b>（<code>hlme</code> 做 LCGA/GBTM、<code>lcmm</code> 做 GMM）、<b>gbmt</b> 做多變量群組軌跡、以及 <b>crimCV</b>。Mplus 與 Latent Gold 也能配適 GBTM/GMM。</p></div>
       <div class="card"><h3 data-en="Python">Python</h3><p data-en="No single canonical package, but the model is just an EM mixture of regressions: Andrew Wheeler's worked example fits a group-based trajectory model in <b>PyTorch</b> (and the same idea is a few lines with a Gaussian-mixture-of-regressions). Good for large data and custom link functions.">沒有單一公認套件，但這個模型其實就是迴歸的 EM 混合：Andrew Wheeler 的範例用 <b>PyTorch</b> 配適群組軌跡模型（同樣的想法用「迴歸的高斯混合」也只要幾行）。適合大資料與自訂連結函數。</p></div>
     </div>
-    <div data-lang="r" class="card"><h3 data-en="R sketch (lcmm::hlme) — fit K groups, then read the diagnostics">R 範例（lcmm::hlme）， 配適 K 組，再看診斷</h3>
+    <div data-lang="r" class="card"><h3 data-en="R sketch (lcmm::hlme) — fit K groups, then read the diagnostics">R 範例（lcmm::hlme）：配適 K 組，再看診斷</h3>
       <pre class="sas"><code><span class="cm"># library(lcmm): latent-class linear mixed model; ng = number of groups, here a quadratic in month</span>
 m3 &lt;- hlme(adherence ~ month + I(month^2), subject = "id",
            ng = 3, mixture = ~ month + I(month^2), data = long)
