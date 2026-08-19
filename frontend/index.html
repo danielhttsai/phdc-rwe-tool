@@ -4648,7 +4648,7 @@ paramed Y, avar(A) mvar(M) cvars(X) ///
       <div class="tdef">
         <h4>傾向分數 <span class="en">propensity score</span></h4>
         <p data-en="Imagine we only have measured background facts about each person — age, how sick they are, other conditions — bundled together as X. The propensity score collapses all of that into a single number for each person: the estimated chance they&apos;d end up vaccinated, given who they are. So someone old and frail might score 0.9 (very likely to be vaccinated) and someone young and healthy 0.2. The surprisingly useful fact (Rosenbaum &amp; Rubin 1983) is that once you compare people who share the same score, all those background facts X come out even between the vaccinated and unvaccinated — you&apos;ve squeezed many variables down to one. In practice you then pair up a vaccinated and an unvaccinated person with nearly the same score, or weight people by it, and compare — so you&apos;re finally comparing similar people with similar people.">
-          先想像我們手上只有每個人「可量到」的背景資料，年齡、病得多重、其他疾病，把它們綁成一包叫 X。傾向分數把這一整包壓成一個數字：在這個人是「這樣的人」的前提下，被估出來「會去接種」的機率。所以一個年老體弱的人可能拿到 0.9（很可能接種），一個年輕健康的人只有 0.2。Rosenbaum &amp; Rubin（1983）發現一件意外好用的事：只要拿分數一樣的人來比，那一整包背景 X 在接種組與未接種組之間就會變得一樣平均，等於把很多變項壓成一維。實務上就把分數幾乎相同的接種者與未接種者配成一對，或用這個分數來加權，再比較，這樣才是「拿相似的人比相似的人」。
+          先想像我們手上只有每個人「可量到」的背景資料，年齡、病得多重、其他疾病，把它們綁成一包叫 X。傾向分數把這一整包壓成一個數字：在已知這個人的背景之下，估出他「會去接種」的機率。所以一個年老體弱的人可能拿到 0.9（很可能接種），一個年輕健康的人只有 0.2。Rosenbaum &amp; Rubin（1983）發現一件意外好用的事：只要拿分數一樣的人來比，那一整包背景 X 在接種組與未接種組之間就會變得一樣平均，等於把很多變項壓成一維。實務上就把分數幾乎相同的接種者與未接種者配成一對，或用這個分數來加權，再比較，這樣才是「拿相似的人比相似的人」。
         </p>
       </div>
       <div class="tdef">
@@ -4660,7 +4660,7 @@ paramed Y, avar(A) mvar(M) cvars(X) ///
       <div class="tdef">
         <h4>平衡 vs 預測／正性 <span class="en">balance vs prediction / positivity</span></h4>
         <p data-en="A natural mistake is to judge the score by how well it <b>guesses</b> who got vaccinated — but that&apos;s the wrong test. What you actually want is <b>balance</b>: after matching or weighting, the vaccinated and unvaccinated groups should look alike on every background variable. The usual yardstick is the <b>standardized mean difference (SMD)</b> — roughly, the gap between the two groups measured in standard-deviation units — and you want it under about 0.1 for each variable. How sharply the score predicts treatment (its AUC) simply doesn&apos;t matter. The other requirement is <b>positivity (overlap)</b>: every kind of person must have at least some real chance of being in either group — a score strictly between 0 and 1. If someone is all-but-certain to be vaccinated, dividing by their tiny chance makes their IPTW weight explode and one person hijacks the answer. Fixes: trim those extreme cases, or switch to overlap weights, which are immune to this.">
-          一個很自然的誤會，是用分數「猜得多準」（猜中誰接種）來評斷它好不好，但這是錯的測試。你真正要的是<b>平衡</b>：配對或加權之後，接種組與未接種組在每一項背景變項上都該長得一樣。常用的尺是<b>標準化差異（SMD）</b>，大致就是兩組的差距用「標準差」當單位來量，每一項都希望壓在大約 0.1 以下。分數能多銳利地預測接種（它的 AUC）根本不重要。另一個必要條件是<b>正性（重疊）</b>：每一種人都得至少有一點真實機會落入任一組，也就是分數要嚴格落在 0 與 1 之間。如果某個人「幾乎一定」會接種，拿他那極小的機率去當分母，IPTW 權重就會變得極大，整個答案幾乎被這一個人左右。修法：把這些極端的人截斷掉，或改用不怕這問題的重疊權重。
+          一個很自然的誤會，是用分數「猜得多準」（猜中誰接種）來評斷它好不好，但這是錯的判準。你真正要的是<b>平衡</b>：配對或加權之後，接種組與未接種組在每一項背景變項上都該長得一樣。常用的尺是<b>標準化平均差（SMD）</b>，大致就是兩組的差距用「標準差」當單位來量，每一項都希望壓在大約 0.1 以下。分數能多銳利地預測接種（它的 AUC）根本不重要。另一個必要條件是<b>正性（重疊）</b>：每一種人都得至少有一點真實機會落入任一組，也就是分數要嚴格落在 0 與 1 之間。如果某個人「幾乎一定」會接種，拿他那極小的機率去當分母，IPTW 權重就會變得極大，整個答案幾乎被這一個人左右。修法：把這些極端的人截斷掉，或改用不怕這問題的重疊權重。
         </p>
       </div>
     </details>
@@ -4698,7 +4698,7 @@ paramed Y, avar(A) mvar(M) cvars(X) ///
     <h1 data-en="Data analysis: crude vs regression adjustment vs PS matching / IPTW / overlap">資料分析：未校正 vs 迴歸校正 vs PS 配對／IPTW／重疊權重</h1>
     <p class="lead" data-en="Load the built-in cohort (treatment A, outcome Y, covariate X = severity). The tool reports the <b>crude</b> difference (biased), <b>regression adjustment</b>, <b>IPTW</b> (ATE), <b>overlap weighting</b> (ATO) and <b>PS matching</b> (ATT) — with a bootstrap CI for IPTW — plus the <b>balance evidence</b>: the standardized mean difference (SMD) of X before vs after weighting.">
       載入內建世代（治療 A、結果 Y、共變項 X＝嚴重度）。工具回報<b>未校正</b>差異（偏）、<b>迴歸校正</b>、<b>IPTW</b>（ATE）、<b>重疊權重</b>（ATO）
-      與 <b>PS 配對</b>（ATT），IPTW 附自助信賴區間；並給出<b>平衡證據</b>：共變項 X 的標準化差異（SMD）加權前 vs 加權後。
+      與 <b>PS 配對</b>（ATT），IPTW 附自助信賴區間；並給出<b>平衡證據</b>：共變項 X 的標準化平均差（SMD）加權前 vs 加權後。
     </p>
 
     <div class="datasource">
