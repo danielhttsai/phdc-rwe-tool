@@ -4076,11 +4076,11 @@ estat phtest, detail</code></pre>
   <!-- ===================== PNU ① 是什麼 ===================== -->
   <section id="pnulearn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="PNU: bring prevalent users back without depletion bias">盛行新使用者（PNU）：把既有使用者納回來，又不中耗竭偏誤</h1>
+    <h1 data-en="PNU: bring prevalent users back without depletion bias">盛行新使用者（PNU）：把既有使用者納回來，又不落入耗竭偏誤</h1>
     <p class="lead" data-en="The clean <b>new-user-only</b> design compares fresh starters of A vs B — but it <b>discards every prevalent (existing) user</b>, shrinking the sample and hurting representativeness. Naively pooling prevalent users with new starters, though, suffers <b>depletion of susceptibles</b>: the people prone to the event had it early and left, so the prevalent users still on A are the lower-risk survivors (and are past the early-risk period). PNU (Suissa 2017) uses <b>time-conditional matching</b> — align prevalent users by <b>time-since-start</b> and use a time-conditional propensity score — to bring them back unbiasedly.">
       乾淨的<b>純新使用者</b>設計只比 A、B 的新起始者，但會<b>丟掉所有盛行（既有）使用者</b>，樣本變小、代表性差。
-      可是若<b>未校正</b>把盛行使用者直接和新起始者一起比，會中<b>易感者耗竭</b>：容易出事的人早就出事、退出了，
-      留下來還在用 A 的盛行使用者是低風險存活者（又過了起始後的高風險期）。PNU（Suissa 2017）用<b>時間條件配對</b>，
+      可是若直接把盛行使用者和新起始者合在一起比，就會落入<b>易感者耗竭</b>：容易出事的人早就出事、退出了，
+      留下來還在用 A 的盛行使用者是低風險存活者，而且已經度過起始後的高風險期。PNU（Suissa 2017）用<b>時間條件配對</b>，
       依<b>距起始時間</b>對齊、再用時間條件傾向分數，把盛行使用者不偏地納回來。
     </p>
 
@@ -4094,19 +4094,19 @@ estat phtest, detail</code></pre>
       <div class="tdef">
         <h4>盛行新使用者 <span class="en">prevalent new-user (PNU)</span></h4>
         <p data-en="A '<b>new user</b>' is someone we follow from the day they first start a drug; a '<b>prevalent user</b>' has already been on it for a while. The cleanest studies use new users only — but that throws away everyone already on the drug, leaving a small, less representative sample. You can't just dump the prevalent users back in, because they've already survived their riskiest early period. PNU's fix: don't compare a long-term A user to a fresh B starter — instead pair each prevalent A user with a comparator user who has been treated for the <b>same length of time</b>, and balance the rest with a propensity score (the modelled chance of being on A given those features) that also depends on time-since-start. That way you keep the prevalent users — more data, more representative — without the bias of mixing veterans with rookies. From Suissa, Moodie &amp; Dell'Aniello 2017.">
-          「<b>新使用者</b>」是指我們從他第一次開始用藥那天起追蹤的人；「<b>盛行使用者</b>」則是早就在用了的人。最乾淨的研究只用新使用者，但這會丟掉所有已經在用藥的人，剩下又小又不具代表性的樣本。你又不能直接把盛行使用者倒回去，因為他們早就熬過了風險最高的起始期。PNU 的解法：別拿長期用 A 的人去比剛開始用 B 的人，而是把每位盛行 A 使用者，配到一位「已經<b>用了一樣久</b>」的對照組使用者，再用傾向分數（依各種特徵推估「會用 A」的機率，且這機率也隨距起始時間而變）把其他差異拉平。這樣既留住盛行使用者，更多資料、更有代表性，又不會犯下拿老手混新手的偏誤。出自 Suissa, Moodie &amp; Dell'Aniello 2017。
+          「<b>新使用者</b>」是指我們從他第一次開始用藥那天起追蹤的人；「<b>盛行使用者</b>」則是早就在用了的人。最乾淨的研究只用新使用者，但這會丟掉所有已經在用藥的人，剩下又小又不具代表性的樣本。但也不能就這樣把盛行使用者放回來，因為他們早就度過了風險最高的起始期。PNU 的解法：別拿長期用 A 的人去比剛開始用 B 的人，而是把每位盛行 A 使用者，配到一位「已經<b>用了一樣久</b>」的對照組使用者，再用傾向分數（依各種特徵推估「會用 A」的機率，且這機率也隨距起始時間而變）把其他差異拉平。這樣既留住盛行使用者，資料更多、代表性更好，又不會產生「拿長期使用者去比剛起始者」的偏誤。出自 Suissa, Moodie &amp; Dell'Aniello 2017。
         </p>
       </div>
       <div class="tdef">
         <h4>易感者耗竭 <span class="en">depletion of susceptibles</span></h4>
         <p data-en="The word '<b>susceptible</b>' just means prone to the event. The people most likely to have the bad outcome tend to have it early and then drop out — they stop the drug, switch, or leave the study. So if you look at everyone who has been on drug A for a long time, you're looking at the lucky survivors: the ones who didn't react badly. They <b>look</b> low-risk, but only because the high-risk people are already gone — the susceptibles have been 'depleted'. Example: anyone who couldn't tolerate A quit in the first months; the long-term A users still around are the tolerant, lower-risk ones. The trap: compare these survivors to people just starting B and A will look safer than it really is, so you underestimate its harm (or overstate its benefit).">
-          「<b>易感</b>」就是容易出事的意思。最可能出事的人，往往很早就出事、然後退出了，他們停藥、換藥，或離開研究。所以當你去看「已經用 A 很久」的人，看到的其實是幸運的存活者：那些沒出狀況的人。他們<b>看起來</b>低風險，但只是因為高風險的人早就不在了，易感的人被「耗竭」掉了。例如：受不了 A 的人，頭幾個月就停了；還在的長期 A 使用者，都是耐受、較低風險的。陷阱在於：拿這些存活者去比剛開始用 B 的人，A 會顯得比實際更安全，於是你低估了它的危害（或高估了它的好處）。
+          「<b>易感</b>」就是容易出事的意思。最可能出事的人，往往很早就出事、然後退出了，他們停藥、換藥，或離開研究。所以當你去看「已經用 A 很久」的人，看到的其實是幸運的存活者：那些沒出狀況的人。他們<b>看起來</b>低風險，但只是因為高風險的人早就不在了，易感的人被「耗竭」掉了。例如：受不了 A 的人，頭幾個月就停藥了；還留在研究裡的長期 A 使用者，都是耐受良好、風險較低的人。陷阱在於：拿這些存活者去比剛開始用 B 的人，A 會顯得比實際更安全，於是你低估了它的危害（或高估了它的好處）。
         </p>
       </div>
       <div class="tdef">
         <h4>時間條件配對 <span class="en">time-conditional matching</span></h4>
         <p data-en="This is the actual move PNU makes. '<b>Time-since-start</b>' is how long a person has already been on their drug. The danger is comparing someone who's been on A for two years to someone who just started B last week — the A user has already cleared the early risky stretch, so it's not a fair fight. Time-conditional matching means you only ever compare A and comparator users who are at the <b>same time-since-start</b>, lining up the same point in each person's treatment journey. You also balance their other features at that moment with a propensity score that depends on duration, so the early-high-then-fading risk window is aligned. The one thing it needs: knowing each prevalent user's actual treatment-start date, so you can tell how far along they are. Do this and you remove the depletion bias while still keeping the prevalent users in.">
-          這是 PNU 真正動手做的事。「<b>距起始時間</b>」是指一個人已經用了多久。危險在於：拿「已經用 A 兩年」的人去比「上週才開始用 B」的人，用 A 的那位早就度過了危險的起始期，這比較不公平。時間條件配對的意思是：永遠只比較「<b>距起始時間相同</b>」的 A 與對照組使用者，把兩人「治療進程中的同一個時點」對齊。同時用一個會隨用藥時長改變的傾向分數，把那一刻的其他特徵拉平，讓「起始後先高、之後衰減」的風險窗對齊。它唯一需要的：知道每位盛行使用者真正的暴露起始日，才能判斷他們走到哪一步。這樣做，就能消掉耗竭偏誤，又把盛行使用者留住。
+          這是 PNU 真正動手做的事。「<b>距起始時間</b>」是指一個人已經用了多久。危險在於：拿「已經用 A 兩年」的人去比「上週才開始用 B」的人，用 A 的那位早就度過了危險的起始期，這比較不公平。時間條件配對的意思是：永遠只比較「<b>距起始時間相同</b>」的 A 與對照組使用者，把兩人「治療進程中的同一個時點」對齊。同時用一個會隨用藥時長改變的傾向分數，把那一刻的其他特徵拉平，讓「起始後先高、之後衰減」的風險窗對齊。它唯一的前提是：要知道每位盛行使用者真正的治療起始日，才能判斷他走到治療進程的哪一步。這樣做，就能消掉耗竭偏誤，又把盛行使用者留住。
         </p>
       </div>
     </details>
@@ -4144,7 +4144,7 @@ estat phtest, detail</code></pre>
     <h1 data-en="Data analysis: new-user-only vs naive prevalent vs PNU">資料分析：純新使用者 vs 未校正盛行 vs PNU</h1>
     <p class="lead" data-en="Load the built-in cohort (drug = A / B, whether A is a prevalent user, time-since-start, frailty, follow-up, event). The tool computes the new-user-only rate ratio (clean but discards prevalent users), the naive prevalent rate ratio (depletion-biased), and the PNU time-conditional estimate (frailty + time-since-start adjusted) that recovers the truth using the prevalent users.">
       載入內建世代（drug＝A／B、A 是否盛行使用者、距起始時間、體質、追蹤人時、是否發生事件）。工具會算純新使用者速率比
-      （乾淨但丟掉盛行使用者）、未校正盛行速率比（中耗竭偏誤），以及 PNU 時間條件估計（校正體質＋距起始時間），用上盛行使用者又還原真值。
+      （乾淨但丟掉盛行使用者）、未校正盛行速率比（帶有耗竭偏誤），以及 PNU 時間條件估計（校正體質＋距起始時間），用上盛行使用者又還原真值。
     </p>
 
     <div class="datasource">
@@ -4177,7 +4177,7 @@ estat phtest, detail</code></pre>
          原標註為「出處 — Suissa、Moodie 與 Dell'Aniello 2017（盛行新使用者設計）；以治療起始後時間校正的 Cox 模型。R survival::coxph、SAS PROC PHREG、Stata stcox。」此處程式碼為依方法自行編寫的最小可執行範例，非該文獻提供的程式碼；Suissa 2017 為方法論文，其時間條件配對流程也未在此實作。 -->
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://doi.org/10.1093/aje/kww256" target="_blank" rel="noopener">Suissa et al. 2017 (AJE)</a>, <a href="https://cran.r-project.org/package=survival" target="_blank" rel="noopener">R survival</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>pnu_sample.csv</code> (columns: pid, drug, prevalent, time_since_start, frailty, age, futime, event).">這是可直接在可下載的 <code>pnu_sample.csv</code> 上完整執行的程式（欄位：pid、drug、prevalent、time_since_start、frailty、age、futime、event）。</div>
-    <div data-lang="sas" class="card"><h3 data-en="SAS — PROC PHREG with prevalence adjustment">SAS — PROC PHREG 含盛行性校正</h3>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — PROC PHREG with prevalence adjustment">SAS — PROC PHREG 含盛行使用者校正</h3>
       <pre class="sas"><code><span class="cm">/* read the sample CSV */</span>
 proc import datafile="pnu_sample.csv" out=d dbms=csv replace;
     getnames=yes;
@@ -4214,7 +4214,7 @@ stcox i.drug prevalent time_since_start frailty age</code></pre>
   <section id="pnuassume" class="panel">
     <h1 data-en="Can we trust this PNU? Five checks">這個 PNU 可不可信？五道體檢</h1>
     <p class="lead" data-en="The identifying assumptions are mostly about study <b>design</b> (blue cards): conditional exchangeability given time-since-start, correct time-conditional matching, and access to the prevalent users' treatment-start history. The testable ones are whether PNU agrees with the new-user-only benchmark and how strong the depletion is. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      核心假設大多關於研究<b>設計</b>（藍卡）：在距起始時間條件下可交換、時間條件配對要正確、要拿得到盛行使用者的起始史。
+      核心假設大多關於研究<b>設計</b>（藍卡）：在距起始時間條件下可交換、時間條件配對要正確、要能取得盛行使用者的治療起始史。
       可檢的是 PNU 與純新使用者標竿是否一致、耗竭有多強。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="pnuOverall" class="overall hidden"></div>
@@ -6395,7 +6395,7 @@ regress y treated external x, level(90)</code></pre>
   <section id="pnuwhatif" class="panel">
     <h1 data-en="⑥ What if…? PNU in the language of counterfactuals">⑥ 如果……？用反事實的語言看「盛行新使用者 PNU」</h1>
     <p class="lead" data-en="What if everyone took A (Yᵃ⁼¹) vs everyone took B (Yᵃ⁼⁰)? With prevalent users, exchangeability fails marginally: those still on A are the depleted, lower-risk survivors. PNU restores it by conditioning on <b>time-since-start</b> (and frailty) — a time-conditional comparison.">
-      如果大家都用 A（Yᵃ⁼¹）vs 都用 B（Yᵃ⁼⁰）會怎樣？有盛行使用者時，可交換性在邊際上不成立：還在用 A 的是被耗竭的低風險存活者。PNU 靠<b>條件在距起始時間</b>（與體質）把它救回來，一個時間條件的比較。
+      如果大家都用 A（Yᵃ⁼¹）vs 都用 B（Yᵃ⁼⁰）會怎樣？有盛行使用者時，可交換性在邊際上不成立：還在用 A 的，是易感者被耗竭後剩下的低風險存活者。PNU 改成<b>在距起始時間</b>（與體質）<b>的條件下</b>比較，把可交換性救回來。
     </p>
     <div class="card scene"><h3 data-en="Depletion via survival selection, blocked by time-conditional matching">由存活選擇造成的耗竭，用時間條件配對擋住</h3>
       <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_pnu" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_pnu" class="chart"></div></div></div></div>
