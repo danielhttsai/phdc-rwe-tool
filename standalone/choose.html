@@ -1854,7 +1854,7 @@ const DBNODES = {
 const DBRECS = {
   dNHI: { db: "nhi",
     title: { zh: "健保資料庫（NHIRD）", en: "Taiwan NHI claims (NHIRD)" },
-    why: { zh: "近乎全民的給藥與診斷，最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。可再串<b>癌登、死亡檔</b>。缺點是<b>沒有檢驗值</b>與臨床細節、看不到處方的適應症。", en: "Near-census dispensing + diagnoses: ideal for <b>rare outcomes</b> and <b>self-controlled</b> designs needing within-person variation; can be linked to the <b>cancer registry and death file</b>. Weak on <b>lab values</b>, clinical detail and the prescribing indication." },
+    why: { zh: "近乎全民的給藥與診斷，最適合<b>罕見結果</b>與需要人內暴露變異的<b>自身對照</b>設計。可再串<b>癌登、死亡檔</b>。缺點是<b>沒有檢驗值</b>與臨床細節、看不到處方的適應症。", en: "Near-census dispensing + diagnoses: ideal for <b>rare outcomes</b> and <b>self-controlled</b> designs needing within-person variation; can be linked to the <b>cancer registry and death file</b>. Weak on <b>lab values</b>, clinical detail and the prescribing indication." },
     scenario: { zh: "藥物X 情境：藥物X 是否短暫升高某慢性病患者的<b>急性住院</b>風險？用同一個人「用藥前後」比。", en: "Drug-X scenario: does drug X transiently raise the risk of an <b>acute hospitalisation</b> in a chronic-disease population? Compare each person before vs after their own use." },
     watch: { zh: "沒有檢驗值 → 適應症／嚴重度混淆難校正；診斷碼的效度要驗證。", en: "No labs → hard to adjust confounding by indication/severity; validate the diagnosis codes." },
     designs: [{ m: "sccs", l: "SCCS" }, { m: "cctc", l: "CCTC" }, { m: "cc", l: "CC" }, { m: "perr", l: "PERR" }, { m: "seq", l: "Seq" }] },
@@ -1918,7 +1918,7 @@ const DBRECS = {
 const DB_SUMMARY = [
   { name: { zh: "健保 NHIRD", en: "NHI NHIRD" }, kind: { zh: "理賠", en: "Claims" }, cover: { zh: "近全民 ~2300萬", en: "~23M, near-census" },
     vars: { zh: "給藥、診斷、處置（無檢驗值）", en: "drugs, dx, procedures (no labs)" }, link: { zh: "可串癌登、死亡", en: "cancer registry, deaths" }, follow: { zh: "長（2000-）", en: "long (2000-)" },
-    designs: "SCCS · CCTC · CC · PERR · Seq · CCW", eg: { zh: "急性事件的自我對照", en: "self-control for acute events" } },
+    designs: "SCCS · CCTC · CC · PERR · Seq · CCW", eg: { zh: "急性事件的自身對照", en: "self-control for acute events" } },
   { name: { zh: "健保串癌登", en: "NHI × Cancer Registry" }, kind: { zh: "理賠＋癌症登記", en: "Claims + cancer registry" }, cover: { zh: "全國新發癌症個案", en: "all incident cancers, nationwide" },
     vars: { zh: "健保給藥與診斷＋癌登的期別、組織型、診斷日、初次治療與存活", en: "NHI drugs & diagnoses + the registry's stage, histology, diagnosis date, first-line treatment and survival" }, link: { zh: "已與健保、死亡檔串接", en: "linked to NHI claims and the death file" }, follow: { zh: "長期", en: "long-term" },
     designs: "存活世代 · RDD · CCW · MED", eg: { zh: "用藥物X 後的癌症發生或存活", en: "cancer incidence or survival after drug X" } },
@@ -2658,15 +2658,15 @@ const METHOD_QS = [
       { k: "t0", ok: 1, t: "每個人的 <b>Time Zero</b> 是哪一天", fb: `<b>對，永遠是這一題。</b>合格條件、暴露分派、追蹤起點<b>必須是同一天</b>。這裡就是「第一次拿到藥物X 或對照藥那天」。這一步沒定好，後面所有校正都是在修補一個歪掉的地基。` },
       { k: "covar", ok: 0, t: "要校正哪些共變數", fb: `<b>那是第二順位。</b>共變數要在 <b>Time Zero 之前</b>測量才算基線；Time Zero 還沒定，你連「哪些算基線」都說不清楚。` },
     ] },
-  { q: `他想過用<b>自我對照（SCCS）</b>，因為那可以自動擋掉不隨時間變的干擾因子。用在「長期用藥 → 死亡」上可以嗎？`,
+  { q: `他想過用<b>自身對照（SCCS）</b>，因為那可以自動擋掉不隨時間變的干擾因子。用在「長期用藥 → 死亡」上可以嗎？`,
     opts: [
-      { k: "yes", ok: 0, t: "可以，自我對照最乾淨", fb: `<b>這個情境不行。</b>SCCS 要的是<b>短暫暴露＋急性事件</b>，而且事件不能反過來影響之後還會不會暴露。<b>死亡</b>直接終止後續暴露，基本款 SCCS 的假設就破了。` },
+      { k: "yes", ok: 0, t: "可以，自身對照最乾淨", fb: `<b>這個情境不行。</b>SCCS 要的是<b>短暫暴露＋急性事件</b>，而且事件不能反過來影響之後還會不會暴露。<b>死亡</b>直接終止後續暴露，基本款 SCCS 的假設就破了。` },
       { k: "n", ok: 0, t: "可以，只要樣本夠大", fb: `<b>不是樣本的問題，是假設的問題。</b>SCCS 假設事件不會影響之後的暴露機會，<b>死亡</b>顯然會；而且長期慢性用藥沒有「用／不用」交替的人內變異可比。` },
       { k: "no", ok: 1, t: "不行，暴露太長、而且結果是死亡", fb: `<b>對。</b>SCCS 要<b>短暫暴露＋急性事件</b>，靠同一個人「危險期 vs 非危險期」比較。慢性長期用藥沒有這種切換；死亡又會終止後續暴露，違反假設（有延伸做法，但基本款不能這樣用）。` },
     ] },
   { q: `那如果問題改成「藥物X 是否<b>短暫升高</b>急性住院風險」，哪個設計最省事？`,
     opts: [
-      { k: "sccs", ok: 1, t: "自我對照（SCCS）", fb: `<b>對，這才是 SCCS 的主場。</b>短暫暴露、急性且非致命的事件、同一個人前後比，所有<b>不隨時間變</b>的個人特質（基因、體質、長期習慣）自動被消掉，連測都不用測。` },
+      { k: "sccs", ok: 1, t: "自身對照（SCCS）", fb: `<b>對，這才是 SCCS 的主場。</b>短暫暴露、急性且非致命的事件、同一個人前後比，所有<b>不隨時間變</b>的個人特質（基因、體質、長期習慣）自動被消掉，連測都不用測。` },
       { k: "ps", ok: 0, t: "傾向分數配對", fb: `<b>做得到，但費力得多。</b>傾向分數只能校正<b>你量得到</b>的東西；這個情境用 SCCS，同一個人前後比，不隨時間變的特質自動消掉。` },
       { k: "did", ok: 0, t: "差異中的差異", fb: `<b>對不上。</b>DiD 要的是「某個時點有一群人被政策打到、另一群沒有」；這裡沒有那種外生衝擊，該用<b>SCCS</b>。` },
     ] },
