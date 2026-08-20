@@ -3374,7 +3374,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. It <b>flags, it does not confirm</b>: key, mostly untestable items are a plausible cascade direction, a correctly modelled trend (SRnull), new users, and a sensible time window. Flagged pairs need a confounder-controlled follow-up. To screen <b>thousands of outcomes at once</b>, see TreeScan." } } },
   rTSCAN: { rec: { kind: "toolbox", method: "tscan", badge: "TreeScan ✓",
     title: { zh: "最適合：樹狀掃描統計 TreeScan ✓（本工具）", en: "Best fit: Tree-based Scan Statistic (TreeScan) ✓ (this tool)" },
-    why: { zh: "你想<b>一次掃整個結果階層</b>（數百到數千個事件，組成 MedDRA PT→SOC 之類的樹）找暴露的安全訊號，又不被<b>多重比較</b>的假陽性淹沒。TreeScan 為每個節點（葉＋父）算 Bernoulli <b>LLR</b>、取整棵樹的<b>最大 LLR</b>、用<b>打亂暴露標籤的排列法</b>給校正 p；這個最大統計量校正一次就把<b>族系錯誤率</b>控制住，只有真超額存活。",
+    why: { zh: "你想<b>一次掃整個結果階層</b>（數百到數千個事件，組成 MedDRA PT→SOC 之類的樹）找暴露的安全訊號，又不被<b>多重比較</b>的偽陽性淹沒。TreeScan 為每個節點（葉＋父）算 Bernoulli <b>LLR</b>、取整棵樹的<b>最大 LLR</b>、用<b>打亂暴露標籤的排列法</b>給校正 p；這個最大統計量校正一次就把<b>族系錯誤率</b>控制住，只有真超額存活。",
            en: "You want to <b>scan a whole outcome hierarchy</b> (hundreds–thousands of events forming a tree like MedDRA PT→SOC) for an exposure's safety signals, without drowning in <b>multiplicity</b> false positives. TreeScan computes a Bernoulli <b>LLR</b> at every node (leaf + parent), takes the <b>maximum LLR</b> over the tree, and gets an adjusted p by <b>permuting exposure labels</b>; that one max-statistic correction controls the <b>family-wise error</b> so only real excesses survive." },
     scenario: { zh: "藥物安全情境：藥物X 暴露後掃描整棵不良反應樹，找出哪個事件（或哪個系統）有超額，FDA Sentinel 式的主動監測（見「TreeScan」分頁 ①–⑥）。",
                 en: "Drug-safety scenario: after drug-X exposure, scan the whole adverse-event tree to find which event (or system) is in excess — FDA-Sentinel-style active surveillance (see the TreeScan tabs ①–⑦)." },
@@ -4050,7 +4050,7 @@ const DBRECS = {
     title: { zh: "Flatiron Health 腫瘤 EHR 資料庫", en: "Flatiron Health oncology EHR database" },
     why: { zh: "美國腫瘤專科診所與醫學中心的 EHR，關鍵欄位（<b>期別、生物標記、治療線別、死亡日</b>）是<b>人工抄錄</b>回填的，所以拿得到理賠資料沒有的臨床深度；死亡結果是把 EHR、商業資料與社會安全死亡檔<b>合成</b>後對照國家死亡指數（National Death Index）驗證過的。最適合<b>真實世界整體存活期（rwOS）</b>與依生物標記分層的比較。", en: "EHR from US oncology practices and academic centres, where the key fields (<b>stage, biomarkers, line of therapy, date of death</b>) are <b>human-abstracted</b> back into the record — clinical depth claims cannot give. Its mortality endpoint is a composite of EHR, commercial and Social Security death data, benchmarked against the National Death Index. Best for <b>real-world overall survival</b> and biomarker-stratified comparisons." },
     scenario: { zh: "藥物X 情境：藥物X 在<b>某個生物標記陽性</b>的次族群，相對於同線別的主動對照藥，真實世界存活如何？", en: "Drug-X scenario: in a <b>biomarker-positive</b> subgroup, what is real-world survival on drug X versus a same-line active comparator?" },
-    watch: { zh: "以社區腫瘤診所為主，<b>代表性</b>要另外評估；抄錄欄位有缺失與延遲；<b>指標時間（index date）</b>常需自訂，容易做出不死時間。", en: "Skewed towards community oncology, so <b>representativeness</b> must be assessed separately; abstracted fields have missingness and lag; the <b>index date</b> is usually researcher-defined, which readily creates immortal time." },
+    watch: { zh: "以社區腫瘤診所為主，<b>代表性</b>要另外評估；抄錄欄位有缺失與延遲；<b>指標日（index date）</b>常需自訂，容易做出不死時間。", en: "Skewed towards community oncology, so <b>representativeness</b> must be assessed separately; abstracted fields have missingness and lag; the <b>index date</b> is usually researcher-defined, which readily creates immortal time." },
     designs: [{ m: "acnu", l: "ACNU" }, { m: "ps", l: "PS" }, { m: "ccw", l: "CCW" }, { m: "extctrl", l: "外部對照" }] },
   dVestrum: { db: "vestrum",
     title: { zh: "Vestrum Health 視網膜資料庫", en: "Vestrum Health Retina Database" },
@@ -4106,7 +4106,7 @@ const DB_NOTES = [
   { key: "flatiron", name: "Flatiron Health",
     what: `美國腫瘤照護的 EHR 匯總，涵蓋 <b>280 家以上</b>的腫瘤診所與醫學中心、約 <b>220 萬</b>名癌症病人。它跟一般 EHR 最大的差別是<b>人工抄錄</b>：期別、組織型、生物標記檢測結果、治療線別、死亡日這些「藏在病歷文字與報告裡」的欄位，是由受訓人員讀病歷回填成結構化變數的。`,
     strength: `拿得到理賠資料<b>永遠沒有</b>的腫瘤臨床深度，因此可以做<b>真實世界整體存活期（rwOS）</b>、依生物標記分層比較、以及單臂試驗的<b>外部對照</b>。死亡結果不是只靠 EHR，而是把 EHR、商業死亡資料與社會安全死亡檔<b>合成</b>，再對照國家死亡指數（National Death Index）驗證過（合成後敏感度由 66% 提升到 91%）。`,
-    weak: `以<b>社區腫瘤診所</b>為主，代表性要自己評估、不能假設等於全美癌症病人；抄錄欄位有缺失與時間延遲；最容易出問題的是<b>index date 由研究者自訂</b>（例如「用過某藥」才回頭定起點），一不小心就是不死時間。`,
+    weak: `以<b>社區腫瘤診所</b>為主，代表性要自己評估、不能假設等於全美癌症病人；抄錄欄位有缺失與時間延遲；最容易出問題的是<b>指標日（index date）由研究者自訂</b>（例如「用過某藥」才回頭定起點），一不小心就是不死時間。`,
     refs: [
       { t: `Curtis MD, Griffith SD, Tucker M, et al. Development and Validation of a High-Quality Composite Real-World Mortality Endpoint. <i>Health Serv Res</i>. 2018;53(6):4460-4476.`, u: "https://pubmed.ncbi.nlm.nih.gov/29756355/" },
       { t: `Ma X, Long L, Moon S, Adamson BJS, Baxi SS. Comparison of Population Characteristics in Real-World Clinical Oncology Databases in the US: Flatiron Health, SEER, and NPCR. <i>medRxiv</i> 2020（資料庫代表性的常被引用比較，注意是 preprint）。`, u: "https://www.medrxiv.org/content/10.1101/2020.03.16.20037143v3.full" },
@@ -7490,7 +7490,7 @@ const SCCS_VIO_META = {
     key: () => tr(
       `<p><b>重點：一次事件會引來下一次（回音），回音不挑期別，掉進窗裡的，就被算成藥造成的。</b></p>` +
       `<p><b>機制：</b>看那顆 ★：第 80 天的發作把回音丟進了危險窗，它不是藥造成的，是上一次發作的回音。反過來，窗內發作的回音多半掉到窗外，窗只有 28 天，留不住自己的回音。</p>` +
-      `<p><b>看記分板：</b>兩格的事件數都被灌水，但基準期灌得更多（窗內 +70%、基準 +105%）：比值被往 1 稀釋，IRR 從 2 掉到 1.7。更麻煩的是，回音窗多長、掉在哪裡，方向就跟著變。事件一旦不獨立，連「錯往哪邊」都難預測，這正是這條假設難纏的地方。</p>`,
+      `<p><b>看記分板：</b>兩格的事件數都被推高，但基準期推得更多（窗內 +70%、基準 +105%）：比值被往 1 稀釋，IRR 從 2 掉到 1.7。更麻煩的是，回音窗多長、掉在哪裡，方向就跟著變。事件一旦不獨立，連「錯往哪邊」都難預測，這正是這條假設難纏的地方。</p>`,
       `<p><b>Main point: events breed echoes, and echoes don't respect the window — whichever lands inside gets billed to the drug.</b></p>` +
       `<p><b>Mechanism:</b> see the star: the day-80 attack throws its echo into the risk window — not the drug, the aftershock of the previous attack. Conversely, echoes of in-window attacks mostly land outside: a 28-day window can't hold its own echoes.</p>` +
       `<p><b>Scoreboard:</b> both event cells get padded, baseline more (+70% in-window vs +105% baseline): the ratio is diluted toward 1, IRR falls from 2 to 1.7. Worse, the direction changes with the echo window and where events sit — once events aren't independent, even the direction of the error is unpredictable.</p>`),
