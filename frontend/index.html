@@ -1553,7 +1553,7 @@ xtreg health_score i.treated#i.post urban baseline_burden i.period, fe cluster(u
         </p>
       </div>
       <div class="tdef">
-        <h4>因適應症而生的混淆 <span class="en">confounding by indication</span></h4>
+        <h4>適應症混淆 <span class="en">confounding by indication</span></h4>
         <p data-en="This is the one bias that haunts almost every drug-safety study, and the reason a naïve &quot;people on the drug vs people not on it&quot; comparison so often misleads. Doctors don't hand out a drug at random: the sickest patients — those with the most active or severe disease — are <b>both</b> the most likely to be put on it <b>and</b>, because of that very same severity, the most likely to suffer the bad outcome anyway, drug or no drug. So when the on-drug group looks worse, you can't tell how much is the drug and how much is just that they were sicker to begin with — the two are hopelessly tangled. For instance a crude comparison might show an odds ratio of about 4 sitting on top of a true effect of only about 2; that inflated gap is the indication leaking in, not extra harm from the drug. In causal-diagram terms the underlying severity is a common cause of both taking the drug and the outcome (a confounder on the path drug &larr; severity &rarr; outcome), and adjusting for the severity you can measure helps but rarely removes what you can't. Trend-in-trend sidesteps it by reading the effect from how use and outcome trend over time across groups rather than from the head-count contrast, so any steady, non-trending severity effect cancels out (Ji et al. 2017).">
           這是幾乎每個藥物安全研究都揮之不去的那個偏誤，也是為什麼未校正的「有用藥 vs 沒用藥」比較常常誤導人。醫師不是隨機發藥：最病重的人，疾病最活躍或最嚴重的那些，<b>既</b>最可能被開這個藥，<b>又</b>因為同樣的嚴重度，本來就（不管有沒有用藥）最可能發生壞結果。所以當用藥那組看起來比較差時，你分不出有多少是藥造成的、有多少只是因為他們本來就病重，兩者糾纏到拆不開。舉例來說，粗略比較可能顯示勝算比約 4，疊在真實效果只有約 2 之上；那個被灌大的差距是適應症滲進來，而不是藥多出來的傷害。用因果圖的話講，潛在的嚴重度同時是「用藥」和「結果」的共同成因（在 用藥 &larr; 嚴重度 &rarr; 結果 這條路徑上的混淆），調整你量得到的嚴重度有幫助，但很少能除掉你量不到的。趨勢中的趨勢繞過它的方式，是從「用藥與結果如何隨時間、跨群一起變動」來讀效果，而不是靠人頭對比，於是任何穩定、不隨時間變化的嚴重度效果都會相消（Ji 等 2017）。
         </p>
@@ -3898,9 +3898,9 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
     <h1 data-en="ACNU: new users of drug A vs new users of an active comparator B">主動對照新使用者（ACNU）：A 的新使用者 vs 對照藥 B 的新使用者</h1>
     <p class="lead" data-en="Does a new drug A raise the risk of an outcome? Comparing <b>A users vs non-users</b> is doubly biased: sicker patients get A (<b>confounding by indication</b>) and non-users are systematically healthier (<b>healthy-user</b> bias). The <b>active-comparator, new-user</b> design compares <b>new users of A</b> with <b>new users of an active comparator B</b> that treats the <b>same indication</b>. Both groups are indicated, both start at a clear time zero (first prescription), so confounding by indication and immortal-time / prevalent-user bias are largely removed; any residual severity difference is then handled with a propensity score.">
       新藥 A 會不會提高某個結果的風險？拿<b>用 A 的人 vs 沒用藥的人</b>比會雙重偏誤：病情重的才會被開 A
-      （<b>因適應症而生的混淆</b>），而沒用藥的人通常比較健康（<b>健康使用者偏誤</b>）。<b>主動對照新使用者</b>設計改成比
+      （<b>適應症混淆</b>），而沒用藥的人通常比較健康（<b>健康使用者偏誤</b>）。<b>主動對照新使用者</b>設計改成比
       <b>A 的新使用者</b> vs <b>主動對照藥 B</b>（治療<b>同一個適應症</b>）的新使用者：兩組都有這個病、都從明確的時間零點
-      （第一張處方）起跑，因適應症的混淆與不死時間／盛行使用者偏誤就大幅消掉；殘留的嚴重度差再用傾向分數補掉。
+      （第一張處方）起跑，適應症混淆與不死時間／盛行使用者偏誤就大幅消掉；殘留的嚴重度差再用傾向分數補掉。
     </p>
 
     <div class="card scene">
@@ -3917,9 +3917,9 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
         </p>
       </div>
       <div class="tdef">
-        <h4>因適應症而生的混淆 <span class="en">confounding by indication</span></h4>
+        <h4>適應症混淆 <span class="en">confounding by indication</span></h4>
         <p data-en="The catch in any drug study is that the very reason a doctor reaches for a drug — usually how sick the patient is — is also something that pushes the outcome up or down on its own. So when sicker patients get the newer drug AND naturally have more bad events, you can't tell whether the extra events came from the drug or just from being sicker to begin with: the drug's effect is tangled up with the illness. That tangling is &quot;confounding by indication,&quot; and it's the single biggest trap in drug-safety research. The neat thing about ACNU is that picking a comparator drug B used for the same condition means both groups are sick for the same reason, so most of this tangle cancels out before you even start adjusting.">
-          做藥物研究最棘手的地方是：醫生會開某個藥，理由通常是「病人比較嚴重」，而病情本身又會自己把結果往上或往下推。於是當「病重的人拿到新藥、本來就比較容易出事」時，你根本分不清多出來的事件是藥造成的、還是只因為這些人一開始就病得重，藥的效果和病情糾纏在一起了。這個糾纏就叫「因適應症而生的混淆」，是藥物安全研究裡最大的陷阱。ACNU 聰明的地方在於：挑一個治同一種病的對照藥 B，兩組人「生病的理由相同」，所以還沒開始校正，這層糾纏就已經大半互相抵消了。
+          做藥物研究最棘手的地方是：醫生會開某個藥，理由通常是「病人比較嚴重」，而病情本身又會自己把結果往上或往下推。於是當「病重的人拿到新藥、本來就比較容易出事」時，你根本分不清多出來的事件是藥造成的、還是只因為這些人一開始就病得重，藥的效果和病情糾纏在一起了。這個糾纏就叫「適應症混淆」，是藥物安全研究裡最大的陷阱。ACNU 聰明的地方在於：挑一個治同一種病的對照藥 B，兩組人「生病的理由相同」，所以還沒開始校正，這層糾纏就已經大半互相抵消了。
         </p>
       </div>
       <div class="tdef">
@@ -3936,13 +3936,13 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive: the active comparator starts far less biased">互動：主動對照一開始就少偏很多</h1>
     <p class="lead" data-en="Drag the slider for how strongly disease <b>severity</b> drives the choice of A vs B (confounding by indication). The <b>naive A-vs-non-user</b> rate ratio is badly inflated even at zero (healthy-user gap); the <b>crude ACNU A-vs-B</b> contrast starts much closer and drifts up only as confounding grows; the <b>severity-adjusted ACNU</b> stays on the truth.">
-      拉動滑桿改變疾病<b>嚴重度</b>左右「拿 A 還是 B」的程度（因適應症的混淆）。<b>未校正的 A vs 沒用藥</b>速率比就算在零也已經
+      拉動滑桿改變疾病<b>嚴重度</b>左右「拿 A 還是 B」的程度（適應症混淆）。<b>未校正的 A vs 沒用藥</b>速率比就算在零也已經
       嚴重偏高（健康使用者偏誤的落差）；<b>ACNU 未校正 A vs B</b> 一開始就近很多、只隨混淆變強才漂；<b>校正嚴重度後的 ACNU</b> 穩在真值。
     </p>
 
     <div class="controls">
       <label>
-        <span data-en="Confounding-by-indication strength:">因適應症的混淆強度：</span><b id="acnuConfVal">1.0</b>
+        <span data-en="Confounding-by-indication strength:">適應症混淆強度：</span><b id="acnuConfVal">1.0</b>
         <input type="range" id="acnuConfSlider" min="0" max="1.5" value="1" step="0.05" />
         <small data-en="0 = severity doesn't affect the A-vs-B choice. Larger = sicker patients get A, so naive and crude ACNU drift up — while the adjusted ACNU stays on the truth.">0＝嚴重度不影響 A/B 選擇。越大＝病重者更拿 A，未校正與 ACNU 兩種比較都往上漂，而校正後的 ACNU 停在真值。</small>
       </label>
@@ -4065,7 +4065,7 @@ estat phtest, detail</code></pre>
     <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① The design does most of the work">① 設計做了大半的事</h3>
-        <p data-en="The active-comparator new-user design removes confounding by indication and immortal time by <b>design</b>, before any modelling. The ML propensity score only mops up the <b>residual</b> severity imbalance between A and B.">主動對照新使用者設計靠<b>設計本身</b>消掉因適應症的混淆與 immortal time，還沒建模就先成立。ML 傾向分數只是把 A 與 B 之間<b>殘留</b>的嚴重度差補掉。</p></div>
+        <p data-en="The active-comparator new-user design removes confounding by indication and immortal time by <b>design</b>, before any modelling. The ML propensity score only mops up the <b>residual</b> severity imbalance between A and B.">主動對照新使用者設計靠<b>設計本身</b>消掉適應症混淆與 immortal time，還沒建模就先成立。ML 傾向分數只是把 A 與 B 之間<b>殘留</b>的嚴重度差補掉。</p></div>
       <div class="card"><h3 data-en="② ML-PS needs overlap &amp; proper validation">② ML-PS 要有重疊、要確實驗證</h3>
         <p data-en="A flexible PS can over-fit; check covariate <b>overlap</b> (positivity), trim/clip extreme weights, and validate balance after weighting. A higher AUC is not the goal — covariate balance is.">彈性 PS 會過擬合；要檢查共變項<b>重疊</b>（正性）、截斷極端權重、加權後再看平衡。AUC 高不是目的，共變項平衡才是。</p></div>
       <div class="card"><h3 data-en="③ It estimates A relative to B">③ 估的是 A『相對 B』</h3>
@@ -6256,7 +6256,7 @@ regress y treated external x, level(90)</code></pre>
     <div class="cards">
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The contrast of <b>treatment strategies</b> Yᵍ (e.g. early vs late initiation; stay-on vs discontinue) — a per-protocol effect over the whole population."><b>治療策略</b> Yᵍ 的對比（如早 vs 晚起始；持續 vs 停藥），全體的依計畫效果。</p></div>
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Sequential (time-varying) exchangeability</b>: at each time, no unmeasured confounding of the next treatment step, handled by inverse-probability-of-censoring weights. <b>Positivity</b>: each strategy is possible at each time. <b>Consistency</b>: well-defined strategies + a clear time zero."><b>序列（時變）可交換性</b>：每個時點下一步治療無未測混淆，用反設限機率加權處理。<b>正性</b>：每個時點各策略都可能。<b>一致性</b>：策略定義明確＋明確時間零點。</p></div>
-      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>measured time-varying covariates</b> via IPCW (g-methods), plus <b>time-zero alignment</b> that removes immortal time. For &quot;early vs late&quot;, both arms eventually treat, so confounding by indication largely cancels.">來自<b>已測的時變共變項</b>（IPCW，g-methods），加上<b>時間零點對齊</b>消掉不死時間。「早 vs 晚」時兩臂最終都治療，因適應症而生的混淆大幅相消。</p></div>
+      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>measured time-varying covariates</b> via IPCW (g-methods), plus <b>time-zero alignment</b> that removes immortal time. For &quot;early vs late&quot;, both arms eventually treat, so confounding by indication largely cancels.">來自<b>已測的時變共變項</b>（IPCW，g-methods），加上<b>時間零點對齊</b>消掉不死時間。「早 vs 晚」時兩臂最終都治療，適應症混淆大幅相消。</p></div>
       <div class="card"><h3 data-en="④ Stabilized vs unstabilized weights">④ 穩定化 vs 未穩定化權重</h3><p data-en="Both give the <b>same point estimate</b> here (the marginal numerator cancels in each month's weighted hazard) — they differ in variance. <b>Unstabilized</b> (numerator = 1, W = 1/P(uncensored)): recreates the full baseline population, <b>no constraint</b> on the outcome model — the natural fit for a <b>sustained</b> stay-on-vs-discontinue weighted KM, but extreme weights need <b>truncation</b>. <b>Stabilized</b> (marginal numerator): mean ≈ 1, narrower CIs, <b>but</b> any baseline covariate in the numerator must re-enter the outcome model → often forces a <b>parametric</b> model. So this tool uses unstabilized for sustained, stabilized for grace / early-vs-late.">兩者在這裡給<b>相同點估計</b>（邊際分子在每月加權風險中相消），差別在變異。<b>未穩定化</b>（分子=1，W=1/未設限機率）：重建完整基線族群、對結果模型<b>無限制</b>，最適合 <b>sustained</b> 持續／停藥的加權 KM，但極端權重要<b>截斷</b>。<b>穩定化</b>（邊際分子）：平均≈1、區間較窄，<b>但</b>分子放的基線共變項必須回到結果模型→常被迫用<b>有母數</b>模型。所以本工具 sustained 用未穩定化、grace／早晚啟動用穩定化。</p></div>
       <div class="card"><h3 data-en="⑤ In What If">⑤ 對應《What If》</h3><p data-en="Part III: time-varying treatments, IP weighting of marginal structural models, and target trial emulation (stabilized vs unstabilized weights are Ch. 12). Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">第三部：時變治療、邊際結構模型的 IP 加權、目標試驗模擬（穩定化 vs 未穩定化權重見第 12 章）。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
@@ -6371,7 +6371,7 @@ regress y treated external x, level(90)</code></pre>
     <p class="lead" data-en="What if everyone took drug A (Yᵃ⁼¹) vs everyone took the comparator B (Yᵃ⁼⁰)? Comparing A users with non-users fails because severity (the indication) opens a backdoor and non-users are a healthier population. ACNU restores comparability by restricting to an <b>indicated</b> population (new users of A vs B) and adjusting the residual severity.">
       如果大家都用藥 A（Yᵃ⁼¹）vs 都用對照藥 B（Yᵃ⁼⁰）會怎樣？拿用 A 的人和沒用藥的人比會失敗，因為嚴重度（適應症）開了後門、而沒用藥的人是更健康的族群。ACNU 靠<b>限制在有適應症的族群</b>（A 的新使用者 vs B 的新使用者）＋校正殘留嚴重度，把可比性救回來。
     </p>
-    <div class="card scene"><h3 data-en="Confounding by indication, blocked by an active comparator">因適應症的混淆，用主動對照擋住</h3>
+    <div class="card scene"><h3 data-en="Confounding by indication, blocked by an active comparator">適應症混淆，用主動對照擋住</h3>
       <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_acnu" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the treatment node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：治療節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_acnu" class="chart"></div></div></div></div>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
