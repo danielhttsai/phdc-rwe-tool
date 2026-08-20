@@ -2925,7 +2925,7 @@ clogit y window if group==0, group(id) or</code></pre>
     </p>
 
     <div class="card scene">
-      <h3 data-en="How it works — a mini-trial opens at each eligibility month">怎麼做：每個資格月開一場 mini-trial</h3>
+      <h3 data-en="How it works — a mini-trial opens at each eligibility month">怎麼做：每個資格月開一場迷你試驗</h3>
       <div id="seqScene" class="chart"></div>
     </div>
 
@@ -2940,13 +2940,13 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="tdef">
         <h4>點治療 vs 動態策略 <span class="en">point treatment vs dynamic strategy</span></h4>
         <p data-en="This is about what kind of question you're asking. A &quot;point treatment&quot; is a single yes/no decision made at one moment — &quot;do I start this now?&quot; — and that's all sequential trials are built to answer. A &quot;sustained&quot; or &quot;dynamic&quot; strategy is instead a rule you keep following over time — &quot;keep taking it as long as X holds&quot; — which is what the clone-censor-weight (CCW) method on another tab handles. Concretely: &quot;should this patient get vaccinated at today's visit?&quot; is a one-shot point question (use sequential trials); &quot;should they keep up with booster shots over the years?&quot; is an ongoing strategy (use CCW). Picking the right tool just means being honest about whether your real question is a single decision or an ongoing plan. Either way, both are just ways of imitating a randomized trial you couldn't actually run (a target-trial emulation).">
-          這在問你「到底想問哪一種問題」。「點治療」是某一刻的單次是非決定，「我現在要不要開始？」，序列試驗就是為回答這種問題而生。「持續」或「動態」策略則是一條你會一路遵守的規則，「只要符合某條件就一直用下去」，那是另一個分頁的 clone-censor-weight（CCW）法在處理的。具體說：「這位病人今天門診要不要接種？」是一次性的點問題（用序列試驗）；「他往後幾年要不要持續打追加劑？」是持續的策略（用 CCW）。選對工具，其實就是正視你真正的問題是「單一決定」還是「持續計畫」。不論哪一種，兩者都只是在模仿一場你實際上沒辦法跑的隨機試驗（也就是目標試驗模擬）。
+          這在問你「到底想問哪一種問題」。「點治療」是某一刻做出的單一是非決定：「我現在要不要開始？」，序列試驗正是為了回答這種問題而生。「持續」或「動態」策略則是一條你會一路遵守的規則：「只要符合某條件就一直用下去」，那是另一個分頁的 clone-censor-weight（CCW）法在處理的。具體說：「這位病人今天門診要不要接種？」是一次性的點問題（用序列試驗）；「他往後幾年要不要持續打追加劑？」是持續的策略（用 CCW）。選對工具，其實就是誠實面對你真正的問題是「單一決定」還是「持續計畫」。不論哪一種，兩者都只是在模仿一場你實際上沒辦法跑的隨機試驗，也就是目標試驗模擬。
         </p>
       </div>
       <div class="tdef">
         <h4>反機率加權（IPTW） <span class="en">inverse-probability-of-treatment weighting</span></h4>
         <p data-en="Inside each mini-trial, the people who start treatment usually aren't the same kind of people as those who don't — for example frailer patients tend to start sooner — so a raw comparison is unfair (this is confounding by indication). IPTW fixes this by re-weighting people so the two groups look balanced on the things you measured. The idea: first model how likely each person was to start given their characteristics X, then give each person a weight equal to 1 over that probability — <code>1/P(start now | X)</code> for starters and <code>1/P(not | X)</code> for non-starters. Someone who was very likely to start but you observe anyway counts as &quot;many similar people&quot;, so rare-but-informative cases get up-weighted and over-represented ones get down-weighted, until the two arms are comparable. Do this in every mini-trial and each one yields a clean treatment effect. One catch: it only works if every kind of person could plausibly land in either arm — that's the positivity check (tab ④, C2).">
-          在每一場 mini-trial 裡，會開始用藥的人通常跟不用藥的人不是同一種人，例如體弱者往往比較早開始，所以直接相比並不公平（這叫適應症混淆）。IPTW 的解法是把人重新加權，讓兩組在你量得到的特徵上看起來一樣。做法是：先模型化每個人在其特徵 X 下「會開始用藥」的機率，再給每個人一個權重，等於那個機率的倒數，用藥者是 <code>1/P(現在開始 | X)</code>，不用藥者是 <code>1/P(不開始 | X)</code>。一個本來很可能用藥、你卻剛好觀察到的人，就代表「很多個跟他類似的人」，於是稀有但有資訊的案例被放大、過度出現的被縮小，直到兩臂可比。每一場都這樣做，每場就能估出乾淨的治療效果。要注意：它只在「每一種人都有可能落到任一臂」時才成立，這就是正性檢查（見 ④ 的 C2）。
+          在每一場迷你試驗裡，會開始用藥的人通常跟不用藥的人不是同一種人，例如體弱者往往比較早開始，所以直接相比並不公平（這叫適應症混淆）。IPTW 的解法是把人重新加權，讓兩組在你量得到的特徵上看起來一樣。做法是：先模型化每個人在其特徵 X 下「會開始用藥」的機率，再給每個人一個權重，等於那個機率的倒數，用藥者是 <code>1/P(現在開始 | X)</code>，不用藥者是 <code>1/P(不開始 | X)</code>。一個本來很可能用藥、你卻剛好觀察到的人，就代表「很多個跟他類似的人」，於是稀有但有資訊的案例被放大、過度出現的被縮小，直到兩臂可比。每一場都這樣做，每場就能估出乾淨的治療效果。要注意：它只在「每一種人都有可能落到任一臂」時才成立，這就是正性檢查（見 ④ 的 C2）。
         </p>
       </div>
     </details>
