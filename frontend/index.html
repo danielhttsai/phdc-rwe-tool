@@ -2917,7 +2917,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <h1 data-en="Sequential trials: one emulated trial per eligibility time, then pool">序列試驗：每個資格時點開一場模擬試驗，再合併</h1>
     <p class="lead" data-en="When a <b>point treatment</b> (treat now vs not) could be started at many different times, you can't just compare 'ever-treated vs never' — that has <b>immortal-time bias</b> (the ever-treated had to survive long enough to start). Instead, emulate a small <b>target trial at each eligibility month</b>: at that moment, compare those who initiate vs those who don't, align time-zero, adjust for baseline covariates, then <b>pool</b> across all the sequential trials. A person can re-enter several trials, boosting the effective sample.">
       當一個<b>點治療</b>（當下治療 vs 不治療）可以在很多不同時間點啟動時，你不能只比「曾治療 vs 從未治療」，
-      那會有 <b>immortal-time bias</b>（曾治療者必須先活得夠久才能開始）。做法：在<b>每個資格月</b>各模擬一場
+      那會有<b>不死時間偏誤</b>（曾治療者必須先活得夠久才能開始）。做法：在<b>每個資格月</b>各模擬一場
       小型目標試驗：在那一刻，比較啟動 vs 不啟動的人、對齊時間零點、調整基線共變項，再把所有序列試驗<b>合併</b>。
       同一個人可在多場重複收案，放大有效樣本。
     </p>
@@ -2932,7 +2932,7 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="tdef">
         <h4>序列試驗 <span class="en">sequential trials</span></h4>
         <p data-en="A treatment that you could start at many different moments creates a trap: if you just compare &quot;people who ever started&quot; against &quot;people who never did&quot;, the ever-started group had to survive long enough to start at all — that built-in survival makes treatment look better than it is (immortal-time bias). The fix is to stop treating it as one big comparison and instead open a small make-believe trial at every moment someone becomes eligible: at that exact moment, line everyone up at the same starting clock (time-zero), split them into &quot;starts now&quot; vs &quot;doesn't&quot;, and follow each forward. Do this month after month — a mini-trial at month 0, month 1, and so on — then combine the answers, weighting the more precise trials more (inverse-variance pooling). Because the same person can re-qualify and join several of these trials, you get more usable data out of the same people.">
-          一個「可以在很多不同時間點開始」的治療藏著一個陷阱：如果你只是拿「曾經用過藥的人」跟「從來沒用過的人」相比，曾用藥的那群人必須先活得夠久、撐到能開始用藥，這種「先天就活下來」會讓治療看起來比實際更有效（這就是 immortal-time bias）。解法是別把它當成一場大比較，而是每當有人符合資格，就開一場小型的假想試驗：在那一刻，把大家對齊在同一個起跑時鐘（時間零點），分成「現在開始」與「現在不開始」兩組，各自往前追蹤。一個月一個月地做，第 0 月一場、第 1 月一場……，再把各場的答案合併，讓越精準的試驗占越大份量（逆變異數加權）。因為同一個人可以重複符合資格、參加好幾場，你能從同一批人得到更多可用的資料。
+          一個「可以在很多不同時間點開始」的治療藏著一個陷阱：如果你只是拿「曾經用過藥的人」跟「從來沒用過的人」相比，曾用藥的那群人必須先活得夠久、撐到能開始用藥，這種「先天就活下來」會讓治療看起來比實際更有效（這就是不死時間偏誤）。解法是別把它當成一場大比較，而是每當有人符合資格，就開一場小型的假想試驗：在那一刻，把大家對齊在同一個起跑時鐘（時間零點），分成「現在開始」與「現在不開始」兩組，各自往前追蹤。一個月一個月地做，第 0 月一場、第 1 月一場……，再把各場的答案合併，讓越精準的試驗占越大份量（逆變異數加權）。因為同一個人可以重複符合資格、參加好幾場，你能從同一批人得到更多可用的資料。
         </p>
       </div>
       <div class="tdef">
@@ -2956,7 +2956,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <h1 data-en="Interactive: sequential trials stay on target while the naive contrast drifts">互動：序列試驗穩住目標，未校正比較卻飄走</h1>
     <p class="lead" data-en="Drag the slider to change how strongly treatment is confounded by indication (frail patients initiate sooner). The <b>sequential</b> pooled estimate tracks the truth at every setting; the <b>naive</b> ever-vs-never comparison is badly immortal-time biased throughout. Watch the per-trial risk differences and the numbers.">
       拉動滑桿，改變治療被適應症混淆的程度（體弱者較早啟動）。<b>序列</b>合併估計在每個設定下都緊貼真值；
-      <b>未校正</b>的曾 vs 從未比較則整段都帶著嚴重的 immortal-time bias。看各場的風險差與數字。
+      <b>未校正</b>的曾 vs 從未比較則整段都帶著嚴重的不死時間偏誤。看各場的風險差與數字。
     </p>
 
     <div class="controls">
@@ -2976,7 +2976,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <div id="seqPlayChart" class="chart"></div>
     <p class="caption" data-en="Each dot is one sequential trial's IPTW risk difference (treat-now vs not) at its eligibility month; the teal line is their inverse-variance pooled estimate; the green dashed line is the truth. The amber line is the naive ever-vs-never contrast — far below, inflated by immortal time.">
       每個點是一場序列試驗在其資格月的 IPTW 風險差（當下治療 vs 不治療）；青線是它們的逆變異數合併估計；綠虛線是真值。
-      琥珀線是未校正的曾 vs 從未比較，遠在下方，被 immortal time 誇大。
+      琥珀線是未校正的曾 vs 從未比較，遠在下方，被不死時間誇大。
     </p>
   </section>
 
@@ -2985,7 +2985,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <h1 data-en="Data analysis: run full sequential trials">資料分析：跑一次完整的序列試驗</h1>
     <p class="lead" data-en="Load the built-in point-treatment example (or upload a CSV with one row per person: when they initiated treatment, whether/when the event happened, and baseline covariates). The tool opens a sequential trial at each eligibility month, applies IPTW, inverse-variance pools the per-trial effects, and contrasts the result with the immortal-time-biased naive comparison.">
       載入內建的點治療範例（或上傳每列一個人的 CSV：何時啟動治療、是否／何時發生事件、基線共變項）。
-      工具會在每個資格月開一場序列試驗、做 IPTW、把各場效果做逆變異數合併，並與帶有 immortal-time 偏誤的
+      工具會在每個資格月開一場序列試驗、做 IPTW、把各場效果做逆變異數合併，並與帶有不死時間偏誤的
       未校正比較並列。
     </p>
 
@@ -3009,7 +3009,7 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="result-cards" id="seqAnalyzeCards"></div>
       <div id="seqAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="Per-trial IPTW risk differences (dots) and their inverse-variance pooled estimate (teal line). The green dashed line is the truth; the naive number in the cards ignores immortal time.">
-        各場 IPTW 風險差（點）與其逆變異數合併估計（青線）。綠虛線是真值；卡片裡的未校正數字忽略了 immortal time。
+        各場 IPTW 風險差（點）與其逆變異數合併估計（青線）。綠虛線是真值；卡片裡的未校正數字忽略了不死時間。
       </p>
     </div>
   
@@ -3174,7 +3174,7 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
     <div class="cards">
       <div class="card"><h3 data-en="Method &amp; application">方法與應用</h3>
         <p data-en="Hernán &amp; Robins — the target-trial framework. Danaei et al. and Gran et al. — sequential trial emulation with pooled estimation. An applied example: emulating target trials to avoid immortal time in pregnancy medication-safety studies (Epidemiology 2023;34(3):430-438). When the question is 'treat now vs not' at many eligibility times, sequential trials are the natural design.">
-          Hernán &amp; Robins，目標試驗框架。Danaei 等人與 Gran 等人，序列試驗模擬與合併估計。應用例：在懷孕用藥安全研究中，用目標試驗模擬避免 immortal time（Epidemiology 2023;34(3):430-438）。當問題是多個資格時點的「當下治療 vs 不治療」時，序列試驗就是最自然的設計。
+          Hernán &amp; Robins，目標試驗框架。Danaei 等人與 Gran 等人，序列試驗模擬與合併估計。應用例：在懷孕用藥安全研究中，用目標試驗模擬避免不死時間（Epidemiology 2023;34(3):430-438）。當問題是多個資格時點的「當下治療 vs 不治療」時，序列試驗就是最自然的設計。
         </p></div>
     </div>
   </section>
@@ -3900,7 +3900,7 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
       新藥 A 會不會提高某個結果的風險？拿<b>用 A 的人 vs 沒用藥的人</b>比會雙重偏誤：病情重的才會被開 A
       （<b>因適應症而生的混淆</b>），而沒用藥的人通常比較健康（<b>健康使用者偏誤</b>）。<b>主動對照新使用者</b>設計改成比
       <b>A 的新使用者</b> vs <b>主動對照藥 B</b>（治療<b>同一個適應症</b>）的新使用者：兩組都有這個病、都從明確的時間零點
-      （第一張處方）起跑，因適應症的混淆與 immortal-time／盛行使用者偏誤就大幅消掉；殘留的嚴重度差再用傾向分數補掉。
+      （第一張處方）起跑，因適應症的混淆與不死時間／盛行使用者偏誤就大幅消掉；殘留的嚴重度差再用傾向分數補掉。
     </p>
 
     <div class="card scene">
@@ -5923,7 +5923,7 @@ list outcome rr e_point e_ci</code></pre>
     <p class="lead" data-en="QBA gives a sharp answer to a narrow question — but only the question you posed. Read these limits before leaning on any bias analysis.">QBA 對「你問的那個窄問題」給出明確答案，但也只有那個問題。靠任何偏誤分析之前，先看清這些界線。</p>
     <div class="cards cards-3">
       <div class="card warn"><h3 data-en="A floor, not proof of safety">是下限，不是「沒問題」的證明</h3><p data-en="A QBA showing the result <b>survives</b> means the modelled bias would have to be <b>strong</b> to overturn it — it does <b>not</b> say such bias is absent. If a well-known strong confounder was left unmeasured, a reassuring number is cold comfort.">QBA 顯示結果<b>存活</b>，代表你建模的那種偏誤要<b>很強</b>才翻得動，但它<b>不</b>表示那種偏誤不存在。如果有一個眾所周知的強混淆沒被測到，再漂亮的數字也安慰不了人。</p></div>
-      <div class="card warn"><h3 data-en="It only covers the bias you model">只涵蓋你建模的那種偏誤</h3><p data-en="Each QBA targets <b>one</b> bias — unmeasured confounding (E-value, array approach), or misclassification, or selection. A confounding QBA says nothing about <b>measurement error</b>, <b>selection bias</b>, missing data, or a broken design (immortal time, collider stratification). Those need their own bias analyses.">每個 QBA 只針對<b>一種</b>偏誤，未測混淆（E-value、array approach）、或錯分類、或選樣。針對混淆的 QBA 對<b>測量誤差</b>、<b>選樣偏誤</b>、缺失資料、或壞掉的設計（immortal time、對撞分層）<b>一概不管</b>，那些要各自做。</p></div>
+      <div class="card warn"><h3 data-en="It only covers the bias you model">只涵蓋你建模的那種偏誤</h3><p data-en="Each QBA targets <b>one</b> bias — unmeasured confounding (E-value, array approach), or misclassification, or selection. A confounding QBA says nothing about <b>measurement error</b>, <b>selection bias</b>, missing data, or a broken design (immortal time, collider stratification). Those need their own bias analyses.">每個 QBA 只針對<b>一種</b>偏誤，未測混淆（E-value、array approach）、或錯分類、或選樣。針對混淆的 QBA 對<b>測量誤差</b>、<b>選樣偏誤</b>、缺失資料、或壞掉的設計（不死時間、對撞分層）<b>一概不管</b>，那些要各自做。</p></div>
       <div class="card"><h3 data-en="You supply the bias parameters">偏誤參數要你自己給</h3><p data-en="Deterministic QBA (array approach) needs the confounder's prevalence and strength; probabilistic QBA needs <b>distributions</b> for them; the E-value sidesteps this by reporting the strength needed. Either way the inputs are assumptions — vary them across plausible ranges (tab ⑥), never a single guess.">決定型 QBA（array approach）需要混淆的盛行率與強度；機率式 QBA 需要它們的<b>分布</b>；E-value 則用「報出所需強度」繞開這件事。不管哪種，輸入都是假設，要在合理範圍內變動（⑥ 分頁），別只猜一個值。</p></div>
     </div>
   </section>
@@ -6265,7 +6265,7 @@ regress y treated external x, level(90)</code></pre>
   <section id="seqwhatif" class="panel">
     <h1 data-en="⑥ What if…? Sequential trials in the language of counterfactuals">⑥ 如果……？用反事實的語言看「序列試驗 Seq」</h1>
     <p class="lead" data-en="What if we could run the randomised trial we can't run? At each eligibility time, emulate a target trial: <b>initiate now</b> (Yᵃ⁼¹) vs <b>not yet</b> (Yᵃ⁼⁰), reset the clock to time zero, follow forward, then pool. This is target-trial emulation, and it sidesteps immortal-time bias.">
-      如果能把「做不到的隨機試驗」做出來呢？在每個資格時點模擬一場目標試驗：<b>當下啟動</b>（Yᵃ⁼¹）vs <b>先不啟動</b>（Yᵃ⁼⁰），把時鐘歸零、往前追蹤、再合併。這就是目標試驗模擬，並避開 immortal-time 偏誤。
+      如果能把「做不到的隨機試驗」做出來呢？在每個資格時點模擬一場目標試驗：<b>當下啟動</b>（Yᵃ⁼¹）vs <b>先不啟動</b>（Yᵃ⁼⁰），把時鐘歸零、往前追蹤、再合併。這就是目標試驗模擬，並避開不死時間偏誤。
     </p>
     <div class="card scene"><h3 data-en="One emulated trial per eligibility time, then pooled">每個資格時點一場模擬試驗，再合併</h3>
       <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_seq" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the initiation node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：啟動節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_seq" class="chart"></div></div></div></div>
@@ -7332,7 +7332,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       <div class="card"><h3 data-en="Oncology / cancer registries">腫瘤／癌症登錄</h3><p data-en="<b>SEER</b>, national cancer registries (e.g. Taiwan Cancer Registry), often linked to claims (SEER-Medicare). Rich on stage, histology, survival. <b>Powers:</b> survival cohorts, <b>RDD</b> at stage/age treatment thresholds, mediation (biomarker on the path). <b>Weak on:</b> outpatient drugs unless linked, lead-time / detection bias.">「<b>SEER</b>」、各國癌症登錄（如台灣癌症登錄），常與理賠連結（SEER-Medicare）。期別、組織型、存活很豐富。<b>撐得起：</b>存活世代、依期別／年齡治療門檻的 <b>RDD</b>、中介（路徑上的生物標記）。<b>弱點：</b>未連結時的門診用藥、領先時間／偵測偏誤。</p></div>
       <div class="card"><h3 data-en="Global burden / ecological">全球疾病負擔／生態</h3><p data-en="<b>GBD (IHME)</b>, WHO Global Health Observatory aggregate mortality &amp; risk-factor estimates by country-year. <b>Powers:</b> ecological / cross-country <b>DiD</b> and <b>ITS</b> on policies, comparative risk assessment. <b>Weak on:</b> the ecological fallacy — group-level associations need not hold for individuals.">「<b>GBD（IHME）</b>」、WHO 全球衛生觀測站彙總各國各年的死亡與風險因子估計。<b>撐得起：</b>政策的生態學／跨國 <b>DiD</b> 與 <b>ITS</b>、比較風險評估。<b>弱點：</b>生態謬誤，群體層級的關聯不必然適用於個人。</p></div>
       <div class="card"><h3 data-en="Vaccine safety surveillance">疫苗安全監測</h3><p data-en="<b>VAERS</b> &amp; WHO <b>VigiBase</b> (spontaneous reports) and the linked <b>Vaccine Safety Datalink (VSD)</b>. <b>Powers:</b> <b>SCCS</b> and <b>TND</b>, <b>sequential</b> safety testing, and <b>TreeScan</b> across an outcome tree; disproportionality on spontaneous reports. <b>Weak on:</b> under-reporting &amp; stimulated reporting in spontaneous systems.">「<b>VAERS</b>」與 WHO「<b>VigiBase</b>」（自發通報），以及可連結的「<b>疫苗安全資料連結（VSD）</b>」。<b>撐得起：</b><b>SCCS</b> 與 <b>TND</b>、<b>序列</b>安全監測、對結果樹的 <b>TreeScan</b>；自發通報的不相稱性分析。<b>弱點：</b>自發系統的低報與被刺激通報。</p></div>
-      <div class="card"><h3 data-en="High-resolution ICU / critical care">重症／ICU 高解析</h3><p data-en="<b>MIMIC-IV</b>, <b>eICU</b>, AmsterdamUMCdb: dense, time-stamped vitals, labs, drips. <b>Powers:</b> <b>time-varying treatment</b> designs (g-methods / marginal structural models, CCW), <b>target-trial emulation</b> on minute-by-minute care. <b>Weak on:</b> single-centre selection, immortal-time traps if time zero is mishandled.">「<b>MIMIC-IV</b>」、「<b>eICU</b>」、AmsterdamUMCdb：密集、有時間戳的生命徵象、檢驗、點滴。<b>撐得起：</b><b>時變治療</b>設計（g-methods／邊際結構模型、CCW）、對逐分鐘照護的<b>目標試驗模擬</b>。<b>弱點：</b>單中心選擇、時間零點沒處理好就落入 immortal-time 陷阱。</p></div>
+      <div class="card"><h3 data-en="High-resolution ICU / critical care">重症／ICU 高解析</h3><p data-en="<b>MIMIC-IV</b>, <b>eICU</b>, AmsterdamUMCdb: dense, time-stamped vitals, labs, drips. <b>Powers:</b> <b>time-varying treatment</b> designs (g-methods / marginal structural models, CCW), <b>target-trial emulation</b> on minute-by-minute care. <b>Weak on:</b> single-centre selection, immortal-time traps if time zero is mishandled.">「<b>MIMIC-IV</b>」、「<b>eICU</b>」、AmsterdamUMCdb：密集、有時間戳的生命徵象、檢驗、點滴。<b>撐得起：</b><b>時變治療</b>設計（g-methods／邊際結構模型、CCW）、對逐分鐘照護的<b>目標試驗模擬</b>。<b>弱點：</b>單中心選擇、時間零點沒處理好就落入不死時間陷阱。</p></div>
       <div class="card"><h3 data-en="Maternal &amp; perinatal">母嬰／圍產</h3><p data-en="Birth / perinatal registries linking mother and baby across pregnancies. <b>Powers:</b> <b>sibling-controlled</b> comparisons (a within-family self-control for shared genetics/environment), <b>negative controls</b>, and target-trial emulation of pregnancy exposures. <b>Weak on:</b> confounding by indication for the maternal condition itself.">連結母親與嬰兒、跨懷孕的出生／圍產登錄。<b>撐得起：</b><b>手足對照</b>（家庭內自我對照，控掉共享的基因／環境）、<b>陰性對照</b>、孕期暴露的目標試驗模擬。<b>弱點：</b>母體疾病本身的適應症混淆。</p></div>
       <div class="card"><h3 data-en="Spontaneous reporting / signals">自發通報／安全訊號</h3><p data-en="<b>FAERS</b> (US) &amp; WHO <b>VigiBase</b> — spontaneous adverse-event reports for any drug. <b>Powers:</b> hypothesis-generating signal detection: <b>disproportionality</b> (ROR/PRR), <b>TreeScan</b> across an event hierarchy, <b>PSSA</b> for prescribing cascades. <b>Weak on:</b> no denominator, reporting biases — signals need confirmation in a proper cohort.">「<b>FAERS</b>」（美國）與 WHO「<b>VigiBase</b>」，任何藥的自發不良事件通報。<b>撐得起：</b>產生假說的訊號偵測：<b>不相稱性</b>（ROR／PRR）、對事件階層的 <b>TreeScan</b>、處方瀑布的 <b>PSSA</b>。<b>弱點：</b>沒有分母、通報偏誤，訊號要在正規世代裡確認。</p></div>
       <div class="card"><h3 data-en="Environmental / exposure">環境暴露</h3><p data-en="Air-pollution monitors, weather, and area-level exposures linked to health records by time and place. <b>Powers:</b> <b>ITS</b> and <b>case-crossover (CCTC)</b> for acute effects, <b>DiD</b> around a regulation, instrumental variables (wind / inversions). <b>Weak on:</b> exposure measurement error, spatial confounding.">空污監測、氣象與區域層級暴露，依時間與地點連到健康紀錄。<b>撐得起：</b>急性效應的 <b>ITS</b> 與<b>病例交叉（CCTC）</b>、法規前後的 <b>DiD</b>、工具變數（風／逆溫）。<b>弱點：</b>暴露測量誤差、空間混淆。</p></div>
@@ -7383,7 +7383,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       <h3 data-en="Every design here corrects its naive bias back to the truth (grouped by family; mediation recovers the true direct effect, transportability/external-control the target-population effect, and the last family triangulates with genetic-IV and wet lab experiments)">每一種設計，各自把「未校正偏誤」修回真值（按家族分組；中介分析還原真正的直接效果，可轉移性／外部對照還原目標族群的效果，最後一個家族則用遺傳工具與實驗室實驗做三角驗證）</h3>
       <p data-en="Each method's truth is on a <b>different scale</b> (an effect difference, an odds ratio, a rate ratio, a level change…), so here every estimate is divided by <b>its own truth</b>: 1.0 means perfectly recovered. <b>Amber</b> = the naive comparison (pulled off 1.0 by confounding / immortal time / depletion); <b>teal</b> = the method's corrected estimate (back near 1.0). The bars are grouped into design <b>families</b> (borrowed exogenous variation · borrowed timing · self-controlled · target-trial emulation · active-comparator new-user · sampling · proxies/negative controls · mechanism/mediation) — different ways of recovering the truth, all landing near 1.0.">
         每種方法的真值在<b>不同的尺度</b>上（效果差、勝算比、率比、水準變化……），所以這裡把每個估計都除以
-        <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝未校正比較（被混淆／immortal time／易感者耗竭從 1.0 帶偏）；
+        <b>它自己的真值</b>：1.0＝完全命中。<b>琥珀色</b>＝未校正比較（被混淆／不死時間／易感者耗竭從 1.0 帶偏）；
         <b>青色</b>＝該方法校正後（貼回 1.0 附近）。長條依設計<b>家族</b>分組（借外生變異・借時間・自我對照・
         目標試驗模擬・主動對照新使用者・抽樣・代理／陰性對照・機制／中介），不同的還原真值方式，最後都落在 1.0 附近。
       </p>
