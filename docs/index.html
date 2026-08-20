@@ -6162,7 +6162,7 @@ regress y treated external x, level(90)</code></pre>
   <section id="perrwhatif" class="panel">
     <h1 data-en="⑥ What if…? PERR in the language of counterfactuals">⑥ 如果……？用反事實的語言看「事前事件率比 PERR」</h1>
     <p class="lead" data-en="We want the treated group's <b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>, but stable differences in frailty confound the contrast. PERR's trick: take the rate ratio in a <b>prior (untreated) period</b> and divide it out, so any <b>time-fixed, multiplicative</b> confounding cancels.">
-      我們要受處置組的<b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>，但穩定的體質差異會混淆對比。PERR 的招式：在<b>事前（未處置）期</b>也算一次率比、再相除，讓<b>時間不變、乘法型</b>的混淆相消。
+      我們想知道處置組的<b>Yᵃ⁼¹</b> vs <b>Yᵃ⁼⁰</b>，但穩定的體質差異會混淆對比。PERR 的招式：在<b>事前（未處置）期</b>也算一次率比、再相除，讓<b>時間不變、乘法型</b>的混淆相消。
     </p>
     <div class="card scene"><h3 data-en="Cancelling stable confounding by a ratio of ratios">用比值的比值消掉穩定混淆</h3>
       <div class="whatif-pair"><div class="whatif-col"><p class="caption" data-en="Causal structure (DAG)">因果結構圖（DAG）</p><div id="whatifScene_perr" class="chart"></div></div><div class="whatif-col"><p class="caption" data-en="Counterfactual intervention graph (SWIG): the drug node splits into A∣a and the outcome becomes the counterfactual Yᵃ">反事實介入圖（SWIG）：用藥節點拆成 A∣a、結果變成反事實 Yᵃ</p><div id="swigScene_perr" class="chart"></div></div></div></div>
@@ -6205,7 +6205,7 @@ regress y treated external x, level(90)</code></pre>
     </details>
     <div class="cards">
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The <b>level change</b> and <b>slope change</b> at the intervention: observed minus the extrapolated counterfactual trend.">介入點的<b>水準跳變</b>與<b>斜率改變</b>：實際值減去外推的反事實趨勢。</p></div>
-      <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability</b> here means <b>no co-occurring events</b> at the same time (so the only thing that changed is the intervention). <b>Positivity</b>: enough periods before and after. <b>Consistency</b>: a sharp, well-defined intervention time.">這裡的<b>可交換性</b>＝<b>沒有同時發生的時代事件</b>（唯一改變的只有這個介入）。<b>正性</b>：前後期數夠。<b>一致性</b>：介入時點尖銳、明確。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability</b> here means <b>no co-occurring events</b> at the same time (so the only thing that changed is the intervention). <b>Positivity</b>: enough periods before and after. <b>Consistency</b>: a sharp, well-defined intervention time.">這裡的<b>可交換性</b>＝<b>沒有同時發生的其他事件</b>（唯一改變的只有這個介入）。<b>正性</b>：前後期數夠。<b>一致性</b>：介入時點尖銳、明確。</p></div>
       <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From the population's <b>own past</b>: the pre-trend is the counterfactual. It fails if something else changed at the same moment, or if the trend isn't the right shape (autocorrelation, seasonality).">來自族群<b>自己的過去</b>：介入前趨勢就是反事實。若同時還有別的事改變、或趨勢形狀抓錯（自相關、季節）就失效。</p></div>
       <div class="card"><h3 data-en="④ In What If">④ 對應《What If》</h3><p data-en="A before-after design with a projected counterfactual; relates to time-varying treatments. Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">前後比較＋投影反事實；與時變治療相關。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
@@ -7400,7 +7400,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <b>每一種都在「假裝」做隨機試驗。</b>沒有一個真的隨機分派誰用藥，而是各自找到一段<b>近似隨機</b>的變異（或自我對照／抽樣的把戲）來頂替。
         </li>
         <li data-en="<b>Each hinges on one untestable core assumption.</b> Exclusion, continuity, parallel trends, no-synchronised-confounder-trend, no-coincident-event, time-invariant confounding, sequential exchangeability, the active comparator's shared indication, time-conditional exchangeability — each design rests on one thing you can't prove from data, plus testable supports. So every method has a ④ dashboard you must run.">
-          <b>每一種都押在一條不可檢驗的核心假設上。</b>排除限制、連續性、平行趨勢、無同步混淆趨勢、無同時代事件、
+          <b>每一種都押在一條不可檢驗的核心假設上。</b>排除限制、連續性、平行趨勢、無同步混淆趨勢、無同時事件、
           時間不變混淆、序列可交換、對照藥同適應症、時間條件可交換，每種設計都靠一條無法用資料證明的前提，外加可檢驗的佐證。所以每個方法都配一個 ④ 假設儀表板，一定要跑。
         </li>
         <li data-en="<b>Most can be boosted by ML (tab ⑤), and several now run real scikit-learn.</b> Flexible models for the nuisance pieces, cross-fitting as the safety belt — IV, RDD, DiD, ITS, CC, SCCS, ACNU, PNU, MED and PS run a genuine scikit-learn demo; for TiT and PERR the literature has no AI version yet.">
