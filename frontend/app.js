@@ -82,9 +82,11 @@ let curMethod = "iv", curSub = "concept";
 const methodSelect = document.getElementById("methodSelect");
 const subtabBtns = [...document.querySelectorAll(".subtab")];
 const subtabsRow = document.querySelector(".subtabs");
-const chooseTab = document.getElementById("chooseTab");
-const flowTab = document.getElementById("flowTab");
-const dataTab = document.getElementById("dataTab");
+// 因果流程 / 怎麼選 / 資料庫 are one tab now (see showDesign). The three old
+// names stay as aliases of it so every existing "deactivate the other tabs"
+// line keeps working untouched.
+const designTab = document.getElementById("designTab");
+const chooseTab = designTab, flowTab = designTab, dataTab = designTab;
 const homeTab = document.getElementById("homeTab");
 const glossaryTab = document.getElementById("glossaryTab");
 const cbookTab = document.getElementById("cbookTab");
@@ -164,9 +166,13 @@ function applyHash() {
     if (raw === "glossary") { showGlossary(); return true; }
     if (raw === "cbook") { showCbook(); return true; }
     if (raw === "sbook") { showSbook(); return true; }
-    if (raw === "flow") { if (flowTab) flowTab.click(); return true; }
-    if (raw === "choose") { chooseTab.click(); return true; }
-    if (raw === "db") { if (dataTab) { dataTab.click(); return true; } return false; }
+    // one tab now; the three legacy routes all resolve to it
+    if (raw === "design" || raw === "flow" || raw === "choose" || raw === "db") {
+      showDesign();
+      const at = { flow: "flow", choose: "choose", db: "dbpanel" }[raw];
+      if (at) { const el = document.getElementById(at); if (el) el.scrollIntoView({ block: "start" }); }
+      return true;
+    }
     const p = new URLSearchParams(raw);
     if (p.has("topic") && TOPICS[p.get("topic")]) { openTopic(p.get("topic")); return true; }
     if (p.has("m") && METHOD_PREFIX[p.get("m")] !== undefined) {
@@ -688,6 +694,140 @@ function openTopic(key) {
   if (typeof filterRefs === "function") filterRefs(t.ref);
   setHash("#topic=" + key);
 }
+
+// ---------------------------------------------------------------------------
+// 研究設計 — the fused tab. 因果流程 / 怎麼選 / 資料庫 used to be three tabs,
+// but they are one chain: 問什麼 -> 有什麼資料 -> 能用什麼設計. Picking a design
+// is step 3 of the workflow, and what step 3 can reach is settled at step 2.
+// The workflow is the spine; the two choosers are stations inside it and each
+// narrows the other. No content moved: the tab activates all four panels.
+// ---------------------------------------------------------------------------
+const DESIGN_PANELS = ["design", "flow", "dbpanel", "choose"];
+
+// Which designs each database can actually carry. Read off DBRECS rather than
+// invented: every leaf of the database chooser already names its designs.
+function dbDesigns(dbKey) {
+  for (const k in DBRECS) if (DBRECS[k].db === dbKey) return (DBRECS[k].designs || []).map((d) => d.m);
+  return [];
+}
+function dbTitle(dbKey) {
+  for (const k in DBRECS) if (DBRECS[k].db === dbKey) return L(DBRECS[k].title);
+  return dbKey;
+}
+function designsToDbs(method) {
+  const out = [];
+  for (const k in DBRECS) {
+    const r = DBRECS[k];
+    if ((r.designs || []).some((d) => d.m === method)) out.push({ db: r.db, title: L(r.title) });
+  }
+  return out;
+}
+
+const DZ = { db: null, method: null };
+
+function dzMethodName(m) {
+  const opt = methodSelect && methodSelect.querySelector('option[value="' + m + '"]');
+  return opt ? opt.textContent.trim() : m;
+}
+
+function dzSync() {
+  const bar = document.getElementById("dzCouple");
+  const card = document.getElementById("dzCard");
+  if (!bar) return;
+  const dbName = DZ.db ? dbTitle(DZ.db) : null;
+  const mName = DZ.method ? dzMethodName(DZ.method) : null;
+  const supported = DZ.db ? dbDesigns(DZ.db) : [];
+  const carriers = DZ.method ? designsToDbs(DZ.method) : [];
+
+  // the coupling bar: what each choice has done to the other
+  let html = '<div class="dz-slot' + (DZ.db ? " on" : "") + '">' +
+    '<span class="dz-slot-lab">' + tr("② 你的資料", "2. your data") + "</span>" +
+    (dbName ? "<b>" + dbName + "</b>" : '<i>' + tr("還沒選，往下用資料庫決策樹挑一個", "not chosen yet — use the database tree below") + "</i>") + "</div>";
+  html += '<div class="dz-link">' + (DZ.db || DZ.method ? "⇄" : "⇄") + "</div>";
+  html += '<div class="dz-slot' + (DZ.method ? " on" : "") + '">' +
+    '<span class="dz-slot-lab">' + tr("③ 你的設計", "3. your design") + "</span>" +
+    (mName ? "<b>" + mName + "</b>" : '<i>' + tr("還沒選，往下用方法決策樹挑一個", "not chosen yet — use the method tree below") + "</i>") + "</div>";
+  bar.innerHTML = html;
+
+  // the card: what this pairing means, and what is still open
+  if (!card) return;
+  if (!DZ.db && !DZ.method) {
+    card.innerHTML = '<p class="muted">' + tr(
+      "先挑一邊都可以：選了資料庫，下面的設計會標出這份資料撐得起哪些；選了設計，資料庫總表會標出哪些來源做得到。",
+      "Start from either side: choose a database and the designs it can carry are marked below; choose a design and the sources that can carry it are marked in the comparison table.") + "</p>";
+    dzPaint();
+    return;
+  }
+  let body = "";
+  if (DZ.db) {
+    body += "<p><b>" + tr("這份資料撐得起的設計：", "Designs this data can carry: ") + "</b>" +
+      (supported.length ? supported.map((m) => '<button class="dz-chip" data-go="' + m + '">' + dzMethodName(m) + "</button>").join("")
+        : tr("（這個來源沒有標定強項設計）", "(no flagged strengths for this source)")) + "</p>";
+  }
+  if (DZ.method) {
+    body += "<p><b>" + tr("撐得起這個設計的資料來源：", "Sources that can carry this design: ") + "</b>" +
+      (carriers.length ? carriers.map((c) => "<span class=\"dz-tag\">" + c.title + "</span>").join("")
+        : tr("（總表裡沒有把它列為強項的來源，要自己確認欄位）", "(no source lists it as a strength — check the fields yourself)")) + "</p>";
+  }
+  if (DZ.db && DZ.method) {
+    const ok = supported.includes(DZ.method);
+    body += '<p class="dz-verdict ' + (ok ? "ok" : "warn") + '">' + (ok
+      ? tr("<b>這個組合站得住。</b>" + dbName + " 的欄位足以支撐 " + mName + "；接著往下走流程的第 5 步，量化修不掉的殘餘偏誤。",
+           "<b>This pairing holds.</b> " + dbName + " has the fields " + mName + " needs; move on to step 5 and quantify the bias you cannot remove.")
+      : tr("<b>這個組合要先確認。</b>" + mName + " 不在 " + dbName + " 標定的強項裡，代表這份資料不一定有它需要的欄位（例如逐筆用藥日期、檢驗值、可串接的死亡或登錄檔）。要嘛回頭換資料，要嘛改用這份資料撐得起的設計。",
+           "<b>Check this pairing first.</b> " + mName + " is not among " + dbName + "'s flagged strengths, so the fields it needs may not be there. Either change the data or move to a design this source can carry.")) + "</p>";
+  }
+  card.innerHTML = body;
+  card.querySelectorAll(".dz-chip").forEach((b) =>
+    b.addEventListener("click", () => gotoMethod(b.dataset.go, "concept")));
+  dzPaint();
+}
+
+// mark up the two choosers so the constraint is visible where you are looking
+function dzPaint() {
+  const supported = DZ.db ? dbDesigns(DZ.db) : null;
+  document.querySelectorAll("#dtreeMap .fc-leaf").forEach((el) => {
+    el.classList.remove("dz-can", "dz-cannot");
+    if (!supported) return;
+    const badge = el.querySelector(".fc-badge");
+    if (!badge) return;
+    const tag = badge.textContent.replace(/[✓↗\s]/g, "").toLowerCase();
+    const hit = supported.some((m) => m.toLowerCase() === tag || dzMethodName(m).toLowerCase().includes(tag));
+    el.classList.add(hit ? "dz-can" : "dz-cannot");
+  });
+  // the summary table has no designs column, so match on the row's database key
+  const carriers = DZ.method ? designsToDbs(DZ.method).map((c) => c.db) : [];
+  document.querySelectorAll("#dbtreeSummary tbody tr").forEach((tr_) => {
+    tr_.classList.toggle("dz-row-can", !!DZ.method && carriers.includes(tr_.dataset.db));
+  });
+}
+
+(function _dzRailInit() {
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest && e.target.closest(".dz-stage");
+    if (!b) return;
+    document.querySelectorAll(".dz-stage").forEach((x) => x.classList.toggle("on", x === b));
+    const target = { data: "dbpanel", design: "choose" }[b.dataset.stage] || "flow";
+    const el = document.getElementById(target);
+    const rm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (el) el.scrollIntoView({ behavior: rm ? "auto" : "smooth", block: "start" });
+  });
+})();
+
+function showDesign() {
+  [homeTab, glossaryTab, cbookTab, sbookTab].forEach((t) => { if (t) t.classList.remove("active"); });
+  const dt = document.getElementById("designTab");
+  if (dt) dt.classList.add("active");
+  setSubtabs(false);
+  showPanels(DESIGN_PANELS);
+  // PANEL_INIT covers #choose; the database chooser used to be initialised by
+  // the old 資料庫 tab handler, so it needs an explicit kick here.
+  if (typeof initDbtree === "function") initDbtree();
+  if (typeof filterRefs === "function") filterRefs("choose");
+  setHash("#design");
+  dzSync();
+}
+
 function showMethodSub() {
   if (methodSelect.value !== curMethod) methodSelect.value = curMethod;  // resync dropdown if we came from a topic panel
   setSubtabs(true);
@@ -713,42 +853,7 @@ subtabBtns.forEach((b) => b.addEventListener("click", () => {
   if (subtabsRow && subtabsRow.style.display === "none") return;  // ignore clicks while on a topic / choose / db page
   curSub = subGroup(b.dataset.sub); showMethodSub();
 }));
-if (flowTab) flowTab.addEventListener("click", () => {
-  subtabBtns.forEach((x) => x.classList.remove("active"));
-  setSubtabs(false);
-  if (homeTab) homeTab.classList.remove("active");
-  if (glossaryTab) glossaryTab.classList.remove("active");
-  if (dataTab) dataTab.classList.remove("active");
-  chooseTab.classList.remove("active");
-  flowTab.classList.add("active");
-  showPanel("flow");
-  if (typeof filterRefs === "function") filterRefs("all");
-  setHash("#flow");
-});
-chooseTab.addEventListener("click", () => {
-  subtabBtns.forEach((x) => x.classList.remove("active"));
-  setSubtabs(false);
-  if (homeTab) homeTab.classList.remove("active");
-  if (glossaryTab) glossaryTab.classList.remove("active");
-  if (dataTab) dataTab.classList.remove("active");
-  if (flowTab) flowTab.classList.remove("active");
-  chooseTab.classList.add("active");
-  showPanel("choose");
-  if (typeof filterRefs === "function") filterRefs("choose");
-  setHash("#choose");
-});
-if (dataTab) dataTab.addEventListener("click", () => {
-  subtabBtns.forEach((x) => x.classList.remove("active"));
-  setSubtabs(false);
-  if (homeTab) homeTab.classList.remove("active");
-  if (glossaryTab) glossaryTab.classList.remove("active");
-  chooseTab.classList.remove("active"); if (flowTab) flowTab.classList.remove("active");
-  dataTab.classList.add("active");
-  showPanel("dbpanel");
-  if (typeof filterRefs === "function") filterRefs("db");
-  if (typeof initDbtree === "function") initDbtree();   // interactive database chooser
-  setHash("#db");
-});
+if (designTab) designTab.addEventListener("click", showDesign);
 window.addEventListener("hashchange", applyHash);
 // Delegated handler for in-content cross links (.xref) — survives i18n innerHTML swaps.
 // <a class="xref" data-m="sccs">SCCS</a> → go to that method; data-tab="db" → Databases tab.
@@ -767,9 +872,11 @@ document.addEventListener("click", (e) => {
   if (!a) return;
   e.preventDefault();
   if (a.dataset.m) gotoMethod(a.dataset.m, "learn");
-  else if (a.dataset.tab === "db" && dataTab) dataTab.click();
-  else if (a.dataset.tab === "choose") chooseTab.click();
-  else if (a.dataset.tab === "flow" && flowTab) flowTab.click();
+  else if (["db", "choose", "flow", "design"].includes(a.dataset.tab)) {
+    showDesign();
+    const at = { db: "dbpanel", choose: "choose", flow: "flow" }[a.dataset.tab];
+    if (at) { const el = document.getElementById(at); if (el) el.scrollIntoView({ block: "start" }); }
+  }
   else if (TOPICS[a.dataset.tab]) openTopic(a.dataset.tab);
 });
 
@@ -3553,6 +3660,8 @@ function renderDtree() {
 
   if (node.rec) {
     const r = node.rec;
+    // station ③ decided: tell the coupling which design the tree landed on
+    if (typeof DZ === "object" && r.kind === "toolbox" && r.method) { DZ.method = r.method; setTimeout(dzSync, 0); }
     const goto = r.kind === "toolbox"
       ? `<button class="dtree-goto" data-go="${r.method}">${tr("前往「" + r.badge.replace(" ✓", "") + "」的教學 →", "Go to " + r.badge.replace(" ✓", "") + " →")}</button>`
       : (r.altMethod ? `<button class="dtree-goto" data-go="${r.altMethod}">${L(r.altLabel)}</button>` : "");
@@ -3591,6 +3700,7 @@ function renderDtree() {
   }
   const back = document.getElementById("dtreeBack");
   if (back) back.disabled = dtreeStack.length <= 1;
+  if (typeof dzPaint === "function") dzPaint();
 }
 
 // the whole tree as a top-down FLOWCHART (start → two anchor lanes → decision
@@ -3635,6 +3745,7 @@ function renderFullMap(hitKey) {
   const dl = box.querySelector(".fc-dl");
   if (dl) dl.addEventListener("click", downloadFlowchart);
   _fitFlowchart();
+  if (typeof dzPaint === "function") dzPaint();   // re-apply the data->design marking
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -4070,6 +4181,7 @@ function renderDbtree() {
       b.addEventListener("click", () => gotoMethod(b.dataset.go, "learn")));
     const t = stage.querySelector("#dbShowTable");
     if (t) t.addEventListener("click", () => renderDbSummary(r.db));
+    if (typeof DZ === "object") { DZ.db = r.db; dzSync(); }   // station ② decided
   } else {
     stage.innerHTML =
       `<div class="dtree-step">${L(node.step)}</div>` +
@@ -4089,6 +4201,7 @@ function renderDbtree() {
   }
   const back = document.getElementById("dbtreeBack");
   if (back) back.disabled = dbtreeStack.length <= 1;
+  if (typeof dzPaint === "function") dzPaint();
 }
 
 // The 總表 (comparison table), with the reached database row highlighted.
@@ -4101,7 +4214,7 @@ function renderDbSummary(hitDb) {
     `${th("關鍵變數", "Key variables")}${th("可串接", "Linkage")}${th("追蹤", "Follow-up")}` +
     `${th("藥物X 情境", "Drug-X example")}</tr>`;
   const rows = DB_SUMMARY.map((d) =>
-    `<tr class="${hitDb && _dbKey(d) === hitDb ? "db-row-hit" : ""}">` +
+    `<tr data-db="${_dbKey(d)}" class="${hitDb && _dbKey(d) === hitDb ? "db-row-hit" : ""}">` +
     `<td><b>${L(d.name)}</b></td><td>${L(d.kind)}</td><td>${L(d.cover)}</td><td>${L(d.vars)}</td>` +
     `<td>${L(d.link)}</td><td>${L(d.follow)}</td><td>${L(d.eg)}</td></tr>`).join("");
   const notes = DB_NOTES.map((n) =>
@@ -4121,6 +4234,7 @@ function renderDbSummary(hitDb) {
     `<p class="db-notes-lead">${tr("這三個常被混在一起講，但兩個是<b>資料</b>、一個是<b>分析平台</b>。點開看它是什麼、強在哪、要注意什麼；每一則都附已發表的論文。", "These three get lumped together, but two are <b>data</b> and one is an <b>analytics platform</b>. Each note is anchored to published papers.")}</p>` +
     notes;
   box.hidden = false;
+  if (typeof dzPaint === "function") dzPaint();   // mark the rows that carry the chosen design
   box.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function _dbKey(d) {

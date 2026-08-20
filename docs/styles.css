@@ -875,3 +875,35 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .reflist .ref-why { display: block; font-size: .84rem; color: var(--muted); line-height: 1.7; margin-top: .15rem; }
 .reflist .ref-oa { display: inline-block; margin-left: .4rem; padding: 0 .4rem; border-radius: 999px;
   background: #dff0e8; color: #255c47; font-size: .72rem; font-weight: 700; vertical-align: .08em; }
+/* ---- 研究設計: the fused workflow spine + the two coupled choosers ---- */
+.dz-rail { display: flex; gap: .4rem; flex-wrap: wrap; margin: 1rem 0 .4rem; }
+.dz-stage { flex: 1 1 130px; text-align: left; border: 1.5px solid var(--line); background: var(--card);
+  border-radius: 10px; padding: .45rem .6rem; cursor: pointer; color: var(--ink); }
+.dz-stage b { display: inline-block; width: 1.4em; height: 1.4em; line-height: 1.4em; text-align: center;
+  border-radius: 999px; background: #eef2f1; color: var(--muted); font-size: .78rem; margin-right: .35rem; }
+.dz-stage.key { border-color: var(--z); }
+.dz-stage.key b { background: var(--z); color: #fff; }
+.dz-stage.on { background: #f0f7f4; border-color: var(--z); }
+.dz-stage:hover { border-color: var(--z); }
+.dz-stage-sub { display: block; font-size: .74rem; color: var(--muted); margin-top: .15rem; line-height: 1.5; }
+.dz-couple { display: flex; align-items: stretch; gap: .6rem; margin: 1rem 0 .6rem; flex-wrap: wrap; }
+.dz-slot { flex: 1 1 240px; border: 1.5px dashed var(--line); border-radius: 12px; padding: .6rem .9rem; background: var(--card); }
+.dz-slot.on { border-style: solid; border-color: var(--z); background: #f0f7f4; }
+.dz-slot-lab { display: block; font-size: .76rem; font-weight: 800; color: var(--muted); margin-bottom: .15rem; }
+.dz-slot b { font-size: 1rem; }
+.dz-slot i { font-size: .86rem; color: var(--muted); font-style: normal; }
+.dz-link { display: flex; align-items: center; font-size: 1.3rem; color: var(--z); }
+.dz-card { border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: .7rem 1rem;
+  font-size: .92rem; line-height: 1.8; }
+.dz-card p { margin: .3rem 0; }
+.dz-chip { border: 1.5px solid var(--z); background: var(--card); color: var(--z); border-radius: 999px;
+  padding: .2rem .7rem; font-size: .84rem; margin: .15rem .25rem .15rem 0; cursor: pointer; }
+.dz-chip:hover { background: var(--z); color: #fff; }
+.dz-tag { display: inline-block; background: #dff0e8; color: #255c47; border-radius: 999px;
+  padding: .2rem .7rem; font-size: .84rem; margin: .15rem .25rem .15rem 0; }
+.dz-verdict { border-radius: 8px; padding: .5rem .7rem; margin-top: .5rem !important; }
+.dz-verdict.ok { background: #f0f7f4; }
+.dz-verdict.warn { background: #f4f6f8; }
+.fc-leaf.dz-can { outline: 2px solid var(--z); outline-offset: 2px; }
+.fc-leaf.dz-cannot { opacity: .38; }
+tr.dz-row-can { background: #f0f7f4; }

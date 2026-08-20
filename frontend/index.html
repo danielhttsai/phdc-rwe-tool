@@ -72,9 +72,7 @@
       <button class="tab subtab" data-sub="play" role="tab" aria-selected="false" data-en="② Interactive">② 互動</button>
       <button class="tab subtab" data-sub="practice" role="tab" aria-selected="false" data-en="③ In practice">③ 實作</button>
     </div>
-    <button class="tab tab-sep" id="flowTab" data-en="Workflow">因果流程</button>
-    <button class="tab" id="chooseTab" data-en="Which one?">怎麼選</button>
-    <button class="tab" id="dataTab" data-en="Databases">資料庫</button>
+    <button class="tab tab-sep" id="designTab" data-en="Design a study">研究設計</button>
     <button class="tab" id="glossaryTab" data-en="Glossary">名詞表</button>
     <button class="tab" id="cbookTab" data-en="What If (book)">What If 課本 🔒</button>
     <button class="tab" id="sbookTab" data-en="SCCS (book)">SCCS 課本 🔒</button>
@@ -7205,6 +7203,23 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
 </section>
 
   <!-- ===================== 因果推論流程 / Causal-inference workflow ===================== -->
+
+  <!-- 研究設計 = the old 因果流程 + 怎麼選 + 資料庫, fused. The workflow is the
+       spine; the two choosers are stations 3 and 4 inside it and constrain each
+       other. This section is only the spine and the coupling; the three original
+       panels below it keep their content and are shown together with it. -->
+  <section id="design" class="panel">
+    <h1 data-en="Designing a study: what your data allows, and which design it can carry">研究設計：資料允許什麼，設計就只能走到哪裡</h1>
+    <p class="lead" data-en="Before any analysis runs, a study makes three decisions: <b>what to ask</b>, <b>what data you have</b>, and <b>which design you can run</b>. They are a chain, not a menu: picking a design is step 3 of the workflow below, and what step 3 can reach is already decided by step 2. That is why choosing a database and choosing a design live on the same page here, and why each one narrows the other as you go.">
+      在動手分析之前，一個研究只要做三個決定：<b>問什麼</b>、<b>手上有什麼資料</b>、<b>能用什麼設計</b>。這三件事不是三選一的清單，而是一條鏈：<b>挑設計是下面流程的第 3 步，而第 3 步能走到哪裡，在第 2 步（資料裡有什麼）就已經被決定了</b>。所以選資料庫和選設計放在同一頁，而且你每選一邊，另一邊就會跟著縮小範圍。
+    </p>
+
+    <div class="dz-rail" role="tablist" aria-label="因果推論流程的七個階段"><button class="dz-stage" data-stage="sig" data-en="A signal"><b>1</b>訊號<span class="dz-stage-sub" data-en="a public-health signal appears">一個公衛訊號冒出來</span></button><button class="dz-stage" data-stage="screen" data-en="Screen"><b>2</b>篩選<span class="dz-stage-sub" data-en="fast screening, hypothesis generating">快速篩選、產生假說（PSSA、TreeScan）</span></button><button class="dz-stage key" data-stage="data" data-en="Data"><b>3</b>資料<span class="dz-stage-sub" data-en="frame the question, see what the data holds">界定問題，看手上的資料有什麼</span></button><button class="dz-stage key" data-stage="design" data-en="Design"><b>4</b>設計<span class="dz-stage-sub" data-en="pick a design that controls confounding">挑一個能控制混淆的設計</span></button><button class="dz-stage" data-stage="sens" data-en="Sensitivity"><b>5</b>敏感度<span class="dz-stage-sub" data-en="quantify the bias you could not remove">量化修不掉的殘餘偏誤</span></button><button class="dz-stage" data-stage="external" data-en="External"><b>6</b>外部佐證<span class="dz-stage-sub" data-en="corroborate with mechanism and experiment">用機制與實驗從旁佐證</span></button><button class="dz-stage" data-stage="synth" data-en="Synthesis"><b>7</b>合成<span class="dz-stage-sub" data-en="synthesise the whole body of evidence">合成整體證據</span></button></div>
+    <p class="caption" data-en="Steps 3 and 4 are the two decisions you actually make by hand; everything else follows from them. Click a step to jump to it.">第 <b>3</b>、<b>4</b> 步是你真正要親手做的兩個決定，其餘都跟著它們走。點一個階段可以跳到對應段落。</p>
+
+    <div id="dzCouple" class="dz-couple"></div>
+    <div id="dzCard" class="dz-card"></div>
+  </section>
   <section id="flow" class="panel">
     <h1 data-en="The causal-inference workflow: from a public-health signal to a conclusion">因果推論的流程：一個公衛訊號，從無到有到結論</h1>
     <p class="lead" data-en="The method picker and the &quot;Which one?&quot; tree help you choose <i>one</i> design. But real evidence is built by <b>chaining many designs</b> across the life of a signal — each compensating for the others' weaknesses. This is the end-to-end pipeline; click any design to open it. A causal claim becomes credible when designs that <b>fail in different ways</b> converge — that is triangulation.">方法選單與「怎麼選」幫你挑<i>單一</i>設計。但真正的證據，是沿著一個訊號的生命週期把<b>許多設計串起來</b>，彼此補強弱點。這是端到端的流程圖，點任一設計即可打開。當「以不同方式出錯」的設計彼此收斂時，因果主張才可信，這就是三角驗證。</p>
@@ -7282,6 +7297,76 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
   </section>
 
   <!-- ===================== 8. IV vs RDD：怎麼選 ===================== -->
+  <section id="dbpanel" class="panel">
+    <h1 data-en="Which database do you have — and which designs it powers">資料庫：你手上的資料庫，撐得起哪些設計</h1>
+    <p class="lead" data-en="A study design is only as good as the data behind it. Real-world databases differ in <b>type</b> (claims, EHR, registry, biobank), <b>coverage</b> (a national near-census vs a sample), <b>linkage</b> (to deaths, hospital, lab, genomes) and <b>longitudinal traceability</b> — and those features decide which of the designs in this toolbox you can actually run. Start with the picker below (framed around a generic drug X for a chronic disease), then see how database features map to design strengths and a directory of pharmacoepidemiology databases (from the AsPEN network).">設計再好，也只能跟得上背後的資料。真實世界資料庫差別在<b>類型</b>（理賠、EHR、登錄、生物資料庫）、<b>涵蓋</b>（近乎全民 vs 抽樣樣本）、<b>連結</b>（死亡、住院、檢驗、基因）與<b>長期可追溯性</b>，這些特性決定你<b>實際能跑</b>工具箱裡哪些設計。先用下面的挑選器（以「藥物X 對某慢性病」的通用情境示範），再看「資料庫特性 → 設計強項」與藥物流行病學資料庫名錄（取自 AsPEN 網路）。</p>
+
+    <h2 data-en="Pick a database: click through your study's needs">怎麼選資料庫：順著你的研究需求點下去</h2>
+    <p class="caption" data-en="Answer what your study most needs; it lands on one of the databases this group uses (NHI, NHI×Cancer Registry, NHI×health-check, Chang Gung CGRD, clinic chart abstraction, HALST, TriNetX, Flatiron, Vestrum, and the Aetion platform), with a drug-X example and the designs it can support. The full comparison table, with extended notes and references for the international sources, is at the end.">回答「你的研究最需要什麼」，它會落在本組常用的一個資料庫（健保、健保串癌登、健保串成人健檢、長庚 CGRD、診所病例抄錄、HALST、TriNetX、Flatiron、Vestrum，以及 Aetion 平台），附一個藥物X 範例與能做的設計。完整總表、以及國際資料來源的延伸說明與參考文獻都在最後。</p>
+    <div id="dbtree" class="dtree">
+      <div id="dbtreePath" class="dtree-path"></div>
+      <div id="dbtreeStage" class="dtree-stage"></div>
+      <div class="dtree-controls">
+        <button id="dbtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
+        <button id="dbtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
+        <button id="dbtreeTableBtn" class="btn" type="button" data-en="📊 Full comparison table">📊 看資料庫總表</button>
+      </div>
+    </div>
+    <div id="dbtreeSummary" class="dtree-map" hidden></div>
+
+    <h2 data-en="Database features → which designs they power">資料庫特性 → 撐得起哪些設計</h2>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Near-universal claims (national)">近乎全民的全國理賠資料</h3><p data-en="A whole-population claims database (every dispensing + diagnosis) is ideal for <b>rare outcomes</b> and for <b>self-controlled</b> designs that need within-person exposure variation. <b>Powers:</b> cohort / case-control (rare events), SCCS &amp; CCTC, PERR, sequential trials. <b>Weak on:</b> lab values, clinical detail, the indication for prescribing.">全人口理賠（每筆給藥＋診斷）最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。<b>撐得起：</b>世代／病例對照（罕見事件）、SCCS 與 CCTC、PERR、序列試驗。<b>弱點：</b>檢驗值、臨床細節、處方的適應症。</p></div>
+      <div class="card"><h3 data-en="EHR with labs &amp; diagnoses">含檢驗值與診斷的 EHR</h3><p data-en="Electronic health records carry lab values, severity, and richer diagnoses. <b>Powers:</b> adjustment for confounding by indication, <b>active-comparator new-user (ACNU)</b>, and <b>mediation</b> (you have a measured mediator/biomarker M). <b>Weak on:</b> completeness across providers, sample representativeness.">電子病歷帶檢驗值、嚴重度與更豐富的診斷。<b>撐得起：</b>校正適應症混淆、<b>主動對照新使用者（ACNU）</b>、<b>中介分析</b>（有量到的中介／生物標記 M）。<b>弱點：</b>跨院完整度、樣本代表性。</p></div>
+      <div class="card"><h3 data-en="Long longitudinal traceability">長期可追溯</h3><p data-en="Databases that follow members for many years (e.g. up to ~20) support <b>new-user</b> and <b>prevalent new-user (PNU)</b> designs, <b>clone-censor-weight</b> sustained strategies, and long-term outcomes. <b>Weak on:</b> people who churn out of the database.">能追蹤成員多年（如達約 20 年）的資料庫，支援<b>新使用者</b>與<b>盛行新使用者（PNU）</b>設計、<b>複製-設限-加權</b>的持續策略、與長期結果。<b>弱點：</b>離開資料庫者的流失。</p></div>
+      <div class="card"><h3 data-en="Linked deaths &amp; registries">連結死亡與登錄</h3><p data-en="Linkage to mortality and disease registries enables <b>survival</b> outcomes (survival RDD, CCW) and the <b>event-dependent observation</b> SCCS when the event is death. <b>Weak on:</b> outpatient drug detail unless pharmacy is also linked.">連結死亡與疾病登錄能做<b>存活</b>結果（存活型 RDD、CCW）與結果為死亡時的<b>事件相依觀察期</b> SCCS。<b>弱點：</b>除非也連藥局，否則門診用藥細節有限。</p></div>
+      <div class="card"><h3 data-en="Biobank / genomic">生物資料庫／基因</h3><p data-en="Biobanks linking genomes to EHR (e.g. Taiwan Biobank, UK Biobank) enable <b>instrumental variables / Mendelian randomization</b> — a genetic variant as the as-good-as-random instrument. <b>Weak on:</b> volunteer selection, age range.">把基因連到 EHR 的生物資料庫（如台灣人體生物資料庫、UK Biobank）能做<b>工具變數／孟德爾隨機化</b>，用基因變異當近似隨機的工具。<b>弱點：</b>自願者選擇、年齡範圍。</p></div>
+      <div class="card"><h3 data-en="Policy / eligibility cutoffs">政策／資格切點</h3><p data-en="When the database captures a <b>policy date</b>, a <b>reimbursement threshold</b>, or an <b>age-eligibility cutoff</b>, you can borrow a quasi-random structure: <b>RDD</b> (a sharp cutoff), <b>DiD</b> (policy + control group), <b>ITS</b> (a single series over time).">當資料庫記到<b>政策日</b>、<b>給付門檻</b>或<b>年齡資格切點</b>，就能借準隨機結構：<b>RDD</b>（明確切點）、<b>DiD</b>（政策＋對照組）、<b>ITS</b>（單一序列的時間趨勢）。</p></div>
+    </div>
+
+    <h2 data-en="Different fields, different data sources → different methods">不同領域、不同資料來源 → 不同方法</h2>
+    <p class="lead" data-en="Pharmacoepidemiology is not the only game. Each field has its own signature data, and that data dictates which designs are even possible — aggregate sales data only supports ecological/time-series work, while patient-linked registries open up self-controlled and target-trial designs. A non-exhaustive map:">藥物流行病學不是唯一。每個領域都有自己的招牌資料，而那份資料決定了你「能不能」用某種設計，只有<b>彙總銷售</b>資料就只能做生態學／時間序列，<b>可連結個人</b>的登錄資料才打得開自我對照與目標試驗。一份（不完整的）對照：</p>
+    <div class="cards cards-3">
+      <div class="card"><h3 data-en="Drug exposure / sales (multinational)">藥物暴露／銷售（跨國）</h3><p data-en="<b>IQVIA MIDAS</b> (drug sales &amp; volumes across ~90 countries) and audit/utilization data are <b>aggregate, not patient-level</b>: you see how much was sold, not who took it. <b>Powers:</b> drug-utilization research, <b>ITS</b> on a policy's effect on prescribing, ecological / cross-country comparisons. <b>Weak on:</b> individual outcomes, confounding — no person-level causal contrast.">「<b>IQVIA MIDAS</b>」（涵蓋約 90 國的藥品銷售與用量）與稽核／用量資料是<b>彙總、非個人層級</b>：你看得到賣了多少、看不到誰吃了。<b>撐得起：</b>藥物使用研究、政策對處方影響的 <b>ITS</b>、生態學／跨國比較。<b>弱點：</b>個人結果、混淆，沒有人層級的因果對比。</p></div>
+      <div class="card"><h3 data-en="Antimicrobials / infectious disease">抗微生物藥物／感染科</h3><p data-en="<b>Point-prevalence surveys (Global-PPS)</b>, <b>ESAC-Net</b>, WHO <b>GLASS</b> capture antibiotic use and resistance. <b>Powers:</b> the <b>PPS</b> design itself (a snapshot of prevalence), <b>ITS</b> on stewardship interventions, ecological use-vs-resistance. <b>Weak on:</b> following individuals over time; causal effect of one patient's exposure.">「<b>點盛行率調查（Global-PPS）</b>」、「<b>ESAC-Net</b>」、WHO 的「<b>GLASS</b>」記錄抗生素使用與抗藥性。<b>撐得起：</b><b>PPS</b> 設計本身（盛行率快照）、抗生素管理介入的 <b>ITS</b>、使用 vs 抗藥性的生態學。<b>弱點：</b>追蹤個人隨時間；單一病人暴露的因果效果。</p></div>
+      <div class="card"><h3 data-en="Oncology / cancer registries">腫瘤／癌症登錄</h3><p data-en="<b>SEER</b>, national cancer registries (e.g. Taiwan Cancer Registry), often linked to claims (SEER-Medicare). Rich on stage, histology, survival. <b>Powers:</b> survival cohorts, <b>RDD</b> at stage/age treatment thresholds, mediation (biomarker on the path). <b>Weak on:</b> outpatient drugs unless linked, lead-time / detection bias.">「<b>SEER</b>」、各國癌症登錄（如台灣癌症登錄），常與理賠連結（SEER-Medicare）。期別、組織型、存活很豐富。<b>撐得起：</b>存活世代、依期別／年齡治療門檻的 <b>RDD</b>、中介（路徑上的生物標記）。<b>弱點：</b>未連結時的門診用藥、領先時間／偵測偏誤。</p></div>
+      <div class="card"><h3 data-en="Global burden / ecological">全球疾病負擔／生態</h3><p data-en="<b>GBD (IHME)</b>, WHO Global Health Observatory aggregate mortality &amp; risk-factor estimates by country-year. <b>Powers:</b> ecological / cross-country <b>DiD</b> and <b>ITS</b> on policies, comparative risk assessment. <b>Weak on:</b> the ecological fallacy — group-level associations need not hold for individuals.">「<b>GBD（IHME）</b>」、WHO 全球衛生觀測站彙總各國各年的死亡與風險因子估計。<b>撐得起：</b>政策的生態學／跨國 <b>DiD</b> 與 <b>ITS</b>、比較風險評估。<b>弱點：</b>生態謬誤，群體層級的關聯不必然適用於個人。</p></div>
+      <div class="card"><h3 data-en="Vaccine safety surveillance">疫苗安全監測</h3><p data-en="<b>VAERS</b> &amp; WHO <b>VigiBase</b> (spontaneous reports) and the linked <b>Vaccine Safety Datalink (VSD)</b>. <b>Powers:</b> <b>SCCS</b> and <b>TND</b>, <b>sequential</b> safety testing, and <b>TreeScan</b> across an outcome tree; disproportionality on spontaneous reports. <b>Weak on:</b> under-reporting &amp; stimulated reporting in spontaneous systems.">「<b>VAERS</b>」與 WHO「<b>VigiBase</b>」（自發通報），以及可連結的「<b>疫苗安全資料連結（VSD）</b>」。<b>撐得起：</b><b>SCCS</b> 與 <b>TND</b>、<b>序列</b>安全監測、對結果樹的 <b>TreeScan</b>；自發通報的不相稱性分析。<b>弱點：</b>自發系統的低報與被刺激通報。</p></div>
+      <div class="card"><h3 data-en="High-resolution ICU / critical care">重症／ICU 高解析</h3><p data-en="<b>MIMIC-IV</b>, <b>eICU</b>, AmsterdamUMCdb: dense, time-stamped vitals, labs, drips. <b>Powers:</b> <b>time-varying treatment</b> designs (g-methods / marginal structural models, CCW), <b>target-trial emulation</b> on minute-by-minute care. <b>Weak on:</b> single-centre selection, immortal-time traps if time zero is mishandled.">「<b>MIMIC-IV</b>」、「<b>eICU</b>」、AmsterdamUMCdb：密集、有時間戳的生命徵象、檢驗、點滴。<b>撐得起：</b><b>時變治療</b>設計（g-methods／邊際結構模型、CCW）、對逐分鐘照護的<b>目標試驗模擬</b>。<b>弱點：</b>單中心選擇、時間零點沒處理好就落入 immortal-time 陷阱。</p></div>
+      <div class="card"><h3 data-en="Maternal &amp; perinatal">母嬰／圍產</h3><p data-en="Birth / perinatal registries linking mother and baby across pregnancies. <b>Powers:</b> <b>sibling-controlled</b> comparisons (a within-family self-control for shared genetics/environment), <b>negative controls</b>, and target-trial emulation of pregnancy exposures. <b>Weak on:</b> confounding by indication for the maternal condition itself.">連結母親與嬰兒、跨懷孕的出生／圍產登錄。<b>撐得起：</b><b>手足對照</b>（家庭內自我對照，控掉共享的基因／環境）、<b>陰性對照</b>、孕期暴露的目標試驗模擬。<b>弱點：</b>母體疾病本身的適應症混淆。</p></div>
+      <div class="card"><h3 data-en="Spontaneous reporting / signals">自發通報／安全訊號</h3><p data-en="<b>FAERS</b> (US) &amp; WHO <b>VigiBase</b> — spontaneous adverse-event reports for any drug. <b>Powers:</b> hypothesis-generating signal detection: <b>disproportionality</b> (ROR/PRR), <b>TreeScan</b> across an event hierarchy, <b>PSSA</b> for prescribing cascades. <b>Weak on:</b> no denominator, reporting biases — signals need confirmation in a proper cohort.">「<b>FAERS</b>」（美國）與 WHO「<b>VigiBase</b>」，任何藥的自發不良事件通報。<b>撐得起：</b>產生假說的訊號偵測：<b>不相稱性</b>（ROR／PRR）、對事件階層的 <b>TreeScan</b>、處方瀑布的 <b>PSSA</b>。<b>弱點：</b>沒有分母、通報偏誤，訊號要在正規世代裡確認。</p></div>
+      <div class="card"><h3 data-en="Environmental / exposure">環境暴露</h3><p data-en="Air-pollution monitors, weather, and area-level exposures linked to health records by time and place. <b>Powers:</b> <b>ITS</b> and <b>case-crossover (CCTC)</b> for acute effects, <b>DiD</b> around a regulation, instrumental variables (wind / inversions). <b>Weak on:</b> exposure measurement error, spatial confounding.">空污監測、氣象與區域層級暴露，依時間與地點連到健康紀錄。<b>撐得起：</b>急性效應的 <b>ITS</b> 與<b>病例交叉（CCTC）</b>、法規前後的 <b>DiD</b>、工具變數（風／逆溫）。<b>弱點：</b>暴露測量誤差、空間混淆。</p></div>
+    </div>
+
+    <h2 data-en="A directory of pharmacoepidemiology databases (AsPEN network &amp; partners)">藥物流行病學資料庫名錄（AsPEN 網路與夥伴）</h2>
+    <p class="caption" data-en="Compiled from the AsPEN database directory (phd-center.github.io/AsPEN) and Sturkenboom &amp; Schink (2020). Coverage and strengths are approximate, for orientation.">整理自 AsPEN 資料庫名錄（phd-center.github.io/AsPEN）與 Sturkenboom &amp; Schink（2020）。涵蓋與強項為約略值，供定位用。</p>
+    <div class="table-wrap">
+      <table class="cmp">
+        <thead><tr>
+          <th data-en="Database">資料庫</th><th data-en="Type">類型</th>
+          <th data-en="Coverage">涵蓋</th><th data-en="Strength / good for">強項／適合</th>
+        </tr></thead>
+        <tbody>
+          <tr><td colspan="4" class="famhdr" data-en="East Asia · AsPEN network">東亞 · AsPEN 網路</td></tr>
+          <tr><td data-en="Taiwan NHIRD">台灣 健保資料庫 NHIRD</td><td data-en="Claims">理賠</td><td data-en="~23M, &gt;99% since 2000">~2300萬，&gt;99%，自 2000</td><td data-en="National census-like claims + now lab/imaging; rare outcomes, self-controlled, sequential">全國普查式理賠＋現含檢驗／影像；罕見結果、自我對照、序列試驗</td></tr>
+          <tr><td data-en="Taiwan CGRD">台灣 長庚 CGRD</td><td data-en="Multi-hospital EHR">多院 EHR</td><td data-en="~1.5M since 2011">~150萬，自 2011</td><td data-en="Lab values &amp; clinical detail → indication adjustment, ACNU, mediation">檢驗值與臨床細節→適應症校正、ACNU、中介</td></tr>
+          <tr><td data-en="Taiwan Biobank (TWB)">台灣人體生物資料庫 TWB</td><td data-en="Biobank">生物資料庫</td><td data-en="~200K (target 1M)">~20萬（目標百萬）</td><td data-en="Genomes + lifestyle + clinical → IV / Mendelian randomization">基因＋生活型態＋臨床→工具變數／孟德爾隨機化</td></tr>
+          <tr><td data-en="Korea HIRA / NHIS-NHID">韓國 HIRA／NHIS-NHID</td><td data-en="Claims">理賠</td><td data-en="~50M nationwide">~5000萬，全國</td><td data-en="Nationwide claims; NHIS adds enrolment &amp; health-check linkage">全國理賠；NHIS 另連投保與健檢</td></tr>
+          <tr><td data-en="Japan NDB / JMDC">日本 NDB／JMDC</td><td data-en="Claims">理賠</td><td data-en="NDB ~120M; JMDC ~13.5M">NDB ~1.2億；JMDC ~1350萬</td><td data-en="NDB ≈ all Japan; JMDC up to ~20-yr traceability → new-user / PNU / sustained">NDB 近全日本；JMDC 可追溯約 20 年→新使用者／PNU／持續策略</td></tr>
+          <tr><td data-en="Hong Kong CDARS">香港 CDARS</td><td data-en="National EHR">全 territory EHR</td><td data-en="~7M public-sector since 1995">~700萬公營，自 1995</td><td data-en="Territory-wide hospital EHR; clinical detail + linkage">全港住院 EHR；臨床細節＋連結</td></tr>
+          <tr><td colspan="4" class="famhdr" data-en="International partners (benchmarking)">國際夥伴（對照基準）</td></tr>
+          <tr><td data-en="UK CPRD / THIN">英國 CPRD／THIN</td><td data-en="Primary-care EHR">基層 EHR</td><td data-en="CPRD ~60M (linked HES, ONS)">CPRD ~6000萬（連 HES、ONS）</td><td data-en="Rich primary-care + linkage → most designs, incl. SCCS examples">豐富基層＋連結→多數設計，含 SCCS 範例</td></tr>
+          <tr><td data-en="UK Biobank">UK Biobank</td><td data-en="Biobank">生物資料庫</td><td data-en="~500K, aged 40–69">~50萬，40–69 歲</td><td data-en="Genomes + imaging + EHR → IV / Mendelian randomization">基因＋影像＋EHR→工具變數／孟德爾隨機化</td></tr>
+          <tr><td data-en="Public Health Scotland (ISD)">蘇格蘭 ISD</td><td data-en="National EHR">全國 EHR</td><td data-en="~5.4M whole population">~540萬，全人口</td><td data-en="Prescribing + admissions + deaths → survival, self-controlled">給藥＋住院＋死亡→存活、自我對照</td></tr>
+          <tr><td data-en="Netherlands PHARMO">荷蘭 PHARMO</td><td data-en="Linked multi-source">多源連結</td><td data-en="~7M (~40%) since 1999">~700萬（~40%），自 1999</td><td data-en="Linked pharmacy + primary + hospital → new-user, active comparator">連結藥局＋基層＋住院→新使用者、主動對照</td></tr>
+          <tr><td data-en="Finland FinReg">芬蘭 FinReg</td><td data-en="Claims + registries">理賠＋登錄</td><td data-en="~5.5M whole population since 1972">~550萬，全人口，自 1972</td><td data-en="Prescriptions + discharges + cause-of-death → long-term, survival">處方＋出院＋死因→長期、存活</td></tr>
+          <tr><td data-en="Australia PBS / VLHD">澳洲 PBS／VLHD</td><td data-en="Claims (+linkage)">理賠（＋連結）</td><td data-en="PBS 10% sample; VLHD whole-state">PBS 10% 抽樣；VLHD 全省</td><td data-en="Subsidised dispensing; VLHD adds admissions + deaths">補助給藥；VLHD 另連住院＋死亡</td></tr>
+          <tr><td data-en="US Medicare / Medicaid">美國 Medicare／Medicaid</td><td data-en="Claims">理賠</td><td data-en="Medicare 20% (~13M); Medicaid ~70M">Medicare 20%（~1300萬）；Medicaid ~7000萬</td><td data-en="Elderly / low-income claims; large, but specific populations">老年／低收入理賠；量大，但族群特定</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption" data-en="Cross-regional networks (e.g. AsPEN, NeuroGEN) run the <b>same protocol</b> across several of these databases and meta-analyse, trading single-database depth for breadth, generalisability and replication.">跨區域網路（如 AsPEN, NeuroGEN）會把<b>同一套協定</b>跑在上述多個資料庫上再做合併分析，以單一資料庫的深度換取廣度、可推論性與可重複性。</p>
+  </section>
   <section id="choose" class="panel">
     <h1 data-en="Many designs, one drug-X question — which to use?">怎麼選：同一個藥物X 問題，多種攻法</h1>
     <p class="lead" data-en="Throughout this whole toolbox we ask <b>one</b> causal question, framed generically as <b>does drug X actually improve a chronic-disease outcome?</b> The ideal way would be a randomised trial, but often we can't run one. So a range of <b>real-world-evidence &amp; quasi-experimental</b> designs each borrow a bit of &quot;as-good-as-random&quot; variation from a <b>different place</b> to answer it. Here they are side by side, so you can pick the one your data can support.">
@@ -7290,26 +7375,9 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       近似隨機的變異來回答。這裡把它們並排，幫你挑出你的資料撐得起的那一個。
     </p>
 
-    <div class="card info">
-      <h3 data-en="Start from your data: which database do you have?">先從你的資料出發：你手上是哪種資料庫？</h3>
-      <p data-en="Which design you <b>can</b> run is decided by your data. A near-universal <b>claims</b> database powers self-controlled designs (SCCS/CCTC), rare-outcome cohort/case-control and PERR; an <b>EHR</b> with lab values powers active-comparator and mediation; <b>long traceability</b> powers new-user / PNU / CCW; a <b>biobank</b> powers IV / Mendelian randomization; a <b>policy/eligibility cutoff</b> powers RDD / DiD / ITS. See the dedicated <b><a class="xref" data-tab="db">Databases</a></b> tab for the feature→design map and a directory of pharmacoepidemiology databases (AsPEN).">你<b>能</b>用哪個設計，是你的資料決定的。近全人口<b>理賠</b>撐得起自我對照（SCCS/CCTC）、罕見結果的世代／病例對照與 PERR；含檢驗值的 <b>EHR</b> 撐得起主動對照與中介；<b>長期可追溯</b>撐得起新使用者／PNU／CCW；<b>生物資料庫</b>撐得起工具變數／孟德爾隨機化；<b>政策／資格切點</b>撐得起 RDD／DiD／ITS。完整的「特性→設計」對應與藥物流行病學資料庫名錄（AsPEN）見專屬的<b><a class="xref" data-tab="db">「資料庫」</a></b>分頁。</p>
-    </div>
+    
 
-    <div class="card scene">
-      <h3 data-en="A causal-inference workflow: how to actually go about it">因果推論的流程：實際上怎麼做</h3>
-      <p data-en="Picking a design is step 3, not step 1. The estimate is only trustworthy if the steps around it are done. Walk this once for any causal question:">挑設計是第 3 步、不是第 1 步。估計值要可信，靠的是它前後的步驟都有做。任何因果問題都可以走一遍這個流程：</p>
-      <ol class="ci-flow">
-        <li data-en="<b>① Frame the question as a target trial.</b> Write the estimand explicitly — population, treatment strategies, comparator (an active comparator beats &quot;non-user&quot;), time-zero, outcome, follow-up, and the contrast you want (ATE / ATT / LATE). A fuzzy question can't be answered cleanly."><b>① 把問題寫成一場「目標試驗」。</b>明確寫下 estimand，族群、治療策略、對照（主動對照優於「沒用藥」）、時間零點、結果、追蹤期，以及你要的對比（ATE／ATT／LATE）。問題模糊，答案就乾淨不了。</li>
-        <li data-en="<b>② Draw a DAG; list the biases.</b> Map confounding, selection, measurement error, immortal time and time-varying confounding before touching data — the DAG tells you what must be adjusted and what must <i>not</i> (colliders, mediators)."><b>② 畫 DAG，列出偏誤。</b>動資料前先把混淆、選樣、測量誤差、不死時間、時變混淆畫出來，DAG 會告訴你哪些一定要校正、哪些<i>絕不能</i>校正（對撞、中介）。</li>
-        <li data-en="<b>③ Choose a design your data can support.</b> Where can you borrow as-good-as-random variation (an instrument, a cutoff, the person as their own control, timing)? Use the comparison chart, table and decision tree below — and start from the database you actually have."><b>③ 選一個你的資料撐得起的設計。</b>你能從哪裡借「近似隨機」的變異（工具、斷點、以人為己對照、時間）？用下面的比較圖、表與決策樹，並從你<b>實際擁有</b>的資料庫出發。</li>
-        <li data-en="<b>④ Write down the identifying assumptions.</b> Exchangeability, positivity, consistency — plus the one untestable core the design rests on. State them before estimating, not after."><b>④ 寫下識別假設。</b>可交換性、正性、一致性，加上該設計所押的那條不可檢驗核心。在估計<b>前</b>就講清楚，不是事後補。</li>
-        <li data-en="<b>⑤ Estimate.</b> Fit the design with PS / IPTW / g-methods / IV / TMLE as appropriate (the ③ tab gives runnable SAS · R · Stata for each)."><b>⑤ 估計。</b>依設計用 PS／IPTW／g-methods／IV／TMLE 等配適（每個方法的 ③ 分頁都有可執行的 SAS · R · Stata）。</li>
-        <li data-en="<b>⑥ Check the assumptions you can.</b> Covariate balance &amp; overlap, instrument strength, parallel-trend / pre-trend, negative-control and falsification tests — every method has a ④ dashboard for this."><b>⑥ 檢驗你能檢驗的假設。</b>共變項平衡與重疊、工具強度、平行／事前趨勢、陰性對照與否證檢定，每個方法都配一個 ④ 儀表板。</li>
-        <li data-en="<b>⑦ Quantify the bias you can't test.</b> Run a sensitivity analysis: the E-value or Schneeweiss array for unmeasured confounding, the M-value for missing data, probabilistic QBA for the full picture."><b>⑦ 量化你無法檢驗的偏誤。</b>做敏感度分析，未測混淆用 E-value 或 Schneeweiss array、缺失資料用 M-value、要完整就用機率式 QBA。</li>
-        <li data-en="<b>⑧ Triangulate.</b> One design is never proof. Corroborate with a second design that fails differently, with <b>Mendelian randomization</b> (genetic instruments), and — for mechanism — with <b>wet lab experiments</b>. Agreement across methods with different biases is the real evidence (see the last family below)."><b>⑧ 三角驗證。</b>單一設計從來不算證明。用一個「以不同方式出錯」的第二設計、用<b>孟德爾隨機化</b>（遺傳工具）、以及機制上的<b>實驗室實驗</b>互相佐證。不同偏誤的方法都指向同一結論，才是真正的證據（見下方最後一個家族）。</li>
-        <li data-en="<b>⑨ Report transparently.</b> The estimand, the assumptions, the code, and the sensitivity analyses — following STROBE / RECORD-PE — so a reader can judge how much each assumption is doing."><b>⑨ 透明報告。</b>把 estimand、假設、程式碼與敏感度分析都寫出來（依 STROBE／RECORD-PE），讓讀者能判斷每個假設承擔了多少。</li>
-      </ol>
-    </div>
+    
 
     <div class="card scene">
       <h3 data-en="Every design here corrects its naive bias back to the truth (grouped by family; mediation recovers the true direct effect, transportability/external-control the target-population effect, and the last family triangulates with genetic-IV and wet lab experiments)">每一種設計，各自把「未校正偏誤」修回真值（按家族分組；中介分析還原真正的直接效果，可轉移性／外部對照還原目標族群的效果，最後一個家族則用遺傳工具與實驗室實驗做三角驗證）</h3>
@@ -7618,76 +7686,6 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
   </section>
 
   <!-- ===================== 9. 資料庫 → 研究設計強項 ===================== -->
-  <section id="dbpanel" class="panel">
-    <h1 data-en="Which database do you have — and which designs it powers">資料庫：你手上的資料庫，撐得起哪些設計</h1>
-    <p class="lead" data-en="A study design is only as good as the data behind it. Real-world databases differ in <b>type</b> (claims, EHR, registry, biobank), <b>coverage</b> (a national near-census vs a sample), <b>linkage</b> (to deaths, hospital, lab, genomes) and <b>longitudinal traceability</b> — and those features decide which of the designs in this toolbox you can actually run. Start with the picker below (framed around a generic drug X for a chronic disease), then see how database features map to design strengths and a directory of pharmacoepidemiology databases (from the AsPEN network).">設計再好，也只能跟得上背後的資料。真實世界資料庫差別在<b>類型</b>（理賠、EHR、登錄、生物資料庫）、<b>涵蓋</b>（近乎全民 vs 抽樣樣本）、<b>連結</b>（死亡、住院、檢驗、基因）與<b>長期可追溯性</b>，這些特性決定你<b>實際能跑</b>工具箱裡哪些設計。先用下面的挑選器（以「藥物X 對某慢性病」的通用情境示範），再看「資料庫特性 → 設計強項」與藥物流行病學資料庫名錄（取自 AsPEN 網路）。</p>
-
-    <h2 data-en="Pick a database: click through your study's needs">怎麼選資料庫：順著你的研究需求點下去</h2>
-    <p class="caption" data-en="Answer what your study most needs; it lands on one of the databases this group uses (NHI, NHI×Cancer Registry, NHI×health-check, Chang Gung CGRD, clinic chart abstraction, HALST, TriNetX, Flatiron, Vestrum, and the Aetion platform), with a drug-X example and the designs it can support. The full comparison table, with extended notes and references for the international sources, is at the end.">回答「你的研究最需要什麼」，它會落在本組常用的一個資料庫（健保、健保串癌登、健保串成人健檢、長庚 CGRD、診所病例抄錄、HALST、TriNetX、Flatiron、Vestrum，以及 Aetion 平台），附一個藥物X 範例與能做的設計。完整總表、以及國際資料來源的延伸說明與參考文獻都在最後。</p>
-    <div id="dbtree" class="dtree">
-      <div id="dbtreePath" class="dtree-path"></div>
-      <div id="dbtreeStage" class="dtree-stage"></div>
-      <div class="dtree-controls">
-        <button id="dbtreeBack" class="btn" type="button" data-en="← Back">← 上一步</button>
-        <button id="dbtreeRestart" class="btn" type="button" data-en="Start over">重新開始</button>
-        <button id="dbtreeTableBtn" class="btn" type="button" data-en="📊 Full comparison table">📊 看資料庫總表</button>
-      </div>
-    </div>
-    <div id="dbtreeSummary" class="dtree-map" hidden></div>
-
-    <h2 data-en="Database features → which designs they power">資料庫特性 → 撐得起哪些設計</h2>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="Near-universal claims (national)">近乎全民的全國理賠資料</h3><p data-en="A whole-population claims database (every dispensing + diagnosis) is ideal for <b>rare outcomes</b> and for <b>self-controlled</b> designs that need within-person exposure variation. <b>Powers:</b> cohort / case-control (rare events), SCCS &amp; CCTC, PERR, sequential trials. <b>Weak on:</b> lab values, clinical detail, the indication for prescribing.">全人口理賠（每筆給藥＋診斷）最適合<b>罕見結果</b>與需要人內暴露變異的<b>自我對照</b>設計。<b>撐得起：</b>世代／病例對照（罕見事件）、SCCS 與 CCTC、PERR、序列試驗。<b>弱點：</b>檢驗值、臨床細節、處方的適應症。</p></div>
-      <div class="card"><h3 data-en="EHR with labs &amp; diagnoses">含檢驗值與診斷的 EHR</h3><p data-en="Electronic health records carry lab values, severity, and richer diagnoses. <b>Powers:</b> adjustment for confounding by indication, <b>active-comparator new-user (ACNU)</b>, and <b>mediation</b> (you have a measured mediator/biomarker M). <b>Weak on:</b> completeness across providers, sample representativeness.">電子病歷帶檢驗值、嚴重度與更豐富的診斷。<b>撐得起：</b>校正適應症混淆、<b>主動對照新使用者（ACNU）</b>、<b>中介分析</b>（有量到的中介／生物標記 M）。<b>弱點：</b>跨院完整度、樣本代表性。</p></div>
-      <div class="card"><h3 data-en="Long longitudinal traceability">長期可追溯</h3><p data-en="Databases that follow members for many years (e.g. up to ~20) support <b>new-user</b> and <b>prevalent new-user (PNU)</b> designs, <b>clone-censor-weight</b> sustained strategies, and long-term outcomes. <b>Weak on:</b> people who churn out of the database.">能追蹤成員多年（如達約 20 年）的資料庫，支援<b>新使用者</b>與<b>盛行新使用者（PNU）</b>設計、<b>複製-設限-加權</b>的持續策略、與長期結果。<b>弱點：</b>離開資料庫者的流失。</p></div>
-      <div class="card"><h3 data-en="Linked deaths &amp; registries">連結死亡與登錄</h3><p data-en="Linkage to mortality and disease registries enables <b>survival</b> outcomes (survival RDD, CCW) and the <b>event-dependent observation</b> SCCS when the event is death. <b>Weak on:</b> outpatient drug detail unless pharmacy is also linked.">連結死亡與疾病登錄能做<b>存活</b>結果（存活型 RDD、CCW）與結果為死亡時的<b>事件相依觀察期</b> SCCS。<b>弱點：</b>除非也連藥局，否則門診用藥細節有限。</p></div>
-      <div class="card"><h3 data-en="Biobank / genomic">生物資料庫／基因</h3><p data-en="Biobanks linking genomes to EHR (e.g. Taiwan Biobank, UK Biobank) enable <b>instrumental variables / Mendelian randomization</b> — a genetic variant as the as-good-as-random instrument. <b>Weak on:</b> volunteer selection, age range.">把基因連到 EHR 的生物資料庫（如台灣人體生物資料庫、UK Biobank）能做<b>工具變數／孟德爾隨機化</b>，用基因變異當近似隨機的工具。<b>弱點：</b>自願者選擇、年齡範圍。</p></div>
-      <div class="card"><h3 data-en="Policy / eligibility cutoffs">政策／資格切點</h3><p data-en="When the database captures a <b>policy date</b>, a <b>reimbursement threshold</b>, or an <b>age-eligibility cutoff</b>, you can borrow a quasi-random structure: <b>RDD</b> (a sharp cutoff), <b>DiD</b> (policy + control group), <b>ITS</b> (a single series over time).">當資料庫記到<b>政策日</b>、<b>給付門檻</b>或<b>年齡資格切點</b>，就能借準隨機結構：<b>RDD</b>（明確切點）、<b>DiD</b>（政策＋對照組）、<b>ITS</b>（單一序列的時間趨勢）。</p></div>
-    </div>
-
-    <h2 data-en="Different fields, different data sources → different methods">不同領域、不同資料來源 → 不同方法</h2>
-    <p class="lead" data-en="Pharmacoepidemiology is not the only game. Each field has its own signature data, and that data dictates which designs are even possible — aggregate sales data only supports ecological/time-series work, while patient-linked registries open up self-controlled and target-trial designs. A non-exhaustive map:">藥物流行病學不是唯一。每個領域都有自己的招牌資料，而那份資料決定了你「能不能」用某種設計，只有<b>彙總銷售</b>資料就只能做生態學／時間序列，<b>可連結個人</b>的登錄資料才打得開自我對照與目標試驗。一份（不完整的）對照：</p>
-    <div class="cards cards-3">
-      <div class="card"><h3 data-en="Drug exposure / sales (multinational)">藥物暴露／銷售（跨國）</h3><p data-en="<b>IQVIA MIDAS</b> (drug sales &amp; volumes across ~90 countries) and audit/utilization data are <b>aggregate, not patient-level</b>: you see how much was sold, not who took it. <b>Powers:</b> drug-utilization research, <b>ITS</b> on a policy's effect on prescribing, ecological / cross-country comparisons. <b>Weak on:</b> individual outcomes, confounding — no person-level causal contrast.">「<b>IQVIA MIDAS</b>」（涵蓋約 90 國的藥品銷售與用量）與稽核／用量資料是<b>彙總、非個人層級</b>：你看得到賣了多少、看不到誰吃了。<b>撐得起：</b>藥物使用研究、政策對處方影響的 <b>ITS</b>、生態學／跨國比較。<b>弱點：</b>個人結果、混淆，沒有人層級的因果對比。</p></div>
-      <div class="card"><h3 data-en="Antimicrobials / infectious disease">抗微生物藥物／感染科</h3><p data-en="<b>Point-prevalence surveys (Global-PPS)</b>, <b>ESAC-Net</b>, WHO <b>GLASS</b> capture antibiotic use and resistance. <b>Powers:</b> the <b>PPS</b> design itself (a snapshot of prevalence), <b>ITS</b> on stewardship interventions, ecological use-vs-resistance. <b>Weak on:</b> following individuals over time; causal effect of one patient's exposure.">「<b>點盛行率調查（Global-PPS）</b>」、「<b>ESAC-Net</b>」、WHO 的「<b>GLASS</b>」記錄抗生素使用與抗藥性。<b>撐得起：</b><b>PPS</b> 設計本身（盛行率快照）、抗生素管理介入的 <b>ITS</b>、使用 vs 抗藥性的生態學。<b>弱點：</b>追蹤個人隨時間；單一病人暴露的因果效果。</p></div>
-      <div class="card"><h3 data-en="Oncology / cancer registries">腫瘤／癌症登錄</h3><p data-en="<b>SEER</b>, national cancer registries (e.g. Taiwan Cancer Registry), often linked to claims (SEER-Medicare). Rich on stage, histology, survival. <b>Powers:</b> survival cohorts, <b>RDD</b> at stage/age treatment thresholds, mediation (biomarker on the path). <b>Weak on:</b> outpatient drugs unless linked, lead-time / detection bias.">「<b>SEER</b>」、各國癌症登錄（如台灣癌症登錄），常與理賠連結（SEER-Medicare）。期別、組織型、存活很豐富。<b>撐得起：</b>存活世代、依期別／年齡治療門檻的 <b>RDD</b>、中介（路徑上的生物標記）。<b>弱點：</b>未連結時的門診用藥、領先時間／偵測偏誤。</p></div>
-      <div class="card"><h3 data-en="Global burden / ecological">全球疾病負擔／生態</h3><p data-en="<b>GBD (IHME)</b>, WHO Global Health Observatory aggregate mortality &amp; risk-factor estimates by country-year. <b>Powers:</b> ecological / cross-country <b>DiD</b> and <b>ITS</b> on policies, comparative risk assessment. <b>Weak on:</b> the ecological fallacy — group-level associations need not hold for individuals.">「<b>GBD（IHME）</b>」、WHO 全球衛生觀測站彙總各國各年的死亡與風險因子估計。<b>撐得起：</b>政策的生態學／跨國 <b>DiD</b> 與 <b>ITS</b>、比較風險評估。<b>弱點：</b>生態謬誤，群體層級的關聯不必然適用於個人。</p></div>
-      <div class="card"><h3 data-en="Vaccine safety surveillance">疫苗安全監測</h3><p data-en="<b>VAERS</b> &amp; WHO <b>VigiBase</b> (spontaneous reports) and the linked <b>Vaccine Safety Datalink (VSD)</b>. <b>Powers:</b> <b>SCCS</b> and <b>TND</b>, <b>sequential</b> safety testing, and <b>TreeScan</b> across an outcome tree; disproportionality on spontaneous reports. <b>Weak on:</b> under-reporting &amp; stimulated reporting in spontaneous systems.">「<b>VAERS</b>」與 WHO「<b>VigiBase</b>」（自發通報），以及可連結的「<b>疫苗安全資料連結（VSD）</b>」。<b>撐得起：</b><b>SCCS</b> 與 <b>TND</b>、<b>序列</b>安全監測、對結果樹的 <b>TreeScan</b>；自發通報的不相稱性分析。<b>弱點：</b>自發系統的低報與被刺激通報。</p></div>
-      <div class="card"><h3 data-en="High-resolution ICU / critical care">重症／ICU 高解析</h3><p data-en="<b>MIMIC-IV</b>, <b>eICU</b>, AmsterdamUMCdb: dense, time-stamped vitals, labs, drips. <b>Powers:</b> <b>time-varying treatment</b> designs (g-methods / marginal structural models, CCW), <b>target-trial emulation</b> on minute-by-minute care. <b>Weak on:</b> single-centre selection, immortal-time traps if time zero is mishandled.">「<b>MIMIC-IV</b>」、「<b>eICU</b>」、AmsterdamUMCdb：密集、有時間戳的生命徵象、檢驗、點滴。<b>撐得起：</b><b>時變治療</b>設計（g-methods／邊際結構模型、CCW）、對逐分鐘照護的<b>目標試驗模擬</b>。<b>弱點：</b>單中心選擇、時間零點沒處理好就落入 immortal-time 陷阱。</p></div>
-      <div class="card"><h3 data-en="Maternal &amp; perinatal">母嬰／圍產</h3><p data-en="Birth / perinatal registries linking mother and baby across pregnancies. <b>Powers:</b> <b>sibling-controlled</b> comparisons (a within-family self-control for shared genetics/environment), <b>negative controls</b>, and target-trial emulation of pregnancy exposures. <b>Weak on:</b> confounding by indication for the maternal condition itself.">連結母親與嬰兒、跨懷孕的出生／圍產登錄。<b>撐得起：</b><b>手足對照</b>（家庭內自我對照，控掉共享的基因／環境）、<b>陰性對照</b>、孕期暴露的目標試驗模擬。<b>弱點：</b>母體疾病本身的適應症混淆。</p></div>
-      <div class="card"><h3 data-en="Spontaneous reporting / signals">自發通報／安全訊號</h3><p data-en="<b>FAERS</b> (US) &amp; WHO <b>VigiBase</b> — spontaneous adverse-event reports for any drug. <b>Powers:</b> hypothesis-generating signal detection: <b>disproportionality</b> (ROR/PRR), <b>TreeScan</b> across an event hierarchy, <b>PSSA</b> for prescribing cascades. <b>Weak on:</b> no denominator, reporting biases — signals need confirmation in a proper cohort.">「<b>FAERS</b>」（美國）與 WHO「<b>VigiBase</b>」，任何藥的自發不良事件通報。<b>撐得起：</b>產生假說的訊號偵測：<b>不相稱性</b>（ROR／PRR）、對事件階層的 <b>TreeScan</b>、處方瀑布的 <b>PSSA</b>。<b>弱點：</b>沒有分母、通報偏誤，訊號要在正規世代裡確認。</p></div>
-      <div class="card"><h3 data-en="Environmental / exposure">環境暴露</h3><p data-en="Air-pollution monitors, weather, and area-level exposures linked to health records by time and place. <b>Powers:</b> <b>ITS</b> and <b>case-crossover (CCTC)</b> for acute effects, <b>DiD</b> around a regulation, instrumental variables (wind / inversions). <b>Weak on:</b> exposure measurement error, spatial confounding.">空污監測、氣象與區域層級暴露，依時間與地點連到健康紀錄。<b>撐得起：</b>急性效應的 <b>ITS</b> 與<b>病例交叉（CCTC）</b>、法規前後的 <b>DiD</b>、工具變數（風／逆溫）。<b>弱點：</b>暴露測量誤差、空間混淆。</p></div>
-    </div>
-
-    <h2 data-en="A directory of pharmacoepidemiology databases (AsPEN network &amp; partners)">藥物流行病學資料庫名錄（AsPEN 網路與夥伴）</h2>
-    <p class="caption" data-en="Compiled from the AsPEN database directory (phd-center.github.io/AsPEN) and Sturkenboom &amp; Schink (2020). Coverage and strengths are approximate, for orientation.">整理自 AsPEN 資料庫名錄（phd-center.github.io/AsPEN）與 Sturkenboom &amp; Schink（2020）。涵蓋與強項為約略值，供定位用。</p>
-    <div class="table-wrap">
-      <table class="cmp">
-        <thead><tr>
-          <th data-en="Database">資料庫</th><th data-en="Type">類型</th>
-          <th data-en="Coverage">涵蓋</th><th data-en="Strength / good for">強項／適合</th>
-        </tr></thead>
-        <tbody>
-          <tr><td colspan="4" class="famhdr" data-en="East Asia · AsPEN network">東亞 · AsPEN 網路</td></tr>
-          <tr><td data-en="Taiwan NHIRD">台灣 健保資料庫 NHIRD</td><td data-en="Claims">理賠</td><td data-en="~23M, &gt;99% since 2000">~2300萬，&gt;99%，自 2000</td><td data-en="National census-like claims + now lab/imaging; rare outcomes, self-controlled, sequential">全國普查式理賠＋現含檢驗／影像；罕見結果、自我對照、序列試驗</td></tr>
-          <tr><td data-en="Taiwan CGRD">台灣 長庚 CGRD</td><td data-en="Multi-hospital EHR">多院 EHR</td><td data-en="~1.5M since 2011">~150萬，自 2011</td><td data-en="Lab values &amp; clinical detail → indication adjustment, ACNU, mediation">檢驗值與臨床細節→適應症校正、ACNU、中介</td></tr>
-          <tr><td data-en="Taiwan Biobank (TWB)">台灣人體生物資料庫 TWB</td><td data-en="Biobank">生物資料庫</td><td data-en="~200K (target 1M)">~20萬（目標百萬）</td><td data-en="Genomes + lifestyle + clinical → IV / Mendelian randomization">基因＋生活型態＋臨床→工具變數／孟德爾隨機化</td></tr>
-          <tr><td data-en="Korea HIRA / NHIS-NHID">韓國 HIRA／NHIS-NHID</td><td data-en="Claims">理賠</td><td data-en="~50M nationwide">~5000萬，全國</td><td data-en="Nationwide claims; NHIS adds enrolment &amp; health-check linkage">全國理賠；NHIS 另連投保與健檢</td></tr>
-          <tr><td data-en="Japan NDB / JMDC">日本 NDB／JMDC</td><td data-en="Claims">理賠</td><td data-en="NDB ~120M; JMDC ~13.5M">NDB ~1.2億；JMDC ~1350萬</td><td data-en="NDB ≈ all Japan; JMDC up to ~20-yr traceability → new-user / PNU / sustained">NDB 近全日本；JMDC 可追溯約 20 年→新使用者／PNU／持續策略</td></tr>
-          <tr><td data-en="Hong Kong CDARS">香港 CDARS</td><td data-en="National EHR">全 territory EHR</td><td data-en="~7M public-sector since 1995">~700萬公營，自 1995</td><td data-en="Territory-wide hospital EHR; clinical detail + linkage">全港住院 EHR；臨床細節＋連結</td></tr>
-          <tr><td colspan="4" class="famhdr" data-en="International partners (benchmarking)">國際夥伴（對照基準）</td></tr>
-          <tr><td data-en="UK CPRD / THIN">英國 CPRD／THIN</td><td data-en="Primary-care EHR">基層 EHR</td><td data-en="CPRD ~60M (linked HES, ONS)">CPRD ~6000萬（連 HES、ONS）</td><td data-en="Rich primary-care + linkage → most designs, incl. SCCS examples">豐富基層＋連結→多數設計，含 SCCS 範例</td></tr>
-          <tr><td data-en="UK Biobank">UK Biobank</td><td data-en="Biobank">生物資料庫</td><td data-en="~500K, aged 40–69">~50萬，40–69 歲</td><td data-en="Genomes + imaging + EHR → IV / Mendelian randomization">基因＋影像＋EHR→工具變數／孟德爾隨機化</td></tr>
-          <tr><td data-en="Public Health Scotland (ISD)">蘇格蘭 ISD</td><td data-en="National EHR">全國 EHR</td><td data-en="~5.4M whole population">~540萬，全人口</td><td data-en="Prescribing + admissions + deaths → survival, self-controlled">給藥＋住院＋死亡→存活、自我對照</td></tr>
-          <tr><td data-en="Netherlands PHARMO">荷蘭 PHARMO</td><td data-en="Linked multi-source">多源連結</td><td data-en="~7M (~40%) since 1999">~700萬（~40%），自 1999</td><td data-en="Linked pharmacy + primary + hospital → new-user, active comparator">連結藥局＋基層＋住院→新使用者、主動對照</td></tr>
-          <tr><td data-en="Finland FinReg">芬蘭 FinReg</td><td data-en="Claims + registries">理賠＋登錄</td><td data-en="~5.5M whole population since 1972">~550萬，全人口，自 1972</td><td data-en="Prescriptions + discharges + cause-of-death → long-term, survival">處方＋出院＋死因→長期、存活</td></tr>
-          <tr><td data-en="Australia PBS / VLHD">澳洲 PBS／VLHD</td><td data-en="Claims (+linkage)">理賠（＋連結）</td><td data-en="PBS 10% sample; VLHD whole-state">PBS 10% 抽樣；VLHD 全省</td><td data-en="Subsidised dispensing; VLHD adds admissions + deaths">補助給藥；VLHD 另連住院＋死亡</td></tr>
-          <tr><td data-en="US Medicare / Medicaid">美國 Medicare／Medicaid</td><td data-en="Claims">理賠</td><td data-en="Medicare 20% (~13M); Medicaid ~70M">Medicare 20%（~1300萬）；Medicaid ~7000萬</td><td data-en="Elderly / low-income claims; large, but specific populations">老年／低收入理賠；量大，但族群特定</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="caption" data-en="Cross-regional networks (e.g. AsPEN, NeuroGEN) run the <b>same protocol</b> across several of these databases and meta-analyse, trading single-database depth for breadth, generalisability and replication.">跨區域網路（如 AsPEN, NeuroGEN）會把<b>同一套協定</b>跑在上述多個資料庫上再做合併分析，以單一資料庫的深度換取廣度、可推論性與可重複性。</p>
-  </section>
 
 <section id="mrlearn" class="panel">
   <h1 data-en="Mendelian randomization: let nature run the randomized trial">孟德爾隨機化：讓大自然替你做隨機試驗</h1>
