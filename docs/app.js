@@ -7464,7 +7464,7 @@ const SCCS_VIO_META = {
     slider: () => tr("出過事之後就不去打針的人，占多少？", "Of people whose event comes first, how many never get the jab?"),
     note: () => tr("0＝出過事照樣去打。拉大＝越多「打針前就出過事」的人取消打針，整個人退出資料。", "0 = the event never cancels the jab. Higher = more pre-jab cases cancel and drop out of the data."),
     key: () => tr(
-      `<p><b>主句：事件一顆都沒有搬家，是名單被篩過了。</b></p>` +
+      `<p><b>重點：事件一顆都沒有移動，是名單被篩選過了。</b></p>` +
       `<p><b>機制：</b>打針前就出過事的人，之後不會去打針，所以根本進不了這份資料。他們一變灰，留下來的名單裡幾乎人人都是「打針之後才出事」，你看到的資料，事件當然集中在打針後。</p>` +
       `<p><b>看記分板：</b>每個被篩掉的人，帶走 1 顆基準期的 ✕、0 顆窗內的 ✕，天數卻是兩邊等比例帶走。<b>事件走得不均、天數走得均勻</b>：窗內的 ✕ 一顆沒少、分攤的人日卻變少 → 窗密度被推高，比值從 2 爬到 2.7。</p>`,
       `<p><b>Main point: not one event moved — the roster got filtered.</b></p>` +
@@ -7475,10 +7475,10 @@ const SCCS_VIO_META = {
     slider: () => tr("打針後出事的人裡，事件後 30 天內死亡的占多少？", "Of post-jab cases, how many die within 30 days of the event?"),
     note: () => tr("0＝事件不影響追蹤。拉大＝越多人在事件後 30 天死亡，之後的日子從資料裡消失。", "0 = the event never ends follow-up. Higher = more cases die 30 days after the event; the days after vanish from the data."),
     key: () => tr(
-      `<p><b>主句：這次沒有人偷事件，被剪掉的是「事件後面那段平安日子」。</b></p>` +
+      `<p><b>重點：這次事件一件都沒少，被剪掉的是「事件後面那段沒有事件的日子」。</b></p>` +
       `<p><b>機制：</b>死亡讓觀察在事件後 30 天就停了。事件都還在（它們發生在死亡之前），但事件後面本來要算進基準期的那幾百天，灰掉了。</p>` +
       `<p><b>看記分板：</b>危險窗那格一動也不動；基準期的事件沒變、<b>人日卻縮水</b>，基準密度被墊高。分母變大，比值就被壓低：IRR 從 2 掉到 1.5，藥看起來比實際安全。</p>` +
-      `<p class="muted" style="font-size:.85em">若打針前的事件也會致死，那個人連針都沒打、連資料都進不了，那就回到情境①的劇本。（偏移方向會隨事件落點改變；這裡示範的是最常見的情形。）</p>`,
+      `<p class="muted" style="font-size:.85em">若打針前的事件也會致死，那個人連針都沒打、連資料都進不了，那就回到情境①的情況。（偏移方向會隨事件落點改變；這裡示範的是最常見的情形。）</p>`,
       `<p><b>Main point: nobody steals events this time — what gets cut is the quiet stretch after the event.</b></p>` +
       `<p><b>Mechanism:</b> death stops observation 30 days after the event. The events themselves remain (they happened before death), but the hundreds of days after them — which should have counted as baseline — grey out.</p>` +
       `<p><b>Scoreboard:</b> the window cell does not move at all; baseline events unchanged but <b>baseline person-days shrink</b>, so baseline density is propped up. Bigger denominator, smaller ratio: IRR falls from 2 to 1.5 and the drug looks safer than it is.</p>` +
@@ -7488,9 +7488,9 @@ const SCCS_VIO_META = {
     slider: () => tr("一次發作之後，30 天內再發一次的機率？", "After one attack, how likely is another within 30 days?"),
     note: () => tr("前提：這個研究把每次發作都算一次事件。0＝發作彼此獨立。", "Premise: this study counts every attack as an event. 0 = attacks are independent."),
     key: () => tr(
-      `<p><b>主句：事件會生回音，回音不挑期別，掉進窗裡的，就被記在藥的帳上。</b></p>` +
-      `<p><b>機制：</b>看那顆 ★：第 80 天的發作把回音丟進了危險窗，它不是藥造成的，是上一次發作的餘震。反過來，窗內發作的回音多半掉到窗外，窗只有 28 天，留不住自己的回音。</p>` +
-      `<p><b>看記分板：</b>兩格的事件都被灌了票，但基準期灌得更多（窗內 +70%、基準 +105%）：比值被往 1 稀釋，IRR 從 2 掉到 1.7。更麻煩的是，回音窗多長、掉在哪裡，方向就跟著變。事件一旦不獨立，連「錯往哪邊」都難預測，這正是這條假設難纏的地方。</p>`,
+      `<p><b>重點：一次事件會引來下一次（回音），回音不挑期別，掉進窗裡的，就被算成藥造成的。</b></p>` +
+      `<p><b>機制：</b>看那顆 ★：第 80 天的發作把回音丟進了危險窗，它不是藥造成的，是上一次發作的回音。反過來，窗內發作的回音多半掉到窗外，窗只有 28 天，留不住自己的回音。</p>` +
+      `<p><b>看記分板：</b>兩格的事件數都被灌水，但基準期灌得更多（窗內 +70%、基準 +105%）：比值被往 1 稀釋，IRR 從 2 掉到 1.7。更麻煩的是，回音窗多長、掉在哪裡，方向就跟著變。事件一旦不獨立，連「錯往哪邊」都難預測，這正是這條假設難纏的地方。</p>`,
       `<p><b>Main point: events breed echoes, and echoes don't respect the window — whichever lands inside gets billed to the drug.</b></p>` +
       `<p><b>Mechanism:</b> see the star: the day-80 attack throws its echo into the risk window — not the drug, the aftershock of the previous attack. Conversely, echoes of in-window attacks mostly land outside: a 28-day window can't hold its own echoes.</p>` +
       `<p><b>Scoreboard:</b> both event cells get padded, baseline more (+70% in-window vs +105% baseline): the ratio is diluted toward 1, IRR falls from 2 to 1.7. Worse, the direction changes with the echo window and where events sit — once events aren't independent, even the direction of the error is unpredictable.</p>`),
