@@ -1807,7 +1807,7 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
       <div class="card">
         <h3 data-en="Slope change (β₃)">斜率變化（β₃）</h3>
         <p data-en="The <b>change in trend</b> after the intervention — does the line now climb or fall faster than before? Good for effects that accumulate over time.">
-          介入後的<b>趨勢改變</b>，這條線現在是不是比以前升得/降得更快？適合隨時間累積的效果。
+          介入後的<b>趨勢改變</b>，這條線現在是不是比以前升得／降得更快？適合隨時間累積的效果。
         </p>
       </div>
     </div>
@@ -1875,7 +1875,7 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
 
     <div id="itsPlayChart" class="chart"></div>
     <p class="caption" data-en="Dots = observed outcome; solid teal = fitted pre/post segments; dashed = the pre-trend extrapolated as the counterfactual; dotted vertical = the intervention. The vertical gap between the post segment and the dashed line is the effect.">
-      點＝觀察結果；實心青色＝配適的前/後段；虛線＝外推當反事實的前趨勢；豎點線＝介入時點。
+      點＝觀察結果；實心青色＝配適的前／後段；虛線＝外推當反事實的前趨勢；豎點線＝介入時點。
       後段與虛線之間的垂直落差就是效果。
     </p>
   </section>
@@ -1907,7 +1907,7 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
       <h2 data-en="Segmented-regression estimate">分段迴歸估計</h2>
       <div class="result-cards" id="itsAnalyzeCards"></div>
       <div id="itsAnalyzeChart" class="chart"></div>
-      <p class="caption" data-en="Observed series with the fitted pre/post segments and the extrapolated counterfactual (dashed). Confidence intervals on the effects use Newey–West (HAC) standard errors to account for autocorrelation.">觀察序列、配適的前/後段與外推反事實（虛線）。效果的信賴區間用 Newey–West（HAC）標準誤處理自相關。</p>
+      <p class="caption" data-en="Observed series with the fitted pre/post segments and the extrapolated counterfactual (dashed). Confidence intervals on the effects use Newey–West (HAC) standard errors to account for autocorrelation.">觀察序列、配適的前／後段與外推反事實（虛線）。效果的信賴區間用 Newey–West（HAC）標準誤處理自相關。</p>
 
       <h2 data-en="Advanced variants (extensions of the design — not AI)">進階變形（設計／估計上的延伸：不是 AI）</h2>
       <p class="lead" data-en="These are standard ITS <b>extensions</b> (no machine learning): an autocorrelation-robust standard error, a control series, and a Bayesian counterfactual. The genuine ML upgrade lives in tab ⑤.">
@@ -2166,7 +2166,7 @@ newey outcome time post t_since, lag(1)
   <section id="perranalyze" class="panel">
     <h1 data-en="Data analysis: run a full PERR">資料分析：跑一次完整的 PERR</h1>
     <p class="lead" data-en="Load the built-in cohort example (or upload a CSV with one row per person: a group indicator, and event counts + person-time for the prior and post periods). The tool computes the prior and post rate ratios, the PERR with a delta-method confidence interval, and the naive comparison it corrects.">
-      載入內建的世代範例（或上傳每列一個人的 CSV：分組指標，以及事前/事後期的事件數與人時）。
+      載入內建的世代範例（或上傳每列一個人的 CSV：分組指標，以及事前／事後期的事件數與人時）。
       工具會算事前、事後率比，PERR 及其 delta-method 信賴區間，與它所校正的未校正比較。
     </p>
 
@@ -2200,7 +2200,7 @@ newey outcome time post t_since, lag(1)
       <div class="card"><h3 data-en="② PERR vs PERD (scale sensitivity)">② PERR vs PERD（尺度敏感度）</h3>
         <p data-en="If confounding acts additively, not multiplicatively, the right tool is the Prior Event Rate <b>Difference</b> (PERD). The two can't both be right — report both as a sensitivity analysis (computed below).">若混淆是加法而非乘法，正確工具是事前事件率<b>差</b>（PERD）。兩者不可能同時對，把兩個都報出來當敏感度分析（下方計算）。</p></div>
       <div class="card"><h3 data-en="③ PERR-Comp (robust to dropout)">③ PERR-Comp（對退出穩健）</h3>
-        <p data-en="When dropout/mortality differs by group, a completers-consistent PERR-Comp (Cheung &amp; Ma 2025) stays approximately unbiased — as long as dropout isn't directly caused by the prior event. Pair with SCCS and DRIM checks (see ④).">當退出/死亡因組而異，完成者一致的 PERR-Comp（Cheung &amp; Ma 2025）仍近似無偏，只要退出不是事前事件直接造成。搭配 SCCS 與 DRIM 檢查（見 ④）。</p></div>
+        <p data-en="When dropout/mortality differs by group, a completers-consistent PERR-Comp (Cheung &amp; Ma 2025) stays approximately unbiased — as long as dropout isn't directly caused by the prior event. Pair with SCCS and DRIM checks (see ④).">當退出／死亡因組而異，完成者一致的 PERR-Comp（Cheung &amp; Ma 2025）仍近似無偏，只要退出不是事前事件直接造成。搭配 SCCS 與 DRIM 檢查（見 ④）。</p></div>
     </div>
 
     <h2 data-en="Computed: PERR vs PERD scale sensitivity">可計算：PERR vs PERD 尺度敏感度</h2>
@@ -3254,7 +3254,7 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
     <h1 data-en="Data analysis: crude vs adjusted vs stratified OR">資料分析：未校正 vs 校正 vs 分層 OR</h1>
     <p class="lead" data-en="Load the built-in case-control example (one row per person: a case/control flag, exposure, and covariates incl. age). The tool computes the crude OR, the age/sex/comorbidity-adjusted logistic OR, and the Mantel–Haenszel OR stratified by age band × sex — and shows the age imbalance that makes the crude OR wrong.">
       載入內建病例對照範例（每列一個人：case/對照旗標、暴露、共變項含年齡）。工具會算未校正 OR、校正
-      年齡/性別/共病的 logistic OR，以及按年齡層×性別分層的 Mantel–Haenszel OR，並顯示讓未校正 OR 出錯的年齡不平衡。
+      年齡／性別／共病的 logistic OR，以及按年齡層×性別分層的 Mantel–Haenszel OR，並顯示讓未校正 OR 出錯的年齡不平衡。
     </p>
 
     <div class="datasource">
@@ -6259,7 +6259,7 @@ regress y treated external x, level(90)</code></pre>
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The contrast of <b>treatment strategies</b> Yᵍ (e.g. early vs late initiation; stay-on vs discontinue) — a per-protocol effect over the whole population."><b>治療策略</b> Yᵍ 的對比（如早 vs 晚起始；持續 vs 停藥），全體的依計畫效果。</p></div>
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Sequential (time-varying) exchangeability</b>: at each time, no unmeasured confounding of the next treatment step, handled by inverse-probability-of-censoring weights. <b>Positivity</b>: each strategy is possible at each time. <b>Consistency</b>: well-defined strategies + a clear time zero."><b>序列（時變）可交換性</b>：每個時點下一步治療無未測混淆，用反設限機率加權處理。<b>正性</b>：每個時點各策略都可能。<b>一致性</b>：策略定義明確＋明確時間零點。</p></div>
       <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>measured time-varying covariates</b> via IPCW (g-methods), plus <b>time-zero alignment</b> that removes immortal time. For &quot;early vs late&quot;, both arms eventually treat, so confounding by indication largely cancels.">來自<b>已測的時變共變項</b>（IPCW，g-methods），加上<b>時間零點對齊</b>消掉 immortal time。「早 vs 晚」時兩臂最終都治療，因適應症而生的混淆大幅相消。</p></div>
-      <div class="card"><h3 data-en="④ Stabilized vs unstabilized weights">④ 穩定化 vs 未穩定化權重</h3><p data-en="Both give the <b>same point estimate</b> here (the marginal numerator cancels in each month's weighted hazard) — they differ in variance. <b>Unstabilized</b> (numerator = 1, W = 1/P(uncensored)): recreates the full baseline population, <b>no constraint</b> on the outcome model — the natural fit for a <b>sustained</b> stay-on-vs-discontinue weighted KM, but extreme weights need <b>truncation</b>. <b>Stabilized</b> (marginal numerator): mean ≈ 1, narrower CIs, <b>but</b> any baseline covariate in the numerator must re-enter the outcome model → often forces a <b>parametric</b> model. So this tool uses unstabilized for sustained, stabilized for grace / early-vs-late.">兩者在這裡給<b>相同點估計</b>（邊際分子在每月加權風險中相消），差別在變異。<b>未穩定化</b>（分子=1，W=1/未設限機率）：重建完整基線族群、對結果模型<b>無限制</b>，最適合 <b>sustained</b> 持續/停藥的加權 KM，但極端權重要<b>截斷</b>。<b>穩定化</b>（邊際分子）：平均≈1、區間較窄，<b>但</b>分子放的基線共變項必須回到結果模型→常被迫用<b>有母數</b>模型。所以本工具 sustained 用未穩定化、grace／早晚啟動用穩定化。</p></div>
+      <div class="card"><h3 data-en="④ Stabilized vs unstabilized weights">④ 穩定化 vs 未穩定化權重</h3><p data-en="Both give the <b>same point estimate</b> here (the marginal numerator cancels in each month's weighted hazard) — they differ in variance. <b>Unstabilized</b> (numerator = 1, W = 1/P(uncensored)): recreates the full baseline population, <b>no constraint</b> on the outcome model — the natural fit for a <b>sustained</b> stay-on-vs-discontinue weighted KM, but extreme weights need <b>truncation</b>. <b>Stabilized</b> (marginal numerator): mean ≈ 1, narrower CIs, <b>but</b> any baseline covariate in the numerator must re-enter the outcome model → often forces a <b>parametric</b> model. So this tool uses unstabilized for sustained, stabilized for grace / early-vs-late.">兩者在這裡給<b>相同點估計</b>（邊際分子在每月加權風險中相消），差別在變異。<b>未穩定化</b>（分子=1，W=1/未設限機率）：重建完整基線族群、對結果模型<b>無限制</b>，最適合 <b>sustained</b> 持續／停藥的加權 KM，但極端權重要<b>截斷</b>。<b>穩定化</b>（邊際分子）：平均≈1、區間較窄，<b>但</b>分子放的基線共變項必須回到結果模型→常被迫用<b>有母數</b>模型。所以本工具 sustained 用未穩定化、grace／早晚啟動用穩定化。</p></div>
       <div class="card"><h3 data-en="⑤ In What If">⑤ 對應《What If》</h3><p data-en="Part III: time-varying treatments, IP weighting of marginal structural models, and target trial emulation (stabilized vs unstabilized weights are Ch. 12). Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">第三部：時變治療、邊際結構模型的 IP 加權、目標試驗模擬（穩定化 vs 未穩定化權重見第 12 章）。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
@@ -7593,7 +7593,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <tr><td colspan="3" class="famhdr" data-en="Family · borrowed timing / trends">家族 · 借時間（政策時點／前後趨勢）</td></tr>
           <tr><td>DiD</td><td data-en="A panel of units × periods, with a control group">單位×期別的面板，含對照組</td><td data-en="ATT — the effect on the treated communities">介入社區的平均處置效果（ATT）</td></tr>
           <tr><td>ITS</td><td data-en="One series with many points before & after a known interruption">一條序列、介入前後都有許多時間點</td><td data-en="Level &amp; slope change for the treated population">該母體的水準與斜率變化</td></tr>
-          <tr><td>PERR</td><td data-en="Event counts & person-time for a prior and a post period, by group">分組的事前/事後期事件數與人時</td><td data-en="A causal rate ratio for the treated">處置者的因果率比</td></tr>
+          <tr><td>PERR</td><td data-en="Event counts & person-time for a prior and a post period, by group">分組的事前／事後期事件數與人時</td><td data-en="A causal rate ratio for the treated">處置者的因果率比</td></tr>
           <tr><td>TiT</td><td data-en="Individual data over many periods, a rare outcome, a strong uptake trend">多期個體資料、罕見結果、夠強的使用趨勢</td><td data-en="A population causal odds ratio (≈ relative risk)">母體層級的因果勝算比（≈相對風險）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · self-controlled">家族 · 自我對照</td></tr>
           <tr><td>CCTC</td><td data-en="Acute events with a transient exposure recorded in multiple windows; an exposure time-trend">急性事件＋多時窗的短暫暴露紀錄；暴露有日曆時間趨勢</td><td data-en="A within-person odds ratio (with the time-trend divided out)">個人內勝算比（已扣掉時間趨勢）</td></tr>
