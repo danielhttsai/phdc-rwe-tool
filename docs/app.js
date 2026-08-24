@@ -7823,7 +7823,7 @@ function drawSceneAcnu() {
     text: groups.map((g) => (g.sev >= 0 ? "+" : "") + g.sev.toFixed(2)), textposition: "outside",
   }], schemaLayout({
     height: 290,
-    xaxis: { visible: true, title: tr("平均疾病嚴重度（混淆因子）", "mean disease severity (the confounder)"), range: [-1.0, 1.3], zeroline: true },
+    xaxis: { visible: true, title: tr("平均疾病嚴重度（干擾因子）", "mean disease severity (the confounder)"), range: [-1.0, 1.3], zeroline: true },
     yaxis: { visible: true, automargin: true },
     margin: { t: 16, r: 18, b: 44, l: 12 },
     annotations: [{ x: 0.33, y: 2, xref: "x", yref: "y", ax: -0.51, ay: 0, axref: "x", ayref: "y",

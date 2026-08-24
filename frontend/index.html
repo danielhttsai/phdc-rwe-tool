@@ -887,7 +887,7 @@ estat firststage
           全體（邊際）HR 也<b>不等於</b>個體 HR 的平均，而且這個數字會<b>因為你多放或少放共變項而改變</b>，所以「校正後的 HR 變了」
           可能只是<b>尺度的假象</b>，不一定代表混淆被修掉。HR 還內建了一種隨時間的選擇（體質弱的人先失敗），讓它在因果上不好解讀。
           而 <b>AFT 的加速因子</b>（時間比：「處置讓事件時間延後 ×N 倍」）是<b>可塌縮</b>的：邊際效果就是條件效果的合理平均，
-          而且校正一個<b>不是</b>混淆因子的變項，目標不會跑掉。這正是 Crowther、Royston &amp; Clements（2023）證明
+          而且校正一個<b>不是</b>干擾因子的變項，目標不會跑掉。這正是 Crowther、Royston &amp; Clements（2023）證明
           「彈性樣條 AFT <b>可塌縮、適合因果推論</b>」的原因，把它和上面的設限校正（IPCW／DR）配起來，
           就能得到一個可以乾淨解讀的 RDD 存活效果。
         </p>
@@ -2078,7 +2078,7 @@ newey outcome time post t_since, lag(1)
       <div class="card">
         <h3 data-en="What it estimates">它估的是什麼</h3>
         <p data-en="A causal <b>rate ratio</b> (≈ relative risk) of the treatment on the event — recovered by cancelling time-invariant confounding on the ratio scale, without needing to measure the confounder.">
-          處置對事件的因果<b>率比</b>（≈相對風險），靠在比值尺度上消掉時間不變的混淆來還原，不需要量到那個混淆因子。
+          處置對事件的因果<b>率比</b>（≈相對風險），靠在比值尺度上消掉時間不變的混淆來還原，不需要量到那個干擾因子。
         </p>
       </div>
       <div class="card">
@@ -2134,7 +2134,7 @@ newey outcome time post t_since, lag(1)
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive PERR: break the time-invariant assumption and watch it bend">互動式 PERR：弄壞「時間不變」假設，看它怎麼歪掉</h1>
     <p class="lead" data-en="PERR only works if the confounding is the <b>same</b> in the prior and post periods. Drag the slider to let the confounder's effect <b>drift</b> over time (e.g. frailty resolves after treatment). At 0, PERR recovers the true rate ratio of 0.70. Turn it up, and the prior period no longer captures the post confounding — so PERR drifts away from the truth, even though the naive comparison was wrong all along.">
-      PERR 只有在混淆於事前、事後<b>一樣</b>時才成立。拉動滑桿，讓混淆因子的效果隨時間<b>漂移</b>
+      PERR 只有在混淆於事前、事後<b>一樣</b>時才成立。拉動滑桿，讓干擾因子的效果隨時間<b>漂移</b>
       （例如體弱在接種後好轉）。在 0 時，PERR 還原真實率比 0.70。往上調，事前期就不再能代表事後的混淆，
       PERR 便偏離真值，儘管未校正比較從頭到尾都是錯的。
     </p>
@@ -3212,7 +3212,7 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
       <div class="tdef">
         <h4>配對與條件式分析 <span class="en">matching &amp; conditional analysis</span></h4>
         <p data-en="Matching is a way to handle confounding right when you pick controls: for each case, deliberately choose controls who look like that case on the confounders (e.g. same age band and sex), so the groups can't differ on those. But once you've forced the groups to match, you must analyse them that way too — compare within each matched set, not across the whole pile — otherwise the OR gets dragged toward 1 (no effect). With matched pairs, only the &quot;discordant&quot; pairs (one exposed, one not) carry information, and the matched odds ratio is simply <code>OR_matched = b/c</code>, the ratio of the two kinds of discordant pair. One rule: only match on true confounders. Matching on something the exposure causes (a mediator), or on a shared effect (a collider), introduces bias instead of removing it.">
-          配對是在「挑對照」這一步就直接處理混淆：替每個病例，刻意挑在混淆因子上長得像它的對照（例如同年齡層、同性別），讓兩組在這些因子上無從差別。但一旦你硬把兩組配成一樣，分析時也得照這個方式做，在每個配對組「內部」比較，而不是把所有人混在一起比，否則 OR 會被拉向 1（看起來沒效果）。在成對配對下，只有「不一致對」（一個有暴露、一個沒有）才帶訊息，配對勝算比就是這兩種不一致對的比值：<code>OR_matched = b/c</code>。一條鐵律：只配在真正的混淆因子上。如果配在「暴露所造成的東西（中介）」或「共同結果（對撞因子）」上，反而會引入偏誤，而不是消除它。
+          配對是在「挑對照」這一步就直接處理混淆：替每個病例，刻意挑在干擾因子上長得像它的對照（例如同年齡層、同性別），讓兩組在這些因子上無從差別。但一旦你硬把兩組配成一樣，分析時也得照這個方式做，在每個配對組「內部」比較，而不是把所有人混在一起比，否則 OR 會被拉向 1（看起來沒效果）。在成對配對下，只有「不一致對」（一個有暴露、一個沒有）才帶訊息，配對勝算比就是這兩種不一致對的比值：<code>OR_matched = b/c</code>。一條鐵律：只配在真正的干擾因子上。如果配在「暴露所造成的東西（中介）」或「共同結果（對撞因子）」上，反而會引入偏誤，而不是消除它。
         </p>
       </div>
     </details>
@@ -5701,7 +5701,7 @@ stcox, tvc(dose) texp(_t)</code></pre>
     <div class="card info"><h3 data-en="Transportability vs generalizability">可轉移性 vs 可推廣性</h3>
       <p data-en="<b>Generalizability</b> = the target is a <b>subset</b> of the study population (you scale within). <b>Transportability</b> = the target is (partly) <b>outside</b> the study — a different population, country or time. Both rely on the same engine: model how the <b>effect modifiers</b> differ, then standardise or weight. (Adamson et al. 2026, ISPE framework; Inoue &amp; Hsu 2024; Bareinboim &amp; Pearl.)"><b>可推廣性（generalizability）</b>＝目標是研究族群的<b>子集</b>（往內縮放）。<b>可轉移性（transportability）</b>＝目標（部分）<b>在研究之外</b>，不同族群、國家或年代。兩者引擎相同：把<b>效果修飾子</b>的差異建模，再標準化或加權。（Adamson 等 2026 ISPE 框架；Inoue &amp; Hsu 2024；Bareinboim &amp; Pearl。）</p></div>
     <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
-      <div class="tdef"><h4>效果修飾子 <span class="en">effect modifier</span></h4><p data-en="A variable that changes the SIZE of the treatment effect — the drug helps younger patients more than older ones, say. It is different from a confounder (which biases the effect) and from a variable that only shifts the outcome level. Transportability is only needed when an effect modifier is distributed differently in the target than in the study.">一個會改變「治療效果<b>大小</b>」的變數，例如藥對年輕病人比對年長病人更有效。它和混淆因子（會讓效果偏掉）不同，也和「只改變結果水準」的變數不同。只有當效果修飾子在目標與研究的分布不同時，才需要可轉移性。</p></div>
+      <div class="tdef"><h4>效果修飾子 <span class="en">effect modifier</span></h4><p data-en="A variable that changes the SIZE of the treatment effect — the drug helps younger patients more than older ones, say. It is different from a confounder (which biases the effect) and from a variable that only shifts the outcome level. Transportability is only needed when an effect modifier is distributed differently in the target than in the study.">一個會改變「治療效果<b>大小</b>」的變數，例如藥對年輕病人比對年長病人更有效。它和干擾因子（會讓效果偏掉）不同，也和「只改變結果水準」的變數不同。只有當效果修飾子在目標與研究的分布不同時，才需要可轉移性。</p></div>
       <div class="tdef"><h4>選樣反機率加權 <span class="en">inverse odds of selection weighting (IOSW)</span></h4><p data-en="Weight each study subject by the odds of belonging to the target rather than the study, given their covariates. This makes the re-weighted study sample look like the target's covariate mix, so its average effect becomes the target's. The twin approach is standardisation: fit the effect surface and average it over the target's covariates.">用每個研究受試者「在共變項之下，屬於目標 vs 屬於研究」的勝算當權重。這讓重新加權後的研究樣本長得像目標的共變項組成，平均效果就變成目標的。孿生做法是標準化：配出效果曲面，再對目標的共變項取平均。</p></div>
     </details>
   </section>
@@ -7428,7 +7428,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
       <h3 data-en="Not all effect measures are on comparable footing">不是每種效果量都能直接相比</h3>
       <p data-en="These designs report effects on <b>different scales</b>, and the scale itself changes how you should read an &quot;adjusted&quot; estimate. A measure is <b>collapsible</b> if the whole-population (marginal) effect is a proper average of the subgroup effects — so adjusting for a variable that is <b>not</b> a confounder leaves the target unchanged. It is <b>non-collapsible</b> if the marginal and conditional effects differ <b>even with no confounding at all</b>, and the number drifts simply because you added covariates.">
         這些設計回報的效果在<b>不同尺度</b>上，而尺度本身會影響你該怎麼解讀「校正後」的估計。一個效果量若是<b>可塌縮（collapsible）</b>，
-        代表全體（邊際）效果是各次群效果的合理平均，所以校正一個<b>不是</b>混淆因子的變項，目標不會改變。若是<b>不可塌縮（non-collapsible）</b>，
+        代表全體（邊際）效果是各次群效果的合理平均，所以校正一個<b>不是</b>干擾因子的變項，目標不會改變。若是<b>不可塌縮（non-collapsible）</b>，
         則邊際與條件效果<b>就算完全沒有混淆</b>也會不同，數字會單純因為你多放了共變項而漂移。
       </p>
       <ul>
@@ -7808,7 +7808,7 @@ regress beta_out beta_exp [aw=w], noconstant
     <div class="card warn">
       <h3 data-en="② Independence — population stratification">② 獨立性，族群分層</h3>
       <p data-en="The variants must be independent of confounders of the exposure–outcome link. The main threat is <b>population stratification</b>: ancestry differences make both genotype and disease cluster together, faking a genetic effect. Analyse within one ancestry and adjust for genetic principal components.">
-        變異必須獨立於暴露–結果關係的混淆因子。主要威脅是<b>族群分層</b>：祖源差異讓基因型與疾病一起群聚，偽造出一個遺傳效果。請在單一祖源內分析，並校正遺傳主成分。
+        變異必須獨立於暴露–結果關係的干擾因子。主要威脅是<b>族群分層</b>：祖源差異讓基因型與疾病一起群聚，偽造出一個遺傳效果。請在單一祖源內分析，並校正遺傳主成分。
       </p>
     </div>
     <div class="card warn">
