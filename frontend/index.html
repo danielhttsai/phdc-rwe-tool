@@ -556,7 +556,7 @@ estat firststage
         又拿這條關係去估效果，它會把這批人的<b>運氣（雜訊）也一起背起來</b>，
         給你一個<b>看似很準、其實騙你</b>的結果（這就是「禁止迴歸」陷阱）。<br />
         <b>交叉擬合</b>的做法很單純：把人<b>分成幾組</b>，永遠用<b>「別組」</b>的資料學關係、
-        再套到<b>「這組」</b>沒看過的人身上。AI 沒機會偷看，結果才誠實。
+        再套到<b>「這組」</b>沒看過的人身上。AI 沒機會偷看，結果才可信。
       </p>
     </div>
 
@@ -994,7 +994,7 @@ rdplot health_score_change age, c(65)</code></pre>
       <p data-en="x is age, y is the outcome. There is a clear <b>upward trend with age</b> on both sides, plus a small <b>jump</b> right at 65 (the dotted line) — that jump is the real effect we want. The trouble: outcome already rises with age, so if you open a <b>wide window</b> (amber band) and just compare left-grey vs right-teal averages, the age trend <b>inflates</b> the jump. DML subtracts the trend first, so the estimate stays honest even with a wide window.">
         橫軸是年齡、縱軸是結果。兩側都有明顯的<b>隨年齡上升的趨勢</b>，再加上 65 歲（虛線）處一個小<b>跳階</b>，
         那個跳階就是我們要的真效果。麻煩在於：結果本來就隨年齡上升，所以若把<b>視窗開寬</b>（琥珀色帶），
-        只比左側灰點與右側青點的平均，年齡趨勢會把跳階<b>誇大</b>。DML 先把趨勢扣掉，視窗再寬估計也誠實。
+        只比左側灰點與右側青點的平均，年齡趨勢會把跳階<b>誇大</b>。DML 先把趨勢扣掉，視窗再寬估計也準確。
       </p>
       <div id="sceneTrend" class="chart"></div>
     </div>
@@ -1916,7 +1916,7 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
       <div class="card scene">
         <p data-en="Months don't bounce independently — a high month tends to be followed by another (autocorrelation). The point estimate is fine, but a naive OLS confidence interval pretends months are independent and comes out too narrow; HAC (Newey–West) standard errors widen it to be honest.">
           月份不會各自獨立跳動，高的月份後面常常又是高的（自相關）。點估計沒問題，但未校正 OLS 信賴區間
-          假裝月份互相獨立、算得太窄；HAC（Newey–West）標準誤把它放寬到誠實的程度。
+          假裝月份互相獨立、算得太窄；HAC（Newey–West）標準誤把它放寬到合理的程度。
         </p>
         <div id="itsHacChart" class="chart"></div>
       </div>
@@ -1936,7 +1936,7 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
       <div class="card scene">
         <p data-en="Instead of one rigid dashed line, a Bayesian structural time-series model (CausalImpact) gives the counterfactual a whole posterior — a shaded band that widens the further you forecast past the intervention, so the effect and its credible interval are more honest.">
           不再是一條僵硬的虛線，貝氏結構時間序列（CausalImpact）給反事實一整條後驗，一條隨著離介入越遠而
-          <b>越寬</b>的陰影帶，讓效果與其可信區間更誠實。
+          <b>越寬</b>的陰影帶，讓效果與其可信區間更貼近真實的不確定性。
         </p>
         <div id="itsBstsChart" class="chart"></div>
       </div>
@@ -2938,7 +2938,7 @@ clogit y window if group==0, group(id) or</code></pre>
       <div class="tdef">
         <h4>點治療 vs 動態策略 <span class="en">point treatment vs dynamic strategy</span></h4>
         <p data-en="This is about what kind of question you're asking. A &quot;point treatment&quot; is a single yes/no decision made at one moment — &quot;do I start this now?&quot; — and that's all sequential trials are built to answer. A &quot;sustained&quot; or &quot;dynamic&quot; strategy is instead a rule you keep following over time — &quot;keep taking it as long as X holds&quot; — which is what the clone-censor-weight (CCW) method on another tab handles. Concretely: &quot;should this patient get vaccinated at today's visit?&quot; is a one-shot point question (use sequential trials); &quot;should they keep up with booster shots over the years?&quot; is an ongoing strategy (use CCW). Picking the right tool just means being honest about whether your real question is a single decision or an ongoing plan. Either way, both are just ways of imitating a randomized trial you couldn't actually run (a target-trial emulation).">
-          這在問你「到底想問哪一種問題」。「點治療」是某一刻做出的單一是非決定：「我現在要不要開始？」，序列試驗正是為了回答這種問題而生。「持續」或「動態」策略則是一條你會一路遵守的規則：「只要符合某條件就一直用下去」，那是另一個分頁的 clone-censor-weight（CCW）法在處理的。具體說：「這位病人今天門診要不要接種？」是一次性的點問題（用序列試驗）；「他往後幾年要不要持續打追加劑？」是持續的策略（用 CCW）。選對工具，其實就是誠實面對你真正的問題是「單一決定」還是「持續計畫」。不論哪一種，兩者都只是在模仿一場你實際上沒辦法跑的隨機試驗，也就是目標試驗模擬。
+          這在問你「到底想問哪一種問題」。「點治療」是某一刻做出的單一是非決定：「我現在要不要開始？」，序列試驗正是為了回答這種問題而生。「持續」或「動態」策略則是一條你會一路遵守的規則：「只要符合某條件就一直用下去」，那是另一個分頁的 clone-censor-weight（CCW）法在處理的。具體說：「這位病人今天門診要不要接種？」是一次性的點問題（用序列試驗）；「他往後幾年要不要持續打追加劑？」是持續的策略（用 CCW）。選對工具，其實就是先想清楚你真正的問題是「單一決定」還是「持續計畫」。不論哪一種，兩者都只是在模仿一場你實際上沒辦法跑的隨機試驗，也就是目標試驗模擬。
         </p>
       </div>
       <div class="tdef">
@@ -7968,7 +7968,7 @@ regress y arm progscore if source=="trial"</code></pre>
   <p class="lead" data-en="The digital twin <b>is</b> an ML-native method: its whole value comes from a prognostic model that predicts the untreated outcome accurately. The richer and better-calibrated that model, the more precision (or comparability) the twin can borrow — but flexibility also raises the stakes of overfitting and dataset shift.">數位孿生<b>本身</b>就是機器學習方法：它的全部價值來自一個能精準預測未治療結果的預後模型。模型越豐富、校準越好，孿生能借的精準度（或可比性）就越多，但彈性同時放大了過擬合與資料漂移的風險。</p>
   <div class="cards cards-3">
     <div class="card info"><h3 data-en="① Flexible prognostic models">① 彈性的預後模型</h3><p data-en="Gradient boosting, random forests, deep nets, and generative sequence models can produce far sharper twins than a linear model — capturing non-linear, high-dimensional baseline structure to predict each patient's untreated trajectory.">梯度提升、隨機森林、深度網路與生成式序列模型，能產生比線性模型銳利得多的孿生，捕捉非線性、高維的基線結構來預測每位病人的未治療軌跡。</p></div>
-    <div class="card info"><h3 data-en="② Cross-fitting &amp; calibration">② 交叉擬合與校準</h3><p data-en="Use cross-fitting / sample-splitting so the twin for each patient comes from a model not trained on them, and recalibrate (isotonic / Platt) so Ŷ₀ is honest. Doubly-robust estimators (AIPW, TMLE) pair the twin with a treatment model for extra protection in observational settings.">用交叉擬合／樣本分割，讓每位病人的孿生來自沒在他身上訓練過的模型，並重新校準（isotonic／Platt）讓 Ŷ₀ 誠實。雙重穩健估計式（AIPW、TMLE）把孿生與治療模型配對，在觀察性情境提供額外保護。</p></div>
+    <div class="card info"><h3 data-en="② Cross-fitting &amp; calibration">② 交叉擬合與校準</h3><p data-en="Use cross-fitting / sample-splitting so the twin for each patient comes from a model not trained on them, and recalibrate (isotonic / Platt) so Ŷ₀ is honest. Doubly-robust estimators (AIPW, TMLE) pair the twin with a treatment model for extra protection in observational settings.">用交叉擬合／樣本分割，讓每位病人的孿生來自沒在他身上訓練過的模型，並重新校準（isotonic／Platt）讓 Ŷ₀ 準確。雙重穩健估計式（AIPW、TMLE）把孿生與治療模型配對，在觀察性情境提供額外保護。</p></div>
     <div class="card"><h3 data-en="Human-AI co-design of the prognostic model (HACHI)">以人機協作建立預後模型（HACHI）</h3><p data-en="The twin is only as good as its prognostic model. <b>HACHI</b> (Feng et al. 2026, <i>npj Digital Medicine</i>) builds such models with a human-in-the-loop, AI-agent workflow that keeps them <b>fully interpretable</b> — clinicians can audit which concepts (including ones mined from clinical notes) enter the model, improving the calibration and trust the twin depends on.">孿生的好壞完全取決於它的預後模型。<b>HACHI</b>（Feng 等 2026，<i>npj Digital Medicine</i>）以「人在迴圈、AI 代理人」的流程建立這類模型，並讓它<b>完全可解讀</b>，臨床醫師能審視哪些概念（包含從病歷文字挖出的）進入模型，提升孿生所仰賴的校準與信任。</p></div>
     <div class="card warn"><h3 data-en="③ Overfitting &amp; dataset shift">③ 過擬合與資料漂移</h3><p data-en="A flexible twin can fit noise (over-optimistic predictions) or quietly degrade when the deployment population differs from training (dataset shift). Guard with held-out calibration, prespecification of the twin, and monitoring for drift — precision is worthless if the twin is wrong.">彈性孿生可能擬合到雜訊（過度樂觀的預測），或在部署族群與訓練不同時悄悄退化（資料漂移）。以留存校準、事先指定孿生、與漂移監測來防範，孿生若是錯的，精準度毫無價值。</p></div>
   </div>
