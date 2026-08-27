@@ -8517,8 +8517,7 @@ list in 1/5</code></pre>
   </section>
 
   <section id="gbtmassume" class="panel">
-    <h1 data-en="④ Assumptions &amp; traps">④ 假設檢驗：假設與陷阱</h1>
-    <h2 id="gbtm-assume" data-en="Assumptions &amp; traps">假設與陷阱</h2>
+    <h1 id="gbtm-assume" data-en="④ Assumptions &amp; traps">④ 假設與陷阱</h1>
     <div class="card warn"><h3 data-en="The groups are a convenient approximation — not necessarily real subtypes">群組是方便的近似，不一定是真實的次型</h3>
       <p data-en="GBTM <b>always</b> returns groups, even from a population whose change is genuinely continuous. Nagin &amp; Tremblay's own caution — &quot;groups as an approximation, not literal entities&quot; — is central: the discrete groups are a statistical device for describing a continuum, and reifying them ('these are four kinds of patient') can mislead. Treat trajectory groups as a summary, validate them (replication, external correlates), and be explicit that membership is uncertain.">GBTM <b>一定</b>會給出群組，即使族群的變化其實是連續的。Nagin &amp; Tremblay 自己的提醒，「群組是近似、不是字面上的實體」，很關鍵：這些離散群組是用來描述連續變化的統計工具，把它們當成真實存在的實體（「這就是四種病人」）可能誤導。把軌跡群組當成摘要、加以驗證（重現、外部關聯），並明白說明成員身分是不確定的。</p></div>
     <div class="cards cards-3">
@@ -8647,7 +8646,6 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
 
   <section id="causalmlassume" class="panel">
     <h1 data-en="④ Assumptions: what ML changes — and what it doesn't">④ 假設檢驗：ML 改變了什麼、沒改變什麼</h1>
-    <h2 data-en="What ML changes — and what it doesn't">ML 改變了什麼、沒改變什麼</h2>
     <div class="cards cards-3">
       <div class="card"><h3 data-en="Same identifying assumptions">同樣的識別假設</h3><p data-en="No unmeasured confounding, overlap/positivity and consistency are still required — they come from the <b>design</b>, not the algorithm. Causal ML on a biased design just gives you a <b>precise, heterogeneous</b> wrong answer.">無未測混淆、重疊／正性、一致性仍是必要的，它們來自<b>設計</b>、不是演算法。把因果 ML 用在有偏的設計上，只會給你一個<b>精確、有異質性</b>的錯答案。</p></div>
       <div class="card"><h3 data-en="Honesty &amp; cross-fitting">誠實切分與交叉擬合</h3><p data-en="To get valid intervals for a data-adaptively found CATE, use <b>sample-splitting / honesty</b> (grow the model on one part, estimate effects on another) and <b>cross-fitting</b>. Skipping this is how flexible ML over-fits heterogeneity that isn't real.">要對「資料自適應找到的 CATE」給出有效區間，要用<b>樣本切分／誠實</b>（一部分長模型、另一部分估效果）與<b>交叉擬合</b>。省略這步，彈性 ML 就會過度擬合不存在的異質性。</p></div>
