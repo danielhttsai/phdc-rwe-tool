@@ -1662,7 +1662,7 @@ proc nlmixed data=d;
     p = 1/(1+exp(-eta));
     model outcome ~ binary(p);
 run;</code></pre>
-      <p data-en="proc nlmixed maximizes the exposure-conditional likelihood, letting the period trend (bt) and exposure (be) jointly explain the outcome.">proc nlmixed 將曝露條件概似最大化，讓期別趨勢（bt）與曝露（be）共同解釋結果。</p></div>
+      <p data-en="proc nlmixed maximizes the exposure-conditional likelihood, letting the period trend (bt) and exposure (be) jointly explain the outcome.">proc nlmixed 將暴露條件概似最大化，讓期別趨勢（bt）與暴露（be）共同解釋結果。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — TrendInTrend::titanalysis">R — TrendInTrend::titanalysis</h3>
       <pre class="sas"><code><span class="cm"># trend-in-trend: exploit the differential exposure trend across periods</span>
 library(TrendInTrend)
@@ -1674,12 +1674,12 @@ n11 &lt;- table(d$period[d$outcome==1], d$exposed[d$outcome==1])[, "1"]
 n10 &lt;- table(d$period[d$outcome==1], d$exposed[d$outcome==1])[, "0"]
 fit &lt;- titanalysis(n11, n10, G1, G0)
 print(fit)</code></pre>
-      <p data-en="titanalysis() takes the per-period counts of outcomes among the exposed and unexposed and recovers the odds ratio from the differential exposure trend.">titanalysis() 以各期別中曝露與未曝露者的結果計數作為輸入，從差異化的曝露趨勢中還原出勝算比。</p></div>
+      <p data-en="titanalysis() takes the per-period counts of outcomes among the exposed and unexposed and recovers the odds ratio from the differential exposure trend.">titanalysis() 以各期別中暴露與未暴露者的結果計數作為輸入，從差異化的暴露趨勢中還原出勝算比。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — logistic trend interaction">Stata — logistic 趨勢交互</h3>
       <pre class="sas"><code><span class="cm">* approximate trend-in-trend via a period-trend interaction</span>
 import delimited "tit_sample.csv", clear case(preserve)
 logit outcome c.exposed##c.period x1 x2, or</code></pre>
-      <p data-en="Stata has no native trend-in-trend command; the exposed-by-period interaction approximates exploiting the differential exposure trend, reported as odds ratios.">Stata 沒有原生的趨勢中趨勢指令；exposed 與 period 的交互項近似地利用差異化曝露趨勢，以勝算比呈現。</p></div>
+      <p data-en="Stata has no native trend-in-trend command; the exposed-by-period interaction approximates exploiting the differential exposure trend, reported as odds ratios.">Stata 沒有原生的趨勢中趨勢指令；exposed 與 period 的交互項近似地利用差異化暴露趨勢，以勝算比呈現。</p></div>
   </section>
 
   <!-- ===================== TiT ④ 假設檢驗 ===================== -->
