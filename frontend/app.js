@@ -7813,7 +7813,7 @@ let acnuLearnReady = false, acnuPlayReady = false, acnuAnalyzeReady = false,
 function drawSceneAcnu() {
   if (!document.getElementById("acnuScene")) return;
   const groups = [
-    { k: "none", sev: -0.51, col: "#9aa6b2", lbl: tr("沒用藥（healthy-user）", "non-users (healthy-user)") },
+    { k: "none", sev: -0.51, col: "#9aa6b2", lbl: tr("沒用藥（健康使用者）", "non-users (healthy-user)") },
     { k: "B", sev: -0.09, col: SLATE, lbl: tr("對照藥 B 新使用者", "comparator B new users") },
     { k: "A", sev: 0.75, col: TEAL, lbl: tr("研究藥 A 新使用者", "drug A new users") },
   ];
@@ -7931,7 +7931,7 @@ function renderAcnuAnalyze(a) {
   const cards = [
     [tr("ACNU 校正後（A vs B，因果）", "adjusted ACNU (A vs B, causal)"), a.adj_irr, a.interpretation, true],
     [tr("未校正：A vs 沒用藥（偏）", "naive: A vs non-users (biased)"), a.naive_irr,
-      tr("被 healthy-user 與適應症混淆嚴重撐大。", "badly inflated by healthy-user + confounding by indication."), false],
+      tr("被健康使用者偏誤與適應症混淆嚴重撐大。", "badly inflated by healthy-user + confounding by indication."), false],
     [tr("真值（A 相對 B 的速率比）", "Truth (A-vs-B rate ratio)"), a.true_hr,
       tr("主動對照＋新使用者＋傾向分數校正應還原它。", "active comparator + new-user + PS adjustment should recover it."), false],
   ];
