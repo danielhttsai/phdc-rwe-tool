@@ -2963,14 +2963,14 @@ clogit y window if group==0, group(id) or</code></pre>
       <label>
         <span data-en="Confounding by indication:">適應症混淆程度：</span><b id="seqConfVal">1.0</b>
         <input type="range" id="seqConfSlider" min="0" max="1" value="1" step="0.1" />
-        <small data-en="0 = initiation independent of frailty (naive less biased — but immortal time remains). 1 = strong confounding. Sequential recovers the truth either way.">0＝啟動與體弱無關（未校正偏誤較小，但 immortal time 仍在）。1＝強混淆。序列法兩種情況都還原真值。</small>
+        <small data-en="0 = initiation independent of frailty (naive less biased — but immortal time remains). 1 = strong confounding. Sequential recovers the truth either way.">0＝啟動與體弱無關（未校正偏誤較小，但不死時間仍在）。1＝強混淆。序列法兩種情況都還原真值。</small>
       </label>
     </div>
 
     <div class="play-grid">
       <div class="stat"><div class="stat-label" data-en="Sequential (pooled)">序列（合併）</div><div class="stat-num" id="seqEst">–</div><div class="stat-foot" data-en="should hug the truth">應緊貼真值</div></div>
       <div class="stat"><div class="stat-label" data-en="Truth (point-treatment effect)">真值（點治療效應）</div><div class="stat-num" id="seqTruth">–</div><div class="stat-foot" data-en="negative = treatment protects">負值＝治療有保護</div></div>
-      <div class="stat"><div class="stat-label" data-en="Naive (ever vs never)">未校正（曾 vs 從未）</div><div class="stat-num" id="seqNaiveEst">–</div><div class="stat-foot" data-en="immortal-time biased">有 immortal-time 偏誤</div></div>
+      <div class="stat"><div class="stat-label" data-en="Naive (ever vs never)">未校正（曾 vs 從未）</div><div class="stat-num" id="seqNaiveEst">–</div><div class="stat-foot" data-en="immortal-time biased">有不死時間偏誤</div></div>
     </div>
 
     <div id="seqPlayChart" class="chart"></div>
@@ -3280,7 +3280,7 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
       <div class="cards">
         <div class="card">
           <h3 data-en="① Target-trial emulation in case-control (Dickerman &amp; Hernán 2020)">① 病例對照的目標試驗模擬（Dickerman &amp; Hernán 2020）</h3>
-          <p data-en="A conventional 'ever vs never use' case-control can give a spuriously protective OR (prevalent users, no time zero = immortal time). Re-cast it as an emulated target trial — new users, explicit time zero, case-control sampling of the cohort — and the artefact disappears.">傳統「曾用 vs 從未」病例對照可能估出假性保護 OR（盛行使用者、沒對齊時間零點＝immortal time）。改寫成模擬目標試驗（新使用者、明確時間零點、對世代做病例對照抽樣），假象就消失。</p>
+          <p data-en="A conventional 'ever vs never use' case-control can give a spuriously protective OR (prevalent users, no time zero = immortal time). Re-cast it as an emulated target trial — new users, explicit time zero, case-control sampling of the cohort — and the artefact disappears.">傳統「曾用 vs 從未」病例對照可能估出假性保護 OR（盛行使用者、沒對齊時間零點，等於帶有不死時間）。改寫成模擬目標試驗（新使用者、明確時間零點、對世代做病例對照抽樣），假象就消失。</p>
           <button id="runCcTargetTrial" class="btn" data-en="Show the artefact vs the fix">看假象 vs 修正</button>
           <div id="ccTtOut" class="hidden"><div id="ccTtChart" class="chart"></div><p class="caption" id="ccTtReading"></p></div>
         </div>
@@ -3619,10 +3619,10 @@ run;</code></pre>
       </div>
     </details>
 
-    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 既有暴露 <span class="ext-tag">：盛行使用者也會稀釋 SCCS 的估計（Jung 2025）</span></summary>
+    <details class="ext-card"><summary data-en="⑦ Incident vs prevalent exposure <span class='ext-tag'>— prevalent users attenuate SCCS too (Jung 2025)</span>">⑦ 初次 vs 盛行暴露 <span class="ext-tag">：盛行使用者也會稀釋 SCCS 的估計（Jung 2025）</span></summary>
       <div class="ext-body">
         <h5 data-en="When &amp; the judgement">何時用／判斷</h5>
-        <p data-en="SCCS removes time-fixed confounding but is <b>not</b> immune to <b>prevalent-user bias</b>. Jung et al. (PDS 2025) showed that defining exposure as <b>prevalent</b> (rather than incident/new use) attenuates the IRR toward the null — fluoroquinolone &amp; retinal detachment fell from <b>1.83 → 1.70</b> — via depletion of susceptibles. Practical rule: prefer an <b>incident</b> exposure with a long enough washout, and report sensitivity.">SCCS 消掉時間不變的混淆，但<b>不</b>能免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）顯示把暴露定義成<b>既有（盛行）</b>（而非初次／新使用）會把 IRR 往虛無值稀釋，氟喹諾酮與視網膜剝離從 <b>1.83 → 1.70</b>，機制是易感者耗竭。實務原則：盡量用<b>初次</b>暴露＋夠長的洗滌期，並報告敏感度。</p>
+        <p data-en="SCCS removes time-fixed confounding but is <b>not</b> immune to <b>prevalent-user bias</b>. Jung et al. (PDS 2025) showed that defining exposure as <b>prevalent</b> (rather than incident/new use) attenuates the IRR toward the null — fluoroquinolone &amp; retinal detachment fell from <b>1.83 → 1.70</b> — via depletion of susceptibles. Practical rule: prefer an <b>incident</b> exposure with a long enough washout, and report sensitivity.">SCCS 消掉時間不變的混淆，但<b>不</b>能免疫於<b>盛行使用者偏誤</b>。Jung 等（PDS 2025）顯示把暴露定義成<b>盛行</b>（而非初次／新使用）會把 IRR 往虛無值稀釋，氟喹諾酮與視網膜剝離從 <b>1.83 → 1.70</b>，機制是易感者耗竭。實務原則：盡量用<b>初次</b>暴露＋夠長的洗滌期，並報告敏感度。</p>
         <h5 data-en="What the data looks like">資料長相</h5>
         <table class="mini">
           <caption data-en="Add a first-ever-use flag from a washout; keep incident (incident=1) exposures before splitting.">由洗滌窗加一個「首次使用」旗標；切段前只留初次（incident=1）暴露。</caption>
