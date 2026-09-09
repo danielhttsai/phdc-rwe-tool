@@ -900,7 +900,7 @@ estat firststage
     </div>
   
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Fuzzy Regression Discontinuity">程式（SAS · R · Stata）：模糊回歸不連續設計</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Fuzzy Regression Discontinuity">程式（SAS · R · Stata）：模糊斷點回歸</h2>
     <p class="code-src" data-en="Source — both R and Stata call rdrobust(), the package's main function, exactly as demonstrated in the official rdrobust package manual / R Journal software article for fuzzy RD (c = cutoff, fuzzy = take-up variable, bias-corrected robust inference by default).">出處 — R 與 Stata 皆呼叫 rdrobust 套件的核心函式 rdrobust()，寫法同 rdrobust 官方套件手冊／R Journal 說明文中模糊 RD 的示範（c 指定斷點、fuzzy 指定接受率變數，預設偏誤校正穩健推論）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=rdrobust" target="_blank" rel="noopener">rdrobust</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>rdd_sample.csv</code> (columns: age, eligible, vaccinated, health_score_change, event_time, event, female, bmi, chronic_conditions, income_band).">這是可直接在可下載的 <code>rdd_sample.csv</code> 上完整執行的程式（欄位：age、eligible、vaccinated、health_score_change、event_time、event、female、bmi、chronic_conditions、income_band）。</div>
@@ -5702,7 +5702,7 @@ stcox, tvc(dose) texp(_t)</code></pre>
       <p data-en="<b>Generalizability</b> = the target is a <b>subset</b> of the study population (you scale within). <b>Transportability</b> = the target is (partly) <b>outside</b> the study — a different population, country or time. Both rely on the same engine: model how the <b>effect modifiers</b> differ, then standardise or weight. (Adamson et al. 2026, ISPE framework; Inoue &amp; Hsu 2024; Bareinboim &amp; Pearl.)"><b>可推廣性（generalizability）</b>＝目標是研究族群的<b>子集</b>（往內縮放）。<b>可轉移性（transportability）</b>＝目標（部分）<b>在研究之外</b>，不同族群、國家或年代。兩者引擎相同：把<b>效果修飾子</b>的差異建模，再標準化或加權。（Adamson 等 2026 ISPE 框架；Inoue &amp; Hsu 2024；Bareinboim &amp; Pearl。）</p></div>
     <details class="term"><summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef"><h4>效果修飾子 <span class="en">effect modifier</span></h4><p data-en="A variable that changes the SIZE of the treatment effect — the drug helps younger patients more than older ones, say. It is different from a confounder (which biases the effect) and from a variable that only shifts the outcome level. Transportability is only needed when an effect modifier is distributed differently in the target than in the study.">一個會改變「治療效果<b>大小</b>」的變數，例如藥對年輕病人比對年長病人更有效。它和干擾因子（會讓效果偏掉）不同，也和「只改變結果水準」的變數不同。只有當效果修飾子在目標與研究的分布不同時，才需要可轉移性。</p></div>
-      <div class="tdef"><h4>選樣反機率加權 <span class="en">inverse odds of selection weighting (IOSW)</span></h4><p data-en="Weight each study subject by the odds of belonging to the target rather than the study, given their covariates. This makes the re-weighted study sample look like the target's covariate mix, so its average effect becomes the target's. The twin approach is standardisation: fit the effect surface and average it over the target's covariates.">用每個研究受試者「在共變項之下，屬於目標 vs 屬於研究」的勝算當權重。這讓重新加權後的研究樣本長得像目標的共變項組成，平均效果就變成目標的。孿生做法是標準化：配出效果曲面，再對目標的共變項取平均。</p></div>
+      <div class="tdef"><h4>選樣反勝算加權 <span class="en">inverse odds of selection weighting (IOSW)</span></h4><p data-en="Weight each study subject by the odds of belonging to the target rather than the study, given their covariates. This makes the re-weighted study sample look like the target's covariate mix, so its average effect becomes the target's. The twin approach is standardisation: fit the effect surface and average it over the target's covariates.">用每個研究受試者「在共變項之下，屬於目標 vs 屬於研究」的勝算當權重。這讓重新加權後的研究樣本長得像目標的共變項組成，平均效果就變成目標的。孿生做法是標準化：配出效果曲面，再對目標的共變項取平均。</p></div>
     </details>
   </section>
 
@@ -5710,14 +5710,14 @@ stcox, tvc(dose) texp(_t)</code></pre>
   <section id="transportplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Interactive: slide the target's effect-modifier mean, watch the study effect go wrong and transport fix it">互動：拉動目標的效果修飾子平均，看研究效果歪掉、轉移把它救回</h1>
-    <p class="lead" data-en="The study population sits at a fixed mean on the effect modifier X. Drag the <b>target</b>'s mean. The study effect (naive) stays put — it does not know about the target — while <b>standardisation</b> and <b>inverse-odds weighting</b> track the target's true effect. The further apart the two populations, the bigger the naive error (and the more weighting strains).">研究族群在效果修飾子 X 上固定在某個平均。拖動<b>目標</b>的平均。研究效果（未校正）不動，它根本不知道目標，而<b>標準化</b>與<b>選樣反機率加權</b>會跟著目標的真實效果跑。兩族群差越多，未校正的誤差越大（加權也越吃力）。</p>
+    <p class="lead" data-en="The study population sits at a fixed mean on the effect modifier X. Drag the <b>target</b>'s mean. The study effect (naive) stays put — it does not know about the target — while <b>standardisation</b> and <b>inverse-odds weighting</b> track the target's true effect. The further apart the two populations, the bigger the naive error (and the more weighting strains).">研究族群在效果修飾子 X 上固定在某個平均。拖動<b>目標</b>的平均。研究效果（未校正）不動，它根本不知道目標，而<b>標準化</b>與<b>選樣反勝算加權</b>會跟著目標的真實效果跑。兩族群差越多，未校正的誤差越大（加權也越吃力）。</p>
     <div class="controls"><label><span data-en="Target's mean on the effect modifier X:">目標在效果修飾子 X 的平均：</span><b id="transportMtVal">0.5</b>
       <input type="range" id="transportMtSlider" min="-0.6" max="1.4" value="0.5" step="0.1" /></label></div>
     <div class="play-grid">
       <div class="stat"><div class="stat-label" data-en="Target truth">目標真值</div><div class="stat-num" id="transportTruth">–</div><div class="stat-foot" data-en="the answer we want">我們要的答案</div></div>
       <div class="stat"><div class="stat-label" data-en="Study effect (naive)">研究效果（未校正）</div><div class="stat-num" id="transportNaive">–</div><div class="stat-foot" data-en="ignores the target">忽略目標</div></div>
       <div class="stat"><div class="stat-label" data-en="Standardisation">標準化</div><div class="stat-num" id="transportStd">–</div><div class="stat-foot" data-en="recovers the target">救回目標</div></div>
-      <div class="stat"><div class="stat-label" data-en="IOSW">選樣反機率加權</div><div class="stat-num" id="transportIosw">–</div><div class="stat-foot" data-en="recovers the target">救回目標</div></div>
+      <div class="stat"><div class="stat-label" data-en="IOSW">選樣反勝算加權</div><div class="stat-num" id="transportIosw">–</div><div class="stat-foot" data-en="recovers the target">救回目標</div></div>
     </div>
     <div id="transportPlayChart" class="chart"></div>
     <p class="caption" id="transportPlayReading"></p>
@@ -5726,7 +5726,7 @@ stcox, tvc(dose) texp(_t)</code></pre>
   <!-- ===================== Transportability ③ 資料分析 ===================== -->
   <section id="transportanalyze" class="panel">
     <h1 data-en="Data analysis: transport the study effect to the target">資料分析：把研究效果搬到目標</h1>
-    <p class="lead" data-en="Load the built-in example (a randomised study + a target with only covariates), and the tool estimates the target effect three ways: the study's own effect (naive), standardisation (g-formula), and inverse-odds-of-selection weighting.">載入內建範例（一個隨機研究＋一個只有共變項的目標），工具用三種方式估目標效果：研究自己的效果（未校正）、標準化（g-formula）、選樣反機率加權。</p>
+    <p class="lead" data-en="Load the built-in example (a randomised study + a target with only covariates), and the tool estimates the target effect three ways: the study's own effect (naive), standardisation (g-formula), and inverse-odds-of-selection weighting.">載入內建範例（一個隨機研究＋一個只有共變項的目標），工具用三種方式估目標效果：研究自己的效果（未校正）、標準化（g-formula）、選樣反勝算加權。</p>
     <div class="datasource">
       <button id="useTransportExample" class="btn primary" data-en="Load built-in example">載入內建範例</button>
       <span id="transportDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
@@ -7619,7 +7619,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <tr><td>PSSA</td><td data-en="New-start dates of two drugs for the same people, within an observation window">同一群人兩種藥的新起始日期，一段觀察窗</td><td data-en="A trend-adjusted order-asymmetry ratio (aSR) as an A→B signal">校正趨勢後的「先後不對稱」比（aSR），作為 A→B 訊號</td></tr>
           <tr><td>TreeScan</td><td data-en="Exposure vs not, plus many outcomes arranged on a hierarchical tree (e.g. ICD codes)">暴露 vs 否，以及落在一棵階層樹上的多種結果（如 ICD 碼）</td><td data-en="Not a single effect — which outcome nodes carry a signal (after controlling multiplicity)">不是單一效果，而是「哪些結果節點有訊號」（控制多重比較後）</td></tr>
           <tr><td colspan="3" class="famhdr" data-en="Family · transportability / external control">家族 · 可轉移性／外部對照</td></tr>
-          <tr><td>Transportability</td><td data-en="Individual-level study data (treatment, outcome, effect modifiers) + the effect-modifier distribution of the target population">研究的個體層資料（治療、結果、效果修飾子）＋目標族群的效果修飾子分布</td><td data-en="The effect in the target population (standardise / inverse-odds-of-selection weighting)">目標族群裡的效果（用標準化／反選樣勝算加權）</td></tr>
+          <tr><td>Transportability</td><td data-en="Individual-level study data (treatment, outcome, effect modifiers) + the effect-modifier distribution of the target population">研究的個體層資料（治療、結果、效果修飾子）＋目標族群的效果修飾子分布</td><td data-en="The effect in the target population (standardise / inverse-odds-of-selection weighting)">目標族群裡的效果（用標準化／選樣反勝算加權）</td></tr>
           <tr><td><a class="xref" data-m="extctrl">External control</a></td><td data-en="A single treated (single-arm) cohort + an external untreated cohort, with shared prognostic covariates">一個治療的（單臂）世代＋一個外部未治療世代，含共同的預後共變項</td><td data-en="The treatment effect for the trial population (standardisation / IPSW; Bayesian dynamic borrowing)">試驗族群的治療效果（標準化／IPSW；貝氏動態借用）</td></tr>
         </tbody>
       </table>
