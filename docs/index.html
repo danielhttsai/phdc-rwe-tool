@@ -7891,7 +7891,7 @@ regress beta_out beta_exp [aw=w], noconstant
 <section id="mrassume" class="panel">
   <h1 data-en="Can we trust this MR? The instrument trio, plus sensitivity tools">這個 MR 可不可信？工具三條件，加上敏感度工具</h1>
   <p class="lead" data-en="MR is instrumental variables, so it rests on the same three rules — <b>relevance</b>, <b>independence</b>, <b>exclusion</b> — read in genetic terms. Only the first can be fully proven from data; the other two are defended with sensitivity analyses.">
-    MR 就是工具變數，所以它依賴同樣的三條規則，<b>相關性</b>、<b>獨立性</b>、<b>排除性</b>，只是用遺傳的語言來讀。只有第一條能完全由資料證明，其餘兩條靠敏感度分析來防守。
+    MR 就是工具變數，所以它依賴同樣的三條規則，<b>相關性</b>、<b>獨立性</b>、<b>排除限制</b>，只是用遺傳的語言來讀。只有第一條能完全由資料證明，其餘兩條靠敏感度分析來防守。
   </p>
   <div class="cards cards-3">
     <div class="card warn">
@@ -7907,7 +7907,7 @@ regress beta_out beta_exp [aw=w], noconstant
       </p>
     </div>
     <div class="card warn">
-      <h3 data-en="③ Exclusion — pleiotropy, and how to probe it">③ 排除性，多效性與檢測法</h3>
+      <h3 data-en="③ Exclusion — pleiotropy, and how to probe it">③ 排除限制，多效性與檢測法</h3>
       <p data-en="The variants may affect the outcome <b>only</b> through the exposure — violated by horizontal pleiotropy. No test fully proves it, but <b>MR-Egger</b> (a non-zero intercept flags it), the <b>weighted median</b> (valid if &gt;50% of weight is from good instruments), and <b>MR-PRESSO</b> (detects and drops outlier variants) together stress-test the answer.">
         變異只能<b>透過</b>暴露影響結果，水平多效性會違反它。沒有檢定能完全證明，但 <b>MR-Egger</b>（截距不為 0 即標記）、<b>加權中位數</b>（過半權重來自好工具時仍有效）與 <b>MR-PRESSO</b>（偵測並剔除離群變異）三者一起對答案做壓力測試。
       </p>
@@ -7936,7 +7936,7 @@ regress beta_out beta_exp [aw=w], noconstant
     <div class="card warn">
       <h3 data-en="An important caution">一個重要提醒</h3>
       <p data-en="There is <b>no</b> established ML method that turns an invalid instrument into a valid one. Flexible models can refine instrument choice and find outliers, but the causal identification still rests entirely on relevance, independence and exclusion. A great predictor of the outcome is not a causal effect.">
-        目前<b>沒有</b>任何成熟的 ML 方法能把無效工具變成有效工具。彈性模型能精修工具挑選、找出離群，但因果識別仍完全靠相關性、獨立性與排除性。一個很會預測結果的模型，不等於一個因果效果。
+        目前<b>沒有</b>任何成熟的 ML 方法能把無效工具變成有效工具。彈性模型能精修工具挑選、找出離群，但因果識別仍完全靠相關性、獨立性與排除限制。一個很會預測結果的模型，不等於一個因果效果。
       </p>
     </div>
   </div>
