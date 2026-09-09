@@ -5920,6 +5920,56 @@ function renderItsPower(applyEs) {
     ns.map((n) => `<th>${n}</th>`).join("") + `</tr></thead><tbody><tr><th>${tr("檢定力", "power")}</th>` +
     cells + `</tr></tbody></table></div>`;
   drawItsPowerChart(row, target, need);
+  drawItsPowerSurface(target, need, rho, es, param, bal);
+}
+
+
+// The paper prints this as a static Excel surface (their Fig. 1). Here it is
+// live: the same power surface for whichever scenario is selected, with the
+// requested power drawn as a plane through it so the crossing line IS the
+// answer, and a marker on the current pick.
+function drawItsPowerSurface(target, need, rho, es, param, bal) {
+  const el = document.getElementById("itsPowSurface");
+  if (!el || typeof Plotly === "undefined") return;
+  const key = param + "|" + bal + "|" + Number(es).toFixed(1);
+  const table = ITS_POW.tables[key];
+  if (!table) return;
+  const xs = ITS_POW.rho, ys = ITS_POW.ns;
+  // Plotly wants z[y][x]: rows are sample sizes, columns are autocorrelations
+  const z = ys.map((n, j) => xs.map((r, i) => table[i][j]));
+  const plane = ys.map(() => xs.map(() => target));
+  const rowIdx = xs.reduce((b, r, k) => Math.abs(r - rho) < Math.abs(xs[b] - rho) ? k : b, 0);
+  const nIdx = need > 0 ? ys.indexOf(need) : ys.length - 1;
+  const traces = [
+    {
+      type: "surface", x: xs, y: ys, z: z, showscale: false, opacity: 0.97,
+      colorscale: [[0, "#f4c7c3"], [0.2, "#e8a598"], [0.4, "#a8c4a2"],
+                   [0.6, "#7fa9c9"], [0.8, "#5b93b8"], [1, "#3f8268"]],
+      contours: { z: { show: true, usecolormap: true, width: 1, project: { z: false } } },
+      hovertemplate: tr("自相關", "autocorrelation") + "=%{x:.1f}<br>" +
+        tr("時間點", "time points") + "=%{y}<br>" + tr("檢定力", "power") + "=%{z:.0%}<extra></extra>",
+    },
+    {
+      type: "surface", x: xs, y: ys, z: plane, showscale: false, opacity: 0.28,
+      colorscale: [[0, "#3f8268"], [1, "#3f8268"]], hoverinfo: "skip",
+    },
+    {
+      type: "scatter3d", mode: "markers", x: [xs[rowIdx]], y: [ys[nIdx]], z: [table[rowIdx][nIdx]],
+      marker: { size: 6, color: "#b91c1c" },
+      hovertemplate: tr("你的設定", "your pick") + ": " + xs[rowIdx].toFixed(1) + ", " +
+        ys[nIdx] + " → %{z:.0%}<extra></extra>",
+    },
+  ];
+  Plotly.react(el, traces, {
+    height: 420, margin: { l: 0, r: 0, t: 6, b: 0 }, showlegend: false,
+    paper_bgcolor: "rgba(0,0,0,0)",
+    scene: {
+      xaxis: { title: tr("自相關", "Autocorrelation"), range: [-0.9, 0.9] },
+      yaxis: { title: tr("時間點數", "Number of time points"), range: [12, 72] },
+      zaxis: { title: tr("檢定力", "Estimated power"), range: [0, 1], tickformat: ".0%" },
+      camera: { eye: { x: 1.9, y: -1.5, z: 0.75 } },
+    },
+  }, { displayModeBar: false, responsive: true });
 }
 
 function drawItsPowerChart(row, target, need) {

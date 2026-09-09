@@ -1936,9 +1936,10 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
       <div class="controls itspower-controls">
         <label><span data-en="What you are estimating:">你要估的是：</span>
           <select id="itsPowParam">
-            <option value="single" data-en="one parameter (level OR trend)">單一參數（水準或趨勢其中之一）</option>
-            <option value="both" selected data-en="level and trend together (20% level / 80% trend)">水準與趨勢同時（兩成來自水準、八成來自趨勢）</option>
+            <option value="single" data-en="one parameter only">只估一個參數</option>
+            <option value="both" selected data-en="level and trend together">水準與趨勢同時</option>
           </select>
+          <small data-en="One parameter = the level jump or the trend change, whichever you care about. Together = the paper's mix of 20% level and 80% trend.">只估一個＝水準跳動或趨勢變化，看你在意哪個；同時＝論文設定的兩成水準、八成趨勢。</small>
         </label>
         <label><span data-en="Points before vs after the intervention:">介入前後的點數分配：</span>
           <select id="itsPowBal">
@@ -1959,6 +1960,10 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
         </label>
       </div>
       <div id="itsPowOut" class="itspower-out"></div>
+      <div id="itsPowSurface" class="chart itspow-surface"></div>
+      <p class="caption" data-en="The paper's Figure 1, rotatable: estimated power over autocorrelation and number of time points for the scenario you picked. Drag to turn it. The flat green plane is the power you asked for, so the line where the surface rises through it is your answer; the red dot is the scenario in the panel above. Watch the surface tilt down as autocorrelation goes positive.">
+        這是論文 Figure 1 的可轉動版：在你選的情境下，檢定力隨<b>自相關</b>與<b>時間點數</b>變化的曲面。用滑鼠拖曳可以轉動。<b>綠色平面</b>是你要求的檢定力，曲面從平面下方穿上來的那條界線就是答案；<b>紅點</b>是上面那組設定。把自相關往正的方向看，會看到整片曲面明顯往下沉。
+      </p>
       <div id="itsPowChart"></div>
       <p class="caption" data-en="Read off Zhang F, Wagner AK, Ross-Degnan D. J Clin Epidemiol 2011;64(11):1252-1261 (AR(1) tables, 10,000 simulated datasets per scenario, alpha 0.05). It is a lookup, not a substitute for simulating your own series: the tables assume a first-order autoregressive error and a continuous outcome. For count outcomes see Liu 2019.">
         數字讀自 Zhang F, Wagner AK, Ross-Degnan D. <i>J Clin Epidemiol</i> 2011;64(11):1252-1261（AR(1) 表，每個情境一萬組模擬，顯著水準 0.05）。這是<b>查表</b>，不能取代照你自己的序列跑模擬：這些表假設一階自迴歸誤差與連續型結果。結果是計數資料的話，看 Liu 2019 那篇。
