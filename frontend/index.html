@@ -1862,7 +1862,7 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
           表格裡有兩個直接可用的設計啟示。第一，<b>把點數平均分在介入前後</b>比一頭重一頭輕好：介入後只佔三分之一時，檢定力明顯下降。第二，<b>小效果不會因為看得久就變好抓</b>：他們的一個情境裡，60 個時間點、80% 檢定力，也只偵測得到 0.12 的絕對變化（相對約 20%）。
         </p>
         <p data-en="The headline the paper itself gives: with 24 or more time points split evenly around the intervention, segmented models have over 80% power for effect sizes of 1.0 or larger, depending on autocorrelation. Below that, or for smaller effects, be careful. Their own recommendation is to simulate your own scenario rather than read a number off a table, which is exactly what the ② interactive panel here lets you feel: set a true effect and watch how often the fit recovers it.">
-          論文自己下的結論是：<b>介入前後平均分配、總共 24 個時間點以上</b>時，分段模型對效果量 1.0 以上多半有 <b>80% 以上</b>的檢定力（實際數字看自相關而定）；<b>低於這個規模、或預期效果較小，就要非常保守</b>。他們建議的做法不是照表抄一個數字，而是<b>照你自己的情境跑一次模擬</b>，這也正是本頁 ② 互動在做的事：設一個真實效果，看配適把它讀回來的穩定程度。
+          論文自己下的結論是：<b>介入前後平均分配、總共 24 個時間點以上</b>時，分段模型對效果量 1.0 以上多半有 <b>80% 以上</b>的檢定力（實際數字看自相關而定）；<b>低於這個規模、或預期效果較小，就要非常保守</b>。他們建議的做法不是照表抄一個數字，而是<b>照你自己的情境跑一次模擬</b>。往 <b>② 互動</b>那一頁，論文的十二張表已經做成可以點的查詢：填你預期的水準變化、趨勢變化與序列的標準差，它會先算出效果量，再告訴你達到 80% 檢定力最少需要幾個時間點。
         </p>
         <p class="src" data-en="Source: Zhang F, Wagner AK, Ross-Degnan D. Simulation-based power calculation for designing interrupted time series analyses of health policy interventions. <i>Journal of Clinical Epidemiology</i>. 2011;64(11):1252-1261. For count outcomes (the usual case in health data), see Liu W, et al. <i>Contemporary Clinical Trials Communications</i>. 2019;17:100474.">
           出處：Zhang F, Wagner AK, Ross-Degnan D. Simulation-based power calculation for designing interrupted time series analyses of health policy interventions. <i>Journal of Clinical Epidemiology</i>. 2011;64(11):1252-1261. 若你的結果是<b>計數</b>資料（健康資料多半是），另見 Liu W 等人針對計數結果的版本：<i>Contemporary Clinical Trials Communications</i>. 2019;17:100474.
@@ -1899,6 +1899,71 @@ logit outcome c.exposed##c.period x1 x2, or</code></pre>
       點＝觀察結果；實心青色＝配適的前／後段；虛線＝外推當反事實的前趨勢；豎點線＝介入時點。
       後段與虛線之間的垂直落差就是效果。
     </p>
+    <div class="card scene itspower-calc">
+      <h3 data-en="How many time points do you need? (Zhang 2011's simulations, made clickable)">要幾個時間點才夠？（把 Zhang 2011 的模擬表做成可以點的）</h3>
+      <p data-en="The paper answers this with twelve tables of simulated power. Pick your scenario and it reads the answer off them: the smallest number of time points that reaches the power you want. Autocorrelation is on the paper's own 0.1 grid, and the sample sizes are the eight it simulated, so nothing here is interpolated beyond what was published.">
+        論文用十二張模擬檢定力表回答這個問題。選你的情境，它直接把答案讀出來：<b>達到你要的檢定力，最少需要幾個時間點</b>。自相關用的是論文自己的 0.1 刻度，點數也是它模擬的那八個，所以這裡沒有任何超出原文的內插。
+      </p>
+      <div class="controls itspower-controls">
+        <label><span data-en="Effect size (level change + per-unit trend change, over the series SD):">效果量（水準變化＋每單位趨勢變化，除以序列標準差）：</span>
+          <select id="itsPowEs">
+            <option value="0.5" data-en="0.5 — small">0.5，小</option>
+            <option value="1.0" selected data-en="1.0 — moderate">1.0，中等</option>
+            <option value="2.0" data-en="2.0 — large">2.0，大</option>
+          </select>
+          <small data-en="Not sure? Work it out from your own numbers below.">不確定填哪個？用下面的三個數字算出來。</small>
+        </label>
+      </div>
+
+      <details class="term itspow-es" open>
+        <summary data-en="Work out your effect size from numbers you actually have">用你手上的數字把效果量算出來</summary>
+        <div class="tdef">
+          <p data-en="Effect size here is not &quot;a 20% drop&quot;. It is how big the change is <b>relative to how noisy the series already is</b>: (expected level change + expected change per period) divided by the standard deviation of the outcome around its pre-intervention trend. The same absolute change counts for much less on a jumpy series. Fill in what you can estimate from your own data or from the literature.">
+            這裡的效果量不是「掉了兩成」，而是<b>變化相對於這條線本來就有多吵</b>：（預期的水準變化＋預期的每期趨勢變化）÷（結果在介入前趨勢周圍的標準差）。同樣的絕對變化，放在一條上下跳動很大的線上就不值錢。下面填你從自己的資料或文獻估得出來的數字。
+          </p>
+          <div class="controls itspow-es-controls">
+            <label><span data-en="Expected level change (the jump at the intervention):">預期的水準變化（介入當下的跳動）：</span>
+              <input type="number" id="itsPowLevel" step="any" value="1.2" /></label>
+            <label><span data-en="Expected trend change per period (0 if you only expect a jump):">預期的每期趨勢變化（只預期跳動就填 0）：</span>
+              <input type="number" id="itsPowTrend" step="any" value="0" /></label>
+            <label><span data-en="SD of the outcome around its pre-intervention trend:">結果在介入前趨勢周圍的標準差：</span>
+              <input type="number" id="itsPowSd" step="any" value="1.5" /></label>
+          </div>
+          <div id="itsPowEsOut" class="itspow-esout"></div>
+        </div>
+      </details>
+
+      <div class="controls itspower-controls">
+        <label><span data-en="What you are estimating:">你要估的是：</span>
+          <select id="itsPowParam">
+            <option value="single" data-en="one parameter (level OR trend)">單一參數（水準或趨勢其中之一）</option>
+            <option value="both" selected data-en="level and trend together (20% level / 80% trend)">水準與趨勢同時（兩成來自水準、八成來自趨勢）</option>
+          </select>
+        </label>
+        <label><span data-en="Points before vs after the intervention:">介入前後的點數分配：</span>
+          <select id="itsPowBal">
+            <option value="equal" selected data-en="split evenly">平均分配</option>
+            <option value="third" data-en="only a third after">介入後只佔三分之一</option>
+          </select>
+        </label>
+        <label><span data-en="Autocorrelation you expect:">你預期的自相關：</span><b id="itsPowRhoVal">0.3</b>
+          <input type="range" id="itsPowRho" min="-0.9" max="0.9" step="0.1" value="0.3" />
+          <small data-en="The authors suggest planning with 0.1 to 0.5, the range they see in real policy evaluations. Negative autocorrelation helps; positive hurts.">作者建議規劃時抓 0.1 到 0.5，那是他們在真實政策評估裡看到的範圍。負的自相關反而幫忙，正的會扣分。</small>
+        </label>
+        <label><span data-en="Power you want:">你要的檢定力：</span>
+          <select id="itsPowTarget">
+            <option value="0.7" data-en="70%">70%</option>
+            <option value="0.8" selected data-en="80%">80%</option>
+            <option value="0.9" data-en="90%">90%</option>
+          </select>
+        </label>
+      </div>
+      <div id="itsPowOut" class="itspower-out"></div>
+      <div id="itsPowChart"></div>
+      <p class="caption" data-en="Read off Zhang F, Wagner AK, Ross-Degnan D. J Clin Epidemiol 2011;64(11):1252-1261 (AR(1) tables, 10,000 simulated datasets per scenario, alpha 0.05). It is a lookup, not a substitute for simulating your own series: the tables assume a first-order autoregressive error and a continuous outcome. For count outcomes see Liu 2019.">
+        數字讀自 Zhang F, Wagner AK, Ross-Degnan D. <i>J Clin Epidemiol</i> 2011;64(11):1252-1261（AR(1) 表，每個情境一萬組模擬，顯著水準 0.05）。這是<b>查表</b>，不能取代照你自己的序列跑模擬：這些表假設一階自迴歸誤差與連續型結果。結果是計數資料的話，看 Liu 2019 那篇。
+      </p>
+    </div>
   </section>
 
   <!-- ===================== ITS ③ 資料分析 ===================== -->

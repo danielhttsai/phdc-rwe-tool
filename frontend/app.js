@@ -19,7 +19,7 @@ const PANEL_INIT = {
   didassume: () => initDidAssume(), didml: () => initDidMl(),
   titlearn: () => initTitLearn(), titplay: () => initTitPlay(),
   titanalyze: () => initTitAnalyze(), titassume: () => initTitAssume(),
-  itslearn: () => initItsLearn(), itsplay: () => initItsPlay(), itsanalyze: () => initItsAnalyze(),
+  itslearn: () => initItsLearn(), itsplay: () => { initItsPlay(); initItsPower(); }, itsanalyze: () => initItsAnalyze(),
   itsassume: () => initItsAssume(), itsml: () => initItsMl(),
   perrlearn: () => initPerrLearn(), perrplay: () => initPerrPlay(), perranalyze: () => initPerrAnalyze(),
   perrassume: () => initPerrAssume(), perrml: () => initPerrMl(),
@@ -5820,6 +5820,150 @@ function drawSceneItsExplain() {
 // ---- ② interactive ----
 const itsLevelSlider = document.getElementById("itsLevelSlider");
 let itsPlayTimer = null;
+
+// ---------------------------------------------------------------------------
+// ITS power lookup — Zhang, Wagner & Ross-Degnan (J Clin Epidemiol 2011;64:
+// 1252-61) simulated power for segmented AR(1) models across autocorrelation,
+// sample size, effect size, what is being estimated and how the points are
+// split. Their twelve tables are transcribed here so the reader can ask the
+// question they actually have: how many time points do I need?
+// Rows run rho = -0.9 .. 0.9 in 0.1 steps; columns are the eight sample sizes.
+// ---------------------------------------------------------------------------
+const ITS_POW = {"ns":[12,18,24,30,36,48,60,72],"rho":[-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],"tables":{"single|equal|0.5":[[0.35,0.48,0.6,0.71,0.79,0.89,0.95,0.98],[0.33,0.45,0.56,0.67,0.74,0.86,0.93,0.96],[0.3,0.41,0.51,0.62,0.7,0.82,0.89,0.94],[0.29,0.38,0.47,0.57,0.65,0.77,0.86,0.91],[0.27,0.35,0.43,0.52,0.6,0.72,0.81,0.88],[0.26,0.32,0.39,0.47,0.54,0.66,0.76,0.83],[0.25,0.3,0.36,0.42,0.49,0.6,0.69,0.77],[0.24,0.28,0.32,0.38,0.44,0.54,0.63,0.71],[0.23,0.26,0.29,0.34,0.39,0.48,0.56,0.64],[0.18,0.21,0.25,0.29,0.34,0.42,0.5,0.57],[0.22,0.23,0.24,0.26,0.3,0.37,0.42,0.48],[0.22,0.22,0.22,0.24,0.27,0.32,0.36,0.41],[0.22,0.21,0.2,0.21,0.23,0.26,0.3,0.34],[0.22,0.2,0.19,0.2,0.21,0.23,0.25,0.28],[0.23,0.2,0.18,0.18,0.19,0.2,0.21,0.23],[0.24,0.2,0.18,0.17,0.17,0.17,0.18,0.19],[0.25,0.21,0.18,0.17,0.16,0.16,0.16,0.16],[0.25,0.21,0.18,0.16,0.16,0.15,0.14,0.14],[0.26,0.2,0.17,0.16,0.15,0.14,0.13,0.13]],"single|equal|1.0":[[0.83,0.96,0.99,1.0,1.0,1.0,1.0,1.0],[0.79,0.94,0.98,1.0,1.0,1.0,1.0,1.0],[0.75,0.91,0.97,0.99,1.0,1.0,1.0,1.0],[0.71,0.87,0.96,0.98,0.99,1.0,1.0,1.0],[0.67,0.83,0.93,0.97,0.99,1.0,1.0,1.0],[0.63,0.79,0.9,0.95,0.98,1.0,1.0,1.0],[0.59,0.73,0.85,0.92,0.96,0.99,1.0,1.0],[0.55,0.69,0.8,0.88,0.93,0.98,0.99,1.0],[0.51,0.63,0.74,0.83,0.89,0.96,0.98,1.0],[0.45,0.58,0.69,0.79,0.85,0.93,0.97,0.99],[0.45,0.52,0.61,0.69,0.76,0.86,0.93,0.96],[0.42,0.48,0.54,0.62,0.68,0.79,0.87,0.92],[0.39,0.44,0.48,0.54,0.6,0.7,0.78,0.85],[0.38,0.4,0.43,0.47,0.51,0.59,0.67,0.74],[0.37,0.37,0.38,0.4,0.43,0.5,0.55,0.61],[0.36,0.34,0.34,0.35,0.37,0.41,0.45,0.49],[0.35,0.32,0.31,0.31,0.32,0.33,0.36,0.38],[0.35,0.31,0.29,0.28,0.29,0.28,0.28,0.3],[0.34,0.29,0.27,0.26,0.25,0.25,0.23,0.24]],"single|equal|2.0":[[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.96,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.94,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.92,0.98,1.0,1.0,1.0,1.0,1.0,1.0],[0.93,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.86,0.94,0.98,0.99,1.0,1.0,1.0,1.0],[0.83,0.91,0.96,0.98,0.99,1.0,1.0,1.0],[0.8,0.87,0.92,0.96,0.98,1.0,1.0,1.0],[0.76,0.82,0.88,0.92,0.95,0.98,1.0,1.0],[0.73,0.77,0.82,0.86,0.9,0.95,0.97,0.99],[0.7,0.72,0.75,0.79,0.82,0.88,0.92,0.95],[0.66,0.67,0.69,0.71,0.73,0.78,0.82,0.86],[0.64,0.62,0.63,0.63,0.65,0.67,0.69,0.72],[0.62,0.59,0.58,0.58,0.58,0.58,0.58,0.58]],"single|third|0.5":[[0.31,0.43,0.55,0.65,0.73,0.85,0.92,0.96],[0.29,0.4,0.51,0.61,0.69,0.81,0.89,0.94],[0.28,0.37,0.47,0.57,0.64,0.76,0.85,0.92],[0.26,0.35,0.43,0.52,0.59,0.72,0.81,0.88],[0.25,0.32,0.39,0.47,0.54,0.66,0.77,0.83],[0.24,0.3,0.36,0.43,0.49,0.61,0.71,0.79],[0.23,0.28,0.32,0.38,0.45,0.55,0.65,0.73],[0.22,0.26,0.29,0.34,0.4,0.49,0.58,0.66],[0.22,0.24,0.27,0.31,0.36,0.43,0.52,0.58],[0.17,0.2,0.23,0.27,0.31,0.38,0.45,0.52],[0.21,0.21,0.23,0.25,0.28,0.33,0.39,0.44],[0.21,0.2,0.21,0.22,0.25,0.28,0.33,0.38],[0.21,0.19,0.19,0.2,0.22,0.24,0.28,0.32],[0.22,0.19,0.19,0.19,0.2,0.21,0.23,0.26],[0.22,0.19,0.18,0.17,0.18,0.18,0.2,0.21],[0.23,0.19,0.18,0.17,0.17,0.16,0.17,0.18],[0.24,0.19,0.17,0.16,0.16,0.15,0.15,0.15],[0.24,0.19,0.17,0.16,0.16,0.15,0.14,0.14],[0.25,0.2,0.17,0.15,0.15,0.13,0.13,0.12]],"single|third|1.0":[[0.77,0.93,0.98,1.0,1.0,1.0,1.0,1.0],[0.73,0.9,0.97,0.99,1.0,1.0,1.0,1.0],[0.7,0.87,0.95,0.99,0.99,1.0,1.0,1.0],[0.65,0.83,0.93,0.97,0.99,1.0,1.0,1.0],[0.62,0.79,0.9,0.96,0.98,1.0,1.0,1.0],[0.58,0.74,0.86,0.93,0.96,0.99,1.0,1.0],[0.54,0.69,0.81,0.89,0.94,0.98,1.0,1.0],[0.5,0.64,0.76,0.84,0.9,0.97,0.99,1.0],[0.47,0.59,0.69,0.79,0.85,0.94,0.98,0.99],[0.41,0.53,0.64,0.74,0.81,0.9,0.95,0.98],[0.42,0.49,0.57,0.65,0.72,0.83,0.9,0.94],[0.4,0.45,0.51,0.58,0.64,0.74,0.83,0.89],[0.38,0.41,0.45,0.51,0.56,0.65,0.74,0.81],[0.37,0.37,0.4,0.44,0.48,0.55,0.64,0.7],[0.35,0.35,0.36,0.38,0.41,0.47,0.53,0.58],[0.35,0.33,0.33,0.34,0.36,0.38,0.43,0.46],[0.34,0.31,0.3,0.3,0.31,0.32,0.34,0.36],[0.34,0.29,0.28,0.28,0.28,0.27,0.27,0.28],[0.34,0.29,0.26,0.25,0.25,0.24,0.23,0.23]],"single|third|2.0":[[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.97,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.95,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.93,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.9,0.97,1.0,1.0,1.0,1.0,1.0,1.0],[0.9,0.98,1.0,1.0,1.0,1.0,1.0,1.0],[0.84,0.93,0.97,0.99,1.0,1.0,1.0,1.0],[0.81,0.89,0.95,0.98,0.99,1.0,1.0,1.0],[0.78,0.85,0.91,0.95,0.97,0.99,1.0,1.0],[0.75,0.8,0.86,0.9,0.93,0.98,0.99,1.0],[0.71,0.75,0.8,0.85,0.88,0.93,0.96,0.98],[0.68,0.7,0.73,0.77,0.8,0.86,0.91,0.93],[0.65,0.66,0.67,0.69,0.72,0.76,0.81,0.84],[0.63,0.61,0.61,0.62,0.63,0.65,0.68,0.71],[0.6,0.58,0.57,0.57,0.57,0.57,0.58,0.58]],"both|equal|0.5":[[0.81,0.98,1.0,1.0,1.0,1.0,1.0,1.0],[0.77,0.97,1.0,1.0,1.0,1.0,1.0,1.0],[0.73,0.95,1.0,1.0,1.0,1.0,1.0,1.0],[0.7,0.93,0.99,1.0,1.0,1.0,1.0,1.0],[0.66,0.89,0.98,1.0,1.0,1.0,1.0,1.0],[0.63,0.86,0.97,0.99,1.0,1.0,1.0,1.0],[0.6,0.81,0.94,0.99,1.0,1.0,1.0,1.0],[0.57,0.76,0.91,0.97,0.99,1.0,1.0,1.0],[0.54,0.71,0.86,0.95,0.98,1.0,1.0,1.0],[0.45,0.67,0.84,0.93,0.98,1.0,1.0,1.0],[0.49,0.61,0.73,0.85,0.92,0.98,1.0,1.0],[0.48,0.56,0.66,0.77,0.85,0.95,0.99,1.0],[0.46,0.52,0.59,0.69,0.77,0.89,0.96,0.99],[0.45,0.48,0.53,0.6,0.67,0.8,0.88,0.94],[0.45,0.45,0.47,0.51,0.57,0.67,0.76,0.85],[0.45,0.42,0.42,0.44,0.47,0.54,0.61,0.69],[0.46,0.41,0.38,0.38,0.39,0.42,0.46,0.5],[0.46,0.4,0.36,0.34,0.34,0.34,0.34,0.35],[0.47,0.42,0.37,0.34,0.32,0.29,0.27,0.26]],"both|equal|1.0":[[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.97,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.96,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.94,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.92,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.93,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.87,0.96,0.99,1.0,1.0,1.0,1.0,1.0],[0.84,0.94,0.98,1.0,1.0,1.0,1.0,1.0],[0.8,0.91,0.97,0.99,1.0,1.0,1.0,1.0],[0.77,0.86,0.93,0.97,0.99,1.0,1.0,1.0],[0.75,0.81,0.87,0.92,0.96,0.99,1.0,1.0],[0.71,0.75,0.8,0.86,0.89,0.95,0.98,0.99],[0.69,0.7,0.72,0.76,0.79,0.86,0.91,0.95],[0.66,0.64,0.64,0.65,0.66,0.69,0.74,0.78],[0.64,0.6,0.57,0.56,0.55,0.53,0.52,0.53]],"both|equal|2.0":[[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.97,0.99,0.99,1.0,1.0,1.0,1.0,1.0],[0.96,0.97,0.99,0.99,0.99,1.0,1.0,1.0],[0.95,0.95,0.97,0.97,0.98,0.98,0.99,0.99],[0.92,0.92,0.93,0.92,0.93,0.93,0.94,0.94]],"both|third|0.5":[[0.61,0.9,0.99,1.0,1.0,1.0,1.0,1.0],[0.58,0.87,0.98,1.0,1.0,1.0,1.0,1.0],[0.55,0.83,0.97,1.0,1.0,1.0,1.0,1.0],[0.53,0.79,0.95,0.99,1.0,1.0,1.0,1.0],[0.5,0.75,0.92,0.98,1.0,1.0,1.0,1.0],[0.48,0.71,0.89,0.97,0.99,1.0,1.0,1.0],[0.46,0.66,0.84,0.94,0.98,1.0,1.0,1.0],[0.44,0.61,0.79,0.91,0.96,1.0,1.0,1.0],[0.42,0.56,0.73,0.86,0.94,0.99,1.0,1.0],[0.33,0.51,0.69,0.83,0.91,0.98,1.0,1.0],[0.4,0.48,0.61,0.73,0.83,0.94,0.99,1.0],[0.38,0.44,0.54,0.65,0.75,0.89,0.96,0.99],[0.37,0.41,0.48,0.58,0.66,0.81,0.9,0.96],[0.36,0.38,0.43,0.5,0.57,0.7,0.8,0.89],[0.36,0.36,0.39,0.43,0.48,0.58,0.68,0.76],[0.35,0.34,0.35,0.38,0.4,0.46,0.53,0.6],[0.35,0.32,0.32,0.33,0.34,0.36,0.4,0.44],[0.35,0.31,0.3,0.3,0.29,0.29,0.3,0.31],[0.35,0.32,0.3,0.28,0.28,0.26,0.24,0.23]],"both|third|1.0":[[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.96,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.95,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.93,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.91,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.88,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.86,0.98,1.0,1.0,1.0,1.0,1.0,1.0],[0.82,0.97,1.0,1.0,1.0,1.0,1.0,1.0],[0.79,0.97,1.0,1.0,1.0,1.0,1.0,1.0],[0.76,0.92,0.98,1.0,1.0,1.0,1.0,1.0],[0.72,0.88,0.96,0.99,1.0,1.0,1.0,1.0],[0.69,0.83,0.93,0.97,0.99,1.0,1.0,1.0],[0.65,0.78,0.87,0.94,0.97,1.0,1.0,1.0],[0.62,0.72,0.8,0.88,0.93,0.98,0.99,1.0],[0.59,0.65,0.73,0.79,0.84,0.92,0.96,0.99],[0.56,0.6,0.64,0.68,0.73,0.81,0.87,0.92],[0.53,0.54,0.56,0.58,0.6,0.64,0.69,0.73],[0.51,0.5,0.49,0.5,0.5,0.49,0.5,0.5]],"both|third|2.0":[[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.99,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.98,1.0,1.0,1.0,1.0,1.0,1.0,1.0],[0.97,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.96,0.99,1.0,1.0,1.0,1.0,1.0,1.0],[0.94,0.97,0.99,0.99,1.0,1.0,1.0,1.0],[0.91,0.96,0.98,0.98,0.99,1.0,1.0,1.0],[0.88,0.93,0.95,0.96,0.97,0.98,0.99,0.99],[0.85,0.88,0.89,0.9,0.9,0.92,0.92,0.93]]}};
+
+function itsPowRow() {
+  const es = document.getElementById("itsPowEs").value;
+  const param = document.getElementById("itsPowParam").value;
+  const bal = document.getElementById("itsPowBal").value;
+  const rho = Number(document.getElementById("itsPowRho").value);
+  const key = param + "|" + bal + "|" + Number(es).toFixed(1);
+  const table = ITS_POW.tables[key];
+  const idx = ITS_POW.rho.reduce((best, r, k) =>
+    Math.abs(r - rho) < Math.abs(ITS_POW.rho[best] - rho) ? k : best, 0);
+  return { row: table ? table[idx] : null, rho: ITS_POW.rho[idx], es: Number(es), param, bal };
+}
+
+// Turn the three numbers a reader can actually estimate into the paper's
+// effect size, then say which simulated table(s) that lands between. The
+// tables are only run at 0.5, 1 and 2, so a value in between is answered by
+// bracketing rather than by interpolating power that was never simulated.
+// applyToSelect: only when the reader is editing the three numbers. Otherwise
+// the computed value would keep overriding a table they picked by hand.
+function renderItsEffectSize(applyToSelect) {
+  const box = document.getElementById("itsPowEsOut");
+  if (!box) return null;
+  const num = (id) => Number((document.getElementById(id) || {}).value);
+  const lvl = num("itsPowLevel"), trd = num("itsPowTrend"), sd = num("itsPowSd");
+  if (!(sd > 0)) {
+    box.innerHTML = `<p class="muted">${tr("標準差要填大於 0 的數字。", "Enter a standard deviation above 0.")}</p>`;
+    return null;
+  }
+  const es = Math.abs(lvl + trd) / sd;
+  const GRID = [0.5, 1.0, 2.0];
+  const lo = GRID.filter((g) => g <= es).pop();
+  const hi = GRID.find((g) => g >= es);
+  let msg;
+  if (es < 0.5) {
+    msg = tr(`你的效果量是 <b>${es.toFixed(2)}</b>，比論文模擬過的最小值 0.5 還小。下面用 0.5 的表當<b>樂觀上限</b>看：連 0.5 都要那麼多點，你的情境只會更吃力。`,
+             `Your effect size is <b>${es.toFixed(2)}</b>, below the smallest simulated value of 0.5. Read the 0.5 table as an optimistic bound.`);
+    if (applyToSelect) document.getElementById("itsPowEs").value = "0.5";
+  } else if (lo === hi) {
+    msg = tr(`你的效果量是 <b>${es.toFixed(2)}</b>，正好落在論文模擬的 ${lo} 這一格。`,
+             `Your effect size is <b>${es.toFixed(2)}</b>, exactly one of the simulated values (${lo}).`);
+    if (applyToSelect) document.getElementById("itsPowEs").value = lo.toFixed(1);
+  } else if (hi === undefined) {
+    msg = tr(`你的效果量是 <b>${es.toFixed(2)}</b>，比模擬過的最大值 2.0 還大，用 2.0 的表就夠保守了。`,
+             `Your effect size is <b>${es.toFixed(2)}</b>, above the largest simulated value; the 2.0 table is conservative enough.`);
+    if (applyToSelect) document.getElementById("itsPowEs").value = "2.0";
+  } else {
+    msg = tr(`你的效果量是 <b>${es.toFixed(2)}</b>，落在論文模擬的 <b>${lo}</b> 與 <b>${hi}</b> 之間。論文只跑了這幾格，中間沒有模擬過，所以不要內插；` +
+             `規劃時用<b>比較小的那一格（${lo}）</b>，答案才不會太樂觀。下面已經幫你選好 ${lo}。`,
+             `Your effect size is <b>${es.toFixed(2)}</b>, between the simulated <b>${lo}</b> and <b>${hi}</b>. Nothing was simulated in between, so plan with the smaller one (${lo}); it is selected below.`);
+    if (applyToSelect) document.getElementById("itsPowEs").value = lo.toFixed(1);
+  }
+  box.innerHTML = `<p class="itspow-esline">${tr("效果量", "Effect size")} = (${lvl} + ${trd}) ÷ ${sd} = <b>${es.toFixed(2)}</b></p><p>${msg}</p>`;
+  return es;
+}
+
+function renderItsPower(applyEs) {
+  const out = document.getElementById("itsPowOut");
+  if (!out) return;
+  renderItsEffectSize(applyEs === true);
+  const rhoEl = document.getElementById("itsPowRho");
+  const target = Number(document.getElementById("itsPowTarget").value);
+  document.getElementById("itsPowRhoVal").textContent = Number(rhoEl.value).toFixed(1);
+  const { row, rho, es, param, bal } = itsPowRow();
+  if (!row) { out.innerHTML = ""; return; }
+  const ns = ITS_POW.ns;
+  let need = -1;
+  for (let k = 0; k < ns.length; k++) if (row[k] >= target) { need = ns[k]; break; }
+  const pct = (v) => Math.round(v * 100) + "%";
+
+  const head = need > 0
+    ? `<div class="itspow-answer ok"><b>${need}</b><span>${tr("個時間點", "time points")}</span></div>`
+    : `<div class="itspow-answer warn"><b>&gt;72</b><span>${tr("這個情境連 72 點都達不到", "not reachable even at 72")}</span></div>`;
+  const say = need > 0
+    ? tr(`自相關 ${rho.toFixed(1)}、效果量 ${es}、${bal === "equal" ? "前後平均分配" : "介入後只佔三分之一"}的情況下，` +
+         `<b>${need}</b> 個時間點的檢定力是 <b>${pct(row[ns.indexOf(need)])}</b>，是第一個達到 ${pct(target)} 的規模。` +
+         (need >= 48 ? "這已經是四年以上的月資料，規劃時要先確認資料真的追得到那麼長。" : ""),
+         `At autocorrelation ${rho.toFixed(1)}, effect size ${es} and ${bal === "equal" ? "balanced" : "one-third-after"} periods, ` +
+         `<b>${need}</b> points give <b>${pct(row[ns.indexOf(need)])}</b> power, the first size to clear ${pct(target)}.`)
+    : tr(`自相關 ${rho.toFixed(1)}、效果量 ${es} 時，72 個時間點的檢定力也只有 <b>${pct(row[row.length - 1])}</b>。` +
+         `要嘛預期效果其實更大，要嘛就得換設計（加對照組的 ITS、或改用其他準實驗設計），拉長時間解決不了。`,
+         `At autocorrelation ${rho.toFixed(1)} and effect size ${es}, even 72 points reach only <b>${pct(row[row.length - 1])}</b>. ` +
+         `More time will not fix this: either the effect is larger than assumed, or the design needs to change.`);
+
+  const cells = ns.map((n, k) =>
+    `<td class="${row[k] >= target ? "hit" : ""}">${pct(row[k])}</td>`).join("");
+  out.innerHTML = head + `<p class="itspow-say">${say}</p>` +
+    `<div class="table-wrap"><table class="cmp itspow-table"><thead><tr><th>${tr("時間點數", "time points")}</th>` +
+    ns.map((n) => `<th>${n}</th>`).join("") + `</tr></thead><tbody><tr><th>${tr("檢定力", "power")}</th>` +
+    cells + `</tr></tbody></table></div>`;
+  drawItsPowerChart(row, target, need);
+}
+
+function drawItsPowerChart(row, target, need) {
+  const box = document.getElementById("itsPowChart");
+  if (!box) return;
+  const ns = ITS_POW.ns, W = 720, H = 210, X0 = 44, X1 = 700, Y0 = 18, Y1 = 168;
+  const px = (n) => X0 + (n - ns[0]) / (ns[ns.length - 1] - ns[0]) * (X1 - X0);
+  const py = (v) => Y1 - v * (Y1 - Y0);
+  let s = `<svg viewBox="0 0 ${W} ${H}" class="align-svg" xmlns="http://www.w3.org/2000/svg">`;
+  [0, 0.5, 1].forEach((v) => {
+    s += `<line x1="${X0}" y1="${py(v)}" x2="${X1}" y2="${py(v)}" stroke="#e2e8f0"/>` +
+         `<text x="${X0 - 6}" y="${py(v) + 3}" font-size="9" text-anchor="end" fill="#64748b">${v * 100}%</text>`;
+  });
+  s += `<line x1="${X0}" y1="${py(target)}" x2="${X1}" y2="${py(target)}" stroke="#3f8268" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+  s += `<text x="${X1}" y="${py(target) - 5}" font-size="9.5" text-anchor="end" fill="#255c47">${tr("你要的檢定力", "target")} ${Math.round(target * 100)}%</text>`;
+  const pts = ns.map((n, k) => `${px(n).toFixed(1)},${py(row[k]).toFixed(1)}`).join(" ");
+  s += `<polyline points="${pts}" fill="none" stroke="#3f8268" stroke-width="2"/>`;
+  ns.forEach((n, k) => {
+    const hit = need > 0 && n === need;
+    s += `<circle cx="${px(n)}" cy="${py(row[k])}" r="${hit ? 6 : 3.5}" fill="${hit ? "#3f8268" : "#94a3b8"}"/>`;
+    if (hit) s += `<text x="${px(n)}" y="${py(row[k]) - 11}" font-size="10" font-weight="bold" text-anchor="middle" fill="#255c47">${n}</text>`;
+    s += `<text x="${px(n)}" y="${Y1 + 14}" font-size="9" text-anchor="middle" fill="#64748b">${n}</text>`;
+  });
+  s += `<text x="${(X0 + X1) / 2}" y="${H - 4}" font-size="9" text-anchor="middle" fill="#94a3b8">${tr("研究總共的時間點數", "total time points in the study")}</text>`;
+  s += "</svg>";
+  box.innerHTML = s;
+}
+
+let itsPowerReady = false;
+function initItsPower() {
+  if (!document.getElementById("itsPowOut")) return;
+  if (!itsPowerReady) {
+    itsPowerReady = true;
+    ["itsPowEs", "itsPowParam", "itsPowBal", "itsPowRho", "itsPowTarget",
+     "itsPowLevel", "itsPowTrend", "itsPowSd"].forEach((id) => {
+      const el = document.getElementById(id);
+      const drivesEs = ["itsPowLevel", "itsPowTrend", "itsPowSd"].includes(id);
+      if (el) el.addEventListener("input", () => renderItsPower(drivesEs));
+    });
+    document.addEventListener("iv-lang", () => { if (document.getElementById("itsPowOut")) renderItsPower(); });
+  }
+  renderItsPower(true);
+}
+
 function initItsPlay() {
   if (itsPlayReady) return;
   itsPlayReady = true;

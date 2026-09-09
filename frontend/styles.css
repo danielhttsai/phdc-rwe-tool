@@ -907,3 +907,18 @@ pre.sas .kw { color: #6fd0c0; font-weight: 600; }      /* PROC / keyword */
 .fc-leaf.dz-can { outline: 2px solid var(--z); outline-offset: 2px; }
 .fc-leaf.dz-cannot { opacity: .38; }
 tr.dz-row-can { background: #f0f7f4; }
+/* ITS power lookup (Zhang 2011 tables made clickable) */
+.itspower-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .8rem 1.2rem; }
+.itspow-es-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .6rem 1rem; }
+.itspow-es-controls input { width: 100%; padding: .3rem .5rem; border: 1px solid var(--line); border-radius: 8px; }
+.itspow-esline { font-size: 1rem; }
+.itspow-esout { margin-top: .5rem; font-size: .9rem; line-height: 1.8; }
+.itspower-out { margin: 1rem 0 .4rem; }
+.itspow-answer { display: flex; align-items: baseline; gap: .5rem; }
+.itspow-answer b { font-size: 2.4rem; line-height: 1; }
+.itspow-answer.ok b { color: var(--z); }
+.itspow-answer.warn b { color: #b45309; }
+.itspow-answer span { font-size: .95rem; color: var(--muted); }
+.itspow-say { font-size: .92rem; line-height: 1.8; margin: .5rem 0 .7rem; }
+.itspow-table td.hit { background: #dff0e8; font-weight: 700; color: #255c47; }
+#itsPowChart svg { width: 100%; height: auto; display: block; }
