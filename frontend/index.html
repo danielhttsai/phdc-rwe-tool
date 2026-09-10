@@ -347,7 +347,7 @@ proc syslin data=d 2sls;
     instruments vaccine_reminder age female bmi chronic_conditions;
     model health_score_change = vaccinated age female bmi chronic_conditions;
 run;</code></pre>
-      <p data-en="proc syslin with the 2sls option treats vaccinated as endogenous and uses vaccine_reminder plus the exogenous covariates as instruments.">proc syslin 加上 2sls 選項，將 vaccinated 視為內生變數，並以 vaccine_reminder 及外生共變量作為工具變數。</p></div>
+      <p data-en="proc syslin with the 2sls option treats vaccinated as endogenous and uses vaccine_reminder plus the exogenous covariates as instruments.">proc syslin 加上 2sls 選項，將 vaccinated 視為內生變數，並以 vaccine_reminder 及外生共變項作為工具變數。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — AER::ivreg">R — AER::ivreg</h3>
       <pre class="sas"><code><span class="cm"># instrumental-variables 2SLS with weak-instrument F</span>
 library(AER)
@@ -4452,7 +4452,7 @@ stcox i.drug prevalent time_since_start frailty age</code></pre>
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Negative-Control / Proximal Inference">程式（SAS · R · Stata）：陰性對照／近端因果推論</h2>
     <p class="code-src" data-en="Source — R uses AER::ivreg(), following the standard two-stage least squares call shown in the AER package manual (?ivreg / AER vignette); Stata uses the ivregress 2sls syntax from its official manual (proximal P2SLS is exactly this two-stage form).">出處 — R 使用 AER 套件的 ivreg()，呼叫方式同 AER 官方手冊（?ivreg / AER vignette）的兩階段最小平方示範；Stata 為 ivregress 2sls 官方手冊語法（近端因果的 P2SLS 即此兩階段形式）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://doi.org/10.1007/s40471-020-00243-4" target="_blank" rel="noopener">Shi, Miao &amp; Tchetgen Tchetgen 2020 (DOI)</a> · <a href="https://cran.r-project.org/package=AER" target="_blank" rel="noopener">AER (CRAN)</a></p>
-    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>nc_sample.csv</code> (columns: pid, A, Y, X, W, Z; Z = negative-control exposure, W = negative-control outcome, X = measured covariate).">這是可直接在可下載的 <code>nc_sample.csv</code> 上完整執行的程式（欄位：pid, A, Y, X, W, Z；Z 為陰性對照暴露、W 為陰性對照結果、X 為已測共變量）。</div>
+    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>nc_sample.csv</code> (columns: pid, A, Y, X, W, Z; Z = negative-control exposure, W = negative-control outcome, X = measured covariate).">這是可直接在可下載的 <code>nc_sample.csv</code> 上完整執行的程式（欄位：pid, A, Y, X, W, Z；Z 為陰性對照暴露、W 為陰性對照結果、X 為已測共變項）。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — two-stage bridge">SAS — 兩階段橋估計</h3>
       <pre class="sas"><code><span class="cm">/* import the sample */</span>
 proc import datafile="nc_sample.csv" out=d dbms=csv replace;
@@ -4673,7 +4673,7 @@ import delimited "med_sample.csv", clear case(preserve)
 <span class="cm">* parametric causal mediation: direct and indirect effects</span>
 paramed Y, avar(A) mvar(M) cvars(X) ///
     a0(0) a1(1) m(0) yreg(linear) mreg(linear)</code></pre>
-      <p data-en="paramed estimates natural direct and indirect effects from the treatment, mediator and covariate models.">paramed 由處理、中介與共變量模型估計自然直接與間接效果。</p></div>
+      <p data-en="paramed estimates natural direct and indirect effects from the treatment, mediator and covariate models.">paramed 由處理、中介與共變項模型估計自然直接與間接效果。</p></div>
   </section>
 
   <!-- ===================== MED ④ 假設檢驗 ===================== -->
@@ -5181,7 +5181,7 @@ fit &lt;- gformula_continuous_eof(obs_data=long, id="pid", time_name="t",
   intvars=list("A","A"), interventions=list(list(c(static, rep(1,2))),
     list(c(static, rep(0,2)))), int_descript=c("always","never"))
 print(fit)</code></pre>
-      <p data-en="gfoRmula fits each time-varying covariate and the outcome, then simulates the contrasted interventions.">gfoRmula 配適各時間變動共變量與結果，再模擬對比的介入策略。</p></div>
+      <p data-en="gfoRmula fits each time-varying covariate and the outcome, then simulates the contrasted interventions.">gfoRmula 配適各時間變動共變項與結果，再模擬對比的介入策略。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — gformula">Stata — gformula</h3>
       <pre class="sas"><code><span class="cm">* import the sample (gformula is a user command by Daniel et al)</span>
 import delimited "gm_sample.csv", clear case(preserve)
@@ -5833,7 +5833,7 @@ stcox, tvc(dose) texp(_t)</code></pre>
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Transportability of a trial effect">程式（SAS · R · Stata）：試驗效應的可轉移性</h2>
     <!-- code-src hidden by the citation audit: the code here is our own
          minimal runnable example, not the cited work's code.
-         原標註為「出處 — Westreich 等（2017, AJE）；以結果模型標準化至目標族群共變量分布（基礎 R 的 lm 與 predict） / Sources — Westreich et al (2017, AJE); outcome-model standardization to the target covariate distribution (base R lm / predict)」。此處程式碼為依該文獻描述的標準化（g-formula）方法自行編寫的最小可執行範例，非該文獻提供的程式碼。 -->
+         原標註為「出處 — Westreich 等（2017, AJE）；以結果模型標準化至目標族群共變項分布（基礎 R 的 lm 與 predict） / Sources — Westreich et al (2017, AJE); outcome-model standardization to the target covariate distribution (base R lm / predict)」。此處程式碼為依該文獻描述的標準化（g-formula）方法自行編寫的最小可執行範例，非該文獻提供的程式碼。 -->
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://doi.org/10.1093/aje/kwx164" target="_blank" rel="noopener">Westreich et al 2017</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>transport_sample.csv</code> (columns: pid, S, x1, x2, A, Y).">這是可直接在可下載的 <code>transport_sample.csv</code> 上完整執行的程式（欄位：pid, S, x1, x2, A, Y）。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — fit on S=1, score S=0">SAS — 在 S=1 配適、對 S=0 預測</h3>
@@ -5862,7 +5862,7 @@ p1 &lt;- predict(fit, transform(tgt, A = 1))
 p0 &lt;- predict(fit, transform(tgt, A = 0))
 ate &lt;- mean(p1 - p0)
 print(ate)</code></pre>
-      <p data-en="lm() fits the outcome model on trial subjects; predicting under A=1 and A=0 over the target covariates and averaging the difference gives the transported ATE.">lm() 在試驗受試者上配適結果模型；對目標共變量在 A=1 與 A=0 下預測並取差值平均，即轉移後的 ATE。</p></div>
+      <p data-en="lm() fits the outcome model on trial subjects; predicting under A=1 and A=0 over the target covariates and averaging the difference gives the transported ATE.">lm() 在試驗受試者上配適結果模型；對目標共變項在 A=1 與 A=0 下預測並取差值平均，即轉移後的 ATE。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — regress + margins">Stata — regress 與 margins</h3>
       <pre class="sas"><code><span class="cm">* Fit on the trial (S==1), then margins over the target (S==0) sample</span>
 import delimited "transport_sample.csv", clear case(preserve)
@@ -6120,7 +6120,7 @@ list outcome rr e_point e_ci</code></pre>
          原標註為「出處 — 頻率學派合併估計使用 base R lm()／SAS PROC GLM／Stata regress；動態借用（power prior／commensurate prior）使用 R psborrow 套件；借用方法依據 Viele 等人 2014（Pharmaceutical Statistics） / Sources — frequentist pooled estimate via base R lm() / SAS PROC GLM / Stata regress; dynamic borrowing (power prior / commensurate prior) via the R psborrow package; borrowing methodology after Viele et al. 2014 (Pharmaceutical Statistics)」。此處程式碼為依外部／混合對照概念自行編寫的合併回歸最小範例，非該文獻提供的程式碼；psborrow 僅在註解中提及、未實際呼叫，其連結仍保留於「文件與套件」。 -->
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=psborrow" target="_blank" rel="noopener">psborrow (CRAN)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>extctrl_sample.csv</code> (columns: pid, treated, external, x, y).">這是可直接在可下載的 <code>extctrl_sample.csv</code> 上完整執行的程式（欄位：pid, treated, external, x, y）。</div>
-    <div data-lang="sas" class="card"><h3 data-en="SAS — pooled covariate-adjusted model">SAS — 合併且校正共變量的模型</h3>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — pooled covariate-adjusted model">SAS — 合併且校正共變項的模型</h3>
       <pre class="sas"><code><span class="cm">/* read the sample file */</span>
 proc import datafile="extctrl_sample.csv" out=d dbms=csv replace;
     getnames=yes;
@@ -8002,7 +8002,7 @@ regress beta_out beta_exp [aw=w], noconstant
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Digital-Twin / Prognostic-Score Adjusted Control">程式（SAS · R · Stata）：數位孿生／預後分數校正對照</h2>
     <!-- code-src hidden by the citation audit: the code here is our own
          minimal runnable example, not the cited work's code.
-         原標註為：出處 — 預後共變量校正（PROCOVA 風格）：先以歷史對照擬合預後模型，再對同期試驗做 ANCOVA；方法依據 Schuler 等人 2022「以預後分數線性校正提升隨機試驗估計效率」（Statistics in Biopharmaceutical Research）。實作使用 base R lm()／predict()。此處程式碼為依方法自行編寫的最小可執行範例（base R lm()/predict()、SAS PROC REG/GLM、Stata regress），非該文獻提供的程式碼。 -->
+         原標註為：出處 — 預後共變項校正（PROCOVA 風格）：先以歷史對照擬合預後模型，再對同期試驗做 ANCOVA；方法依據 Schuler 等人 2022「以預後分數線性校正提升隨機試驗估計效率」（Statistics in Biopharmaceutical Research）。實作使用 base R lm()／predict()。此處程式碼為依方法自行編寫的最小可執行範例（base R lm()/predict()、SAS PROC REG/GLM、Stata regress），非該文獻提供的程式碼。 -->
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://doi.org/10.1080/19466315.2022.2090007" target="_blank" rel="noopener">Schuler et al. 2022 (Stat Biopharm Res)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>dt_sample.csv</code> (columns: pid, source, arm, x1, x2, x3, y).">這是可直接在可下載的 <code>dt_sample.csv</code> 上完整執行的程式（欄位：pid, source, arm, x1, x2, x3, y）。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — prognostic model then ANCOVA">SAS — 預後模型後做 ANCOVA</h3>

@@ -4252,7 +4252,7 @@ function _dbKey(d) {
 const ALIGN_METHODS = [
   { key: "tvc", method: "gm",
     name: { zh: "用藥那天才算暴露（時變暴露）", en: "Time-varying exposure" },
-    idea: { zh: "把暴露當成<b>會隨時間開關的共變量</b>：每個人一進世代都先算「未暴露人時」，直到真正用藥物X 那天，才把後續轉成「暴露人時」。", en: "Treat exposure as a <b>covariate that switches on over time</b>: everyone starts contributing <b>unexposed</b> person-time and only flips to <b>exposed</b> on the day they actually start drug X." },
+    idea: { zh: "把暴露當成<b>會隨時間開關的共變項</b>：每個人一進世代都先算「未暴露人時」，直到真正用藥物X 那天，才把後續轉成「暴露人時」。", en: "Treat exposure as a <b>covariate that switches on over time</b>: everyone starts contributing <b>unexposed</b> person-time and only flips to <b>exposed</b> on the day they actually start drug X." },
     zero: { zh: "Time Zero＝進入世代（合格）那天，對<b>每個人一致</b>；用藥前的存活時間正確地記在「未暴露」那一格，不會被送給暴露組。", en: "Time zero = cohort entry (eligibility), the <b>same for everyone</b>; pre-treatment survival is correctly booked as unexposed time, never handed to the exposed group." },
     pro: { zh: "用上全部人時、不丟資料；直接對付不死時間。", en: "Uses all person-time, discards nothing; tackles immortal time head-on." },
     con: { zh: "危險期定義要小心；會被「時變的適應症混淆」影響 → 常要 g-methods。", en: "The hazard window needs care; vulnerable to time-varying confounding by indication → often needs g-methods." } },
@@ -4279,7 +4279,7 @@ const ALIGN_METHODS = [
     idea: { zh: "Time Zero 把每個人<b>複製</b>到各策略，當某複製體的資料不再吻合它的策略時<b>中斷</b>（設限），再用 <b>IPCW</b> 加權校正這個人為中斷。", en: "At time zero <b>clone</b> each person into every strategy, <b>censor</b> a clone when its data stop matching its strategy, then reweight the artificial censoring with <b>IPCW</b>." },
     zero: { zh: "所有複製體都<b>從同一個 Time Zero 起算</b> → 完美對齊；最適合「診斷後早用 vs 晚用」「持續 vs 停藥」這類動態／持續策略。", en: "Every clone starts the clock at the <b>same time zero</b> → perfect alignment; best for dynamic / sustained strategies like early-vs-late or stay-on-vs-discontinue." },
     pro: { zh: "能處理靜態策略配不出來的動態策略；目標試驗模擬的常見實作。", en: "Handles dynamic strategies a static grouping can't; a common target-trial implementation." },
-    con: { zh: "需要時變共變量把中斷（設限）的 IPCW 建對；重複納入 → bootstrap 變異。", en: "Needs time-varying covariates to model the censoring IPCW correctly; repeated inclusion → bootstrap variance." } },
+    con: { zh: "需要時變共變項把中斷（設限）的 IPCW 建對；重複納入 → bootstrap 變異。", en: "Needs time-varying covariates to model the censoring IPCW correctly; repeated inclusion → bootstrap variance." } },
 ];
 // interactive timeline demo: one config per approach ('naive' shows the bug).
 const ALIGN_ORDER = [
