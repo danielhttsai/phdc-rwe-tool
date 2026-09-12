@@ -1016,7 +1016,7 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
   <!-- ===================== TAB 3 · Bias ===================== -->
   <section class="sa-panel" id="paneBias" hidden>
     <h2 class="sa-h2">Bias：這些研究各中了哪些偏誤？</h2>
-    <div class="sa-scenario">換你當審查委員。先答六題認一下每種偏誤長什麼樣，再往下看幾個真實會遇到的情境，每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者哪裡跌倒、又該怎麼爬起來。</div>
+    <div class="sa-scenario">換你當審查委員。先答六題認一下每種偏誤長什麼樣，再往下看幾個真實會遇到的情境，每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者錯在哪裡、又該怎麼修正。</div>
     <div id="biasIntro"></div>
     <div id="biasGame"></div>
   </section>
@@ -1024,7 +1024,7 @@ body { background: var(--bg, #f4f7f6); margin: 0; }
   <!-- ===================== TAB 4 · Method ===================== -->
   <section class="sa-panel" id="paneMethods" hidden>
     <h2 class="sa-h2">Method：小賴醫師的問題，該用哪種設計？</h2>
-    <div class="sa-scenario">最後一站：資料有了，那到底要用哪一種設計？先答六題，再往下用那棵樹走一次，看看你們會不會走到同一個答案。</div>
+    <div class="sa-scenario">最後一站：資料有了，那到底要用哪一種設計？先答六題，再往下用那棵樹走一次，看看你會不會走到同一個答案。</div>
     <p class="caption">以藥物流行病學的「錨點（anchor）」概念為主軸，把<b>常見研究設計</b>與<b>工具箱的方法</b>整理成<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
     <div id="mtIntro"></div>
@@ -2523,7 +2523,7 @@ const BIAS_SCENARIOS = [
     ans: ["immortal", "indication"],
     why: { zh: "暴露組必須<b>活到能用藥的那天</b>，所以確診到用藥之間那段「保證存活」的時間被錯算給暴露組 → 不死時間；又因「用藥 vs 從不用藥」，用藥者往往病況不同 → 適應症混淆。", en: "The exposed had to <b>survive until they could start</b>, so the guaranteed-alive gap from diagnosis to initiation is mis-booked as exposed → immortal time; and 'users vs never-users' differ in prognosis → confounding by indication." },
     fix: { zh: "把暴露改成<b>時變暴露</b>，或改用<b>地標</b>／<b>複製-設限-加權</b>把 Time Zero 對齊；對照則換成<b>主動對照</b>，處理適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
-  { s: { zh: "藥物X 是<b>病情控制不好時才會加開</b>的藥。研究拿「<b>有加開藥物X 的人</b>」去比「同樣診斷、但整段期間<b>一種藥都沒開過</b>的人」，看誰比較容易死，只用<b>年齡、性別</b>校正。研究者<b>已經乖乖照老師說的處理好 Time Zero 了</b>。", en: "Drug X is <b>only added when the disease is not well controlled</b>. The study compares people who got drug X added with people who have the same diagnosis but were <b>never prescribed anything at all</b>, and asks who dies sooner, adjusting only for <b>age and sex</b>. The investigator <b>has already done time zero properly this time</b>." },
+  { s: { zh: "藥物X 是<b>病情控制不好時才會加開</b>的藥。研究拿「<b>有加開藥物X 的人</b>」去比「同樣診斷、但整段期間<b>一種藥都沒開過</b>的人」，看誰比較容易死，只用<b>年齡、性別</b>校正。這次研究者<b>已經把 Time Zero 處理好了</b>。", en: "Drug X is <b>only added when the disease is not well controlled</b>. The study compares people who got drug X added with people who have the same diagnosis but were <b>never prescribed anything at all</b>, and asks who dies sooner, adjusting only for <b>age and sex</b>. The investigator <b>has already done time zero properly this time</b>." },
     ans: ["indication", "unmeasured"],
     why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②未測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度，以及醫師在診間形成的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多放幾個共變數」，而是<b>換一個能公平比較的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero 有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
     fix: { zh: "改用<b>主動對照新使用者</b>（跟同適應症的對照藥比，而不是跟「沒用藥」比）。", en: "Use an <b>active-comparator new-user</b> design (compare with a same-indication drug, not with 'no drug')." }, fixMethod: "acnu" },

@@ -148,7 +148,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 3 · Bias ===================== -->
   <section class="sa-panel" id="paneBias" hidden>
     <h2 class="sa-h2">Bias：這些研究各中了哪些偏誤？</h2>
-    <div class="sa-scenario">換你當審查委員。先答六題認一下每種偏誤長什麼樣，再往下看幾個真實會遇到的情境，每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者哪裡跌倒、又該怎麼爬起來。</div>
+    <div class="sa-scenario">換你當審查委員。先答六題認一下每種偏誤長什麼樣，再往下看幾個真實會遇到的情境，每題勾出你認為<b>存在</b>的偏誤，按「對答案」看研究者錯在哪裡、又該怎麼修正。</div>
     <div id="biasIntro"></div>
     <div id="biasGame"></div>
   </section>
@@ -156,7 +156,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 4 · Method ===================== -->
   <section class="sa-panel" id="paneMethods" hidden>
     <h2 class="sa-h2">Method：小賴醫師的問題，該用哪種設計？</h2>
-    <div class="sa-scenario">最後一站：資料有了，那到底要用哪一種設計？先答六題，再往下用那棵樹走一次，看看你們會不會走到同一個答案。</div>
+    <div class="sa-scenario">最後一站：資料有了，那到底要用哪一種設計？先答六題，再往下用那棵樹走一次，看看你會不會走到同一個答案。</div>
     <p class="caption">以藥物流行病學的「錨點（anchor）」概念為主軸，把<b>常見研究設計</b>與<b>工具箱的方法</b>整理成<b>同一棵可點擊的樹</b>。順著你的研究情境一題一題點下去，最後會落在最適合的建議，並可打開<b>完整流程圖</b>。<b>✓</b>＝完整工具箱有教學（另開分頁）；<b>↗</b>＝延伸設計，供參考。</p>
 
     <div id="mtIntro"></div>
