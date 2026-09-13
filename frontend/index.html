@@ -31,7 +31,7 @@
         <option value="acnu" data-en="ACNU · Active-comparator new-user">ACNU · 主動對照新使用者</option>
         <option value="causalml" data-en="Causal ML · CATE &amp; meta-learners">Causal ML · 因果機器學習</option>
         <option value="cc" data-en="CC · Case-control">CC · 病例對照</option>
-        <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 案例交叉與時間對照</option>
+        <option value="cctc" data-en="CCTC · Case-crossover &amp; time-control">CCTC · 病例交叉與時間對照</option>
         <option value="ccw" data-en="CCW · Clone-censor-weight">CCW · 複製-設限-加權</option>
         <option value="did" data-en="DiD · Difference-in-differences">DiD · 差異中的差異</option>
         <option value="dt" data-en="Digital twin">Digital twin · 數位孿生</option>
@@ -2809,12 +2809,12 @@ margins arm, predict(pr)                      // average predicted hazard per ar
   <!-- ===================== CCTC ① 是什麼 ===================== -->
   <section id="cctclearn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Case-crossover &amp; case-(case-)time-control: each person is their own control">案例交叉與案例-（案例-）時間對照：每個人當自己的對照</h1>
+    <h1 data-en="Case-crossover &amp; case-(case-)time-control: each person is their own control">病例交叉與病例-（病例-）時間對照：每個人當自己的對照</h1>
     <p class="lead" data-en="For an <b>acute</b> event that a <b>transient</b> exposure might trigger, compare the same person's exposure in a <b>hazard window</b> (just before the event) vs an earlier <b>reference window</b> — a self-control that cancels everything stable about them (case-crossover, CCO). The catch: if the exposure's <b>prevalence rises over calendar time</b>, the recent window is more exposed for everyone, so CCO is inflated. A control group (or future-onset cases) that share the trend net it out — case-(case-)time-control (CCTC).">
       對一個可能由<b>短暫暴露</b>觸發的<b>急性</b>事件，比較同一個人在<b>危險窗</b>（事件前）vs 更早的<b>參考窗</b>的暴露，
-      用自己當對照，把所有穩定的個人特質都消掉（案例交叉，CCO）。麻煩在於：如果暴露的<b>盛行率隨日曆時間上升</b>，
+      用自己當對照，把所有穩定的個人特質都消掉（病例交叉，CCO）。麻煩在於：如果暴露的<b>盛行率隨日曆時間上升</b>，
       近期那一窗本來就比較常暴露，CCO 會被高估。用同樣經歷趨勢的對照族群（或較晚發病的未來 case）把趨勢扣掉，
-      就是案例-（案例-）時間對照（CCTC）。
+      就是病例-（病例-）時間對照（CCTC）。
     </p>
 
     <div class="card scene">
@@ -2825,7 +2825,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
     <details class="term">
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef">
-        <h4>案例交叉 <span class="en">case-crossover (CCO)</span></h4>
+        <h4>病例交叉 <span class="en">case-crossover (CCO)</span></h4>
         <p data-en="Suppose someone has a sudden event — say a heart attack or an ER visit — and you suspect a short-acting drug triggered it. Instead of finding other people to compare them with, you compare the person against themselves at two times: were they on the drug in the short window just before the event (the &quot;hazard window&quot;), versus an earlier, ordinary window when nothing happened (the &quot;reference window&quot;)? Because it is the same person, everything that doesn't change about them — their genes, their chronic illnesses, their habits — is automatically held fixed, so it can't fool you. Only people who differ between the two windows (on the drug in one, off it in the other) actually carry information; if they were the same in both windows they tell you nothing. The answer is an odds ratio built from those mismatched pairs: <code>OR_CCO = b/c</code>, where b and c count the two kinds of mismatch. Maclure (1991) introduced this self-matched design.">
           假設有人突然出事，比如心臟病發或跑急診，你懷疑是某個藥效短暫的藥引發的。與其去找別人來比，不如拿這個人跟「他自己」在兩個時間點比：事件發生前那一小段時間（「危險窗」）他有沒有在用這個藥，對上更早、什麼事都沒發生的一段平常時間（「參考窗」）？因為比的是同一個人，所有不會變的東西，基因、慢性病、生活習慣，自動被固定住，騙不了你。只有「兩窗不一樣」的人（一窗有用、一窗沒用）才真正提供資訊；兩窗都一樣的人什麼也說明不了。最後算出來的是這些「不一致對」的勝算比：<code>OR_CCO = b/c</code>，b 和 c 數的就是兩種不一致。這個自我配對設計由 Maclure（1991）提出。
         </p>
@@ -2833,13 +2833,13 @@ margins arm, predict(pr)                      // average predicted hazard per ar
       <div class="tdef">
         <h4>暴露時間趨勢 <span class="en">exposure time trend</span></h4>
         <p data-en="Here is the catch that can break the simple case-crossover. Suppose the drug just became more popular over the years — almost nobody used it early in the study, lots of people did later. Now the recent window (the hazard window) sits in a time when the drug is common, while the older reference window sits in a time when it was rare. So people look &quot;more exposed&quot; right before the event purely because the calendar moved on, not because the drug did anything. That false signal pushes the case-crossover answer too high. For example, uptake might climb from 10% early on to 40% late in the study. You can spot this trap in a group that the drug genuinely cannot affect: if even their windows show more exposure recently — a pure-trend OR above 1 — you know the calendar, not the drug, is doing it. This is exactly the leak that the next term is built to plug.">
-          這就是會讓「單純案例交叉」失準的陷阱。假設這個藥這些年越來越流行，研究早期幾乎沒人用，後期一大堆人用。於是近期那一窗（危險窗）剛好落在藥很普遍的時候，較早的參考窗卻落在藥還很罕見的時候。結果一個人「事件前看起來比較常用藥」，純粹是因為日曆往前走了，不是藥真的做了什麼。這個假訊號會把案例交叉的答案往上推。舉例來說，使用率可能從早期的 10% 一路爬到後期的 40%。要抓這個陷阱，可以看一群「藥根本不可能影響到的人」：如果連他們的窗也是近期暴露比較多，也就是純趨勢 OR 大於 1，你就知道是日曆在搗鬼，不是藥。這正是下一個名詞要堵住的漏洞。
+          這就是會讓「單純病例交叉」失準的陷阱。假設這個藥這些年越來越流行，研究早期幾乎沒人用，後期一大堆人用。於是近期那一窗（危險窗）剛好落在藥很普遍的時候，較早的參考窗卻落在藥還很罕見的時候。結果一個人「事件前看起來比較常用藥」，純粹是因為日曆往前走了，不是藥真的做了什麼。這個假訊號會把病例交叉的答案往上推。舉例來說，使用率可能從早期的 10% 一路爬到後期的 40%。要抓這個陷阱，可以看一群「藥根本不可能影響到的人」：如果連他們的窗也是近期暴露比較多，也就是純趨勢 OR 大於 1，你就知道是日曆在搗鬼，不是藥。這正是下一個名詞要堵住的漏洞。
         </p>
       </div>
       <div class="tdef">
-        <h4>案例-時間對照／案例-案例-時間對照 <span class="en">case-time-control / case-case-time-control (CCTC)</span></h4>
+        <h4>病例-時間對照／病例-病例-時間對照 <span class="en">case-time-control / case-case-time-control (CCTC)</span></h4>
         <p data-en="The fix is simple in spirit: measure how big the pure calendar trend is in a group where the drug can't be causing events, then divide that trend back out of the case-crossover answer so only the real effect is left. The original case-time-control (Suissa, 1995) borrows a separate group of non-cases as the trend yardstick. A neat variant, case-case-time-control, instead uses people who will get the event but only later — future cases — as the yardstick, because they ride the same calendar trend yet aren't (yet) reacting to it; this needs no separate control series and sidesteps endless arguments about &quot;did you pick the right controls?&quot; In numbers: if the raw case-crossover gives 6.1 but the controls' pure trend is 1.9, the corrected answer is about 6.1 ÷ 1.9 ≈ 3.2 — close to the true 3.0. As a formula it is just one odds ratio divided by another: <code>OR_CCTC = (b_case/c_case) ÷ (b_ctrl/c_ctrl)</code>.">
-          修法的精神很簡單：在一群「藥不可能造成事件」的人身上，量出日曆趨勢到底有多大，再把這個趨勢從案例交叉的答案裡除掉，剩下的就只有真正的效果。最早的案例-時間對照（Suissa，1995）借一群「非 case」當趨勢的量尺。一個漂亮的變形，案例-案例-時間對照，改用「以後才會發病的人」（未來的 case）當量尺，因為他們同樣經歷那條日曆趨勢，但還沒對藥起反應；這樣就不必另外湊一條對照序列，也避開了「你對照到底選得對不對」這種沒完沒了的爭論。用數字看：如果原始案例交叉算出 6.1，但對照的純趨勢是 1.9，修正後的答案約為 6.1 ÷ 1.9 ≈ 3.2，很接近真值 3.0。寫成式子，就是一個勝算比除以另一個：<code>OR_CCTC = (b_case/c_case) ÷ (b_ctrl/c_ctrl)</code>。
+          修法的精神很簡單：在一群「藥不可能造成事件」的人身上，量出日曆趨勢到底有多大，再把這個趨勢從病例交叉的答案裡除掉，剩下的就只有真正的效果。最早的病例-時間對照（Suissa，1995）借一群「非 case」當趨勢的量尺。一個漂亮的變形，病例-病例-時間對照，改用「以後才會發病的人」（未來的 case）當量尺，因為他們同樣經歷那條日曆趨勢，但還沒對藥起反應；這樣就不必另外湊一條對照序列，也避開了「你對照到底選得對不對」這種沒完沒了的爭論。用數字看：如果原始病例交叉算出 6.1，但對照的純趨勢是 1.9，修正後的答案約為 6.1 ÷ 1.9 ≈ 3.2，很接近真值 3.0。寫成式子，就是一個勝算比除以另一個：<code>OR_CCTC = (b_case/c_case) ÷ (b_ctrl/c_ctrl)</code>。
         </p>
       </div>
     </details>
@@ -2848,9 +2848,9 @@ margins arm, predict(pr)                      // average predicted hazard per ar
   <!-- ===================== CCTC ② 互動講解 ===================== -->
   <section id="cctcplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive: watch the exposure trend inflate case-crossover">互動：看暴露趨勢怎麼把案例交叉吹大</h1>
+    <h1 data-en="Interactive: watch the exposure trend inflate case-crossover">互動：看暴露趨勢怎麼把病例交叉吹大</h1>
     <p class="lead" data-en="Drag the slider to change how steeply the exposure's prevalence rises over calendar time. At <b>0</b> there is no trend and plain case-crossover (CCO) is already unbiased. Turn it up and CCO <b>climbs away</b> from the truth, while <b>CCTC</b> (trend-adjusted) stays put. Watch the three numbers and the exposure-prevalence curve.">
-      拉動滑桿，改變暴露盛行率隨日曆時間上升的陡度。在 <b>0</b> 時沒有趨勢，純案例交叉（CCO）本身就無偏；
+      拉動滑桿，改變暴露盛行率隨日曆時間上升的陡度。在 <b>0</b> 時沒有趨勢，純病例交叉（CCO）本身就無偏；
       往上調，CCO 就<b>一路爬離</b>真值，而<b>CCTC</b>（扣趨勢）穩住不動。看三個數字與暴露盛行率曲線。
     </p>
 
@@ -2863,7 +2863,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
     </div>
 
     <div class="play-grid">
-      <div class="stat"><div class="stat-label" data-en="Case-crossover (CCO)">案例交叉（CCO）</div><div class="stat-num" id="cctcCco">–</div><div class="stat-foot" data-en="inflated by the trend">被趨勢吹大</div></div>
+      <div class="stat"><div class="stat-label" data-en="Case-crossover (CCO)">病例交叉（CCO）</div><div class="stat-num" id="cctcCco">–</div><div class="stat-foot" data-en="inflated by the trend">被趨勢吹大</div></div>
       <div class="stat"><div class="stat-label" data-en="CCTC (trend-adjusted)">CCTC（扣趨勢）</div><div class="stat-num" id="cctcCctc">–</div><div class="stat-foot" data-en="should hug the truth 3.0">應緊貼真值 3.0</div></div>
       <div class="stat"><div class="stat-label" data-en="Pure-trend OR (controls)">純趨勢 OR（對照）</div><div class="stat-num small" id="cctcTrendOr">–</div><div class="stat-foot" data-en="the trend fingerprint">趨勢指紋</div></div>
     </div>
@@ -2879,7 +2879,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
     <h1 data-en="Data analysis: run a full CCTC">資料分析：跑一次完整的 CCTC</h1>
     <p class="lead" data-en="Load the built-in acute-event example (or upload a CSV with one row per subject: a case/control flag, exposure in the hazard and reference windows, and the calendar time). The tool computes the case-crossover OR, the controls' pure-trend OR, and the trend-adjusted CCTC OR with a delta-method interval.">
       載入內建的急性事件範例（或上傳每列一個個體的 CSV：case/對照旗標、危險窗與參考窗的暴露、日曆時間）。
-      工具會算案例交叉 OR、對照的純趨勢 OR，以及扣趨勢後的 CCTC OR 與 delta-method 信賴區間。
+      工具會算病例交叉 OR、對照的純趨勢 OR，以及扣趨勢後的 CCTC OR 與 delta-method 信賴區間。
     </p>
 
     <div class="datasource">
@@ -2898,11 +2898,11 @@ margins arm, predict(pr)                      // average predicted hazard per ar
     </div>
 
     <div id="cctcAnalyzeOut" class="hidden">
-      <h2 data-en="Case-crossover vs trend-adjusted CCTC">案例交叉 vs 扣趨勢的 CCTC</h2>
+      <h2 data-en="Case-crossover vs trend-adjusted CCTC">病例交叉 vs 扣趨勢的 CCTC</h2>
       <div class="result-cards" id="cctcAnalyzeCards"></div>
       <div id="cctcAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="Exposure prevalence by calendar month — the rising trend that inflates plain case-crossover and that CCTC divides out.">
-        各日曆月的暴露盛行率，這條上升趨勢吹大了純案例交叉，CCTC 把它除掉。
+        各日曆月的暴露盛行率，這條上升趨勢吹大了純病例交叉，CCTC 把它除掉。
       </p>
     </div>
   
@@ -2975,7 +2975,7 @@ clogit y window if group==0, group(id) or</code></pre>
 
   <!-- ===================== CCTC ⑤ 進階 ===================== -->
   <section id="cctcml" class="panel">
-    <h1 data-en="Refinements: case-time-control vs case-case-time-control">進階：案例-時間對照 vs 案例-案例-時間對照</h1>
+    <h1 data-en="Refinements: case-time-control vs case-case-time-control">進階：病例-時間對照 vs 病例-病例-時間對照</h1>
     <details class="term causalml">
       <summary data-en="Causal ML in one box: from the average effect (ATE) to individualised effects (CATE)">因果機器學習一次看懂：從平均效果（ATE）到個體化效果（CATE）</summary>
       <div class="tdef">
@@ -2987,7 +2987,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <p class="lead" data-en="Both remove the exposure-trend bias; they differ in <b>what plays the role of the trend reference</b>. Click to see them side by side on the same (strongly-trending) data, then read the notes on when each is preferred.">
       兩者都消掉暴露趨勢偏誤；差別在<b>用什麼當趨勢參考</b>。按下面在同一筆（趨勢強）資料上並排比較，再看下面的取捨說明。
     </p>
-    <button id="runCctcDemo" class="btn primary" data-en="Show CTC vs case-case-time-control">看 CTC vs 案例-案例-時間對照</button>
+    <button id="runCctcDemo" class="btn primary" data-en="Show CTC vs case-case-time-control">看 CTC vs 病例-病例-時間對照</button>
     <div id="cctcDemoOut" class="hidden">
       <div id="cctcDemoChart" class="chart"></div>
       <p class="caption" id="cctcDemoReading"></p>
@@ -2995,9 +2995,9 @@ clogit y window if group==0, group(id) or</code></pre>
 
     <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
-      <div class="card"><h3 data-en="① Case-time-control (CTC) needs good controls">① 案例-時間對照（CTC）需要好的對照</h3>
+      <div class="card"><h3 data-en="① Case-time-control (CTC) needs good controls">① 病例-時間對照（CTC）需要好的對照</h3>
         <p data-en="CTC uses a separate non-case control series to estimate the trend. If those controls don't share the cases' exposure trend — or are selected on the outcome — the correction is wrong. Choosing controls is the hard part.">CTC 用另一條非 case 對照序列估趨勢。若這些對照沒和 case 共享暴露趨勢、或被結果選擇，校正就錯。對照怎麼選是難點。</p></div>
-      <div class="card"><h3 data-en="② Case-case-time-control (CCTC) avoids that">② 案例-案例-時間對照（CCTC）避開這點</h3>
+      <div class="card"><h3 data-en="② Case-case-time-control (CCTC) avoids that">② 病例-病例-時間對照（CCTC）避開這點</h3>
         <p data-en="CCTC uses <b>future-onset cases</b> as the trend reference, so it needs no separate control series and is robust to control-selection critiques (Wang &amp; Hennessy). It assumes the exposure trend is the same for current and future cases.">CCTC 用<b>較晚發病的未來 case</b> 當趨勢參考，不需另一條對照序列，對「對照怎麼選」的批評較穩健（Wang &amp; Hennessy）。前提是暴露趨勢對當前與未來 case 一樣。</p></div>
       <div class="card"><h3 data-en="③ Immeasurable-time bias still bites">③ 不可測時間偏誤仍要小心</h3>
         <p data-en="If exposure can't be measured just before the event (e.g. hospitalisation), the hazard window is distorted (Jeong 2023; Wong 2025). Self-controlled designs don't fix this — check that exposure is ascertained consistently in both windows.">若事件前暴露無法測得（如住院），危險窗會被扭曲（Jeong 2023；Wong 2025）。自我對照設計不修這個，要確認兩窗的暴露都被一致地測到。</p></div>
@@ -6382,7 +6382,7 @@ regress y treated external x, level(90)</code></pre>
   </section>
 
   <section id="cctcwhatif" class="panel">
-    <h1 data-en="⑥ What if…? CCTC in the language of counterfactuals">⑥ 如果……？用反事實的語言看「案例交叉與時間對照 CCTC」</h1>
+    <h1 data-en="⑥ What if…? CCTC in the language of counterfactuals">⑥ 如果……？用反事實的語言看「病例交叉與時間對照 CCTC」</h1>
     <p class="lead" data-en="Instead of comparing different people, compare the <b>same person with themselves</b>: was exposure higher in the hazard window just before the event (Yᵃ⁼¹) than in an earlier reference window (Yᵃ⁼⁰)? Being one's own control cancels everything that doesn't change over time. CCTC further removes the exposure's calendar-time trend.">
       不比不同的人，而是讓<b>同一個人跟自己比</b>：事件前的危險窗暴露（Yᵃ⁼¹）有沒有比更早的參考窗（Yᵃ⁼⁰）多？自己當對照，消掉所有不隨時間變的東西。CCTC 再扣掉暴露的日曆時間趨勢。
     </p>

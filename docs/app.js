@@ -359,7 +359,7 @@ const SB_TERMS = [
   { c: 4,  re: /危險期|危險窗|risk period/i },
   { c: 5,  re: /年齡效應|age effect\w*/i },
   { c: 6,  re: /基準期|baseline period/i },
-  { c: 7,  re: /case-?crossover|案例交叉/i },
+  { c: 7,  re: /case-?crossover|病例交叉|案例交叉/i },
   { c: 8,  re: /事件相依暴露|event-?dependent exposure/i },
   { c: 9,  re: /事件相依觀察期?|event-?dependent observation/i },
   { c: 10, re: /復發事件|recurrent event\w*|事件(彼此)?獨立/i },
@@ -3259,7 +3259,7 @@ const DNODES = {
     opts: [
       { l: { zh: "從一般來源族群取對照、用校正／配對處理混淆（基本病例對照）", en: "Controls from the source population; handle confounding by adjustment/matching (basic case-control)" }, to: "rCC" },
       { l: { zh: "在大世代裡用配對對照、巢式抽樣（想細看劑量–反應）", en: "Matched controls nested in a large cohort (to examine dose-response)" }, to: "rNCC" },
-      { l: { zh: "用個人自身近期當對照（急性、短暫暴露；案例交叉 CCO）", en: "The person's own recent past as control (acute, transient exposure; case-crossover CCO)" }, to: "rCCTC" },
+      { l: { zh: "用個人自身近期當對照（急性、短暫暴露；病例交叉 CCO）", en: "The person's own recent past as control (acute, transient exposure; case-crossover CCO)" }, to: "rCCTC" },
       { l: { zh: "個人自身對照，但暴露有日曆時間趨勢（用 CCTC 扣趨勢）", en: "Person-as-own-control, but the exposure has a calendar trend (CCTC nets it out)" }, to: "rCCTC" },
       { l: { zh: "估<b>疫苗效力</b>，對照取自「來檢驗卻<b>陰性</b>」的人，去掉就醫傾向（陰性檢驗設計）", en: "Estimating <b>vaccine effectiveness</b> with controls who were tested but <b>negative</b>, removing care-seeking (test-negative design)" }, to: "rTND" },
       { l: { zh: "以上皆非 → 最後一步", en: "None of the above — go to the last step" }, to: "rLast" },
@@ -3302,7 +3302,7 @@ const DNODES = {
              en: "The key assumption is <b>no coincident event</b> at the interruption; also handle residual autocorrelation (④ checks HAC). If a control series exists, controlled-ITS/DiD is stronger." } } },
   rTiT: { rec: { kind: "toolbox", method: "tit", badge: "TiT ✓",
     title: { zh: "最適合：趨勢中的趨勢 TiT", en: "Best fit: Trend-in-Trend (TiT)" },
-    why: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見，看「結果率的趨勢」是否跟著「暴露率的趨勢」走。它是案例-時間對照（CTC/CCTC）的世代版。",
+    why: { zh: "暴露隨日曆時間逐漸普及、跨族群速度不同，且結果罕見，看「結果率的趨勢」是否跟著「暴露率的趨勢」走。它是病例-時間對照（CTC/CCTC）的世代版。",
            en: "Exposure spreads over calendar time at different rates across strata and the outcome is rare — check whether the outcome-rate trend tracks the exposure-rate trend. It is the cohort cousin of case-time-control (CTC/CCTC)." },
     scenario: { zh: "藥物X 情境：藥物X 在慢性病族群的使用率隨季逐漸上升、不同地區快慢不同。看「事件率的趨勢」是否跟著「使用率的趨勢」一起走。",
                 en: "Drug-X scenario: drug X's uptake in a chronic-disease population climbs over quarters, faster in some regions. Check whether the event-rate trend moves in step with the uptake trend." },
@@ -3430,8 +3430,8 @@ const DNODES = {
     watch: { zh: "✓ 本工具箱已實作（見「序列試驗」分頁 ①–⑤）。也屬<b>目標試驗模擬（target trial emulation）</b>家族。",
              en: "✓ Implemented in this toolbox (see the Sequential-trials tabs ①–⑤). Also part of the <b>target trial emulation</b> family." } } },
   rCCTC: { rec: { kind: "toolbox", method: "cctc", badge: "CCTC ✓",
-    title: { zh: "建議：案例交叉／案例-時間對照 CCTC ✓（本工具）", en: "Suggested: case-crossover / case-(case-)time-control (CCTC) ✓ (this tool)" },
-    why: { zh: "暴露<b>短暫、會波動</b>，想用個人自身近期當對照，比較發病前的危險窗 vs 較早的參考窗（案例交叉，CCO），自己當對照消掉所有穩定特徵。若暴露的<b>盛行率隨日曆時間上升</b>，純 CCO 會被高估；用對照族群（或較晚發病的未來 case）把趨勢扣掉，就是 <b>CCTC</b>。其「世代版」正是本工具箱的 TiT。",
+    title: { zh: "建議：病例交叉／病例-（病例-）時間對照 CCTC ✓（本工具）", en: "Suggested: case-crossover / case-(case-)time-control (CCTC) ✓ (this tool)" },
+    why: { zh: "暴露<b>短暫、會波動</b>，想用個人自身近期當對照，比較發病前的危險窗 vs 較早的參考窗（病例交叉，CCO），自己當對照消掉所有穩定特徵。若暴露的<b>盛行率隨日曆時間上升</b>，純 CCO 會被高估；用對照族群（或較晚發病的未來 case）把趨勢扣掉，就是 <b>CCTC</b>。其「世代版」正是本工具箱的 TiT。",
            en: "For a <b>transient, fluctuating</b> exposure, use each case's own recent past as control — compare the pre-event hazard window vs an earlier reference window (case-crossover, CCO), cancelling every time-stable trait. If the exposure's <b>prevalence trends up over calendar time</b>, plain CCO is inflated; net out that trend with controls (or future-onset cases) → <b>CCTC</b>. Its cohort version is this toolbox's TiT." },
     scenario: { zh: "藥物X 情境：對「用藥物X 後短期內的急性事件」，比較事件前幾天 vs 更早一段時間的用藥暴露；若使用率逐年上升，再用對照族群把趨勢扣掉。",
                 en: "Drug-X scenario: for an acute event shortly after taking drug X, compare exposure in the days before vs an earlier reference window; if uptake rises year on year, net out the trend with a control group." },
@@ -3579,7 +3579,7 @@ const FULLMAP = {
             { edge: { zh: "配對、巢式抽樣", en: "matched, nested" },
               leaves: [{ key: "rNCC", cond: { zh: "想看「劑量–反應」，只量個案＋抽樣對照的暴露量（巢式病例對照＝病例對照）", en: "want a dose-response; measure exposure only for cases + sampled controls (nested = case-control)" }, tag: "CC ✓", kind: "tb" }] },
             { edge: { zh: "自身對照 · 暴露無趨勢", en: "own control · no trend" },
-              leaves: [{ key: "rCCTC", cond: { zh: "CCO（案例交叉）", en: "CCO (case-crossover)" }, tag: "CCTC ✓", kind: "tb" }] },
+              leaves: [{ key: "rCCTC", cond: { zh: "CCO（病例交叉）", en: "CCO (case-crossover)" }, tag: "CCTC ✓", kind: "tb" }] },
             { edge: { zh: "自身對照 · 暴露有趨勢", en: "own control · has a trend" },
               leaves: [{ key: "rCCTC", cond: { zh: "扣掉日曆趨勢（CCTC；世代版＝TiT ✓）", en: "net out the trend (CCTC; cohort = TiT ✓)" }, tag: "CCTC ✓", kind: "tb" }] },
             { edge: { zh: "預防效力 · 陰性對照", en: "preventive effectiveness · test-negative controls" },
@@ -5041,7 +5041,7 @@ const METHOD_REF = {
   its:  { zh: "中斷時間序列 ITS", en: "Interrupted Time Series (ITS)", src: "Bernal, Cummins & Gasparrini (2017), IJE; Dey et al. (2025)" },
   perr: { zh: "事前事件率比 PERR", en: "Prior Event Rate Ratio (PERR)", src: "Yu et al. (2012); van Aalst et al. (2021)" },
   ccw:  { zh: "複製-設限-加權 CCW", en: "Clone-Censor-Weight (CCW)", src: "Hernán (2018), BMJ; Gaber et al. (2024)" },
-  cctc: { zh: "案例交叉與時間對照 CCTC", en: "Case-crossover & (case-)time-control (CCTC)", src: "Maclure (1991); Suissa (1995); Jeong et al. (2023)" },
+  cctc: { zh: "病例交叉與時間對照 CCTC", en: "Case-crossover & (case-)time-control (CCTC)", src: "Maclure (1991); Suissa (1995); Jeong et al. (2023)" },
   seq:  { zh: "序列試驗", en: "Sequential trials", src: "Hernán & Robins (target trial); Danaei et al.; Gran et al." },
   cc:   { zh: "病例對照", en: "Case-control", src: "Dickerman et al. (2020), IJE; Shomal Zadeh et al. (2020); Schauberger et al. (2024)" },
   sccs: { zh: "自身對照病例系列 SCCS", en: "Self-controlled case series (SCCS)", src: "Whitaker, Farrington & Musonda (2006); Petersen, Douglas & Whitaker (2016); sccs-studies.info" },
@@ -6997,9 +6997,9 @@ function drawSceneCctc() {
   shapes.push({ type: "line", x0: 0, x1: 0, y0: 0.55, y1: 3.15, line: { color: IDX, width: 1.5, dash: "dot" } });
   shapes.push({ type: "line", x0: 0, x1: 26, y0: yFut, y1: yFut, line: { color: "#b9c2cf", width: 1.5, dash: "dot" } });
   const traces = [
-    { x: [0], y: [yCur], mode: "markers", type: "scatter", name: tr("↓ 當前案例事件日（指標日）", "↓ current case event date (index)"),
+    { x: [0], y: [yCur], mode: "markers", type: "scatter", name: tr("↓ 當前病例事件日（指標日）", "↓ current case event date (index)"),
       marker: { color: IDX, size: 12, symbol: "triangle-down" } },
-    { x: [40], y: [yFut], mode: "markers", type: "scatter", name: tr("↓ 未來案例事件日", "↓ future case event date"),
+    { x: [40], y: [yFut], mode: "markers", type: "scatter", name: tr("↓ 未來病例事件日", "↓ future case event date"),
       marker: { color: "#8b8bbf", size: 12, symbol: "triangle-down" } },
   ];
   const anns = [
@@ -7009,16 +7009,16 @@ function drawSceneCctc() {
     Object.assign(_lbl(-15.5, 3.18, tr("危險窗", "hazard"), HAZF, 10), { xanchor: "center" }),
     Object.assign(_lbl(2, 3.0, tr("指標日", "index date"), IDX, 9.5), { xanchor: "left" }),
     // row labels
-    Object.assign(_lbl(-192, yCur, tr("當前案例", "current cases"), INK, 10), { xanchor: "left" }),
-    Object.assign(_lbl(-192, yFut, tr("未來案例", "future cases"), SLATE, 10), { xanchor: "left" }),
+    Object.assign(_lbl(-192, yCur, tr("當前病例", "current cases"), INK, 10), { xanchor: "left" }),
+    Object.assign(_lbl(-192, yFut, tr("未來病例", "future cases"), SLATE, 10), { xanchor: "left" }),
     Object.assign(_lbl(40, yFut + 0.42, tr("事件較晚", "event later"), "#8b8bbf", 9), { xanchor: "center" }),
     Object.assign(_lbl(13, yFut + 0.18, "//", "#b9c2cf", 11), { xanchor: "center" }),
     // captions
     _lbl(-70, 0.28, tr(
-      "案例交叉：在「當前案例」內比危險窗 vs 參考窗的暴露；藥物使用隨日曆時間有趨勢 → 案例交叉被高估。",
+      "病例交叉：在「當前病例」內比危險窗 vs 參考窗的暴露；藥物使用隨日曆時間有趨勢 → 病例交叉被高估。",
       "Case-crossover: within current cases, compare exposure in the hazard vs reference window; drug use trends over calendar time → case-crossover is inflated."), INK, 9.5),
     _lbl(-70, -0.12, tr(
-      "對照交叉：用「未來案例」（事件較晚、配對年齡性別）量出同樣的時間趨勢；CCTC＝案例交叉 OR ÷ 對照交叉 OR，把趨勢除掉。",
+      "對照交叉：用「未來病例」（事件較晚、配對年齡性別）量出同樣的時間趨勢；CCTC＝病例交叉 OR ÷ 對照交叉 OR，把趨勢除掉。",
       "Control-crossover: future cases (event later, matched on age/sex) measure the same time trend; CCTC = case-crossover OR ÷ control-crossover OR, dividing out the trend."), INK, 9.5),
   ];
   Plotly.react("cctcScene", traces, schemaLayout({
@@ -7108,7 +7108,7 @@ function renderCctcAnalyze(a) {
   document.getElementById("cctcAnalyzeOut").classList.remove("hidden");
   const cards = [
     [tr("CCTC（扣趨勢，因果 OR）", "CCTC (trend-adjusted, causal OR)"), a.or_cctc, a.interpretation, true],
-    [tr("案例交叉 CCO（被趨勢吹大）", "Case-crossover CCO (trend-inflated)"), a.or_cco,
+    [tr("病例交叉 CCO（被趨勢吹大）", "Case-crossover CCO (trend-inflated)"), a.or_cco,
       tr(`95% CI ${fmt(a.ci_cco[0], 2)}～${fmt(a.ci_cco[1], 2)}`, `95% CI ${fmt(a.ci_cco[0], 2)}–${fmt(a.ci_cco[1], 2)}`), false],
     [tr("純趨勢 OR（對照）", "Pure-trend OR (controls)"), a.or_trend,
       tr("偏離 1＝時間趨勢的強度＝CCO 的偏誤來源。", "distance from 1 = trend strength = source of CCO's bias."), false],
@@ -7168,7 +7168,7 @@ async function refreshCctcDemo() {
 }
 function drawCctcDemo(s) {
   if (!document.getElementById("cctcDemoChart")) return;
-  const labels = [tr("CCO（純案例交叉）", "CCO (plain)"), tr("CTC（對照扣趨勢）", "CTC (control-adjusted)"),
+  const labels = [tr("CCO（純病例交叉）", "CCO (plain)"), tr("CTC（對照扣趨勢）", "CTC (control-adjusted)"),
                   tr("CCTC（未來 case 扣趨勢）", "CCTC (future-case)")];
   const vals = [s.cco, s.ctc, s.casecase];
   Plotly.react("cctcDemoChart", [{
