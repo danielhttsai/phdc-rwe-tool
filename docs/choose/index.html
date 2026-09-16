@@ -2525,7 +2525,7 @@ const BIAS_SCENARIOS = [
     fix: { zh: "把暴露改成<b>時變暴露</b>，或改用<b>地標</b>／<b>複製-設限-加權</b>把 Time Zero 對齊；對照則換成<b>主動對照</b>，處理適應症混淆。", en: "Model exposure as <b>time-varying</b>, or use <b>landmark</b> / <b>clone-censor-weight</b> to align time zero; switch to an <b>active comparator</b> for the indication problem." }, fixMethod: "ccw" },
   { s: { zh: "藥物X 是<b>病情控制不好時才會加開</b>的藥。研究拿「<b>有加開藥物X 的人</b>」去比「同樣診斷、但整段期間<b>一種藥都沒開過</b>的人」，看誰比較容易死，只用<b>年齡、性別</b>校正。這次研究者<b>已經把 Time Zero 處理好了</b>。", en: "Drug X is <b>only added when the disease is not well controlled</b>. The study compares people who got drug X added with people who have the same diagnosis but were <b>never prescribed anything at all</b>, and asks who dies sooner, adjusting only for <b>age and sex</b>. The investigator <b>has already done time zero properly this time</b>." },
     ans: ["indication", "unmeasured"],
-    why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②未測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度，以及醫師在診間形成的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多放幾個共變數」，而是<b>換一個能公平比較的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero 有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
+    why: { zh: "<b>兩個都中，而且是同一件事的一體兩面。</b><br><b>①適應症混淆：</b>「控制不好才加開」這句話已經把答案講完了，會拿到藥物X 的人本來就是<b>病得比較重</b>的那一群，對照組則是「連藥都不用開」的輕症。就算藥物X 完全沒效，前者也會死得比較多；你以為在比藥，其實在比病情。<br><b>②未測量的干擾因子：</b>那為什麼不校正掉就好？因為讓兩組不一樣的<b>正是健保沒記錄的東西</b>：疾病嚴重度、失能程度，以及醫師在診間形成的臨床判斷。這一題只校正了<b>年齡、性別</b>，而年齡、共病、過去用藥這些<b>資料裡有</b>的東西本來就不可怕，用傾向分數或迴歸處理掉即可；真正把結果帶歪的那些，你連測都沒測到。<br>所以解法不是「多放幾個共變項」，而是<b>換一個能公平比較的對照</b>：跟同適應症的另一種藥比，兩組的嚴重度本來就接近，那個量不到的東西也就跟著被抵銷掉大半。Time Zero 有對齊，所以這題沒有不死時間。", en: "<b>Both, and they are two sides of the same thing.</b><br><b>1. Confounding by indication:</b> drug X is only added when control is poor, so its users are the sicker group and the comparator is the mild end of the same diagnosis. Even a completely inert drug X would look deadly.<br><b>2. Unmeasured confounding:</b> why not just adjust it away? Because what makes the groups differ is exactly what claims never record: severity, frailty, the clinician's judgement at the bedside. This study adjusted for age and sex only; age, comorbidity and past drugs are in the data and were never the danger. The variables that bend the result were never measured.<br>So the fix is a <b>better comparator</b>, not more covariates: against a same-indication drug the two arms start at similar severity, and much of the unmeasured difference cancels. Time zero is aligned, so there is no immortal time here." },
     fix: { zh: "改用<b>主動對照新使用者</b>（跟同適應症的對照藥比，而不是跟「沒用藥」比）。", en: "Use an <b>active-comparator new-user</b> design (compare with a same-indication drug, not with 'no drug')." }, fixMethod: "acnu" },
   { s: { zh: "用健保資料比較兩種同類藥物X，設計良好（新使用者、主動對照、Time Zero 對齊），但健保<b>沒有檢驗值</b>（疾病嚴重度）。", en: "Compare two same-class drug-X options in claims with a good design (new-user, active comparator, aligned time zero) — but claims have <b>no lab values</b> (disease severity)." },
     ans: ["unmeasured"],
@@ -2716,7 +2716,7 @@ const METHOD_QS = [
     opts: [
       { k: "model", ok: 0, t: "先跑一個模型看看有沒有訊號", fb: `<b>順序反了。</b>先看結果再回頭調設計，就是<b>偷看答案</b>；設計要在看到估計值之前定好。第一件事是<b>定 Time Zero</b>：每個人從哪一天開始被追蹤。` },
       { k: "t0", ok: 1, t: "每個人的 <b>Time Zero</b> 是哪一天", fb: `<b>對，永遠是這一題。</b>合格條件、暴露分派、追蹤起點<b>必須是同一天</b>。這裡就是「第一次拿到藥物X 或對照藥那天」。這一步沒定好，後面所有校正都是在修補一個歪掉的地基。` },
-      { k: "covar", ok: 0, t: "要校正哪些共變數", fb: `<b>那是第二順位。</b>共變數要在 <b>Time Zero 之前</b>測量才算基線；Time Zero 還沒定，你連「哪些算基線」都說不清楚。` },
+      { k: "covar", ok: 0, t: "要校正哪些共變項", fb: `<b>那是第二順位。</b>共變項要在 <b>Time Zero 之前</b>測量才算基線；Time Zero 還沒定，你連「哪些算基線」都說不清楚。` },
     ] },
   { q: `他想過用<b>自身對照（SCCS）</b>，因為那可以自動擋掉不隨時間變的干擾因子。用在「長期用藥 → 死亡」上可以嗎？`,
     opts: [
@@ -2734,11 +2734,11 @@ const METHOD_QS = [
     opts: [
       { k: "drop", ok: 0, t: "麻煩，這種人要排除掉", fb: `<b>別急著排除，這是難得的機會。</b>切點兩側的人幾乎一樣，只因為一個數字之差就一邊給付一邊不給付，這是天然的<b>準隨機</b>，可以做<b>斷點回歸（RDD）</b>。` },
       { k: "rdd", ok: 1, t: "可以做<b>斷點回歸（RDD）</b>", fb: `<b>對。</b>切點<b>剛好上下</b>的人在其他方面幾乎一樣，卻因為規則被分到不同治療，等於一個小範圍的隨機實驗。代價是結論只適用於<b>切點附近</b>的人。` },
-      { k: "adj", ok: 0, t: "把那個檢驗值當共變數校正掉就好", fb: `<b>那就浪費掉了。</b>校正只是把它當成一般干擾因子；但「規則造成的<b>不連續</b>」本身是準隨機的來源，拿來做 <b>RDD</b> 比校正有力得多。` },
+      { k: "adj", ok: 0, t: "把那個檢驗值當共變項校正掉就好", fb: `<b>那就浪費掉了。</b>校正只是把它當成一般干擾因子；但「規則造成的<b>不連續</b>」本身是準隨機的來源，拿來做 <b>RDD</b> 比校正有力得多。` },
     ] },
   { q: `他還是擔心<b>量不到的疾病嚴重度</b>，但手上沒有基因、也沒有任何切點或政策可用。還能做什麼？`,
     opts: [
-      { k: "more", ok: 0, t: "多校正幾個共變數", fb: `<b>校正不到沒量到的東西。</b>模型只能處理資料裡有的欄位。沒有工具變數時，該做的是<b>量化它的威脅</b>：陰性對照或 E-value。` },
+      { k: "more", ok: 0, t: "多校正幾個共變項", fb: `<b>校正不到沒量到的東西。</b>模型只能處理資料裡有的欄位。沒有工具變數時，該做的是<b>量化它的威脅</b>：陰性對照或 E-value。` },
       { k: "big", ok: 0, t: "把樣本加大", fb: `<b>樣本大只會讓偏誤看起來更「顯著」。</b>沒有工具變數時，該做的是<b>量化</b>未測干擾因子要多強才能推翻結論：陰性對照、E-value。` },
       { k: "nc", ok: 1, t: "用<b>陰性對照／E-value</b> 做敏感度分析", fb: `<b>對，這是負責任的收尾。</b>陰性對照問「在一個<b>照理說不該有效果</b>的地方，我也看到效果嗎？」；E-value 問「未測的干擾因子要<b>強到什麼程度</b>才能把這個結果解釋掉？」修不掉，但講得清楚。` },
     ] },
