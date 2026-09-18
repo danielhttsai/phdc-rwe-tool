@@ -7005,7 +7005,7 @@ function drawSceneCctc() {
   const anns = [
     // window labels above the current-cases row
     Object.assign(_lbl(-120, 3.18, tr("參考窗 ×4（隨機選一）", "reference windows ×4 (1 randomly selected)"), "#6a5fae", 10), { xanchor: "center" }),
-    Object.assign(_lbl(-45, 3.18, tr("清除窗", "washout"), SLATE, 9.5), { xanchor: "center" }),
+    Object.assign(_lbl(-45, 3.18, tr("洗除窗", "washout"), SLATE, 9.5), { xanchor: "center" }),
     Object.assign(_lbl(-15.5, 3.18, tr("危險窗", "hazard"), HAZF, 10), { xanchor: "center" }),
     Object.assign(_lbl(2, 3.0, tr("指標日", "index date"), IDX, 9.5), { xanchor: "left" }),
     // row labels
