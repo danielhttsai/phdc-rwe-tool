@@ -7765,12 +7765,12 @@ function svFixRows(kind) {
         `<text x="${cut}" y="24" font-size="9" text-anchor="middle" fill="#b91c1c">✝</text>` +
         `<line x1="${cut}" y1="20" x2="312" y2="20" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="4 3"/>` +
         `<text x="${(cut + 312) / 2}" y="9" font-size="8" text-anchor="middle" fill="#2563eb">${tr("被剪的天數放進 likelihood 補回", "cut days recovered in the likelihood")}</text>` + b.close; })(), r: "≈ 2.00" },
-    { t: tr("<b>③ 敏感度分析：只留非致死個案重跑。</b>兩個 IRR 差多少，就是截斷咬掉多少。", "<b>3. Sensitivity analysis: rerun on non-fatal cases only.</b> The gap between the two IRRs is the size of the bite."),
+    { t: tr("<b>③ 敏感度分析：只留非致死病例重跑。</b>兩個 IRR 差多少，就是截斷咬掉多少。", "<b>3. Sensitivity analysis: rerun on non-fatal cases only.</b> The gap between the two IRRs is the size of the bite."),
       svg: (() => { const b = B(); return b.open +
         X(104) + X(230) +
         `<g opacity="0.35">${X(150, "#b91c1c")}<text x="${b.px(150) + 9}" y="24" font-size="9" fill="#b91c1c">✝</text></g>` +
         `<line x1="${b.px(140)}" y1="12" x2="${b.px(162)}" y2="28" stroke="#64748b" stroke-width="1.4"/>` +
-        `<text x="${b.px(185)}" y="9" font-size="8" fill="#64748b">${tr("致死個案先排除", "fatal cases set aside")}</text>` + b.close; })(), r: tr("兩版對照", "two versions") },
+        `<text x="${b.px(185)}" y="9" font-size="8" fill="#64748b">${tr("致死病例先排除", "fatal cases set aside")}</text>` + b.close; })(), r: tr("兩版對照", "two versions") },
   ];
   return [
     { t: tr("<b>① 每人只取第一次事件。</b>回音（復發）根本不進資料，獨立性假設自動成立；代價是事件數變少。", "<b>1. First event per person.</b> Echoes never enter the data, so independence holds by construction; the price is fewer events."),
