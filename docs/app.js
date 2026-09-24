@@ -7695,7 +7695,7 @@ const SCCS_VIO_META = {
 // drawn as mini-timelines by renderSccsVioFixes below
 const SCCS_VIO_BODY = {
   exp: () => tr(
-    "<p><b>術語：</b>event-dependent exposure（事件影響後續暴露）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過嚴重低血糖（severe hypoglycemia）的病人，之後多半不會再拿到同一顆藥物X；教科書的經典例子是輪狀病毒疫苗與腸套疊：得過腸套疊的孩子，之後幾乎不會再接種。也有反方向的：車禍受傷之後才開始用鴉片類止痛藥，事件反而<b>促成</b>暴露。方向是可預測的：事件<b>阻止</b>後續暴露 → IRR 偏高；事件<b>促成</b>後續暴露 → IRR 偏低。</p>" +
+    "<p><b>術語：</b>事件相依暴露（event-dependent exposure）。名字有點抽象，機制很具體：<b>出了事，醫師就不開了</b>。例如發生過嚴重低血糖（severe hypoglycemia）的病人，之後多半不會再拿到同一顆藥物X；教科書的經典例子是輪狀病毒疫苗與腸套疊：得過腸套疊的孩子，之後幾乎不會再接種。也有反方向的：車禍受傷之後才開始用鴉片類止痛藥，事件反而<b>促成</b>暴露。方向是可預測的：事件<b>阻止</b>後續暴露 → IRR 偏高；事件<b>促成</b>後續暴露 → IRR 偏低。</p>" +
     "<details class=\"term\"><summary>Farrington 反事實延伸：原理（點開看）</summary><div class=\"tdef\">" +
     "<p><b>問題出在哪：</b>標準 SCCS 的 likelihood 靠一個條件化的技巧：把「整段暴露史」當作已知條件。但暴露會被事件改變時，<b>事件之後的暴露史本身就是事件的函數</b>，拿它來當條件等於用結果解釋結果，這一步在數學上就不成立了，這才是偏誤的根源。</p>" +
     "<p><b>反事實暴露史：</b>方法的核心是問「<b>如果事件沒有發生，這個人的暴露史會長什麼樣？</b>」並刻意選一個<b>不受事件影響</b>的版本當基準：「此後不再有任何暴露」。這個版本無論事件何時發生都一樣，所以可以安全地當作條件。</p>" +
@@ -7712,7 +7712,7 @@ const SCCS_VIO_BODY = {
     "<p><b>Tooling:</b> <code>eventdepenexp()</code> in the R package <code>SCCS</code>; Farrington, Whitaker &amp; Ghebremichael-Weldeselassie, <i>Self-Controlled Case Series Studies</i> (CRC Press, 2018), Chapter 7.</p>" +
     "</div></details>"),
   cen: () => tr(
-    "<p><b>術語：</b>event-dependent observation period，常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡。</p>",
+    "<p><b>術語：</b>事件相依觀察期（event-dependent observation period），常被簡稱 event-dependent censoring。機制：<b>事件本身會終止追蹤</b>，最極端的就是死亡。</p>",
     "<p><b>The term:</b> event-dependent observation period, often shortened to event-dependent censoring: <b>the event itself ends follow-up</b> — death being the extreme case.</p>"),
   dep: () => tr(
     "<p><b>術語：</b>沒有統一的名字，論文裡寫 event dependence／non-independent recurrences，意思是<b>事件之間不獨立</b>。SCCS 的標準模型假設復發彼此獨立（Poisson），這一條被打破。</p>",
