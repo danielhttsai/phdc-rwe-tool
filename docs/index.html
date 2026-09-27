@@ -1278,7 +1278,7 @@ rdplot health_score_change age, c(65)</code></pre>
   <!-- ===================== DiD ② 互動講解 ===================== -->
   <section id="didplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive DiD: break parallel trends and watch the estimate bend">互動式 DiD：弄壞平行趨勢，看估計怎麼歪掉</h1>
+    <h1 data-en="Interactive DiD: break parallel trends and watch the estimate bend">互動式 DiD：打破平行趨勢，看估計怎麼歪掉</h1>
     <p class="lead" data-en="DiD lives or dies on <b>parallel trends</b>. Drag the slider to make the treated group <b>secretly drift upward before the policy even starts</b>. Watch three things move together: the two trend lines pull apart in the pre period, the event-study dots lift off zero before the cutoff, and the DiD estimate <b>drifts away from the true 3.0</b>.">
       DiD 成敗全看<b>平行趨勢</b>。拉動滑桿，讓介入組<b>在政策還沒上路前就偷偷往上漂</b>。
       看三件事一起變：前期兩條趨勢線拉開、事件研究的點在斷點前就離開 0、DiD 估計<b>偏離真值 3.0</b>。
@@ -2227,7 +2227,7 @@ newey outcome time post t_since, lag(1)
   <!-- ===================== PERR ② 互動講解 ===================== -->
   <section id="perrplay" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="Interactive PERR: break the time-invariant assumption and watch it bend">互動式 PERR：弄壞「時間不變」假設，看它怎麼歪掉</h1>
+    <h1 data-en="Interactive PERR: break the time-invariant assumption and watch it bend">互動式 PERR：打破「時間不變」假設，看它怎麼歪掉</h1>
     <p class="lead" data-en="PERR only works if the confounding is the <b>same</b> in the prior and post periods. Drag the slider to let the confounder's effect <b>drift</b> over time (e.g. frailty resolves after treatment). At 0, PERR recovers the true rate ratio of 0.70. Turn it up, and the prior period no longer captures the post confounding — so PERR drifts away from the truth, even though the naive comparison was wrong all along.">
       PERR 只有在混淆於事前、事後<b>一樣</b>時才成立。拉動滑桿，讓干擾因子的效果隨時間<b>漂移</b>
       （例如體弱在接種後好轉）。在 0 時，PERR 還原真實率比 0.70。往上調，事前期就不再能代表事後的混淆，
@@ -3890,7 +3890,7 @@ xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
       時變因子要靠切分處理。可檢的是危險窗裡的事件夠不夠。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div class="card scene">
-      <h3 data-en="Interactive: break one assumption at a time, and watch the IRR move">互動：一次弄壞一個假設，看 IRR 怎麼被帶偏</h3>
+      <h3 data-en="Interactive: break one assumption at a time, and watch the IRR move">互動：一次打破一個假設，看 IRR 怎麼被帶偏</h3>
       <p class="lead" data-en="Three ways an SCCS goes wrong, each with the term you'll meet in papers — the labels are shorthand, so what matters is the <b>mechanism</b> written on each card. Pick a violation, drag the slider to make it worse, and compare three numbers: the <b>truth</b> (built in at IRR = 2.0), the <b>naive SCCS</b> under the violation, and the estimate <b>after the standard fix</b>.">
         SCCS 出錯的三種方式，各附上論文裡會遇到的術語。這些名字只是簡稱、不一定精準，重點是每張卡上寫的<b>機制</b>。
         選一種違反、把滑桿拉大，比較三個數字：<b>內建的真值</b>（IRR＝2.0）、違反之下的<b>天真 SCCS</b>、以及<b>用標準解法處理後</b>的估計。
@@ -6603,7 +6603,7 @@ regress y treated external x, level(90)</code></pre>
     <details class="term">
       <summary data-en="New to these two diagrams? A plain-language guide to DAGs &amp; SWIGs">看不懂這兩張圖？DAG 與 SWIG 的白話導讀</summary>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
-        <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each <b>circle</b> is a variable; each <b>arrow</b> is a direct causal direction. The arrow from treatment to outcome is the effect you want; any path that does not go through treatment yet connects to both treatment and outcome (a <b>back door</b>, usually a confounder) dirties the estimate; a good design blocks those back doors. Red arrows are bias; the teal arrow is the effect."><b>把它想成「誰造成誰」的地圖。</b>每個<b>圓圈</b>是一個變數；每個<b>箭頭</b>是一個直接因果方向。治療指到結果的箭頭就是你要的效果；任何不經過治療、卻同時連到治療與結果的路徑（<b>後門</b>，通常是混淆）會弄髒估計；好設計把後門擋住。紅箭頭＝偏誤、青箭頭＝效果。</p></div>
+        <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each <b>circle</b> is a variable; each <b>arrow</b> is a direct causal direction. The arrow from treatment to outcome is the effect you want; any path that does not go through treatment yet connects to both treatment and outcome (a <b>back door</b>, usually a confounder) dirties the estimate; a good design blocks those back doors. Red arrows are bias; the teal arrow is the effect."><b>把它想成「誰造成誰」的地圖。</b>每個<b>圓圈</b>是一個變數；每個<b>箭頭</b>是一個直接因果方向。治療指到結果的箭頭就是你要的效果；任何不經過治療、卻同時連到治療與結果的路徑（<b>後門</b>，通常是混淆）會汙染估計；好設計把後門擋住。紅箭頭＝偏誤、青箭頭＝效果。</p></div>
       <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
         <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> It splits the treatment node into A∣a: the left half is the observed treatment, the small a is the value you would set it to. Every downstream outcome becomes a counterfactual Yᵃ. It draws exchangeability for you: after adjusting, the set treatment is independent of the counterfactual (A ⫫ Yᵃ), and only then does the association equal the causal effect."><b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把治療節點切成 A∣a：左半是觀察到的治療，小 a 是你介入要設的值。下游結果都變成反事實 Yᵃ。它把可交換性畫出來：校正後，被設定的治療與反事實獨立（A ⫫ Yᵃ），這時關聯才等於因果效果。</p></div>
     </details>
