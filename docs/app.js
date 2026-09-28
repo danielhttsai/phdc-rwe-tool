@@ -9783,7 +9783,7 @@ function renderPssaAnalyze(a) {
     [tr("校正順序比 aSR ＝ cSR ÷ SRnull", "adjusted SR (aSR = cSR ÷ SRnull)"), fmt(a.asr, 2), a.interpretation + ci, true],
     [tr("未校正順序比 cSR（趨勢偏）", "crude SR (trend-biased)"), fmt(a.csr, 2),
       tr("先 A 後 B vs 先 B 後 A，未除趨勢，被處方趨勢抬高。", "A-then-B vs B-then-A, trend not removed — lifted by the prescribing trend."), false],
-    [tr("無效果順序比 SRnull", "null SR (SRnull)"), fmt(a.srnull, 2),
+    [tr("虛無順序比 SRnull", "null SR (SRnull)"), fmt(a.srnull, 2),
       tr("「只有趨勢」時 cSR 的期望；越遠離 1 趨勢越強。", "the cSR expected under the trend alone; the further from 1, the stronger the trend."), false],
     [tr("訊號判定", "signal verdict"), sig,
       tr("不一致對：先 A 後 B ＝ " + a.a_index_first + "、先 B 後 A ＝ " + a.b_marker_first + "。",

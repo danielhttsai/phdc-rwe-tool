@@ -1229,7 +1229,7 @@ rdplot health_score_change age, c(65)</code></pre>
         </p>
       </div>
       <div class="card">
-        <h3 data-en="What it estimates (estimand)">它估的是什麼（估計對象）</h3>
+        <h3 data-en="What it estimates (estimand)">它估的是什麼（估計目標）</h3>
         <p data-en="DiD gives the <b>average effect on the treated group</b> (the ATT) over the post period — provided the two groups would have moved in parallel without the policy. It is a group-and-time average, not a single person's effect.">
           DiD 給的是政策後<b>介入組的平均處置效果</b>（ATT），前提是沒有政策時兩組會平行移動。
           它是「組別×時間」的平均，不是某一個人的效果。
@@ -5378,7 +5378,7 @@ logit case vaccinated if tested == 1, or</code></pre>
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
     <h1 data-en="Prescription sequence symmetry: a fast screen for prescribing cascades">處方順序對稱分析：快速篩出「處方瀑布」的訊號</h1>
     <p class="lead" data-en="Some adverse drug effects show up as a <b>prescribing cascade</b>: drug A causes a symptom, and the symptom gets treated with drug B. If A really triggers B, then among people who used <b>both</b>, &quot;A-then-B&quot; should outnumber &quot;B-then-A&quot;. The <b>crude sequence ratio (cSR)</b> = (A-then-B) ÷ (B-then-A) captures this — but it is <b>confounded by the prescribing trend</b>: if B's use is simply rising over calendar time, B tends to come &quot;later&quot; for everyone, inflating the cSR into a <b>false signal</b>. PSSA divides out that trend: the <b>null sequence ratio (SRnull)</b> is what the cSR would be under the trend <b>alone</b>, and the <b>adjusted sequence ratio</b> <b>aSR = cSR ÷ SRnull</b> ≈ 1 when there is no cascade and rises above 1 for a real one (Hallas 1996).">
-      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>未校正順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個，但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 撐高成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>無效果順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
+      有些藥物不良反應會以<b>處方瀑布</b>的形式出現：藥 A 引起某症狀，症狀又被藥 B 處理。若 A 真的引發 B，那麼在<b>兩種藥都用過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」多。<b>未校正順序比（cSR）</b>＝（先 A 後 B）÷（先 B 後 A）就抓這個，但它會被<b>處方趨勢</b>偏掉：若 B 的使用本來就隨日曆時間上升，B 對每個人都傾向「比較晚」出現，把 cSR 撐高成<b>假訊號</b>。PSSA 把這個趨勢除掉：<b>虛無順序比（SRnull）</b>是「只有趨勢」時 cSR 的期望值，<b>校正順序比</b> <b>aSR ＝ cSR ÷ SRnull</b> 在沒有瀑布時 ≈ 1、有真瀑布時才升上 1 以上（Hallas 1996）。
     </p>
     <div class="card scene"><h3 data-en="The crude SR is inflated by the prescribing trend; SRnull removes it → aSR">未校正順序比被處方趨勢撐高；SRnull 把它除掉 → aSR</h3>
       <div id="pssaScene" class="chart"></div></div>
@@ -5386,7 +5386,7 @@ logit case vaccinated if tested == 1, or</code></pre>
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef"><h4>順序比 cSR／aSR <span class="en">crude / adjusted sequence ratio</span></h4>
         <p data-en="The idea is simple: if drug A causes a side effect that gets treated with drug B, then among people who took <b>both</b>, &quot;A first, then B&quot; should happen more often than &quot;B first, then A&quot;. So you just count the two orders — call them <code>a</code> (A-then-B) and <code>b</code> (B-then-A) — and form the crude sequence ratio <code>cSR = a ÷ b</code>. A ratio above 1 means A tended to come first, which hints A might be triggering B. But raw counting is misleading, because drugs that are simply prescribed more and more over the years naturally show up &quot;later&quot; for everyone. So you divide the crude ratio by what it <i>would</i> have been from that timing alone (the null ratio, SRnull), giving the adjusted ratio <code>aSR = cSR ÷ SRnull</code>. An aSR clearly above 1 is the real warning sign that A may trigger B.">
-          這個想法很直觀：如果藥 A 會引起某個副作用、而那個副作用又被藥 B 治療，那麼在<b>兩種藥都吃過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」常見。所以你就數這兩種先後順序，把「先 A 後 B」叫 <code>a</code>、「先 B 後 A」叫 <code>b</code>，算出未校正順序比 <code>cSR ＝ a ÷ b</code>。比值大於 1，代表 A 比較常排在前面，暗示 A 可能正在引發 B。但光是這樣數會被誤導，因為一種藥若這些年用得越來越多，對每個人來說它自然就傾向「比較晚」才出現。於是你把未校正比值除以「光靠這種時間趨勢就會有的比值」（無效果順序比 SRnull），得到校正比值 <code>aSR ＝ cSR ÷ SRnull</code>。aSR 明顯大於 1，才是 A 可能引發 B 的真正警訊。</p></div>
+          這個想法很直觀：如果藥 A 會引起某個副作用、而那個副作用又被藥 B 治療，那麼在<b>兩種藥都吃過</b>的人裡，「先 A 後 B」應該比「先 B 後 A」常見。所以你就數這兩種先後順序，把「先 A 後 B」叫 <code>a</code>、「先 B 後 A」叫 <code>b</code>，算出未校正順序比 <code>cSR ＝ a ÷ b</code>。比值大於 1，代表 A 比較常排在前面，暗示 A 可能正在引發 B。但光是這樣數會被誤導，因為一種藥若這些年用得越來越多，對每個人來說它自然就傾向「比較晚」才出現。於是你把未校正比值除以「光靠這種時間趨勢就會有的比值」（虛無順序比 SRnull），得到校正比值 <code>aSR ＝ cSR ÷ SRnull</code>。aSR 明顯大於 1，才是 A 可能引發 B 的真正警訊。</p></div>
       <div class="tdef"><h4>處方趨勢混淆 <span class="en">prescribing-trend confounding</span></h4>
         <p data-en="This is the trap that the adjustment fixes. Suppose drug B is newer and its use keeps climbing year after year — then for almost everyone B simply tends to be prescribed <i>later</i> in time, so &quot;A first, then B&quot; piles up even when A never caused B at all. The raw count is being pushed around by this calendar-time trend, not by any real cascade, and it can manufacture a false signal out of thin air. The fix is to measure how lopsided the ordering would look from the <b>trend alone</b> — that number is SRnull — and then divide it out, so the adjusted ratio aSR reflects only the part that the trend can't explain. A tiny example: if rising use of B alone makes &quot;A-then-B&quot; 1.5× as common, SRnull = 1.5, and only a crude ratio above 1.5 counts as a genuine signal.">
           這就是校正要修掉的陷阱。假設藥 B 比較新、用量年年上升，那麼對幾乎所有人來說，B 單純就傾向<i>比較晚</i>才開出來，於是「先 A 後 B」會堆積起來，就算 A 從來沒引發過 B 也一樣。這時原始計數是被日曆時間的趨勢推著走、而不是被真正的瀑布推動，它可以憑空造出一個假訊號。解法是先量出「光靠這個趨勢」順序會偏到什麼程度，這個數就是 SRnull，再把它除掉，讓校正比值 aSR 只剩下趨勢無法解釋的部分。舉個小例子：如果光是 B 用量上升就讓「先 A 後 B」變成 1.5 倍常見，那 SRnull ＝ 1.5，未校正比值要超過 1.5 才算真訊號。</p></div>
@@ -7677,7 +7677,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
         <thead><tr>
           <th data-en="Method">方法</th>
           <th data-en="What you need in the data">資料裡需要有什麼</th>
-          <th data-en="Who the answer is about (estimand)">答案是關於誰（估計對象）</th>
+          <th data-en="Who the answer is about (estimand)">答案是關於誰（估計目標）</th>
         </tr></thead>
         <tbody>
           <tr><td colspan="3" class="famhdr" data-en="Family · borrowed exogenous variation">家族 · 借外生變異</td></tr>
