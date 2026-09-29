@@ -614,11 +614,11 @@ estat firststage
       <div class="tdef">
         <h4>雙重／去偏機器學習 <span class="en">double / debiased machine learning (DML)</span></h4>
         <p data-en="<b>Plain:</b> a recipe that lets you use powerful ML for the messy nuisance parts while keeping the causal estimate honest.<br /><b>Definition:</b> estimate the nuisance functions (e.g. the first stage) with ML under cross-fitting, then plug them into a Neyman-orthogonal moment so small ML errors barely move the final estimate.<br /><b>Why it matters:</b> it combines ML flexibility with valid confidence intervals — the modern way to do IV / effect estimation with rich data.<br /><b>Example:</b> ML first stage + cross-fitting pulls the IV estimate back near the truth 1.80, with a usable margin of error.<br /><b>Key idea:</b> orthogonality + cross-fitting ⇒ robustness to nuisance-model error.">
-          <b>白話：</b>一套「讓你放心用強力 ML 去處理雜務、又能保住因果估計的正確性」的配方。<br />
-          <b>定義：</b>用 ML＋交叉擬合估計雜務函數（如第一階段），再把它們塞進一個<b>Neyman 正交</b>的動差條件，使 ML 的小誤差幾乎不動到最終估計。<br />
+          <b>白話：</b>一套「讓你放心用強力 ML 去處理輔助部分、又能保住因果估計的正確性」的配方。<br />
+          <b>定義：</b>用 ML＋交叉擬合估計輔助函數（如第一階段），再把它們塞進一個<b>Neyman 正交</b>的動差條件，使 ML 的小誤差幾乎不動到最終估計。<br />
           <b>為什麼重要：</b>它把 ML 的彈性與「有效的信賴區間」結合起來，是用豐富資料做 IV／效果估計的現代做法。<br />
           <b>例子：</b>ML 第一階段＋交叉擬合，把 IV 估計拉回真值 1.80 附近、誤差範圍可用。<br />
-          <b>關鍵：</b>正交性＋交叉擬合 ⇒ 對雜務模型誤差穩健。
+          <b>關鍵：</b>正交性＋交叉擬合 ⇒ 對輔助模型誤差穩健。
         </p>
       </div>
     </details>
@@ -2788,7 +2788,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
     <h2 data-en="Other refinements from the literature">文獻中其他精修</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① Flexible / ML weight models (with cross-fitting)">① 彈性／ML 權重模型（搭配交叉擬合）</h3>
-        <p data-en="The treatment- and censoring-weight models are nuisance functions — they can be estimated with flexible/ML learners under cross-fitting, exactly as in IV ⑤ / DiD ⑤. This helps when confounders relate to timing non-linearly. The estimator (clone-censor-weight) is unchanged; only the weight model becomes data-adaptive.">處置與設限的權重模型是<b>雜務函數</b>，可以用彈性／ML 學習器搭配<b>交叉擬合</b>來估計，就像 IV ⑤／DiD ⑤ 那樣。當共變項對時機是非線性關係時特別有用。估計式（複製-設限-加權）不變，只有權重模型變成資料自適應。</p></div>
+        <p data-en="The treatment- and censoring-weight models are nuisance functions — they can be estimated with flexible/ML learners under cross-fitting, exactly as in IV ⑤ / DiD ⑤. This helps when confounders relate to timing non-linearly. The estimator (clone-censor-weight) is unchanged; only the weight model becomes data-adaptive.">處置與設限的權重模型是<b>輔助函數</b>，可以用彈性／ML 學習器搭配<b>交叉擬合</b>來估計，就像 IV ⑤／DiD ⑤ 那樣。當共變項對時機是非線性關係時特別有用。估計式（複製-設限-加權）不變，只有權重模型變成資料自適應。</p></div>
       <div class="card"><h3 data-en="② Doubly-robust: IPW + the g-formula">② 雙重穩健：IPW ＋ g-formula</h3>
         <p data-en="Instead of weighting alone, combine the inverse-probability weights with an <b>outcome (g-formula) model</b> into a doubly-robust estimator — consistent if <b>either</b> the weight model or the outcome model is right. Smith &amp; Hernán (2022) emulate a sustained-strategy target trial using exactly this IPW + g-formula pairing.">不要只靠加權，把反機率權重和一個<b>結果（g-formula）模型</b>結合成雙重穩健估計，只要權重模型<b>或</b>結果模型其一正確就一致。Smith &amp; Hernán（2022）正是用這套 IPW＋g-formula 來模擬持續策略的目標試驗。</p></div>
       <div class="card"><h3 data-en="③ Pre-specify and probe the design">③ 事先講清楚並檢驗設計</h3>
@@ -3261,8 +3261,8 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
         <p data-en="Because a person re-enters several trials, the rows are correlated. Use person-clustered robust SEs (or bootstrap by person); naive SEs are too narrow. This tool offers a person-cluster bootstrap interval.">同一人在多場重複出現，列彼此相關。用個人叢集穩健 SE（或對人自助）；未校正 SE 太窄。本工具提供個人叢集自助區間。</p></div>
       <div class="card"><h3 data-en="② Per-protocol vs intention-to-treat">② 依計畫 vs 意向治療</h3>
         <p data-en="Within each sequential trial you can analyse intention-to-treat (by baseline choice) or per-protocol (censor on deviation + IPCW, like CCW). They answer different questions; pre-specify which.">每場序列試驗內可做意向治療（照基線選擇）或依計畫（偏離設限＋IPCW，像 CCW）。兩者回答不同問題；要事先講清楚。</p></div>
-      <div class="card"><h3 data-en="③ ML / doubly-robust nuisance models">③ ML／雙重穩健的雜務模型</h3>
-        <p data-en="The within-trial propensity (and outcome) models are nuisances — they can be estimated with flexible/ML learners under cross-fitting, and combined doubly-robustly, exactly as in IV ⑤ / DiD ⑤. The pooling stays the same.">場內的傾向（與結果）模型是雜務，可用彈性／ML 學習器搭配交叉擬合來估、再雙重穩健地結合，就像 IV ⑤／DiD ⑤。合併方式不變。</p></div>
+      <div class="card"><h3 data-en="③ ML / doubly-robust nuisance models">③ ML／雙重穩健的輔助模型</h3>
+        <p data-en="The within-trial propensity (and outcome) models are nuisances — they can be estimated with flexible/ML learners under cross-fitting, and combined doubly-robustly, exactly as in IV ⑤ / DiD ⑤. The pooling stays the same.">場內的傾向（與結果）模型是輔助模型，可用彈性／ML 學習器搭配交叉擬合來估、再雙重穩健地結合，就像 IV ⑤／DiD ⑤。合併方式不變。</p></div>
     </div>
 
     <h2 data-en="Where this method comes from">這個方法的出處</h2>
@@ -8696,7 +8696,7 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
     <p class="code-src" data-en="Source — R uses the grf package's causal_forest() / average_treatment_effect(), following the grf package vignette (CRAN: package=grf).">出處 — R 使用 grf 套件的 causal_forest()／average_treatment_effect()，呼叫方式同 grf 官方 vignette（CRAN: package=grf）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=grf" target="_blank" rel="noopener">grf (CRAN)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>causalml_sample.csv</code> (columns: pid, A, Y, x1, x2, x3, x4, x5).">這是可直接在可下載的 <code>causalml_sample.csv</code> 上完整執行的程式（欄位：pid, A, Y, x1, x2, x3, x4, x5）。</div>
-    <div data-lang="sas" class="card"><h3 data-en="SAS — AIPW nuisances">SAS — AIPW 干擾模型</h3>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — AIPW nuisances">SAS — AIPW 輔助模型</h3>
       <pre class="sas"><code><span class="cm">/* import the sample */</span>
 proc import datafile="causalml_sample.csv" out=d dbms=csv replace;
     getnames=yes;
