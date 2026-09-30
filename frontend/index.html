@@ -7038,7 +7038,7 @@ list case A B C Y</code></pre>
   <div class="cards cards-3">
     <div class="card">
       <h3 data-en="What BA measures">BA 量什麼</h3>
-      <p data-en="From the concentration–time curve: <b>Cmax</b> (peak level, the rate marker), <b>Tmax</b> (time to peak), and <b>AUC</b> (total exposure, the extent marker). BA characterizes a single formulation's exposure; BE compares two.">從濃度–時間曲線取：<b>Cmax</b>（最高濃度，反映速度）、<b>Tmax</b>（達峰時間）、<b>AUC</b>（總曝露量，反映程度）。BA 描述單一劑型的曝露；BE 則比較兩種。</p>
+      <p data-en="From the concentration–time curve: <b>Cmax</b> (peak level, the rate marker), <b>Tmax</b> (time to peak), and <b>AUC</b> (total exposure, the extent marker). BA characterizes a single formulation's exposure; BE compares two.">從濃度–時間曲線取：<b>Cmax</b>（最高濃度，反映速度）、<b>Tmax</b>（達峰時間）、<b>AUC</b>（總暴露量，反映程度）。BA 描述單一劑型的暴露；BE 則比較兩種。</p>
     </div>
     <div class="card">
       <h3 data-en="Why crossover">為何用交叉</h3>
@@ -7053,7 +7053,7 @@ list case A B C Y</code></pre>
     <summary data-en="Show terminology">看專有名詞解釋</summary>
     <div class="tdef">
       <h4>幾何平均比值（GMR） <span class="en">geometric mean ratio</span></h4>
-      <p data-en="Because PK metrics like Cmax and AUC are right-skewed and roughly log-normal, we compare them on the log scale. The GMR is the ratio of the test formulation's geometric mean to the reference's — equivalently, the back-transformed difference of mean log-values. A GMR of 1.00 means identical average exposure; 1.10 means the test gives 10% more on average. BE is judged on the GMR, not the arithmetic mean ratio, precisely because the log scale is where these data are symmetric and where the 80–125% limits become symmetric too.">因為 Cmax、AUC 這類藥動指標右偏、大致呈對數常態，我們在對數尺度上比較它們。GMR 是測試劑型的幾何平均除以參考劑型的幾何平均，等價於對數平均差的反轉換。GMR ＝ 1.00 表示平均曝露相同；1.10 表示測試平均多出 10%。BE 以 GMR 而非算術平均比值來判定，正是因為對數尺度才是這些資料對稱之處，也是 80–125% 界限變得對稱之處。</p>
+      <p data-en="Because PK metrics like Cmax and AUC are right-skewed and roughly log-normal, we compare them on the log scale. The GMR is the ratio of the test formulation's geometric mean to the reference's — equivalently, the back-transformed difference of mean log-values. A GMR of 1.00 means identical average exposure; 1.10 means the test gives 10% more on average. BE is judged on the GMR, not the arithmetic mean ratio, precisely because the log scale is where these data are symmetric and where the 80–125% limits become symmetric too.">因為 Cmax、AUC 這類藥動指標右偏、大致呈對數常態，我們在對數尺度上比較它們。GMR 是測試劑型的幾何平均除以參考劑型的幾何平均，等價於對數平均差的反轉換。GMR ＝ 1.00 表示平均暴露相同；1.10 表示測試平均多出 10%。BE 以 GMR 而非算術平均比值來判定，正是因為對數尺度才是這些資料對稱之處，也是 80–125% 界限變得對稱之處。</p>
     </div>
     <div class="tdef">
       <h4>洗除期 <span class="en">washout</span></h4>
@@ -7061,7 +7061,7 @@ list case A B C Y</code></pre>
     </div>
     <div class="tdef">
       <h4>平均生體相等性（ABE） <span class="en">average bioequivalence</span></h4>
-      <p data-en="The default regulatory standard: equivalence of the population <i>average</i> exposure, demonstrated when the 90% CI of the GMR lies within 80.00–125.00%. It does not address whether each individual would respond identically (that would be individual BE) or whether variability matches (population BE).">預設的法規標準：族群<i>平均</i>曝露的相等性，當 GMR 的 90% CI 落在 80.00–125.00% 內即成立。它不處理每個人是否反應一致（那是個體 BE），也不處理變異是否相符（族群 BE）。</p>
+      <p data-en="The default regulatory standard: equivalence of the population <i>average</i> exposure, demonstrated when the 90% CI of the GMR lies within 80.00–125.00%. It does not address whether each individual would respond identically (that would be individual BE) or whether variability matches (population BE).">預設的法規標準：族群<i>平均</i>暴露的相等性，當 GMR 的 90% CI 落在 80.00–125.00% 內即成立。它不處理每個人是否反應一致（那是個體 BE），也不處理變異是否相符（族群 BE）。</p>
     </div>
   </details>
 </section>
@@ -7139,7 +7139,7 @@ display exp(r(estimate)), exp(r(lb)), exp(r(ub))</code></pre>
     </div>
     <div class="card warn">
       <h3 data-en="No period or sequence effects">無期別或順序效果</h3>
-      <p data-en="The model assumes period and sequence shift exposure additively (on the log scale) and are separable from treatment. If a strong period effect or sequence-by-treatment interaction exists, the simple ABE estimate can mislead — inspect those terms, don't just read off the GMR.">模型假設期別與順序在（對數尺度上）加法地平移曝露，且可與處置分離。若有強烈的期別效果或「順序×處置」交互作用，簡單的 ABE 估計可能誤導，要檢視這些項，別只讀 GMR。</p>
+      <p data-en="The model assumes period and sequence shift exposure additively (on the log scale) and are separable from treatment. If a strong period effect or sequence-by-treatment interaction exists, the simple ABE estimate can mislead — inspect those terms, don't just read off the GMR.">模型假設期別與順序在（對數尺度上）加法地平移暴露，且可與處置分離。若有強烈的期別效果或「順序×處置」交互作用，簡單的 ABE 估計可能誤導，要檢視這些項，別只讀 GMR。</p>
     </div>
     <div class="card">
       <h3 data-en="Log-normal PK, within-subject design">對數常態 PK 與受試者內設計</h3>
@@ -7151,7 +7151,7 @@ display exp(r(estimate)), exp(r(lb)), exp(r(ub))</code></pre>
     </div>
     <div class="card warn">
       <h3 data-en="Narrow therapeutic index → tighter">窄治療指數 → 收緊</h3>
-      <p data-en="For narrow-therapeutic-index (NTI) drugs, where small exposure changes matter clinically, regulators <b>tighten</b> rather than relax — e.g. scaled limits that can narrow toward ~90.00–111.11%, often with an added within-subject variability comparison.">對窄治療指數（NTI）藥物，曝露的小幅變化在臨床上就有意義，主管機關會<b>收緊</b>而非放寬，例如可收窄到約 90.00–111.11% 的比例界限，並常附加受試者內變異的比較。</p>
+      <p data-en="For narrow-therapeutic-index (NTI) drugs, where small exposure changes matter clinically, regulators <b>tighten</b> rather than relax — e.g. scaled limits that can narrow toward ~90.00–111.11%, often with an added within-subject variability comparison.">對窄治療指數（NTI）藥物，暴露的小幅變化在臨床上就有意義，主管機關會<b>收緊</b>而非放寬，例如可收窄到約 90.00–111.11% 的比例界限，並常附加受試者內變異的比較。</p>
     </div>
     <div class="card">
       <h3 data-en="Enough subjects &amp; proper crossover">足夠受試者與正確交叉</h3>
@@ -7161,11 +7161,11 @@ display exp(r(estimate)), exp(r(lb)), exp(r(ub))</code></pre>
 </section>
   <section id="babeml" class="panel">
   <h1 data-en="Where modelling and ML meet BA/BE">建模與機器學習在 BA/BE 的交會處</h1>
-  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗，中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測曝露、自動化曲線分析、在實際試驗前先模擬。也要老實說清楚：這些做法當中，哪些是主管機關目前已經接受的。</p>
+  <p class="lead" data-en="The core BE test is a small, rigorously specified experiment — there is little for ML to do at its center. The action is at the <b>edges</b>: predicting exposure, automating curve analysis, and simulating trials before running them. Be honest about which of these regulators currently accept.">核心 BE 檢定是一個小型、規格嚴謹的實驗，中心地帶沒什麼讓 ML 發揮的空間。動作發生在<b>邊緣</b>：預測暴露、自動化曲線分析、在實際試驗前先模擬。也要老實說清楚：這些做法當中，哪些是主管機關目前已經接受的。</p>
   <div class="cards cards-3">
     <div class="card">
       <h3 data-en="Population-PK / model-informed BE">族群藥動／模型導向 BE</h3>
-      <p data-en="Nonlinear mixed-effects (popPK) models pool sparse data across subjects to estimate exposure and its variability — useful for designing studies and, increasingly, for model-informed approaches that supplement or (in limited cases) substitute a classical BE arm.">非線性混合效果（popPK）模型把跨受試者的稀疏資料匯整，估計曝露與其變異，對設計試驗有用，且日益用於「模型導向」作法，補充、或（在有限情形下）替代傳統 BE 臂。</p>
+      <p data-en="Nonlinear mixed-effects (popPK) models pool sparse data across subjects to estimate exposure and its variability — useful for designing studies and, increasingly, for model-informed approaches that supplement or (in limited cases) substitute a classical BE arm.">非線性混合效果（popPK）模型把跨受試者的稀疏資料匯整，估計暴露與其變異，對設計試驗有用，且日益用於「模型導向」作法，補充、或（在有限情形下）替代傳統 BE 臂。</p>
     </div>
     <div class="card">
       <h3 data-en="NCA automation">NCA 自動化</h3>
