@@ -672,7 +672,7 @@ estat firststage
         <p data-en="Fit a line to the outcome just below 65 and just above 65; the <b>gap between the two lines at the cutoff</b> is the Sharp RD. It measures the effect of <b>being eligible</b> (ITT-like), whether or not people actually take up the vaccine.<br /><b>Estimand</b>: the effect for <b>everyone right at the cutoff</b> — a local average treatment effect (LATE) at age 65.">
           在 65 歲下方與上方各配一條線；兩條線在斷點的<b>落差</b>就是銳利 RD。
           它衡量的是「<b>有沒有資格</b>」的效果（類似 ITT），不管人實際有沒有去接種。
-          <br /><b>估計對象</b>：斷點處<b>所有人</b>的效果（一個落在<b>斷點 65 歲附近</b>的局部平均處置效果 LATE）。
+          <br /><b>估計目標</b>：斷點處<b>所有人</b>的效果（一個落在<b>斷點 65 歲附近</b>的局部平均處置效果 LATE）。
         </p>
       </div>
       <div class="card">
@@ -681,7 +681,7 @@ estat firststage
           不是每個有資格的人都真的去打。接種率在 65 歲只<b>跳了一部分</b>。
           模糊 RD ＝（結果跳幅）÷（接種率跳幅），代表那些「<b>因為</b>跨過線才去打」的人
           （斷點附近的順從者 complier）身上的效果。這其實就是把 IV 用在門檻上。
-          <br /><b>估計對象</b>：斷點處<b>順從者</b>的 LATE（不是斷點處所有人），正是「把門檻當工具」得到的順從者局部效果。
+          <br /><b>估計目標</b>：斷點處<b>順從者</b>的 LATE（不是斷點處所有人），正是「把門檻當工具」得到的順從者局部效果。
         </p>
       </div>
     </div>
@@ -7356,7 +7356,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
 
       <div class="flow-stage" data-step="4">
         <div class="flow-head"><span class="flow-no">④</span><h3 data-en="Quantify residual bias (sensitivity analysis)">量化殘餘偏誤（敏感度分析）</h3></div>
-        <p data-en="No observational design is assumption-free. Ask how strong unmeasured confounding, missingness, or residual bias would have to be to overturn the result.">沒有任何觀察性設計是零假設的。問：未測混淆、缺失、或殘餘偏誤要多強，才能推翻結果。</p>
+        <p data-en="No observational design is assumption-free. Ask how strong unmeasured confounding, missingness, or residual bias would have to be to overturn the result.">沒有任何觀察性設計是不需要假設的。問：未測混淆、缺失、或殘餘偏誤要多強，才能推翻結果。</p>
         <div class="flow-chips"><a class="xref chip" data-m="evalue">QBA / E-value</a><a class="xref chip" data-m="nc">NC / PCI</a><a class="xref chip" data-m="miss">M-value</a></div>
       </div>
       <div class="flow-arrow" aria-hidden="true">↓</div>
