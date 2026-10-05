@@ -4836,7 +4836,7 @@ run;
 proc reg data=m;
     model Y = A;
 run;</code></pre>
-      <p data-en="proc psmatch builds the PS, matches 1:1, and reg gives the treatment effect on the matched set.">proc psmatch 建立傾向分數並進行 1:1 配對，reg 在配對樣本上給出處理效果。</p></div>
+      <p data-en="proc psmatch builds the PS, matches 1:1, and reg gives the treatment effect on the matched set.">proc psmatch 建立傾向分數並進行 1:1 配對，reg 在配對樣本上給出處置效果。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — MatchIt + lm">R — MatchIt + lm</h3>
       <pre class="sas"><code><span class="cm"># load data and package</span>
 library(MatchIt)
@@ -8690,7 +8690,7 @@ postprob(m3)                <span class="cm"># AvePP &amp; posterior classificat
     </div>
 
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Heterogeneous Treatment Effects">程式（SAS · R · Stata）：異質性處理效果</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Heterogeneous Treatment Effects">程式（SAS · R · Stata）：異質性處置效果</h2>
     <p class="code-src" data-en="Source — R uses the grf package's causal_forest() / average_treatment_effect(), following the grf package vignette (CRAN: package=grf).">出處 — R 使用 grf 套件的 causal_forest()／average_treatment_effect()，呼叫方式同 grf 官方 vignette（CRAN: package=grf）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=grf" target="_blank" rel="noopener">grf (CRAN)</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>causalml_sample.csv</code> (columns: pid, A, Y, x1, x2, x3, x4, x5).">這是可直接在可下載的 <code>causalml_sample.csv</code> 上完整執行的程式（欄位：pid, A, Y, x1, x2, x3, x4, x5）。</div>
@@ -8732,7 +8732,7 @@ head(predict(cf)$predictions)</code></pre>
 import delimited "causalml_sample.csv", clear case(preserve)
 <span class="cm">* augmented inverse-probability-weighted ATE</span>
 teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
-      <p data-en="teffects aipw doubly-robustly estimates the average treatment effect.">teffects aipw 以雙重穩健方式估計平均處理效果。</p></div>
+      <p data-en="teffects aipw doubly-robustly estimates the average treatment effect.">teffects aipw 以雙重穩健方式估計平均處置效果。</p></div>
   </section>
 
   <section id="causalmlassume" class="panel">
