@@ -7622,7 +7622,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <tr><td colspan="4" class="famhdr" data-en="Family · adjustment / propensity / doubly-robust (rich measured covariates)">家族 · 共變項校正／傾向分數／雙重穩健（已測共變項夠豐富）</td></tr>
           <tr><td>PS</td>
             <td data-en="Sicker people use drug X more (confounding by indication); model the probability of drug-X use from measured covariates">病重者較易用藥物X（適應症混淆）；用已測共變項建「用藥機率」（傾向分數）</td>
-            <td data-en="No exogenous variation — rebalance on the measured covariates (matching / IPTW / overlap weights)">不借外生變異，在已測共變項上重建平衡（配對／IPTW／重疊加權）</td>
+            <td data-en="No exogenous variation — rebalance on the measured covariates (matching / IPTW / overlap weights)">不借外生變異，在已測共變項上重建平衡（配對／IPTW／重疊權重）</td>
             <td data-en="No unmeasured confounding + positivity (overlap) — the PS cannot fix what you didn't measure">無未測混淆＋正性（重疊），傾向分數救不了沒量到的混淆</td></tr>
           <tr><td>TMLE</td>
             <td data-en="Same setting as PS, but you want more robustness — fit an outcome model AND a propensity score">同 PS 的情境，但你想更穩，同時配結果模型與傾向分數兩張網</td>
