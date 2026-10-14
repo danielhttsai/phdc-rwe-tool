@@ -1544,7 +1544,7 @@ function refreshNma() {
     ? tr("一致：直接與間接相符，迴圈閉合，可放心合併成混合估計。", "Consistent: direct and indirect agree, the loop closes — safe to pool into a mixed estimate.")
     : (col === AMBER
       ? tr("有些不一致：直接與間接開始背離，node-splitting／net-heat 會亮起來，先查原因再合併。", "Some incoherence: direct and indirect start to diverge — node-splitting / net-heat would light up; investigate before pooling.")
-      : tr("嚴重不一致：直接與間接矛盾，可遞移性很可能被破壞，硬合併會誤導。", "Strong incoherence: direct and indirect contradict — transitivity is likely broken; pooling them would mislead."));
+      : tr("嚴重不一致：直接與間接矛盾，可傳遞性很可能被破壞，硬合併會誤導。", "Strong incoherence: direct and indirect contradict — transitivity is likely broken; pooling them would mislead."));
   set("nmaReading", verdict);
   drawNmaNetwork(col);
   drawNmaBars(direct, col);
@@ -3515,11 +3515,11 @@ const DNODES = {
              en: "✓ Implemented in this toolbox. <b>Key</b>: the pool is only as trustworthy as the studies in it (garbage in, garbage out) — a transparent pre-specified method, risk-of-bias appraisal, and handling of heterogeneity & publication bias are all essential." } } },
   rNMA: { rec: { kind: "toolbox", method: "nma", badge: "NMA ✓",
     title: { zh: "最適合：網路統合分析 ✓（本工具），一次比較三個以上治療", en: "Best fit: Network meta-analysis ✓ (this tool) — compare three or more treatments at once" },
-    why: { zh: "臨床上要在<b>很多種</b>治療之間選擇，但很少有試驗直接兩兩比過。網路統合分析把所有治療連成一個<b>網路</b>，結合<b>直接</b>證據（真的比過的試驗）與<b>間接</b>證據（透過共同對照推得），一次估出每一對的對比、甚至排名。代價是多一個大假設，<b>可遞移性</b>，以及直接 vs 間接的<b>一致性</b>檢查。",
+    why: { zh: "臨床上要在<b>很多種</b>治療之間選擇，但很少有試驗直接兩兩比過。網路統合分析把所有治療連成一個<b>網路</b>，結合<b>直接</b>證據（真的比過的試驗）與<b>間接</b>證據（透過共同對照推得），一次估出每一對的對比、甚至排名。代價是多一個大假設，<b>可傳遞性</b>，以及直接 vs 間接的<b>一致性</b>檢查。",
            en: "Clinicians must choose among <b>many</b> treatments, but few trials compare every pair head-to-head. Network meta-analysis connects all treatments into one <b>network</b>, combining <b>direct</b> evidence (trials that compared the two) with <b>indirect</b> evidence (via a common comparator), to estimate every pairwise contrast at once — even a ranking. The price is one big extra assumption — <b>transitivity</b> — plus a direct-vs-indirect <b>coherence</b> check." },
     scenario: { zh: "藥物X 情境：有藥物X vs 安慰劑、同類藥 vs 安慰劑的試驗，但沒人直接做兩藥頭對頭。用安慰劑當共同對照間接估兩藥對比，並在有直接試驗時合併成混合估計（見「網路統合分析」分頁）。",
                 en: "Drug-X scenario: trials of drug X vs placebo and a same-class drug vs placebo exist, but nobody ran the two head-to-head. Use placebo as the common comparator to estimate the contrast indirectly, pooling with any direct trial into a mixed estimate (see the NMA page)." },
-    watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：可遞移性（各比較的網路彼此可比）與一致性（直接與間接相符），信任排名前務必檢查這兩者。",
+    watch: { zh: "✓ 本工具箱已實作。<b>關鍵</b>：可傳遞性（各比較的網路彼此可比）與一致性（直接與間接相符），信任排名前務必檢查這兩者。",
              en: "✓ Implemented in this toolbox. <b>Key</b>: transitivity (the compared networks are comparable) and coherence (direct and indirect agree) — check both before trusting a ranking." } } },
 };
 
@@ -3611,7 +3611,7 @@ const FULLMAP = {
             { edge: { zh: "合併多篇 · 兩種治療頭對頭", en: "pool many · two head-to-head" },
               leaves: [{ key: "rSRMA", cond: { zh: "系統性回顧找出所有研究，再合併（固定／隨機效果、I²、GRADE）", en: "systematically find all studies, then pool (fixed/random effects, I², GRADE)" }, tag: "SR-MA ✓", kind: "tb", method: "srma" }] },
             { edge: { zh: "合併多篇 · 三個以上、少直接對決", en: "pool many · 3+, few head-to-head" },
-              leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網路（可遞移性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
+              leaves: [{ key: "rNMA", cond: { zh: "用直接＋間接證據連成網路（可傳遞性＋一致性）", en: "connect direct + indirect evidence into a network (transitivity + coherence)" }, tag: "NMA ✓", kind: "tb", method: "nma" }] },
             { edge: { zh: "借一篇當對照臂 · 只有彙總結果", en: "borrow one as the control arm · summary results only" },
               leaves: [{ key: "rEXTCTRL", cond: { zh: "自己只有治療臂（單臂／罕病），把外部研究當對照組", en: "you have only a treated arm (single-arm / rare disease); borrow an external study as the control" }, tag: "外部對照 ✓", kind: "tb", method: "extctrl" }] },
             { edge: { zh: "借一篇轉到我的族群 · 需個體資料", en: "borrow one, transported to my population · needs individual data" },
