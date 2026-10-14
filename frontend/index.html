@@ -2198,7 +2198,7 @@ newey outcome time post t_since, lag(1)
         </p>
       </div>
       <div class="tdef">
-        <h4>時間不變的乘法混淆 <span class="en">time-invariant multiplicative confounding</span></h4>
+        <h4>時間不變的乘法性干擾（混淆）作用 <span class="en">time-invariant multiplicative confounding</span></h4>
         <p data-en="This is the one kind of confounding PERR is allowed to cancel — knowing exactly what it means tells you when PERR is trustworthy. <b>Time-invariant</b> = the baseline gap between the groups is the same strength before and after treatment (the treated group is just as relatively sick afterwards as before). <b>Multiplicative</b> = it acts as a constant <i>multiplier</i> on the event rate (&quot;1.25× more&quot;), not as a fixed number of extra events (&quot;+5 more&quot;). When both hold, that same multiplier appears in the before ratio and the after ratio, so dividing them wipes it out cleanly. For example, if treated patients are 1.25× more event-prone throughout, that 1.25 cancels; but if they become relatively sicker only <i>after</i> starting treatment — the disease itself worsening — the multiplier is no longer constant and PERR is biased. This is PERR's core assumption, and its classic failure modes (time-varying confounding, regression to the mean, event-dependent dropout) are all cases where that &quot;same before and after&quot; condition fails.">
           這是 PERR 唯一被允許消掉的那種混淆，把它的意思弄懂，你就知道 PERR 什麼時候可信。<b>時間不變</b>＝兩組本來的差距，治療前後一樣大（處置組治療後仍跟治療前一樣地相對病重）。<b>乘法</b>＝它以固定<i>倍數</i>作用在事件率上（「多 1.25 倍」），而不是加上固定件數（「多 5 件」）。兩者都成立時，同一個倍數會出現在事前率比與事後率比裡，相除就乾淨地把它抹掉。例如處置組全程都是 1.25 倍事件傾向，那個 1.25 就相消；但若他們只在開始治療<i>後</i>才相對更病重，疾病本身在惡化，倍數就不再固定，PERR 會算偏。這是 PERR 的核心假設，它經典的失效情形（時變混淆、回歸均值、事件相依退出）全都是「前後不一樣」的那些狀況。
         </p>
@@ -2286,7 +2286,7 @@ newey outcome time post t_since, lag(1)
 
     <h2 data-en="Advanced refinements the literature offers (non-AI extensions)">文獻提供的進階／精修（非 AI 的延伸）</h2>
     <div class="cards">
-      <div class="card"><h3 data-en="① PERR-ALT (paired within-subject framing)">① PERR-ALT（組內配對框架）</h3>
+      <div class="card"><h3 data-en="① PERR-ALT (paired within-subject framing)">① PERR-ALT（替代估計法，組內配對 Cox 似然）</h3>
         <p data-en="Instead of two cross-group ratios, compute each group's own before→after ratio and divide them (paired Cox). Algebraically the same point estimate on these aggregate rates, but it needs no rare-disease approximation and handles paired data and tied events better.">不用兩個跨組率比，而是各組算自己的前→後率比再相除（配對 Cox）。在這些聚合率上點估計相同，但不需罕見近似，且更能處理配對資料與並列事件。</p></div>
       <div class="card"><h3 data-en="② PERR vs PERD (scale sensitivity)">② PERR vs PERD（尺度敏感度）</h3>
         <p data-en="If confounding acts additively, not multiplicatively, the right tool is the Prior Event Rate <b>Difference</b> (PERD). The two can't both be right — report both as a sensitivity analysis (computed below).">若混淆是加法而非乘法，正確工具是事前事件率<b>差</b>（PERD）。兩者不可能同時對，把兩個都報出來當敏感度分析（下方計算）。</p></div>
