@@ -8279,11 +8279,11 @@ mi estimate: regress Y A x1 x2 x3</code></pre>
     </div>
 
     <hr class="merge-sep" />
-    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Random-effects meta-analysis">程式（SAS · R · Stata）：隨機效應統合分析</h2>
+    <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Random-effects meta-analysis">程式（SAS · R · Stata）：隨機效果統合分析</h2>
     <p class="code-src" data-en="Source — R uses the metafor package; the rma(method=&quot;REML&quot;) + forest() calls follow the metafor reference manual / vignette and the package paper (Viechtbauer 2010, JSS).">出處 — R 使用 metafor 套件，rma(method="REML") 與 forest() 的呼叫方式同 metafor 官方手冊與 Viechtbauer (2010, JSS) 套件論文示範。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=metafor" target="_blank" rel="noopener">metafor</a></p>
     <div class="sas-note" data-en="Complete, runnable on the downloadable <code>srma_sample.csv</code> (columns: study, yi, sei).">這是可直接在可下載的 <code>srma_sample.csv</code> 上完整執行的程式（欄位：study, yi, sei）。</div>
-    <div data-lang="sas" class="card"><h3 data-en="SAS — random-effects via PROC MIXED">SAS — 以 PROC MIXED 做隨機效應</h3>
+    <div data-lang="sas" class="card"><h3 data-en="SAS — random-effects via PROC MIXED">SAS — 以 PROC MIXED 做隨機效果</h3>
       <pre class="sas"><code><span class="cm">/* No native RE meta in SAS; PROC MIXED with known within-study variance approximates REML */</span>
 proc import datafile="srma_sample.csv" out=d dbms=csv replace;
     getnames=yes;
@@ -8296,7 +8296,7 @@ proc mixed data=d method=reml;
     repeated / group=study;
     parms / parmsdata=d eqcons=1;
 run;</code></pre>
-      <p data-en="PROC MIXED estimates the pooled effect with a random study intercept; the fixed-intercept solution is the pooled REML estimate.">PROC MIXED 以隨機 study 截距估計合併效應，固定截距的解就是 REML 合併估計值。</p></div>
+      <p data-en="PROC MIXED estimates the pooled effect with a random study intercept; the fixed-intercept solution is the pooled REML estimate.">PROC MIXED 以隨機 study 截距估計合併效果，固定截距的解就是 REML 合併估計值。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — metafor::rma + forest">R — metafor::rma 與森林圖</h3>
       <pre class="sas"><code><span class="cm"># Random-effects (REML) meta-analysis and forest plot</span>
 library(metafor)
@@ -8304,7 +8304,7 @@ d &lt;- read.csv("srma_sample.csv")
 fit &lt;- rma(yi = yi, sei = sei, data = d, method = "REML")
 print(fit)
 forest(fit, slab = d$study)</code></pre>
-      <p data-en="rma() fits the REML random-effects model; print() reports the pooled estimate, tau^2 and I^2; forest() draws the plot.">rma() 以 REML 配適隨機效應模型；print() 報告合併估計值、tau^2 與 I^2；forest() 繪製森林圖。</p></div>
+      <p data-en="rma() fits the REML random-effects model; print() reports the pooled estimate, tau^2 and I^2; forest() draws the plot.">rma() 以 REML 配適隨機效果模型；print() 報告合併估計值、tau^2 與 I^2；forest() 繪製森林圖。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — meta suite">Stata — meta 指令</h3>
       <pre class="sas"><code><span class="cm">* Declare meta data with effect size and its standard error</span>
 import delimited "srma_sample.csv", clear case(preserve)
@@ -9159,7 +9159,7 @@ teffects aipw (Y x1 x2 x3 x4 x5) (A x1 x2 x3 x4 x5)</code></pre>
       <li data-ref="seq">Caniglia, E. C., Zash, R., Fennell, C., Diseko, M., Mayondi, G., Heintz, J., Mmalane, M., Makhema, J., Lockman, S., Mumford, S. L., Murray, E. J., Hernández-Díaz, S., & Shapiro, R. (2023). Emulating target trials to avoid immortal time bias: an application to antibiotic initiation and preterm delivery. <i>Epidemiology, 34</i>(3), 430–438. <a href="https://doi.org/10.1097/EDE.0000000000001601" target="_blank" rel="noopener">https://doi.org/10.1097/EDE.0000000000001601</a><span class="ref-oa" data-en="open access">開放取用</span><span class="ref-why" data-en="Thirteen week-by-week sequential trials fix the time-zero problem in pregnancy studies; a clear immortal-time example.">用 13 個逐週的序列試驗處理孕期用藥時間零點難題，是看懂不死時間偏誤的好範例。</span></li>
       <li class="ref-head" data-ref="srma" data-en="Foundational">方法原典</li>
       <li data-ref="srma"><b data-en="Methods & reporting (SR & meta-analysis tab)">方法與報告（系統性回顧分頁）</b> · Higgins, J. P. T., Thomas, J., Chandler, J., Cumpston, M., Li, T., Page, M. J., & Welch, V. A. (Eds.) (2024). <i>Cochrane Handbook for Systematic Reviews of Interventions</i> (version 6.5). Cochrane. <a href="https://training.cochrane.org/handbook" target="_blank" rel="noopener">training.cochrane.org/handbook</a><span class="ref-oa" data-en="open access">開放取用</span><span class="ref-why" data-en="The authoritative operating manual for the whole review process, from framing the question to pooling; read it before you start.">從問題界定到合併分析，整套流程的權威操作手冊，做系統性回顧前先讀它。</span></li>
-      <li data-ref="srma"><b data-en="Pooling & heterogeneity">合併與異質性</b> · DerSimonian, R., & Laird, N. (1986). Meta-analysis in clinical trials. <i>Controlled Clinical Trials, 7</i>(3), 177–188. <a href="https://doi.org/10.1016/0197-2456(86)90046-2" target="_blank" rel="noopener">https://doi.org/10.1016/0197-2456(86)90046-2</a><span class="ref-why" data-en="The source of the random-effects model; it explains what the default estimator in your software is actually computing.">隨機效應模型的源頭，讀完才懂軟體預設的那個估計量到底在算什麼。</span></li>
+      <li data-ref="srma"><b data-en="Pooling & heterogeneity">合併與異質性</b> · DerSimonian, R., & Laird, N. (1986). Meta-analysis in clinical trials. <i>Controlled Clinical Trials, 7</i>(3), 177–188. <a href="https://doi.org/10.1016/0197-2456(86)90046-2" target="_blank" rel="noopener">https://doi.org/10.1016/0197-2456(86)90046-2</a><span class="ref-why" data-en="The source of the random-effects model; it explains what the default estimator in your software is actually computing.">隨機效果模型的源頭，讀完才懂軟體預設的那個估計量到底在算什麼。</span></li>
       <li data-ref="srma">Higgins, J. P. T., Thompson, S. G., Deeks, J. J., & Altman, D. G. (2003). Measuring inconsistency in meta-analyses. <i>BMJ, 327</i>(7414), 557–560. <a href="https://doi.org/10.1136/bmj.327.7414.557" target="_blank" rel="noopener">https://doi.org/10.1136/bmj.327.7414.557</a><span class="ref-oa" data-en="open access">開放取用</span><span class="ref-why" data-en="The original definition of I-squared, and a reminder that it measures the proportion, not the amount, of heterogeneity.">I² 的原始定義文章，也講清楚它不是異質性大小、而是異質性佔比。</span></li>
       <li data-ref="srma">Egger, M., Davey Smith, G., Schneider, M., & Minder, C. (1997). Bias in meta-analysis detected by a simple, graphical test. <i>BMJ, 315</i>(7109), 629–634. <a href="https://doi.org/10.1136/bmj.315.7109.629" target="_blank" rel="noopener">https://doi.org/10.1136/bmj.315.7109.629</a><span class="ref-oa" data-en="open access">開放取用</span><span class="ref-why" data-en="The original funnel-plot asymmetry test, still the standard citation for publication-bias assessment.">漏斗圖不對稱檢定的原始論文，發表偏誤這一節幾乎都從這裡引。</span></li>
       <li data-ref="srma"><b data-en="Certainty of evidence (GRADE)">證據確定性（GRADE）</b> · Guyatt, G. H., Oxman, A. D., Vist, G. E., Kunz, R., Falck-Ytter, Y., Alonso-Coello, P., & Schünemann, H. J. (2008). GRADE: an emerging consensus on rating quality of evidence and strength of recommendations. <i>BMJ, 336</i>(7650), 924–926. <a href="https://doi.org/10.1136/bmj.39489.470347.AD" target="_blank" rel="noopener">https://doi.org/10.1136/bmj.39489.470347.AD</a><span class="ref-oa" data-en="open access">開放取用</span><span class="ref-why" data-en="The consensus paper introducing GRADE and why evidence quality and recommendation strength are rated separately.">GRADE 的入門共識文，說明為什麼證據品質要跟建議強度分開評。</span></li>
