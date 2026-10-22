@@ -2347,7 +2347,7 @@ import delimited "perr_sample.csv", clear case(preserve)
 poisson events_prior i.group, exposure(pt_prior) irr
 poisson events_post  i.group, exposure(pt_post) irr
 <span class="cm">* PERR = post IRR / prior IRR (read the i.group IRRs from each model)</span></code></pre>
-      <p data-en="exposure() supplies person-time; irr reports the between-group incidence rate ratio. Dividing the post IRR by the prior IRR gives the PERR estimate.">exposure() 提供人時；irr 報告組間發生率比。以事後 IRR 除以事前 IRR 即得 PERR 估計值。</p></div>
+      <p data-en="exposure() supplies person-time; irr reports the between-group incidence rate ratio. Dividing the post IRR by the prior IRR gives the PERR estimate.">exposure() 提供人時；irr 報告組間率比。以事後 IRR 除以事前 IRR 即得 PERR 估計值。</p></div>
   </section>
 
   <!-- ===================== PERR ④ 假設檢驗 ===================== -->
@@ -3850,7 +3850,7 @@ proc genmod data=lng;
     class pid;
     model ev = risk / dist=poisson link=log offset=loglen;
 run;</code></pre>
-      <p data-en="The risk coefficient is the log incidence rate ratio within subjects.">risk 係數為受試者內的對數發生率比。</p></div>
+      <p data-en="The risk coefficient is the log incidence rate ratio within subjects.">risk 係數為受試者內的對數相對速率（IRR）。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — SCCS::standardsccs">R — SCCS::standardsccs</h3>
       <pre class="sas"><code><span class="cm"># read data and fit the SCCS model</span>
 library(SCCS)
@@ -3861,7 +3861,7 @@ fit &lt;- standardsccs(event ~ vacc_day,
           aedrug = vacc_day + 28, data = d)
 print(fit)
 <span class="cm"># exp(coef) is the IRR in the 28-day post-dose risk window</span></code></pre>
-      <p data-en="standardsccs fits the conditional Poisson SCCS and prints the IRR.">standardsccs 配適條件式 Poisson SCCS 並印出發生率比。</p></div>
+      <p data-en="standardsccs fits the conditional Poisson SCCS and prints the IRR.">standardsccs 配適條件式 Poisson SCCS 並印出相對速率（IRR）。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — xtpoisson, fe">Stata — xtpoisson, fe</h3>
       <pre class="sas"><code><span class="cm">* build 3 intervals/case: risk window = days 1..28 after dose</span>
 import delimited "sccs_sample.csv", clear case(preserve)
@@ -3877,7 +3877,7 @@ drop if intlen&lt;=0
 <span class="cm">* fixed-effect (conditional) Poisson by subject</span>
 xtset pid
 xtpoisson ev risk, fe exposure(intlen) irr</code></pre>
-      <p data-en="The fixed-effect Poisson conditions on each subject, yielding the IRR.">固定效果 Poisson 以各受試者為條件，得到發生率比。</p></div>
+      <p data-en="The fixed-effect Poisson conditions on each subject, yielding the IRR.">固定效果 Poisson 以各受試者為條件，得到相對速率（IRR）。</p></div>
   </section>
 
   <!-- ===================== SCCS ④ 假設檢驗 ===================== -->
