@@ -1211,7 +1211,7 @@ const DNODES = {
            en: "Exposure spreads over calendar time at different rates across strata and the outcome is rare — check whether the outcome-rate trend tracks the exposure-rate trend. It is the cohort cousin of case-time-control (CTC/CCTC)." },
     scenario: { zh: "藥物X 情境：藥物X 在慢性病族群的使用率隨季逐漸上升、不同地區快慢不同。看「事件率的趨勢」是否跟著「使用率的趨勢」一起走。",
                 en: "Drug-X scenario: drug X's uptake in a chronic-disease population climbs over quarters, faster in some regions. Check whether the event-rate trend moves in step with the uptake trend." },
-    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與接種趨勢同步的未測混淆趨勢</b>。另一個重要限制：它建模「每期盛行率」，<b>只適合會反覆發生／也會痊癒的（急性）結果，看不了死亡</b>，死掉的人在這個框架下仍留在分母（見 TiT ④）。",
+    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與接種趨勢同步的未測混淆趨勢</b>。另一個重要限制：它建模「每期盛行率」，<b>只適合會反覆發生／也會痊癒的（急性）結果，無法處理死亡這類結果</b>，死亡的人在這個框架下仍留在分母（見 TiT ④）。",
              en: "The key untestable assumption is <b>no unmeasured confounder trend that moves in step with uptake</b>. Another important limit: it models per-period prevalence, so it <b>fits recurrent / resolving (acute) outcomes and CANNOT handle death</b> — the deceased still sit in the denominator here (see TiT ④)." } } },
   rPERR: { rec: { kind: "toolbox", method: "perr", badge: "PERR ✓",
     title: { zh: "最適合：事前事件率比 PERR", en: "Best fit: Prior Event Rate Ratio (PERR)" },
@@ -2409,7 +2409,7 @@ function renderAlign() {
   }
 
   const whoFeedback = aprWho === "ex"
-    ? `<div class="apr-react good"><b>對，就是這裡。</b>他一開始就把人貼上「暴露」標籤、又<b>從確診日起算</b>，所以這 3 個月被算成<b>暴露人時</b>。但在這 3 個月裡，這些人<b>依定義不可能死</b>（死了就領不到藥、也就不會被分到暴露組）。</div>`
+    ? `<div class="apr-react good"><b>對，就是這裡。</b>他一開始就把人貼上「暴露」標籤、又<b>從確診日起算</b>，所以這 3 個月被算成<b>暴露人時</b>。但在這 3 個月裡，這些人<b>依定義不可能死亡</b>（死亡就領不到藥、也就不會被分到暴露組）。</div>`
     : aprWho === "un"
       ? `<div class="apr-react warn"><b>那是正確做法，可惜他沒這樣做。</b>把這段算成未暴露人時，正是「<b>用藥那天才算暴露</b>」的做法（時變暴露）。小賴醫師是先貼標籤再從確診日起算，所以這 3 個月被算給了<b>暴露組</b>。</div>`
       : `<div class="apr-react warn"><b>那也是一種正解，但不是他做的。</b>把這段丟掉（或改從第 3 個月起算）接近<b>地標分析</b>。小賴醫師沒有丟，他把這 3 個月算給了<b>暴露組</b>。</div>`;
@@ -2533,7 +2533,7 @@ const BIAS_SCENARIOS = [
     fix: { zh: "串<b>成人健檢或長庚 CGRD</b> 取得檢驗值，或用<b>陰性對照結果（negative control outcome）／E-value</b> 做敏感度分析。", en: "Link a <b>health-check / CGRD</b> source for labs, or run a <b>negative-control / E-value</b> sensitivity analysis." }, fixMethod: "nc" },
   { s: { zh: "選診斷後 <b>6 個月</b>為地標：到 6 個月時，把「6 個月內已開始用藥物X」歸為暴露組，追蹤<b>從第 6 個月</b>開始。", en: "Use a <b>6-month landmark</b>: at 6 months, classify anyone who started drug X within the first 6 months as exposed, and begin follow-up <b>at month 6</b>." },
     ans: ["selection"],
-    why: { zh: "地標<b>解掉了不死時間</b>：Time Zero＝第 6 個月，對兩組一致，追蹤也從那天才開始算。<br>但代價是<b>選擇偏誤</b>：能進到分析裡的，<b>只有活過 6 個月、而且還沒出事的人</b>。前 6 個月就死掉或發生結果的人整批被排除，等於是拿<b>結果發生之後</b>的資訊在決定誰能留下。如果藥物X 本來就會影響<b>早期</b>死亡，那被篩掉的正好是兩組裡最關鍵、比例又不一樣的那群人；就算比例一樣，結論也只能講給「活過 6 個月的人」聽。地標訂得越晚，丟掉的人越多，這個問題越嚴重。", en: "The landmark <b>does remove immortal time</b>: time zero is month 6 for both arms and follow-up starts there.<br>The price is <b>selection</b>: only people who survived event-free to month 6 make it into the analysis. Everyone who died or had the event in those first six months is dropped, so post-baseline information decides who stays. If drug X affects <b>early</b> mortality, exactly the most informative patients are removed, and unequally between arms; even with equal attrition the answer only speaks about six-month survivors. The later the landmark, the more people are discarded and the worse this gets." },
+    why: { zh: "地標<b>解掉了不死時間</b>：Time Zero＝第 6 個月，對兩組一致，追蹤也從那天才開始算。<br>但代價是<b>選擇偏誤</b>：能進到分析裡的，<b>只有活過 6 個月、而且還沒出事的人</b>。前 6 個月就死亡或發生結果的人整批被排除，等於是拿<b>結果發生之後</b>的資訊在決定誰能留下。如果藥物X 本來就會影響<b>早期</b>死亡，那被篩掉的正好是兩組裡最關鍵、比例又不一樣的那群人；就算比例一樣，結論也只能講給「活過 6 個月的人」聽。地標訂得越晚，丟掉的人越多，這個問題越嚴重。", en: "The landmark <b>does remove immortal time</b>: time zero is month 6 for both arms and follow-up starts there.<br>The price is <b>selection</b>: only people who survived event-free to month 6 make it into the analysis. Everyone who died or had the event in those first six months is dropped, so post-baseline information decides who stays. If drug X affects <b>early</b> mortality, exactly the most informative patients are removed, and unequally between arms; even with equal attrition the answer only speaks about six-month survivors. The later the landmark, the more people are discarded and the worse this gets." },
     fix: { zh: "報告時<b>講清楚結論只適用於活過地標的人</b>；用<b>不同地標</b>（3、6、12 個月）做敏感度分析看結果穩不穩；想把地標前那段也用上，就改用<b>用藥那天才算暴露</b>或<b>複製-設限-加權</b>。", en: "State plainly that the answer applies only to those alive at the landmark; run <b>several landmarks</b> (3, 6, 12 months) as a sensitivity analysis; and if you want the pre-landmark period back, switch to time-varying exposure or clone-censor-weight." }, fixMethod: "ccw" },
   { s: { zh: "比較「長期<b>規律</b>用藥物X」vs「從不用藥」，暴露定義用整個追蹤期的規律性，追蹤<b>從診斷</b>起算。", en: "Compare '<b>long-term regular</b> drug-X use' vs 'never use', defining exposure by adherence over the whole follow-up, with follow-up from diagnosis." },
     ans: ["immortal", "indication", "unmeasured"],
