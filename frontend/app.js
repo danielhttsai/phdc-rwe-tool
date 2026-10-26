@@ -7742,7 +7742,7 @@ function svFixRows(kind) {
         `<line x1="8" y1="12" x2="${b.g0}" y2="28" stroke="#94a3b8" stroke-width="1"/><line x1="8" y1="28" x2="${b.g0}" y2="12" stroke="#94a3b8" stroke-width="1"/>` +
         `<text x="${(8 + b.g0) / 2}" y="9" font-size="8" text-anchor="middle" fill="#64748b">${tr("這段不用", "not used")}</text>` +
         X(104) + X(230) + b.close; })(), r: "≈ 2.00" },
-    { t: tr("<b>② 暴露前切一段 pre-exposure window 單獨估計。</b>「快出事所以先停藥」的那段時間有自己的格子，不再汙染基準期。", "<b>2. Carve out a pre-exposure window</b> with its own estimate, so it stops contaminating baseline."),
+    { t: tr("<b>② 切出一段暴露前窗（pre-exposure window）單獨估計。</b>「快出事所以先停藥」的那段時間有自己的格子，不再汙染基準期。", "<b>2. Carve out a pre-exposure window</b> with its own estimate, so it stops contaminating baseline."),
       svg: (() => { const b = B(); const p60 = b.px(60); return b.open +
         `<rect x="${p60}" y="14" width="${b.g0 - p60}" height="12" fill="#ede9fe"/>` +
         `<text x="${(p60 + b.g0) / 2}" y="9" font-size="8" text-anchor="middle" fill="#6d28d9">${tr("暴露前窗（單獨估計）", "pre-exposure window")}</text>` +
