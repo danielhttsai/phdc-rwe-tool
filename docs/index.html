@@ -4925,7 +4925,7 @@ teffects ipw (Y) (A X)</code></pre>
     <h1 data-en="TMLE &amp; doubly-robust estimation: two models, two chances to be right">TMLE 與雙重穩健：兩個模型、兩次機會</h1>
     <p class="lead" data-en="To estimate a vaccine's effect on outcome Y we must adjust for confounding by severity X. Two models can help: the <b>outcome regression</b> Q(A,X)=E[Y|A,X] (used by g-computation) and the <b>propensity score</b> PS=P(A=1|X) (used by IPTW). Use just one and a mis-specified model biases you. <b>Augmented IPW (AIPW)</b> combines both and is <b>doubly robust</b> — unbiased if <b>either</b> model is correct. <b>TMLE</b> takes the g-computation plug-in and adds a one-step <b>targeting</b> update (a ‘clever covariate’ fluctuation), giving a doubly-robust, semiparametric-efficient, bounded estimate (van der Laan &amp; Rubin 2006; Luque-Fernandez et al. 2018).">
       要估疫苗對結果 Y 的效果，得校正嚴重度 X 的混淆。兩個模型能幫忙：<b>結果迴歸</b> Q(A,X)=E[Y|A,X]（g-computation 用它）與
-      <b>傾向分數</b> PS=P(A=1|X)（IPTW 用它）。只用其中一個，模型設錯就會偏。<b>擴增反機率加權（AIPW）</b>把兩者合起來、<b>雙重穩健</b>，
+      <b>傾向分數</b> PS=P(A=1|X)（IPTW 用它）。只用其中一個，模型設錯就會偏。<b>增廣反機率加權（AIPW）</b>把兩者合起來、<b>雙重穩健</b>，
       <b>其一</b>對就不偏。<b>TMLE</b> 在 g-computation 插入式估計上，再做一步<b>目標化（targeting）</b>微調（用「聰明共變項」擾動），
       得到雙重穩健、半參數有效率、且邊界安全的估計（van der Laan &amp; Rubin 2006；Luque-Fernandez 等 2018）。
     </p>
