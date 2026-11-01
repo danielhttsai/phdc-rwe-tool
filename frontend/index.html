@@ -4374,9 +4374,9 @@ stcox i.drug prevalent time_since_start frailty age</code></pre>
         </p>
       </div>
       <div class="tdef">
-        <h4>近端因果推論／混淆橋 <span class="en">proximal causal inference / confounding bridge</span></h4>
+        <h4>近端因果推論／混淆橋函數 <span class="en">proximal causal inference / confounding bridge</span></h4>
         <p data-en="Detecting bias is one thing; this card actually removes it. The two negative controls are both &quot;shadows&quot; of the unmeasured confounder, so by watching how they move together we can reconstruct what that hidden factor was doing and subtract it out — even though we never measured it. The bookkeeping that links the shadows back to the confounder is the &quot;confounding bridge&quot;, and the formal version solves an equation for it under a technical richness condition that the proxies carry enough information (Miao 2018; Tchetgen Tchetgen et al.). When everything is linear there's a simple two-step recipe, P2SLS: <code>step 1: W ~ A+Z+X → Ŵ</code> (predict the negative-control outcome), then <code>step 2: Y ~ A+Ŵ+X</code>; the coefficient on A in step 2 is the de-biased causal effect. The point of all this: it doesn't just flag unmeasured confounding, it corrects for it.">
-          偵測偏誤是一回事，這張卡是真的把偏誤拿掉。兩個陰性對照都是那個未測混淆的「影子」，所以只要觀察它們怎麼一起變動，就能把藏起來的因素當時在做什麼反推回來、再扣掉，即使我們從沒量到它。把這些影子和混淆連回去的那套換算關係，就叫<b>混淆橋</b>；嚴謹版是在一個「代理帶的資訊夠豐富」的技術條件下，解一道方程把它求出來（Miao 2018；Tchetgen Tchetgen 等）。當一切是線性時，有個簡單的兩步驟做法 P2SLS：<code>第一步：W ~ A+Z+X → Ŵ</code>（先預測陰性對照結果），再<code>第二步：Y ~ A+Ŵ+X</code>；第二步裡 A 的係數，就是去偏後的因果效應。重點是：它不只是標出未測混淆，而是把它<b>校正</b>掉。
+          偵測偏誤是一回事，這張卡是真的把偏誤拿掉。兩個陰性對照都是那個未測混淆的「影子」，所以只要觀察它們怎麼一起變動，就能把藏起來的因素當時在做什麼反推回來、再扣掉，即使我們從沒量到它。把這些影子和混淆連回去的那套換算關係，就叫<b>混淆橋函數</b>；嚴謹版是在一個「代理帶的資訊夠豐富」的技術條件下，解一道方程把它求出來（Miao 2018；Tchetgen Tchetgen 等）。當一切是線性時，有個簡單的兩步驟做法 P2SLS：<code>第一步：W ~ A+Z+X → Ŵ</code>（先預測陰性對照結果），再<code>第二步：Y ~ A+Ŵ+X</code>；第二步裡 A 的係數，就是去偏後的因果效應。重點是：它不只是標出未測混淆，而是把它<b>校正</b>掉。
         </p>
       </div>
       <div class="tdef">
@@ -4467,7 +4467,7 @@ run;
 proc reg data=s1;
     model Y = A What X;
 run;</code></pre>
-      <p data-en="Stage 1 builds the confounding bridge for W using Z; stage 2 plugs it in for the corrected A effect.">第一階段以 Z 建立 W 的混淆橋；第二階段代入以得到修正後的 A 效果。</p></div>
+      <p data-en="Stage 1 builds the confounding bridge for W using Z; stage 2 plugs it in for the corrected A effect.">第一階段以 Z 建立 W 的混淆橋函數；第二階段代入以得到修正後的 A 效果。</p></div>
     <div data-lang="r" class="card"><h3 data-en="R — AER::ivreg two-stage">R — AER::ivreg 兩階段</h3>
       <pre class="sas"><code><span class="cm"># load data and package</span>
 library(AER)
@@ -4492,8 +4492,8 @@ estimates table, b se</code></pre>
   <section id="ncassume" class="panel">
     <h1 data-en="Can we trust this NC analysis? Five checks">這個 NC 分析可不可信？五道體檢</h1>
     <p class="lead" data-en="The identifying assumptions are mostly about the <b>validity of the negative controls</b> and the existence of a confounding bridge — untestable from data (blue cards): the NCO has no exposure effect, the NCE has no outcome effect, and a bridge / completeness holds. The testable ones are proxy relevance (a first-stage strength, like IV) and enough data. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      核心假設大多關於<b>陰性對照的有效性</b>與混淆橋的存在，無法用資料檢驗（藍卡）：NCO 不受暴露影響、NCE 不影響結果、
-      且混淆橋／完備性成立。可檢的是代理相關性（第一階段強度，類似 IV）與資料量。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+      核心假設大多關於<b>陰性對照的有效性</b>與混淆橋函數的存在，無法用資料檢驗（藍卡）：NCO 不受暴露影響、NCE 不影響結果、
+      且混淆橋函數／完備性成立。可檢的是代理相關性（第一階段強度，類似 IV）與資料量。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="ncOverall" class="overall hidden"></div>
     <div id="ncAssumeCards" class="assume-cards"></div>
@@ -6532,7 +6532,7 @@ regress y treated external x, level(90)</code></pre>
     <div class="cards">
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The average causal effect of A on Y (Yᵃ⁼¹ − Yᵃ⁼⁰) under an <b>unmeasured</b> confounder, identified <b>proximally</b> with a pair of negative controls.">在<b>未測</b>混淆下，A 對 Y 的平均因果效應（Yᵃ⁼¹ − Yᵃ⁼⁰），用一對陰性對照做<b>近端</b>辨識。</p></div>
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Exchangeability fails marginally</b> (U is unmeasured), so it is replaced by <b>proxy conditions</b>: A↛W (valid NCO), Z↛Y (valid NCE), both relevant to U, plus completeness. <b>Positivity</b>: treatment varies given the proxies. <b>Consistency</b>: a well-defined exposure."><b>邊際可交換性不成立</b>（U 未測），改用<b>代理條件</b>：A↛W（有效 NCO）、Z↛Y（有效 NCE）、兩者都與 U 相關，加完備性。<b>正性</b>：給定代理下治療有變異。<b>一致性</b>：暴露定義明確。</p></div>
-      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From a <b>confounding bridge</b>: the negative-control exposure Z and outcome W are proxies of U, and a bridge function lets you subtract U's effect (linear case = P2SLS) — turning an unidentifiable problem into an identifiable one.">來自<b>混淆橋</b>：陰性對照暴露 Z 與結果 W 是 U 的代理，混淆橋函數讓你把 U 的效應扣掉（線性情形＝P2SLS），把不可辨識變成可辨識。</p></div>
+      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From a <b>confounding bridge</b>: the negative-control exposure Z and outcome W are proxies of U, and a bridge function lets you subtract U's effect (linear case = P2SLS) — turning an unidentifiable problem into an identifiable one.">來自<b>混淆橋函數</b>：陰性對照暴露 Z 與結果 W 是 U 的代理，混淆橋函數讓你把 U 的效應扣掉（線性情形＝P2SLS），把不可辨識變成可辨識。</p></div>
       <div class="card"><h3 data-en="④ In What If &amp; the proximal literature">④ 對應《What If》與近端文獻</h3><p data-en="Confounding &amp; exchangeability (Hernán &amp; Robins, <i>What If</i>, 2020); negative controls (Lipsitch 2010) and proximal causal learning (Miao 2018; Tchetgen Tchetgen et al.). Free book online.">混淆與可交換性（Hernán &amp; Robins, <i>What If</i>, 2020）；陰性對照（Lipsitch 2010）與近端因果學習（Miao 2018；Tchetgen Tchetgen 等）。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
@@ -7613,7 +7613,7 @@ twoway (scatter response dose) (line phat dose, sort)</code></pre>
           <tr><td>NC/PCI</td>
             <td data-en="Care-seeking (unmeasured) drives both drug-X use and the outcome; you have a negative-control outcome (a pre-treatment event) and a negative-control exposure">就醫傾向（未測）同時影響用藥物X 與結果；你有陰性對照結果（用藥前事件）與陰性對照暴露</td>
             <td data-en="A pair of negative controls — proxies of the unmeasured confounder (no A→W, no Z→Y)">一對陰性對照，未測混淆的代理（A 不影響 W、Z 不影響 Y）</td>
-            <td data-en="The negative controls' 'no causal effect' + a confounding bridge / completeness">陰性對照的「無因果」＋混淆橋／完備性</td></tr>
+            <td data-en="The negative controls' 'no causal effect' + a confounding bridge / completeness">陰性對照的「無因果」＋混淆橋函數／完備性</td></tr>
           <tr><td colspan="4" class="famhdr" data-en="Family · mechanism (a decomposition that follows any design above)">家族 · 機制（接在上面任一設計之後的效果分解）</td></tr>
           <tr><td>MED</td>
             <td data-en="An effect is already known (drug X → outcome); you also measured a mediator M (a biomarker) on the path A → M → Y">已知有效果（藥物X → 結果）；你還量了一個中介 M（生物標記），位在 A → M → Y 的路徑上</td>
