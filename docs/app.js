@@ -3306,7 +3306,7 @@ const DNODES = {
            en: "Exposure spreads over calendar time at different rates across strata and the outcome is rare — check whether the outcome-rate trend tracks the exposure-rate trend. It is the cohort cousin of case-time-control (CTC/CCTC)." },
     scenario: { zh: "藥物X 情境：藥物X 在慢性病族群的使用率隨季逐漸上升、不同地區快慢不同。看「事件率的趨勢」是否跟著「使用率的趨勢」一起走。",
                 en: "Drug-X scenario: drug X's uptake in a chronic-disease population climbs over quarters, faster in some regions. Check whether the event-rate trend moves in step with the uptake trend." },
-    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與接種趨勢同步的未測混淆趨勢</b>。另一個重要限制：它建模「每期盛行率」，<b>只適合會反覆發生／也會痊癒的（急性）結果，無法處理死亡這類結果</b>，死亡的人在這個框架下仍留在分母（見 TiT ④）。",
+    watch: { zh: "最關鍵、不可檢驗的是<b>沒有與使用趨勢同步的未測混淆趨勢</b>。另一個重要限制：它建模「每期盛行率」，<b>只適合會反覆發生／也會痊癒的（急性）結果，無法處理死亡這類結果</b>，死亡的人在這個框架下仍留在分母（見 TiT ④）。",
              en: "The key untestable assumption is <b>no unmeasured confounder trend that moves in step with uptake</b>. Another important limit: it models per-period prevalence, so it <b>fits recurrent / resolving (acute) outcomes and CANNOT handle death</b> — the deceased still sit in the denominator here (see TiT ④)." } } },
   rPERR: { rec: { kind: "toolbox", method: "perr", badge: "PERR ✓",
     title: { zh: "最適合：事前事件率比 PERR", en: "Best fit: Prior Event Rate Ratio (PERR)" },
