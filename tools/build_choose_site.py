@@ -130,7 +130,7 @@ body {{ background: var(--bg, #f4f7f6); margin: 0; }}
   <!-- ===================== TAB 2 · Database ===================== -->
   <section class="sa-panel" id="paneDb" hidden>
     <h2 class="sa-h2">Database：小賴醫師要重做這個分析，需要對的資料</h2>
-    <div class="sa-scenario">小賴醫師知道第一版錯在哪了，想重做一次。這次他打算<b>只收新開始用藥的人</b>、<b>用藥那天才算暴露</b>、<b>每個人從同一天起算</b>。但這三件事都得<b>資料裡真的有那些東西</b>才做得到。<b>你手上是哪一種資料庫？</b></div>
+    <div class="sa-scenario">小賴醫師知道第一版錯在哪了，想重做一次。這次他打算<b>只收新使用者</b>（剛開始用藥的人）、<b>用藥那天才算暴露</b>、<b>每個人從同一天起算</b>。但這三件事都得<b>資料裡真的有那些東西</b>才做得到。<b>你手上是哪一種資料庫？</b></div>
     <div id="dbIntro"></div>
 
     <div id="dbtree" class="dtree">
