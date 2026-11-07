@@ -371,8 +371,8 @@ estat firststage
     <h1 data-en="Can we trust this analysis? Six health checks">這個分析可不可信？六道體檢</h1>
     <p class="lead" data-en="For the IV method to hold, it must clear a few hurdles. Below we run a <b>plain-language</b> check-up item by item: green means fine, amber means watch out, red means there is a problem. One of them is a <b>&quot;gotcha test&quot;</b> — instead of proving the nudge valid, it does the reverse: <b>picks holes and tries to break it on the spot</b>; only if it cannot be broken is the nudge more credible. The bottom of each card expands to show the terminology. Load data on <b>③ Analyse data</b> first and this runs automatically.">
       工具變數法要成立，得先通過幾道關卡。下面用<b>白話</b>幫你一項一項體檢，
-      綠燈代表沒問題、黃燈要留意、紅燈代表有狀況。其中一道是<b>「抓包測試」</b>，
-      不去證明外力合格，而是反過來<b>挑它毛病、試著當場戳破它</b>：戳不破才比較可信。
+      綠燈代表沒問題、黃燈要留意、紅燈代表有狀況。其中一道是<b>「否證測試」</b>，
+      不去證明外力合格，而是反過來<b>找它的破綻、試著當場推翻它</b>：推不翻才比較可信。
       每張卡片最下面可以展開看「專有名詞解釋」。先到 <b>③ 資料分析</b> 載入資料，這裡就會自動跑。
     </p>
     <p class="caption" data-en="(These map to the statistical assumptions A1–A4b plus a set of &quot;instrumental inequalities&quot; falsification test, but you don't need to memorise the codes — just read the plain-language notes.)">（這幾項對應統計上的 A1–A4b 假設，以及一組「工具不等式」否證檢定，但你不用記這些代號，看白話說明就好。）</p>
@@ -2839,7 +2839,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
       <div class="tdef">
         <h4>病例-時間對照／病例-病例-時間對照 <span class="en">case-time-control / case-case-time-control (CCTC)</span></h4>
         <p data-en="The fix is simple in spirit: measure how big the pure calendar trend is in a group where the drug can't be causing events, then divide that trend back out of the case-crossover answer so only the real effect is left. The original case-time-control (Suissa, 1995) borrows a separate group of non-cases as the trend yardstick. A neat variant, case-case-time-control, instead uses people who will get the event but only later — future cases — as the yardstick, because they ride the same calendar trend yet aren't (yet) reacting to it; this needs no separate control series and sidesteps endless arguments about &quot;did you pick the right controls?&quot; In numbers: if the raw case-crossover gives 6.1 but the controls' pure trend is 1.9, the corrected answer is about 6.1 ÷ 1.9 ≈ 3.2 — close to the true 3.0. As a formula it is just one odds ratio divided by another: <code>OR_CCTC = (b_case/c_case) ÷ (b_ctrl/c_ctrl)</code>.">
-          修法的精神很簡單：在一群「藥不可能造成事件」的人身上，量出日曆趨勢到底有多大，再把這個趨勢從病例交叉的答案裡除掉，剩下的就只有真正的效果。最早的病例-時間對照（Suissa，1995）借一群「非 case」當趨勢的量尺。一個漂亮的變形，病例-病例-時間對照，改用「以後才會發病的人」（未來的 case）當量尺，因為他們同樣經歷那條日曆趨勢，但還沒對藥起反應；這樣就不必另外湊一條對照序列，也避開了「你對照到底選得對不對」這種沒完沒了的爭論。用數字看：如果原始病例交叉算出 6.1，但對照的純趨勢是 1.9，修正後的答案約為 6.1 ÷ 1.9 ≈ 3.2，很接近真值 3.0。寫成式子，就是一個勝算比除以另一個：<code>OR_CCTC = (b_case/c_case) ÷ (b_ctrl/c_ctrl)</code>。
+          修法的精神很簡單：在一群「藥不可能造成事件」的人身上，量出日曆趨勢到底有多大，再把這個趨勢從病例交叉的答案裡除掉，剩下的就只有真正的效果。最早的病例-時間對照（Suissa，1995）借一群「非病例」當趨勢的量尺。一個漂亮的變形，病例-病例-時間對照，改用「以後才會發病的人」（未來病例）當量尺，因為他們同樣經歷那條日曆趨勢，但還沒對藥起反應；這樣就不必另外湊一條對照序列，也避開了「你對照到底選得對不對」這種沒完沒了的爭論。用數字看：如果原始病例交叉算出 6.1，但對照的純趨勢是 1.9，修正後的答案約為 6.1 ÷ 1.9 ≈ 3.2，很接近真值 3.0。寫成式子，就是一個勝算比除以另一個：<code>OR_CCTC = (b_case/c_case) ÷ (b_ctrl/c_ctrl)</code>。
         </p>
       </div>
     </details>
@@ -2878,7 +2878,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
   <section id="cctcanalyze" class="panel">
     <h1 data-en="Data analysis: run a full CCTC">資料分析：跑一次完整的 CCTC</h1>
     <p class="lead" data-en="Load the built-in acute-event example (or upload a CSV with one row per subject: a case/control flag, exposure in the hazard and reference windows, and the calendar time). The tool computes the case-crossover OR, the controls' pure-trend OR, and the trend-adjusted CCTC OR with a delta-method interval.">
-      載入內建的急性事件範例（或上傳每列一個個體的 CSV：case/對照旗標、危險窗與參考窗的暴露、日曆時間）。
+      載入內建的急性事件範例（或上傳每列一個個體的 CSV：病例/對照旗標、危險窗與參考窗的暴露、日曆時間）。
       工具會算病例交叉 OR、對照的純趨勢 OR，以及扣趨勢後的 CCTC OR 與 delta-method 信賴區間。
     </p>
 
@@ -2890,7 +2890,7 @@ margins arm, predict(pr)                      // average predicted hazard per ar
     </div>
 
     <div id="cctcColMap" class="colmap hidden">
-      <div class="field"><label data-en="Group (1 = case, 0 = control)">分組（1＝case，0＝對照）</label><select id="cctcSelGroup"></select></div>
+      <div class="field"><label data-en="Group (1 = case, 0 = control)">分組（1＝病例，0＝對照）</label><select id="cctcSelGroup"></select></div>
       <div class="field"><label data-en="Hazard-window exposure">危險窗暴露</label><select id="cctcSelXh"></select></div>
       <div class="field"><label data-en="Reference-window exposure">參考窗暴露</label><select id="cctcSelXr"></select></div>
       <div class="field"><label data-en="Calendar time">日曆時間</label><select id="cctcSelCal"></select></div>
@@ -2996,9 +2996,9 @@ clogit y window if group==0, group(id) or</code></pre>
     <h2 data-en="Notes from the literature">文獻中的注意事項</h2>
     <div class="cards">
       <div class="card"><h3 data-en="① Case-time-control (CTC) needs good controls">① 病例-時間對照（CTC）需要好的對照</h3>
-        <p data-en="CTC uses a separate non-case control series to estimate the trend. If those controls don't share the cases' exposure trend — or are selected on the outcome — the correction is wrong. Choosing controls is the hard part.">CTC 用另一條非 case 對照序列估趨勢。若這些對照沒和 case 共享暴露趨勢、或被結果選擇，校正就錯。對照怎麼選是難點。</p></div>
+        <p data-en="CTC uses a separate non-case control series to estimate the trend. If those controls don't share the cases' exposure trend — or are selected on the outcome — the correction is wrong. Choosing controls is the hard part.">CTC 用另一條非病例對照序列估趨勢。若這些對照沒和病例共享暴露趨勢、或被結果選擇，校正就錯。對照怎麼選是難點。</p></div>
       <div class="card"><h3 data-en="② Case-case-time-control (CCTC) avoids that">② 病例-病例-時間對照（CCTC）避開這點</h3>
-        <p data-en="CCTC uses <b>future-onset cases</b> as the trend reference, so it needs no separate control series and is robust to control-selection critiques (Wang &amp; Hennessy). It assumes the exposure trend is the same for current and future cases.">CCTC 用<b>較晚發病的未來 case</b> 當趨勢參考，不需另一條對照序列，對「對照怎麼選」的批評較穩健（Wang &amp; Hennessy）。前提是暴露趨勢對當前與未來 case 一樣。</p></div>
+        <p data-en="CCTC uses <b>future-onset cases</b> as the trend reference, so it needs no separate control series and is robust to control-selection critiques (Wang &amp; Hennessy). It assumes the exposure trend is the same for current and future cases.">CCTC 用<b>較晚發病的未來病例</b>當趨勢參考，不需另一條對照序列，對「對照怎麼選」的批評較穩健（Wang &amp; Hennessy）。前提是暴露趨勢對當前與未來病例一樣。</p></div>
       <div class="card"><h3 data-en="③ Immeasurable-time bias still bites">③ 不可測時間偏誤仍要小心</h3>
         <p data-en="If exposure can't be measured just before the event (e.g. hospitalisation), the hazard window is distorted (Jeong 2023; Wong 2025). Self-controlled designs don't fix this — check that exposure is ascertained consistently in both windows.">若事件前暴露無法測得（如住院），危險窗會被扭曲（Jeong 2023；Wong 2025）。自身對照設計不修這個，要確認兩窗的暴露都被一致地測到。</p></div>
     </div>
@@ -3344,7 +3344,7 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
   <section id="ccanalyze" class="panel">
     <h1 data-en="Data analysis: crude vs adjusted vs stratified OR">資料分析：未校正 vs 校正 vs 分層 OR</h1>
     <p class="lead" data-en="Load the built-in case-control example (one row per person: a case/control flag, exposure, and covariates incl. age). The tool computes the crude OR, the age/sex/comorbidity-adjusted logistic OR, and the Mantel–Haenszel OR stratified by age band × sex — and shows the age imbalance that makes the crude OR wrong.">
-      載入內建病例對照範例（每列一個人：case/對照旗標、暴露、共變項含年齡）。工具會算未校正 OR、校正
+      載入內建病例對照範例（每列一個人：病例/對照旗標、暴露、共變項含年齡）。工具會算未校正 OR、校正
       年齡／性別／共病的 logistic OR，以及按年齡層×性別分層的 Mantel–Haenszel OR，並顯示讓未校正 OR 出錯的年齡不平衡。
     </p>
 
@@ -3470,7 +3470,7 @@ clogit case exposed comorbidity, group(match_id) or</code></pre>
   <!-- ===================== SCCS ① 是什麼 ===================== -->
   <section id="sccslearn" class="panel">
     <div class="banner" data-en="⚠ The built-in data is <b>purely fictional, synthetic demo data</b>, not real data, for teaching only.">⚠ 本工具的內建資料為<b>純屬虛構的合成示範資料</b>，非真實資料，僅供教學展示。</div>
-    <h1 data-en="SCCS: each person is their own control — only cases needed">自身對照病例系列（SCCS）：每個人當自己的對照，只要 case</h1>
+    <h1 data-en="SCCS: each person is their own control — only cases needed">自身對照病例系列（SCCS）：每個人當自己的對照，只要病例</h1>
     <p class="lead" data-en="Does a vaccine <b>transiently</b> raise the risk of an acute event (say myocarditis)? SCCS uses <b>only people who had the event (cases)</b> and makes <b>each person their own control</b>: split their observation into a post-vaccination <b>risk window</b> (here days 1–28) and the rest as <b>baseline</b>, and compare the event rate in the two — the <b>incidence rate ratio (IRR)</b> via conditional Poisson. Because it's a within-person before/after comparison, <b>every time-fixed factor (genetics, constitution, socioeconomics) cancels automatically</b>.">
       一支疫苗會不會在接種後<b>短暫</b>提高某個急性事件（如心肌炎）的風險？SCCS<b>只用發生過事件的人（cases）</b>，
       讓<b>每個人當自己的對照</b>：把他的觀察期切成接種後的<b>危險窗</b>（這裡 1–28 天）與其餘的<b>基線期</b>，比較兩段的
@@ -3479,9 +3479,9 @@ clogit case exposed comorbidity, group(match_id) or</code></pre>
     </p>
 
     <div data-lang="sas" class="card scene">
-      <h3 data-en="How it works — split each case's own time into control vs risk window">怎麼做：把每個 case 自己的時間切成「控制期 vs 危險窗」</h3>
+      <h3 data-en="How it works — split each case's own time into control vs risk window">怎麼做：把每個病例自己的時間切成「控制期 vs 危險窗」</h3>
       <div id="sccsScene" class="chart" style="height:380px"></div>
-      <p class="caption" data-en="Read it like this: each bar is one case's observation time. Grey = the person's own <b>control</b> time; orange = the short <b>risk window</b> (exposed time) after the dose ▲. SCCS only asks <b>where the event ● falls</b> — in the short risk window (cases A, B, D) or in control time (case C). If events cluster in the short risk window relative to how little time it covers, the <b>IRR</b> rises. Because it compares a person against themselves, every <b>time-fixed</b> factor (genetics, constitution, socioeconomics) cancels automatically.">這樣讀：每一條是一個 case 的觀察時間。灰色＝這個人自己的<b>控制期</b>；橘色＝接種 ▲ 後那一小段<b>危險窗</b>（暴露人時）。SCCS 只問<b>事件 ● 落在哪裡</b>，是落在短短的危險窗（病人甲、乙、丁），還是落在控制期（病人丙）。若事件相對集中在「時間很短」的危險窗，<b>IRR</b> 就升高。因為是拿一個人跟自己比，所有<b>不隨時間變</b>的因子（基因、體質、社經）都自動相消。</p>
+      <p class="caption" data-en="Read it like this: each bar is one case's observation time. Grey = the person's own <b>control</b> time; orange = the short <b>risk window</b> (exposed time) after the dose ▲. SCCS only asks <b>where the event ● falls</b> — in the short risk window (cases A, B, D) or in control time (case C). If events cluster in the short risk window relative to how little time it covers, the <b>IRR</b> rises. Because it compares a person against themselves, every <b>time-fixed</b> factor (genetics, constitution, socioeconomics) cancels automatically.">這樣讀：每一條是一個病例的觀察時間。灰色＝這個人自己的<b>控制期</b>；橘色＝接種 ▲ 後那一小段<b>危險窗</b>（暴露人時）。SCCS 只問<b>事件 ● 落在哪裡</b>，是落在短短的危險窗（病人甲、乙、丁），還是落在控制期（病人丙）。若事件相對集中在「時間很短」的危險窗，<b>IRR</b> 就升高。因為是拿一個人跟自己比，所有<b>不隨時間變</b>的因子（基因、體質、社經）都自動相消。</p>
     </div>
 
     <details class="term">
@@ -3790,12 +3790,12 @@ quit;
   <section id="sccsanalyze" class="panel">
     <h1 data-en="Data analysis: run an SCCS (conditional Poisson IRR)">資料分析：跑一次 SCCS（條件 Poisson 的 IRR）</h1>
     <p class="lead" data-en="Load the built-in cases (one row per case who had the event: observation start/end, vaccination day, event day). The tool splits each person into the risk window (days 1–N after vaccination) vs baseline and fits a conditional-Poisson IRR with a 95% interval.">
-      載入內建的 case（每列一個發生過事件的人：觀察期起訖、接種日、事件日）。工具會把每個人切成危險窗
+      載入內建的病例資料（每列一個發生過事件的人：觀察期起訖、接種日、事件日）。工具會把每個人切成危險窗
       （接種後 1–N 天）與基線期，配條件 Poisson 的 IRR 與 95% 區間。
     </p>
 
     <div class="datasource">
-      <button id="useSccsExample" class="btn primary" data-en="Load built-in cases">載入內建 case 範例</button>
+      <button id="useSccsExample" class="btn primary" data-en="Load built-in cases">載入內建病例範例</button>
       <span class="or" data-en="or">或</span>
       <label class="btn"><span data-en="Upload CSV">上傳 CSV</span><input type="file" id="sccsFileInput" accept=".csv" hidden /></label>
       <span id="sccsDataStatus" class="muted" data-en="No data loaded yet">尚未載入資料</span>
@@ -3821,7 +3821,7 @@ quit;
     <h2 class="merge-sas" data-en="Code (SAS · R · Stata): Self-controlled case series">程式（SAS · R · Stata）：自身對照病例系列</h2>
     <p class="code-src" data-en="Source — the code is the standard call from the official documentation: R uses standardsccs() from the SCCS package with the argument set (indiv/astart/aend/aevent/adrug/aedrug) shown in the SCCS package manual and vignette; SAS is the standard Poisson-with-log-person-time-offset PROC GENMOD call (SAS/STAT GENMOD manual); Stata is xtpoisson, fe exposure() irr (Stata Longitudinal-Data Reference Manual: xtpoisson).">出處 — 程式碼即官方文件的標準呼叫：R 使用 SCCS 套件的 standardsccs()，參數（indiv/astart/aend/aevent/adrug/aedrug）同 SCCS 套件手冊與 vignette；SAS 為 PROC GENMOD 以 log(人時) 為 offset 的 Poisson 標準寫法（SAS/STAT GENMOD 手冊）；Stata 為 xtpoisson, fe exposure() irr（Stata Longitudinal-Data Reference Manual: xtpoisson）。</p>
     <p class="src-links"><span data-en="Docs &amp; packages:">文件與套件：</span> <a href="https://cran.r-project.org/package=SCCS" target="_blank" rel="noopener">R SCCS</a></p>
-    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>sccs_sample.csv</code> (one row per case; columns: pid, obs_start, obs_end, vacc_day, event_day, age_grp). Each program expands each case into a long form of intervals internally; all three use the same risk window = days 1 to 28 after vaccination.">這是可直接在可下載的 <code>sccs_sample.csv</code> 上完整執行的程式（每位 case 一列；欄位：pid、obs_start、obs_end、vacc_day、event_day、age_grp）。三種語言都會在內部把每位 case 展開成區間的 long form，且都用同一個危險窗＝接種後第 1 到 28 天。</div>
+    <div class="sas-note" data-en="Complete, runnable on the downloadable <code>sccs_sample.csv</code> (one row per case; columns: pid, obs_start, obs_end, vacc_day, event_day, age_grp). Each program expands each case into a long form of intervals internally; all three use the same risk window = days 1 to 28 after vaccination.">這是可直接在可下載的 <code>sccs_sample.csv</code> 上完整執行的程式（每位病例一列；欄位：pid、obs_start、obs_end、vacc_day、event_day、age_grp）。三種語言都會在內部把每位病例展開成區間的 long form，且都用同一個危險窗＝接種後第 1 到 28 天。</div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — conditional Poisson (PROC GENMOD)">SAS — 條件式 Poisson（PROC GENMOD）</h3>
       <pre class="sas"><code><span class="cm">/* read data */</span>
 proc import datafile="sccs_sample.csv" out=d dbms=csv replace;
@@ -5247,10 +5247,10 @@ gformula Y A1 L1 A0 L0, ///
       <summary data-en="Show terminology">看專有名詞解釋</summary>
       <div class="tdef"><h4>陰性檢驗設計／VE＝1−OR <span class="en">test-negative design / VE = 1 − OR</span></h4>
         <p data-en="We want to know how much a vaccine cuts your chance of catching a particular bug, say flu. The catch: people who readily go to the doctor are both more likely to have been vaccinated and more likely to have any infection actually tested and recorded — so simply comparing the vaccinated and unvaccinated in the general population mixes up &quot;protection&quot; with &quot;who shows up to be tested.&quot; The test-negative design sidesteps this by only looking at people who already came in with symptoms and got swabbed. Among them, the ones who test positive for the target bug are the &quot;cases&quot; and the ones who test negative (they had some other bug) are the &quot;controls.&quot; Since everyone in both groups cleared the same &quot;bothered to come and get tested&quot; hurdle, that care-seeking habit no longer tilts the comparison. You then ask how the odds of being vaccinated differ between cases and controls — that is the odds ratio (OR) — and effectiveness is VE = 1 − OR. So an OR of 0.4 means the vaccine cut infection by 60% (Jackson &amp; Nelson 2013).">
-          我們想知道疫苗能把你得到某隻病原（例如流感）的機會降低多少。麻煩在於：愛看醫生的人，既比較可能已經接種、也比較可能在生病時真的去檢驗、被記錄到，所以單純在一般人群裡比「接種 vs 沒接種」，會把「保護力」和「誰會跑來被檢驗」攪在一起。陰性檢驗設計的做法是只看那些「已經帶著症狀來、也做了檢驗」的人。在他們之中，驗出目標病原陽性的就是 case，驗出陰性（其實是別的病）的就是 control。因為兩組都跨過了同一道「願意就醫並接受檢驗」的門檻，這個就醫習慣就不再左右比較。接著看 case 和 control 之間「有接種」的勝算差多少，這個比值就是勝算比（OR），效力就是 VE ＝ 1 − OR。例如 OR ＝ 0.4，代表疫苗把感染降了六成（Jackson &amp; Nelson 2013）。</p></div>
+          我們想知道疫苗能把你得到某隻病原（例如流感）的機會降低多少。麻煩在於：愛看醫生的人，既比較可能已經接種、也比較可能在生病時真的去檢驗、被記錄到，所以單純在一般人群裡比「接種 vs 沒接種」，會把「保護力」和「誰會跑來被檢驗」攪在一起。陰性檢驗設計的做法是只看那些「已經帶著症狀來、也做了檢驗」的人。在他們之中，驗出目標病原陽性的就是病例，驗出陰性（其實是別的病）的就是對照。因為兩組都跨過了同一道「願意就醫並接受檢驗」的門檻，這個就醫習慣就不再左右比較。接著看病例和對照之間「有接種」的勝算差多少，這個比值就是勝算比（OR），效力就是 VE ＝ 1 − OR。例如 OR ＝ 0.4，代表疫苗把感染降了六成（Jackson &amp; Nelson 2013）。</p></div>
       <div class="tdef"><h4>就醫傾向混淆 <span class="en">care-seeking (health-care-seeking) confounding</span></h4>
         <p data-en="This is the troublemaker the whole design is built to defeat. &quot;Care-seeking&quot; just means how readily a person goes to the doctor — and that single habit pushes on two things at once: people who seek care more are more likely to have been vaccinated in the first place, and they are also more likely to have an infection actually caught and confirmed by a test. Because the same hidden trait feeds both vaccination and being detected, a naïve comparison can make the vaccine look better or worse than it really is even when nobody measured &quot;care-seeking&quot; directly. The test-negative design is engineered precisely to cancel this: by studying only people who already sought care and got tested, it holds that habit roughly constant across cases and controls so it stops distorting the answer.">
-          這就是整個設計專門要對付的麻煩根源。「就醫傾向」說白了就是一個人多容易跑去看醫生，而這單一習慣會同時推動兩件事：愛就醫的人原本就比較可能已經接種，也比較可能在感染時真的被檢驗、被確診。因為同一個看不見的特質同時餵養了「接種」和「被發現」，未校正的比較就可能讓疫苗看起來比實際更好或更差，即使根本沒人直接量過「就醫傾向」。陰性檢驗設計正是為了消掉它而打造：只研究那些已經就醫並做了檢驗的人，讓這個習慣在 case 與 control 之間大致拉平，就不再扭曲答案。</p></div>
+          這就是整個設計專門要對付的麻煩根源。「就醫傾向」說白了就是一個人多容易跑去看醫生，而這單一習慣會同時推動兩件事：愛就醫的人原本就比較可能已經接種，也比較可能在感染時真的被檢驗、被確診。因為同一個看不見的特質同時餵養了「接種」和「被發現」，未校正的比較就可能讓疫苗看起來比實際更好或更差，即使根本沒人直接量過「就醫傾向」。陰性檢驗設計正是為了消掉它而打造：只研究那些已經就醫並做了檢驗的人，讓這個習慣在病例與對照之間大致拉平，就不再扭曲答案。</p></div>
       <div class="tdef"><h4>對照疾病中性 <span class="en">neutral control disease</span></h4>
         <p data-en="The controls are the people who came in, got tested, and turned out to have some other illness — not the target bug. For the design to work, that &quot;other illness&quot; has to be one the vaccine doesn't touch at all; that's what &quot;neutral&quot; means. Think of it as a fair yardstick: it tells you what vaccination looks like among tested people who simply weren't infected by the target. The danger is if the vaccine secretly changes the control illness too — for example by making those other infections more or less likely or more or less testable. Then your yardstick is bent, the controls are contaminated, and the OR (and hence VE) drifts off the truth. This is exactly the kind of thing the ④ checks watch for (see ④, C2).">
           對照組就是那些來看診、做了檢驗，結果得的是別的病、而非目標病原的人。設計要成立，這個「別的病」必須是疫苗完全碰不到的，這就是「中性」的意思。可以把它想成一把公平的量尺：它告訴你在「有來檢驗但其實沒被目標病原感染」的人裡，接種長什麼樣子。危險在於疫苗若也影響了對照疾病，例如讓那些別的感染變多變少、或變得更容易或更不容易被驗出。那麼這把量尺就彎了、對照被汙染，OR（連帶 VE）就會偏離真值。這正是 ④ 體檢要盯的事（見 ④ C2）。</p></div>
@@ -5284,7 +5284,7 @@ gformula Y A1 L1 A0 L0, ///
     <h1 data-en="Data analysis: naive case-control vs test-negative design">資料分析：未校正病例對照 vs 陰性檢驗設計</h1>
     <p class="lead" data-en="Load the built-in cohort (vaccination, whether tested on seeking care, the test result, the true target infection). The tool reports the <b>naive</b> VE (case-control with population controls — biased by care-seeking) and the <b>TND</b> VE = 1 − OR from the vaccination odds ratio of test-positive cases vs test-negative controls, with a 95% CI, plus the 2×2 table behind it.">
       載入內建世代（接種、就醫時是否被檢驗、檢驗結果、真實的目標感染）。工具回報<b>未校正</b> VE（一般族群對照，被就醫傾向偏）與
-      <b>TND</b> VE ＝ 1 − OR（檢驗陽性 case vs 陰性 control 的接種勝算比），附 95% CI 與背後的 2×2 表。
+      <b>TND</b> VE ＝ 1 − OR（檢驗陽性病例 vs 陰性對照的接種勝算比），附 95% CI 與背後的 2×2 表。
     </p>
     <div class="datasource">
       <button id="useTndExample" class="btn primary" data-en="Load built-in cohort">載入內建世代範例</button>
@@ -5297,7 +5297,7 @@ gformula Y A1 L1 A0 L0, ///
       <div class="result-cards" id="tndAnalyzeCards"></div>
       <div id="tndAnalyzeChart" class="chart"></div>
       <p class="caption" data-en="The naive bar is dragged below the dashed truth line by care-seeking; the TND VE sits on the truth. The 2×2 table shows vaccination among test-positive cases vs test-negative controls.">
-        未校正那條被就醫傾向拉到虛線真值之下；TND VE 落在真值上。2×2 表是檢驗陽性 case 與陰性 control 的接種分布。</p>
+        未校正那條被就醫傾向拉到虛線真值之下；TND VE 落在真值上。2×2 表是檢驗陽性病例與陰性對照的接種分布。</p>
     </div>
   
     <hr class="merge-sep" />
@@ -5339,7 +5339,7 @@ logit case vaccinated if tested == 1, or</code></pre>
     <h1 data-en="Can we trust this TND? Five checks">這個 TND 可不可信？五道體檢</h1>
     <p class="lead" data-en="The TND removes care-seeking confounding, but rests on conditions that are mostly design judgement (blue): an accurate test, the vaccine not affecting the control illness, equal care-seeking given symptoms, and a shared symptom profile. What you can check: enough cases and controls among the tested. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
       TND 去掉就醫傾向混淆，但仍仰賴多半屬於設計判斷的條件（藍）：檢驗準確、疫苗不影響對照疾病、症狀相同下就醫無差別、症狀輪廓相似。
-      可以檢的是：檢驗者中有足夠的 case 與 control。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
+      可以檢的是：檢驗者中有足夠的病例與對照。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="tndOverall" class="overall hidden"></div>
     <div id="tndAssumeCards" class="assume-cards"></div>
@@ -6402,7 +6402,7 @@ regress y treated external x, level(90)</code></pre>
     <div class="cards">
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="The effect of a <b>transient exposure</b> on the rate of an acute event, as a within-person odds ratio (with the time trend divided out by controls)."><b>短暫暴露</b>對急性事件率的效果，以個人內勝算比表示（時間趨勢用對照除掉）。</p></div>
       <div class="card"><h3 data-en="② Exchangeability · positivity · consistency">② 可交換性 · 正性 · 一致性</h3><p data-en="<b>Within-person exchangeability</b>: a person's windows are comparable except for exposure (so time-fixed confounding cancels). <b>Positivity</b>: the person is exposed in some windows, not others. <b>Consistency</b>: a transient, well-defined exposure window."><b>個人內可交換性</b>：同一人各窗除了暴露外可比（時間不變混淆相消）。<b>正性</b>：此人有些窗暴露、有些沒。<b>一致性</b>：暴露短暫、窗定義明確。</p></div>
-      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>self-control</b> (time-fixed factors cancel) plus a <b>control series / future cases</b> that carry only the exposure time trend — CCTC divides that trend out, leaving the causal part.">來自<b>自身對照</b>（時間不變因子相消）＋一條只帶暴露時間趨勢的<b>對照序列／未來 case</b>，CCTC 把趨勢除掉，剩下因果部分。</p></div>
+      <div class="card"><h3 data-en="③ Where the &quot;exchangeability&quot; is borrowed from">③ 可交換性從哪借來</h3><p data-en="From <b>self-control</b> (time-fixed factors cancel) plus a <b>control series / future cases</b> that carry only the exposure time trend — CCTC divides that trend out, leaving the causal part.">來自<b>自身對照</b>（時間不變因子相消）＋一條只帶暴露時間趨勢的<b>對照序列／未來病例</b>，CCTC 把趨勢除掉，剩下因果部分。</p></div>
       <div class="card"><h3 data-en="④ In What If">④ 對應《What If》</h3><p data-en="Self-controlled, conditional exchangeability; confounding &amp; selection bias chapters. Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020). Free book online.">自身對照、條件可交換性；混淆與選擇偏誤章。Hernán &amp; Robins, <i>Causal Inference: What If</i> (2020)。<a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener">免費電子書</a>。</p></div>
     </div>
   </section>
@@ -6650,11 +6650,11 @@ regress y treated external x, level(90)</code></pre>
       <div class="tdef"><h4>因果結構圖 DAG <span class="en">directed acyclic graph</span></h4>
         <p data-en="<b>Think of it as a &quot;who-causes-who&quot; map.</b> Each circle is a variable; each arrow a direct cause. A node that two arrows point INTO is a <b>collider</b> — conditioning on it (here, restricting to people who were 'tested') can create a spurious association unless the controls are chosen to keep it non-differential."><b>把它想成「誰造成誰」的地圖。</b>每個圓圈是一個變數；每個箭頭是一個直接因果。有兩個箭頭<b>指進去</b>的節點是<b>對撞</b>，條件在它上（這裡是只取「被檢驗」的人）可能造出假關聯，除非對照選得讓它維持非差別。</p></div>
       <div class="tdef"><h4>反事實介入圖 SWIG <span class="en">single-world intervention graph</span></h4>
-        <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> Set vaccination to a and read the counterfactual target-infection Yᵃ. The TND identifies VE = 1 − OR if, among the tested, vaccination is independent of Yᵃ — which holds when the test-negative controls share the cases' care-seeking and the vaccine doesn't affect the control illness."><b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把接種設成 a，讀反事實的目標感染 Yᵃ。若在被檢驗者中接種與 Yᵃ 獨立，TND 就辨識 VE ＝ 1 − OR，這在「陰性對照與 case 共享就醫傾向、且疫苗不影響對照疾病」時成立。</p></div>
+        <p data-en="<b>A SWIG is a DAG after you ‘operate’ on it.</b> Set vaccination to a and read the counterfactual target-infection Yᵃ. The TND identifies VE = 1 − OR if, among the tested, vaccination is independent of Yᵃ — which holds when the test-negative controls share the cases' care-seeking and the vaccine doesn't affect the control illness."><b>SWIG 是把 DAG「動一刀」之後的反事實圖。</b>把接種設成 a，讀反事實的目標感染 Yᵃ。若在被檢驗者中接種與 Yᵃ 獨立，TND 就辨識 VE ＝ 1 − OR，這在「陰性對照與病例共享就醫傾向、且疫苗不影響對照疾病」時成立。</p></div>
     </details>
     <div class="cards">
       <div class="card"><h3 data-en="① Counterfactuals &amp; the estimand">① 反事實與估計目標</h3><p data-en="VE = 1 − the risk (odds) ratio of target infection comparing vaccinated vs not — a contrast of Yᵃ⁼¹ vs Yᵃ⁼⁰ for the target pathogen. The OR among the tested estimates this when the controls are valid.">VE ＝ 1 −（接種 vs 未接種的目標感染風險／勝算比），目標病原的 Yᵃ⁼¹ vs Yᵃ⁼⁰ 對比。對照有效時，檢驗者中的 OR 就估它。</p></div>
-      <div class="card"><h3 data-en="② Exchangeability via selection">② 靠選樣換來可交換</h3><p data-en="Unlike PS (which conditions on covariates), the TND achieves comparability by <b>who it samples</b>: restricting to the tested makes care-seeking common to cases and controls, so it no longer confounds vaccination.">和 PS（條件在共變項）不同，TND 靠<b>抽樣對象</b>達成可比：限制在被檢驗者，讓就醫傾向成為 case 與 control 共有，於是不再混淆接種。</p></div>
+      <div class="card"><h3 data-en="② Exchangeability via selection">② 靠選樣換來可交換</h3><p data-en="Unlike PS (which conditions on covariates), the TND achieves comparability by <b>who it samples</b>: restricting to the tested makes care-seeking common to cases and controls, so it no longer confounds vaccination.">和 PS（條件在共變項）不同，TND 靠<b>抽樣對象</b>達成可比：限制在被檢驗者，讓就醫傾向成為病例與對照共有，於是不再混淆接種。</p></div>
       <div class="card"><h3 data-en="③ Where it can still break">③ 哪裡仍可能破</h3><p data-en="If the vaccine affects the control illness (C2), if vaccinees seek testing differently given symptoms (C3), or if the test misclassifies (C1), the selection becomes differential and VE is biased. Other measured confounders still need adjustment (⑤).">若疫苗影響對照疾病（C2）、接種者在相同症狀下就醫不同（C3）、或檢驗錯分（C1），選樣就變差別、VE 偏。其他已測混淆仍要調整（⑤）。</p></div>
       <div class="card"><h3 data-en="④ In the TND literature">④ 對應 TND 文獻</h3><p data-en="The test-negative design &amp; its causal basis (Jackson &amp; Nelson 2013; Sullivan, Tchetgen Tchetgen &amp; Cowling 2016; Vandenbroucke &amp; Pearce 2019; Schnitzer 2022; Andrews et al. 2025). Selection / collider bias also appears in Hernán &amp; Robins, <i>What If</i>, Ch 8.">陰性檢驗設計與其因果基礎（Jackson &amp; Nelson 2013；Sullivan, Tchetgen Tchetgen &amp; Cowling 2016；Vandenbroucke &amp; Pearce 2019；Schnitzer 2022；Andrews 等 2025）。選樣／對撞偏誤亦見 Hernán &amp; Robins, <i>What If</i>, 第 8 章。</p></div>
     </div>
