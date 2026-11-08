@@ -5328,7 +5328,7 @@ fit &lt;- glm(case ~ vaccinated, family = binomial,
 or &lt;- exp(coef(fit)["vaccinated"])
 ve &lt;- 1 - or
 print(c(OR = or, VE = ve))</code></pre>
-      <p data-en="The outcome case is test-positive among the tested; exp(coef) is the odds ratio and 1 - OR is the estimated vaccine effectiveness.">結果 case 為受檢者中的檢驗陽性；exp(coef) 為勝算比，1 - OR 即估計的疫苗效力。</p></div>
+      <p data-en="The outcome case is test-positive among the tested; exp(coef) is the odds ratio and 1 - OR is the estimated vaccine effectiveness.">結果病例為受檢者中的檢驗陽性；exp(coef) 為勝算比，1 - OR 即估計的疫苗效力。</p></div>
     <div data-lang="stata" class="card"><h3 data-en="Stata — logit if tested">Stata — logit if tested</h3>
       <pre class="sas"><code><span class="cm">* restrict to tested, report odds ratio; VE = 1 - OR</span>
 import delimited "tnd_sample.csv", clear case(preserve)

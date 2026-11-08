@@ -3360,7 +3360,7 @@ const DNODES = {
     title: { zh: "最適合：陰性檢驗設計 TND ✓（本工具）", en: "Best fit: Test-Negative Design (TND) ✓ (this tool)" },
     why: { zh: "你要估<b>疫苗效力 VE</b>，麻煩是<b>就醫傾向</b>是未測混淆（愛就醫者較常接種、也較常被檢驗發現感染）。<b>陰性檢驗設計</b>只在「<b>因症狀就醫並檢驗</b>」的人裡比：病例＝目標病原檢驗陽性、對照＝檢驗陰性（其他病原）。兩組都通過同一道就醫濾網，就醫傾向被條件掉 → 接種勝算比給 <b>VE ＝ 1 − OR</b>。",
            en: "You want <b>vaccine effectiveness (VE)</b>, and the trouble is <b>care-seeking</b> as an unmeasured confounder (care-seekers vaccinate more and have infections detected more). The <b>test-negative design</b> compares only people who <b>sought care for symptoms and were tested</b>: cases test positive for the target, controls test negative (another pathogen). Both passed the same care-seeking filter, so it is conditioned out and the vaccination odds ratio gives <b>VE = 1 − OR</b>." },
-    scenario: { zh: "藥物X 情境（預防性）：在因急性感染症狀就醫並檢驗的人裡，比目標病原陽性（case）與陰性（control）的藥物X 使用勝算，估藥物X 的預防效力（見「TND」分頁 ①–⑥）。",
+    scenario: { zh: "藥物X 情境（預防性）：在因急性感染症狀就醫並檢驗的人裡，比目標病原陽性（病例）與陰性（對照）的藥物X 使用勝算，估藥物X 的預防效力（見「TND」分頁 ①–⑥）。",
                 en: "Drug-X scenario (preventive): among people tested for acute infection symptoms, compare drug-X use odds in target-positive (cases) vs negative (controls) to estimate drug X's preventive effectiveness (see the TND tabs ①–⑦)." },
     watch: { zh: "✓ 本工具箱已實作。關鍵、多不可檢驗：檢驗準確、<b>疫苗不影響對照疾病</b>、相同症狀下就醫無差別。其他<b>已測</b>混淆（年齡、日曆時間）仍要調整（可用因果 TND／ML，見 ⑤）。",
              en: "✓ Implemented in this toolbox. Key, mostly untestable: an accurate test, the <b>vaccine not affecting the control illness</b>, and no differential care-seeking given symptoms. Other <b>measured</b> confounders (age, calendar time) still need adjustment (a causal TND / ML, see ⑤)." } } },
@@ -3439,7 +3439,7 @@ const DNODES = {
              en: "✓ Implemented in this toolbox (see the CCTC tabs ①–⑤). With cohort data you can also use the cohort version <b>TiT ✓</b>." },
     altMethod: "tit", altLabel: { zh: "改用世代版 TiT →", en: "Use the cohort version: TiT →" } } },
   rCC: { rec: { kind: "toolbox", method: "cc", badge: "CC ✓",
-    title: { zh: "建議：病例對照 case-control ✓（本工具）", en: "Suggested: case-control ✓ (this tool)" },
+    title: { zh: "建議：病例對照 CC ✓（本工具）", en: "Suggested: case-control ✓ (this tool)" },
     why: { zh: "<b>結果罕見</b>時最有效率的設計：先找病例與對照，再回看暴露，用<b>勝算比</b>衡量。關鍵是<b>對照取自產生病例的同一來源族群</b>、暴露兩組量得一樣準；混淆用 logistic <b>校正</b>、Mantel–Haenszel <b>分層</b>、或<b>配對</b>＋條件式分析處理。現代視角：把它當成對「模擬目標試驗的世代」做病例對照抽樣。",
            en: "The most efficient design when the <b>outcome is rare</b>: find cases and controls, look back at exposure, summarise with an <b>odds ratio</b>. The keys are <b>controls from the same source population that produced the cases</b> and equally-measured exposure; handle confounding by logistic <b>adjustment</b>, Mantel–Haenszel <b>stratification</b>, or <b>matching</b> + conditional analysis. Modern view: it's case-control sampling of a target-trial-emulating cohort." },
     scenario: { zh: "藥物X 情境：要研究一個罕見的不良事件，找到「發生該事件的病例」與「沒發生的對照」，回頭比兩組過去用藥物X 的暴露，並校正年齡等混淆。",
@@ -7169,7 +7169,7 @@ async function refreshCctcDemo() {
 function drawCctcDemo(s) {
   if (!document.getElementById("cctcDemoChart")) return;
   const labels = [tr("CCO（純病例交叉）", "CCO (plain)"), tr("CTC（對照扣趨勢）", "CTC (control-adjusted)"),
-                  tr("CCTC（未來 case 扣趨勢）", "CCTC (future-case)")];
+                  tr("CCTC（未來病例扣趨勢）", "CCTC (future-case)")];
   const vals = [s.cco, s.ctc, s.casecase];
   Plotly.react("cctcDemoChart", [{
     x: labels, y: vals, type: "bar",
@@ -7456,7 +7456,7 @@ function drawSceneSccs() {
   const OBS = 200, RW = 28;                                   // observation length; risk window = days 1..28 after dose
   // top row = an "anatomy of one case" key; rows below = four example cases.
   const rows = [
-    { y: 5, v: 60, e: 74, lbl: tr("一個 case 的剖析", "anatomy of one case") },
+    { y: 5, v: 60, e: 74, lbl: tr("一個病例的剖析", "anatomy of one case") },
     { y: 4, v: 40, e: 52, lbl: tr("病人甲", "case A") },
     { y: 3, v: 95, e: 106, lbl: tr("病人乙", "case B") },
     { y: 2, v: 120, e: 178, lbl: tr("病人丙（落控制期）", "case C (in control)") },
@@ -7547,7 +7547,7 @@ document.getElementById("useSccsExample").addEventListener("click", async () => 
   try {
     const d = await getJSON(`${API}/api/sccs_example`);
     sccsState.source = "example_sccs"; sccsState.columns = d.columns;
-    st.textContent = tr(`已載入內建 case 範例（${d.n} 位 case，合成虛構）`, `Loaded built-in cases (${d.n} cases, synthetic)`);
+    st.textContent = tr(`已載入內建病例範例（${d.n} 位病例，合成虛構）`, `Loaded built-in cases (${d.n} cases, synthetic)`);
     sccsFillSelects(d.columns); sccsApplyDefaults(d.defaults);
     runSccsAnalyze();
   } catch (e) { st.textContent = tr("載入失敗：", "Load failed: ") + e.message; }
@@ -9589,8 +9589,8 @@ function renderTndAnalyze(a) {
       tr("一般族群對照，被就醫傾向往下偏、低估保護。", "population controls — biased down by care-seeking, under-stating protection."), false],
     [tr("TND VE ＝ 1 − OR", "TND VE = 1 − OR"), pct(a.ve_tnd), a.interpretation + ci, true],
     [tr("接種勝算比 OR", "vaccination odds ratio OR"), fmt(a.or_tnd, 2),
-      tr(`檢驗陽性 case vs 陰性 control 的接種勝算比；真值 VE ${pct(a.ve_true)}。`, `vaccination OR, test-positive cases vs test-negative controls; true VE ${pct(a.ve_true)}.`), false],
-    [tr("檢驗者：case／control", "tested: cases / controls"), `${a.n_case} / ${a.n_control}`,
+      tr(`檢驗陽性病例 vs 陰性對照的接種勝算比；真值 VE ${pct(a.ve_true)}。`, `vaccination OR, test-positive cases vs test-negative controls; true VE ${pct(a.ve_true)}.`), false],
+    [tr("檢驗者：病例／對照", "tested: cases / controls"), `${a.n_case} / ${a.n_control}`,
       tr(`共 ${a.n_tested} 人被檢驗。`, `${a.n_tested} people tested in total.`), false],
   ];
   document.getElementById("tndAnalyzeCards").innerHTML = cards.map(([t, v, desc, hl]) =>
