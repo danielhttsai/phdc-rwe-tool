@@ -3064,7 +3064,7 @@ clogit y window if group==0, group(id) or</code></pre>
 
     <div class="play-grid">
       <div class="stat"><div class="stat-label" data-en="Sequential (pooled)">序列（合併）</div><div class="stat-num" id="seqEst">–</div><div class="stat-foot" data-en="should hug the truth">應緊貼真值</div></div>
-      <div class="stat"><div class="stat-label" data-en="Truth (point-treatment effect)">真值（點治療效應）</div><div class="stat-num" id="seqTruth">–</div><div class="stat-foot" data-en="negative = treatment protects">負值＝治療有保護</div></div>
+      <div class="stat"><div class="stat-label" data-en="Truth (point-treatment effect)">真值（點治療效果）</div><div class="stat-num" id="seqTruth">–</div><div class="stat-foot" data-en="negative = treatment protects">負值＝治療有保護</div></div>
       <div class="stat"><div class="stat-label" data-en="Naive (ever vs never)">未校正（曾 vs 從未）</div><div class="stat-num" id="seqNaiveEst">–</div><div class="stat-foot" data-en="immortal-time biased">有不死時間偏誤</div></div>
     </div>
 
@@ -3119,7 +3119,7 @@ clogit y window if group==0, group(id) or</code></pre>
     <div class="card info">
       <h3 data-en="Drawing the survival curve here: prefer standardization (read this)">這裡怎麼畫存活曲線：偏好標準化（請先讀）</h3>
       <p data-en="A sequential design <b>re-enrols the same person into several trials</b>, so the stacked dataset has correlated, overlapping rows. That makes a plain per-arm Kaplan–Meier on the stack <b>distorted</b> — the same person-time is counted in many trials, and the initiator/non-initiator mix shifts across trials.<br><b>Preferred: standardization (g-formula).</b> Fit a pooled-logistic <b>hazard</b> on the stacked person-time (with trial and covariates), predict each person's survival <b>under initiate vs not</b>, then <b>average over the whole trial-person population</b>. This targets the marginal survival cleanly despite the overlap.<br><b>Quick view: stratified / weighted KM</b> — <code>strata(trial)</code> in a Cox fit, or a per-arm KM, is fine for a fast look but inherits the stacking distortion, so treat it as indicative.<br><b>SE caveat for both:</b> a person appears in several trials, so rows are correlated — use <b>person-cluster-robust SEs</b> (<code>cluster(pid)</code>) or a <b>bootstrap over <code>pid</code></b>; naïve SEs are too narrow.">
-        序列設計會<b>把同一個人重複收進好幾場試驗</b>，所以堆疊後的資料列彼此相關、重疊。直接在堆疊資料上對每個臂畫 Kaplan–Meier 會<b>失真</b>，因為同一段人時被多場試驗重複計入，且各場試驗的「啟動／未啟動」組成會漂移。<br><b>偏好：標準化（g-formula）。</b>在堆疊的人時上配一個 pooled-logistic <b>風險（hazard）</b>模型（納入試驗別與共變項），預測每個人<b>在啟動 vs 不啟動下</b>的存活，再<b>對整個「試驗×人」族群取平均</b>。即使有重疊，也能乾淨地瞄準邊際存活。<br><b>快速檢視：分層／加權 KM</b>，在 Cox 裡用 <code>strata(trial)</code>、或每個臂各畫一條 KM，看個大概可以，但它承襲了堆疊失真，當參考即可。<br><b>兩者共同的 SE 注意：</b>一個人出現在多場試驗，列彼此相關，請用<b>個人叢集穩健 SE</b>（<code>cluster(pid)</code>）或<b>對 <code>pid</code> 做 bootstrap</b>；天真 SE 太窄。
+        序列設計會<b>把同一個人重複收進好幾場試驗</b>，所以堆疊後的資料列彼此相關、重疊。直接在堆疊資料上對每個臂畫 Kaplan–Meier 會<b>失真</b>，因為同一段人時被多場試驗重複計入，且各場試驗的「啟動／未啟動」組成會漂移。<br><b>偏好：標準化（g-formula）。</b>在堆疊的人時上配一個 pooled-logistic <b>風險（hazard）</b>模型（納入試驗別與共變項），預測每個人<b>在啟動 vs 不啟動下</b>的存活，再<b>對整個「試驗×人」族群取平均</b>。即使有重疊，也能乾淨地瞄準邊際存活。<br><b>快速檢視：分層／加權 KM</b>，在 Cox 裡用 <code>strata(trial)</code>、或每個臂各畫一條 KM，看個大概可以，但它承襲了堆疊失真，當參考即可。<br><b>兩者共同的 SE 注意：</b>一個人出現在多場試驗，列彼此相關，請用<b>個人叢集穩健 SE</b>（<code>cluster(pid)</code>）或<b>對 <code>pid</code> 做 bootstrap</b>；未校正 SE 太窄。
       </p>
     </div>
     <div data-lang="sas" class="card"><h3 data-en="SAS — stack trials, stratified survival + standardization (runs on seq_sample.csv)">SAS — 堆疊試驗、分層存活＋標準化（直接跑 seq_sample.csv）</h3>
@@ -3226,7 +3226,7 @@ margins initiate, predict(pr)             <span class="cm">// average predicted 
   <section id="seqassume" class="panel">
     <h1 data-en="Can we trust this sequential estimate? Five checks">這個序列估計可不可信？五道體檢</h1>
     <p class="lead" data-en="The core assumptions are mostly <b>not testable from data alone</b> (blue cards): no unmeasured confounding at each eligibility time, correct time-zero alignment, and no carry-over between sequential trials. Positivity and having enough trials/events are checkable. Green = fine, amber = watch out, red = problem, blue = needs domain judgement.">
-      核心假設大多<b>無法只用資料檢驗</b>（藍卡）：各資格時點無未測混淆、時間零點對齊正確、序列試驗間無 carry-over。
+      核心假設大多<b>無法只用資料檢驗</b>（藍卡）：各資格時點無未測混淆、時間零點對齊正確、序列試驗間無殘留效應（carryover）。
       正性與試驗／事件數則可檢。綠燈沒問題、黃燈要留意、紅燈有狀況、藍燈需領域判斷。
     </p>
     <div id="seqOverall" class="overall hidden"></div>
